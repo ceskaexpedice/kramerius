@@ -53,108 +53,112 @@
 
 
 
-	<listener>
-		<listener-class>cz.incad.Kramerius.backend.guice.GuiceConfigBean</listener-class>
+    <listener>
+        <listener-class>cz.incad.Kramerius.backend.guice.GuiceConfigBean</listener-class>
         <listener-class>cz.incad.kramerius.users.impl.http.LoggedUserSessionListener</listener-class>
-	</listener>
+    </listener>
+    
+    <listener>
+        <!--Shuts down ehcache cache manager (if not already down) on application shutdown.-->
+        <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+    </listener>
 
 
-
-	<!-- Servlets -->
-	<servlet>
-		<servlet-name>i18n</servlet-name>
-		<servlet-class>cz.incad.Kramerius.I18NServlet</servlet-class>
-	</servlet>
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>i18n</servlet-name>
+        <servlet-class>cz.incad.Kramerius.I18NServlet</servlet-class>
+    </servlet>
 	
-	<!-- Servlet pro pristup do streamu IMG_FULL -->
-	<servlet>
-		<servlet-name>fullImageServlet</servlet-name>
-		<servlet-class>cz.incad.Kramerius.FullImageServlet</servlet-class>
-	</servlet>
+    <!-- Servlet pro pristup do streamu IMG_FULL -->
+    <servlet>
+        <servlet-name>fullImageServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.FullImageServlet</servlet-class>
+    </servlet>
         
-        <!-- Servelt pro manipulaci virtualnich sbirek -->
-	<servlet>
-		<servlet-name>vc</servlet-name>
-		<servlet-class>cz.incad.Kramerius.views.virtualcollection.VirtualCollectionServlet</servlet-class>
-	</servlet>
+    <!-- Servelt pro manipulaci virtualnich sbirek -->
+    <servlet>
+        <servlet-name>vc</servlet-name>
+        <servlet-class>cz.incad.Kramerius.views.virtualcollection.VirtualCollectionServlet</servlet-class>
+    </servlet>
 
 
     <!--  
-        Servlet for image manipulation.  Can manipulate with image streams in fedora 
-        and produce scaled images, transcoded images (into different formats) 
-        and also can give raw image stream.
-     -->
+       Servlet for image manipulation.  Can manipulate with image streams in fedora 
+       and produce scaled images, transcoded images (into different formats) 
+       and also can give raw image stream.
+    -->
     <servlet>
         <servlet-name>imageServlet</servlet-name>
         <servlet-class>cz.incad.Kramerius.imaging.ImageStreamsServlet</servlet-class>
     </servlet>
 	
 	
- 	<!-- Servlet pro ziskavani malych nahledu -->
-	<servlet>
-		<servlet-name>thumb</servlet-name>
-		<servlet-class>cz.incad.Kramerius.SmallThumbnailImageServlet</servlet-class>
-	</servlet>
+    <!-- Servlet pro ziskavani malych nahledu -->
+    <servlet>
+        <servlet-name>thumb</servlet-name>
+        <servlet-class>cz.incad.Kramerius.SmallThumbnailImageServlet</servlet-class>
+    </servlet>
 
     <!-- Servlet pro ziskavani velkych nahledu -->
     <servlet>
         <servlet-name>fullThumb</servlet-name>
         <servlet-class>cz.incad.Kramerius.FullThumbnailImageServlet</servlet-class>
     </servlet>
-	<servlet>
-		<servlet-name>pdf</servlet-name>
-		<servlet-class>cz.incad.Kramerius.GeneratePDFServlet</servlet-class>
-	</servlet>
+    <servlet>
+        <servlet-name>pdf</servlet-name>
+        <servlet-class>cz.incad.Kramerius.GeneratePDFServlet</servlet-class>
+    </servlet>
 
     <servlet>
         <servlet-name>print</servlet-name>
         <servlet-class>cz.incad.Kramerius.PrintQueue</servlet-class>
     </servlet>
     
-	<!-- lr processes -->
-	<servlet>
-		<servlet-name>lr</servlet-name>
-		<servlet-class>cz.incad.Kramerius.LongRunningProcessServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
+    <!-- lr processes -->
+    <servlet>
+        <servlet-name>lr</servlet-name>
+        <servlet-class>cz.incad.Kramerius.LongRunningProcessServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 
      
-	<!-- METS export -->
-	<servlet>
-		<servlet-name>mets</servlet-name>
-		<servlet-class>cz.incad.Kramerius.METSServlet</servlet-class>
-	</servlet>
+    <!-- METS export -->
+    <servlet>
+        <servlet-name>mets</servlet-name>
+        <servlet-class>cz.incad.Kramerius.METSServlet</servlet-class>
+    </servlet>
 
-	<!-- mimetype servlet -->
-	<servlet>
-		<servlet-name>mimetype</servlet-name>
-		<servlet-class>cz.incad.Kramerius.MimeTypeServlet</servlet-class>
-	</servlet>
+    <!-- mimetype servlet -->
+    <servlet>
+        <servlet-name>mimetype</servlet-name>
+        <servlet-class>cz.incad.Kramerius.MimeTypeServlet</servlet-class>
+    </servlet>
 
-	<!-- handle servlet -->
-	<servlet>
-		<servlet-name>handle</servlet-name>
-		<servlet-class>cz.incad.Kramerius.HandleServlet</servlet-class>
-	</servlet>
+    <!-- handle servlet -->
+    <servlet>
+        <servlet-name>handle</servlet-name>
+        <servlet-class>cz.incad.Kramerius.HandleServlet</servlet-class>
+    </servlet>
 
 
-	<!-- title page servlet -->
-	<servlet>
-		<servlet-name>dsProxyServlet</servlet-name>
-		<servlet-class>cz.incad.Kramerius.ProxyDatastreamsServlet</servlet-class>
-	</servlet>
+    <!-- title page servlet -->
+    <servlet>
+        <servlet-name>dsProxyServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.ProxyDatastreamsServlet</servlet-class>
+    </servlet>
 
-	<!-- iip servlet -->
-	<servlet>
-		<servlet-name>iipServlet</servlet-name>
-		<servlet-class>cz.incad.Kramerius.imaging.IIPServlet</servlet-class>
-	</servlet>
+    <!-- iip servlet -->
+    <servlet>
+        <servlet-name>iipServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.imaging.IIPServlet</servlet-class>
+    </servlet>
 
-	<!-- DeepZoom servlet -->
-	<servlet>
-		<servlet-name>deepZoomServlet</servlet-name>
-		<servlet-class>cz.incad.Kramerius.imaging.DeepZoomServlet</servlet-class>
-	</servlet>
+    <!-- DeepZoom servlet -->
+    <servlet>
+        <servlet-name>deepZoomServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.imaging.DeepZoomServlet</servlet-class>
+    </servlet>
 
     <!-- zoomify servlet -->
     <servlet>
@@ -217,36 +221,50 @@
         <servlet-class>cz.incad.Kramerius.ProfilesServlet</servlet-class>
     </servlet>
 
-	<!-- virtual collection handle servlet -->
-	<servlet>
-		<servlet-name>virtualcollectionhandle</servlet-name>
-		<servlet-class>cz.incad.Kramerius.VirtualCollectionHandleServlet</servlet-class>
-	</servlet>
+    <!-- virtual collection handle servlet -->
+    <servlet>
+        <servlet-name>virtualcollectionhandle</servlet-name>
+        <servlet-class>cz.incad.Kramerius.VirtualCollectionHandleServlet</servlet-class>
+    </servlet>
 
-	<!-- feedback servlet -->
-	<servlet>
-		<servlet-name>feedback</servlet-name>
-		<servlet-class>cz.incad.Kramerius.FeedbackServlet</servlet-class>
-	</servlet>
+    <!-- feedback servlet -->
+    <servlet>
+        <servlet-name>feedback</servlet-name>
+        <servlet-class>cz.incad.Kramerius.FeedbackServlet</servlet-class>
+    </servlet>
 
 
     <!-- captcha servlet -->
     <servlet>
         <servlet-name>simplecaptcha</servlet-name>
         <servlet-class>nl.captcha.servlet.SimpleCaptchaServlet</servlet-class>
-            <init-param>
-                <param-name>captcha-width</param-name>
-                <param-value>300</param-value>
-            </init-param>
-            <init-param>
-                <param-name>captcha-height</param-name>
-                <param-value>100</param-value>
-            </init-param>
+        <init-param>
+            <param-name>captcha-width</param-name>
+            <param-value>300</param-value>
+        </init-param>
+        <init-param>
+            <param-name>captcha-height</param-name>
+            <param-value>100</param-value>
+        </init-param>
     </servlet>
+    
+    
+    <!-- Audio proxy servlet -->
+    <servlet>
+        <servlet-name>audioProxyServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.audio.servlet.AudioProxyServlet</servlet-class>
+    </servlet>
+    
+    <!-- Audio tracks servlet --> 
+    <servlet>
+        <servlet-name>audioTracksServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.audio.servlet.AudioTracksServlet</servlet-class>
+    </servlet>
+      
 
-	<!-- 
-		// Mapovani servletu
-	 -->
+
+    <!--  Mapovani servletů -->
+    
     <servlet-mapping>
         <servlet-name>imageServlet</servlet-name>
         <url-pattern>/img</url-pattern>
@@ -258,8 +276,8 @@
     </servlet-mapping>
 
     <servlet-mapping>
-            <servlet-name>thumb</servlet-name>
-            <url-pattern>/thumb</url-pattern>
+        <servlet-name>thumb</servlet-name>
+        <url-pattern>/thumb</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -268,76 +286,76 @@
     </servlet-mapping>
 	
 
-	<servlet-mapping>
-		<servlet-name>fullImageServlet</servlet-name>
-		<url-pattern>/djvu</url-pattern>
-	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>fullImageServlet</servlet-name>
+        <url-pattern>/djvu</url-pattern>
+    </servlet-mapping>
 
 
-	<servlet-mapping>
-		<servlet-name>pdf</servlet-name>
-		<url-pattern>/pdf</url-pattern>
-	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>pdf</servlet-name>
+        <url-pattern>/pdf</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>print</servlet-name>
         <url-pattern>/print</url-pattern>
     </servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>mets</servlet-name>
-		<url-pattern>/mets</url-pattern>
-	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>mets</servlet-name>
+        <url-pattern>/mets</url-pattern>
+    </servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>lr</servlet-name>
-		<url-pattern>/lr</url-pattern>
-	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>lr</servlet-name>
+        <url-pattern>/lr</url-pattern>
+    </servlet-mapping>
 	
     <servlet-mapping>
-		<servlet-name>i18n</servlet-name>
-		<url-pattern>/i18n</url-pattern>
-	</servlet-mapping>
+        <servlet-name>i18n</servlet-name>
+        <url-pattern>/i18n</url-pattern>
+    </servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>mimetype</servlet-name>
-		<url-pattern>/mimetype</url-pattern>
-	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>mimetype</servlet-name>
+        <url-pattern>/mimetype</url-pattern>
+    </servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>handle</servlet-name>
-		<url-pattern>/handle/*</url-pattern>
-	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>handle</servlet-name>
+        <url-pattern>/handle/*</url-pattern>
+    </servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>virtualcollectionhandle</servlet-name>
-		<url-pattern>/vc/*</url-pattern>
-	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>virtualcollectionhandle</servlet-name>
+        <url-pattern>/vc/*</url-pattern>
+    </servlet-mapping>
     
-        <servlet-mapping>
-            <servlet-name>virtualcollectionhandle</servlet-name>
-            <url-pattern>/collection/*</url-pattern>
-        </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>virtualcollectionhandle</servlet-name>
+        <url-pattern>/collection/*</url-pattern>
+    </servlet-mapping>
     
-        <servlet-mapping>
-            <servlet-name>virtualcollectionhandle</servlet-name>
-            <url-pattern>/sbirka/*</url-pattern>
-        </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>virtualcollectionhandle</servlet-name>
+        <url-pattern>/sbirka/*</url-pattern>
+    </servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>dsProxyServlet</servlet-name>
-		<url-pattern>/proxy</url-pattern>
-	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>dsProxyServlet</servlet-name>
+        <url-pattern>/proxy</url-pattern>
+    </servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>iipServlet</servlet-name>
-		<url-pattern>/iip</url-pattern>
-	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>iipServlet</servlet-name>
+        <url-pattern>/iip</url-pattern>
+    </servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>deepZoomServlet</servlet-name>
-		<url-pattern>/deepZoom/*</url-pattern>
-	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>deepZoomServlet</servlet-name>
+        <url-pattern>/deepZoom/*</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>zoomifyServlet</servlet-name>
@@ -400,6 +418,16 @@
         <servlet-name>simplecaptcha</servlet-name>
         <url-pattern>/simpleCaptcha.png</url-pattern>
     </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>audioProxyServlet</servlet-name>
+        <url-pattern>/audioProxy/*</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>audioTracksServlet</servlet-name>
+        <url-pattern>/audioTracks/*</url-pattern>
+    </servlet-mapping>
 
 	
     <security-role>
@@ -408,15 +436,15 @@
         <role-name>static_export_CD</role-name>
         <role-name>reindex</role-name>
         <role-name>replikator_monographs</role-name>
-		<role-name>replikator_periodicals</role-name>
-		<role-name>enumerator</role-name>
-		<role-name>replicationrights</role-name>
-		<role-name>setpublic</role-name>
-		<role-name>setprivate</role-name>
-		<role-name>delete</role-name>
-		<role-name>export</role-name>
-		<role-name>convert</role-name>
-		<role-name>import</role-name>
+        <role-name>replikator_periodicals</role-name>
+        <role-name>enumerator</role-name>
+        <role-name>replicationrights</role-name>
+        <role-name>setpublic</role-name>
+        <role-name>setprivate</role-name>
+        <role-name>delete</role-name>
+        <role-name>export</role-name>
+        <role-name>convert</role-name>
+        <role-name>import</role-name>
     </security-role>
 
     <security-constraint>
@@ -430,25 +458,25 @@
             <description>no description</description>
             <role-name>krameriusAdmin</role-name>
             <role-name>mock</role-name>
-	        <role-name>static_export_CD</role-name>
-	        <role-name>reindex</role-name>
-	        <role-name>replikator_monographs</role-name>
-			<role-name>replikator_periodicals</role-name>
-			<role-name>enumerator</role-name>
-			<role-name>replicationrights</role-name>
-			<role-name>setpublic</role-name>
-			<role-name>setprivate</role-name>
-			<role-name>delete</role-name>
-			<role-name>export</role-name>
-			<role-name>convert</role-name>
-			<role-name>import</role-name>
+            <role-name>static_export_CD</role-name>
+            <role-name>reindex</role-name>
+            <role-name>replikator_monographs</role-name>
+            <role-name>replikator_periodicals</role-name>
+            <role-name>enumerator</role-name>
+            <role-name>replicationrights</role-name>
+            <role-name>setpublic</role-name>
+            <role-name>setprivate</role-name>
+            <role-name>delete</role-name>
+            <role-name>export</role-name>
+            <role-name>convert</role-name>
+            <role-name>import</role-name>
         </auth-constraint>
         
         <!-- uncomment to enable SSL login (requires server certificate installation)
-        <user-data-constraint>
-			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
-		</user-data-constraint>
-		-->
+<user-data-constraint>
+                     			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+      		</user-data-constraint>
+      		-->
     </security-constraint>
 
     <login-config>
@@ -461,13 +489,13 @@
     </login-config>
 
     <welcome-file-list>
-		<welcome-file>search.jsp</welcome-file>
-	</welcome-file-list>
+        <welcome-file>search.jsp</welcome-file>
+    </welcome-file-list>
 	
-	<resource-ref>
-	 <description>postgreSQL Datasource example</description>
-	 <res-ref-name>jdbc/kramerius4</res-ref-name>
-	 <res-type>javax.sql.DataSource</res-type>
-	 <res-auth>Container</res-auth>
-	</resource-ref>
+    <resource-ref>
+        <description>postgreSQL Datasource example</description>
+        <res-ref-name>jdbc/kramerius4</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+    </resource-ref>
 </web-app>

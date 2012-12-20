@@ -228,7 +228,7 @@
                     }else{
                         if(id){
                             if(id.split('_')[1].indexOf("@")!=0){
-                                loadTreeNode(id);
+                                //loadTreeNode(id);
                                 return;
                             }
                         } 

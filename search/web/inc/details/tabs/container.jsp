@@ -11,8 +11,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
 <%
-            String[] tabs = kconfig.getPropertyList("search.item.tabs");
-            pageContext.setAttribute("tabs", tabs);
+    String[] tabs = kconfig.getPropertyList("search.item.tabs");
+    pageContext.setAttribute("tabs", tabs);
 %>
 <div id="centralContent">
     <ul>
@@ -24,7 +24,9 @@
         </ul>
     <%@include file="metadata.jsp" %>
     <%@include file="image.jsp" %>
+    <%--<%@include file="audioplayer.jsp" %>--%>
     <c:forEach varStatus="status" var="tab" items="${tabs}">
+        <!--TODO: asi tady povolit tab "přehrávač" jen pro vybrané věci-->
         <c:if test="${! empty tab}">
             <c:set var="ds" value="${fn:substringBefore(tab, '.')}" />
             <c:set var="xsl" value="${fn:substringAfter(tab, '.')}" />
@@ -34,9 +36,18 @@
                     //updateCustomTab('${tab}', '${pid_path}');
                     $('#itemtab_${xsl}.viewer').bind('viewReady', function(event, viewerOptions){
                         var pid_path = getPidPath(viewerOptions.fullid);
-                        updateCustomTab('${tab}', pid_path);
+                <c:choose>
+                    <c:when test="${tab =='VIRTUAL.audioPlayer'}">
+                                console.log("updating audioplayer tab ");
+                                updateAudioplayerTab('${tab}', pid_path);
+                    </c:when>
+                    <c:otherwise>
+                                console.log("update custom tab " + '${tab}' + ", pidPath: " + pid_path);
+                                updateCustomTab('${tab}', pid_path);
+                    </c:otherwise>
+                </c:choose>
+                        });
                     });
-                });
             </script>
         </c:if>
     </c:forEach>
@@ -44,10 +55,24 @@
 <script type="text/javascript">
                 
     function updateCustomTab(tab, pid_path){
-         $.get('inc/details/tabs/loadCustom.jsp?tab='+tab+'&pid_path=' + pid_path, function(data){
+        $.get('inc/details/tabs/loadCustom.jsp?tab='+tab+'&pid_path=' + pid_path, function(data){
             $('#itemtab_'+tab.split(".")[1]).html(data) ;
         });
     }
+    
+    function updateAudioplayerTab(tab, pid_path){
+        $.get('audioTracks?action=canContainTracks&pid_path=' + pid_path, function(data){
+            //console.log(data);
+            if (data.canContainTracks){
+                $.get('inc/details/tabs/audioplayer.jsp?pid_path=' + pid_path, function(data){
+                    //console.log("pid_path: " + pid_path);
+                    $('#itemtab_'+tab.split(".")[1]).html(data);
+                });
+            }
+        });
+    }
+    
+    
     function setMainContentWidth(){ 
         var w = $(window).width()-6-$('#itemTree').width();
 

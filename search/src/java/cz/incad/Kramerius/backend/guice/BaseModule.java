@@ -12,6 +12,9 @@ import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
+import cz.incad.Kramerius.audio.urlMapping.CachingFedoraUrlManager;
+import cz.incad.Kramerius.audio.urlMapping.EhcacheUrlCache;
+import cz.incad.Kramerius.audio.urlMapping.RepositoryUrlManager;
 
 import cz.incad.Kramerius.exts.menu.main.MainMenuPart;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMenuPartImpl;
@@ -91,6 +94,7 @@ public class BaseModule extends AbstractModule {
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
 
+        bind(RepositoryUrlManager.class).to(CachingFedoraUrlManager.class).in(Scopes.SINGLETON);
     }
 
     @Provides

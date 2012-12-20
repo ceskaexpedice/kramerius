@@ -8,8 +8,8 @@
     <xsl:param name="onlyinfo" select="onlyinfo"/>
     <xsl:key name="keyModel" match="doc" use="str[@name='fedora.model']" />
     <xsl:template match="/">
-            <xsl:choose>
-                <xsl:when test="$onlyrels='true'">
+        <xsl:choose>
+            <xsl:when test="$onlyrels='true'">
                 <xsl:if test="//doc" >
                     <xsl:for-each select="//doc[generate-id(.) = generate-id(key('keyModel', str[@name='fedora.model'])[1])]">
                         <xsl:variable name="lngModelName">
@@ -26,8 +26,8 @@
                         </xsl:call-template>
                     </xsl:for-each>
                 </xsl:if>
-                </xsl:when>
-                <xsl:when test="$onlyinfo='true'">
+            </xsl:when>
+            <xsl:when test="$onlyinfo='true'">
                 <xsl:if test="//doc" >
                     <xsl:for-each select="//doc[generate-id(.) = generate-id(key('keyModel', str[@name='fedora.model'])[1])]">
                         <xsl:variable name="lngModelName"><xsl:value-of select="str[@name='fedora.model']" /></xsl:variable>
@@ -38,42 +38,42 @@
                         </xsl:call-template>
                     </xsl:for-each>
                 </xsl:if>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:call-template name="tabs" />
-                </xsl:otherwise>
-            </xsl:choose>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:call-template name="tabs" />
+            </xsl:otherwise>
+        </xsl:choose>
 
     </xsl:template>
 
     <xsl:template name="tabs">
         <ul>
-        <xsl:if test="//doc" >
-            <xsl:for-each select="//doc[generate-id(.) = generate-id(key('keyModel', str[@name='fedora.model'])[1])]">
-                <xsl:variable name="lngModelName">
-                    <xsl:value-of select="str[@name='fedora.model']" />
-                </xsl:variable>
-                <xsl:variable name="lstModel" select="//doc[str[@name='fedora.model']=$lngModelName]" />
-                <xsl:variable name="model" >
-                    <xsl:value-of select="$lstModel[1]/str[@name='fedora.model']" />
-                </xsl:variable>
+            <xsl:if test="//doc" >
+                <xsl:for-each select="//doc[generate-id(.) = generate-id(key('keyModel', str[@name='fedora.model'])[1])]">
+                    <xsl:variable name="lngModelName">
+                        <xsl:value-of select="str[@name='fedora.model']" />
+                    </xsl:variable>
+                    <xsl:variable name="lstModel" select="//doc[str[@name='fedora.model']=$lngModelName]" />
+                    <xsl:variable name="model" >
+                        <xsl:value-of select="$lstModel[1]/str[@name='fedora.model']" />
+                    </xsl:variable>
                 <xsl:variable name="modelLoc" >fedora.model.<xsl:value-of select="$model" /></xsl:variable>
-                <li class="model" style="clear:both;">
+                    <li class="model" style="clear:both;">
                     <xsl:attribute name="id"><xsl:value-of select="$model_path" />-<xsl:value-of select="$model" />_<xsl:value-of select="$pid" /></xsl:attribute>
-                    <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
+                        <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
                     
-                    <a>
+                        <a>
                         <xsl:attribute name="href">i.jsp?pid=<xsl:value-of select="$pid" /></xsl:attribute>
-                        <xsl:value-of select="$bundle/value[@key=$modelLoc]"/>
-                    </a>
-                    <xsl:call-template name="model">
-                        <xsl:with-param name="fmodel">
-                            <xsl:value-of select="$model" />
-                        </xsl:with-param>
-                    </xsl:call-template>
-                </li>
-            </xsl:for-each>
-        </xsl:if>
+                            <xsl:value-of select="$bundle/value[@key=$modelLoc]"/>
+                        </a>
+                        <xsl:call-template name="model">
+                            <xsl:with-param name="fmodel">
+                                <xsl:value-of select="$model" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </li>
+                </xsl:for-each>
+            </xsl:if>
         </ul>
     </xsl:template>
 
@@ -82,8 +82,8 @@
         <xsl:variable name="modelLoc" >fedora.model.<xsl:value-of select="$fmodel" /></xsl:variable>
         <xsl:for-each select="//doc[str[@name='fedora.model']=$fmodel]" >
             <xsl:sort data-type="number" 
-                select="number(arr[@name='rels_ext_index']/int[position()=(count(../../arr[@name='parent_pid']/str[.=$pid]/preceding-sibling::*)+1)])" 
-                order="ascending" /> 
+                      select="number(arr[@name='rels_ext_index']/int[position()=(count(../../arr[@name='parent_pid']/str[.=$pid]/preceding-sibling::*)+1)])" 
+                      order="ascending" /> 
             <xsl:variable name="posss"><xsl:value-of select="count(arr[@name='parent_pid']/str[.=$pid]/preceding-sibling::*)+1" /></xsl:variable>
             <xsl:variable name="idx"><xsl:value-of select="number(arr[@name='rels_ext_index']/int[position()=$posss])" /></xsl:variable>
             <li style="clear:both;">
@@ -93,11 +93,11 @@
                 <div style="float:left;"><input type="checkbox"  /></div>
                 <div style="float:left;"><a>
                     <xsl:attribute name="href">i.jsp?pid=<xsl:value-of select="./str[@name='PID']" /></xsl:attribute>
-                    <xsl:call-template name="details">
-                        <xsl:with-param name="fmodel">
-                            <xsl:value-of select="$fmodel" />
-                        </xsl:with-param>
-                    </xsl:call-template>
+                        <xsl:call-template name="details">
+                            <xsl:with-param name="fmodel">
+                                <xsl:value-of select="$fmodel" />
+                            </xsl:with-param>
+                        </xsl:call-template>
                 </a></div>
             </li>
         </xsl:for-each>
@@ -133,54 +133,64 @@
             <!--<img src="img/lock.png" />-->
         </xsl:if>
         <label>
-        <xsl:choose>
-            <xsl:when test="$fmodel='monograph'">
-                <xsl:value-of select="./str[@name='dc.title']" />
-            </xsl:when>
-            <xsl:when test="$fmodel='monographunit'">
-                <xsl:call-template name="monographunit">
-                    <xsl:with-param name="detail">
-                        <xsl:value-of select="./arr[@name='details']/str" />
-                    </xsl:with-param>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="$fmodel='periodical'">
-                <xsl:value-of select="./str[@name='dc.title']" />
-            </xsl:when>
-            <xsl:when test="$fmodel='periodicalvolume'">
-                <xsl:call-template name="periodicalvolume">
-                    <xsl:with-param name="detail">
-                        <xsl:value-of select="./arr[@name='details']/str" />
-                    </xsl:with-param>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="$fmodel='periodicalitem'">
-                <xsl:call-template name="periodicalitem">
-                    <xsl:with-param name="detail">
-                        <xsl:value-of select="./arr[@name='details']/str" />
-                    </xsl:with-param>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="$fmodel='internalpart'">
-                <xsl:value-of select="dc.title" />&#160;
-                <xsl:call-template name="internalpart">
-                    <xsl:with-param name="detail">
-                        <xsl:value-of select="./arr[@name='details']/str" />
-                    </xsl:with-param>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="$fmodel='page'">
-                <xsl:call-template name="page">
-                    <xsl:with-param name="detail">
-                        <xsl:value-of select="./arr[@name='details']/str" />
-                    </xsl:with-param>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="./str[@name='dc.title']" />&#160;
+            <xsl:choose>
+                <xsl:when test="$fmodel='monograph'">
+                    <xsl:value-of select="./str[@name='dc.title']" />
+                </xsl:when>
+                <xsl:when test="$fmodel='monographunit'">
+                    <xsl:call-template name="monographunit">
+                        <xsl:with-param name="detail">
+                            <xsl:value-of select="./arr[@name='details']/str" />
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:when test="$fmodel='periodical'">
+                    <xsl:value-of select="./str[@name='dc.title']" />
+                </xsl:when>
+                <xsl:when test="$fmodel='periodicalvolume'">
+                    <xsl:call-template name="periodicalvolume">
+                        <xsl:with-param name="detail">
+                            <xsl:value-of select="./arr[@name='details']/str" />
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:when test="$fmodel='periodicalitem'">
+                    <xsl:call-template name="periodicalitem">
+                        <xsl:with-param name="detail">
+                            <xsl:value-of select="./arr[@name='details']/str" />
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:when test="$fmodel='internalpart'">
+                    <xsl:value-of select="dc.title" />&#160;
+                    <xsl:call-template name="internalpart">
+                        <xsl:with-param name="detail">
+                            <xsl:value-of select="./arr[@name='details']/str" />
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:when test="$fmodel='page'">
+                    <xsl:call-template name="page">
+                        <xsl:with-param name="detail">
+                            <xsl:value-of select="./arr[@name='details']/str" />
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:when test="$fmodel='track'">
+                    <xsl:value-of select="./str[@name='dc.title']" />&#160;
+                </xsl:when>
+                <xsl:when test="$fmodel='soundunit'">
+                    <xsl:value-of select="./str[@name='dc.title']" />&#160;
+                </xsl:when>
+                <xsl:when test="$fmodel='soundrecording'">
+                    soundrecording: 
+                    <xsl:value-of select="./str[@name='dc.title']" />&#160;
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="./str[@name='dc.title']" />&#160;
                     <xsl:value-of select="./arr[@name='details']/str" />&#160;
-            </xsl:otherwise>
-        </xsl:choose>
+                </xsl:otherwise>
+            </xsl:choose>
         </label>
     </xsl:template>
 
@@ -209,7 +219,7 @@
         </xsl:if>
         <xsl:variable name="remaining" select="substring-after($remaining, '##')" />
         <span><xsl:value-of select="substring-before($remaining, '##')" />&#160;
-        <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;<xsl:value-of select="substring-after($remaining, '##')" /></span>
+              <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;<xsl:value-of select="substring-after($remaining, '##')" /></span>
     </xsl:template>
 
     <xsl:template name="monographunit">

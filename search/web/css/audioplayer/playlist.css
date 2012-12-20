@@ -1,0 +1,173 @@
+/* 
+    Document   : playlist
+    Created on : 23.10.2012, 16:34:08
+    Author     : Martin Řehánek <Martin.Rehanek at mzk.cz>
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+
+.playlist{
+    /*background-color: #7ac54e;*/
+    /*background-color: #4eabc5;*/
+    background-color: #29b3dc;
+    /*    display: block;*/
+    padding: 2px;
+    width: 500px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
+    margin:10px;
+    vertical-align: middle;
+    /*text-align: center;*/
+    /*margin-left: 220px;*/
+}
+
+.playlist-shown{
+    display: block;   
+}
+
+.playlist-hidden{
+    display: none;
+}
+
+.playlist-item{
+    /*background-color: grey;*/
+    /*background-color: #ebe3ba;*/
+    background-color: #fdea90;
+    margin: 7px;
+    padding: 1px;
+    padding-left: 0px;
+
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
+    text-align: left;
+}
+
+.playlist-item-title {
+    /*margin: 4px;*/
+    /*background-color: #fedd1e;*/
+    width: 350px;
+    height: 16px;
+    display: inline-block;
+    /*background-color: #ccc;*/
+    text-align: left;
+    padding-left: 5px;
+    cursor:pointer;
+    vertical-align: central;
+}
+
+.playlist-item-length{
+    /*background-color: yellow;*/
+    margin: 3px;
+    text-align: right;
+    padding-left: 3px;
+    cursor: default;
+}
+
+/*aktivní item hraje, má pausu, ...*/
+.playlist-item-active{
+    background-color: #fe8e1e;
+    margin: 5px;
+    padding: 2px;
+    font-weight: bold;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
+}
+
+/*selected item je vybrána a může se např. pohybovat v playlistu nahoru, dolů*/
+.playlist-item-selected{
+    background-color: #feae1e;
+    margin: 5px;
+    padding: 2px;
+    /*font-weight: bold;*/
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
+}
+
+
+/*Malá tlačítka na řádku s trackem, k němu se vztahují*/
+
+.playlist-btn-small{
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin: 2px;
+}
+
+.playlist-btn-item_up-small-enabled{
+    background-image: url("../../img/audioplayer/playlist/sort_up_green16.ico");
+    cursor:pointer;
+}
+
+.playlist-btn-item_up-small-disabled {
+    background-image: url("../../img/audioplayer/playlist/sort_up_inactive16.ico");
+    cursor:default;
+}
+
+.playlist-btn-item_down-small-enabled {
+    background-image: url("../../img/audioplayer/playlist/sort_down_green16.ico");
+    cursor:pointer;
+}
+
+.playlist-btn-item_down-small-disabled {
+    background-image: url("../../img/audioplayer/playlist/sort_up_inactive16.ico");
+    cursor:default;
+}
+
+.playlist-btn-item_remove-small-enabled {
+    background-image: url("../../img/audioplayer/playlist/delete16.ico");
+    cursor:pointer;
+}
+
+
+/*Velké tlačítka pod seznamem tracků. 
+Vztahují s k vybranému tracku.*/
+
+.playlist-footer{
+    padding-left: 190px;
+    padding-right: 190px;
+}
+
+.playlist-btn-big{
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+}
+
+.playlist-btn-item_up-big-enabled{
+    background-image: url("../../img/audioplayer/playlist/sort_up_green32.ico");
+    cursor:pointer;
+}
+
+.playlist-btn-item_up-big-disabled {
+    background-image: url("../../img/audioplayer/playlist/sort_up_inactive32.ico");
+    cursor:default;
+}
+
+.playlist-btn-item_down-big-enabled {
+    background-image: url("../../img/audioplayer/playlist/sort_down_green32.ico");
+    cursor:pointer;
+}
+
+.playlist-btn-item_down-big-disabled {
+    background-image: url("../../img/audioplayer/playlist/sort_down_inactive32.ico");
+    cursor:default;
+}
+
+.playlist-btn-item_remove-big-enabled {
+    background-image: url("../../img/audioplayer/playlist/delete32.ico");
+    cursor:pointer;
+}
+
+.playlist-btn-item_remove-big-disabled {
+    background-image: url("../../img/audioplayer/playlist/delete_inactive32.ico");
+    cursor:default;
+}
