@@ -171,19 +171,19 @@ public class Import {
                 visitAllDirsAndFiles(children[i], roots);
             }
         } else {
+            DigitalObject dobj = null;
             try {
                 if (!importFile.getName().toLowerCase().endsWith(".xml")) {
                     return;
                 }
                 Object obj = unmarshaller.unmarshal(importFile);
-                if (obj instanceof DigitalObject) {
-                    ingest(importFile, ((DigitalObject) obj).getPID());
-                    checkRoot((DigitalObject) obj, roots);
-                }
+                dobj = (DigitalObject) obj;
             } catch (Exception e) {
                 log.info("Skipping file " + importFile.getName() + " - not an FOXML object.");
                 return;
             }
+            ingest(importFile, dobj.getPID());
+            checkRoot(dobj, roots);
         }
     }
 
