@@ -57,7 +57,10 @@
                     <xsl:variable name="model" >
                         <xsl:value-of select="$lstModel[1]/str[@name='fedora.model']" />
                     </xsl:variable>
-                <xsl:variable name="modelLoc" >fedora.model.<xsl:value-of select="$model" /></xsl:variable>
+                <xsl:variable name="modelLoc" ><xsl:choose>
+                <xsl:when test="$model='periodicalvolume'">search.details.periodicalvolume.in.tree</xsl:when>
+                <xsl:otherwise>fedora.model.<xsl:value-of select="$model" /></xsl:otherwise>
+            </xsl:choose></xsl:variable>
                     <li class="model" style="clear:both;">
                     <xsl:attribute name="id"><xsl:value-of select="$model_path" />-<xsl:value-of select="$model" />_<xsl:value-of select="$pid" /></xsl:attribute>
                         <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
@@ -79,7 +82,10 @@
 
     <xsl:template name="rels">
         <xsl:param name="fmodel" />
-        <xsl:variable name="modelLoc" >fedora.model.<xsl:value-of select="$fmodel" /></xsl:variable>
+        <xsl:variable name="modelLoc" ><xsl:choose>
+                <xsl:when test="$fmodel='periodicalvolume'">search.details.periodicalvolume.in.tree</xsl:when>
+                <xsl:otherwise>fedora.model.<xsl:value-of select="$fmodel" /></xsl:otherwise>
+            </xsl:choose></xsl:variable>
         <xsl:for-each select="//doc[str[@name='fedora.model']=$fmodel]" >
             <xsl:sort data-type="number" 
                       select="number(arr[@name='rels_ext_index']/int[position()=(count(../../arr[@name='parent_pid']/str[.=$pid]/preceding-sibling::*)+1)])" 
@@ -204,7 +210,7 @@
         </xsl:choose>
         <xsl:value-of select="substring-before($detail, '##')" />&#160;
         <xsl:if test="substring-after($detail, '##')">
-            <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;<xsl:value-of select="substring-after($detail, '##')" />
+            <xsl:value-of select="$bundle/value[@key='search.details.periodicalvolumenumber.in.tree']"/>&#160;<xsl:value-of select="substring-after($detail, '##')" />
         </xsl:if>
     </xsl:template>
 
