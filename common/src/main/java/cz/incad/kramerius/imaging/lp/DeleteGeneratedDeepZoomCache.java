@@ -37,6 +37,8 @@ import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
+import cz.incad.kramerius.imaging.paths.DirPath;
+import cz.incad.kramerius.imaging.paths.Path;
 import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -131,8 +133,13 @@ public class DeleteGeneratedDeepZoomCache {
         try {
             PIDParser pidParser = new PIDParser(pid);
             pidParser.objectPid();
-            File uuidFolder = discStruct.getUUIDFile(pidParser.getObjectId(), KConfiguration.getInstance().getDeepZoomCacheDir());
-            FileUtils.deleteDirectory(uuidFolder);
+            Path uuidFolder = discStruct.getUUIDFile(pidParser.getObjectId(), KConfiguration.getInstance().getDeepZoomCacheDir());
+            if (uuidFolder.exists()) {
+                DirPath dp = (DirPath) uuidFolder;
+                Path[] list = dp.list();
+                for (Path p : list) { dp.deleteChild(p.getName()); }
+            }
+            //FileUtils.deleteDirectory(uuidFolder);
         } catch (LexerException e) {
             LOGGER.severe(e.getMessage());
         }
