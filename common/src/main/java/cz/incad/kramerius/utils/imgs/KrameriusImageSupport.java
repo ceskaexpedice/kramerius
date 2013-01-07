@@ -28,6 +28,7 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStreamImpl;
 import javax.swing.JPanel;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -166,7 +167,7 @@ public class KrameriusImageSupport {
         }
     }
 
-    public static void writeImageToStream(BufferedImage scaledImage, String javaFormat, FileImageOutputStream os, float quality) throws IOException {
+    public static void writeImageToStream(BufferedImage scaledImage, String javaFormat, ImageOutputStreamImpl os, float quality) throws IOException {
 
         Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(javaFormat);
         if (iter.hasNext()) {
