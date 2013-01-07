@@ -11,8 +11,11 @@
             <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
             <xsl:if test="position()&gt;1">| &#160;</xsl:if><xsl:value-of select="$bundle/value[@key=$model]" />: 
             <a><xsl:attribute name="href">i.jsp?pid=<xsl:value-of
-        select="./str[@name='PID']"/></xsl:attribute><xsl:value-of select="./str[@name='dc.title']" /></a>
-            <!--<xsl:call-template name="details" />-->&#160;
+        select="./str[@name='PID']"/></xsl:attribute>
+            <!-- <xsl:value-of select="./str[@name='dc.title']" /> -->
+            <xsl:call-template name="details" />
+            &#160;
+            </a>
         </xsl:for-each></div>
         <div class="clear"></div>
     </xsl:template>
@@ -73,8 +76,8 @@
 
     <xsl:template name="periodicalvolume">
         <xsl:param name="detail" />
-        <xsl:value-of select="substring-before($detail, '##')" />&#160;
-        <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;<xsl:value-of select="substring-after($detail, '##')" />
+        <xsl:value-of select="substring-after($detail, '##')" />&#160;
+        (<xsl:value-of select="substring-before($detail, '##')" />)
     </xsl:template>
 
     <xsl:template name="periodicalitem">
@@ -88,8 +91,8 @@
         </xsl:if>
         <xsl:variable name="remaining" select="substring-after($remaining, '##')" />
         <span>
-        <xsl:value-of select="substring-before($remaining, '##')" />&#160;
-        <xsl:value-of select="$bundle/value[@key='Číslo']"/>&#160;<xsl:value-of select="substring-after($remaining, '##')" /></span>
+        <xsl:value-of select="substring-after($remaining, '##')" />&#160;
+        </span>
 
 
     </xsl:template>
