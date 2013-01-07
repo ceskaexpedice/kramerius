@@ -89,6 +89,15 @@ public interface DeepZoomCacheService {
      */
     public void writeDeepZoomDescriptor(String pid, BufferedImage rawImage, int tileSize) throws IOException;
 
+    /**
+     * Write resolution file 
+     * @param pid PID of the image
+     * @param dim Writing dimension
+     * @throws IOException IO error has been occurred
+     */
+    public void writeResolution(String pid, Dimension dim) throws IOException;
+ 
+    
     
     /**
      * Write deep zoom descriptor in cache
@@ -160,6 +169,7 @@ public interface DeepZoomCacheService {
      */
     public BufferedImage getDeepZoomOriginal(String pid) throws IOException;
 
+    //TODO: remove
     public BufferedImage createDeepZoomOriginalImageFromFedoraRAW(String pid) throws IOException;
 
     /**

@@ -129,6 +129,13 @@ public interface DeepZoomTileSupport {
      */
     public double getScale(int displayLevel, long maxLevel);
 
+    /**
+     * Returns scaled dimension
+     * @param original Original dimension
+     * @param displayLevel Displaying level
+     * @param maxLevel Max level
+     * @return Scaled dimension
+     */
     public Dimension getScaledDimension(Dimension original, int displayLevel, int maxLevel);
     
     /**
@@ -148,14 +155,22 @@ public interface DeepZoomTileSupport {
     public int getRows(Dimension scaledDim);
 
     
-    public double getClosestScale(Dimension originalSize, int sizeToFit);
+    /**
+     * Returns the closest scaling factor from given original size and tile size 
+     * @param originalSize Original dimension
+     * @param sizeToFit Tile size
+     * @param minSize Min tile size
+     * @return Returns scaled factor
+     */
+    public double getClosestScale(Dimension originalSize, int sizeToFit, int minSize);
 
     /**
      * Calculate closest level for given dimension
      * @param originalDimension Original dimension 
      * @param sizeToFit Size to fit
+     * @param minSize TODO
      * @return calculated level
      */
-    public int getClosestLevel(Dimension originalDimension, int sizeToFit);
+    public int getClosestLevel(Dimension originalDimension, int sizeToFit, int minSize);
 
 }
