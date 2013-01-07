@@ -54,9 +54,16 @@ function onLoadPlainImage() {
     <div id="container"  class="view_div"  style="display:none;  height: 512px;">
     </div>
     
-    <div id="ol-wrapper" style="display:none;  height: 512px;">
-        <div id="ol-image" style="width: 100%; height: 100%""></div>
-        <div id="ol-overview"></div>
+    <div id="ol-div" style="position: relative; top: 10px; left: 10px;">
+     <div id="ol-wrapper-buttons" class="buttons" style="z-index: 1002">
+       <a id="zoomifyPlusButton" onclick="javascript:zoomInit.plus();" style="z-index: 1002"><span class="ui-icon ui-icon-plusthick" >+</span></a>
+       <a id="zoomifyMinusButton" onclick="javascript:zoomInit.minus();" style="z-index: 1002"><span class="ui-icon ui-icon-minusthick" >-</span></a>
+      </div>
+   
+    <div id="ol-wrapper" style="display:none;  height: 512px; position: relative; top:-20px;">
+        <div id="ol-image" style="width: 100%; height: 100%"></div>
+    </div>
+    
     </div>
 
 
