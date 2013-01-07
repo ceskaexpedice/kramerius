@@ -222,7 +222,7 @@ public class KConfiguration {
     }
 
     public int getDeepZoomTileSize() {
-        return getConfiguration().getInt("deepZoom.tileSize", 512);
+        return getConfiguration().getInt("deepZoom.tileSize", 256);
     }
 
     public String getDeepZoomCacheDir() {
