@@ -482,3 +482,20 @@ a.olControlZoomOut {
     -o-transition: opacity 0.2s linear;
     transition: opacity 0.2s linear;
 }
+
+.olControlButton1ItemActive {
+    position: absolute;
+    background-image: url(add_blue.png);
+    top: 0;
+    right: 0;
+    width: 18px;
+    height: 18px;
+}    
+.olControlButton2ItemActive {
+        position: absolute;
+        background-image: url(minus_blue.png);
+        top: 18;
+        right: 0;
+        width: 18px;
+        height: 18px;
+    }
