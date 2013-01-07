@@ -137,27 +137,6 @@ public class DeepZoomServlet extends AbstractImageServlet {
         }
     }
     
-//    public IIPConfig getIIPConfig(String uuid) {
-//        try {
-//            String relsExtLiteral = getRelsExtTilesUrl(uuid);
-//            // n
-//            if (!relsExtLiteral.equals(CACHE_RELS_EXT_LITERAL)) {
-//                
-//            }
-//            if (relsExtLiteral != null) {
-//                String url = relsExtLiteral.getAttribute("url");
-//                String embeded = relsExtLiteral.getAttribute("embeded");
-//                return new IIPConfig(relsExtLiteral, url, embeded.equals("true"));
-//            } else {
-//                return null;
-//            }
-//        } catch (IOException e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//        } catch (XPathExpressionException e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-//        }
-//        return null;
-//    }
 
 
     private void renderIIPDZIDescriptor(String uuid, HttpServletResponse resp, String url) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
@@ -174,7 +153,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
         if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
             Dimension rawDim = KrameriusImageSupport.readDimension(uuid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
             int levelsOverTile = KConfiguration.getInstance().getConfiguration().getInt("deepZoom.numberStepsOverTile", 1);
-            int tileLevel = tileSupport.getClosestLevel(new Dimension(rawDim.width, rawDim.height), tileSupport.getTileSize());
+            int tileLevel = tileSupport.getClosestLevel(new Dimension(rawDim.width, rawDim.height), tileSupport.getTileSize(), 1);
             Dimension scaledDimension = tileSupport.getScaledDimension(rawDim, tileLevel+levelsOverTile);
             
             cacheService.writeDeepZoomDescriptor(uuid, scaledDimension, tileSupport.getTileSize());
@@ -320,32 +299,4 @@ public class DeepZoomServlet extends AbstractImageServlet {
     }
     
     
-//    static class IIPConfig {
-//        
-//        private Element element;
-//        private String url;
-//        private boolean embeded;
-//        
-//        public IIPConfig(Element element, String url, boolean embeded) {
-//            super();
-//            this.element = element;
-//            this.url = url;
-//            this.embeded = embeded;
-//        }
-//
-//        public Element getElement() {
-//            return element;
-//        }
-//
-//        public String getUrl() {
-//            return url;
-//        }
-//
-//        public boolean isEmbeded() {
-//            return embeded;
-//        }
-//        
-//        
-//        
-//    }
 }

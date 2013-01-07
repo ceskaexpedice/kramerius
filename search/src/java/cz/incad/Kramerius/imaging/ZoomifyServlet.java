@@ -19,7 +19,10 @@
  */
 package cz.incad.Kramerius.imaging;
 
+import static cz.incad.kramerius.utils.IOUtils.copyStreams;
+
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -51,6 +54,7 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import cz.incad.utils.RelsExtHelper;
@@ -61,6 +65,8 @@ import cz.incad.utils.RelsExtHelper;
  */
 public class ZoomifyServlet extends AbstractImageServlet {
 
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ZoomifyServlet.class.getName());
+    
     @Inject
     DeepZoomCacheService cacheService;
 
@@ -133,11 +139,8 @@ public class ZoomifyServlet extends AbstractImageServlet {
     private void renderEmbededDZIDescriptor(String uuid, HttpServletResponse resp) throws IOException, FileNotFoundException, XPathExpressionException {
         if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
             Dimension rawDim = KrameriusImageSupport.readDimension(uuid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
-            int levelsOverTile = KConfiguration.getInstance().getConfiguration().getInt("deepZoom.numberStepsOverTile", 1);
-            int tileLevel = tileSupport.getClosestLevel(new Dimension(rawDim.width, rawDim.height), tileSupport.getTileSize());
-            Dimension scaledDimension = tileSupport.getScaledDimension(rawDim, tileLevel+levelsOverTile);
-            
-            cacheService.writeDeepZoomDescriptor(uuid, scaledDimension, tileSupport.getTileSize());
+            cacheService.writeDeepZoomDescriptor(uuid, rawDim, tileSupport.getTileSize());
+            cacheService.writeResolution(uuid, rawDim);
         }
         InputStream inputStream = cacheService.getDeepZoomDescriptorStream(uuid);
         
@@ -153,15 +156,11 @@ public class ZoomifyServlet extends AbstractImageServlet {
             StringBuffer buffer = new StringBuffer();
             buffer.append("<IMAGE_PROPERTIES WIDTH=\"").append(width).append('"').append(" HEIGHT=\"").append(height).append('"');
             buffer.append("  VERSION='1.8' TILESIZE=\"").append(tileSize).append("\" />");
-            //NUMTILES='945'
-            
             IOUtils.copyStreams(new ByteArrayInputStream(buffer.toString().getBytes("UTF-8")), resp.getOutputStream());
         } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } finally {
             if (inputStream != null) {
                 inputStream.close();
@@ -192,16 +191,68 @@ public class ZoomifyServlet extends AbstractImageServlet {
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } else {
-            //renderEmbededTile(pid, slevel, stile, req, resp);
+            // srow = y
+            // scol = x
+            renderEmbededTile(pid, slevel,x,y,ext, req, resp);
         }
     }
 
-//    private void renderEmbededTile() {
-//        String level = substokenizer.nextToken();
-//        String x = substokenizer.nextToken();
-//        String y = substokenizer.nextToken();
-//
-//    }
+
+    
+    private void renderEmbededTile(String pid, String slevel, String x, String y,String ext, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        try {
+            
+            if (!cacheService.isResolutionFilePresent(pid)) {
+                Dimension rawDim = KrameriusImageSupport.readDimension(pid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
+                cacheService.writeResolution(pid, rawDim);
+            }
+
+            Dimension originalResolution = cacheService.getResolutionFromFile(pid);
+            int requestedLevel = Integer.parseInt(slevel);
+            int maxLevels = tileSupport.getLevels(originalResolution, tileSupport.getTileSize());
+
+            int offset = tileSupport.getClosestLevel(originalResolution , tileSupport.getTileSize(), 1);
+            //deepzoom level
+            int offsetLevel = requestedLevel + (offset-1);
+                
+            String srow = y;
+            String scol = x;
+            
+            boolean tilePresent = cacheService.isDeepZoomTilePresent(pid, offsetLevel, Integer.parseInt(srow), Integer.parseInt(scol));
+            if (!tilePresent) {
+                // File dFile = cacheService.getDeepZoomLevelsFile(uuid);
+                BufferedImage original = null;
+                if (cacheService.isDeepZoomOriginalPresent(pid)) {
+                    original = cacheService.getDeepZoomOriginal(pid);
+                } else {
+                    original = cacheService.createDeepZoomOriginalImageFromFedoraRAW(pid);
+                    cacheService.writeDeepZoomOriginalImage(pid, original);
+                }
+
+                double scale = tileSupport.getScale(requestedLevel, maxLevels);
+                //ilevel = 
+                // TODO: vyzkouset
+                Dimension scaled = tileSupport.getScaledDimension(new Dimension(original.getWidth(null), original.getHeight(null)), scale);
+                int rows = tileSupport.getRows(scaled);
+                int cols = tileSupport.getCols(scaled);
+                int base = Integer.parseInt(srow) * cols;
+                base = base + Integer.parseInt(scol);
+
+                LOGGER.info("scale is "+scale+" and dimension is "+scaled);
+                
+                BufferedImage tile = this.tileSupport.getTileFromBigImage(original, requestedLevel, base, tileSupport.getTileSize(), getScalingMethod(), turnOnIterateScaling());
+                cacheService.writeDeepZoomTile(pid, offsetLevel, Integer.parseInt(srow), Integer.parseInt(scol), tile);
+            }
+            InputStream is = cacheService.getDeepZoomTileStream(pid, offsetLevel, Integer.parseInt(srow), Integer.parseInt(scol));
+            resp.setContentType(ImageMimeType.JPEG.getValue());
+            IOUtils.copyStreams(is, resp.getOutputStream());
+
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (XPathExpressionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
 
     private void renderIIPTile(String uuid, String slevel, String x,String y, String ext, HttpServletResponse resp, String url) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
         String dataStreamUrl = getURLForStream(uuid, url);
