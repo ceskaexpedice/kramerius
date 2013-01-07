@@ -205,7 +205,7 @@ public class VirtualCollectionsManager {
                 + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd\"> "
                 + "<dc:title>" + StringEscapeUtils.escapeXml(label) + "</dc:title><dc:identifier>" + pid + "</dc:identifier>"
-                + "<dc:type>canLeave:" + canLeave + "</dc:type><dc:identifier>" + pid + "</dc:identifier>"
+                + "<dc:type>canLeave:" + canLeave + "</dc:type>"
                 + "</oai_dc:dc>";
         fedoraAccess.getAPIM().modifyDatastreamByValue(pid, "DC", null, "Dublin Core Record for this object", "text/xml", null, dcContent.getBytes(), "DISABLED", null, "Virtual collection modified", true);
     }
