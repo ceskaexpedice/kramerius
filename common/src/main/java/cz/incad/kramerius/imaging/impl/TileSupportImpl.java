@@ -143,9 +143,11 @@ public class TileSupportImpl implements DeepZoomTileSupport {
         int width = image.getWidth(null);
         int height = image.getHeight(null);
         Dimension originalDim = new Dimension(width, height);
-
+        
         double scale = getScale(displayLevel, maxLevel);
+        LOGGER.info("tilesupport calculated scale : "+scale);
         Dimension scaledDim = getScaledDimension(originalDim, scale);
+        LOGGER.info("tilesupport calculated dim : "+scaledDim);
         
         //int rows = getRows(scaledDim);
         int cols = getCols(scaledDim);
@@ -157,6 +159,8 @@ public class TileSupportImpl implements DeepZoomTileSupport {
             scaled = KrameriusImageSupport.scale(image, scaledDim.width, scaledDim.height, method, iterateScaling);
         }
 
+        
+        
         int rowTile = displayTile / cols;
         int colTile = displayTile % cols;
 
@@ -206,22 +210,22 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     }
 
     @Override
-    public double getClosestScale(Dimension originalSize, int sizeToFit) {
-        long maxLevel = getLevelsInternal(originalSize.width > originalSize.height ? originalSize.width : originalSize.height, 1);
-        int level = getClosestLevel(originalSize, sizeToFit);
+    public double getClosestScale(Dimension originalSize, int sizeToFit, int minSize) {
+        long maxLevel = getLevelsInternal(originalSize.width > originalSize.height ? originalSize.width : originalSize.height, minSize);
+        int level = getClosestLevel(originalSize, sizeToFit, minSize);
         return getScale(level, maxLevel);
     }
     
     @Override
-    public int getClosestLevel(Dimension originalSize, int sizeToFit) {
-        int maxLevel = getLevelsInternal(originalSize.width > originalSize.height ? originalSize.width : originalSize.height, 1);
+    public int getClosestLevel(Dimension originalSize, int sizeToFit, int minSize) {
+        int maxLevel = getLevelsInternal(originalSize.width > originalSize.height ? originalSize.width : originalSize.height, minSize);
         for (int i = maxLevel - 1; i >1; i--) {
             double scale = getScale(i, maxLevel);
             int targetWidth = (int) (originalSize.width / scale);
             int targetHeight = (int) (originalSize.height / scale);
             if (targetWidth < sizeToFit && targetHeight < sizeToFit) return i;
         }
-        return -1;
+        return 0;
     }
 
 }

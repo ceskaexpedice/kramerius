@@ -38,6 +38,8 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
+import cz.incad.kramerius.imaging.paths.Path;
+import cz.incad.kramerius.imaging.paths.impl.DirPathImpl;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
 import cz.incad.kramerius.impl.fedora.FedoraStreamUtils;
@@ -92,7 +94,7 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
     }
 
     @Override
-    public File getUUIDFile(String uuid,  String rootPath) throws IOException {
+    public Path getUUIDFile(String uuid,  String rootPath) throws IOException {
         try {
             Document profile = fedoraAccess.getStreamProfile("uuid:"+uuid, FedoraUtils.IMG_FULL_STREAM);
             Date dateFromProfile = disectCreateDate(this.xpaths, profile, fedoraAccess.getFedoraVersion());
@@ -119,7 +121,8 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
             template.setAttribute("uuid", uuid);
             String filePath = template.toString();
             
-            return new File(rootDir, filePath);
+            
+            return new DirPathImpl(new File(rootDir, filePath), null);
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
             throw new IOException(e);
@@ -142,24 +145,28 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
         Node oneNode = (Node) expr.evaluate(doc, XPathConstants.NODE);
         if (oneNode != null && oneNode.getNodeType() == Node.TEXT_NODE) {
             String data = ((Text)oneNode).getData();
-            XMLGregorianCalendar gregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(data);
-            int year = gregorianCalendar.getYear();
-            int day = gregorianCalendar.getDay();
-            int month = gregorianCalendar.getMonth();
-            int minute = gregorianCalendar.getMinute();
-            int hour = gregorianCalendar.getHour();
-            
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.YEAR, year);
-            calendar.set(Calendar.DAY_OF_MONTH, day);
-            calendar.set(Calendar.MINUTE, minute);
-            calendar.set(Calendar.HOUR, hour);
-            calendar.set(Calendar.MONTH, month);
-            
-            return calendar.getTime();
+            Date date = disectCreateDate(data);
+            return date;
         }
         
         return null;
+    }
+
+    public static Date disectCreateDate(String data) throws DatatypeConfigurationException {
+        XMLGregorianCalendar gregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(data);
+        int year = gregorianCalendar.getYear();
+        int day = gregorianCalendar.getDay();
+        int month = gregorianCalendar.getMonth();
+        int minute = gregorianCalendar.getMinute();
+        int hour = gregorianCalendar.getHour();
+        
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DAY_OF_MONTH, day);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MONTH, month-1);
+        return calendar.getTime();
     }
     
 }

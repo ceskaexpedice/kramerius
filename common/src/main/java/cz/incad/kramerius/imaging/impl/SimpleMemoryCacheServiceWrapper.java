@@ -139,6 +139,14 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 	    this.wrappingInstance.writeDeepZoomDescriptor(uuid, dim, tileSize);
 	}
 
+	
+
+    @Override
+    public void writeResolution(String pid, Dimension dim) throws IOException {
+        this.wrappingInstance.writeResolution(pid, dim);
+    }
+
+
 
     static class MemoryCache {
 		

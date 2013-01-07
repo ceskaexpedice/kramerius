@@ -7,10 +7,12 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.logging.Level;
 
 import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStreamImpl;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.output.FileWriterWithEncoding;
@@ -25,6 +27,10 @@ import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomFullImageScaleFactor;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
+import cz.incad.kramerius.imaging.paths.DirPath;
+import cz.incad.kramerius.imaging.paths.FilePath;
+import cz.incad.kramerius.imaging.paths.Path;
+import cz.incad.kramerius.imaging.paths.PathFilter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -53,6 +59,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     // CachingSupport cachingSupport= new CachingSupport();
     @Inject
     DiscStrucutreForStore discStructureStore;
+    
 
     @Override
     public void prepareCacheImage(String pid, Dimension deep) {
@@ -77,17 +84,19 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     
     void prepareCacheImage(String pid, int levelsOverTile, BufferedImage rawImage) {
         try {
-            File uuidFolder = uuidFolder(pid);
+            DirPath uuidFolder = uuidFolder(pid);
 
+            LOGGER.info("Preparing cache for pid "+pid+" in uuidFolder '"+uuidFolder.getName()+"'");           
+            
             Dimension rawDim = new Dimension(rawImage.getWidth(), rawImage.getHeight());
             int levels = (int) tileSupport.getLevels(rawImage, 1);
-            int startLevel = tileSupport.getClosestLevel(rawDim, tileSupport.getTileSize());
+            int startLevel = tileSupport.getClosestLevel(rawDim, tileSupport.getTileSize(), 1);
             int maxLevel = Math.min(levels, startLevel + levelsOverTile);
             
-            writeDeepZoomDescriptor(pid, rawDim, tileSupport.getTileSize(), new File(uuidFolder, DEEP_ZOOM_DESC_FILE));
+            writeDeepZoomDescriptor(pid, rawDim, tileSupport.getTileSize());
             writeResolution(pid, rawDim);
             
-            for (int i = startLevel + 1; i < maxLevel; i++) {
+            for (int i = startLevel ; i < maxLevel; i++) {
 
                 int curLevel = i;
                 double scale = tileSupport.getScale(curLevel, levels);
@@ -114,9 +123,8 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     @Override
     public void prepareCacheImage(String pid, Dimension dimToFit, BufferedImage rawImage) {
         try {
-            File uuidFolder = uuidFolder(pid);
             Dimension rawDimension = new Dimension(rawImage.getWidth(), rawImage.getHeight());
-            writeDeepZoomDescriptor(pid, rawDimension, tileSupport.getTileSize(), new File(uuidFolder, DEEP_ZOOM_DESC_FILE));
+            writeDeepZoomDescriptor(pid, rawDimension, tileSupport.getTileSize());
             writeResolution(pid, rawDimension);
 
             int levels = (int) tileSupport.getLevels(rawImage, 1);
@@ -147,18 +155,17 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
         }
     }
 
-    private File uuidFolder(String pid) throws IOException {
+   cz.incad.kramerius.imaging.paths.DirPath uuidFolder(String pid) throws IOException {
         try {
             PIDParser pidParser = new PIDParser(pid);
             pidParser.objectPid();
 
-            File uuidFolder = this.discStructureStore.getUUIDFile(pidParser.getObjectId(), KConfiguration.getInstance().getDeepZoomCacheDir());
+            Path uuidFolder =  this.discStructureStore.getUUIDFile(pidParser.getObjectId(), kConfiguration.getDeepZoomCacheDir());
             if (!uuidFolder.exists()) {
-                boolean created = uuidFolder.mkdirs();
-                if (!created)
-                    throw new IOException("cannot create uuid folder '" + uuidFolder + "'");
+                return uuidFolder.makeDir();
+            } else {
+                return (DirPath) uuidFolder;
             }
-            return uuidFolder;
         } catch (LexerException e) {
             throw new IOException(e);
         }
@@ -237,65 +244,63 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
 
     @Override
     public boolean isDeepZoomDescriptionPresent(String pid) throws IOException {
-        File desc = new File(uuidFolder(pid), DEEP_ZOOM_DESC_FILE);
-        return desc.exists() && desc.canRead();
+        DirPath dpath = uuidFolder(pid);
+        Path child = dpath.child(DEEP_ZOOM_DESC_FILE);
+        return child != null;
     }
 
     @Override
     public void writeDeepZoomOriginalImage(String uuid, BufferedImage rawImage) throws IOException {
-        FileImageOutputStream fosI = new FileImageOutputStream(new File(uuidFolder(uuid), uuid));
-        try {
-            KrameriusImageSupport.writeImageToStream(rawImage, "JPG", fosI, kConfiguration.getDeepZoomJPEGQuality());
-        } finally {
-            if (fosI != null) {
-                fosI.close();
+        DirPath dpath = uuidFolder(uuid);
+        FilePath fpath = (FilePath) dpath.child(uuid);
+        if (fpath == null) {
+            fpath = dpath.createChildFile(uuid);
+            ImageOutputStreamImpl iostr = fpath.openImageOutputStream();
+            try {
+                KrameriusImageSupport.writeImageToStream(rawImage, "JPG", iostr, kConfiguration.getDeepZoomJPEGQuality());
+            } finally {
+                if (iostr != null) {
+                    iostr.close();
+                }
             }
         }
     }
 
-    void writeResolution(String pid, Dimension dim) throws IOException {
-        File resFile = new File(uuidFolder(pid), dim.width + "_x_" + dim.height + ".resolution");
-        if (!resFile.exists()) {
-            boolean resFileCreated = resFile.createNewFile();
-            if (!resFileCreated)
-                throw new IOException("cannot create res file '" + resFile.getAbsolutePath() + "'");
-        }
+    public void writeResolution(String pid, Dimension dim) throws IOException {
+        DirPath dpath = uuidFolder(pid);
+        dpath.createChildFile(dim.width + "_x_" + dim.height + ".resolution");
     }
 
     @Override
     public void writeDeepZoomDescriptor(String pid, BufferedImage rawImage, int tileSize) throws IOException {
-        File file = new File(uuidFolder(pid), pid);
         Dimension dim = new Dimension(rawImage.getWidth(), rawImage.getHeight());
-        writeDeepZoomDescriptor(pid, dim, tileSize, file);
+        writeDeepZoomDescriptorImpl(pid, dim, tileSize);
     }
     
     public void writeDeepZoomDescriptor(String pid, Dimension dim, int tileSize) throws IOException {
-        File file = new File(uuidFolder(pid), pid);
-        writeDeepZoomDescriptor(pid, dim, tileSize, file);
+        writeDeepZoomDescriptorImpl(pid, dim, tileSize);
     }
 
 
     @Override
     public InputStream getDeepZoomDescriptorStream(String pid) throws IOException {
-        return new FileInputStream(new File(uuidFolder(pid), DEEP_ZOOM_DESC_FILE));
+        DirPath dp = uuidFolder(pid);
+        FilePath fp = dp.createChildFile(DEEP_ZOOM_DESC_FILE);
+        return fp.openInputStream();
     }
 
     @Override
     public boolean isDeepZoomTilePresent(String pid, int ilevel, int row, int col) throws IOException {
         ilevel = repairLevel(pid, ilevel);
-        File tileImageFolder = getTileImageFolder(pid, ilevel);
-        File tileImageFile = new File(tileImageFolder, getTileName(row, col));
-        if ((tileImageFile.exists()) && (tileImageFile.canRead())) {
-            return true;
-        } else
-            return false;
+        DirPath dp = getTileImageFolder(pid, ilevel);
+        return dp.child(getTileName(row, col)) != null;
     }
 
     @Override
     public void writeDeepZoomTile(String uuid, int ilevel, int row, int col, BufferedImage tile) throws IOException {
-        File folder = getTileImageFolder(uuid, ilevel);
-        File tileImageFile = new File(folder, getTileName(row, col));
-        FileImageOutputStream fosI = new FileImageOutputStream(tileImageFile);
+        DirPath dp = getTileImageFolder(uuid, ilevel);
+        FilePath fp = dp.createChildFile(getTileName(row, col));
+        ImageOutputStreamImpl fosI = fp.openImageOutputStream();
         try {
             KrameriusImageSupport.writeImageToStream(tile, "JPG", fosI, kConfiguration.getDeepZoomJPEGQuality());
         } finally {
@@ -308,8 +313,9 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     @Override
     public InputStream getDeepZoomTileStream(String pid, int ilevel, int row, int col) throws IOException {
         ilevel = repairLevel(pid, ilevel);
-        File tileImageFile = new File(getTileImageFolder(pid, ilevel), getTileName(row, col));
-        return new FileInputStream(tileImageFile);
+        DirPath dp = getTileImageFolder(pid, ilevel);
+        FilePath fp = dp.createChildFile(getTileName(row, col));
+        return fp.openInputStream();
     }
 
     /**
@@ -322,13 +328,14 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
      * @throws IOException
      */
     private int repairLevel(String pid, int ilevel) throws IOException {
+        /*
         Dimension resolution = getResolutionFromFile(pid);
         if (resolution != null) {
-            int closestLevel = tileSupport.getClosestLevel(resolution, tileSupport.getTileSize());
+            int closestLevel = tileSupport.getClosestLevel(resolution, tileSupport.getTileSize(), 1);
             if (closestLevel > ilevel) {
                 return closestLevel;
             }
-        }
+        }*/
 
         // no change
         return ilevel;
@@ -336,16 +343,17 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
 
     @Override
     public Dimension getResolutionFromFile(String pid) throws IOException {
-        File[] resolutionFiles = uuidFolder(pid).listFiles(new FileFilter() {
-
+        DirPath dp = uuidFolder(pid);
+        Path[] resolutionFiles = dp.list(new PathFilter() {
+            
             @Override
-            public boolean accept(File pathname) {
-                return (pathname.getName().endsWith(".resolution"));
+            public boolean accept(Path path) {
+                return (path.getName().endsWith(".resolution"));
             }
-        });
+        });        
         if ((resolutionFiles != null) && (resolutionFiles.length > 0)) {
-            File resFile = resolutionFiles[0];
-            String fileName = resFile.getName();
+            Path rp = resolutionFiles[0];
+            String fileName = rp.getName();
             fileName = fileName.substring(0, fileName.length() - ".resolution".length());
             String[] values = fileName.split("_x_");
             if (values.length == 2) {
@@ -359,15 +367,17 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
 
     @Override
     public boolean isDeepZoomOriginalPresent(String pid) throws IOException {
-        File file = new File(uuidFolder(pid), pid);
-        return file.exists() && file.canRead();
+        DirPath dirPath = uuidFolder(pid);
+        Path fp = dirPath.child(pid);
+        return fp != null;
     }
 
     @Override
     public synchronized BufferedImage getDeepZoomOriginal(String pid) throws IOException {
         if (isDeepZoomOriginalPresent(pid)) {
-            File file = new File(uuidFolder(pid), pid);
-            BufferedImage bufImage = KrameriusImageSupport.readImage(file.toURI().toURL(), ImageMimeType.JPEG, 0);
+            DirPath dp = uuidFolder(pid);
+            FilePath fp = dp.createChildFile(pid);
+            BufferedImage bufImage = KrameriusImageSupport.readImage(fp.toURL(), ImageMimeType.JPEG, 0);
             return bufImage;
         } else
             throw new IOException("uuid not found in cache !");
@@ -376,7 +386,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     @Override
     public BufferedImage createDeepZoomOriginalImageFromFedoraRAW(String pid) throws IOException {
         BufferedImage original;
-        double val = KConfiguration.getInstance().getConfiguration().getDouble("deepZoom.originalScaleFactor", 1.0);
+        double val = kConfiguration.getConfiguration().getDouble("deepZoom.originalScaleFactor", 1.0);
         DeepZoomFullImageScaleFactor factor = DeepZoomFullImageScaleFactor.findFactor(val);
         if (factor == null)
             throw new IllegalStateException("factor cannot be '" + val + "'.  Only " + Arrays.asList(DeepZoomFullImageScaleFactor.getAllowedVals()) + " are allowed ");
@@ -385,16 +395,12 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
         return original;
     }
 
-    private void writeDeepZoomDescriptor(String pid, Dimension dim, int tileSize, File file) throws IOException {
+    void writeDeepZoomDescriptorImpl(String pid, Dimension dim, int tileSize) throws IOException {
         StringTemplate template = new StringTemplate("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Image TileSize=\"$tileSize$\" Overlap=\"0\" Format=\"jpg\" xmlns=\"http://schemas.microsoft.com/deepzoom/2008\"><Size Width=\"$width$\" Height=\"$height$\"/></Image>");
         template.setAttribute("tileSize", tileSize);
         template.setAttribute("width", dim.width);
         template.setAttribute("height", dim.height);
-        File deepZoom = new File(uuidFolder(pid), DEEP_ZOOM_DESC_FILE);
-        if (!deepZoom.exists()) {
-            deepZoom.createNewFile();
-        }
-        FileWriterWithEncoding writer = new FileWriterWithEncoding(deepZoom, "UTF-8");
+        Writer writer = deepZoomWriter(pid);
         try {
             writer.write(template.toString());
         } finally {
@@ -403,15 +409,15 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
 
     }
 
-    private File getTileImageFolder(String pid, int level) throws IOException {
-        File oneImgFolder = uuidFolder(pid);
-        File levelFolder = new File(oneImgFolder, "" + level);
-        if (!levelFolder.exists()) {
-            boolean created = levelFolder.mkdirs();
-            if (!created) {
-                throw new IOException("cannot create folder '" + levelFolder.getAbsolutePath() + "'");
-            }
-        }
+    Writer deepZoomWriter(String pid) throws IOException {
+        DirPath dp = uuidFolder(pid);
+        FilePath fp = dp.createChildFile(DEEP_ZOOM_DESC_FILE);
+        return fp.openWriter();
+    }
+
+    private DirPath getTileImageFolder(String pid, int level) throws IOException {
+        DirPath oneImgFolder = uuidFolder(pid);
+        DirPath levelFolder = oneImgFolder.createChildDir("" + level);
         return levelFolder;
     }
 
@@ -425,15 +431,16 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
             PIDParser pidParser = new PIDParser(pid);
             pidParser.objectPid();
             
-            File uuidFile = this.discStructureStore.getUUIDFile(pidParser.getObjectId(), kConfiguration.getDeepZoomCacheDir());
-            if (uuidFile != null) {
-                File[] resFiles = uuidFile.listFiles(new FileFilter() {
-
+            Path uuidFile = this.discStructureStore.getUUIDFile(pidParser.getObjectId(), kConfiguration.getDeepZoomCacheDir());
+            if (uuidFile != null && (uuidFile instanceof DirPath)) {
+                Path[] resFiles = ((DirPath)uuidFile).list(new PathFilter() {
+                    
                     @Override
-                    public boolean accept(File pathname) {
-                        return pathname.getName().endsWith(".resolution");
+                    public boolean accept(Path path) {
+                        return path.getName().endsWith(".resolution");
                     }
                 });
+                
                 return resFiles != null && resFiles.length > 0;
             } else return false;
         } catch (LexerException e) {
