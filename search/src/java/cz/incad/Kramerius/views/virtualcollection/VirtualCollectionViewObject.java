@@ -59,9 +59,20 @@ public class VirtualCollectionViewObject {
     @Inject
     Provider<User> userProvider;
     
-    
+    private ArrayList languageCodes(){
+        ArrayList l = new ArrayList<String>();
+        String[] langs = kConfiguration.getPropertyList("interface.languages");
+        for (int i = 0; i < langs.length; i++) {
+                    String lang = langs[++i];
+            l.add(lang);
+        }
+        return l;
+    }
     public List<VirtualCollection> getVirtualCollections() throws Exception {
-        return VirtualCollectionsManager.getVirtualCollections(this.fedoraAccess, new ArrayList<String>(Arrays.asList(kConfiguration.getPropertyList("interface.languages"))));
+        //ArrayList l = new ArrayList<String>(Arrays.asList(kConfiguration.getPropertyList("interface.languages")));
+        
+        
+        return VirtualCollectionsManager.getVirtualCollections(this.fedoraAccess, languageCodes());
     }
     
     public List<VirtualCollection> getVirtualCollectionsLocale() throws Exception {

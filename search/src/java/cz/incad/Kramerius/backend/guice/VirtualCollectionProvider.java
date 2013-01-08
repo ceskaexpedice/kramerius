@@ -47,8 +47,8 @@ public class VirtualCollectionProvider implements Provider<VirtualCollection> {
                 if (!parameter.startsWith("vc:")) {
                     parameter = "vc:" + parameter;
                 }
-                ArrayList<String> langs = new ArrayList<String>(Arrays.asList(kConfiguration.getPropertyList("interface.languages")));
-                VirtualCollection vc = VirtualCollectionsManager.getVirtualCollection(fedoraAccess, parameter, langs);
+                //ArrayList<String> langs = new ArrayList<String>(Arrays.asList(kConfiguration.getPropertyList("interface.languages")));
+                VirtualCollection vc = VirtualCollectionsManager.getVirtualCollection(fedoraAccess, parameter, languageCodes());
                 session.setAttribute(VIRTUAL_COLLECTION, vc);
                 return vc;
             }
@@ -58,6 +58,16 @@ public class VirtualCollectionProvider implements Provider<VirtualCollection> {
         } else {
             return null;
         }
+    }
+    
+    private ArrayList languageCodes(){
+        ArrayList l = new ArrayList<String>();
+        String[] langs = kConfiguration.getPropertyList("interface.languages");
+        for (int i = 0; i < langs.length; i++) {
+                    String lang = langs[++i];
+            l.add(lang);
+        }
+        return l;
     }
 
     private boolean isInUrl(HttpServletRequest request) {

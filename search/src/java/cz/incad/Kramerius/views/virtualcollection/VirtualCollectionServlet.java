@@ -229,14 +229,24 @@ public class VirtualCollectionServlet extends GuiceServlet {
 
                 String string = req.getRequestURL().toString();
                 URL url = new URL(string);
+                String k4url = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort() + req.getRequestURI();
+//                Map<String, String> texts = new HashMap<String, String>();
+//                for (int i = 0; i < langs.length; i++) {
+//                    String lang = langs[++i];
+//                    String text =  req.getParameter("text_" + lang);
+//                    texts.put(lang, text);
+//                }
+//                VirtualCollectionsManager.modifyTexts(pid, fedoraAccess, texts);
                 
-                Map<String, String> texts = new HashMap<String, String>();
                 for (int i = 0; i < langs.length; i++) {
                     String lang = langs[++i];
-                    String text =  req.getParameter("text_" + lang);
-                    texts.put(lang, text);
+                    String text = req.getParameter("text_" + lang);
+                    if (text != null) {
+                        VirtualCollectionsManager.modifyDatastream(pid, lang, text, fedoraAccess, k4url);
+                    }
                 }
-                VirtualCollectionsManager.modifyTexts(pid, fedoraAccess, texts);
+                
+                
                 resp.setContentType("text/plain");
                 vc.writeOutput(req, resp, pid);
             }
