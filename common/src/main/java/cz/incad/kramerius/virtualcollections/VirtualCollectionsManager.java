@@ -54,7 +54,7 @@ public class VirtualCollectionsManager {
     static final String SPARQL_NS = "http://www.w3.org/2001/sw/DataAccess/rf1/result";
     static final String TEXT_DS_PREFIX = "TEXT_";
 
-    public static VirtualCollection getVirtualCollection(FedoraAccess fedoraAccess, String collection, ArrayList<String> langs) {
+    public static VirtualCollection getVirtualCollection_(FedoraAccess fedoraAccess, String collection, ArrayList<String> langs) {
         try {
             IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
             Document doc = g.getVirtualCollections();
@@ -113,7 +113,109 @@ public class VirtualCollectionsManager {
         }
     }
 
+    public static VirtualCollection getVirtualCollection(FedoraAccess fedoraAccess, String collection, ArrayList<String> langs) {
+        try {
+            IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
+            Document doc = g.getVirtualCollections();
+
+            NodeList nodes = doc.getDocumentElement().getElementsByTagNameNS(SPARQL_NS, "result");
+            NodeList children;
+            Node child;
+            String name;
+            String pid;
+            boolean canLeave;
+
+            for (int i = 0; i < nodes.getLength(); i++) {
+                name = null;
+                pid = null;
+                canLeave = false;
+                Node node = nodes.item(i);
+                children = node.getChildNodes();
+                for (int j = 0; j < children.getLength(); j++) {
+                    child = children.item(j);
+                    if ("title".equals(child.getLocalName())) {
+                        name = child.getFirstChild().getNodeValue();
+                    } else if ("object".equals(child.getLocalName())) {
+                        pid = ((Element) child).getAttribute("uri").replaceAll("info:fedora/", "");
+                    }else if ("canLeave".equals(child.getLocalName())) {
+                        canLeave = Boolean.parseBoolean(child.getFirstChild().getNodeValue().replaceAll("\"", "").substring(("canLeave:").length()));
+                    }
+                }
+                if (name != null && pid != null && pid.equals(collection)) {
+                    VirtualCollection vc = new VirtualCollection(name, pid, canLeave);
+                    try{
+                        for(String lang : langs){
+                            String dsName = TEXT_DS_PREFIX + lang;
+                            String value =  IOUtils.readAsString(fedoraAccess.getDataStream(pid, dsName), Charset.forName("UTF8"), true);
+                            vc.addDescription(lang, value);
+                        }
+                    }catch(Exception e){
+                        logger.log(Level.WARNING, "Error getting datastream", e);
+                    }
+                    
+                    return vc;
+                }
+            }
+            return null;
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Error getting virtual collections", ex);
+            return null;
+        }
+    }
+    
     public static List<VirtualCollection> getVirtualCollections(FedoraAccess fedoraAccess, ArrayList<String> langs) throws Exception {
+        try {
+            IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
+            Document doc = g.getVirtualCollections();
+
+            NodeList nodes = doc.getDocumentElement().getElementsByTagNameNS(SPARQL_NS, "result");
+            NodeList children;
+            Node child;
+            String name;
+            String pid;
+            boolean canLeave;
+            List<VirtualCollection> vcs = new ArrayList<VirtualCollection>();
+            for (int i = 0; i < nodes.getLength(); i++) {
+                canLeave = false;
+                name = null;
+                pid = null;
+                Node node = nodes.item(i);
+                children = node.getChildNodes();
+                for (int j = 0; j < children.getLength(); j++) {
+                    child = children.item(j);
+                    if ("title".equals(child.getLocalName())) {
+                        name = child.getFirstChild().getNodeValue();
+                    } else if ("object".equals(child.getLocalName())) {
+                        pid = ((Element) child).getAttribute("uri").replaceAll("info:fedora/", "");
+                    } else if ("canLeave".equals(child.getLocalName())) {
+                        canLeave = Boolean.parseBoolean(child.getFirstChild().getNodeValue().replaceAll("\"", "").substring(("canLeave:").length()));
+                    }
+                }
+                
+                if (name != null && pid != null) {
+                    try{
+                        VirtualCollection vc = new VirtualCollection(name, pid, canLeave);
+                        
+                        for(String lang : langs){
+                            String dsName = TEXT_DS_PREFIX + lang;
+                            String value =  IOUtils.readAsString(fedoraAccess.getDataStream(pid, dsName), Charset.forName("UTF8"), true);
+                            vc.addDescription(lang, value);
+                        }
+                        vcs.add(vc);
+                    }catch(Exception vcex){
+                        logger.log(Level.WARNING, "Could not get virtual collection for  " + pid + ": " + vcex.toString());
+                    }
+                }
+            }
+            return vcs;
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Error getting virtual collections", ex);
+            throw new Exception(ex);
+        }
+    }
+
+    
+    public static List<VirtualCollection> getVirtualCollections_(FedoraAccess fedoraAccess, ArrayList<String> langs) throws Exception {
         try {
             IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
             Document doc = g.getVirtualCollections();
@@ -223,6 +325,21 @@ public class VirtualCollectionsManager {
     }
 
     public static void modifyTexts(String pid, FedoraAccess fedoraAccess, Map<String, String> textsMap) throws IOException {
+        
+        String texts = "<texts>";
+        Iterator it = textsMap.keySet().iterator();
+        while(it.hasNext()){
+            String lang = (String)it.next();
+            String text = textsMap.get(lang);
+            if (text != null) {
+                texts += String.format("<text language=\"%s\">%s</text>", lang, text, lang);
+            }
+        }
+        texts += "</texts>";
+        fedoraAccess.getAPIM().modifyDatastreamByValue(pid, "TEXT", null, "Localized texts for this object", "text/plain", null, texts.getBytes(), "DISABLED", null, "Change text description", true);        
+    }
+
+    public static void modifyTexts_(String pid, FedoraAccess fedoraAccess, Map<String, String> textsMap) throws IOException {
         
         String texts = "<texts>";
         Iterator it = textsMap.keySet().iterator();
