@@ -76,6 +76,14 @@ public class LoadCustomViewObject implements Initializable{
         return i18nServlet;
     }
     
+    private String escapeXML(String s){
+        return s.replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll("'", "&apos;")
+                .replaceAll("\"", "&quot;")
+                .replaceAll("&", "&amp;");
+    }
+    
 
     // rewritten from jsp - no changes
     public String getContent() throws IOException, ParserConfigurationException, SAXException {
@@ -105,7 +113,7 @@ public class LoadCustomViewObject implements Initializable{
                     String enc = UnicodeUtil.getEncoding(bytes);
                     ByteArrayInputStream is2 = new ByteArrayInputStream(bytes);
                     try {
-                        stringBuilder.append("<pre>" + IOUtils.readAsString(is2, Charset.forName(enc), true) + "</pre>");
+                        stringBuilder.append("<textarea style=\"width:98%; height:98%; border:0; \">" + IOUtils.readAsString(is2, Charset.forName(enc), true)+ "</textarea>");
                     } catch (cz.incad.kramerius.security.SecurityException e) {
                         securityError(stringBuilder, pid,ds);
                     }
