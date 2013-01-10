@@ -12,6 +12,7 @@
 <%@ page isELIgnored="false"%>
 
 <view:object name="image" clz="cz.incad.Kramerius.views.inc.details.tabs.ImageViewObject"></view:object>
+<view:object name="alto" clz="cz.incad.Kramerius.views.inc.details.tabs.AltoSupportViewObject"></view:object>
 
 
 
@@ -33,16 +34,19 @@
 </style>
 
 <script type="text/javascript">
-function onLoadPDFImage(){
-    
-}
 
 function onLoadPlainImage() {
-    if(viewerOptions.hasAlto){
-        showAlto(viewerOptions.uuid, 'plainImageImg');
+    var optsUnDefined = (typeof viewerOptions ==="undefined");
+    
+    if(!optsUnDefined){
+        if (viewerOptions.hasAlto) plainImage.showAlto(viewerOptions.uuid, viewerOptions.alto);
     }
 }
 
+</script>
+
+<script type="text/javascript">
+    var altoSearchQuery = ${alto.searchQuery};
 </script>
 
 
@@ -54,13 +58,16 @@ function onLoadPlainImage() {
     <div id="container"  class="view_div"  style="display:none;  height: 512px;">
     </div>
     
-    <div id="ol-div" style="position: relative; top: 10px; left: 10px;">
+    <div id="ol-container" style="display:none; position: relative; top: 20px; left: 10px;">
+    
      <div id="ol-wrapper-buttons" class="buttons" style="z-index: 1002">
-       <a id="zoomifyPlusButton" onclick="javascript:zoomInit.plus();" style="z-index: 1002"><span class="ui-icon ui-icon-plusthick" >+</span></a>
-       <a id="zoomifyMinusButton" onclick="javascript:zoomInit.minus();" style="z-index: 1002"><span class="ui-icon ui-icon-minusthick" >-</span></a>
+       <a id="zoomifyPlusButton" onclick="javascript:zoomInit.plus();" style="z-index: 1002"><span class="ui-icon ui-icon-plus" >+</span></a>
+       <a id="zoomifyMinusButton" onclick="javascript:zoomInit.minus();" style="z-index: 1002"><span class="ui-icon ui-icon-minus" >-</span></a>
+       <a id="zoomifyButtonPrev" onclick="javascript:previousImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-w" >prev</span></a>
+       <a id="zoomifyButtonNext" onclick="javascript:nextImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-e" >next</span></a>
       </div>
    
-    <div id="ol-wrapper" style="display:none;  height: 512px; position: relative; top:-20px;">
+    <div id="ol-wrapper" style="height: 512px; position: relative; top:-25px;">
         <div id="ol-image" style="width: 100%; height: 100%"></div>
     </div>
     
@@ -108,13 +115,16 @@ function onLoadPlainImage() {
     $(document).ready(function(){
         $(".buttons>a").button();
         $('#bigThumbZone.viewer').bind('viewChanged', function(event, id){
+            if (console) console.log('viewChanged event with id = '+id);
             viewChanged(id);
         });
         $('#bigThumbZone.viewer').bind('viewReady', function(event, viewerOptions){
+            if (console) console.log('viewReady event ');
             showPreviewImage(viewerOptions);
             checkArrows();
         });
         $('#bigThumbZone>div.preview').bind('click', function(event, viewerOptions){
+            if (console) console.log('click event ');
             showPreviewImage(viewerOptions);
         });
         
@@ -132,19 +142,20 @@ function onLoadPlainImage() {
     
 
     function displayImageContainer(contentToShow) {
-        
+        if (console) console.log("showing '"+contentToShow+"'");
         $.each([
             "#loadingDeepZoomImage",
             "#plainImage",
             "#pdfImage",
             "#container",
-            "#ol-wrapper",
+            "#ol-container",
             "#noImageError",
             "#securityError",
             "#download"],
 
         function(index,item) {
             if (item==contentToShow) {
+                if (console) console.log(" ok ");
                 $(item).show();
             } else {
                 $(item).hide();
@@ -155,7 +166,7 @@ function onLoadPlainImage() {
 
     function showPreviewImage(viewerOptions){
         if(!viewerOptions) return;
-        hideAlto();
+        if (plainImage != null)     plainImage.hideAlto();
         if (!viewerOptions.rights["read"][viewerOptions.pid]) {
             // no right
             displayImageContainer("#securityError");
@@ -187,6 +198,7 @@ function onLoadPlainImage() {
                 $("#pdfImageImg").attr('src',requestedImg);
                 
             } else {
+
                 var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
                 var deepZoomDisplay = ((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared));
                 if (deepZoomDisplay) {
@@ -194,7 +206,12 @@ function onLoadPlainImage() {
                         zoomInit.init();
                     }
                     displayImageContainer('#${image.divContainer}');
-                    zoomInit.open(viewerOptions.uuid);
+                    if (viewerOptions.hasAlto) {
+                        zoomInit.open(viewerOptions.uuid, viewerOptions.alto);
+                    } else {
+                        zoomInit.open(viewerOptions.uuid);
+                    }
+
                 } else {
                     displayImageContainer("#plainImage");
                     
@@ -205,11 +222,12 @@ function onLoadPlainImage() {
                         // this should be directed by property or removed
                         $("#plainImageImg").attr('src','img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700');
                     }
+                    plainImage = new PlainImageObject();
                     if(viewerOptions.hasAlto){
-                        showAlto(viewerOptions.uuid, 'plainImageImg');
+                        plainImage.showAlto(viewerOptions.uuid, viewerOptions.alto);
                     }
-
                 }
+                
             }
 
         }
@@ -233,14 +251,18 @@ function onLoadPlainImage() {
     }
 
     function viewChanged(id){
+        if (console) console.log("changing view "+id);
         hidePreviewImage();
         displayImageContainer("#loadingDeepZoomImage");
         var uuid = id.split('_')[1];
+        var viewInfoUrl = "viewInfo?uuid="+uuid+(altoSearchQuery == null ? "" : "&q="+altoSearchQuery);
+        if (console) console.log("requesting view info   "+viewInfoUrl);
         $.ajax({
-            url:"viewInfo?uuid="+uuid,
+            url:viewInfoUrl,
             complete:function(req,textStatus) {
-              
+                              
                 if ((req.status==200) || (req.status==304)) {
+                    if (console) console.log("returning viewerOptions:"+viewerOptions);
                     viewerOptions = eval('(' + req.responseText + ')');
                     viewerOptions.uuid = uuid;
                     viewerOptions.fullid = id;
@@ -267,24 +289,35 @@ function onLoadPlainImage() {
         });
     }
 
-    // deep zoom viewer ?? 
-    // TODO:CHANGE IT
-//    var viewer = null;
+    
+    /** PlainImage alto */
+    function PlainImageObject() { if (console) console.log('created plain alto'); } 
 
-
-    function hideAlto(){
-        $("#alto").html('');
-        $("#alto").hide();
-    }
-
-    function showAlto(uuid, img){
+    PlainImageObject.prototype.showAlto = function(pid, options) {
+        var img = 'plainImageImg';
+        
+        function positionAlto(){
+            var img = '.view_div:visible';
+            var h = $(img).height();
+            var t = $(img).offset().top - $("#preview").offset().top - 4;
+            var w = $(img).width();
+            var l = $(img).offset().left - $("#preview").offset().left - 4;
+            
+            $("#alto").css('width', w);
+            $("#alto").css('height', h);
+            $("#alto").css('left', l);
+            $("#alto").css('top', t);
+        }
         var q = $("#q").val();
         if($('#insideQuery').length>0) q =$('#insideQuery').val();
         if(q=="") return;
 
         var w = $('#'+img).width();
         var h = $('#'+img).height();
-        var url = "inc/details/alto.jsp?q="+q+"&w="+w+"&h="+h+"&uuid=" + uuid;
+
+        
+        
+        var url = "inc/details/alto.jsp?q="+q+"&w="+w+"&h="+h+"&uuid=" + pid;
         $.get(url, function(data){
             if(data.trim()!=""){
                 if($("#alto").length==0){
@@ -295,40 +328,74 @@ function onLoadPlainImage() {
                 $("#alto").show();
             }
         });
+        
+    }
+    PlainImageObject.prototype.hideAlto = function(pid, options) {
+        $("#alto").html('');
+        $("#alto").hide();
     }
 
-    function positionAlto(){
-        var img = '.view_div:visible';
-        var h = $(img).height();
-        var t = $(img).offset().top - $("#preview").offset().top - 4;
-        var w = $(img).width();
-        var l = $(img).offset().left - $("#preview").offset().left - 4;
+    
+    var plainImage = null;    
+
+    /** Manages all next and prev buttons */
+    function ImageButtons() {
+        this.buttons = [];
+        this.buttons['prev'] = [
+            'seadragonButtonPrev',
+            'plainButtonPrev',
+            'fullButtonPrev',
+            'zoomifyButtonPrev'
+        ];
         
-            $("#alto").css('width', w);
-            $("#alto").css('height', h);
-            $("#alto").css('left', l);
-            $("#alto").css('top', t);
+        this.buttons['next'] = [
+             'seadragonButtonNext',
+             'plainButtonNext',
+             'fullButtonNext',
+             'zoomifyButtonNext'
+        ];
+    }
+
+    ImageButtons.prototype._hideArr=function(arr) {
+        $.each(arr, function(index,item) { $("#"+item).hide();});
+    }
+    
+    ImageButtons.prototype._showArr=function(arr) {
+        $.each(arr, function(index,item) { $("#"+item).show();});
+    }
+    
+    ImageButtons.prototype.hideNext=function() {
+        var arr = this.buttons['next'];
+        this._hideArr(arr);
+    }
+
+    ImageButtons.prototype.showNext=function() {
+        var arr = this.buttons['next'];
+        this._showArr(arr);
+    }
+
+
+    ImageButtons.prototype.hidePrev=function() {
+        var arr = this.buttons['prev'];
+        this._hideArr(arr);
+    }
+    
+    ImageButtons.prototype.showPrev=function() {
+        var arr = this.buttons['prev'];
+        this._showArr(arr);
     }
     
     function checkArrows(){
+        if (console) console.log("activepids: "+k4Settings.activeUuids);
         if(k4Settings.activeUuids[0]==k4Settings.activeUuid){
-            $('#plainButtonPrev').hide();
-            $('#seadragonButtonPrev').hide();
-            $('#fullButtonPrev').hide();
+            new ImageButtons().hidePrev();
         }else{
-            $('#plainButtonPrev').show();
-            $('#seadragonButtonPrev').show();
-            $('#fullButtonPrev').show();
+            new ImageButtons().showPrev();
         }
-        
         if(k4Settings.activeUuids[k4Settings.activeUuids.length-1]==k4Settings.activeUuid){
-            $('#plainButtonNext').hide();
-            $('#seadragonButtonNext').hide();
-            $('#fullButtonNext').hide();
+            new ImageButtons().hideNext();
         }else{
-            $('#plainButtonNext').show();
-            $('#seadragonButtonNext').show();
-            $('#fullButtonNext').show();
+            new ImageButtons().showNext();
         }
     }
     
@@ -356,7 +423,6 @@ function onLoadPlainImage() {
                 break;
             }
         }
-        
     }
     
     var fullDialog;

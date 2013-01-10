@@ -25,33 +25,33 @@ ZoomifyViewerInitObject.prototype.init = function() {
 }
 
 ZoomifyViewerInitObject.prototype.highlightAlto=function(altoObject) {
+    //{"image":{"HEIGHT":3232,"WIDTH":2515},"box":{"VPOS":292,"HEIGHT":27,"HPOS":2070,"WIDTH":108}}
     var pointList = [];        
-    pointList.push(new OpenLayers.Geometry.Point(object.hpos, object.imageHeight - object.vpos));   
-    pointList.push(new OpenLayers.Geometry.Point(object.hpos + object.width, object.imageHeight - object.vpos));
-    pointList.push(new OpenLayers.Geometry.Point(object.hpos + object.width, object.imageHeight - object.height - object.vpos));     
-    pointList.push(new OpenLayers.Geometry.Point(object.hpos, object.imageHeight - object.height - object.vpos));
+    pointList.push(new OpenLayers.Geometry.Point(altoObject.box.HPOS, altoObject.image.HEIGHT - altoObject.box.VPOS));   
+    pointList.push(new OpenLayers.Geometry.Point(altoObject.box.HPOS + altoObject.box.WIDTH, altoObject.image.HEIGHT - altoObject.box.VPOS));
+    pointList.push(new OpenLayers.Geometry.Point(altoObject.box.HPOS + altoObject.box.WIDTH, altoObject.image.HEIGHT - altoObject.box.HEIGHT - altoObject.box.VPOS));     
+    pointList.push(new OpenLayers.Geometry.Point(altoObject.box.HPOS, altoObject.image.HEIGHT - altoObject.box.HEIGHT - altoObject.box.VPOS));
     var linearRing = new OpenLayers.Geometry.LinearRing(pointList);
     var polygonFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([linearRing]));
     this.vectorLayer.addFeatures([polygonFeature]);  
 }
 
 ZoomifyViewerInitObject.prototype.clearAlto=function() {
-    this.vectorLayer.removeAllFeatures();
+    if (this.vectorLayer) this.vectorLayer.removeAllFeatures();
 }
 
 ZoomifyViewerInitObject.prototype.open = function(pid,altoObject) {
+    this.clearAlto();
     $('#ol-image').remove(); $('#ol-overview').remove();
-    $('#ol-wrapper').html('<div id=\"ol-image\" style=\"width: 100%; height: 100%\"></div><div id=\"ol-overview\"></div>');
+    $('#ol-wrapper').html('<div id=\"ol-image\" style=\"width: 100%; height: 100%\"></div>');
     
     $.get('zoomify/'+pid+'/ImageProperties.xml', bind(function(data) {
         
         var url = "zoomify/"+pid+"/";
         
         function resolutions(numberOfTiles) {
-            console.log("number of tiles is "+numberOfTiles);
             var resolutions = [];
             for(var i = numberOfTiles-1; i>=0; i--) {resolutions.push(Math.pow(2, i));}       
-            console.log("returning resolutions array :"+resolutions);
             return resolutions;
         }
 
@@ -59,17 +59,11 @@ ZoomifyViewerInitObject.prototype.open = function(pid,altoObject) {
         var height = $(data).find("IMAGE_PROPERTIES").attr("HEIGHT");
 
         var tileSize = $(data).find("IMAGE_PROPERTIES").attr("TILESIZE");
-        console.log("tile size is "+tileSize);
         
         this.zoomify = new OpenLayers.Layer.Zoomify("Zoomify", url, new OpenLayers.Size(width, height));        
         this.zoomify.transitionEffect = 'resize';    
         this.zoomify.isBaseLayer = false;    
         this.zoomify.data = ""
-//        this.zoomify.standardTileSize = tileSize;
-//        this.zoomify.initializeZoomify(new OpenLayers.Size(width, height));
-//        console.log("standardTileSize = "+this.zoomify.standardTileSize);
-//        console.log("standardTileSize = "+this.zoomify.standardTileSize);
-
             
         this.image = new OpenLayers.Layer.Image('Image',
             url + "TileGroup0/0-0-0.jpg",
@@ -115,6 +109,12 @@ ZoomifyViewerInitObject.prototype.open = function(pid,altoObject) {
         
         this.map.zoomToMaxExtent();
         
+        if (!(typeof altoObject === 'undefined')) {
+            if (altoObject.box && altoObject.image) {
+                this.highlightAlto(altoObject);
+            }
+        }
+        
     },this));
     
     
@@ -123,12 +123,10 @@ ZoomifyViewerInitObject.prototype.open = function(pid,altoObject) {
 
 
 ZoomifyViewerInitObject.prototype.minus = function() {
-    console.log("zooming in ...");
     this.zoomOut.trigger();
 }
 
 ZoomifyViewerInitObject.prototype.plus = function() {
-    console.log("zooming in ...");
     this.zoomIn.trigger();
 }
 
