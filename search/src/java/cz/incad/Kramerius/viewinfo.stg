@@ -19,6 +19,9 @@ viewinfo(data, globalActions) ::=<<
     
         donator:'$data.donator$',
         
+        $if(data.alto)$
+        alto:$alto(altoData=data.alto)$,                
+        $endif$
         
         $if(data.canhandlecommongroup)$
         canhandlecommongroup:$data.canhandlecommongroup$,
@@ -28,6 +31,14 @@ viewinfo(data, globalActions) ::=<<
         $rights(securedActions=data.securedActions, globalActions=data.globalActions);separator=","$,                
         $supportfunctions()$
 }
+>>
+
+_map(m) ::=<<
+    {$m.keys:{key |$key$:$m.(key)$};separator=","$ }
+>>
+
+alto(altoData) ::=<<
+{"image":$_map(m=altoData.image)$,"box":$_map(m=altoData.box)$}
 >>
             
 
@@ -43,6 +54,9 @@ rights(securedActions, globalActions) ::=<<
         $endif$
     }
 >>
+
+
+
 
 /* action's map */
 action(action, mappedPaths) ::=<<
@@ -63,6 +77,6 @@ path(path) ::=<<
 
 /* some support functions */
 supportfunctions() ::=<<
-            isContentPDF:function() {return viewerOptions.mimeType=='application/pdf'},
-            isContentDJVU:function() {return viewerOptions.mimeType.indexOf('djvu')> 0 }
+        isContentPDF:function() {return viewerOptions.mimeType=='application/pdf'},
+        isContentDJVU:function() {return viewerOptions.mimeType.indexOf('djvu')> 0 }
 >>

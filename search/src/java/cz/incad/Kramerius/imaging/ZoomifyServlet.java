@@ -213,7 +213,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
 
             int offset = tileSupport.getClosestLevel(originalResolution , tileSupport.getTileSize(), 1);
             //deepzoom level
-            int offsetLevel = requestedLevel + (offset-1);
+            int offsetLevel = requestedLevel + (offset);
                 
             String srow = y;
             String scol = x;

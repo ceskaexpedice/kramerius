@@ -121,7 +121,7 @@ public class ImageViewObject {
     
     static enum ZoomViewer {
 
-        zoomify(new String[] {"js/zoom/OpenLayers.js","js/zoom/zoomify.js"},"ol-wrapper"), 
+        zoomify(new String[] {"js/zoom/OpenLayers.js","js/zoom/zoomify.js"},"ol-container"), 
         deepzoom( new String[] {"js/zoom/deepzoom.js"}, "container");
 
         private String[] scripturls;

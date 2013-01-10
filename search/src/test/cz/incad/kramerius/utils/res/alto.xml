@@ -1,0 +1,353 @@
+<alto xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.loc.gov/standards/alto/ns-v2#"
+    xsi:schemaLocation="http://www.loc.gov/standards/alto/ns-v2# http://www.loc.gov/standards/alto/alto-v2.0.xsd">
+    <Description>
+        <MeasurementUnit>pixel</MeasurementUnit>
+        <sourceImageInformation>
+            <fileName>Dějiny a současnost_2011_0159a.tif</fileName>
+        </sourceImageInformation>
+        <OCRProcessing ID="OCR0">
+            <ocrProcessingStep>
+                <processingDateTime>2011-05-20T11:31:27</processingDateTime>
+                <processingSoftware>
+                    <softwareCreator>Elsyst Engineering</softwareCreator>
+                </processingSoftware>
+            </ocrProcessingStep>
+            <postProcessingStep>
+                <processingDateTime>2011-05-20T20:48:25</processingDateTime>
+                <processingStepDescription>LayoutEditBegin</processingStepDescription>
+            </postProcessingStep>
+        </OCRProcessing>
+        <OCRProcessing ID="Statistics0">
+            <ocrProcessingStep>
+                <processingStepDescription>49;279</processingStepDescription>
+                <processingStepDescription>
+                    ELSYST01\lsynkova;0;20.5.2011 20:48:25;20.5.2011
+                    20:49:06;37;0;0;0;1
+</processingStepDescription>
+                <processingStepDescription>
+                    ELSYST01\lsynkova;0;23.5.2011 15:28:56;23.5.2011
+                    15:29:14;12;0;0;0;1
+</processingStepDescription>
+            </ocrProcessingStep>
+        </OCRProcessing>
+    </Description>
+    <Styles>
+        <TextStyle ID="Style0" FONTFAMILY="Times New Roman"
+            FONTSIZE="6" />
+        <TextStyle ID="Style1" FONTFAMILY="Arial" FONTSIZE="21" />
+        <TextStyle ID="Style2" FONTFAMILY="Arial" FONTSIZE="21" />
+        <TextStyle ID="Style3" FONTFAMILY="Arial" FONTSIZE="21" />
+        <TextStyle ID="Style4" FONTFAMILY="Arial" FONTSIZE="11" />
+        <TextStyle ID="Style5" FONTFAMILY="Arial" FONTSIZE="7" />
+        <ParagraphStyle ID="ParagraphStyle0" ALIGN="Left" />
+        <ParagraphStyle ID="ParagraphStyle1" ALIGN="Left"
+            LINESPACE="76" />
+        <ParagraphStyle ID="ParagraphStyle2" ALIGN="Left"
+            LEFT="1" />
+        <ParagraphStyle ID="ParagraphStyle3" ALIGN="Left"
+            LEFT="2" />
+        <ParagraphStyle ID="ParagraphStyle4" ALIGN="Left"
+            LEFT="1" RIGHT="18" LINESPACE="50" />
+        <ParagraphStyle ID="ParagraphStyle5" ALIGN="Left"
+            LEFT="1" RIGHT="60" LINESPACE="49" />
+        <ParagraphStyle ID="ParagraphStyle6" ALIGN="Left"
+            RIGHT="156" LINESPACE="49" />
+    </Styles>
+    <Layout>
+        <Page ID="Page0" PHYSICAL_IMG_NR="0" HEIGHT="3232" WIDTH="2515">
+            <PrintSpace ID="PrintSpace0" HEIGHT="3018" WIDTH="2498"
+                HPOS="0" VPOS="138">
+                <Illustration ID="Illustration0" HEIGHT="3018"
+                    WIDTH="2498" HPOS="0" VPOS="138" />
+                <TextBlock ID="TextBlock0" HEIGHT="42" WIDTH="81"
+                    HPOS="582" VPOS="185" STYLEREFS="ParagraphStyle0">
+                    <TextLine ID="TextLine0" HEIGHT="42" WIDTH="81"
+                        HPOS="582" VPOS="185" BASELINE="208">
+                        <String ID="String0" STYLEREFS="Style0"
+                            HEIGHT="22" WIDTH="17" HPOS="582" VPOS="185"
+                            CONTENT="*." />
+                        <SP ID="Space0" HPOS="598" VPOS="197" WIDTH="28" />
+                        <String ID="String1" STYLEREFS="Style0"
+                            HEIGHT="12" WIDTH="37" HPOS="626" VPOS="196"
+                            CONTENT="mm" />
+                    </TextLine>
+                </TextBlock>
+                <Illustration ID="Illustration1" HEIGHT="192"
+                    WIDTH="118" HPOS="706" VPOS="154" />
+                <TextBlock ID="TextBlock1" HEIGHT="76" WIDTH="1162"
+                    HPOS="822" VPOS="363" STYLEREFS="ParagraphStyle1">
+                    <TextLine ID="TextLine1" HEIGHT="76" WIDTH="1162"
+                        HPOS="822" VPOS="363" BASELINE="437">
+                        <String ID="String2" STYLEREFS="Style1"
+                            HEIGHT="75" WIDTH="360" HPOS="822" VPOS="364"
+                            CONTENT="kulturné" />
+                        <SP ID="Space1" HPOS="1182" VPOS="363" WIDTH="65" />
+                        <String ID="String3" STYLEREFS="Style3"
+                            HEIGHT="75" WIDTH="443" HPOS="1247" VPOS="363"
+                            CONTENT="historická" />
+                        <SP ID="Space2" HPOS="1690" VPOS="363" WIDTH="64" />
+                        <String ID="String4" STYLEREFS="Style3"
+                            HEIGHT="53" WIDTH="230" HPOS="1754" VPOS="385"
+                            CONTENT="revue" />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TextBlock2" HEIGHT="47" WIDTH="169"
+                    HPOS="2068" VPOS="182" STYLEREFS="ParagraphStyle0">
+                    <TextLine ID="TextLine2" HEIGHT="47" WIDTH="169"
+                        HPOS="2068" VPOS="182" BASELINE="227">
+                        <String ID="String5" STYLEREFS="Style4"
+                            HEIGHT="37" WIDTH="26" HPOS="2068" VPOS="190"
+                            CONTENT="3" />
+                        <SP ID="Space3" HPOS="2094" VPOS="182" WIDTH="19" />
+                        <String ID="String6" STYLEREFS="Style4"
+                            HEIGHT="47" WIDTH="124" HPOS="2113" VPOS="182"
+                            CONTENT="12011" />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TextBlock3" HEIGHT="31" WIDTH="175"
+                    HPOS="2069" VPOS="237" STYLEREFS="ParagraphStyle2">
+                    <TextLine ID="TextLine3" HEIGHT="31" WIDTH="175"
+                        HPOS="2069" VPOS="237" BASELINE="260">
+                        <String ID="String7" STYLEREFS="Style5"
+                            HEIGHT="22" WIDTH="85" HPOS="2069" VPOS="238"
+                            CONTENT="ročník" />
+                        <SP ID="Space4" HPOS="2154" VPOS="238" WIDTH="9" />
+                        <String ID="String8" STYLEREFS="Style5"
+                            HEIGHT="23" WIDTH="81" HPOS="2163" VPOS="237"
+                            CONTENT="XXXIII" />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TextBlock4" HEIGHT="38" WIDTH="255"
+                    HPOS="2070" VPOS="281" STYLEREFS="ParagraphStyle3">
+                    <TextLine ID="TextLine4" HEIGHT="38" WIDTH="255"
+                        HPOS="2070" VPOS="281" BASELINE="318">
+                        <String ID="String9" STYLEREFS="Style4"
+                            HEIGHT="27" WIDTH="108" HPOS="2070" VPOS="292"
+                            CONTENT="cena" />
+                        <SP ID="Space5" HPOS="2178" VPOS="282" WIDTH="18" />
+                        <String ID="String10" STYLEREFS="Style4"
+                            HEIGHT="36" WIDTH="52" HPOS="2196" VPOS="282"
+                            CONTENT="66" />
+                        <SP ID="Space6" HPOS="2248" VPOS="282" WIDTH="18" />
+                        <String ID="String11" STYLEREFS="Style4"
+                            HEIGHT="36" WIDTH="59" HPOS="2266" VPOS="281"
+                            CONTENT="Kč" />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TextBlock5" HEIGHT="38" WIDTH="340"
+                    HPOS="367" VPOS="2942" STYLEREFS="ParagraphStyle0">
+                    <TextLine ID="TextLine5" HEIGHT="38" WIDTH="340"
+                        HPOS="367" VPOS="2942" BASELINE="2979">
+                        <String ID="String12" STYLEREFS="Style4"
+                            HEIGHT="38" WIDTH="106" HPOS="367" VPOS="2942"
+                            CONTENT="Žena" />
+                        <SP ID="Space7" HPOS="473" VPOS="2945" WIDTH="16" />
+                        <String ID="String13" STYLEREFS="Style4"
+                            HEIGHT="34" WIDTH="104" HPOS="489" VPOS="2945"
+                            CONTENT="dvou" />
+                        <SP ID="Space8" HPOS="593" VPOS="2948" WIDTH="14" />
+                        <String ID="String14" STYLEREFS="Style4"
+                            HEIGHT="35" WIDTH="100" HPOS="607" VPOS="2945"
+                            CONTENT="tváří" />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TextBlock6" HEIGHT="43" WIDTH="615"
+                    HPOS="369" VPOS="2994" STYLEREFS="ParagraphStyle3">
+                    <TextLine ID="TextLine6" HEIGHT="43" WIDTH="615"
+                        HPOS="369" VPOS="2994" BASELINE="3029">
+                        <String ID="String15" STYLEREFS="Style4"
+                            HEIGHT="41" WIDTH="196" HPOS="369" VPOS="2996"
+                            CONTENT="Eugenika" />
+                        <SP ID="Space9" HPOS="565" VPOS="3004" WIDTH="16" />
+                        <String ID="String16" STYLEREFS="Style4"
+                            HEIGHT="25" WIDTH="23" HPOS="581" VPOS="3004"
+                            CONTENT="a" />
+                        <SP ID="Space10" HPOS="604" VPOS="2995"
+                            WIDTH="18" />
+                        <String ID="String17" STYLEREFS="Style4"
+                            HEIGHT="34" WIDTH="120" HPOS="622" VPOS="2995"
+                            CONTENT="Marie" />
+                        <SP ID="Space11" HPOS="742" VPOS="2994"
+                            WIDTH="15" />
+                        <String ID="String18" STYLEREFS="Style4"
+                            HEIGHT="42" WIDTH="227" HPOS="757" VPOS="2994"
+                            CONTENT="Stopesová" />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TextBlock7" HEIGHT="85" WIDTH="599"
+                    HPOS="367" VPOS="3065" STYLEREFS="ParagraphStyle4">
+                    <TextLine ID="TextLine7" HEIGHT="42" WIDTH="599"
+                        HPOS="367" VPOS="3065" BASELINE="3099">
+                        <String ID="String19" STYLEREFS="Style4"
+                            HEIGHT="35" WIDTH="183" HPOS="367" VPOS="3065"
+                            CONTENT="Obránce" />
+                        <SP ID="Space12" HPOS="550" VPOS="3074"
+                            WIDTH="17" />
+                        <String ID="String20" STYLEREFS="Style4"
+                            HEIGHT="35" WIDTH="217" HPOS="567" VPOS="3065"
+                            CONTENT="národního" />
+                        <SP ID="Space13" HPOS="784" VPOS="3074"
+                            WIDTH="17" />
+                        <String ID="String21" STYLEREFS="Style4"
+                            HEIGHT="42" WIDTH="165" HPOS="801" VPOS="3065"
+                            CONTENT="palladia" />
+                    </TextLine>
+                    <TextLine ID="TextLine8" HEIGHT="35" WIDTH="505"
+                        HPOS="368" VPOS="3115" BASELINE="3149">
+                        <String ID="String22" STYLEREFS="Style4"
+                            HEIGHT="33" WIDTH="103" HPOS="368" VPOS="3116"
+                            CONTENT="Fixní" />
+                        <SP ID="Space14" HPOS="471" VPOS="3115"
+                            WIDTH="11" />
+                        <String ID="String23" STYLEREFS="Style4"
+                            HEIGHT="35" WIDTH="88" HPOS="482" VPOS="3115"
+                            CONTENT="idea" />
+                        <SP ID="Space15" HPOS="570" VPOS="3116"
+                            WIDTH="15" />
+                        <String ID="String24" STYLEREFS="Style4"
+                            HEIGHT="34" WIDTH="103" HPOS="585" VPOS="3116"
+                            CONTENT="Jana" />
+                        <SP ID="Space16" HPOS="688" VPOS="3115"
+                            WIDTH="15" />
+                        <String ID="String25" STYLEREFS="Style4"
+                            HEIGHT="34" WIDTH="170" HPOS="703" VPOS="3115"
+                            CONTENT="Vrzalíka" />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TextBlock8" HEIGHT="43" WIDTH="361"
+                    HPOS="1642" VPOS="2822" STYLEREFS="ParagraphStyle3">
+                    <TextLine ID="TextLine9" HEIGHT="43" WIDTH="361"
+                        HPOS="1642" VPOS="2822" BASELINE="2857">
+                        <String ID="String26" STYLEREFS="Style4"
+                            HEIGHT="41" WIDTH="63" HPOS="1642" VPOS="2824"
+                            CONTENT="Byl" />
+                        <SP ID="Space17" HPOS="1705" VPOS="2824"
+                            WIDTH="13" />
+                        <String ID="String27" STYLEREFS="Style4"
+                            HEIGHT="41" WIDTH="104" HPOS="1718" VPOS="2824"
+                            CONTENT="jsem" />
+                        <SP ID="Space18" HPOS="1822" VPOS="2831"
+                            WIDTH="17" />
+                        <String ID="String28" STYLEREFS="Style4"
+                            HEIGHT="43" WIDTH="53" HPOS="1839" VPOS="2822"
+                            CONTENT="při" />
+                        <SP ID="Space19" HPOS="1892" VPOS="2823"
+                            WIDTH="15" />
+                        <String ID="String29" STYLEREFS="Style4"
+                            HEIGHT="35" WIDTH="96" HPOS="1907" VPOS="2823"
+                            CONTENT="tom!" />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TextBlock9" HEIGHT="44" WIDTH="750"
+                    HPOS="1641" VPOS="2872" STYLEREFS="ParagraphStyle2">
+                    <TextLine ID="TextLine10" HEIGHT="44"
+                        WIDTH="750" HPOS="1641" VPOS="2872" BASELINE="2906">
+                        <String ID="String30" STYLEREFS="Style4"
+                            HEIGHT="42" WIDTH="204" HPOS="1641" VPOS="2874"
+                            CONTENT="Integrace" />
+                        <SP ID="Space20" HPOS="1845" VPOS="2881"
+                            WIDTH="15" />
+                        <String ID="String31" STYLEREFS="Style4"
+                            HEIGHT="42" WIDTH="262" HPOS="1860" VPOS="2873"
+                            CONTENT="archaických" />
+                        <SP ID="Space21" HPOS="2122" VPOS="2873"
+                            WIDTH="16" />
+                        <String ID="String32" STYLEREFS="Style4"
+                            HEIGHT="42" WIDTH="253" HPOS="2138" VPOS="2872"
+                            CONTENT="společností" />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TextBlock10" HEIGHT="94" WIDTH="691"
+                    HPOS="1640" VPOS="2942" STYLEREFS="ParagraphStyle5">
+                    <TextLine ID="TextLine11" HEIGHT="40"
+                        WIDTH="675" HPOS="1640" VPOS="2942" BASELINE="2978">
+                        <String ID="String33" STYLEREFS="Style4"
+                            HEIGHT="35" WIDTH="159" HPOS="1640" VPOS="2943"
+                            CONTENT="Naučila" />
+                        <SP ID="Space22" HPOS="1799" VPOS="2952"
+                            WIDTH="17" />
+                        <String ID="String34" STYLEREFS="Style4"
+                            HEIGHT="26" WIDTH="129" HPOS="1816" VPOS="2952"
+                            CONTENT="nouze" />
+                        <SP ID="Space23" HPOS="1945" VPOS="2944"
+                            WIDTH="16" />
+                        <String ID="String35" STYLEREFS="Style4"
+                            HEIGHT="34" WIDTH="180" HPOS="1961" VPOS="2944"
+                            CONTENT="Dalibora" />
+                        <SP ID="Space24" HPOS="2141" VPOS="2943"
+                            WIDTH="16" />
+                        <String ID="String36" STYLEREFS="Style4"
+                            HEIGHT="36" WIDTH="158" HPOS="2157" VPOS="2942"
+                            CONTENT="housti?" />
+                    </TextLine>
+                    <TextLine ID="TextLine12" HEIGHT="43"
+                        WIDTH="690" HPOS="1641" VPOS="2993" BASELINE="3027">
+                        <String ID="String37" STYLEREFS="Style4"
+                            HEIGHT="42" WIDTH="146" HPOS="1641" VPOS="2993"
+                            CONTENT="Příčiny" />
+                        <SP ID="Space25" HPOS="1787" VPOS="2996"
+                            WIDTH="13" />
+                        <String ID="String38" STYLEREFS="Style4"
+                            HEIGHT="43" WIDTH="358" HPOS="1800" VPOS="2993"
+                            CONTENT="technologických" />
+                        <SP ID="Space26" HPOS="2158" VPOS="2993"
+                            WIDTH="17" />
+                        <String ID="String39" STYLEREFS="Style4"
+                            HEIGHT="35" WIDTH="156" HPOS="2175" VPOS="2993"
+                            CONTENT="inovací" />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TextBlock11" HEIGHT="93" WIDTH="595"
+                    HPOS="1640" VPOS="3063" STYLEREFS="ParagraphStyle6">
+                    <TextLine ID="TextLine13" HEIGHT="36"
+                        WIDTH="595" HPOS="1640" VPOS="3063" BASELINE="3098">
+                        <String ID="String40" STYLEREFS="Style4"
+                            HEIGHT="35" WIDTH="98" HPOS="1640" VPOS="3064"
+                            CONTENT="Proč" />
+                        <SP ID="Space27" HPOS="1738" VPOS="3064"
+                            WIDTH="15" />
+                        <String ID="String41" STYLEREFS="Style4"
+                            HEIGHT="34" WIDTH="151" HPOS="1753" VPOS="3064"
+                            CONTENT="zanikla" />
+                        <SP ID="Space28" HPOS="1904" VPOS="3064"
+                            WIDTH="14" />
+                        <String ID="String42" STYLEREFS="Style4"
+                            HEIGHT="35" WIDTH="116" HPOS="1918" VPOS="3063"
+                            CONTENT="Velká" />
+                        <SP ID="Space29" HPOS="2034" VPOS="3063"
+                            WIDTH="17" />
+                        <String ID="String43" STYLEREFS="Style4"
+                            HEIGHT="34" WIDTH="184" HPOS="2051" VPOS="3064"
+                            CONTENT="Morava?" />
+                    </TextLine>
+                    <TextLine ID="TextLine14" HEIGHT="43"
+                        WIDTH="561" HPOS="1640" VPOS="3113" BASELINE="3147">
+                        <String ID="String44" STYLEREFS="Style4"
+                            HEIGHT="43" WIDTH="104" HPOS="1640" VPOS="3113"
+                            CONTENT="Nový" />
+                        <SP ID="Space30" HPOS="1744" VPOS="3113"
+                            WIDTH="14" />
+                        <String ID="String45" STYLEREFS="Style4"
+                            HEIGHT="41" WIDTH="141" HPOS="1758" VPOS="3114"
+                            CONTENT="pohled" />
+                        <SP ID="Space31" HPOS="1899" VPOS="3114"
+                            WIDTH="16" />
+                        <String ID="String46" STYLEREFS="Style4"
+                            HEIGHT="26" WIDTH="47" HPOS="1915" VPOS="3122"
+                            CONTENT="na" />
+                        <SP ID="Space32" HPOS="1962" VPOS="3122"
+                            WIDTH="16" />
+                        <String ID="String47" STYLEREFS="Style4"
+                            HEIGHT="34" WIDTH="105" HPOS="1978" VPOS="3114"
+                            CONTENT="staré" />
+                        <SP ID="Space33" HPOS="2083" VPOS="3114"
+                            WIDTH="14" />
+                        <String ID="String48" STYLEREFS="Style4"
+                            HEIGHT="33" WIDTH="104" HPOS="2097" VPOS="3114"
+                            CONTENT="téma" />
+                    </TextLine>
+                </TextBlock>
+            </PrintSpace>
+        </Page>
+    </Layout>
+</alto>

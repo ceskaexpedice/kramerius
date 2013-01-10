@@ -21,6 +21,8 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import net.sf.json.JSONObject;
+
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -32,6 +34,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.utils.ALTOUtils;
 import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -48,6 +51,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.solr.SolrUtils;
@@ -92,6 +96,8 @@ public class ViewInfoServlet extends GuiceServlet {
     @Inject
     Provider<User> currentLoggedUserProvider;
 
+    private InputStream dataStream;
+
     
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -134,7 +140,7 @@ public class ViewInfoServlet extends GuiceServlet {
                 map.put("donator", fedoraAccess.getDonator(pid));
                 // nezobrazitelny obsah .. 
                 map.put("displayableContent", ImageMimeType.loadFromMimeType(mimeType) != null);
-                
+
                 
                 if (this.currentLoggedUserProvider.get().hasSuperAdministratorRole()) {
                     // kam to jinam dat ?? 
@@ -190,6 +196,9 @@ public class ViewInfoServlet extends GuiceServlet {
                 map.put("hasAlto", ""+hasAlto);
                 map.put("donator", ""+donator);
 
+                if (hasAlto) {
+                    altoObject(pid,map, req);
+                }
                 
                 resp.setContentType("text/plain");
                 StringTemplate template = ST_GROUP.getInstanceOf("viewinfo");
@@ -210,6 +219,26 @@ public class ViewInfoServlet extends GuiceServlet {
         }
     }
     
+
+
+    private void altoObject(String imagePid,HashMap map, HttpServletRequest req) throws IOException, ParserConfigurationException, SAXException {
+        if (req.getParameterMap().containsKey("q")) {
+            String par = req.getParameter("q");
+            Document parsed = getAltoDocument(imagePid);
+            Map<String, Map<String, Double>> disected = ALTOUtils.disectAlto(par, parsed);
+            map.put("alto", disected);
+        }
+    }
+
+
+    private Document getAltoDocument(String imagePid) throws IOException, ParserConfigurationException, SAXException {
+        InputStream is = this.fedoraAccess.getDataStream(imagePid, "ALTO");
+        return XMLUtils.parseDocument(is);
+    }
+
+
+
+
 
 
     private boolean firstMustBeTrue(boolean[] vals) {
