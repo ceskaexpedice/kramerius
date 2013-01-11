@@ -76,3 +76,11 @@ insertRight_NDKMetsImport() ::=<<
         from group_entity
         where gname='k4_admins'
 >>
+
+
+insertRight_aggregate() ::=<<
+    insert into right_entity (right_id, uuid, "action", group_id)
+        select nextval('right_id_sequence'),'uuid:1','aggregate',group_id 
+        from group_entity
+        where gname='common_users'
+>>

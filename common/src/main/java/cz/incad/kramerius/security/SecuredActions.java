@@ -89,7 +89,10 @@ public enum SecuredActions {
     NDK_METS_IMPORT("ndk_mets_import"),
 
     /** Akce umozni zobrazit administratorskou cast menu */
-    DISPLAY_ADMIN_MENU("display_admin_menu");
+    DISPLAY_ADMIN_MENU("display_admin_menu"),
+    
+    /** aggregate process */
+    AGGREGATE_PROCESSES("aggregate");
     
     
     private String formalName;

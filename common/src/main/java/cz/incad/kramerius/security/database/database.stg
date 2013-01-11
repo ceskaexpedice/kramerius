@@ -440,3 +440,5 @@ select_object_using_param() ::=<<
         join criterium_param_entity p on (c.citeriumparam= p.crit_param_id)
     where p.crit_param_id= ? 
 >>
+
+

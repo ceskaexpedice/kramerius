@@ -368,6 +368,8 @@
         <mainClass>cz.incad.kramerius.processes.impl.ProcessAggregator</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
+        <securedaction>aggregate</securedaction>
+        
     </process>
 
 
