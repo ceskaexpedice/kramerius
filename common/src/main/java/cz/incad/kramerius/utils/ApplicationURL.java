@@ -46,18 +46,23 @@ public class ApplicationURL {
 	 */
     public static String applicationURL(HttpServletRequest request) {
         try {
-            String string = request.getRequestURL().toString();
-            return applicationURL(string);
+            String url = request.getRequestURL().toString();
+            String header = request.getHeader("x-forwarded-host");
+            if (header != null) {
+                String requestUri = request.getRequestURI();
+                String protocol = new URL(request.getRequestURL().toString()).getProtocol();
+                url = createURL(header, protocol, requestUri);
+            }
+            return applicationURL(url);
         } catch (MalformedURLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return "<no url>";
         }
     }
 
-    public static String applicationURL(String string) throws MalformedURLException {
+    static String applicationURL(String string) throws MalformedURLException {
         URL url = new URL(string);
         String application = applicationContextPath(url);
-
         String port = extractPort(url);
         String aURL = url.getProtocol() + "://" + url.getHost() + port + "/" + application;
         return aURL;
@@ -113,6 +118,29 @@ public class ApplicationURL {
         } else {
             return applicationURL(request)+"/"+path;
         }
+    }
+
+    public static String urlFromRequest(HttpServletRequest httpReq) throws MalformedURLException {
+        String header = httpReq.getHeader("x-forwarded-host");
+        if (header != null) {
+            String requestUri = httpReq.getRequestURI();
+            String protocol = new URL(httpReq.getRequestURL().toString()).getProtocol();
+            String createdURL = createURL(header, protocol, requestUri);
+            return createdURL;
+        } else {
+            String string = httpReq.getRequestURL().toString();
+            return string;
+        }
+    }
+    
+    static String createURL(String headerField, String protocol, String requestUri) {
+        if (headerField.startsWith("/")) headerField = headerField.substring(1);
+        if (headerField.endsWith("/")) headerField = headerField.substring(0, headerField.lastIndexOf('/'));
+        if (requestUri.startsWith("/")) {
+            requestUri = requestUri.substring(1);
+        }
+        String urlString = protocol+"://"+headerField+"/"+requestUri;
+        return urlString;
     }
 
 }
