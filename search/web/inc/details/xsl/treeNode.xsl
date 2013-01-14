@@ -248,7 +248,8 @@
     <xsl:template name="page">
         <xsl:param name="detail" />
         <xsl:value-of select="substring-before($detail, '##')" />&#160;
-        <xsl:value-of select="$bundle/value[@key=substring-after($detail, '##')]"/>
+        <xsl:variable name="partType">mods.page.partType.<xsl:value-of select="substring-after($detail, '##')"/></xsl:variable>
+        <xsl:value-of select="$bundle/value[@key=$partType]"/>
     </xsl:template>
 
 </xsl:stylesheet>

@@ -56,19 +56,22 @@
             </xsl:if>
 
             <xsl:variable name="partType"><xsl:value-of select="mods:part/@type" /></xsl:variable>
+            <xsl:variable name="partTypeLoc">mods.page.partType.<xsl:value-of select="mods:part/@type"/></xsl:variable>
             <!-- page -->
-                <xsl:choose>
-                    <xsl:when test="$partType='Blank'">
-                        <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<xsl:value-of select="$bundle/value[@key='Blank']"/>)</xsl:when>
-                    <xsl:when test="$partType='TitlePage'">
-                        <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<xsl:value-of select="$bundle/value[@key='TitlePage']"/>)</xsl:when>
-                    <xsl:when test="$partType='TableOfContents'">
-                        <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<xsl:value-of select="$bundle/value[@key='TableOfContents']"/>)</xsl:when>
-                    <xsl:when test="$partType='Index'">
-                        <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /> (<xsl:value-of select="$bundle/value[@key='TableOfContents']"/>)</xsl:when>
-                    <xsl:when test="$partType='NormalPage'">
-                        <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /></xsl:when>
-                </xsl:choose>
+            <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />&#160;
+            (<xsl:value-of select="$bundle/value[@key=$partTypeLoc]"/>)
+            <!--xsl:choose>
+                <xsl:when test="$partType='Blank'">
+                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />&#160;(<xsl:value-of select="$bundle/value[@key='Blank']"/>)</xsl:when>
+                <xsl:when test="$partType='TitlePage'">
+                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />&#160;(<xsl:value-of select="$bundle/value[@key='TitlePage']"/>)</xsl:when>
+                <xsl:when test="$partType='TableOfContents'">
+                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />&#160;(<xsl:value-of select="$bundle/value[@key='TableOfContents']"/>)</xsl:when>
+                <xsl:when test="$partType='Index'">
+                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" />&#160;(<xsl:value-of select="$bundle/value[@key='TableOfContents']"/>)</xsl:when>
+                <xsl:when test="$partType='NormalPage'">
+                    <xsl:value-of select="mods:part/mods:detail[@type = 'pageNumber']/mods:number" /></xsl:when>
+            </xsl:choose-->
             <!-- end page -->
 
             <!-- monograph unit -->
