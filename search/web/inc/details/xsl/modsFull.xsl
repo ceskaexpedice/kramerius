@@ -128,10 +128,11 @@
                     <xsl:value-of select="$bundle/value[@key='common.author']"/>
                 </h3>
                 <xsl:for-each select="mods:name[@type='personal'][mods:role/mods:roleTerm[@type='code'] = 'cre']"><li>
+                    <xsl:variable name="roleTerm">mods.roleTerm.<xsl:value-of select="./mods:role/mods:roleTerm[@type='text']" /></xsl:variable>
                     <div>
                     <span class="label">
-                        <xsl:value-of select="./mods:role/mods:roleTerm[@type='text']" />:&#160;
-                   </span>
+                         <xsl:value-of select="$bundle/value[@key=$roleTerm]"/>:&#160;
+                    </span>
                    <span class="value">
                         <xsl:choose>
                             <xsl:when test="./mods:namePart[@type='family']">
@@ -152,10 +153,11 @@
                     <xsl:value-of select="$bundle/value[@key='mods.contributor']"/>
                 </h3>
                 <xsl:for-each select="mods:name[@type='personal'][mods:role/mods:roleTerm[@type='code'] = 'ctb']"><li>
-                   <div>
-                   <span class="label">
-                        <xsl:value-of select="./mods:role/mods:roleTerm[@type='text']" />:&#160;
-                   </span>
+                   <xsl:variable name="roleTerm">mods.roleTerm.<xsl:value-of select="./mods:role/mods:roleTerm[@type='text']" /></xsl:variable>
+                    <div>
+                    <span class="label">
+                         <xsl:value-of select="$bundle/value[@key=$roleTerm]"/>:&#160;
+                    </span>
                    <span class="value">
                         <xsl:value-of select="./mods:namePart[@type='family']" />,&#160;
                         <xsl:for-each select="./mods:namePart[@type='given']"><xsl:value-of select="." />&#160;</xsl:for-each>
