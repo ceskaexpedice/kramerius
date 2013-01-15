@@ -346,6 +346,7 @@ public class SolrOperations {
                 if (dateNode != null) {
                     DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
                     Date dateValue = formatter.parse(dateNode.getNodeValue());
+                    //logger.info("FOXMLDATE:"+dateValue+" INDEXDATE:"+date);
                     if (!dateValue.after(date)) {
                         if (!force) {
                             logger.info(String.format("Document %s is up to date. Skipping", pid));
