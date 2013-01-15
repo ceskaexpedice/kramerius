@@ -176,10 +176,10 @@ public class SolrOperations {
 
     }
 
-    private void reindexDoc(String uuid, boolean force)
+    private int reindexDoc(String uuid, boolean force)
             throws java.rmi.RemoteException, IOException, Exception {
         if (uuid == null || uuid.length() < 1) {
-            return;
+            return 0;
         }
         try {
             String urlStr = config.getString("solrHost") + "/select/?q=PID:\"" + uuid + "\"";
@@ -210,9 +210,10 @@ public class SolrOperations {
                 logger.info("Problem parsing modified_date, document "+ uuid +" will be fully reindexed. ("+e+")");
             }
 
-            indexByPid(uuid, date, force, new ByteArrayInputStream(fedoraOperations.foxmlRecord));
+            return indexByPid(uuid, date, force, new ByteArrayInputStream(fedoraOperations.foxmlRecord));
         } catch (Exception ex) {
             logger.log(Level.WARNING, "Error reindexing doc " + uuid + " with: " + ex.toString());
+            return 0;
         }
     }
 
@@ -407,11 +408,16 @@ public class SolrOperations {
                 String relpid = pids.get(i);
                 String model = models.get(i);
                 try {
-                    byte[] foxmlRecord2 = fedoraOperations.getAndReturnFoxmlFromPid(relpid);
-                    InputStream foxmlStream2 = new ByteArrayInputStream(foxmlRecord2);
-                    contentDom = getDocument(foxmlStream2);
-                    foxmlStream2.reset();
-                    num += indexByPid(relpid, date, force, foxmlStream2);
+                    if(date==null){
+                        byte[] foxmlRecord2 = fedoraOperations.getAndReturnFoxmlFromPid(relpid);
+                        InputStream foxmlStream2 = new ByteArrayInputStream(foxmlRecord2);
+                        contentDom = getDocument(foxmlStream2);
+                        foxmlStream2.reset();
+                        num += indexByPid(relpid, date, force, foxmlStream2);
+                    }else{
+                        num += reindexDoc(relpid, force);
+                    }
+                    
                 } catch (Exception ex) {
                     logger.log(Level.WARNING, "Can't index doc: " + relpid + " Continuing...", ex);
                 }
