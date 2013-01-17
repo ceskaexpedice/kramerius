@@ -78,8 +78,8 @@ function onLoadPlainImage() {
         ${image.notAllowedMessageText}            
     </div>
 
-    <div id="loadingDeepZoomImage" class="view_div">
-        <view:msg>deep.zoom.loadingImage</view:msg>
+    <div id="loadingDeepZoomImage" class="view_div" style="display: none;">
+        <view:msg>deep.zoom.loadingImage</view:msg>  
     </div>
 
     <div id="pdfImage" style="position:relative;text-align:center;">
