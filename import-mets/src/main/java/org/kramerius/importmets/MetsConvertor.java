@@ -1,10 +1,6 @@
 package org.kramerius.importmets;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.logging.Level;
 
@@ -122,15 +118,16 @@ public class MetsConvertor {
         }
 
         File infoFile = new File(importFolder, "info.xml");
+        if (!infoFile.exists()) {
+            log.error("info.xml file doesn't exist: " + infoFile.getAbsolutePath());
+            throw new RuntimeException("info.xml file doesn't exist: " + infoFile.getAbsolutePath());
+        }
 
 
         String packageid = getPackageid(infoFile);
 
-        File importFile = new File(importFolder, "METS_" + packageid + ".xml");
-        if (!importFile.exists()) {
-            log.error("Import METS file doesn't exist: " + importFile.getAbsolutePath());
-            throw new RuntimeException("Import METS file doesn't exist: " + importFile.getAbsolutePath());
-        }
+        File importFile = findMetsFile(importFolder);
+
 
 
         //visitAllDirsAndFiles(importFile, importRoot, exportRoot,   defaultVisibility,  convertedURI, titleId);
@@ -166,7 +163,20 @@ public class MetsConvertor {
         return convertedURI.toString();
     }
 
+    private static File findMetsFile(File importFolder){
+        File[] fileList = importFolder.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isFile() && pathname.getName().toLowerCase().endsWith(".xml") && !(pathname.getName().equalsIgnoreCase("info.xml"));
 
+            }
+        });
+        if (fileList.length!=1){
+            log.error("Invalid PSP package. Cannot find single main METS file");
+            throw new RuntimeException("Invalid PSP package. Cannot find single main METS file");
+        }
+        return fileList[0];
+    }
 
     private static String getPackageid(File infoFile) {
         try {
