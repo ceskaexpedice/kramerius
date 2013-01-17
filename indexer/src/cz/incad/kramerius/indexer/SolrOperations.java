@@ -236,6 +236,7 @@ public class SolrOperations {
             }
         }
         indexDoc(new ByteArrayInputStream(fedoraOperations.foxmlRecord), String.valueOf(docs));
+        commit();
     }
     /* kramerius */
     XPathFactory factory = XPathFactory.newInstance();
