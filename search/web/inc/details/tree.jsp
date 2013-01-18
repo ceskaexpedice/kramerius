@@ -414,7 +414,9 @@
             k4Settings.selectedPathTexts = [];
             for(var j=0;j<selectedPathTemp.length; j++){
                 k4Settings.selectedPath[j]=selectedPathTemp[j];
-                k4Settings.selectedPathTexts[j]=$(jq(selectedPathTemp[j])+">div>a>label").html()
+                var html = $(jq(selectedPathTemp[j])+">div>a>label").html();
+                if(html==null) html = '';
+                k4Settings.selectedPathTexts[j]= html;
             }
             $(".viewer").trigger('selectedPathChanged', [level]);
         }
