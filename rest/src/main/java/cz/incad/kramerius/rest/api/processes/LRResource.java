@@ -81,6 +81,7 @@ import cz.incad.kramerius.rest.api.processes.filter.FilterCondition;
 import cz.incad.kramerius.rest.api.processes.filter.Operand;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
@@ -170,23 +171,31 @@ public class LRResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response startWitoutParams(@QueryParam("def")String def) {
+        //TODO: security
         return plainProcessStart(def,new JSONArray());
     }    
     
     Response plainProcessStart(String def, JSONArray array){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
+        LRProcessDefinition definition = processDefinition(def);
+
+        
+        String loggedUserKey = findLoggedUserKey();
+        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        if (user == null) {
+            // no user
+            throw new SecurityException("access denided");
+        }
+
+        SecuredActions actionFromDef = securedAction(def, definition);
+        boolean permitted = permit(actionAllowed, actionFromDef, user);
+
+        if (permitted) {
             try {
                 
-                definitionManager.load();
-                LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
                 if (definition != null) {
                     if (!definition.isInputTemplateDefined()) {
-                        User user = userProvider.get();
-                        String loggedUserKey =  (String) this.requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
                         
-                        HttpServletRequest request = this.requestProvider.get();
-                        
-                        LRProcess newProcess = definition.createNewProcess(request.getHeader(AUTH_TOKEN_HEADER_KEY), request.getParameter(TOKEN_ATTRIBUTE_KEY));
+                        LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
                         newProcess.setLoggedUserKey(loggedUserKey);
 
                         List<String> params = new ArrayList<String>();
@@ -215,17 +224,31 @@ public class LRResource {
         }
     }
 
-    Response parametrizedProcessStart(@PathParam("def")String def,  JSONObject mapping){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
-            definitionManager.load();
-            LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
 
-            User user = userProvider.get();
-            String loggedUserKey =  (String) this.requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
-            
-            HttpServletRequest request = this.requestProvider.get();
-            
-            LRProcess newProcess = definition.createNewProcess(request.getHeader(AUTH_TOKEN_HEADER_KEY), request.getParameter(TOKEN_ATTRIBUTE_KEY));
+    public String authToken() {
+        return requestProvider.get().getHeader(AUTH_TOKEN_HEADER_KEY);
+    }
+
+    public String groupToken() {
+        String gtoken = requestProvider.get().getHeader(TOKEN_ATTRIBUTE_KEY);
+        return gtoken;
+    }
+
+    Response parametrizedProcessStart(@PathParam("def")String def,  JSONObject mapping){
+        LRProcessDefinition definition = processDefinition(def);
+
+        String loggedUserKey = findLoggedUserKey();
+        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        if (user == null) {
+            // no user
+            throw new SecurityException("access denided");
+        }
+
+        SecuredActions actionFromDef = securedAction(def, definition);
+        boolean permitted = permit(actionAllowed, actionFromDef, user);
+
+        if (permitted) {
+            LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
             newProcess.setLoggedUserKey(loggedUserKey);
 
             Properties props = new Properties();
@@ -245,6 +268,13 @@ public class LRResource {
             throw new ActionNotAllowed("action is not allowed");
         }
     }
+
+
+    public LRProcessDefinition processDefinition(String def) {
+        definitionManager.load();
+        LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
+        return definition;
+    }
     
     /**
      * Stop current running process
@@ -256,7 +286,18 @@ public class LRResource {
     @Path("{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response stop(@PathParam("uuid")String uuid, @QueryParam("stop") String stop){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
+
+        LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
+        String loggedUserKey = findLoggedUserKey();
+        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        if (user == null) {
+            // no user
+            throw new SecurityException("access denided");
+        }
+
+        SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
+        boolean permitted = permit(actionAllowed, actionFromDef, user);
+        if (permitted) {
             if (stop != null) {
                 this.definitionManager.load();
                 LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
@@ -285,7 +326,21 @@ public class LRResource {
     @Path("{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public String delete(@PathParam("uuid")String uuid){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
+
+        LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
+        String loggedUserKey = findLoggedUserKey();
+        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        if (user == null) {
+            // no user
+            throw new SecurityException("access denided");
+        }
+
+        SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
+        boolean permitted = permit(actionAllowed, actionFromDef, user);
+
+        
+        //TODO: security
+        if (permitted) {
             Lock lock = this.lrProcessManager.getSynchronizingLock();
             lock.lock();
             try {
@@ -319,7 +374,17 @@ public class LRResource {
     @Path("{uuid}/logs")
     @Produces(MediaType.APPLICATION_JSON)
     public Response logs(@PathParam("uuid")String uuid){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
+        LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
+        String loggedUserKey = findLoggedUserKey();
+        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        if (user == null) {
+            // no user
+            throw new SecurityException("access denided");
+        }
+
+        SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
+        boolean permitted = permit(actionAllowed, actionFromDef, user);
+        if (permitted) {
             try {
                 JSONObject jsonObj = new JSONObject();
                 LRProcess lrProcesses = this.lrProcessManager.getLongRunningProcess(uuid);
@@ -356,7 +421,17 @@ public class LRResource {
     @Path("{uuid}")
     @Produces({MediaType.APPLICATION_JSON+ ";charset=utf-8"})
     public Response getProcessDescription(@PathParam("uuid")String uuid){
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
+        LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
+        String loggedUserKey = findLoggedUserKey();
+        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        if (user == null) {
+            // no user
+            throw new SecurityException("access denided");
+        }
+
+        SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
+        boolean permitted = permit(actionAllowed, actionFromDef, user);
+        if (permitted) {
             LRProcess lrProc = this.lrProcessManager.getLongRunningProcess(uuid);
             if (lrProc != null) {
                 JSONObject jsonObject = lrPRocessToJSONObject(lrProc);
@@ -404,7 +479,18 @@ public class LRResource {
 
             @QueryParam("offset") String of,
             @QueryParam("resultSize") String resultSize) {
-        if (this.actionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null,new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
+
+        //LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
+        String loggedUserKey = findLoggedUserKey();
+        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        if (user == null) {
+            // no user
+            throw new SecurityException("access denided");
+        }
+
+        boolean permitted = permit(actionAllowed,  user);
+
+        if (permitted) {
 
                 Map<String, String> filterMap = new HashMap<String, String>(); {
                     if (StringUtils.isAnyString(filterUUID)) filterMap.put("uuid", filterUUID);
@@ -418,7 +504,7 @@ public class LRResource {
                     if (StringUtils.isAnyString(filterUserSurname)) filterMap.put("userSurname", filterUserSurname);
                 };
                 LRPRocessFilter filter = lrPRocessFilter(filterMap);
-                List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(null), typeOfOrdering(null), offset(of, resultSize), filter);
+                List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(LRProcessOrdering.PLANNED.name()), typeOfOrdering(null), offset(of, resultSize), filter);
                 JSONArray retList = new JSONArray();
 
                 for (LRProcess lrProcess : lrProcesses) {
@@ -512,4 +598,54 @@ public class LRResource {
         jsonObject.put("userSurname", lrProcess.getSurname());
         return jsonObject;
     }
+    
+    
+    public String findLoggedUserKey() {
+        
+        if (groupToken() != null) {
+            if (lrProcessManager.isAuthTokenClosed(authToken())) {
+                throw new SecurityException("access denided");
+            }
+            List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(groupToken());
+            if (!processes.isEmpty()) {
+                // hledani klice 
+                List<States> childStates = new ArrayList<States>();
+                childStates.add(States.PLANNED);
+                // prvni je master process -> vynechavam
+                for (int i = 1,ll=processes.size(); i < ll; i++) {
+                    childStates.add(processes.get(i).getProcessState());
+                }
+
+                LRProcess process = processes.get(0);
+                //process.setProcessState(States.calculateBatchState(childStates));
+                process.setBatchState(BatchStates.calculateBatchState(childStates));
+                
+                lrProcessManager.updateLongRunningProcessState(process);
+                
+                return lrProcessManager.getSessionKey(process.getAuthToken());
+            } else {
+                throw new RuntimeException("cannot find process with token '"+groupToken()+"'");
+            }
+        } else {
+            userProvider.get();
+            return (String) requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
+        }
+    }
+
+
+    boolean permit(IsActionAllowed rightsResolver, User user) {
+        boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH) : false;
+        return permited;
+    }
+
+    boolean permit(IsActionAllowed rightsResolver, SecuredActions action, User user) {
+        boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH) || 
+                            (action != null && rightsResolver.isActionAllowed(user, action.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH))) : false ;
+        return permited;
+    }
+
+    public SecuredActions securedAction(String def, LRProcessDefinition definition) {
+        return definition.getSecuredAction() != null ? SecuredActions.findByFormalName(definition.getSecuredAction()) : SecuredActions.findByFormalName(def);
+    }
+
 }
