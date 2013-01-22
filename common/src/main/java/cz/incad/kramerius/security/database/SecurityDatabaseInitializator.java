@@ -87,7 +87,9 @@ public class SecurityDatabaseInitializator {
                 
                 // insert aggregate process right
                 insertAggregateRight(connection);
-                
+
+                insertShowStatiticsRight(connection);
+
             } else { 
                 String v = versionService.getVersion();
 
@@ -121,6 +123,8 @@ public class SecurityDatabaseInitializator {
 
                     // insert aggregate process right
                     insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
 
                 } else if (versionCondition(v, "=", "5.3.0")){
                     // right for criteria params manage
@@ -136,6 +140,8 @@ public class SecurityDatabaseInitializator {
 
                     // insert aggregate process right
                     insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
 
                 } else if (versionCondition(v, "=", "5.4.0")){
                     // k4 replication rights
@@ -148,6 +154,8 @@ public class SecurityDatabaseInitializator {
                     insertReplikatorK3(connection);
                     // insert aggregate process right
                     insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
                 } else if (versionCondition(v, "=", "5.5.0")){
                     // mets ndk import
                     insertNDKMetsImport(connection);
@@ -155,17 +163,28 @@ public class SecurityDatabaseInitializator {
                     insertReplikatorK3(connection);
                     // insert aggregate process right
                     insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
                 } else if (versionCondition(v, "=", "5.6.0")){
                     // replikator k3
                     insertReplikatorK3(connection);
                     // insert aggregate process right
                     insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
                 } else if (versionCondition(v, "=", "5.7.0")){
                     // insert aggregate process right
                     insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
                 } else if (versionCondition(v, "=", "5.8.0")){
                     // insert aggregate process right
                     insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
+                } else if (versionCondition(v, "=", "5.9.0")){
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
                 }
             }
         } catch (SQLException e) {
@@ -183,6 +202,17 @@ public class SecurityDatabaseInitializator {
      */
     private static int insertAggregateRight(Connection connection) throws SQLException {
         String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_aggregate").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(sql);
+    }
+
+    /**
+     * @param connection
+     * @return 
+     * @throws SQLException 
+     */
+    private static int insertShowStatiticsRight(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_showstatistics").toString();
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
         return template.executeUpdate(sql);
     }

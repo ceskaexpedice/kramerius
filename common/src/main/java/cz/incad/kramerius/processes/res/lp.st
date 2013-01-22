@@ -392,4 +392,20 @@
     </process>
 
 
+    <!-- delete old processes -->
+    <process>
+        <id>delete_processes</id>
+        <description>Delete old processes</description>
+        <mainClass>cz.incad.kramerius.processes.manages.DeleteProcesses</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+        
+        <templates>
+            <input class="cz.incad.kramerius.processes.manages.input.DeleteProcessesInput"></input>
+        </templates>
+        
+    </process>
+
+
 </processes>

@@ -168,15 +168,18 @@ public class DatabaseProcessManager implements LRProcessManager {
             final List<LRProcess> childSubprecesses = getLongRunningProcessesByGroupToken(token);
 
             for (final LRProcess lrProcess : childSubprecesses) {
-                commands.add(new JDBCCommand() {
+                if (lrProcess.getAuthToken() != null) {
+                    commands.add(new JDBCCommand() {
+                        
+                        @Override
+                        public Object executeJDBCCommand(Connection con) throws SQLException {
+                            PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESS_2_TOKEN where auth_token = ?");
+                            prepareStatement.setString(1, lrProcess.getAuthToken());
+                            return prepareStatement.executeUpdate();
+                        }
+                    });
                     
-                    @Override
-                    public Object executeJDBCCommand(Connection con) throws SQLException {
-                        PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESS_2_TOKEN where auth_token = ?");
-                        prepareStatement.setString(1, lrProcess.getAuthToken());
-                        return prepareStatement.executeUpdate();
-                    }
-                });
+                }
             }
             
 
@@ -599,6 +602,9 @@ public class DatabaseProcessManager implements LRProcessManager {
                 return super.handleRow(rs, returnsList);
             }
         }.executeQuery("select token_active from processes where auth_token=?", authToken);
+        
+        // no flags
+        if (flags.isEmpty()) return true;
         
         for (Boolean flag : flags) {
             if (!flag.booleanValue()) return true;

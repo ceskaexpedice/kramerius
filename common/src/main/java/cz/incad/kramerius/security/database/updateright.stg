@@ -84,3 +84,10 @@ insertRight_aggregate() ::=<<
         from group_entity
         where gname='common_users'
 >>
+
+insertRight_showstatistics() ::=<<
+    insert into right_entity (right_id, uuid, "action", group_id)
+        select nextval('right_id_sequence'),'uuid:1','show_statictics',group_id 
+        from group_entity
+        where gname='k4_admins'
+>>

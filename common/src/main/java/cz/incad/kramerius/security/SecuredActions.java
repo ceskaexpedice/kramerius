@@ -92,8 +92,11 @@ public enum SecuredActions {
     DISPLAY_ADMIN_MENU("display_admin_menu"),
     
     /** aggregate process */
-    AGGREGATE_PROCESSES("aggregate");
-    
+    AGGREGATE_PROCESSES("aggregate"),
+
+    /** show statistics */
+    SHOW_STATISTICS("show_statictics");
+
     
     private String formalName;
   
