@@ -73,7 +73,7 @@ ZoomifyViewerInitObject.prototype.open = function(pid,altoObject) {
         );
 
 
-        var map_controls = [ new OpenLayers.Control.OverviewMap() ];
+        var map_controls = [ /*new OpenLayers.Control.OverviewMap()*/ ];
         this.map = new OpenLayers.Map("ol-image", {
             controls: map_controls,
             resolutions: resolutions(this.zoomify.numberOfTiers),
