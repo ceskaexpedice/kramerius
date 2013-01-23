@@ -631,9 +631,11 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String grpToken, String authToken,Provider<User> userProvider) {
             if (grpToken != null) {
+                /* TODO: change it 
                 if (lrProcessManager.isAuthTokenClosed(authToken)) {
                     throw new SecurityException("access denided");
                 }
+                */
                 List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(grpToken);
                 if (!processes.isEmpty()) {
                     // hledani klice 
