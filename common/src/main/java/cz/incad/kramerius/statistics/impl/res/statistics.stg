@@ -78,10 +78,9 @@ group by author_name order by count DESC
         offset ? limit ?
 >>
 
+selectLangReport() ::=<<
+    select count(*) as count, lang from statistic_access_log_detail 
+where lang is not null
+    group by lang order by count DESC
+>>
 
-"periodicalvolume"
-"page"
-"periodical"
-"monograph"
-"periodicalitem"
-"monographunit"
