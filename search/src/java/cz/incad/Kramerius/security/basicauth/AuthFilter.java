@@ -20,6 +20,7 @@
 package cz.incad.Kramerius.security.basicauth;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.K4GuiceFilter;
+import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.security.jaas.K4LoginModule;
 import cz.incad.kramerius.security.jaas.K4User;
 
@@ -48,6 +50,9 @@ import cz.incad.kramerius.security.jaas.K4User;
  * @author pavels
  */
 public class AuthFilter extends K4GuiceFilter{
+
+    private static final String AUTH_TOKEN_HEADER_KEY = "auth-token";
+    private static final String TOKEN_ATTRIBUTE_KEY = "token";
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AuthFilter.class.getName());
     
@@ -58,37 +63,52 @@ public class AuthFilter extends K4GuiceFilter{
     @Named("kramerius4")
     Provider<Connection> connectionProvider = null;
 
+    @Inject
+    LRProcessManager lrProcessManager;
+
+    
     @Override
     public void destroy() {
     }
 
     @Override
-    public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain arg2) throws IOException, ServletException {
+    public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain filterChain) throws IOException, ServletException {
         try {
             HttpServletRequest request = (HttpServletRequest) arg0;
             HttpServletResponse response = (HttpServletResponse) arg1;
-            if (request.getUserPrincipal() == null) {
-                String header = request.getHeader("Authorization");
-                if (header!=null && header.trim().startsWith("Basic")) {
-                    String uname = header.trim().substring("Basic".length()).trim();
-                    byte[] decoded = Base64Coder.decode(uname.toCharArray());
-                    String fname = new String(decoded, "UTF-8");
-                    if (fname.contains(":")) {
-                        String username = fname.substring(0, fname.indexOf(':'));
-                        String password = fname.substring(fname.indexOf(':')+1);
-                        HashMap<String,Object> user = K4LoginModule.findUser(connectionProvider.get(), username);
-                        if (user != null) {
-                            boolean checked = K4LoginModule.checkPswd(username, user.get("pswd").toString(), password.toCharArray());
-                            if (checked) {
-                                K4User principal = new K4User(username);
-                                HttpServletRequest authenticated = BasicAuthenticatedHTTPServletProxy.newInstance(request, principal);
-                                arg2.doFilter(authenticated, response);
-                            } else {
-                                sendError(response);
-                            }
-                        } else {
-                            sendError(response);
-                        }
+            String authToken = request.getHeader(AUTH_TOKEN_HEADER_KEY);
+            boolean authTokenDefined = (authToken != null && (!this.lrProcessManager.isAuthTokenClosed(authToken)));
+            if (authTokenDefined) {
+                // authtoken - forward 
+                filterChain.doFilter(request, response);
+            } else if (request.getUserPrincipal() == null) {
+                // try to basic auth
+                basicAuth(filterChain, request, response);
+            } else {
+                // authenticated user - only forward
+                filterChain.doFilter(request, response);
+            }
+        } catch (NoSuchAlgorithmException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        }
+    }
+
+    public void basicAuth(FilterChain arg2, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException, NoSuchAlgorithmException, IOException, ServletException {
+        String header = request.getHeader("Authorization");
+        if (header!=null && header.trim().startsWith("Basic")) {
+            String uname = header.trim().substring("Basic".length()).trim();
+            byte[] decoded = Base64Coder.decode(uname.toCharArray());
+            String fname = new String(decoded, "UTF-8");
+            if (fname.contains(":")) {
+                String username = fname.substring(0, fname.indexOf(':'));
+                String password = fname.substring(fname.indexOf(':')+1);
+                HashMap<String,Object> user = K4LoginModule.findUser(connectionProvider.get(), username);
+                if (user != null) {
+                    boolean checked = K4LoginModule.checkPswd(username, user.get("pswd").toString(), password.toCharArray());
+                    if (checked) {
+                        K4User principal = new K4User(username);
+                        HttpServletRequest authenticated = BasicAuthenticatedHTTPServletProxy.newInstance(request, principal);
+                        arg2.doFilter(authenticated, response);
                     } else {
                         sendError(response);
                     }
@@ -96,11 +116,10 @@ public class AuthFilter extends K4GuiceFilter{
                     sendError(response);
                 }
             } else {
-                // authenticated user - only forward
-                arg2.doFilter(request, response);
+                sendError(response);
             }
-        } catch (NoSuchAlgorithmException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        } else {
+            sendError(response);
         }
     }
 

@@ -11,6 +11,8 @@
     clz="cz.incad.Kramerius.views.statistics.AuthorStatisticsViewObject"></view:object>
 
 
+<scrd:securedContent action="show_statictics">
+
 <link rel="stylesheet" type="text/css" href="css/graph/jquery.jqplot.min.css" />
 <script src="js/graph/jquery.jqplot.min.js" type="text/javascript" ></script>
 <script type="text/javascript" src="js/graph/jqplot.barRenderer.min.js"></script>
@@ -135,3 +137,5 @@ $(document).ready(function(){
     </div>
 
 </div>
+
+</scrd:securedContent>

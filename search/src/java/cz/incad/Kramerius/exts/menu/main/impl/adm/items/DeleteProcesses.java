@@ -26,10 +26,10 @@ import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
 import cz.incad.kramerius.security.SecuredActions;
 
 /**
- * Display statistics dialog
  * @author pavels
+ *
  */
-public class ShowStatistics extends AbstractMainMenuItem implements AdminMenuItem {
+public class DeleteProcesses extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public boolean isRenderable() {
@@ -39,8 +39,10 @@ public class ShowStatistics extends AbstractMainMenuItem implements AdminMenuIte
     @Override
     public String getRenderedItem() throws IOException {
         return renderMainMenuItem(
-                "javascript:statistics.showDialog(); javascript:hideAdminMenu();",
-                "administrator.menu.dialogs.statistics.title", false);
+                "javascript:parametrizedProcess.open('delete_processes'); javascript:hideAdminMenu();",
+                "administrator.menu.dialogs.deleteprocesses.title", false);
     }
+
+    
 
 }

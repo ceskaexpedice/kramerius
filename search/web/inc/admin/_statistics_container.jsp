@@ -10,6 +10,9 @@
 <view:object name="statistics"
     clz="cz.incad.Kramerius.views.statistics.ModelStatisticsViewObject"></view:object>
 
+<scrd:securedContent action="show_statictics">
+
+
 <script>
     $(document).ready(function(){
         $('.buttons').button();
@@ -86,6 +89,20 @@
         </tr>
 
         <tr><td colspan="3"> <hr/></td></tr>    
+        <tr><td colspan="3"> <strong><view:msg>statistics.report.lang</view:msg></strong></td></tr>    
+
+        <tr>
+            <td colspan="2"></td>
+            <td style="text-align: right;">
+            <script type="text/javascript">function _showLangReport() {
+                statistics.showLangReport();
+             }</script>
+            <a href="javascript:_showLangReport();" class="buttons"><view:msg>common.display</view:msg></a></td>
+        </tr>
+
+
+
+        <tr><td colspan="3"> <hr/></td></tr>    
         <tr><td colspan="3"> <strong> <view:msg>statistics.report.exports</view:msg></strong></td></tr>    
         <tr>
             <td colspan="2"></td>
@@ -106,3 +123,5 @@
     </table>
         
 </fieldset>
+
+</scrd:securedContent>

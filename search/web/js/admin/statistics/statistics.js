@@ -31,12 +31,49 @@ Statistics.prototype.showDialog = function() {
 
 
 
+Statistics.prototype.reloadLangReport=function(type, val, offset,size) {
+    $.get("inc/admin/_statistics_langs.jsp?type=lang&val="+val+"&offset="+offset+"&size="+size, bind(function(data) {
+        $("#statistic_report_lang").html(data);
+    },this));
+}
+
+/** lang report */
+Statistics.prototype.showLangReport = function() {
+    $.get("inc/admin/_statistics_langs.jsp?type=lang&val=x", bind(function(data) {
+        var dDialog = this.reportDialogs['lang'];
+        if (dDialog) {
+            dDialog.dialog('open');
+        } else {
+            var pdiv = '<div id="statistic_report_lang"></div>';
+            $(document.body).append(pdiv);
+            dDialog = $("#statistic_report_lang").dialog({
+                bgiframe: true,
+                width:  800,
+                height:  600,
+                modal: true,
+                title: dictionary ['statistics.report.lang'],
+                buttons: [{
+                              text:dictionary['common.close'],
+                              click:function() {
+                                 $(this).dialog("close"); 
+                              }
+                }]
+            
+            });
+        }
+        
+        $("#statistic_report_lang").html(data);
+    },this));    
+    
+}
+
 
 Statistics.prototype.reloadAuthorsReport=function(type, val, offset,size) {
     $.get("inc/admin/_statistics_authors.jsp?type=author&val="+val+"&offset="+offset+"&size="+size, bind(function(data) {
         $("#statistic_report_author").html(data);
     },this));
 }
+
 
 /** dates range report */
 Statistics.prototype.showAuthorReport = function() {

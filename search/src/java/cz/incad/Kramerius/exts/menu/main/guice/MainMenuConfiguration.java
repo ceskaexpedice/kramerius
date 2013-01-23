@@ -26,6 +26,7 @@ import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuPartImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Convert;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.CriteriaEditor;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.DeleteProcesses;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Enumerator;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.GlobalRightsAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Import;
@@ -106,6 +107,7 @@ public class MainMenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(ParametrizedK4Replication.class);
         
         adminItems.addBinding().to(ShowStatistics.class);
+        adminItems.addBinding().to(DeleteProcesses.class);
         
         bind(MainMenu.class).to(MainMenuImpl.class);
     }

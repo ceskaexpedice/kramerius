@@ -53,6 +53,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.impl.AuthorReport;
 import cz.incad.kramerius.statistics.impl.DatabaseStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.impl.DateDurationReport;
+import cz.incad.kramerius.statistics.impl.LangReport;
 import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
@@ -72,6 +73,7 @@ public class BaseModule extends AbstractModule {
         reports.addBinding().to(ModelStatisticReport.class);
         reports.addBinding().to(DateDurationReport.class);
         reports.addBinding().to(AuthorReport.class);
+        reports.addBinding().to(LangReport.class);
         
         bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
 
