@@ -36,7 +36,6 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.kramerius.processes.filetree.TreeItem;
 import org.kramerius.processes.filetree.TreeModelFilter;
 import org.kramerius.processes.utils.BasicStringTemplateGroup;
-import org.kramerius.processes.utils.ResourceBundleUtils;
 import org.kramerius.processes.utils.TreeModelUtils;
 
 import com.google.inject.Inject;
@@ -46,6 +45,7 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.template.ProcessInputTemplate;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.stemplates.ResourceBundleUtils;
 
 public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
 

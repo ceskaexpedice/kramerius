@@ -43,12 +43,8 @@ import org.kramerius.processes.filetree.TreeItemFileMap;
 import org.kramerius.processes.filetree.TreeModelFilter;
 import org.kramerius.processes.utils.BasicStringTemplateGroup;
 import org.kramerius.processes.utils.OtherSettingsTemplate;
-import org.kramerius.processes.utils.ResourceBundleUtils;
 import org.kramerius.processes.utils.TreeModelUtils;
 
-import sun.util.LocaleServiceProviderPool.LocalizedObjectGetter;
-
-import com.google.gwt.dom.client.Style.Visibility;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -56,6 +52,7 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.template.ProcessInputTemplate;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.stemplates.ResourceBundleUtils;
 
 /**
  * @author pavels
