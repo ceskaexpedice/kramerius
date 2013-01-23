@@ -216,7 +216,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     String grpToken = req.getParameter(TOKEN_ATTRIBUTE_KEY);
                     String authToken = req.getHeader(AUTH_TOKEN_HEADER_KEY);
 
-                    String loggedUserKey = findLoggedUserKey(req, lrProcessManager, grpToken, userProvider);
+                    
+                    String loggedUserKey = findLoggedUserKey(req, lrProcessManager, grpToken, authToken,  userProvider);
                     User user = loggedUserSingleton.getUser(loggedUserKey);
                     if (user == null) {
                         // no user
@@ -327,8 +328,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 SecuredActions actionFromDef = securedAction(def, definition);
                 String grpToken = req.getParameter(TOKEN_ATTRIBUTE_KEY);
                 String authToken = req.getHeader(AUTH_TOKEN_HEADER_KEY);
-
-                String loggedUserKey = findLoggedUserKey(req, processManager, grpToken,userProvider);
+                
+                String loggedUserKey = findLoggedUserKey(req, processManager, grpToken, authToken, userProvider);
                 User user = loggedUserSingleton.getUser(loggedUserKey);
                 if (user == null) {
                     // no user
@@ -385,7 +386,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 String grpToken = req.getParameter(TOKEN_ATTRIBUTE_KEY);
                 String authToken = req.getHeader(AUTH_TOKEN_HEADER_KEY);
 
-                String loggedUserKey = findLoggedUserKey(req, processManager, grpToken, userProvider);
+                
+                String loggedUserKey = findLoggedUserKey(req, processManager, grpToken, authToken,  userProvider);
                 User user = loggedUserSingleton.getUser(loggedUserKey);
                 if (user == null) {
                     // no user
@@ -627,9 +629,12 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory);
 
-        public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String token, Provider<User> userProvider) {
-            if (token != null) {
-                List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(token);
+        public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String grpToken, String authToken,Provider<User> userProvider) {
+            if (grpToken != null) {
+                if (lrProcessManager.isAuthTokenClosed(authToken)) {
+                    throw new SecurityException("access denided");
+                }
+                List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(grpToken);
                 if (!processes.isEmpty()) {
                     // hledani klice 
                     List<States> childStates = new ArrayList<States>();
@@ -645,10 +650,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     
                     lrProcessManager.updateLongRunningProcessState(process);
                     
-                    String authToken = process.getAuthToken();
-                    return lrProcessManager.getSessionKey(authToken);
+                    return lrProcessManager.getSessionKey(process.getAuthToken());
                 } else {
-                    throw new RuntimeException("cannot find process with token '"+token+"'");
+                    throw new RuntimeException("cannot find process with token '"+grpToken+"'");
                 }
             } else {
                 userProvider.get();
