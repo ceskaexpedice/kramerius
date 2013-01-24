@@ -276,7 +276,7 @@ public class ProcessDatabaseUtils {
 
     public static void updateTokenActive(Connection con, String token, boolean activityFlag) {
         try {
-            new JDBCUpdateTemplate(con, true).executeUpdate("update PROCESSES set TOKEN_ACTIVE=? where token=?", activityFlag,token);
+            new JDBCUpdateTemplate(con, true).executeUpdate("update PROCESSES set TOKEN_ACTIVE=? where auth_token=?", activityFlag,token);
         } catch (SQLException e) {
             throw new ProcessManagerException("change token "+token);
         }
