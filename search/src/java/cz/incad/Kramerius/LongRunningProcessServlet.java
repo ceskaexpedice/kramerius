@@ -165,8 +165,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
     public static LRProcess planNewProcess(HttpServletRequest request, ServletContext context, LRProcessDefinition definition,  String[] params, User user, String loggedUserKey, Properties paramsMapping) {
         String token = request.getParameter(TOKEN_ATTRIBUTE_KEY);
-        String authToken = request.getHeader(AUTH_TOKEN_HEADER_KEY);
-        LRProcess newProcess = definition.createNewProcess(authToken, token);
+        //String authToken = request.getHeader(AUTH_TOKEN_HEADER_KEY);
+        LRProcess newProcess = definition.createNewProcess(null, token);
         newProcess.setUser(user);
         newProcess.setLoggedUserKey(loggedUserKey);
         newProcess.setParameters(Arrays.asList(params));
@@ -584,7 +584,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 String uuid = req.getParameter("uuid");
                 if (uuid != null) {
                     LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
-                    processManager.closeAuthToken(longRunningProcess.getGroupToken());
+                    processManager.closeAuthToken(longRunningProcess.getAuthToken());
                 }
             }
         },
@@ -631,11 +631,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
         public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String grpToken, String authToken,Provider<User> userProvider) {
             if (grpToken != null) {
-                /* TODO: change it 
                 if (lrProcessManager.isAuthTokenClosed(authToken)) {
                     throw new SecurityException("access denided");
                 }
-                */
                 List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(grpToken);
                 if (!processes.isEmpty()) {
                     // hledani klice 
