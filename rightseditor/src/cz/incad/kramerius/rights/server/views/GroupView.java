@@ -131,6 +131,9 @@ public class GroupView extends View {
                 User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
                 if (!user.hasSuperAdministratorRole()) {
                     List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
+                    if (admId == null || admId.isEmpty()){
+                        return null;
+                    }
                     return new QueryCompareExpression<Integer>(Structure.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
                 } else {
                     return null;
@@ -151,6 +154,9 @@ public class GroupView extends View {
             User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
             if (!user.hasSuperAdministratorRole()) {
                 List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
+                if (admId == null || admId.isEmpty()){
+                    return null;
+                }
                 return new QueryCompareExpression<Integer>(Structure.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
             } else
                 return null;
