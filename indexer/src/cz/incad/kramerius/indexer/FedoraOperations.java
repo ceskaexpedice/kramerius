@@ -179,9 +179,14 @@ public class FedoraOperations {
             first = old.get(i).split("/")[0];
             ArrayList<String> p = getParentsArray(first);
             if (!p.isEmpty()) {
-                changed = true;
                 for (String s : p) {
-                    pid_paths.add(s + "/" + old.get(i));
+                    if(!old.get(i).contains(s)){
+                        changed = true;
+                        pid_paths.add(s + "/" + old.get(i));
+                    }else{
+                        logger.log(Level.WARNING, "Cyclic reference on "+s);
+                        pid_paths.add(old.get(i));
+                    }
                 }
             } else {
                 pid_paths.add(old.get(i));
