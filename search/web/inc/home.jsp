@@ -43,18 +43,18 @@
 <%@ include file="home/tabs.jsp" %>
 </div>
 <script type="text/javascript">
+    $(window).resize(function(event){
+        resizeAll();
+    });
     $(document).ready(function(){
         $.get("inc/da.jsp", function(data){
             $("#dadiv").html(data);
-            resizeAll();
             initDateAxis();
             $("#content-resizable").css("height", (containerHeight+7) + "px");
             daScrollToMax();
-        });
-        resizeAll();
-        $(window).resize(function(event, viewerOptions){
             resizeAll();
         });
+        resizeAll();
         
     });
     function resizeAll(){
@@ -63,9 +63,11 @@
             $("#main").height() - 
             $("#footer").outerHeight(true);
         $("#intro>div.ui-tabs-panel").css("height", w);
-        w = w -35;
-        $("#content-resizable").css("height", w);
-        resizeDateAxisContent();
+        if($("#content-resizable").length>0){
+            w = w -35;
+            $("#content-resizable").css("height", w);
+            resizeDateAxisContent();
+        }
     }
 </script>
 

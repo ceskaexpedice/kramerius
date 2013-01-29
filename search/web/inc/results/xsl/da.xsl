@@ -33,12 +33,12 @@
        <script type="text/javascript">
         var number_of_items = <xsl:value-of select="count(response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst[@name='rok']/int[not(@name='0')])" />;
         var zooms = new Array();
-        zooms[0] = [<xsl:value-of select="number($minyear)" />, <xsl:value-of select="number($maxy)" />];
-        zooms[1] = [<xsl:value-of select="number($minyear)" />, <xsl:value-of select="number($maxy)" />];
+        zooms[0] = [<xsl:value-of select="number($minyear)" />, <xsl:value-of select="number($maxyear)" />];
+        zooms[1] = [<xsl:value-of select="number($minyear)" />, <xsl:value-of select="number($maxyear)" />];
         var startTime = <xsl:value-of select="number($minyear)" />;
-        var endTime = <xsl:value-of select="number($maxy)" />;
+        var endTime = <xsl:value-of select="number($maxyear)" />;
         firstBar = startTime;
-        lastBar = <xsl:value-of select="number($maxy)" />;
+        lastBar = <xsl:value-of select="number($maxyear)" />;
         </script>
     </xsl:template>
     
