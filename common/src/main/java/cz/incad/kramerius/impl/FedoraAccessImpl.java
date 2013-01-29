@@ -797,6 +797,10 @@ public class FedoraAccessImpl implements FedoraAccess {
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         XPathExpression expr = xpath.compile("/rdf:RDF/rdf:Description/*");
         NodeList nodes = (NodeList) expr.evaluate(relsExt, XPathConstants.NODESET);
+        if(pidStack.contains(pid)){
+            LOGGER.log(Level.WARNING, "Cyclic reference on "+pid);
+            return breakProcessing;
+        }
         pidStack.push(pid);
         changeStack(processor, pidStack);
         for (int i = 0, ll = nodes.getLength(); i < ll; i++) {
