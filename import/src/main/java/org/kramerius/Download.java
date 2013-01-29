@@ -128,7 +128,7 @@ public class Download {
     private static void processReplication(Download download, Replication rep, String defaultRights,String migrationDirectory,String targetDirectory){
         try{
             boolean visible = Boolean.parseBoolean(defaultRights);
-            download.replicateAll(rep);
+            download.replicateAll(rep, migrationDirectory);
             String uuid = Main.convert(migrationDirectory, targetDirectory, true, visible, rep.getID());
             Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
             logSuccess(rep.getID(), uuid);
@@ -147,8 +147,7 @@ public class Download {
             String defaultRights = System.getProperties().containsKey("convert.defaultRights") ?  System.getProperty("convert.defaultRights") : KConfiguration.getInstance().getProperty("convert.defaultRights","false");
             String migrationDirectory = System.getProperties().containsKey("migration.directory")  ? System.getProperty("migration.directory") : KConfiguration.getInstance().getProperty("migration.directory");
             String targetDirectory = System.getProperties().containsKey("migration.target.directory") ? System.getProperty("migration.target.directory") : KConfiguration.getInstance().getProperty("migration.target.directory");
-            //String targetDirectory = System.getProperties().containsKey("migration.target.directory") ? System.getProperty("migration.target.directory") : KConfiguration.getInstance().getProperty("migration.target.directory");
-            processReplication(download, rep,defaultRights, migrationDirectory,targetDirectory);
+            processReplication(download, rep, defaultRights, migrationDirectory, targetDirectory);
         }catch (Exception t){
             if (rep!=null){
                 logFailed(rep.getID(), t);
@@ -218,9 +217,9 @@ public class Download {
     private static final int bufferSize = 4096;
 
     /** replication directory (from configuration) */
-    private final String replicationDirectoryName ;
+    //private final String replicationDirectoryName ;
 
-    public static final String CONV_SUFFIX = "-converted";
+    //public static final String CONV_SUFFIX = "-converted";
 
     /** temporary file for metadata replication */
     private static String replicationMetadataFileName = "metadata.xml";
@@ -234,7 +233,7 @@ public class Download {
     }
 
     public Download(){
-        replicationDirectoryName = KConfiguration.getInstance().getProperty("migration.directory");
+        //replicationDirectoryName = KConfiguration.getInstance().getProperty("migration.directory");
     }
 
     static Replication createReplication(DocType doctype, String docId, String volumeId) {
@@ -278,19 +277,19 @@ public class Download {
 
 
 
-    public void replicateAll(Replication repl) {
-        clearReplicationDirectory();
-        saveRemoteMetadata(repl);
-        saveRemoteDocuments(repl);
+    public void replicateAll(Replication repl, String migrationDirectory) {
+        clearReplicationDirectory( migrationDirectory);
+        saveRemoteMetadata(repl, migrationDirectory);
+        saveRemoteDocuments(repl, migrationDirectory);
 
         // logReplication(repl, imp.buildLog());
 
     }
 
-    private void saveRemoteMetadata(Replication repl) {
+    private void saveRemoteMetadata(Replication repl, String migrationDirectory) {
         ReplicationURL fromURL = new ReplicationURL(repl, ReplicationURL.ACTION_METADATA);
         log.fine("saveRemoteMetadata URL: " + fromURL);
-        File toFile = new File(replicationDirectoryName, replicationMetadataFileName);
+        File toFile = new File(migrationDirectory, replicationMetadataFileName);
         copyRemote(fromURL.toString(), toFile);
     }
 
@@ -301,10 +300,10 @@ public class Download {
      * @throws ServiceException
      * @throws RemoteException
      */
-    private void saveRemoteDocuments(Replication repl) {
+    private void saveRemoteDocuments(Replication repl, String migrationDirectory) {
         ReplicationURL fromURL = new ReplicationURL(repl, ReplicationURL.ACTION_DOCUMENT_LIST);
         log.fine("documentList URL: " + fromURL);
-        File docListFile = new File(replicationDirectoryName, replicationDocumentListFileName);
+        File docListFile = new File(migrationDirectory, replicationDocumentListFileName);
         copyRemote(fromURL.toString(), docListFile);
 
         fromURL = new ReplicationURL(repl, ReplicationURL.ACTION_DOCUMENT);
@@ -318,13 +317,13 @@ public class Download {
             String name = (String) it.next();
             String id = (String) documents.get(name);
             log.fine("Get remote document ...  id: " + id + ", name: " + name);
-            File toFile = new File(replicationDirectoryName, name);
+            File toFile = new File(migrationDirectory, name);
             // id in URL is required!! (without it sometimes is ok, sometimes
             // not, depending on first id
             // selected for name in RepositoryService.getDocumentFile)
             if (!toFile.exists()) {
                 if (last_replicated_name != null) {
-                    copyRemote(fromURL.toString(last_replicated_name, last_replicated_id), new File(replicationDirectoryName, last_replicated_name));
+                    copyRemote(fromURL.toString(last_replicated_name, last_replicated_id), new File(migrationDirectory, last_replicated_name));
                     last_replicated_name = null;
                     last_replicated_id = null;
                 }
@@ -335,7 +334,7 @@ public class Download {
             }
         }
         if (last_replicated_name != null) {
-            copyRemote(fromURL.toString(last_replicated_name, last_replicated_id), new File(replicationDirectoryName, last_replicated_name));
+            copyRemote(fromURL.toString(last_replicated_name, last_replicated_id), new File(migrationDirectory, last_replicated_name));
             last_replicated_name = null;
             last_replicated_id = null;
         }
@@ -468,8 +467,8 @@ public class Download {
         }
     }
 
-    void clearReplicationDirectory() {
-        File replicationDirectory = IOUtils.checkDirectory(replicationDirectoryName);
+    void clearReplicationDirectory(String migrationDirectory) {
+        File replicationDirectory = IOUtils.checkDirectory(migrationDirectory);
         IOUtils.cleanDirectory(replicationDirectory);
     }
 
@@ -1043,10 +1042,7 @@ public class Download {
         /**
          * Add message into log buffer
          *
-         * @param Import
-         *            imp
-         * @param String
-         *            message
+         * @param  message
          */
         public void addToLog(String message) {
             logBuffer.append(message);
