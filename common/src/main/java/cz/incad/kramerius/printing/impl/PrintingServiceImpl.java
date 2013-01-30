@@ -223,8 +223,6 @@ public class PrintingServiceImpl implements PrintingService {
         PrintService lps = PrintServiceLookup.lookupDefaultPrintService();
         
         DocPrintJob printJob = lps.createPrintJob();
-        printJob.getAttributes().add(new JobOriginatingUserName(userProvider.get().getLoginname(), localesProvider.get()));
-        
         Doc doc = new SimpleDoc(new FileInputStream(pdfFile), DocFlavor.INPUT_STREAM.PDF, null);
 
         PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
