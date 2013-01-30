@@ -30,15 +30,19 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -91,11 +95,13 @@ import cz.incad.kramerius.pdf.utils.TitlesUtils;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.printing.PrintingService;
 import cz.incad.kramerius.printing.utils.Utils;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 
@@ -163,10 +169,61 @@ public class PrintingServiceImpl implements PrintingService {
 
         this.pdfService.generateCustomPDF(document, new FileOutputStream(pdfFile), fontMap, imgUrl, i18nUrl, ImageFetcher.WEB);
 
+        String print = KConfiguration.getInstance().getConfiguration().getString("print.implementation", "javax");
+        if (print.equals("javax")) {
+            javaxprint(pdfFile);
+        } else {
+            lprprint(pdfFile);
+        }
+    }
+
+    void lprprint(File pdfFile) throws IOException, PrintException {
+        try {
+            Map<String, String> mapping = new HashMap<String, String>();
+            {
+                mapping.put("ONE_SIDE", "one-sided");
+                mapping.put("DUPLEX", "one-sided");
+                mapping.put("TWO_SIDED_LONG_EDGE", "two-sided-long-edge");
+                mapping.put("TWO_SIDED_SHORT_EDGE", "two-sided-short-edge");
+            }
+
+            String side = KConfiguration.getInstance().getConfiguration().getString("print.sided", "ONE_SIDE");
+            
+            List<String> command = new ArrayList<String>();
+            command.add("lpr");
+            command.add("-#"+KConfiguration.getInstance().getConfiguration().getInt("print.copies", 1));
+            command.add("-o sides="+mapping.get(side));
+            command.add("-U "+this.userProvider.get().getLoginname());
+            command.add(pdfFile.getAbsolutePath());
+            
+            LOGGER.info(command.toString());
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            Process process = processBuilder.start();
+            int code = process.waitFor();
+            LOGGER.info("command exit with "+code);
+            InputStream errS = process.getErrorStream();
+            InputStream outS = process.getInputStream();
+            
+            ByteArrayOutputStream errBos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(errS, errBos);
+            System.out.println(new String(errBos.toByteArray()));
+            
+            ByteArrayOutputStream outBos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(outS, outBos);
+            System.out.println(new String(outBos.toByteArray()));
+            
+            
+        } catch (InterruptedException e) {
+            throw new IOException(e);
+        }
+        
+    }
+    
+    void javaxprint(File pdfFile) throws FileNotFoundException, PrintException {
         PrintService lps = PrintServiceLookup.lookupDefaultPrintService();
         
         DocPrintJob printJob = lps.createPrintJob();
-        printJob.getAttributes().add(new JobOriginatingUserName(this.userProvider.get().getLoginname(), localesProvider.get()));
+        printJob.getAttributes().add(new JobOriginatingUserName(userProvider.get().getLoginname(), localesProvider.get()));
         
         Doc doc = new SimpleDoc(new FileInputStream(pdfFile), DocFlavor.INPUT_STREAM.PDF, null);
 
@@ -176,9 +233,9 @@ public class PrintingServiceImpl implements PrintingService {
         aset.add(new RequestingUserName(this.userProvider.get().getLoginname(), localesProvider.get()));
         
         printJob.print(doc, aset);
-        
     }
 
+    
     public Sides resolveSidesConfiguration() {
         Map<String, Sides> mapping = new HashMap<String, Sides>();
         {
