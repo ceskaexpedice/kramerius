@@ -28,7 +28,6 @@
         <p style="text-align: center;">
             <img src="img/loading.gif" alt="loading date axis" /><br/>Time line loading...
         </p>
-        <%--@ include file="da.jsp" --%>
     </div>
 </div>
 </td><td style="width:745px;"> 
