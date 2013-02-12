@@ -21,7 +21,7 @@
     }
     pageContext.setAttribute("dts", dts);
 %>
-
+<table style="width: 990px;"><tr><td valign="top">
 <div id="homedabox" style="float:left;width:239px;margin-left:4px;">
     <ul><li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li></ul>
     <div id="dadiv" style="padding:3px;">
@@ -31,7 +31,8 @@
         <%--@ include file="da.jsp" --%>
     </div>
 </div>
-<div style="float:left;width:750px;">
+</td><td style="width:745px;"> 
+<div style="float:left;width:740px;">
 <div id="dt_home">
     <c:url var="dtxslurl" value="inc/home/dt.xsl" />
     <c:import url="${dtxslurl}" var="facetxsl" charEncoding="UTF-8"  />
@@ -42,19 +43,20 @@
 </div>
 <%@ include file="home/tabs.jsp" %>
 </div>
+</td></tr></table>
 <script type="text/javascript">
     $(window).resize(function(event){
         resizeAll();
     });
     $(document).ready(function(){
+        setTimeout(resizeAll, 5000);
         $.get("inc/da.jsp", function(data){
             $("#dadiv").html(data);
             initDateAxis();
             $("#content-resizable").css("height", (containerHeight+7) + "px");
             daScrollToMax();
-            resizeAll();
+            setTimeout(resizeAll, 2000);
         });
-        resizeAll();
         
     });
     function resizeAll(){
