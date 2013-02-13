@@ -97,6 +97,7 @@ public class StartupServlet extends GuiceServlet {
             // process tables - > must be after security tables and must be after logged user tables
             ProcessDatabaseInitializator.initDatabase(connection, versionService);
             
+            // statistics tables 
             StatisticDatabaseInitializator.initDatabase(connection, versionService);
             
             // stores new db version to doatabase

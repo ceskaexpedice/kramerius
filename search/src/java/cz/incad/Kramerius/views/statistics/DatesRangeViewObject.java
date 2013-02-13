@@ -46,6 +46,7 @@ import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
 public class DatesRangeViewObject extends AbstractStatisticsViewObject {
 
 
+    
     public String getNext() {
         HttpServletRequest request = this.servletRequestProvider.get();
         String offset = request.getParameter("offset") != null ? request.getParameter("offset") : "0";
@@ -54,7 +55,7 @@ public class DatesRangeViewObject extends AbstractStatisticsViewObject {
         String type = request.getParameter("type");
         int sizeInt = Integer.parseInt(size);
         int offsetInt = (Integer.parseInt(offset))+sizeInt;
-        return "javascript:statistics.reloadDatesRangeReport('"+type+"','"+val+"',"+offsetInt+","+size+");";
+        return "javascript:statistics.reloadDatesRangeReport(_action(),'"+type+"','"+val+"',"+offsetInt+","+size+");";
     }
     
     public String getPrev() {
@@ -65,7 +66,7 @@ public class DatesRangeViewObject extends AbstractStatisticsViewObject {
         String type = request.getParameter("type");
         int sizeInt = Integer.parseInt(size);
         int offsetInt = Math.max((Integer.parseInt(offset)-sizeInt), 0);
-        return "javascript:statistics.reloadDatesRangeReport('"+type+"','"+val+"',"+offsetInt+","+size+");";
+        return "javascript:statistics.reloadDatesRangeReport(_action(),'"+type+"','"+val+"',"+offsetInt+","+size+");";
     }
     
 

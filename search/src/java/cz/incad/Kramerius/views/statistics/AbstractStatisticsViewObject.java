@@ -33,9 +33,11 @@ import com.google.inject.Provider;
 
 import cz.incad.Kramerius.utils.JSONUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticReportOffset;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
 
 /**
@@ -60,7 +62,7 @@ public abstract class AbstractStatisticsViewObject {
 
     protected List<Map<String,Object>> data = null;
 
-    public int getMaxValue() {
+    public int getMaxValue() throws StatisticsReportException {
         int max = -1;
         List<Map<String, Object>> report = getReport();
         for (Map<String, Object> map : report) {
@@ -75,16 +77,17 @@ public abstract class AbstractStatisticsViewObject {
         return max;
     }
 
-    public synchronized List<Map<String,Object>> getReport() {
+    public synchronized List<Map<String,Object>> getReport() throws StatisticsReportException {
         if (this.data == null) {
             HttpServletRequest request = this.servletRequestProvider.get();
             String type = request.getParameter("type");
             String val = request.getParameter("val");
+            String actionFilter = request.getParameter("action");
             String offset = request.getParameter("offset") != null ? request.getParameter("offset") : "0";
             String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
             StatisticReport report = statisticsAccessLog.getReportById(type);
-            StatisticReportOffset reportOff = new StatisticReportOffset(Integer.parseInt(offset), Integer.parseInt(size), val);
-            this.data = report.getReportPage(reportOff);
+            StatisticReportOffset reportOff = new StatisticReportOffset(Integer.parseInt(offset), Integer.parseInt(size));
+            this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null , reportOff,val);
         }
         return this.data;
     }
@@ -104,14 +107,14 @@ public abstract class AbstractStatisticsViewObject {
         return getPageIndex() > 1;
     }
 
-    public boolean getDisplayLastFlag() {
+    public boolean getDisplayLastFlag() throws StatisticsReportException {
         HttpServletRequest request = this.servletRequestProvider.get();
         String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
         List<Map<String, Object>> report = getReport();
         return report.size() >= Integer.parseInt(size);
     }
 
-    public List<Map<String,Object>> getJsonAwareReport() {
+    public List<Map<String,Object>> getJsonAwareReport() throws StatisticsReportException {
         List<Map<String, Object>> newResult = new ArrayList<Map<String,Object>>();
         List<Map<String, Object>> report = getReport();
         for (Map<String, Object> map : report) {

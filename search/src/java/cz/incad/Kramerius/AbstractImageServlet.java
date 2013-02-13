@@ -313,7 +313,5 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         template.setAttribute("baseFolder", "some val");
         template.setAttribute("neni", "Je");
         System.out.println(template.toString());
-        
-        
     }
 }
