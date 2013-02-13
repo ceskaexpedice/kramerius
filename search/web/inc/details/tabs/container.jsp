@@ -38,11 +38,11 @@
                         var pid_path = getPidPath(viewerOptions.fullid);
                 <c:choose>
                     <c:when test="${tab =='VIRTUAL.audioPlayer'}">
-                                console.log("updating audioplayer tab ");
+                                if (console) console.log("updating audioplayer tab ");
                                 updateAudioplayerTab('${tab}', pid_path);
                     </c:when>
                     <c:otherwise>
-                                console.log("update custom tab " + '${tab}' + ", pidPath: " + pid_path);
+                                if (console) console.log("update custom tab " + '${tab}' + ", pidPath: " + pid_path);
                                 updateCustomTab('${tab}', pid_path);
                     </c:otherwise>
                 </c:choose>
@@ -62,10 +62,8 @@
     
     function updateAudioplayerTab(tab, pid_path){
         $.get('audioTracks?action=canContainTracks&pid_path=' + pid_path, function(data){
-            //console.log(data);
             if (data.canContainTracks){
                 $.get('inc/details/tabs/audioplayer.jsp?pid_path=' + pid_path, function(data){
-                    //console.log("pid_path: " + pid_path);
                     $('#itemtab_'+tab.split(".")[1]).html(data);
                 });
             }
@@ -76,9 +74,7 @@
     function setMainContentWidth(){ 
         var w = $(window).width()-6-$('#itemTree').width();
 
-        //alert(w);
         $("#mainContent").css('width', w);
-        //alert($('#centralContent').width());
         w = w-45;
         $("#centralContent").css('width', w);
 
