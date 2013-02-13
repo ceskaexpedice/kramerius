@@ -63,15 +63,15 @@
     //se vykresluji vsechny panely znovu 
     //a nove nacitani stejneho skriptu zpusobovalo nefunkcnost prehravace
     if (window.audioScriptsLoaded){
-        console.log("audio scripts already loaded");
+        if (console) console.log("audio scripts already loaded");
         var renderer = renderPlayer(false);
         loadTracks(renderer, 0);
     } else{
-        console.log("audio scripts not loaded yet");
+        if (console) console.log("audio scripts not loaded yet");
         $.getScript('js/audioplayer/soundmanager/script/soundmanager2-jsmin.js', function(data, textStatus, jqxhr) {
-            console.log('soundmanager.js: ' + textStatus + ' (' + jqxhr.status + ')');    
+            if (console) console.log('soundmanager.js: ' + textStatus + ' (' + jqxhr.status + ')');    
             $.getScript('js/audioplayer/audioplayer-compiled.js', function(data, textStatus, jqxhr) {
-                console.log('audioplayer.js: ' + textStatus + ' (' + jqxhr.status + ')');    
+                if (console) console.log('audioplayer.js: ' + textStatus + ' (' + jqxhr.status + ')');    
                 var renderer = renderPlayer(true);
                 loadTracks(renderer, 0);
             });
@@ -106,7 +106,7 @@
                     if ((req.status==200) || (req.status==304)) {
                         var viewerOptions = eval('(' + req.responseText + ')');
                         if ((viewerOptions.rights["read"][pid])) {
-                            console.log("rendering track " + pid);
+                            if (console) console.log("rendering track " + pid);
                             renderer.addNewTrack(
                             pid,
                             track.title,
@@ -117,10 +117,10 @@
                         } else {
                             //TODO: mozna je taky nacist, ale deaktivovane 
                             //a pri prehravani takove preskakovat
-                            console.log("not allowed to play " + pid);
+                            if (console) console.log("not allowed to play " + pid);
                         }
                     } else if (req.status==404){
-                        console.log("cannot determine rights for playing track")
+                        if (console) console.log("cannot determine rights for playing track")
                     }
                     //continue rendering other tracks
                     renderReadableTracks(renderer, tracks.slice(1));
