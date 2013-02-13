@@ -32,11 +32,10 @@ var pids=[
 <script type="text/javascript">
 
 $(document).ready(function(){
-
-    $("#dates_ranges_report").tabs();
+    $(".buttons>a").button();
     var options = {
             legend: {
-                show: true,
+                show: false,
                 location: 'e',
                 placement: 'outside'
             },  
@@ -58,7 +57,7 @@ $(document).ready(function(){
                         renderer:$.jqplot.CategoryAxisRenderer,
                         showTicks: true,
                         showTickMarks: true,
-                        ticks:['${statistics.filteringValue}']   
+                        ticks:[]   
                     },
                     yaxis: {
                         showTicks: false,
@@ -72,10 +71,24 @@ $(document).ready(function(){
     
     var plot1 = $.jqplot('chart2', data, options);
 
+    $('#chart2').bind('jqplotDataUnhighlight', function()  {
+        $("#chart2tooltip").hide();
+    });
+
     $('#chart2').bind('jqplotDataHighlight', 
             function (ev, seriesIndex, pointIndex, data ) {
                 var mouseX = ev.pageX; //these are going to be how jquery knows where to put the div that will be our tooltip
                 var mouseY = ev.pageY;
+
+                var max = $('#chart2').width() - 200;
+
+                var calculatedY=mouseY - $('#chart2').offset().top-70 ;
+                var calculatedX = mouseX-$('#chart2').offset().left+70;
+                calculatedX = Math.min(calculatedX,max);
+
+                $("#chart2tooltip").show();
+                $("#chart2tooltip").css("position", "absolute").css("top",""+calculatedY+"px").css("left",""+calculatedX+"px");
+                
                 $("#chart2tooltip").html('<div style="margin:5px;"><span><i><view:msg>common.waitplease</view:msg>...</i></span></div>');
                 $('#chart2tooltip').show();
                 $.get("inc/admin/_statistics_model_details.jsp?pid="+pids[seriesIndex],function(dat) {
@@ -91,61 +104,31 @@ $(document).ready(function(){
                 });
                }
         );    
-        /*
-        $('#chart2').bind('jqplotDataUnhighlight', 
-            function (ev) {
-                $('#chartpseudotooltip').html('');
-                $('#chartpseudotooltip').hide();
-            }
-        );*/
 });
 </script>
         
     <div id="dates_ranges_buttons">
-        <div style="position: relative;">
+        <div style="text-align: center;" >
+            <h2> Graf pro obdobi ${statistics.filteringValue}</h2>
+        </div>
+
+        <div style="position: relative;" class="buttons">
             <span style="float: left;"><view:msg>common.page</view:msg>:<strong>${statistics.pageIndex}</strong></span>
             <c:if test="${statistics.displayLastFlag}">
-                <a style="float: right;" href="${statistics.next}" class="ui-icon ui-icon-arrowthick-1-e"></a>
+                <a style="float: right;" href="${statistics.next}"><span class="ui-icon ui-icon-arrowthick-1-e"></span></a>
             </c:if>
 
             <c:if test="${statistics.displayFirstFlag}">
-                <a  style="float: right;"href="${statistics.prev}" class="ui-icon ui-icon-arrowthick-1-w"></a>
+                <a  style="float: right;"href="${statistics.prev}"><span class="ui-icon ui-icon-arrowthick-1-w button"></span></a>
             </c:if>
             <div style="clear: both;"></div>
         </div>
-    </div>    
-    <div id="dates_ranges_report">
-    <ul>
-        <li><a title="<view:msg>statistics.report.model.graph</view:msg>" href="#dates_ranges_report_graph"><view:msg>statistics.report.model.graph</view:msg></a></li>
-        <li><a title="<view:msg>statistics.report.model.table</view:msg>" href="#dates_ranges_report_table"><view:msg>statistics.report.model.table</view:msg></a></li>
-    </ul>
+    </div>
+    
 
     <div id="dates_ranges_report_graph" style="position:relative">
-        <div id="chart2" style="width:500px; height:370px;"></div>
-    <div id="chart2tooltip" style="padding-left: 25px;font-style: normal;"></div>
+        <div id="chart2" style="width:750px; height:370px;"></div>
+        <div id="chart2tooltip" style="padding-left: 25px;font-style: normal;display: none;" class="shadow ui-widget ui-widget-content"></div>
     </div>
-
-
-    <div id="dates_ranges_report_table" class="filter shadow ui-widget ui-widget-content" style="">
-    <table style="width:100%">
-        <thead><tr style="width:10%">
-            <td><strong><view:msg>statistics.report.model.table.count</view:msg></strong></td>
-            <td><strong><view:msg>statistics.report.model.table.identifier</view:msg></strong></td>
-            <td><strong><view:msg>statistics.report.model.table.name</view:msg></strong></td>
-            <td><strong><view:msg>statistics.report.model.table.handle</view:msg></strong></td></tr></thead>
-        <tbody>
-            <c:forEach var="report" items="${statistics.report}" varStatus="status"> 
-                <tr class="${(status.index mod 2 == 0) ? 'result ui-state-default': 'result '}"> 
-                    <td> ${report.count}</td> 
-                    <td>${report.pid}</td> 
-                    <td>${report.title}</td> 
-                    <td><a href="handle/${report.pid}"  target="_blank">handle</a></td> 
-                    </tr>
-            </c:forEach>
-        </tbody>
-    </table>
-    </div>
-
-</div>
 
 </scrd:securedContent>

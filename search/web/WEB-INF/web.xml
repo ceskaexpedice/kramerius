@@ -236,7 +236,7 @@
     <!-- feedback servlet -->
     <servlet>
         <servlet-name>statisticExport</servlet-name>
-        <servlet-class>cz.incad.Kramerius.StatisticsExportServlet</servlet-class>
+        <servlet-class>cz.incad.Kramerius.statistics.StatisticsExportServlet</servlet-class>
     </servlet>
 
 

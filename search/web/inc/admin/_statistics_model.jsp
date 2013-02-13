@@ -33,11 +33,10 @@ var pids=[
 <script type="text/javascript">
 
 $(document).ready(function(){
-
-    $("#model_report").tabs();
+    $(".buttons>a").button();
     var options = {
             legend: {
-                show: true,
+                show: false,
                 location: 'e',
                 placement: 'outside'
             },  
@@ -59,7 +58,7 @@ $(document).ready(function(){
                         renderer:$.jqplot.CategoryAxisRenderer,
                         showTicks: true,
                         showTickMarks: true,
-                        ticks:['${statistics.selectedModel}']   
+                        ticks:[]   
                     },
                     yaxis: {
                         showTicks: false,
@@ -68,15 +67,35 @@ $(document).ready(function(){
                         min: 0
                     }
                 },
+                cursor: {
+                    show:true,
+                    showTooltip:true
+                    
+                    },
             highlighter:{tooltipFadeSpeed:'slow', tooltipLocation:'n'}
+                
          }
     
     var plot1 = $.jqplot('chart1', data, options);
 
+    $('#chart1').bind('jqplotDataUnhighlight', function()  {
+        $("#chart1tooltip").hide();
+    });
+    
     $('#chart1').bind('jqplotDataHighlight', 
             function (ev, seriesIndex, pointIndex, data ) {
                 var mouseX = ev.pageX; //these are going to be how jquery knows where to put the div that will be our tooltip
                 var mouseY = ev.pageY;
+                // max left position
+                var max = $('#chart1').width() - 200;
+
+                var calculatedY=mouseY - $('#chart1').offset().top-70 ;
+                var calculatedX = mouseX-$('#chart1').offset().left+70;
+                calculatedX = Math.min(calculatedX,max);
+                
+                $("#chart1tooltip").show();
+                $("#chart1tooltip").css("position", "absolute").css("top",""+calculatedY+"px").css("left",""+calculatedX+"px");
+                
                 $("#chart1tooltip").html('<div style="margin:5px;"><span><i><view:msg>common.waitplease</view:msg>...</i></span></div>');
                 $('#chart1tooltip').show();
                 $.get("inc/admin/_statistics_model_details.jsp?pid="+pids[seriesIndex],function(dat) {
@@ -93,63 +112,35 @@ $(document).ready(function(){
             }
         );    
 
-        /*
-        $('#chart1').bind('jqplotDataUnhighlight', 
-            function (ev) {
-                $('#chart1tooltip').html('');
-                $('#chart1tooltip').hide();
-            }
-        );
-    */
 });
 </script>
         
     <div id="model_report_buttons">
-        <div style="position: relative;">
-            <span style="float: left;"><view:msg>common.page</view:msg>:<strong>${statistics.pageIndex}</strong></span>
+
+        <div style="text-align: center;" >
+        <h2> Graf pro model ${statistics.selectedModel}</h2>
+        </div>
+
+        <div style="position: relative;" class="buttons">
+            
+            <span style="float: left;"> <view:msg>common.page</view:msg>:<strong>${statistics.pageIndex}</strong></span>
             <c:if test="${statistics.displayLastFlag}">
-                <a style="float: right;" href="${statistics.next}" class="ui-icon ui-icon-arrowthick-1-e"></a>
+                <a style="float: right;" href="${statistics.next}"><span class="ui-icon ui-icon-arrowthick-1-e"></span></a>
             </c:if>
 
             <c:if test="${statistics.displayFirstFlag}">
-                <a  style="float: right;"href="${statistics.prev}" class="ui-icon ui-icon-arrowthick-1-w"></a>
+                <a  style="float: right;"href="${statistics.prev}"><span class="ui-icon ui-icon-arrowthick-1-w button"></span></a>
             </c:if>
             <div style="clear: both;"></div>
+            
         </div>
     </div>    
-    <div id="model_report">
-    <ul>
-        <li><a title="<view:msg>statistics.report.model.graph</view:msg>" href="#model_report_graph"><view:msg>statistics.report.model.graph</view:msg></a></li>
-        <li><a title="<view:msg>statistics.report.model.table</view:msg>" href="#model_report_table"><view:msg>statistics.report.model.table</view:msg></a></li>
-    </ul>
 
-    <div id="model_report_graph" style="position:relative">
-        <div id="chart1" style="width:500px; height:370px;"></div>
-        <div id="chart1tooltip" style="padding-left: 25px;font-style: normal;"></div>
+    <div id="model_report_graph" style="padding-top: 10px; position: relative;">
+        <div id="chart1" style="width:750px; height:370px;"></div>
+        <div id="chart1tooltip" style="position:absolute;font-style: normal; display: none;" class="shadow ui-widget ui-widget-content"></div>
     </div>
 
 
-
-    <div id="model_report_table" class="filter shadow ui-widget ui-widget-content" style="">
-    <table style="width:100%">
-        <thead><tr style="width:10%">
-            <td><strong><view:msg>statistics.report.model.table.count</view:msg></strong></td>
-            <td><strong><view:msg>statistics.report.model.table.identifier</view:msg></strong></td>
-            <td><strong><view:msg>statistics.report.model.table.name</view:msg></strong></td>
-            <td><strong><view:msg>statistics.report.model.table.handle</view:msg></strong></td></tr></thead>
-        <tbody>
-            <c:forEach var="report" items="${statistics.report}" varStatus="status"> 
-                <tr class="${(status.index mod 2 == 0) ? 'result ui-state-default': 'result '}"> 
-                    <td> ${report.count}</td> 
-                    <td>${report.pid}</td> 
-                    <td>${report.title}</td> 
-                    <td><a href="handle/${report.pid}"  target="_blank">handle</a></td> 
-                    </tr>
-            </c:forEach>
-        </tbody>
-    </table>
-    </div>
-
-</div>
 
 </scrd:securedContent>

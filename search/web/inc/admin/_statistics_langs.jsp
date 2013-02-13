@@ -30,12 +30,11 @@ var data=[
 
 $(document).ready(function(){
 
-    $("#lang_report").tabs();
 
     var options = {
             title:"${statistics.graphTitle}",
             legend: {
-                show: true,
+                show: false,
                 location: 'e',
                 placement: 'outside'
             },  
@@ -71,30 +70,40 @@ $(document).ready(function(){
     
     var plot1 = $.jqplot('chart4', data, options);
 
+    $('#chart4').bind('jqplotDataUnhighlight', function()  {
+        $("#chart4tooltip").hide();
+    });
+    
     $('#chart4').bind('jqplotDataHighlight', 
             function (ev, seriesIndex, pointIndex, da ) {
                 var mouseX = ev.pageX; //these are going to be how jquery knows where to put the div that will be our tooltip
                 var mouseY = ev.pageY;
-                var text = '<div style="margin:5px;"><strong>'+options.series[seriesIndex].label+' </strong><br/>';
-                text +='<strong>Pocet zobrazeni:'+da[1]+'</strong>';
+
+                var max = $('#chart4').width() - 200;
+
+                var calculatedY=mouseY - $('#chart4').offset().top-70 ;
+                var calculatedX = mouseX-$('#chart4').offset().left+70;
+                calculatedX = Math.min(calculatedX,max);
+
+                $("#chart4tooltip").show();
+                $("#chart4tooltip").css("position", "absolute").css("top",""+calculatedY+"px").css("left",""+calculatedX+"px");
+                
+                var text = '<div style="margin:5px;"><strong> Jazyk:'+options.series[seriesIndex].label+' </strong><br/>';
+                text +='<i>Pocet zobrazeni:'+da[1]+'</i>';
                 $('#chart4tooltip').html(text);
                 $('#chart4tooltip').show();
 
            }
         );    
-
-    /*
-        $('#chart4').bind('jqplotDataUnhighlight', 
-            function (ev) {
-                $('#chart4tooltip').html('');
-                $('#chart4tooltip').hide();
-            }
-        );
-    */
 });
 </script>
         
     <div id="lang_buttons">
+
+        <div style="text-align: center;" >
+            <h2> ..</h2>
+        </div>
+
         <div style="position: relative;">
             <span style="float: left;"><view:msg>common.page</view:msg>:<strong>${statistics.pageIndex}</strong></span>
             <c:if test="${statistics.displayLastFlag}">
@@ -107,36 +116,12 @@ $(document).ready(function(){
             <div style="clear: both;"></div>
         </div>
     </div>    
-    <div id="lang_report">
-    <ul>
-        <li><a title="<view:msg>statistics.report.model.graph</view:msg>" href="#lang_report_graph"><view:msg>statistics.report.model.graph</view:msg></a></li>
-        <li><a title="<view:msg>statistics.report.model.table</view:msg>" href="#lang_report_table"><view:msg>statistics.report.model.table</view:msg></a></li>
-    </ul>
 
     <div id="lang_report_graph" style="position:relative">
-        <div id="chart4" style="width:500px; height:370px;"></div>
-        <div id="chart4tooltip" style="padding-left: 25px;font-style: normal;"></div>
+        <div id="chart4" style="width:750px; height:370px;"></div>
+        <div id="chart4tooltip" style="position:absolute;font-style: normal; display: none;" class="shadow ui-widget ui-widget-content"></div>
     </div>
 
 
-    <div id="lang_report_table" class="filter shadow ui-widget ui-widget-content" style="">
-    <table style="width:100%">
-        <thead><tr style="width:10%">
-            <td><strong><view:msg>statistics.report.model.table.count</view:msg></strong></td>
-            <td><strong><view:msg>statistics.report.model.table.lang</view:msg></strong></td>
-        </tr></thead>
-
-        <tbody>
-            <c:forEach var="report" items="${statistics.report}" varStatus="status"> 
-                <tr class="${(status.index mod 2 == 0) ? 'result ui-state-default': 'result '}"> 
-                    <td> ${report.count}</td> 
-                    <td>${report.lang}</td> 
-                    </tr>
-            </c:forEach>
-        </tbody>
-    </table>
-    </div>
-
-</div>
 
 </scrd:securedContent>
