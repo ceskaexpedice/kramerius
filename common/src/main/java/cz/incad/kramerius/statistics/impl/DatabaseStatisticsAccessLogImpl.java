@@ -19,9 +19,12 @@
  */
 package cz.incad.kramerius.statistics.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -32,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,6 +56,7 @@ import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.processes.NotReadyException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
@@ -69,6 +74,14 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
+    
+    static Map<String, ReportedAction> ACTIONS = new HashMap<String, ReportedAction>();
+    static {
+        ACTIONS.put("img", ReportedAction.READ);
+        ACTIONS.put("pdf", ReportedAction.PDF);
+        ACTIONS.put("print", ReportedAction.PRINT);
+        ACTIONS.put("zoomify", ReportedAction.READ);
+    }
     
     @Inject
     @Named("kramerius4")
@@ -157,7 +170,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
     
     
     @Override
-    public void processAccessLog(final StatisticsAccessLogSupport sup) {
+    public void processAccessLog(final ReportedAction repAction, final StatisticsAccessLogSupport sup) {
         // TODO Auto-generated method stub
         final StringTemplate records = stGroup.getInstanceOf("exportAllRecord");
         String sql = records.toString();
@@ -205,11 +218,14 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                 String remote = rs.getString("sremote_ip_address");
                 String user = rs.getString("suser");
                 String requestedUrl = rs.getString("srequested_url");
+                String action = rs.getString("sstat_action");
+
                 Map<String, Object> record = new HashMap<String, Object>(); {
                     record.put("pid", pid);
                     record.put("date", d);
                     record.put("remote_ip_address", remote);
                     record.put("user", user);
+                    record.put("action",action);
                 }
                 sup.processMainRecord(record);
                 
@@ -232,6 +248,29 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         return null;
     }
 
+    public static String disectedURL(Provider<HttpServletRequest> requestProvider) {
+        String url = requestProvider.get().getRequestURL().toString() +"?"+requestProvider.get().getQueryString();
+        return url;
+    }
+    
+    public static ReportedAction disectAction(Provider<HttpServletRequest> requestProvider) throws MalformedURLException {
+        String surl = requestProvider.get().getRequestURL().toString();
+        URL url = new URL(surl);
+        String lastToken = "";
+        StringTokenizer tokenizer = new StringTokenizer(url.getFile(), "/");
+        while(tokenizer.hasMoreTokens()) {
+            lastToken =  tokenizer.nextToken();
+        }
+        ReportedAction action = ACTIONS.get(lastToken);
+        if (action != null) return action;
+        else return ReportedAction.READ;
+    }
+
+    
+    public static void main(String[] args) throws MalformedURLException {
+        String str = "http://localhost:8080/search/img";
+        URL url = new URL(str);
+    }
     
     public static class InsertRecord extends JDBCCommand {
         
@@ -256,9 +295,15 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
             final StringTemplate statRecord = stGroup.getInstanceOf("insertStatisticRecord");
             boolean logged = loggedUserSingleton.isLoggedUser(requestProvider);
             Object user = logged ? userProvider.get().getLoginname() : new JDBCUpdateTemplate.NullObject(String.class);
-            String url = requestProvider.get().getRequestURL().toString() +"?"+requestProvider.get().getQueryString();
+            String url = disectedURL(requestProvider); //requestProvider.get().getRequestURL().toString() +"?"+requestProvider.get().getQueryString();
+            ReportedAction act = ReportedAction.READ;
+            try {
+                act = disectAction(requestProvider);
+            } catch (MalformedURLException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            }
             int record_id  = new JDBCUpdateTemplate(con, false)
-                .executeUpdate(statRecord.toString(), pid, new java.sql.Timestamp(System.currentTimeMillis()), requestProvider.get().getRemoteAddr(), user, url);
+                .executeUpdate(statRecord.toString(), pid, new java.sql.Timestamp(System.currentTimeMillis()), requestProvider.get().getRemoteAddr(), user, url, act.name());
 
             previousResult.put("record_id", new Integer(record_id));
             return previousResult;

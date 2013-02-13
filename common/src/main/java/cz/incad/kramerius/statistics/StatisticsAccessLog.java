@@ -48,7 +48,7 @@ public interface StatisticsAccessLog {
      * Process all log
      * @param sup
      */
-    public void processAccessLog(StatisticsAccessLogSupport sup);
+    public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup);
     
     /**
      * Returns all predefined reports

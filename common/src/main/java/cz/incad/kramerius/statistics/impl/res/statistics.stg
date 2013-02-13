@@ -3,8 +3,8 @@ group statistics;
 
 insertStatisticRecord() ::=<<
 insert into statistics_access_log
-    (record_ID, PID,DATE,REMOTE_IP_ADDRESS,"USER",REQUESTED_URL)
-    values(nextval('statistics_access_log_ID_SEQUENCE'),?,?,?,?,?);
+    (record_ID, PID,DATE,REMOTE_IP_ADDRESS,"USER",REQUESTED_URL,STAT_ACTION)
+    values(nextval('statistics_access_log_ID_SEQUENCE'),?,?,?,?,?,?);
 >>
 
 
@@ -30,6 +30,7 @@ select
     sa."USER" as suser, 
     sa.remote_ip_address as sremote_ip_address,
     sa.requested_url as srequested_url,
+    sa.stat_action as sstat_action,
     detail.pid as dpid,
     detail.model as dmodel,
     detail.issued_date as dissued_date,
@@ -45,12 +46,28 @@ select
 
 
 /** vybrany model */
-selectModelReport(model) ::=<<
-    SELECT count(*) as count, pid, model, title  from  
-    statistic_access_log_detail 
-    where model='$model$'
-    group by pid, model,title order by count DESC 
-    offset ? limit ?
+selectModelReport(action, model, paging) ::=<<
+    $if(action)$ 
+
+    SELECT count(*) as count, detail.pid, detail.model, detail.title, detail.rights  from  
+        statistic_access_log_detail detail
+
+    join statistics_access_log sa on (sa.record_id=detail.record_id)
+    
+    where detail.model='$model$' and sa.stat_action = '$action$'
+        group by detail.pid, detail.model,detail.title, detail.rights order by count DESC 
+    $if(paging)$ $paging()$ $endif$
+
+    $else$   
+
+    SELECT count(*) as count, pid, model, title,rights  from  
+        statistic_access_log_detail 
+    where model='$model$' 
+        group by pid, model,title,rights order by count DESC 
+    $if(paging)$ $paging()$ $endif$
+    
+    $endif$   
+    
 >> 
 
 selectModels() ::=<<
@@ -58,11 +75,19 @@ selectModels() ::=<<
 >>
 
 /** datum - datum */
-selectDateDurationReport_1(from, to) ::=<<
+selectDateDurationReport_1(action,from, to, paging) ::=<<
+    $if(action)$
+    select count(*) as count, pid from statistics_access_log 
+        where date>? and date < ? and stat_action='$action$'
+        group by pid order by count DESC $if(paging)$ $paging()$ $endif$
+
+    $else$
+
     select count(*) as count, pid from statistics_access_log 
         where date>? and date < ?
-        group by pid order by count DESC
-        offset ? limit ?
+        group by pid order by count DESC $if(paging)$ $paging()$ $endif$
+
+    $endif$
 >>
 
 selectDateDurationReport_2(pids) ::=<<
@@ -72,15 +97,43 @@ selectDateDurationReport_2(pids) ::=<<
 >>
 
 /** author */ 
-selectAuthorReport() ::=<<
+selectAuthorReport(action, paging) ::=<<
+    $if(action)$ 
+
+select count(*) as count, auth.author_name from statistic_access_log_detail_authors auth
+join statistics_access_log sta on(auth.record_id = sta.record_id)
+where sta.stat_action='$action$'
+group by author_name order by count DESC $if(paging)$ $paging()$ $endif$
+
+    $else$   
+
 select count(*) as count, author_name from statistic_access_log_detail_authors
-group by author_name order by count DESC
-        offset ? limit ?
+group by author_name order by count DESC $if(paging)$ $paging()$ $endif$
+        
+    $endif$   
 >>
 
-selectLangReport() ::=<<
+/** paging */
+paging() ::=<<offset ? limit ?>>
+
+
+/** language */
+selectLangReport(action) ::=<<
+    $if(action)$ 
+    
+    select count(*) as count, lang from statistic_access_log_detail detail
+        join statistics_access_log salog on (salog.record_id=detail.record_id)
+    where detail.lang is not null and  salog.stat_action='$action$'
+        group by lang order by count DESC
+
+    $else$   
+
+
     select count(*) as count, lang from statistic_access_log_detail 
 where lang is not null
     group by lang order by count DESC
+    
+    $endif$   
+    
 >>
 

@@ -20,6 +20,7 @@ import cz.incad.kramerius.imaging.impl.TileSupportImpl;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.processes.database.Fedora3ConnectionProvider;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
@@ -61,12 +62,10 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
             return true;
         }
 
-        @Override
-        public void processAccessLog(StatisticsAccessLogSupport sup) {
-            // TODO Auto-generated method stub
-            
-        }
         
+        @Override
+        public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup) {
+            // TODO Auto-generated method stub
+        }
     }
-	
 }

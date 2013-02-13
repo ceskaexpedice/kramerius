@@ -25,17 +25,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.security.database.InitSecurityDatabaseMethodInterceptor;
+import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
 /**
+ * Statistic tables initialization
  * @author pavels
- *
  */
 public class StatisticDatabaseInitializator {
 
@@ -43,10 +45,13 @@ public class StatisticDatabaseInitializator {
     
     public static void initDatabase(Connection connection, VersionService versionService) {
         try {
-            //5.7.0
             String version = versionService.getVersion();
-            if (versionCondition(version, "=", "5.7.0")){
+            if (version == null) {
                 createStatisticTables(connection);
+            } else if (versionCondition(version, "=", "5.7.0")){
+                createStatisticTables(connection);
+            } else if (versionCondition(version, ">", "5.9.0")) {
+                alterStatisticsTableStatAction(connection);
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -54,6 +59,17 @@ public class StatisticDatabaseInitializator {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
+
+    public static void alterStatisticsTableStatAction(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+            "ALTER TABLE statistics_access_log ADD COLUMN STAT_ACTION VARCHAR(255);");
+        try {
+            int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+        } finally {
+            DatabaseUtils.tryClose(prepareStatement);
+        }
+    }    
 
     /**
      * @param connection

@@ -14,43 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * 
+ */
 package cz.incad.kramerius.statistics;
 
-
 /**
- * Report offset 
+ * Reported action
  * @author pavels
  */
-public class StatisticReportOffset {
-    
-    private int offset;
-    private int size;
-    
-    //private Object filteringValue;
-    
-    public StatisticReportOffset(int offset, int size/*, Object filteringValue*/) {
-        super();
-        this.offset = offset;
-        this.size = size;
-    }
+public enum ReportedAction {
 
-    /**
-     * @return the offset
-     */
-    public int getOffset() {
-        return offset;
-    }
-    
-    /**
-     * @return the size
-     */
-    public int getSize() {
-        return size;
-    }
-
-    /*
-    public Object getFilteringValue() {
-        return filteringValue;
-    }*/
-
+    /** Read */ 
+    READ,
+    /** Generating pdf */
+    PDF,
+    /** Print */
+    PRINT;
 }

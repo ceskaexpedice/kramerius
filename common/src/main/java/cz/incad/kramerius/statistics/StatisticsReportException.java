@@ -16,41 +16,24 @@
  */
 package cz.incad.kramerius.statistics;
 
-
 /**
- * Report offset 
  * @author pavels
  */
-public class StatisticReportOffset {
-    
-    private int offset;
-    private int size;
-    
-    //private Object filteringValue;
-    
-    public StatisticReportOffset(int offset, int size/*, Object filteringValue*/) {
+public class StatisticsReportException extends Exception {
+
+    public StatisticsReportException() {
         super();
-        this.offset = offset;
-        this.size = size;
     }
 
-    /**
-     * @return the offset
-     */
-    public int getOffset() {
-        return offset;
-    }
-    
-    /**
-     * @return the size
-     */
-    public int getSize() {
-        return size;
+    public StatisticsReportException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    /*
-    public Object getFilteringValue() {
-        return filteringValue;
-    }*/
+    public StatisticsReportException(String message) {
+        super(message);
+    }
 
+    public StatisticsReportException(Throwable cause) {
+        super(cause);
+    }
 }

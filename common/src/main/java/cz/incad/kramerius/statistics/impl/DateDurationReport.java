@@ -38,9 +38,12 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticReportOffset;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.StatisticsReportException;
+import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
 /**
@@ -60,13 +63,14 @@ public class DateDurationReport implements StatisticReport{
     Provider<Connection> connectionProvider;
 
     @Override
-    public List<Map<String, Object>> getReportPage(StatisticReportOffset reportOffset) {
+    public List<Map<String, Object>> getReportPage(ReportedAction repAction, StatisticReportOffset reportOffset, Object filteringValue) {
         try {
-            String filteringValue = (String) reportOffset.getFilteringValue();
             
-            String[] splitted = filteringValue.split("-");
+            String[] splitted = filteringValue.toString().split("-");
             
             final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport_1");
+            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+            statRecord.setAttribute("paging",true);
             String sql = statRecord.toString();
             
             List<Map<String,Object>> vals = new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
@@ -148,5 +152,59 @@ public class DateDurationReport implements StatisticReport{
     @Override
     public String getReportId() {
         return REPORT_ID;
+    }
+
+    
+    @Override
+    public void processAccessLog(ReportedAction repAction, StatisticsReportSupport sup, Object filteringValue, Object... args) throws StatisticsReportException {
+        try {
+            String[] splitted = filteringValue.toString().split("-");
+            
+            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport_1");
+            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+            statRecord.setAttribute("paging", false);
+            String sql = statRecord.toString();
+            
+            List<Map<String,Object>> vals = new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.put("pid",rs.getString("pid"));
+                    map.put("count",new Integer(rs.getInt("count")));
+                    returnsList.add(map);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(sql, new Timestamp(FORMAT.parse(splitted[0]).getTime()), new Timestamp(FORMAT.parse(splitted[1]).getTime()));
+            
+            List<String> pids = new ArrayList<String>(); {
+                for (Map<String, Object> map : vals) {
+                    pids.add((String)map.get("pid"));
+                }
+            }
+            
+            final StringTemplate detailRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport_2");
+            detailRecord.setAttribute("pids", pids);
+            
+            List<Map<String,Object>> details = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
+
+                @Override
+                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
+                    Map<String, Object> val = new HashMap<String, Object>();
+                    val.put(PID_KEY, rs.getString("pid"));
+                    val.put(TITLE_KEY, rs.getString("title"));
+                    val.put(MODEL_KEY, rs.getString("model"));
+                    returnsList.add(val);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(detailRecord.toString());
+
+            List<Map<String, Object>> merged = merge(vals, details);
+            for (Map<String, Object> m : merged) {
+                sup.processReportRecord(m);
+            }
+            
+        } catch (ParseException e) {
+            throw new StatisticsReportException(e);
+        }
     }
 }

@@ -16,41 +16,17 @@
  */
 package cz.incad.kramerius.statistics;
 
+import java.util.Map;
 
 /**
- * Report offset 
  * @author pavels
+ *
  */
-public class StatisticReportOffset {
-    
-    private int offset;
-    private int size;
-    
-    //private Object filteringValue;
-    
-    public StatisticReportOffset(int offset, int size/*, Object filteringValue*/) {
-        super();
-        this.offset = offset;
-        this.size = size;
-    }
+public interface StatisticsReportSupport {
 
     /**
-     * @return the offset
+     * Process main record
+     * @param record
      */
-    public int getOffset() {
-        return offset;
-    }
-    
-    /**
-     * @return the size
-     */
-    public int getSize() {
-        return size;
-    }
-
-    /*
-    public Object getFilteringValue() {
-        return filteringValue;
-    }*/
-
+    public void processReportRecord(Map<String, Object> record);
 }

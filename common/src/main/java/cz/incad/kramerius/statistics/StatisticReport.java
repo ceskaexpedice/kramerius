@@ -14,9 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package cz.incad.kramerius.statistics;
 
 import java.util.List;
@@ -32,13 +29,14 @@ public interface StatisticReport {
     public static final String PID_KEY = "pid";
     public static final String TITLE_KEY = "title";
     public static final String MODEL_KEY = "model";
+    public static final String ACTION_KEY = "action";
     
     /**
      * Returns reporting page
      * @param reportOffset Offset and size
      * @return
      */
-    public List<Map<String,Object>> getReportPage(StatisticReportOffset reportOffset);
+    public List<Map<String,Object>> getReportPage(ReportedAction reportedAction, StatisticReportOffset reportOffset, Object filteredValue) throws StatisticsReportException;
     
     /**
      * Returns optional filtering values
@@ -51,4 +49,11 @@ public interface StatisticReport {
      * @return
      */
     public String getReportId();
+    
+    
+    /**
+     * Process access log for concrete report
+     * @param sup
+     */
+    public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, Object filteredValue, Object...args) throws StatisticsReportException;
 }

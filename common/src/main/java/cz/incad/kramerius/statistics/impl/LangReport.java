@@ -33,8 +33,11 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticReportOffset;
+import cz.incad.kramerius.statistics.StatisticsReportException;
+import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
 /**
@@ -50,8 +53,10 @@ public class LangReport implements StatisticReport{
     Provider<Connection> connectionProvider;
 
     @Override
-    public List<Map<String, Object>> getReportPage(StatisticReportOffset reportOffset) {
+    public List<Map<String, Object>> getReportPage(ReportedAction repAction,StatisticReportOffset reportOffset, Object filteredValue) {
         final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
+        authors.setAttribute("action", repAction != null ? repAction.name() : null);
+        //authors.setAttribute("paging", true);
         String sql = authors.toString();
         List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
 
@@ -78,4 +83,21 @@ public class LangReport implements StatisticReport{
         return REPORT_ID;
     }
 
+    @Override
+    public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup, Object filteredValue, Object... args) throws StatisticsReportException {
+        final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
+        authors.setAttribute("action", repAction != null ? repAction.name() : null);
+        //authors.setAttribute("paging", true);
+        String sql = authors.toString();
+        new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put("count", rs.getInt("count"));
+                map.put("lang", rs.getString("lang"));
+                sup.processReportRecord(map);
+                return super.handleRow(rs, returnsList);
+            }
+        }.executeQuery(sql.toString());
+    }
 }

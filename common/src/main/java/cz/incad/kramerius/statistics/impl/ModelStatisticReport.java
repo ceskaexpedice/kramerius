@@ -32,8 +32,11 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticReportOffset;
+import cz.incad.kramerius.statistics.StatisticsReportException;
+import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
 /**
@@ -50,9 +53,11 @@ public class ModelStatisticReport implements StatisticReport {
     Provider<Connection> connectionProvider;
 
     @Override
-    public List<Map<String,Object>> getReportPage(StatisticReportOffset reportOffset) {
+    public List<Map<String,Object>> getReportPage(ReportedAction repAction, StatisticReportOffset reportOffset, Object filteringValue) {
         final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModelReport");
-        statRecord.setAttribute("model", reportOffset.getFilteringValue());
+        statRecord.setAttribute("model", filteringValue);
+        statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+        statRecord.setAttribute("paging", true);
         String sql = statRecord.toString();
         List<Map<String,Object>> returns = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
             @Override
@@ -62,6 +67,7 @@ public class ModelStatisticReport implements StatisticReport {
                 val.put(PID_KEY, rs.getString("pid"));
                 val.put(TITLE_KEY, rs.getString("title"));
                 val.put(MODEL_KEY, rs.getString("model"));
+                
                 returnsList.add(val);
                 return super.handleRow(rs, returnsList);
             }
@@ -90,5 +96,29 @@ public class ModelStatisticReport implements StatisticReport {
     @Override
     public String getReportId() {
         return REPORT_ID;
+    }
+
+    @Override
+    public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup, Object filteringValue, Object... args) throws StatisticsReportException {
+        final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModelReport");
+        statRecord.setAttribute("model", filteringValue);
+        statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+        statRecord.setAttribute("paging", false);
+        String sql = statRecord.toString();
+        new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
+                Map<String, Object> val = new HashMap<String, Object>();
+                val.put(COUNT_KEY, rs.getInt("count"));
+                val.put(PID_KEY, rs.getString("pid"));
+                val.put(TITLE_KEY, rs.getString("title"));
+                val.put(MODEL_KEY, rs.getString("model"));
+                sup.processReportRecord(val);
+                returnsList.add(val);
+                
+                return super.handleRow(rs, returnsList);
+            }
+        }.executeQuery(sql);
+        
     }
 }

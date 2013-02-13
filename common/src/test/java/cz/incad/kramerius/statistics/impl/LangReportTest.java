@@ -14,43 +14,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.statistics;
+/**
+ * 
+ */
+package cz.incad.kramerius.statistics.impl;
 
+import junit.framework.Assert;
+
+import org.antlr.stringtemplate.StringTemplate;
+import org.junit.Test;
 
 /**
- * Report offset 
  * @author pavels
+ *
  */
-public class StatisticReportOffset {
-    
-    private int offset;
-    private int size;
-    
-    //private Object filteringValue;
-    
-    public StatisticReportOffset(int offset, int size/*, Object filteringValue*/) {
-        super();
-        this.offset = offset;
-        this.size = size;
-    }
+public class LangReportTest {
 
-    /**
-     * @return the offset
-     */
-    public int getOffset() {
-        return offset;
-    }
-    
-    /**
-     * @return the size
-     */
-    public int getSize() {
-        return size;
-    }
+    @Test
+    public void testTemplate() {
+        StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
+        statRecord.setAttribute("action", "PDF");
+        Assert.assertNotNull(statRecord.toString());
 
-    /*
-    public Object getFilteringValue() {
-        return filteringValue;
-    }*/
+        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
+        statRecord.setAttribute("action", null);
+        Assert.assertNotNull(statRecord.toString());
+    }
 
 }
