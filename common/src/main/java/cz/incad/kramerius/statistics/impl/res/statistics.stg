@@ -75,26 +75,28 @@ selectModels() ::=<<
 >>
 
 /** datum - datum */
-selectDateDurationReport_1(action,from, to, paging) ::=<<
+selectDateDurationReport(action,from, to, paging) ::=<<
     $if(action)$
-    select count(*) as count, pid from statistics_access_log 
-        where date>? and date < ? and stat_action='$action$'
-        group by pid order by count DESC $if(paging)$ $paging()$ $endif$
+
+    select count(*) as count, sa.pid,max(sa.record_id) as record_id, title, model, rights,lang from statistics_access_log sa
+        join  flat_statistic_access_log_detail fa using(record_id)
+        where "date">? and "date" < ? and stat_action='$action$'
+        group by sa.pid,title,model,rights,lang order by count DESC $if(paging)$ $paging()$ $endif$
+
 
     $else$
 
-    select count(*) as count, pid from statistics_access_log 
-        where date>? and date < ?
-        group by pid order by count DESC $if(paging)$ $paging()$ $endif$
+    select count(*) as count, sa.pid,max(sa.record_id) as record_id, title, model, rights,lang from statistics_access_log sa
+        join  flat_statistic_access_log_detail fa using(record_id)
+        where "date">? and "date" < ? 
+        group by sa.pid,title,model,rights,lang order by count DESC $if(paging)$ $paging()$ $endif$
 
     $endif$
 >>
 
-selectDateDurationReport_2(pids) ::=<<
-    select * from statistics_access_log sa
-    join statistic_access_log_detail detail on (sa.record_id=detail.record_id)
-    where   sa.pid in ( $pids:{p|'$p$'};separator=", "$) and sa.pid = detail.pid
->>
+
+
+
 
 /** author */ 
 selectAuthorReport(action, paging) ::=<<

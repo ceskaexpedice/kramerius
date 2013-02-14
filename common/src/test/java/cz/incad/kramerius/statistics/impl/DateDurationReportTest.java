@@ -32,11 +32,11 @@ public class DateDurationReportTest {
 
     @Test
     public void testTemplate() {
-        StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport_1");
+        StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport");
         statRecord.setAttribute("action", "PDF");
         Assert.assertNotNull(statRecord.toString());
 
-        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport_1");
+        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport");
         statRecord.setAttribute("action", null);
         Assert.assertNotNull(statRecord.toString());
         

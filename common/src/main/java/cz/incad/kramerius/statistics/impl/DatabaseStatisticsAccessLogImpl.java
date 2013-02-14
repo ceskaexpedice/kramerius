@@ -142,7 +142,9 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                     Object title = DCUtils.titleFromDC(dc);
                     title = title != null ? title : new JDBCUpdateTemplate.NullObject(String.class);
 
-                    InsertDetail insertDetail = new InsertDetail(detailPid, kModel, dateFromDC, languageFromDc, title, pathIndex);
+                    String rights = DCUtils.rightsFromDC(dc);
+                    
+                    InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, languageFromDc, title, pathIndex);
                     commands.add(insertDetail);
                     
                     String[] creatorsFromDC = DCUtils.creatorsFromDC(dc);
@@ -318,14 +320,16 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         private Object title = null;
         private Object date = null;
         private int pathIndex = 0;
+        private String rights=null;
         
-        public InsertDetail(String detailPid, String kModel, Object date, Object language, Object title, int pathIndex) {
+        public InsertDetail(String detailPid, String kModel,String rights ,Object date, Object language, Object title, int pathIndex) {
             super();
             this.detailPid = detailPid;
             this.kModel = kModel;
             this.language = language;
             this.title = title;
             this.date = date;
+            this.rights = rights;
             this.pathIndex = pathIndex;
         }
 
@@ -341,7 +345,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
             
             //(detail_ID, PID,model,ISSUED_DATE,RIGHTS, LANG, TITLE, BRANCH_ID,RECORD_ID)
             int detail_id  = new JDBCUpdateTemplate(con, false)
-                .executeUpdate(sql, detailPid, kModel, date, new JDBCUpdateTemplate.NullObject(String.class) , language, title, pathIndex,record_id);
+                .executeUpdate(sql, detailPid, kModel, date, rights , language, title, pathIndex,record_id);
             
             previousResult.put("detail_id", detail_id);
             

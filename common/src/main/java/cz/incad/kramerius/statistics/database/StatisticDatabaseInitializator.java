@@ -27,12 +27,16 @@ import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.security.database.InitSecurityDatabaseMethodInterceptor;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.database.JDBCCommand;
+import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
 /**
@@ -48,16 +52,50 @@ public class StatisticDatabaseInitializator {
             String version = versionService.getVersion();
             if (version == null) {
                 createStatisticTables(connection);
-            } else if (versionCondition(version, "=", "5.7.0")){
-                createStatisticTables(connection);
-            } else if (versionCondition(version, ">", "5.9.0")) {
                 alterStatisticsTableStatAction(connection);
+                createDatesDurationViews(connection);
+            } else if (versionCondition(version, ">", "5.7.0") &&  versionCondition(version, "<", "6.0.0")){
+                createStatisticTables(connection);
+                alterStatisticsTableStatAction(connection);
+                createDatesDurationViews(connection);
+            } else if (versionCondition(version, ">=", "6.0.0")) {
+                createDatesDurationViews(connection);
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
+    }
+
+    /**
+     * @param connection
+     * @throws SQLException 
+     */
+    private static void createDatesDurationViews(Connection con) throws SQLException {
+        List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
+        commands.add(new JDBCCommand() {
+            
+            @Override
+            public Object executeJDBCCommand(Connection con) throws SQLException {
+                PreparedStatement prepareStatement = con.prepareStatement("create view flat_statistic_access_log_detail_map as  select record_id, min(detail_id) as detail_id from statistic_access_log_detail  group by record_id");
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "CREATE VIEW: updated rows {0}", r);
+                return null;
+            }
+        });
+        commands.add(new JDBCCommand() {
+            
+            @Override
+            public Object executeJDBCCommand(Connection con) throws SQLException {
+                PreparedStatement prepareStatement = con.prepareStatement("create view flat_statistic_access_log_detail as  select fa.detail_id, fa.record_id, sa.pid, sa.model, sa.issued_date, sa.rights, sa.lang,sa.title  from flat_statistic_access_log_detail_map fa join statistic_access_log_detail sa using(detail_id)");
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "CREATE VIEW: updated rows {0}", r);
+                return null;
+            }
+        });
+
+        new JDBCTransactionTemplate(con, true).updateWithTransaction(commands);
     }
 
     public static void alterStatisticsTableStatAction(Connection con) throws SQLException {
