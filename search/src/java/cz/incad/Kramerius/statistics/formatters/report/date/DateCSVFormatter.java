@@ -41,20 +41,24 @@ public class DateCSVFormatter implements StatisticsReportFormatter{
     
     private OutputStream os;
     private boolean firstLine = false;
-    
+
+//    builder.append(record.get("count")).append(',');
+//    builder.append(StringUtils.nullify((String)record.get("pid"))).append(',');
+//    builder.append(StringUtils.nullify((String)record.get("model"))).append(',');
+//    builder.append(StringUtils.nullify((String)record.get("issued_date"))).append(',');
+//    builder.append(StringUtils.nullify((String)record.get("rights"))).append(',');
+//    builder.append(StringUtils.nullify((String)record.get("lang"))).append(',');
+//    builder.append(StringUtils.nullify((String)record.get("title")));
+
     public void printHeader() throws UnsupportedEncodingException, IOException {
         StringBuilder builder = new StringBuilder();
         builder.append("count").append(',');
         builder.append("pid").append(',');
-        builder.append("date").append(',');
-        builder.append("remote_ip_address").append(',');
-        builder.append("user").append(',');
         builder.append("model").append(',');
         builder.append("issued_date").append(',');
         builder.append("rights").append(',');
         builder.append("lang").append(',');
         builder.append("title");
-        builder.append("\n");
 
         this.os.write(builder.toString().getBytes("UTF-8"));
     }
@@ -90,14 +94,11 @@ public class DateCSVFormatter implements StatisticsReportFormatter{
 
             builder.append(record.get("count")).append(',');
             builder.append(StringUtils.nullify((String)record.get("pid"))).append(',');
-            builder.append(StringUtils.nullify((String)record.get("date"))).append(',');
-            builder.append(StringUtils.nullify((String)record.get("remote_ip_address"))).append(',');
-            builder.append(StringUtils.nullify((String)record.get("user"))).append(',');
             builder.append(StringUtils.nullify((String)record.get("model"))).append(',');
             builder.append(StringUtils.nullify((String)record.get("issued_date"))).append(',');
             builder.append(StringUtils.nullify((String)record.get("rights"))).append(',');
             builder.append(StringUtils.nullify((String)record.get("lang"))).append(',');
-            builder.append(StringUtils.nullify((String)record.get("title")));
+            builder.append(StringUtils.nullify(StringUtils.escapeChars((String)record.get("title"), new char[] {','})));
 
             os.write(builder.toString().getBytes());
         } catch (IOException e) {

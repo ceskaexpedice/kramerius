@@ -29,6 +29,23 @@ public class StringUtils {
         return str != null  ? str : "";
     }
 
+    public static boolean shouldEscape(char ch, char[]escapingCharss) {
+        for (char c : escapingCharss) {
+            if (ch == c) return true;
+        }
+        return false;
+    }
+    
+    public static String escapeChars(String str, char[] escapingChars) {
+        StringBuilder builder = new StringBuilder();
+        char[] chrs = str.toCharArray();
+        for (char c : chrs) {
+            if (shouldEscape(c, escapingChars)) builder.append('\\');
+            else builder.append(c);
+        }
+        return builder.toString();
+    }
+    
     public static String escapeNewLine(String str) {
         StringBuilder builder = new StringBuilder();
         char[] chrs = str.toCharArray();
