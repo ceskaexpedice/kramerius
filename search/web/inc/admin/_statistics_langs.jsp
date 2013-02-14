@@ -101,7 +101,7 @@ $(document).ready(function(){
     <div id="lang_buttons">
 
         <div style="text-align: center;" >
-            <h2> ..</h2>
+            <h2> <view:msg>statistics.report.lang</view:msg> </h2>
         </div>
 
         <div style="position: relative;">
@@ -121,7 +121,6 @@ $(document).ready(function(){
         <div id="chart4" style="width:750px; height:370px;"></div>
         <div id="chart4tooltip" style="position:absolute;font-style: normal; display: none;" class="shadow ui-widget ui-widget-content"></div>
     </div>
-
 
 
 </scrd:securedContent>

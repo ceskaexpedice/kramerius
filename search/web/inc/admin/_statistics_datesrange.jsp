@@ -109,7 +109,7 @@ $(document).ready(function(){
         
     <div id="dates_ranges_buttons">
         <div style="text-align: center;" >
-            <h2> Graf pro obdobi ${statistics.filteringValue}</h2>
+            <h2> <view:msg>statistics.report.dates</view:msg> (${statistics.filteringValue})</h2>
         </div>
 
         <div style="position: relative;" class="buttons">

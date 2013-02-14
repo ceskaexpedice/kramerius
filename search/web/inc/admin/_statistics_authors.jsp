@@ -100,7 +100,7 @@ $(document).ready(function(){
         
     <div id="authors_buttons">
          <div style="text-align: center;" >
-            <h2> Graf zobrazovanych autoru</h2>
+            <h2> <view:msg>statistics.report.authors</view:msg></h2>
         </div>
     
         <div style="position: relative;" class="buttons">

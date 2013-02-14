@@ -48,7 +48,7 @@
         
         <tbody>
             <tr>
-                <td><strong>Filter pro reporty</strong></td>               
+                <td><strong><view:msg>statistics.main_dialog.filter</view:msg></strong></td>               
                 <td><view:msg>common.action</view:msg>:</td>
             </tr>
             <tr>

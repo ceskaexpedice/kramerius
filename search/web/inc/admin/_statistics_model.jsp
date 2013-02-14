@@ -118,7 +118,7 @@ $(document).ready(function(){
     <div id="model_report_buttons">
 
         <div style="text-align: center;" >
-        <h2> Graf pro model ${statistics.selectedModel}</h2>
+        <h2> <view:msg>statistics.report.model</view:msg> (${statistics.selectedModel})</h2>
         </div>
 
         <div style="position: relative;" class="buttons">
