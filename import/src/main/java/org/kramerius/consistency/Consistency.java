@@ -41,6 +41,7 @@ import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
@@ -226,10 +227,11 @@ public class Consistency {
         }
 
         @Override
-        public void processAccessLog(StatisticsAccessLogSupport sup) {
+        public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup) {
             // TODO Auto-generated method stub
             
         }
+
         
         
     }

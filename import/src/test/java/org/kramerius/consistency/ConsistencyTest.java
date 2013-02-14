@@ -48,6 +48,7 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
@@ -79,14 +80,6 @@ public class ConsistencyTest {
             return false;
         }
 
-        /* (non-Javadoc)
-         * @see cz.incad.kramerius.statistics.StatisticsAccessLog#processAccessLog(cz.incad.kramerius.statistics.StatisticsAccessLogSupport)
-         */
-        @Override
-        public void processAccessLog(StatisticsAccessLogSupport sup) {
-            // TODO Auto-generated method stub
-            
-        }
 
         /* (non-Javadoc)
          * @see cz.incad.kramerius.statistics.StatisticsAccessLog#getAllReports()
@@ -105,6 +98,13 @@ public class ConsistencyTest {
             // TODO Auto-generated method stub
             return null;
         }
+
+        @Override
+        public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup) {
+            // TODO Auto-generated method stub
+            
+        }
+        
         
     }
     
