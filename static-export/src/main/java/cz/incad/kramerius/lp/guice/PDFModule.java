@@ -1,6 +1,7 @@
 package cz.incad.kramerius.lp.guice;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.Locale;
 
@@ -23,6 +24,10 @@ import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.service.impl.ResourceBundleServiceImpl;
 import cz.incad.kramerius.service.impl.TextsServiceImpl;
+import cz.incad.kramerius.statistics.ReportedAction;
+import cz.incad.kramerius.statistics.StatisticReport;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
@@ -32,6 +37,7 @@ public class PDFModule extends AbstractModule {
 	protected void configure() {
 		bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
 		bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
+		bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
 		bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
 		bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
 		bind(DocumentService.class).to(DocumentServiceImpl.class);
@@ -49,4 +55,36 @@ public class PDFModule extends AbstractModule {
         return new File(dirName);
     }
 
+    public static class NoStatistics implements StatisticsAccessLog {
+
+        @Override
+        public void reportAccess(String pid, String streamName) throws IOException {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public boolean isReportingAccess(String pid, String streamName) {
+            return true;
+        }
+
+        @Override
+        public StatisticReport[] getAllReports() {
+            return new StatisticReport[0];
+        }
+
+        @Override
+        public StatisticReport getReportById(String reportId) {
+            return null;
+        }
+
+        @Override
+        public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        
+        
+    }
 }
