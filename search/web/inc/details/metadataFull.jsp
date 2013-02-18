@@ -19,16 +19,7 @@
             org.w3c.dom.Document xml = fedoraAccess.getBiblioMods(request.getParameter("pid"));
 
     cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) ctxInj.getInstance(cz.incad.kramerius.service.XSLService.class);
-    try {
-        String xsl = "modsFull.xsl";
-        if (xs.isAvailable(xsl)) {
-            String text = xs.transform(xml, xsl, lctx.getLocale());
-            out.println(text);
-            return;
-        }
-    } catch (Exception e) {
-        out.println(e);
-    }
+    
     pageContext.setAttribute("xml", xml);
     String xmlStr = xs.serialize(xml);
     pageContext.setAttribute("xmlStr", xmlStr);
@@ -54,11 +45,26 @@
                     <li><a href="#mods-xml" class="vertical-text" >xml</a></li>
                 </ul>
                 <div id="mods-html">
+<%
+                    
+    try {
+        String xsl = "modsFull.xsl";
+        if (xs.isAvailable(xsl)) {
+            String text = xs.transform(xml, xsl, lctx.getLocale());
+            out.println(text);
+        }else{
+%>
                     <x:transform doc="${xml}"  xslt="${xsltPage}"  >
                         <x:param name="pid" value="${param.pid}"/>
                         <x:param name="bundle_url" value="${i18nServlet}"/>
                         <x:param name="model" value="${param.model}"/>
                     </x:transform>
+<%            
+        }
+    } catch (Exception e) {
+        out.println(e);
+    }
+%>
                 </div>
                 <div id="mods-xml" style="overflow:scroll;height:80%">
 <pre><c:out escapeXml="true" value="${xmlStr}" /></pre>
