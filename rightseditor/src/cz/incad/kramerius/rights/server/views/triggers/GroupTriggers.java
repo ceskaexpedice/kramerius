@@ -3,7 +3,7 @@ package cz.incad.kramerius.rights.server.views.triggers;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.aplikator.client.data.Record;
+import org.aplikator.client.shared.data.Record;
 import org.aplikator.server.Context;
 import org.aplikator.server.persistence.PersisterTriggers;
 

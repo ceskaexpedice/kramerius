@@ -8,8 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.aplikator.client.data.ListItem;
-import org.aplikator.client.descriptor.QueryParameter;
+import org.aplikator.client.shared.data.ListItem;
+import org.aplikator.client.shared.descriptor.QueryParameter;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.ComboBox;
 import org.aplikator.server.descriptor.Form;

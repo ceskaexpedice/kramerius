@@ -4,11 +4,11 @@ import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.aplikator.client.data.Operation;
-import org.aplikator.client.data.RecordContainer;
-import org.aplikator.client.data.Record;
-import org.aplikator.client.rpc.AplikatorService;
-import org.aplikator.client.rpc.impl.ProcessRecords;
+import org.aplikator.client.shared.data.Operation;
+import org.aplikator.client.shared.data.RecordContainer;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.client.shared.rpc.AplikatorService;
+import org.aplikator.client.shared.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.View;
 import org.aplikator.server.function.Executable;
@@ -39,7 +39,7 @@ public class GeneratePasswordExec implements Executable {
                 RecordContainer container = new RecordContainer();
                 container.addRecord(getView().getViewDTO(context), currentRecord, currentRecord, Operation.UPDATE);
                 AplikatorService service = context.getAplikatorService();
-                service.execute(new ProcessRecords(container));
+                service.processRecords(container);
                 GeneratePasswordUtils.sendGeneratedPasswordToMail(emailAddres, Structure.user.LOGINNAME.getValue(currentRecord), generated, mailer, context);
                 String okResultString = I18NUtils.getLocalizedString("VygenerovatHeslo.ok.result", context);
                 result = MessageFormat.format(okResultString, emailAddres);

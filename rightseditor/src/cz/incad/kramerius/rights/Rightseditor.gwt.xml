@@ -20,7 +20,7 @@
   <!-- 
   <entry-point class='cz.incad.kramerius.rights.client.Rightseditor'/>
  -->
-  <entry-point class='org.aplikator.client.Aplikator'/>
+  <entry-point class='org.aplikator.client.local.Aplikator'/>
 
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>

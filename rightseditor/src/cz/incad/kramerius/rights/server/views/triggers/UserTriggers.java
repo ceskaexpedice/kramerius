@@ -9,8 +9,8 @@ import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
-import org.aplikator.client.data.Record;
-import org.aplikator.client.descriptor.PropertyDTO;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.client.shared.descriptor.PropertyDTO;
 import org.aplikator.server.Context;
 import org.aplikator.server.persistence.PersisterTriggers;
 

@@ -1,6 +1,6 @@
 package cz.incad.kramerius.rights.server;
 
-import org.aplikator.client.data.ListItem;
+import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.server.descriptor.Application;
 import org.aplikator.server.descriptor.Collection;
 import org.aplikator.server.descriptor.Entity;

@@ -3,7 +3,7 @@ package cz.incad.kramerius.rights.server.views;
 import static org.aplikator.server.descriptor.Panel.*;
 import java.util.List;
 
-import org.aplikator.client.descriptor.QueryParameter;
+import org.aplikator.client.shared.descriptor.QueryParameter;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.View;
 import org.aplikator.server.descriptor.Form;
