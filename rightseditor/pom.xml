@@ -29,6 +29,7 @@
 
     <properties>
         <gwt.version>2.5.0</gwt.version>
+        <errai.version>2.2.0.Final</errai.version>
     </properties>
 
     <dependencies>
@@ -43,27 +44,33 @@
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
+         <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>8.4-702.jdbc4</version>
+        </dependency>
+
         <dependency>
             <groupId>org.aplikator</groupId>
             <artifactId>aplikator</artifactId>
             <version>0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>8.4-702.jdbc4</version>
-        </dependency>
-
-        <!--dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-user</artifactId>
-            <version>${gwt.version}</version>
-            <scope>provided</scope>
-        </dependency-->
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.errai</groupId>
+            <artifactId>errai-jaxrs-client</artifactId>
+            <version>${errai.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-user</artifactId>
+            <version>${gwt.version}</version>
             <scope>provided</scope>
         </dependency>
 
