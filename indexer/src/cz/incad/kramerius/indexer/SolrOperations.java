@@ -421,7 +421,8 @@ public class SolrOperations {
                     }
                     
                 } catch (Exception ex) {
-                    logger.log(Level.WARNING, "Can't index doc: " + relpid + " Continuing...", ex);
+                    logger.log(Level.SEVERE, "Can't index doc: " + relpid, ex);
+                    throw new Exception(ex);
                 }
             }
 
