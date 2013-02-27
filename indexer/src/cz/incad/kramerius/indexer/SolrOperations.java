@@ -212,8 +212,8 @@ public class SolrOperations {
 
             return indexByPid(uuid, date, force, new ByteArrayInputStream(fedoraOperations.foxmlRecord));
         } catch (Exception ex) {
-            logger.log(Level.WARNING, "Error reindexing doc " + uuid + " with: " + ex.toString());
-            return 0;
+            logger.log(Level.SEVERE, "Error reindexing doc " + uuid + " with: " + ex.toString());
+            throw new Exception(ex);
         }
     }
 
