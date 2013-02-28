@@ -51,7 +51,7 @@ public class ALTOUtils {
             }
         }
 
-        Element pageElm = XMLUtils.findElement(dom.getDocumentElement(), "Page");
+        Element pageElm = XMLUtils.findElement(dom.getDocumentElement(), "PrintSpace");
         if (pageElm != null) {
             //<Page ID="Page0" PHYSICAL_IMG_NR="0" HEIGHT="3232" WIDTH="2515">
             String imageHeight = pageElm.getAttribute("HEIGHT");
