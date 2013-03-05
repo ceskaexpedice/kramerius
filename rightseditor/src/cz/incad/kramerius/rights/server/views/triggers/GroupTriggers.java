@@ -12,7 +12,7 @@ import cz.incad.kramerius.rights.server.utils.GetAdminGroupIds;
 import cz.incad.kramerius.rights.server.utils.GetCurrentLoggedUser;
 import cz.incad.kramerius.security.User;
 
-public class GroupTriggers extends AbstractUserTriggers implements PersisterTriggers {
+public class GroupTriggers extends PersisterTriggers.Default {
 
     public static final String DEBUG_KEY = GroupTriggers.class.getName();
 
@@ -25,44 +25,23 @@ public class GroupTriggers extends AbstractUserTriggers implements PersisterTrig
     }
 
     @Override
-    public Record beforeCreate(Record record, Context ctx) {
+    public void beforeCreate(Record record, Context ctx) {
         User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
         if ((user == null) || (!user.hasSuperAdministratorRole())) {
             List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
             Structure.group.PERSONAL_ADMIN.setValue(record, groupsList.get(0));
         }
-
-        return record;
     }
 
-    @Override
-    public Record afterCreate(Record record, Context ctx) {
-        return record;
-    }
 
     @Override
-    public Record beforeUpdate(Record record, Context ctx) {
+    public void beforeUpdate(Record record, Context ctx) {
         /*User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
         if ((user == null) || (!user.hasSuperAdministratorRole())) {
             PropertyDTO<Integer> propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
             recordDTO.setNotForSave(propertyDTO, true);
         }*/
-        return record;
     }
 
-    @Override
-    public Record afterUpdate(Record record, Context ctx) {
-        return record;
-    }
-
-    @Override
-    public Record beforeDelete(Record record, Context ctx) {
-        return record;
-    }
-
-    @Override
-    public Record afterDelete(Record record, Context ctx) {
-        return record;
-    }
 
 }

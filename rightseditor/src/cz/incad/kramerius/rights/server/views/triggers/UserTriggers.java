@@ -22,7 +22,7 @@ import cz.incad.kramerius.rights.server.utils.GetCurrentLoggedUser;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.PasswordDigest;
 
-public class UserTriggers extends AbstractUserTriggers implements PersisterTriggers {
+public class UserTriggers extends PersisterTriggers.Default {
 
     public static final Logger LOGGER = Logger.getLogger(UserTriggers.class.getName());
 
@@ -33,7 +33,7 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
     }
 
     @Override
-    public Record beforeCreate(Record record, Context ctx) {
+    public void beforeCreate(Record record, Context ctx) {
         try {
             User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
             if ((user == null) || (!user.hasSuperAdministratorRole())) {
@@ -58,16 +58,11 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
         } catch (MessagingException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
-        return record;
     }
 
-    @Override
-    public Record afterCreate(Record record, Context ctx) {
-        return null;
-    }
 
     @Override
-    public Record beforeUpdate(Record record, Context ctx) {/*
+    public void beforeUpdate(Record record, Context ctx) {/*
         String[] bfs = recordDTO.getModifiedByBfs();
         if (bfs.length == 0) {
             PropertyDTO<String> pswdDTO = structure.user.PASSWORD.clientClone(ctx);
@@ -79,22 +74,6 @@ public class UserTriggers extends AbstractUserTriggers implements PersisterTrigg
             }
         }
 */
-        return null;
-    }
-
-    @Override
-    public Record afterUpdate(Record record, Context ctx) {
-        return null;
-    }
-
-    @Override
-    public Record beforeDelete(Record record, Context ctx) {
-        return null;
-    }
-
-    @Override
-    public Record afterDelete(Record record, Context ctx) {
-        return null;
     }
 
     public Mailer getMailer() {
