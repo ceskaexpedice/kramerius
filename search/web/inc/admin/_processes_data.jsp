@@ -452,7 +452,7 @@ $(document).ready(function(){
                                         <thead><tr><td align="center" style="text-align: center;"> <strong><view:msg>administrator.processes.templates.output.label</view:msg></strong></td> </thead>
                                         <tbody>
                                             <c:forEach items="${lrProc.outputTemplateViewObjects}" var="output" varStatus="status">
-                                                <tr> <td align="center" style="text-align: center;"> <a href="javascript:outoutTemplates.select('${output.id}','${lrProc.UUID}');" target="_blank">${output.name}</a> </td></tr>
+                                                <tr> <td align="center" style="text-align: center;"> <a href="javascript:outoutTemplates.select('${output.id}','${lrProc.UUID}');">${output.name}</a> </td></tr>
                                             </c:forEach>
                                         </tbody>
                                     </table>
@@ -513,7 +513,7 @@ $(document).ready(function(){
                                         <thead><tr><td colspan="3" align="center" style="text-align: center;"> <strong><view:msg>administrator.processes.templates.output.label</view:msg></strong></td> </thead>
                                         <tbody>
                                             <c:forEach items="${childLrProc.outputTemplateViewObjects}" var="output" varStatus="status">
-                                                <tr> <td width="20px;"></td>  <td width="80%"> <a href="javascript:outoutTemplates.select('${output.id}','${lrProc.UUID}');" target="_blank">${output.name}</a> </td></tr>
+                                                <tr> <td width="20px;"></td>  <td width="80%"> <a href="javascript:outoutTemplates.select('${output.id}','${lrProc.UUID}');">${output.name}</a> </td></tr>
                                             </c:forEach>
                                         </tbody>
                                     </table>
