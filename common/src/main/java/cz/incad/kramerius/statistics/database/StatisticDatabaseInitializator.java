@@ -54,7 +54,7 @@ public class StatisticDatabaseInitializator {
                 createStatisticTables(connection);
                 alterStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
-            } else if (versionCondition(version, ">", "5.7.0") &&  versionCondition(version, "<", "6.0.0")){
+            } else if (versionCondition(version, "<", "6.0.0")){
                 createStatisticTables(connection);
                 alterStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
