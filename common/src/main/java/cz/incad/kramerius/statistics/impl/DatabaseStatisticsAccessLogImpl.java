@@ -295,6 +295,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
             if (previousResult == null) previousResult = new HashMap<String, Integer>();
             
             final StringTemplate statRecord = stGroup.getInstanceOf("insertStatisticRecord");
+            String sessionId = requestProvider.get().getSession().getId();
             boolean logged = loggedUserSingleton.isLoggedUser(requestProvider);
             Object user = logged ? userProvider.get().getLoginname() : new JDBCUpdateTemplate.NullObject(String.class);
             String url = disectedURL(requestProvider); //requestProvider.get().getRequestURL().toString() +"?"+requestProvider.get().getQueryString();
@@ -305,7 +306,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
             }
             int record_id  = new JDBCUpdateTemplate(con, false)
-                .executeUpdate(statRecord.toString(), pid, new java.sql.Timestamp(System.currentTimeMillis()), requestProvider.get().getRemoteAddr(), user, url, act.name());
+                .executeUpdate(statRecord.toString(), pid, new java.sql.Timestamp(System.currentTimeMillis()), requestProvider.get().getRemoteAddr(), user, url, act.name(), sessionId);
 
             previousResult.put("record_id", new Integer(record_id));
             return previousResult;

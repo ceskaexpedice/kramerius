@@ -26,7 +26,7 @@ public class GCSchedulerImpl implements GCScheduler {
 		super();
 		this.lrProcessManager = lrProcessManager;
 		this.definitionManager = definitionManager;
-		this.timer = new Timer(GCSchedulerImpl.class.getName()+"-thread",true);
+		this.timer = new Timer(GCSchedulerImpl.class.getName()+"-thread",/*true*/ false);
 	}
 
 	@Override

@@ -3,8 +3,8 @@ group statistics;
 
 insertStatisticRecord() ::=<<
 insert into statistics_access_log
-    (record_ID, PID,DATE,REMOTE_IP_ADDRESS,"USER",REQUESTED_URL,STAT_ACTION)
-    values(nextval('statistics_access_log_ID_SEQUENCE'),?,?,?,?,?,?);
+    (record_ID, PID,DATE,REMOTE_IP_ADDRESS,"USER",REQUESTED_URL,STAT_ACTION, SESSION_ID)
+    values(nextval('statistics_access_log_ID_SEQUENCE'),?,?,?,?,?,?,?);
 >>
 
 
@@ -49,21 +49,24 @@ select
 selectModelReport(action, model, paging) ::=<<
     $if(action)$ 
 
-    SELECT count(*) as count, detail.pid, detail.model, detail.title, detail.rights  from  
-        statistic_access_log_detail detail
+    select  count(*) as count, p.pid, max(p.record_id) as record_id, rights, title, model from (
+        select  sa.session_id, da.pid, max(sa.record_id) as record_id, rights,  title, model from statistics_access_log sa 
+            join statistic_access_log_detail da on (sa.record_id = da.record_id)
+            where model='$model$' and stat_action='$action$'
+        group by session_id,da.pid, rights, title, model
 
-    join statistics_access_log sa on (sa.record_id=detail.record_id)
-    
-    where detail.model='$model$' and sa.stat_action = '$action$'
-        group by detail.pid, detail.model,detail.title, detail.rights order by count DESC 
+    ) as p group by p.pid, p.rights, p.title, p.model order by count DESC
     $if(paging)$ $paging()$ $endif$
 
     $else$   
 
-    SELECT count(*) as count, pid, model, title,rights  from  
-        statistic_access_log_detail 
-    where model='$model$' 
-        group by pid, model,title,rights order by count DESC 
+    select  count(*) as count, p.pid, max(p.record_id) as record_id, rights, title, model from (
+        select  sa.session_id, da.pid, max(sa.record_id) as record_id, rights,  title, model from statistics_access_log sa 
+            join statistic_access_log_detail da on (sa.record_id = da.record_id)
+            where model='$model$'
+        group by session_id,da.pid, rights, title, model
+
+    ) as p group by p.pid, p.rights, p.title, p.model order by count DESC
     $if(paging)$ $paging()$ $endif$
     
     $endif$   

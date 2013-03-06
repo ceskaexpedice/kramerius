@@ -54,13 +54,18 @@ public class StatisticDatabaseInitializator {
                 createStatisticTables(connection);
                 alterStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
+                alterStatisticsTableSessionId(connection);
             } else if (versionCondition(version, "<", "6.0.0")){
                 createStatisticTables(connection);
                 alterStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
+                alterStatisticsTableSessionId(connection);
             } else if (versionCondition(version, "=", "6.0.0")) {
                 alterStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
+                alterStatisticsTableSessionId(connection);
+            } else if (versionCondition(version, "=", "6.1.0")) {
+                alterStatisticsTableSessionId(connection);
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -96,12 +101,23 @@ public class StatisticDatabaseInitializator {
             }
         });
 
-        new JDBCTransactionTemplate(con, true).updateWithTransaction(commands);
+        new JDBCTransactionTemplate(con, false).updateWithTransaction(commands);
     }
 
     public static void alterStatisticsTableStatAction(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
             "ALTER TABLE statistics_access_log ADD COLUMN STAT_ACTION VARCHAR(255);");
+        try {
+            int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+        } finally {
+            DatabaseUtils.tryClose(prepareStatement);
+        }
+    }    
+
+    public static void alterStatisticsTableSessionId(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+            "ALTER TABLE statistics_access_log ADD COLUMN SESSION_ID VARCHAR(255);");
         try {
             int r = prepareStatement.executeUpdate();
             LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
