@@ -156,8 +156,12 @@
               }
              </script>
             
+            <!--
             <a href="javascript:_CSV();" class="buttons">CSV</a>
+            -->
+            
             <a href="javascript:_XML();" class="buttons">XML</a>
+            
             </td> 
         </tr>
 
