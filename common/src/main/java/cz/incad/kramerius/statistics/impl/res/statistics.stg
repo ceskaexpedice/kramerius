@@ -50,8 +50,8 @@ selectModelReport(action, model, paging) ::=<<
     $if(action)$ 
 
     select count(*) as count, pid, rights, title, model from statistic_access_log_detail
-        where model='$model$' and stat_action='$action$' and record_id in (
-            select max(record_id) as record_id from statistics_access_log group by session_id,pid
+        where model='$model$' and record_id in (
+            select max(record_id) as record_id from statistics_access_log where stat_action='$action$' group by session_id,pid
         )
         group by pid, rights, title, model order by count DESC
     $if(paging)$ $paging()$ $endif$
