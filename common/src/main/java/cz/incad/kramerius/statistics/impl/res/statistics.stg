@@ -49,24 +49,20 @@ select
 selectModelReport(action, model, paging) ::=<<
     $if(action)$ 
 
-    select  count(*) as count, p.pid, max(p.record_id) as record_id, rights, title, model from (
-        select  sa.session_id, da.pid, max(sa.record_id) as record_id, rights,  title, model from statistics_access_log sa 
-            join statistic_access_log_detail da on (sa.record_id = da.record_id)
-            where model='$model$' and stat_action='$action$'
-        group by session_id,da.pid, rights, title, model
-
-    ) as p group by p.pid, p.rights, p.title, p.model order by count DESC
+    select count(*) as count, pid, rights, title, model from statistic_access_log_detail
+        where model='$model$' and stat_action='$action$' and record_id in (
+            select max(record_id) as record_id from statistics_access_log group by session_id,pid
+        )
+        group by pid, rights, title, model order by count DESC
     $if(paging)$ $paging()$ $endif$
 
     $else$   
 
-    select  count(*) as count, p.pid, max(p.record_id) as record_id, rights, title, model from (
-        select  sa.session_id, da.pid, max(sa.record_id) as record_id, rights,  title, model from statistics_access_log sa 
-            join statistic_access_log_detail da on (sa.record_id = da.record_id)
-            where model='$model$'
-        group by session_id,da.pid, rights, title, model
-
-    ) as p group by p.pid, p.rights, p.title, p.model order by count DESC
+    select count(*) as count, pid, rights, title, model from statistic_access_log_detail
+        where model='$model$' and record_id in (
+            select max(record_id) as record_id from statistics_access_log group by session_id,pid
+        )
+        group by pid, rights, title, model order by count DESC
     $if(paging)$ $paging()$ $endif$
     
     $endif$   
