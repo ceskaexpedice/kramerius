@@ -76,6 +76,11 @@ public class UserTriggers extends PersisterTriggers.Default {
 */
     }
 
+    @Override
+    public void afterLoad(Record record, Context ctx){
+        record.setPreview("<b>"+Structure.user.LOGINNAME.getValue(record)+"</b><br>"+Structure.user.SURNAME.getValue(record)+" "+Structure.user.NAME.getValue(record));
+    }
+
     public Mailer getMailer() {
         return mailer;
     }

@@ -1,5 +1,6 @@
 package cz.incad.kramerius.rights.server;
 
+import cz.incad.kramerius.rights.server.views.triggers.UserTriggers;
 import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.server.descriptor.Application;
 import org.aplikator.server.descriptor.Collection;
@@ -54,6 +55,7 @@ public class Structure extends Application {
             addIndex("SURNAME_IDX", false, SURNAME);
             addIndex("LOGINNAME_IDX", false, LOGINNAME);
             addIndex("PASSWORD_IDX", false, PASSWORD);
+            setPersistersTriggers(new UserTriggers());
         }
     }
 
