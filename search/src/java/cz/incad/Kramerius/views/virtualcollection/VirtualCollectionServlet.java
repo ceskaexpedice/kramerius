@@ -16,6 +16,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
 import java.io.PrintWriter;
@@ -276,7 +277,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
                 VirtualCollectionsManager.modify(pid, pid, canLeave, fedoraAccess);
                 String string = req.getRequestURL().toString();
                 URL url = new URL(string);
-                String k4url = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort() + req.getRequestURI();
+                String k4url = url.getProtocol() + "://" + url.getHost() + ApplicationURL.extractPort(url) + req.getRequestURI();
                 for (int i = 0; i < langs.length; i++) {
                     String lang = langs[++i];
                     String text = req.getParameter("text_" + lang);
