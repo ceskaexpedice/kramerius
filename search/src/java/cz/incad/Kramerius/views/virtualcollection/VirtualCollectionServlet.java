@@ -230,7 +230,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
 
                 String string = req.getRequestURL().toString();
                 URL url = new URL(string);
-                String k4url = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort() + req.getRequestURI();
+                String k4url = url.getProtocol() + "://" + url.getHost() + ApplicationURL.extractPort(url) + req.getRequestURI();
 //                Map<String, String> texts = new HashMap<String, String>();
 //                for (int i = 0; i < langs.length; i++) {
 //                    String lang = langs[++i];
