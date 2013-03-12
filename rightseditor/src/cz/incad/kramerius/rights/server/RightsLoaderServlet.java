@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
+import org.aplikator.client.local.command.ListEntities;
 import org.aplikator.server.ApplicationLoaderServlet;
 import org.aplikator.server.descriptor.Application;
 import org.aplikator.server.descriptor.Menu;
@@ -21,8 +22,11 @@ public class RightsLoaderServlet extends ApplicationLoaderServlet {
         try {
             Structure struct = (Structure) Application.get();
             Menu uzivatele = new Menu("Uzivatele");
-            uzivatele.addView(new UserView());
+            UserView userView = new UserView();
+            uzivatele.addView(userView);
             struct.addMenu(uzivatele);
+            struct.setShowNavigation(false);
+            struct.setDefaultAction(new ListEntities(userView.getId()).getPlace().getToken());
             LOG.info("Rightseditor Loader finished");
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "Rightseditor Loader error:", ex);
