@@ -29,6 +29,7 @@
 
     <properties>
         <gwt.version>2.5.1</gwt.version>
+        <gwt.maven.version>2.5.0</gwt.maven.version>
         <errai.version>2.2.0.Final</errai.version>
     </properties>
 
@@ -92,7 +93,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
-                <version>${gwt.version}</version>
+                <version>${gwt.maven.version}</version>
 
                 <configuration>
                     <hostedWebapp>${basedir}/war</hostedWebapp>
