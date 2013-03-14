@@ -28,7 +28,7 @@
     </parent>
 
     <properties>
-        <gwt.version>2.5.0</gwt.version>
+        <gwt.version>2.5.1</gwt.version>
         <errai.version>2.2.0.Final</errai.version>
     </properties>
 
