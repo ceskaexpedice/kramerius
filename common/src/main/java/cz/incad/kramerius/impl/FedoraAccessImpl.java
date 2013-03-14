@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.logging.Level;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
@@ -100,7 +101,7 @@ public class FedoraAccessImpl implements FedoraAccess {
     private StatisticsAccessLog accessLog;
     
     @Inject
-    public FedoraAccessImpl(KConfiguration configuration, StatisticsAccessLog accessLog) throws IOException {
+    public FedoraAccessImpl(KConfiguration configuration,  @Nullable StatisticsAccessLog accessLog) throws IOException {
         super();
         this.configuration = configuration;
         this.xPathFactory = XPathFactory.newInstance();
