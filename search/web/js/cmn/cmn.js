@@ -365,3 +365,6 @@ var Base64 = {
 		}
 	 
 	}
+
+// IE Console 
+if ( ! window.console ) console = { log: function(){} };
