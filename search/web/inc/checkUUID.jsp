@@ -24,7 +24,7 @@
         <x:out select="$doc/response/result/@numFound" />
     </c:set>
     <c:if test="${numDocs==0}" >
-        <c:redirect url="${kconfig.applicationURL}?error=uuid_not_found" />
+        <c:redirect url="search.jsp?error=uuid_not_found" />
     </c:if>
     <c:set var="pid_path"><x:out select="$doc/response/result/doc/arr[@name='pid_path']/str" /></c:set>
     <c:set var="model_path"><x:out select="$doc/response/result/doc/arr[@name='model_path']/str" /></c:set>
