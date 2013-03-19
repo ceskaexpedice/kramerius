@@ -18,33 +18,22 @@
     <ul>
         <li><a href="#bigThumbZone" class="vertical-text" ><fmt:message bundle="${lctx}">item.tab.image</fmt:message></a>        </li>
         <li><a href="#extendedMetadata" class="vertical-text" ><fmt:message bundle="${lctx}">item.tab.metadata</fmt:message></a></li>
-        <c:forEach varStatus="status" var="tab" items="${tabs}">
-            <c:if test="${! empty tab}">
-                <c:choose>
-                    <c:when test="${tab =='VIRTUAL.audioPlayer'}">
-                        <li id="audio_li" style="visibility: hidden">
-                            <a href="#itemtab_${fn:substringAfter(tab, '.')}" class="vertical-text"><fmt:message bundle="${lctx}">item.tab.${tab}</fmt:message></a>
-                        </li>
-                    </c:when>
-                    <c:otherwise>
-                        <li>
-                            <a href="#itemtab_${fn:substringAfter(tab, '.')}" class="vertical-text"><fmt:message bundle="${lctx}">item.tab.${tab}</fmt:message></a>
-                        </li>
-                    </c:otherwise>
-                </c:choose>
-            </c:if>
-        </c:forEach>
-    </ul>
+        <c:forEach varStatus="status" var="tab" items="${tabs}"><c:if test="${! empty tab}">
+                <li><a href="#itemtab_${fn:substringAfter(tab, '.')}" class="vertical-text"><fmt:message bundle="${lctx}">item.tab.${tab}</fmt:message></a></li>
+            </c:if></c:forEach>
+        </ul>
     <%@include file="metadata.jsp" %>
     <%@include file="image.jsp" %>
     <%--<%@include file="audioplayer.jsp" %>--%>
     <c:forEach varStatus="status" var="tab" items="${tabs}">
+        <!--TODO: asi tady povolit tab "přehrávač" jen pro vybrané věci-->
         <c:if test="${! empty tab}">
             <c:set var="ds" value="${fn:substringBefore(tab, '.')}" />
             <c:set var="xsl" value="${fn:substringAfter(tab, '.')}" />
             <div id="itemtab_${xsl}" class="viewer" style="overflow:hidden;"></div>
             <script type="text/javascript">
                 $(document).ready(function(){
+                    //updateCustomTab('${tab}', '${pid_path}');
                     $('#itemtab_${xsl}.viewer').bind('viewReady', function(event, viewerOptions){
                         var pid_path = getPidPath(viewerOptions.fullid);
                 <c:choose>
@@ -77,7 +66,6 @@
                 $.get('inc/details/tabs/audioplayer.jsp?pid_path=' + pid_path, function(data){
                     $('#itemtab_'+tab.split(".")[1]).html(data);
                 });
-                $('#audio_li').css('visibility', 'visible');
             }
         });
     }
