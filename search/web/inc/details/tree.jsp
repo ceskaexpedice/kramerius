@@ -289,17 +289,22 @@
             if(node.hasClass('viewable')){
                 selectNodeView(id);
                 nodeOpen(id);
-                $(jq(id)+">ul").show();
-                $(jq(id)+">span.folder").toggleClass('ui-icon-triangle-1-s');
+                if($(jq(id)+">ul").html().trim().length > 0){
+                    $(jq(id)+">ul").show();
+                    $(jq(id)+">span.folder").toggleClass('ui-icon-triangle-1-s');
+                }
+                
 
                 $(".viewer").trigger('viewChanged', [id]);
             }else{
                 nodeOpen(id);
-                $(jq(id)+">ul").show();
-                $(jq(id)+">span.folder").toggleClass('ui-icon-triangle-1-s');
-                var id1 = $(node).find('>ul>li>ul>li:first');
-                if(id1.length>0){
-                    selectBranch(id1.attr("id"));
+                if($(jq(id)+">ul").html().trim().length > 0){
+                    $(jq(id)+">ul").show();
+                    $(jq(id)+">span.folder").toggleClass('ui-icon-triangle-1-s');
+                    var id1 = $(node).find('>ul>li>ul>li:first');
+                    if(id1.length>0){
+                        selectBranch(id1.attr("id"));
+                    }
                 }
                 
             }
@@ -340,7 +345,10 @@
 
         function nodeOpen(id){
             if($(jq(id)+">ul").length>0){
-                $(jq(id)+">ul").toggle();
+                if($(jq(id)+">ul").html().trim().length>0){
+                    $(jq(id)+">ul").toggle();
+                }
+                
             }else{
                 loadTreeNode(id);
             }
@@ -356,6 +364,9 @@
                 var d = trim10(data);
                 if(d.length>0){
                     $(jq(id)).append(d);
+                    if($(jq(id)+">ul").html().trim().length==0){
+                        $(jq(id)+">ul").hide();
+                    }
                 }else{
                     $(jq(id)+">span.folder").removeClass();
                 }
