@@ -142,7 +142,8 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                     Object title = DCUtils.titleFromDC(dc);
                     title = title != null ? title : new JDBCUpdateTemplate.NullObject(String.class);
 
-                    String rights = DCUtils.rightsFromDC(dc);
+                    Object rights = DCUtils.rightsFromDC(dc);
+                    rights = rights != null ? rights : new JDBCUpdateTemplate.NullObject(String.class);
                     
                     InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, languageFromDc, title, pathIndex);
                     commands.add(insertDetail);
@@ -321,9 +322,9 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         private Object title = null;
         private Object date = null;
         private int pathIndex = 0;
-        private String rights=null;
+        private Object rights=null;
         
-        public InsertDetail(String detailPid, String kModel,String rights ,Object date, Object language, Object title, int pathIndex) {
+        public InsertDetail(String detailPid, String kModel,Object rights ,Object date, Object language, Object title, int pathIndex) {
             super();
             this.detailPid = detailPid;
             this.kModel = kModel;
