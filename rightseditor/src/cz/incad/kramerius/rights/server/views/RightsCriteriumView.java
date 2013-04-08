@@ -1,17 +1,11 @@
 package cz.incad.kramerius.rights.server.views;
 
 
+import cz.incad.kramerius.rights.server.Structure;
+import org.aplikator.server.descriptor.*;
+
 import static org.aplikator.server.descriptor.Panel.column;
 import static org.aplikator.server.descriptor.ReferenceField.reference;
-
-import org.aplikator.server.descriptor.ComboBox;
-import org.aplikator.server.descriptor.Entity;
-import org.aplikator.server.descriptor.Form;
-import org.aplikator.server.descriptor.TextArea;
-import org.aplikator.server.descriptor.TextField;
-import org.aplikator.server.descriptor.View;
-
-import cz.incad.kramerius.rights.server.Structure;
 
 public class RightsCriteriumView extends View {
 
@@ -28,10 +22,10 @@ public class RightsCriteriumView extends View {
     }
 
     private Form createCriteriumForm() {
-        Form form = new Form();
+        Form form = new Form(true);
         form.setLayout(column().add(column().add(new ComboBox<String>(Structure.rightCriterium.QNAME)).add(
-                reference(Structure.rightCriterium.PARAM, rightsCriteriumParamView, column().add(new TextField<String>(Structure.rightCriterium.PARAM.relate(Structure.criteriumParam.SHORT_DESC)).setWidth("30em"))
-                        .add(new TextArea(Structure.rightCriterium.PARAM.relate(Structure.criteriumParam.LONG_DESC)).setWidth("30em")).add(new TextField<String>(Structure.rightCriterium.PARAM.relate(Structure.criteriumParam.VALS)).setWidth("30em"))))));
+                reference(Structure.rightCriterium.PARAM, rightsCriteriumParamView, column().add(new TextField<String>(Structure.rightCriterium.PARAM.relate(Structure.criteriumParam.SHORT_DESC)))
+                        .add(new TextArea(Structure.rightCriterium.PARAM.relate(Structure.criteriumParam.LONG_DESC))).add(new TextField<String>(Structure.rightCriterium.PARAM.relate(Structure.criteriumParam.VALS)))))));
         return form;
     }
 

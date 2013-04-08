@@ -1,23 +1,21 @@
 package cz.incad.kramerius.rights.server;
 
-import java.text.MessageFormat;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import cz.incad.kramerius.rights.server.utils.GeneratePasswordUtils;
+import cz.incad.kramerius.rights.server.utils.I18NUtils;
+import cz.incad.kramerius.security.utils.PasswordDigest;
 import org.aplikator.client.shared.data.Operation;
-import org.aplikator.client.shared.data.RecordContainer;
 import org.aplikator.client.shared.data.Record;
+import org.aplikator.client.shared.data.RecordContainer;
 import org.aplikator.client.shared.rpc.AplikatorService;
-import org.aplikator.client.shared.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.View;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
 
-import cz.incad.kramerius.rights.server.utils.GeneratePasswordUtils;
-import cz.incad.kramerius.rights.server.utils.I18NUtils;
-import cz.incad.kramerius.security.utils.PasswordDigest;
+import java.text.MessageFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GeneratePasswordExec implements Executable {
 
@@ -53,6 +51,10 @@ public class GeneratePasswordExec implements Executable {
             return new FunctionResult(MessageFormat.format(failResult, ex.getMessage()), false);
         }
         return new FunctionResult(result, true);
+    }
+
+    public FunctionResult execute(FunctionParameters parameters){
+        return null;//TODO implementovat
     }
 
     public Mailer getMailer() {

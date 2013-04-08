@@ -1,27 +1,22 @@
 package cz.incad.kramerius.rights.server.views;
 
-import static org.aplikator.server.descriptor.Panel.*;
-import java.util.List;
-
-import org.aplikator.client.shared.descriptor.QueryParameter;
-import org.aplikator.server.Context;
-import org.aplikator.server.descriptor.View;
-import org.aplikator.server.descriptor.Form;
-import org.aplikator.server.descriptor.QueryGenerator;
-import org.aplikator.server.descriptor.ReferenceField;
-import org.aplikator.server.descriptor.RepeatedForm;
-import org.aplikator.server.descriptor.TextArea;
-import org.aplikator.server.descriptor.TextField;
-import org.aplikator.server.query.QueryCompareExpression;
-import org.aplikator.server.query.QueryCompareOperator;
-import org.aplikator.server.query.QueryExpression;
-
 import cz.incad.kramerius.rights.server.Structure;
 import cz.incad.kramerius.rights.server.Structure.GroupEntity;
 import cz.incad.kramerius.rights.server.utils.GetAdminGroupIds;
 import cz.incad.kramerius.rights.server.utils.GetCurrentLoggedUser;
 import cz.incad.kramerius.rights.server.views.triggers.GroupTriggers;
 import cz.incad.kramerius.security.User;
+import org.aplikator.client.shared.descriptor.QueryParameter;
+import org.aplikator.server.Context;
+import org.aplikator.server.descriptor.*;
+import org.aplikator.server.query.QueryCompareExpression;
+import org.aplikator.server.query.QueryCompareOperator;
+import org.aplikator.server.query.QueryExpression;
+
+import java.util.List;
+
+import static org.aplikator.server.descriptor.Panel.column;
+import static org.aplikator.server.descriptor.Panel.row;
 
 public class GroupView extends View {
 
@@ -56,8 +51,8 @@ public class GroupView extends View {
     }
 
     private Form createSubadminGroupForm() {
-        Form form = new Form();
-        form.setLayout(column().add(new TextField<String>(Structure.group.GNAME)).add(new TextArea(Structure.group.DESCRIPTION).setWidth("100%")).add(new RepeatedForm(Structure.group.USER_ASSOCIATIONS, new GroupUsersView()))
+        Form form = new Form(true);
+        form.setLayout(column().add(new TextField<String>(Structure.group.GNAME)).add(new TextArea(Structure.group.DESCRIPTION)).add(new RepeatedForm(Structure.group.USER_ASSOCIATIONS, new GroupUsersView()))
 
         );
         form.addProperty(Structure.group.PERSONAL_ADMIN);
@@ -66,8 +61,8 @@ public class GroupView extends View {
     }
 
     private Form createAdminGroupForm() {
-        Form form = new Form();
-        form.setLayout(column().add(new TextField<String>(Structure.group.GNAME)).add(new TextArea(Structure.group.DESCRIPTION).setWidth("100%")).add(ReferenceField.reference(Structure.group.PERSONAL_ADMIN, this.reference, row().add(new TextField<String>(Structure.group.PERSONAL_ADMIN.relate(Structure.group.GNAME)))))
+        Form form = new Form(true);
+        form.setLayout(column().add(new TextField<String>(Structure.group.GNAME)).add(new TextArea(Structure.group.DESCRIPTION)).add(ReferenceField.reference(Structure.group.PERSONAL_ADMIN, this.reference, row().add(new TextField<String>(Structure.group.PERSONAL_ADMIN.relate(Structure.group.GNAME)))))
                 .add(new RepeatedForm(Structure.group.USER_ASSOCIATIONS, new GroupUsersView()))
 
         );
@@ -88,7 +83,7 @@ public class GroupView extends View {
         }
 
         Form createForm() {
-            Form form = new Form();
+            Form form = new Form(true);
             form.setLayout(column().add(
                     ReferenceField.reference(Structure.groupUserAssoction.USERS, new RefUserView(),
                             column().add(new TextField<String>(Structure.groupUserAssoction.USERS.relate(Structure.user.LOGINNAME))).add(new TextField<String>(Structure.groupUserAssoction.USERS.relate(Structure.user.NAME))).add(new TextField<String>(Structure.groupUserAssoction.USERS.relate(Structure.user.SURNAME))))));
@@ -108,7 +103,7 @@ public class GroupView extends View {
         }
 
         private Form createUserForm() {
-            Form form = new Form();
+            Form form = new Form(true);
             form.setLayout(column().add(column().add(new TextField<String>(Structure.user.NAME)).add(new TextField<String>(Structure.user.SURNAME)))
 
             .add(column().add(new TextField<String>(Structure.user.LOGINNAME)).add(new TextField<String>(Structure.user.PASSWORD)))

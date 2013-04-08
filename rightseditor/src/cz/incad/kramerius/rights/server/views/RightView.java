@@ -1,11 +1,11 @@
 package cz.incad.kramerius.rights.server.views;
 
-import static org.aplikator.server.descriptor.Panel.*;
-import org.aplikator.server.descriptor.View;
+import cz.incad.kramerius.rights.server.Structure;
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Form;
+import org.aplikator.server.descriptor.View;
 
-import cz.incad.kramerius.rights.server.Structure;
+import static org.aplikator.server.descriptor.Panel.column;
 
 public class RightView extends View {
 
@@ -27,7 +27,7 @@ public class RightView extends View {
     }
 
     private Form createRightForm() {
-        Form form = new Form();
+        Form form = new Form(true);
         form.setLayout(column().add(column()
         // .addChild(new RefButton(property, view, child))
         // .addChild(new ComboBox(struct.rightCriterium.QNAME))

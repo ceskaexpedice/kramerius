@@ -1,29 +1,5 @@
 package cz.incad.kramerius.rights.server.views;
 
-import static org.aplikator.server.descriptor.Panel.column;
-import static org.aplikator.server.descriptor.Panel.row;
-import static org.aplikator.server.descriptor.ReferenceField.reference;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
-import org.aplikator.client.shared.data.ListItem;
-import org.aplikator.client.shared.descriptor.QueryParameter;
-import org.aplikator.server.Context;
-import org.aplikator.server.descriptor.ComboBox;
-import org.aplikator.server.descriptor.Form;
-import org.aplikator.server.descriptor.Function;
-import org.aplikator.server.descriptor.ListProvider;
-import org.aplikator.server.descriptor.QueryGenerator;
-import org.aplikator.server.descriptor.RepeatedForm;
-import org.aplikator.server.descriptor.TextArea;
-import org.aplikator.server.descriptor.TextField;
-import org.aplikator.server.descriptor.View;
-import org.aplikator.server.query.QueryCompareExpression;
-import org.aplikator.server.query.QueryCompareOperator;
-import org.aplikator.server.query.QueryExpression;
-
 import cz.incad.kramerius.rights.server.GeneratePasswordExec;
 import cz.incad.kramerius.rights.server.Mailer;
 import cz.incad.kramerius.rights.server.Structure;
@@ -34,6 +10,21 @@ import cz.incad.kramerius.rights.server.views.triggers.UserTriggers;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+import org.aplikator.client.shared.data.ListItem;
+import org.aplikator.client.shared.descriptor.QueryParameter;
+import org.aplikator.server.Context;
+import org.aplikator.server.descriptor.*;
+import org.aplikator.server.query.QueryCompareExpression;
+import org.aplikator.server.query.QueryCompareOperator;
+import org.aplikator.server.query.QueryExpression;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import static org.aplikator.server.descriptor.Panel.column;
+import static org.aplikator.server.descriptor.Panel.row;
+import static org.aplikator.server.descriptor.ReferenceField.reference;
 
 public class UserView extends View {
 
@@ -85,7 +76,7 @@ public class UserView extends View {
     }
 
     private Form createUserFormForSubadmin(Function vygenerovatHeslo) {
-        Form form = new Form();
+        Form form = new Form(true);
         form.setLayout(column(
                 row(new TextField<String>(Structure.user.LOGINNAME), new TextField<String>(Structure.user.EMAIL)),
                 row(new TextField<String>(Structure.user.NAME),new TextField<String>(Structure.user.SURNAME)),
@@ -99,7 +90,7 @@ public class UserView extends View {
     }
 
     private Form createUserFormForSuperAdmin(Function vygenerovatHeslo) {
-        Form form = new Form();
+        Form form = new Form(true);
         form.setLayout(column(
 
                 row(new TextField<String>(Structure.user.LOGINNAME), new TextField<String>(Structure.user.EMAIL)),
@@ -125,7 +116,7 @@ public class UserView extends View {
 
         Form createForm() {
             Structure.groupUserAssoction.GROUP.setListProvider(getGroupList());
-            Form form = new Form();
+            Form form = new Form(true);
             //form.setLayout(column().add(reference(Structure.groupUserAssoction.GROUP, refGroupView, row().add(new LabelField<String>(Structure.groupUserAssoction.GROUP.relate(Structure.group.GNAME))))));
             form.setLayout(column().add(new ComboBox<Integer>(Structure.groupUserAssoction.GROUP)));
             return form;
@@ -144,8 +135,8 @@ public class UserView extends View {
         }
 
         private Form createGroupForm() {
-            Form form = new Form();
-            form.setLayout(column().add(new TextField<String>(Structure.group.GNAME)).add(new TextArea(Structure.group.DESCRIPTION).setWidth("100%"))
+            Form form = new Form(true);
+            form.setLayout(column().add(new TextField<String>(Structure.group.GNAME)).add(new TextArea(Structure.group.DESCRIPTION).setSize(12))
                     .add(reference(Structure.group.PERSONAL_ADMIN, referenceToAdmin, row().add(new TextField<String>(Structure.group.PERSONAL_ADMIN.relate(Structure.group.GNAME)))))
 
             );

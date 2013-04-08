@@ -1,15 +1,14 @@
 package cz.incad.kramerius.rights.server.views;
 
-import static org.aplikator.server.descriptor.Panel.column;
-import static org.aplikator.server.descriptor.Panel.row;
-import static org.aplikator.server.descriptor.ReferenceField.reference;
-
+import cz.incad.kramerius.rights.server.Structure;
+import cz.incad.kramerius.rights.server.Structure.GroupUserAssoction;
 import org.aplikator.server.descriptor.Form;
 import org.aplikator.server.descriptor.TextField;
 import org.aplikator.server.descriptor.View;
 
-import cz.incad.kramerius.rights.server.Structure;
-import cz.incad.kramerius.rights.server.Structure.GroupUserAssoction;
+import static org.aplikator.server.descriptor.Panel.column;
+import static org.aplikator.server.descriptor.Panel.row;
+import static org.aplikator.server.descriptor.ReferenceField.reference;
 
 public class UserGroupAssoc extends View {
 
@@ -40,7 +39,7 @@ public class UserGroupAssoc extends View {
     }
 
     Form createForm() {
-        Form form = new Form();
+        Form form = new Form(true);
         form.setLayout(column().add(
                 reference(Structure.groupUserAssoction.USERS, this.userView, column().add(new TextField<String>(Structure.groupUserAssoction.USERS.relate(Structure.user.NAME))).add(new TextField<String>(Structure.groupUserAssoction.USERS.relate(Structure.user.SURNAME))))).add(
                 reference(Structure.groupUserAssoction.GROUP, this.groupView, row().add(new TextField<String>(Structure.groupUserAssoction.GROUP.relate(Structure.group.GNAME))))));
