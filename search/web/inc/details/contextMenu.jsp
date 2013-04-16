@@ -747,8 +747,13 @@
 
       }
 
+      function serverSort() {
+          var u = "lr?action=start&def=sort&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
+          processStarter("sort").start(u);
+      }
+
       function deletePid(){
-          var pids = getAffectedPids();
+		  var pids = getAffectedPids();
 
           showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
               var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={delete;"
