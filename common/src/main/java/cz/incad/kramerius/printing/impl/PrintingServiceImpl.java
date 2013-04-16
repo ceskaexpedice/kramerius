@@ -187,11 +187,12 @@ public class PrintingServiceImpl implements PrintingService {
                 mapping.put("TWO_SIDED_SHORT_EDGE", "two-sided-short-edge");
             }
 
-            String side = KConfiguration.getInstance().getConfiguration().getString("print.sided", "ONE_SIDE");
-            
+            // not supported on Debian Squeeze Issue 548
+            //String side = KConfiguration.getInstance().getConfiguration().getString("print.sided", "ONE_SIDE");
             List<String> command = new ArrayList<String>();
             command.add("lpr");
             command.add("-#"+KConfiguration.getInstance().getConfiguration().getInt("print.copies", 1));
+
             // not supported on Debian Squeeze Issue 548
             //command.add("-o sides="+mapping.get(side));
             command.add("-U "+this.userProvider.get().getLoginname());
@@ -207,11 +208,9 @@ public class PrintingServiceImpl implements PrintingService {
             
             ByteArrayOutputStream errBos = new ByteArrayOutputStream();
             IOUtils.copyStreams(errS, errBos);
-            System.out.println(new String(errBos.toByteArray()));
             
             ByteArrayOutputStream outBos = new ByteArrayOutputStream();
             IOUtils.copyStreams(outS, outBos);
-            System.out.println(new String(outBos.toByteArray()));
             
             
         } catch (InterruptedException e) {
