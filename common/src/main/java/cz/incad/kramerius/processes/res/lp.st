@@ -250,6 +250,14 @@
     </process>
 
     <process>
+        <id>sort</id>
+        <description>Delete</description>
+        <mainClass>cz.incad.kramerius.service.impl.SortingServiceImpl</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+    </process>
+
+    <process>
         <id>export</id>
         <description>Export</description>
         <mainClass>cz.incad.kramerius.service.impl.ExportServiceImpl</mainClass>
