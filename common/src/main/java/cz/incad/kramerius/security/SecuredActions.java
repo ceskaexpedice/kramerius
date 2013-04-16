@@ -97,6 +97,9 @@ public enum SecuredActions {
     /** show statistics */
     SHOW_STATISTICS("show_statictics"),
 
+    /** sorting  */
+    SORT("sort"),
+
     /** show print menu */
     SHOW_PRINT_MENU("show_print_menu");
     
