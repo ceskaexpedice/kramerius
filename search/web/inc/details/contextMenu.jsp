@@ -748,6 +748,7 @@
       }
 
       function serverSort() {
+          var structs = pidstructs();
           var u = "lr?action=start&def=sort&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
           processStarter("sort").start(u);
       }
