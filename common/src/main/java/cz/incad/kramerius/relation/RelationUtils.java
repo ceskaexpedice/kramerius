@@ -21,11 +21,12 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.impl.RelationModelImpl;
 import cz.incad.kramerius.utils.XMLUtils;
-import java.io.IOException;
-import java.io.InputStream;
-import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Helper class for relations stuff.
@@ -48,6 +49,10 @@ public final class RelationUtils {
 
     public static Document getRelsExt(String pid, FedoraAccess fa) throws IOException {
         return getDataStream(pid, "RELS-EXT", fa);
+    }
+
+    public static Document getMods(String pid, FedoraAccess fa) throws IOException {
+        return getDataStream(pid, "BIBLIO_MODS", fa);
     }
 
     private static Document getDataStream(String pid, String streamName, FedoraAccess fa) throws IOException {

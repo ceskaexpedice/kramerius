@@ -18,17 +18,8 @@ package cz.incad.kramerius.service.guice;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-
-import cz.incad.kramerius.service.DeleteService;
-import cz.incad.kramerius.service.ExportService;
-import cz.incad.kramerius.service.PolicyService;
-import cz.incad.kramerius.service.ReplicationService;
-import cz.incad.kramerius.service.XSLService;
-import cz.incad.kramerius.service.impl.DeleteServiceImpl;
-import cz.incad.kramerius.service.impl.ExportServiceImpl;
-import cz.incad.kramerius.service.impl.PolicyServiceImpl;
-import cz.incad.kramerius.service.impl.ReplicationServiceImpl;
-import cz.incad.kramerius.service.impl.XSLServiceImpl;
+import cz.incad.kramerius.service.*;
+import cz.incad.kramerius.service.impl.*;
 
 public class ServicesModule extends AbstractModule {
 
@@ -40,6 +31,8 @@ public class ServicesModule extends AbstractModule {
         bind(XSLService.class).to(XSLServiceImpl.class).in(Scopes.SINGLETON);
 
         bind(ReplicationService.class).to(ReplicationServiceImpl.class).in(Scopes.SINGLETON);
+
+        bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }
