@@ -192,7 +192,8 @@ public class PrintingServiceImpl implements PrintingService {
             List<String> command = new ArrayList<String>();
             command.add("lpr");
             command.add("-#"+KConfiguration.getInstance().getConfiguration().getInt("print.copies", 1));
-            command.add("-o sides="+mapping.get(side));
+            // not supported on Debian Squeeze Issue 548
+            //command.add("-o sides="+mapping.get(side));
             command.add("-U "+this.userProvider.get().getLoginname());
             command.add(pdfFile.getAbsolutePath());
             
