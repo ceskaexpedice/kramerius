@@ -20,18 +20,25 @@ import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
+import cz.incad.kramerius.security.SecuredActions;
 
 public class ServerPrint extends AbstractContextMenuItem implements AdminContextMenuItem {
-
-    //adminItems.add(new ContextMenuItem("administrator.menu.print", "", "ctxPrint", "", true));
 
     @Override
     public boolean isMultipleSelectSupported() {
         return true;
     }
 
-
     @Override
+	public boolean isRenderable() {
+        boolean flag =  super.isRenderable();
+        if (flag) return this.hasUserAllowedAction(SecuredActions.SHOW_PRINT_MENU.getFormalName());
+        return flag;
+	}
+
+
+
+	@Override
     public String getRenderedItem() throws IOException {
         return super.renderContextMenuItem("javascript:ctxPrint();", "administrator.menu.print");
     }
