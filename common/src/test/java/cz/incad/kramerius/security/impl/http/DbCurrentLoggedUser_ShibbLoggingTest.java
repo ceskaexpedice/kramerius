@@ -180,6 +180,7 @@ public class DbCurrentLoggedUser_ShibbLoggingTest {
                 }
             }).anyTimes();
 
+            EasyMock.expect(request.getRemoteUser()).andReturn("user").anyTimes();
          
             Enumeration<String> keys = table.keys();
             while(keys.hasMoreElements()) {
