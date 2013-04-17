@@ -49,7 +49,16 @@
             </div>
             <div class="clear"></div>
         </div>
-        <div id="fullImageContainer" class="viewer" style="display:none;"><%@ include file="inc/details/fullViewer.jsp" %></div>
+        <div id="fullImageContainer" class="viewer" style="display:none;">
+			<%-- for plain image --%>
+	        <%@ include file="inc/details/fullViewer.jsp" %>
+        </div>
+
+        <div id="zoomifyFullImageContainer" class="viewer" style="display:none;">
+			<%-- zoomify full viewer --%>
+	        <%@ include file="inc/details/zoomifyFullViewer.jsp" %>
+        </div>
+
         <div id="footer">
             <%@ include file="inc/footer.jsp" %>
         </div>

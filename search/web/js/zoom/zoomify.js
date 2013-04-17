@@ -3,7 +3,6 @@
  * @returns {ZoomifyViewerInitObject}
  */
 function ZoomifyViewerInitObject() {
-    this.identification = "Mark";
     this.flag = false;    
     
     this.zoomify = null;
@@ -13,17 +12,30 @@ function ZoomifyViewerInitObject() {
     
     this.zoomIn = null;
     this.zoomOut = null;
+    
+    this.divs = {
+    		"ol-image":"ol-image",
+    		"ol-wrapper":"ol-wrapper",
+    		"ol-overview":"ol-overview"
+    		
+    };
 }
 
 
+
+/** returns true, if this objest is initialized */
 ZoomifyViewerInitObject.prototype.isInitialized = function() {
     return this.flag;
 }
 
-ZoomifyViewerInitObject.prototype.init = function() {
-    this.flag = true;
+/** initialization */
+ZoomifyViewerInitObject.prototype.init = function(d) {
+	this.divs = (d || this.divs);
+	this.flag = true;
 }
 
+
+/** display alto */
 ZoomifyViewerInitObject.prototype.highlightAlto=function(altoObject) {
     //{"image":{"HEIGHT":3232,"WIDTH":2515},"box":{"VPOS":292,"HEIGHT":27,"HPOS":2070,"WIDTH":108}}
     var pointList = [];        
@@ -36,14 +48,17 @@ ZoomifyViewerInitObject.prototype.highlightAlto=function(altoObject) {
     this.vectorLayer.addFeatures([polygonFeature]);  
 }
 
+/** clear alto */
 ZoomifyViewerInitObject.prototype.clearAlto=function() {
     if (this.vectorLayer) this.vectorLayer.removeAllFeatures();
 }
 
+/** open image */
 ZoomifyViewerInitObject.prototype.open = function(pid,altoObject) {
     this.clearAlto();
-    $('#ol-image').remove(); $('#ol-overview').remove();
-    $('#ol-wrapper').html('<div id=\"ol-image\" style=\"width: 100%; height: 100%\"></div>');
+    $('#'+this.divs['ol-image']).remove();	
+    $('#'+this.divs['ol-overview']).remove();	
+    $('#'+this.divs['ol-wrapper']).html('<div id=\"'+this.divs['ol-image']+'\" style=\"width: 100%; height: 100%\"></div>');
     
     $.get('zoomify/'+pid+'/ImageProperties.xml', bind(function(data) {
         
@@ -74,7 +89,7 @@ ZoomifyViewerInitObject.prototype.open = function(pid,altoObject) {
 
 
         var map_controls = [ /*new OpenLayers.Control.OverviewMap()*/ ];
-        this.map = new OpenLayers.Map("ol-image", {
+        this.map = new OpenLayers.Map(this.divs["ol-image"], {
             controls: map_controls,
             resolutions: resolutions(this.zoomify.numberOfTiers),
             maxExtent: new OpenLayers.Bounds(0, 0, width, height),
@@ -117,10 +132,7 @@ ZoomifyViewerInitObject.prototype.open = function(pid,altoObject) {
         
     },this));
     
-    
-    
 }
-
 
 ZoomifyViewerInitObject.prototype.minus = function() {
     this.zoomOut.trigger();
@@ -129,5 +141,6 @@ ZoomifyViewerInitObject.prototype.minus = function() {
 ZoomifyViewerInitObject.prototype.plus = function() {
     this.zoomIn.trigger();
 }
+
 
 var zoomInit = new ZoomifyViewerInitObject();

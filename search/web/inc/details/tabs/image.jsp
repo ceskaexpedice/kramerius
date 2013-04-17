@@ -58,9 +58,10 @@ function onLoadPlainImage() {
     <div id="container"  class="view_div"  style="display:none;  height: 512px;">
     </div>
     
-    <div id="ol-container" style="display:none; position: relative; top: 20px; left: 10px;">
+    <div id="ol-container" style="display:none; position: relative; top: 3px;">
     
-     <div id="ol-wrapper-buttons" class="buttons" style="z-index: 1002">
+     <div id="ol-wrapper-buttons" class="buttons" style="z-index: 1002;position:relative; top:7px; left:10px;">
+       <a id="zoomifyMaximize" onclick="javascript:showFullZoomify();" style="z-index: 1002"><span class=" ui-icon ui-icon-arrow-4-diag" >maximize</span></a>
        <a id="zoomifyPlusButton" onclick="javascript:zoomInit.plus();" style="z-index: 1002"><span class="ui-icon ui-icon-plus" >+</span></a>
        <a id="zoomifyMinusButton" onclick="javascript:zoomInit.minus();" style="z-index: 1002"><span class="ui-icon ui-icon-minus" >-</span></a>
        <a id="zoomifyButtonPrev" onclick="javascript:previousImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-w" >prev</span></a>
@@ -345,14 +346,16 @@ function onLoadPlainImage() {
             'seadragonButtonPrev',
             'plainButtonPrev',
             'fullButtonPrev',
-            'zoomifyButtonPrev'
+            'zoomifyButtonPrev',
+            'fullZoomifyButtonPrev'
         ];
         
         this.buttons['next'] = [
              'seadragonButtonNext',
              'plainButtonNext',
              'fullButtonNext',
-             'zoomifyButtonNext'
+             'zoomifyButtonNext',
+             'fullZoomifyButtonNext'
         ];
     }
 
@@ -431,18 +434,70 @@ function onLoadPlainImage() {
     var fullImageWidth;
     var fullImageHeight;
     var maxScroll = 0;
-    function hideFullImage(){
-        $('#main').show();
-        $('#footer').show();
-        $('#fullImageContainer').hide();
+	
+
+	/** exists from plain full mode image */
+    function hideFullZoomify(){
+        exitFullScreenMode(function() {
+	        $('#zoomifyFullContent').hide();
+        });
     }
+
+    /** shows zoomify image */
+    function showFullZoomify(){
+		fullScreenMode(function() {
+	        $('#zoomifyFullImageContainer').show();
+	        $("#zoomifyFullImageContainer>div.fullContent").css("height", $(window).height()-
+	            $('#zoomifyFullImageContainer>div.header').outerHeight(true));
+	        updateZoomifyFullImage();
+		});
+    }
+
+	/** exits from zoomify image */
+    function hideFullZoomify(){
+        exitFullScreenMode(function() {
+	        $('#zoomifyFullImageContainer').hide();
+            if (viewerOptions.hasAlto) {
+                zoomInit.open(viewerOptions.uuid, viewerOptions.alto);
+            } else {
+                zoomInit.open(viewerOptions.uuid);
+            }
+        });
+    }
+
+
+	/** exits from plain full mode image */
+    function hideFullImage(){
+        exitFullScreenMode(function() {
+	        $('#fullImageContainer').hide();
+        });
+    }
+    
+    /** shows plain full image */
     function showFullImage(){
+		fullScreenMode(function() {
+	        $('#fullImageContainer').show();
+	        $("#fullImageContainer>div.fullContent").css("height", $(window).height()-
+	            $('#fullImageContainer>div.header').outerHeight(true));
+	        updateFullImage();
+		});
+    }
+	
+	
+	/** prepare full screen mode */
+	function fullScreenMode(renderer) {
         $('#main').hide();
         $('#footer').hide();
+
+		renderer.call();
+	}
+	
+	/** exits full screen mode */
+	function exitFullScreenMode(renderer) {
+        $('#main').show();
+        $('#footer').show();
         
-        $('#fullImageContainer').show();
-        $("#fullImageContainer>div.fullContent").css("height", $(window).height()-
-            $('#fullImageContainer>div.header').outerHeight(true));
-        updateFullImage();
-    }
+        renderer.call();
+	}
+	
 </script>
