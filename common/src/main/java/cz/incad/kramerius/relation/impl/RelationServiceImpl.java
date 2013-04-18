@@ -19,38 +19,26 @@ package cz.incad.kramerius.relation.impl;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.KrameriusModels;
-import cz.incad.kramerius.RDFModels;
+import cz.incad.kramerius.*;
 import cz.incad.kramerius.relation.Relation;
-import cz.incad.kramerius.relation.RelationUtils;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
+import cz.incad.kramerius.relation.RelationUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.w3c.dom.*;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
+
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import org.w3c.dom.DOMConfiguration;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSSerializer;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Other than Kramerius relations remain untouched by these operations.
@@ -82,10 +70,29 @@ public final class RelationServiceImpl implements RelationService {
         try {
             Document relsExt = RelationUtils.getRelsExt(pid, fedoraAccess);
             RelationModel orig = Loader.load(pid, relsExt);
+
             if (isModified(orig, model)) {
                 // XXX use also timestamp or checksum to detect concurrent modifications
                 String dsContent = Saver.save(relsExt, model);
                 fedoraAccess.getAPIM().modifyDatastreamByValue(pid, "RELS-EXT", null, null, null, null, dsContent.getBytes("UTF-8"), null, null, null, false);
+
+                List<String> movedPids = new ArrayList<String>();
+                for (KrameriusModels kind : model.getRelationKinds()) {
+                    if (KrameriusModels.DONATOR.equals(kind)) continue;
+                    List<Relation> newRelations = model.getRelations(kind);
+                    List<Relation> origRelations = orig.getRelations(kind);
+                    if (newRelations.size()==origRelations.size()){
+                        for (int i = 0; i< newRelations.size();i++){
+                            if (!newRelations.get(i).equals(origRelations.get(i))) {
+                                movedPids.add(newRelations.get(i).getPID());
+                            }
+                        }
+                    }
+                }
+                for (String movedPid:movedPids){
+                    fedoraAccess.getAPIM().modifyObject(movedPid,null,null,null,"Relation order changed.");
+                }
+
                 RelationModelImpl modelImpl = (RelationModelImpl) model;
                 modelImpl.onSave();
             }

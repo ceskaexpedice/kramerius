@@ -9,7 +9,6 @@ import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
@@ -79,7 +78,9 @@ public class SortingServiceImpl implements SortingService {
             }
             
             //TODO: I18n
-            ProcessStarter.updateName("Sort relations");
+            if (startIndexer){
+                ProcessStarter.updateName("Sort relations ("+pid+")");
+            }
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -102,17 +103,21 @@ public class SortingServiceImpl implements SortingService {
             try{
                 Document mods = RelationUtils.getMods(pid, fedoraAccess);
                 String sortingValue = expr.evaluate(mods);
-                //System.out.println("NODE:"+sortingValue+" "+pid);
-                if (numeric){
-                    try{
-                        Integer ordinal = Integer.parseInt(sortingValue);
-                        sortedMap.put(ordinal,pid);
-                    }catch (Exception ex){
-                        failedList.add(pid);
-                        LOGGER.info("Cannot sort value:"+sortingValue + " ("+pid+")");
-                    }
+                if (sortingValue == null || "".equals(sortingValue)){
+                    failedList.add(pid);
+                    LOGGER.info("Cannot sort relation for value:"+sortingValue + " ("+pid+")");
                 }else{
-                    sortedMap.put(sortingValue,pid);
+                    if (numeric){
+                        try{
+                            Integer ordinal = Integer.parseInt(sortingValue);
+                            sortedMap.put(ordinal,pid);
+                        }catch (Exception ex){
+                            failedList.add(pid);
+                            LOGGER.info("Cannot sort relation for value:"+sortingValue + " ("+pid+")");
+                        }
+                    }else{
+                        sortedMap.put(sortingValue,pid);
+                    }
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -125,10 +130,6 @@ public class SortingServiceImpl implements SortingService {
             result.add(entry.getValue());
         }
         result.addAll(failedList);
-        //System.out.println("RESULT--------------");
-        //for(String s:result){
-        //    System.out.println(s);
-        //}
         return result;
     }
 

@@ -17,25 +17,12 @@
 
 package cz.incad.kramerius.relation;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import com.google.inject.name.Names;
-import java.io.Reader;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.KrameriusModels;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -44,11 +31,17 @@ import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.fedora.api.ArrayOfString;
 import org.fedora.api.FedoraAPIM;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Pattern;
+
 import static org.junit.Assert.*;
 
 /**
@@ -187,7 +180,7 @@ public class RelationServiceTest {
         assertNull("model not trimmed", handledModel[0].getRelations(KrameriusModels.PAGE));
     }
 
-    @Test
+    /*@Test
     public void testSaveOnChangeOrder() throws Exception {
         doTestSaveImpl(new ModelHandler() {
 
@@ -208,7 +201,7 @@ public class RelationServiceTest {
                 // do nothing
             }
         }, "RelationServiceTestLoad.xml", "noChange.mock.xml");
-    }
+    } */
 
     private String doTestSaveImpl(ModelHandler modelHandler, String loadPath, String goldenPath) throws Exception {
         String pid = "uuid:0eaa6730-9068-11dd-97de-000d606f5dc6";
