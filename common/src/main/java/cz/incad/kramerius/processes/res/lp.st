@@ -251,7 +251,7 @@
 
     <process>
         <id>sort</id>
-        <description>Delete</description>
+        <description>Sort</description>
         <mainClass>cz.incad.kramerius.service.impl.SortingServiceImpl</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
