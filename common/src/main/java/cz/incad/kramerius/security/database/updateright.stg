@@ -99,3 +99,11 @@ insertRight_sort() ::=<<
         from group_entity
         where gname='k4_admins'
 >>
+
+
+insertRight_show_print_menu() ::=<<
+    insert into right_entity (right_id, uuid, "action", group_id)
+        select nextval('right_id_sequence'),'uuid:1','show_print_menu',group_id 
+        from group_entity
+        where gname='k4_admins'
+>>
