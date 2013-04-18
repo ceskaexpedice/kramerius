@@ -16,6 +16,7 @@ import org.aplikator.server.persistence.PersisterTriggers;
 
 import cz.incad.kramerius.rights.server.Mailer;
 import cz.incad.kramerius.rights.server.Structure;
+import cz.incad.kramerius.rights.server.impl.PropertiesMailer;
 import cz.incad.kramerius.rights.server.utils.GeneratePasswordUtils;
 import cz.incad.kramerius.rights.server.utils.GetAdminGroupIds;
 import cz.incad.kramerius.rights.server.utils.GetCurrentLoggedUser;
@@ -26,7 +27,7 @@ public class UserTriggers extends PersisterTriggers.Default {
 
     public static final Logger LOGGER = Logger.getLogger(UserTriggers.class.getName());
 
-    private Mailer mailer;
+    PropertiesMailer mailer =  new PropertiesMailer();
 
     public UserTriggers() {
         super();
@@ -81,12 +82,13 @@ public class UserTriggers extends PersisterTriggers.Default {
         record.setPreview("<b>"+Structure.user.LOGINNAME.getValue(record)+"</b><br>"+Structure.user.SURNAME.getValue(record)+" "+Structure.user.NAME.getValue(record));
     }
 
+    /*
     public Mailer getMailer() {
         return mailer;
     }
 
     public void setMailer(Mailer mailer) {
         this.mailer = mailer;
-    }
+    }*/
 
 }
