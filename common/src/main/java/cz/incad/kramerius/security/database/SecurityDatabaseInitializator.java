@@ -92,6 +92,7 @@ public class SecurityDatabaseInitializator {
                 
                 //sort right
                 insertSortRight(connection);
+                insertPrintRight(connection);
                 
             } else { 
                 String v = versionService.getVersion();
@@ -131,6 +132,7 @@ public class SecurityDatabaseInitializator {
 
                     //sort right
                     insertSortRight(connection);
+                    insertPrintRight(connection);
 
                 } else if (versionCondition(v, "=", "5.3.0")){
                     // right for criteria params manage
@@ -151,6 +153,7 @@ public class SecurityDatabaseInitializator {
 
                     //sort right
                     insertSortRight(connection);
+                    insertPrintRight(connection);
 
                 } else if (versionCondition(v, "=", "5.4.0")){
                     // k4 replication rights
@@ -168,6 +171,7 @@ public class SecurityDatabaseInitializator {
                     
                     //sort right
                     insertSortRight(connection);
+                    insertPrintRight(connection);
 
                 } else if (versionCondition(v, "=", "5.5.0")){
                     // mets ndk import
@@ -180,6 +184,7 @@ public class SecurityDatabaseInitializator {
                     insertShowStatiticsRight(connection);
                     //sort right
                     insertSortRight(connection);
+                    insertPrintRight(connection);
                 } else if (versionCondition(v, "=", "5.6.0")){
                     // replikator k3
                     insertReplikatorK3(connection);
@@ -189,6 +194,7 @@ public class SecurityDatabaseInitializator {
                     insertShowStatiticsRight(connection);
                     //sort right
                     insertSortRight(connection);
+                    insertPrintRight(connection);
                 } else if (versionCondition(v, "=", "5.7.0")){
                     // insert aggregate process right
                     insertAggregateRight(connection);
@@ -196,6 +202,7 @@ public class SecurityDatabaseInitializator {
                     insertShowStatiticsRight(connection);
                     //sort right
                     insertSortRight(connection);
+                    insertPrintRight(connection);
                 } else if (versionCondition(v, "=", "5.8.0")){
                     // insert aggregate process right
                     insertAggregateRight(connection);
@@ -203,14 +210,19 @@ public class SecurityDatabaseInitializator {
                     insertShowStatiticsRight(connection);
                     //sort right
                     insertSortRight(connection);
+                    insertPrintRight(connection);
                 } else if (versionCondition(v, "=", "5.9.0")){
                     // insert statistics right
                     insertShowStatiticsRight(connection);
                     //sort right
                     insertSortRight(connection);
-                } else if (versionCondition(v, ">", "5.9.0")){
+                    insertPrintRight(connection);
+                } else if ((versionCondition(v, ">", "5.9.0")) && (versionCondition(v, "<", "6.3.0"))){
                     //sort right
                     insertSortRight(connection);
+                    insertPrintRight(connection);
+                } else if (versionCondition(v, ">=", "6.3.0"))  {
+                    insertPrintRight(connection);
                 }
             }
         } catch (SQLException e) {
@@ -249,7 +261,13 @@ public class SecurityDatabaseInitializator {
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
         return template.executeUpdate(sql);
     }
-    
+
+    private static int insertPrintRight(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_show_print_menu").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(sql);
+    }
+
 
 
     /**

@@ -100,7 +100,7 @@ public enum SecuredActions {
     /** sorting  */
     SORT("sort"),
 
-    /** show print menu */
+    /** print  */
     SHOW_PRINT_MENU("show_print_menu");
     
     
