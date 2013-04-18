@@ -125,7 +125,9 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
 
     public void tryToLogShib(HttpServletRequest httpServletRequest) throws FileNotFoundException, IOException, RecognitionException, TokenStreamException {
-        User user = new UserImpl(-1, "", "", httpServletRequest.getRemoteUser(), 1);
+    	Principal p = httpServletRequest.getUserPrincipal();
+    	String val = ((p != null && p.getName()!=null) ? httpServletRequest.getUserPrincipal().getName() : httpServletRequest.getRemoteUser());
+    	User user = new UserImpl(-1, "", "", val, 1);
         // evaluating shib mapping file
         evaluateShibRules(user);
 

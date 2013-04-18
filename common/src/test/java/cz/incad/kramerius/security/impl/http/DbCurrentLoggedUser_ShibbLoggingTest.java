@@ -20,6 +20,7 @@ import static org.easymock.EasyMock.createMockBuilder;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.Principal;
 import java.sql.Connection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.name.Named;
+import com.sun.security.auth.UserPrincipal;
 
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Role;
@@ -171,6 +173,9 @@ public class DbCurrentLoggedUser_ShibbLoggingTest {
 
             final Hashtable<String,String> table = ShibbolethUtilsTest.getLoggedShibTable();
             
+            Principal up = EasyMock.createMock(Principal.class);
+            EasyMock.expect(up.getName()).andReturn("principalName").anyTimes();
+            
             HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
             EasyMock.expect(request.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
 
@@ -181,7 +186,10 @@ public class DbCurrentLoggedUser_ShibbLoggingTest {
             }).anyTimes();
 
             EasyMock.expect(request.getRemoteUser()).andReturn("user").anyTimes();
-         
+            //EasyMock.expect(request.getUserPrincipal()).andReturn(null).anyTimes();
+            EasyMock.expect(request.getUserPrincipal()).andReturn(up).anyTimes();
+            
+            
             Enumeration<String> keys = table.keys();
             while(keys.hasMoreElements()) {
                 final String k = keys.nextElement();
@@ -201,7 +209,7 @@ public class DbCurrentLoggedUser_ShibbLoggingTest {
             getSessionParamsExpectations(session);
             setSessionParamsExpectations(session);
             
-            EasyMock.replay(request,session);
+            EasyMock.replay(request,session,up);
             
             return request;
         }
