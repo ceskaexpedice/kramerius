@@ -42,7 +42,7 @@ public class UserView extends View {
         GeneratePasswordExec generatePasswordForPrivate = new GeneratePasswordExec();
         generatePasswordForPrivate.setArrangement(this);
         generatePasswordForPrivate.setMailer(propertiesMailer);
-        setMailer(propertiesMailer);
+        //setMailer(propertiesMailer);
         this.vygenerovatHeslo = new Function("generatePasswordForPrivate","VygenerovatHeslo", generatePasswordForPrivate);
 
         addProperty(Structure.user.LOGINNAME).addProperty(Structure.user.NAME).addProperty(Structure.user.SURNAME);//.addProperty(Structure.user.PERSONAL_ADMIN.relate(Structure.group.GNAME));
@@ -55,13 +55,14 @@ public class UserView extends View {
 
     }
 
+    /*
     public Mailer getMailer() {
         return ((UserTriggers) this.trigger).getMailer();
     }
 
     public void setMailer(Mailer mailer) {
         ((UserTriggers) this.trigger).setMailer(mailer);
-    }
+    }*/
 
     @Override
     public synchronized Form getForm(Context context) {
