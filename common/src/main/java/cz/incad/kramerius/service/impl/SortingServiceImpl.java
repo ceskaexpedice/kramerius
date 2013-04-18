@@ -8,6 +8,8 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
@@ -75,6 +77,10 @@ public class SortingServiceImpl implements SortingService {
             if (startIndexer){
                 IndexerProcessStarter.spawnIndexer(true, "Reindexing sorted relations", pid);
             }
+            
+            //TODO: I18n
+            ProcessStarter.updateName("Sort relations");
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
