@@ -270,7 +270,9 @@ public class Import {
                 if (objectExists(pid)) {
                     log.info("Merging with existing object " + pid);
                     merge(bytes);
-                    sortRelations.add(pid);
+                    if (sortRelations!=null){
+                        sortRelations.add(pid);
+                    }
                 } else {
 
                     log.severe("Ingest SOAP fault:" + sfex);

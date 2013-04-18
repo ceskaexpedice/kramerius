@@ -16,31 +16,22 @@
  */
 package org.kramerius.replications;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Stack;
-
-import javax.ws.rs.core.MediaType;
-
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 import org.kramerius.Import;
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
 import org.kramerius.replications.pidlist.PidsListCollect;
 
-import antlr.RecognitionException;
-import antlr.TokenStreamException;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import javax.ws.rs.core.MediaType;
+import java.io.*;
+import java.util.Stack;
 
 public class SecondPhase extends AbstractPhase  {
 
@@ -111,7 +102,7 @@ public class SecondPhase extends AbstractPhase  {
         LOGGER.info("ingesting '"+foxmlfile.getAbsolutePath()+"'");
         Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
         try {
-            Import.ingest(foxmlfile, null);
+            Import.ingest(foxmlfile, null, null);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
         } catch (RuntimeException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
             else throw new PhaseException(this,e);
