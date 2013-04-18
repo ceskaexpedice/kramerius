@@ -57,6 +57,10 @@ public class SortingServiceImpl implements SortingService {
     @Override
     public void sortRelations(String pid, boolean startIndexer) {
         try {
+            //TODO: I18n
+            if (startIndexer){
+                ProcessStarter.updateName("Sort relations (" + pid + ")");
+            }
             RelationModel model = relationService.load(pid);
             for (KrameriusModels kind : model.getRelationKinds()) {
                 if (KrameriusModels.DONATOR.equals(kind)) continue;
@@ -66,6 +70,10 @@ public class SortingServiceImpl implements SortingService {
                     originalPids.add(relation.getPID());
                 }
                 SortingConfig sortingConfig = sortingConfigMap.get(kind.getValue());
+                if (sortingConfig == null){
+                    LOGGER.warning("Unsupported relation type for sorting: "+kind.getValue());
+                    continue;
+                }
                 List<String> sortedPids = sortObjects(originalPids, sortingConfig.xpath, sortingConfig.numeric);
                 relations.clear();
                 for (String sortedPid : sortedPids) {
@@ -77,10 +85,7 @@ public class SortingServiceImpl implements SortingService {
                 IndexerProcessStarter.spawnIndexer(true, "Reindexing sorted relations", pid);
             }
             
-            //TODO: I18n
-            if (startIndexer){
-                ProcessStarter.updateName("Sort relations ("+pid+")");
-            }
+
 
         } catch (IOException e) {
             throw new RuntimeException(e);
