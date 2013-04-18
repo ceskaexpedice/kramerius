@@ -10,8 +10,9 @@ public interface SortingService {
     /**
      * Sort the Kramerius relations  in RELS-EXT datastream based on the values in target MODS datastreams
      * @param pid
+     * @param startIndexer
      */
-    void sortRelations(String pid);
+    void sortRelations(String pid, boolean startIndexer);
 
     /**
      * Sort given list of FOXML objects (their PIDs) based on the content of the BIBLIO-MODS datastream

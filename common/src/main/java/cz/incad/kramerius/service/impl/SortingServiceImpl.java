@@ -54,7 +54,7 @@ public class SortingServiceImpl implements SortingService {
 
 
     @Override
-    public void sortRelations(String pid) {
+    public void sortRelations(String pid, boolean startIndexer) {
         try {
             RelationModel model = relationService.load(pid);
             for (KrameriusModels kind : model.getRelationKinds()) {
@@ -72,7 +72,9 @@ public class SortingServiceImpl implements SortingService {
                 }
             }
             relationService.save(pid, model);
-            IndexerProcessStarter.spawnIndexer(true, "Reindexing sorted relations", pid);
+            if (startIndexer){
+                IndexerProcessStarter.spawnIndexer(true, "Reindexing sorted relations", pid);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -145,7 +147,7 @@ public class SortingServiceImpl implements SortingService {
         LOGGER.info("SortRelations service: " + Arrays.toString(args));
         Injector injector = Guice.createInjector(new SortingModule());
         SortingService inst = injector.getInstance(SortingService.class);
-        inst.sortRelations(args[0]);
+        inst.sortRelations(args[0], true);
         LOGGER.info("SortRelations finished.");
     }
 }

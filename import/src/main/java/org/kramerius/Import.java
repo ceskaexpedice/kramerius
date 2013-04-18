@@ -1,12 +1,23 @@
 package org.kramerius;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Scopes;
+import com.google.inject.name.Names;
 import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.XmlContentType;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.relation.RelationService;
+import cz.incad.kramerius.relation.impl.RelationServiceImpl;
+import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
+import cz.incad.kramerius.service.impl.SortingServiceImpl;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.fedora.api.FedoraAPIM;
@@ -44,6 +55,8 @@ public class Import {
 
     private static List<String> rootModels = null;
 
+    private static SortingService sortingService;
+
 
     static {
         try {
@@ -73,6 +86,9 @@ public class Import {
 
     public static void ingest(final String url, final String user, final String pwd, String importRoot) {
         log.finest("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
+        Injector injector = Guice.createInjector(new ImportModule());
+        sortingService = injector.getInstance(SortingService.class);
+
         // system property 
         String skipIngest = System.getProperties().containsKey("ingest.skip") ? System.getProperty("ingest.skip") : KConfiguration.getInstance().getConfiguration().getString("ingest.skip", "false");
         if (new Boolean(skipIngest)) {
@@ -91,8 +107,9 @@ public class Import {
         initialize(user, pwd);
 
         List<TitlePidTuple> roots = new ArrayList<TitlePidTuple>();
+        List<String> sortRelations = new ArrayList<String>();
         if (importFile.isDirectory()) {
-            visitAllDirsAndFiles(importFile, roots);
+            visitAllDirsAndFiles(importFile, roots, sortRelations);
         } else {
             BufferedReader reader = null;
             try {
@@ -114,7 +131,7 @@ public class Import {
                         continue;
                     }
                     log.info("Importing " + importItem.getAbsolutePath());
-                    visitAllDirsAndFiles(importItem, roots);
+                    visitAllDirsAndFiles(importItem, roots, sortRelations);
                 }
                 reader.close();
             } catch (IOException e) {
@@ -123,6 +140,23 @@ public class Import {
             }
         }
         log.info("FINISHED INGESTION IN " + ((System.currentTimeMillis() - start) / 1000.0) + "s, processed " + counter + " files");
+
+        String startSortProperty = System.getProperties().containsKey("ingest.sortRelations") ? System.getProperty("ingest.sortRelations") : KConfiguration.getInstance().getConfiguration().getString("ingest.sortRelations", "true");
+        if (new Boolean(startSortProperty)) {
+
+
+        if (sortRelations.isEmpty()) {
+            log.info("NO MERGED OBJECTS FOR RELATIONS SORTING FOUND.");
+        } else {
+            for (String sortPid : sortRelations) {
+                  sortingService.sortRelations(sortPid, false);
+            }
+            log.info("ALL MERGED OBJECTS RELATIONS SORTED.");
+        }
+    } else {
+        log.info("RELATIONS SORTING DISABLED.");
+    }
+
         String startIndexerProperty = System.getProperties().containsKey("ingest.startIndexer") ? System.getProperty("ingest.startIndexer") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true");
         if (new Boolean(startIndexerProperty)) {
             if (roots.isEmpty()) {
@@ -159,7 +193,7 @@ public class Import {
         of = new ObjectFactory();
     }
 
-    private static void visitAllDirsAndFiles(File importFile, List<TitlePidTuple> roots) {
+    private static void visitAllDirsAndFiles(File importFile, List<TitlePidTuple> roots, List<String> sortRelations) {
         if (importFile == null) return;
         if (importFile.isDirectory()) {
 
@@ -168,7 +202,7 @@ public class Import {
                 Arrays.sort(children);
             }
             for (int i = 0; i < children.length; i++) {
-                visitAllDirsAndFiles(children[i], roots);
+                visitAllDirsAndFiles(children[i], roots, sortRelations);
             }
         } else {
             DigitalObject dobj = null;
@@ -182,12 +216,12 @@ public class Import {
                 log.info("Skipping file " + importFile.getName() + " - not an FOXML object.");
                 return;
             }
-            ingest(importFile, dobj.getPID());
+            ingest(importFile, dobj.getPID(), sortRelations);
             checkRoot(dobj, roots);
         }
     }
 
-    public static void ingest(File file, String pid) {
+    public static void ingest(File file, String pid, List<String> sortRelations) {
         if (pid == null) {
             try {
                 Object obj = unmarshaller.unmarshal(file);
@@ -236,6 +270,7 @@ public class Import {
                 if (objectExists(pid)) {
                     log.info("Merging with existing object " + pid);
                     merge(bytes);
+                    sortRelations.add(pid);
                 } else {
 
                     log.severe("Ingest SOAP fault:" + sfex);
@@ -456,4 +491,15 @@ class TitlePidTuple {
         return "Title:" + title + " PID:" + pid;
     }
 
+}
+
+class ImportModule extends AbstractModule {
+    @Override
+    protected void configure() {
+        bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
+        bind(StatisticsAccessLog.class).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+        bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
+        bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);
+    }
 }
