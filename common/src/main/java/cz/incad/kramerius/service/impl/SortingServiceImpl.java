@@ -59,7 +59,9 @@ public class SortingServiceImpl implements SortingService {
         try {
             //TODO: I18n
             if (startIndexer){
-                ProcessStarter.updateName("Sort relations (" + pid + ")");
+                try{
+                    ProcessStarter.updateName("Sort relations (" + pid + ")");
+                }catch(Exception ex){}
             }
             RelationModel model = relationService.load(pid);
             for (KrameriusModels kind : model.getRelationKinds()) {
