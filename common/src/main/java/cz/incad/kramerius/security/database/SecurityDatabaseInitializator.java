@@ -89,7 +89,10 @@ public class SecurityDatabaseInitializator {
                 insertAggregateRight(connection);
 
                 insertShowStatiticsRight(connection);
-
+                
+                //sort right
+                insertSortRight(connection);
+                
             } else { 
                 String v = versionService.getVersion();
 
@@ -126,6 +129,9 @@ public class SecurityDatabaseInitializator {
                     // insert statistics right
                     insertShowStatiticsRight(connection);
 
+                    //sort right
+                    insertSortRight(connection);
+
                 } else if (versionCondition(v, "=", "5.3.0")){
                     // right for criteria params manage
                     insertRightForCriteriaParamsManage(connection);
@@ -143,6 +149,9 @@ public class SecurityDatabaseInitializator {
                     // insert statistics right
                     insertShowStatiticsRight(connection);
 
+                    //sort right
+                    insertSortRight(connection);
+
                 } else if (versionCondition(v, "=", "5.4.0")){
                     // k4 replication rights
                     insertRightK4ReplicationExport(connection);
@@ -156,6 +165,10 @@ public class SecurityDatabaseInitializator {
                     insertAggregateRight(connection);
                     // insert statistics right
                     insertShowStatiticsRight(connection);
+                    
+                    //sort right
+                    insertSortRight(connection);
+
                 } else if (versionCondition(v, "=", "5.5.0")){
                     // mets ndk import
                     insertNDKMetsImport(connection);
@@ -165,6 +178,8 @@ public class SecurityDatabaseInitializator {
                     insertAggregateRight(connection);
                     // insert statistics right
                     insertShowStatiticsRight(connection);
+                    //sort right
+                    insertSortRight(connection);
                 } else if (versionCondition(v, "=", "5.6.0")){
                     // replikator k3
                     insertReplikatorK3(connection);
@@ -172,19 +187,30 @@ public class SecurityDatabaseInitializator {
                     insertAggregateRight(connection);
                     // insert statistics right
                     insertShowStatiticsRight(connection);
+                    //sort right
+                    insertSortRight(connection);
                 } else if (versionCondition(v, "=", "5.7.0")){
                     // insert aggregate process right
                     insertAggregateRight(connection);
                     // insert statistics right
                     insertShowStatiticsRight(connection);
+                    //sort right
+                    insertSortRight(connection);
                 } else if (versionCondition(v, "=", "5.8.0")){
                     // insert aggregate process right
                     insertAggregateRight(connection);
                     // insert statistics right
                     insertShowStatiticsRight(connection);
+                    //sort right
+                    insertSortRight(connection);
                 } else if (versionCondition(v, "=", "5.9.0")){
                     // insert statistics right
                     insertShowStatiticsRight(connection);
+                    //sort right
+                    insertSortRight(connection);
+                } else if (versionCondition(v, ">", "5.9.0")){
+                    //sort right
+                    insertSortRight(connection);
                 }
             }
         } catch (SQLException e) {
@@ -216,6 +242,14 @@ public class SecurityDatabaseInitializator {
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
         return template.executeUpdate(sql);
     }
+
+    
+    private static int insertSortRight(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_sort").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
+        return template.executeUpdate(sql);
+    }
+    
 
 
     /**
