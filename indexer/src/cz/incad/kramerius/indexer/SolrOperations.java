@@ -463,7 +463,7 @@ public class SolrOperations {
                     true);
 
             applyCustomTransformations(sb, foxmlStream, params);
-            String doc = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add><doc>"
+            String doc = "<?xml version=\"1.1\" encoding=\"UTF-8\"?><add><doc>"
                     + sb.toString()
                     + extendedFields.toXmlString(i)
                     //+ removeTroublesomeCharacters(extendedFields.toXmlString(i))
