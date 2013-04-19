@@ -1,6 +1,6 @@
 <?xml version="1.1" encoding="UTF-8"?> 
 <!-- $Id: demoFoxmlToLucene.xslt 5734 2006-11-28 11:20:15Z gertsp $ -->
-<xsl:stylesheet version="1.0"
+<xsl:stylesheet version="1.1"
         xmlns:xsl="http://www.w3.org/1999/XSL/Transform"   
         xmlns:fn="http://www.w3.org/2005/xpath-functions"
     	xmlns:exts="java://cz.incad.kramerius.indexer.FedoraOperations"
