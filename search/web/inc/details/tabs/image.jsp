@@ -83,7 +83,7 @@ function onLoadPlainImage() {
         <view:msg>deep.zoom.loadingImage</view:msg>  
     </div>
 
-    <div id="pdfImage" style="position:relative;text-align:center;">
+    <div id="pdfImage" style="display:none;position:relative;text-align:center;">
         <img class="view_div" id="pdfImageImg" onclick="showBornDigitalPDF(viewerOptions.uuid,${image.pagePid ? image.page : "1"})"
              onload='onLoadPDFImage()' border="0" alt="" src="" height="650px" />
         
