@@ -35,7 +35,6 @@ import cz.incad.Kramerius.exts.menu.context.impl.adm.items.GenerateDeepZoom;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ParametrizedPdfExport;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.Reindex;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.Rights;
-import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ServerPrint;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ServerSort;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.SetPolicyFlag;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.StreamRights;
@@ -47,6 +46,7 @@ import cz.incad.Kramerius.exts.menu.context.impl.pub.items.DownloadOriginals;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.FeedBack;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.GeneratePDF;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.PersistentURL;
+import cz.incad.Kramerius.exts.menu.context.impl.pub.items.ServerPrint;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.ShowMetadata;
 
 public class ContextMenuConfiguration extends AbstractModule {
@@ -63,6 +63,7 @@ public class ContextMenuConfiguration extends AbstractModule {
         //  public menu items
         Multibinder<PublicContextMenuItem> publicItems
         = Multibinder.newSetBinder(binder(), PublicContextMenuItem.class);
+        publicItems.addBinding().to(ServerPrint.class);
         publicItems.addBinding().to(ShowMetadata.class);
         publicItems.addBinding().to(PersistentURL.class);
         publicItems.addBinding().to(GeneratePDF.class);
@@ -74,7 +75,7 @@ public class ContextMenuConfiguration extends AbstractModule {
         Multibinder<AdminContextMenuItem> adminMenuItems
         = Multibinder.newSetBinder(binder(), AdminContextMenuItem.class);
 
-        adminMenuItems.addBinding().to(ServerPrint.class);
+//        adminMenuItems.addBinding().to(ServerPrint.class);
         adminMenuItems.addBinding().to(Reindex.class);
         adminMenuItems.addBinding().to(ServerSort.class);
         adminMenuItems.addBinding().to(DeleteFromIndex.class);

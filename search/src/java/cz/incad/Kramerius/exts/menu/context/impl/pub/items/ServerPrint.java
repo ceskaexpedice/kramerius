@@ -14,15 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.exts.menu.context.impl.adm.items;
+package cz.incad.Kramerius.exts.menu.context.impl.pub.items;
 
 import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
+import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
 import cz.incad.kramerius.security.SecuredActions;
 
-public class ServerPrint extends AbstractContextMenuItem implements AdminContextMenuItem {
+public class ServerPrint extends AbstractContextMenuItem implements PublicContextMenuItem {
 
     @Override
     public boolean isMultipleSelectSupported() {
