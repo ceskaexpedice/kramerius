@@ -221,7 +221,7 @@ public class SecurityDatabaseInitializator {
                     //sort right
                     insertSortRight(connection);
                     insertPrintRight(connection);
-                } else if (versionCondition(v, ">=", "6.3.0"))  {
+                } else if (versionCondition(v, "=", "6.3.0"))  {
                     insertPrintRight(connection);
                 }
             }

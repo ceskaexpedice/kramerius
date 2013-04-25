@@ -43,6 +43,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -69,6 +70,7 @@ import javax.print.attribute.standard.MediaSize.ISO;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.antlr.stringtemplate.StringTemplate;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
@@ -189,16 +191,16 @@ public class PrintingServiceImpl implements PrintingService {
 
             // not supported on Debian Squeeze Issue 548
             //String side = KConfiguration.getInstance().getConfiguration().getString("print.sided", "ONE_SIDE");
-            List<String> command = new ArrayList<String>();
-            command.add("lpr");
-            command.add("-#"+KConfiguration.getInstance().getConfiguration().getInt("print.copies", 1));
-
-            // not supported on Debian Squeeze Issue 548
-            //command.add("-o sides="+mapping.get(side));
-            command.add("-U "+this.userProvider.get().getLoginname());
-            command.add(pdfFile.getAbsolutePath());
             
-            LOGGER.info(command.toString());
+            String printCommand = KConfiguration.getInstance().getConfiguration().getString("print.lpr.command", "lpr -#$copies$ -U $user$ $file$" );
+            
+            StringTemplate strTemplate = new StringTemplate(printCommand);
+            strTemplate.setAttribute("copies", KConfiguration.getInstance().getConfiguration().getInt("print.copies", 1));
+            strTemplate.setAttribute("user", this.userProvider.get().getLoginname());
+            strTemplate.setAttribute("file", pdfFile.getAbsolutePath());
+            String[] command = strTemplate.toString().trim().split(" ");
+            
+            LOGGER.info(Arrays.asList(command).toString());
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             Process process = processBuilder.start();
             int code = process.waitFor();
