@@ -21,6 +21,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 
+import javax.print.attribute.ResolutionSyntax;
+
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.SecuredActions;
@@ -61,12 +63,12 @@ public abstract class AbstractDomainFilter extends AbstractCriterium implements 
 
 
 
-    private String resolveDNS(String remoteAddr) throws UnknownHostException {
+    private static String resolveDNS(String remoteAddr) throws UnknownHostException {
         if (remoteAddr.matches(IPV4_REGEX)) {
             String[] split = remoteAddr.split("\\.");
             byte[] bytes = new byte[4];
             for (int i = 0; i < bytes.length; i++) {
-                bytes[i] = Byte.parseByte(split[i]);
+                bytes[i] = (byte) Integer.parseInt(split[i]);
             }
             InetAddress byAddress = Inet4Address.getByAddress(bytes);
             return byAddress.getHostName();
