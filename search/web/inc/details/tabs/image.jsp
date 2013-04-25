@@ -89,7 +89,7 @@ function onLoadPlainImage() {
         
     </div>
 
-    <div id="plainImage" style="position:relative;text-align:center;">
+    <div id="plainImage" style="display:none;position:relative;text-align:center;">
         <img id="plainImageImg" class="view_div" onclick="showFullImage()" onload="onLoadPlainImage()" border="0"  src="img/empty.gif" alt="" />
 
         <div class="buttons" style="position:absolute; top:10px; left:10px;">
