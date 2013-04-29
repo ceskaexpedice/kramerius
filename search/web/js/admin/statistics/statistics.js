@@ -9,6 +9,31 @@ Statistics.prototype._url=function(report,format) {
     return url;
 }
 
+/** Show context dialog **/
+Statistics.prototype.showContextDialog = function() {
+    $.get("inc/admin/_statistics_context_container.jsp", bind(function(data) {
+        if (this.dialog) {
+            this.dialog.dialog('open');
+        } else {
+            var pdiv = '<div id="statistic_context"></div>';
+            $(document.body).append(pdiv);
+            this.dialog = $("#statistic_context").dialog({
+                bgiframe: true,
+                width:  600,
+                height:  450,
+                modal: true,
+                title: dictionary['statistics.main_dialog'],
+                buttons: [{
+                              text:dictionary['common.close'],
+                              click:function() {
+                                 $(this).dialog("close"); 
+                              }
+                }]
+            });
+        }        
+        $("#statistic_context").html(data);
+    },this));    
+}
 /** Show main dialog **/
 Statistics.prototype.showDialog = function() {
     $.get("inc/admin/_statistics_container.jsp", bind(function(data) {
@@ -239,6 +264,85 @@ Statistics.prototype.showDatesRangeReport = function(action, from, to) {
 }
 /** ~Dates range */
 
+
+/** Selected pids **/
+Statistics.prototype.pidsCSV=function(action,pids) {
+    var url = this._url('pids','CSV'); // 'stats?format=CSV&report=model';
+    if (action !== null) {
+        url = url + '&action='+action;
+    }
+    url = url + '&filteredValue=';   
+    url = reduce(function(base, item, status) {
+        base = base+item+ (status.last ? "": ",");
+        return base;
+    }, url,pids); 
+    if (console) console.log(' url is '+url);    
+    window.open(url, '_blank');
+}
+
+Statistics.prototype.pidsXML=function(action, pids) {
+    var url = this._url('pids','XML'); // 'stats?format=CSV&report=model';
+    if (action !== null) {
+        url = url + '&action='+action;
+    }
+    url = url + '&filteredValue=';   
+    url = reduce(function(base, item, status) {
+        base = base+item+ (status.last ? "": ",");
+        return base;
+    }, url,pids); 
+    if (console) console.log(' url is '+url);    
+    window.open(url, '_blank');
+}
+
+
+
+Statistics.prototype.reloadPidsReport=function(action,type, val, offset,size) {
+    var url = "inc/admin/_statistics_pids.jsp?type=pids&val="+val+"&offset="+offset+"&size="+size;
+    if (action !== null) {
+        url = url + '&action='+action;
+    }
+    url = reduce(function(base, item, status) {
+        base = base+item+ (status.last ? "": ",");
+        return base;
+    }, url,pids); 
+    if (console) console.log("url "+url);
+    $.get(url, bind(function(data) {
+        $("#_statistics_pids").html(data);
+    },this));
+}
+
+Statistics.prototype.showPidsReport = function(action,pids) {
+    var url = "inc/admin/_statistics_pids.jsp?type=pids&val=";
+    if (action !== null) {
+        url = url + '&action='+action;
+    }
+    url = reduce(function(base, item, status) {
+        base = base+item+ (status.last ? "": ",");
+        return base;
+    }, url,pids); 
+    $.get(url, bind(function(data) {
+        var dDialog = this.reportDialogs['dates'];
+        if (dDialog) {
+            dDialog.dialog('open');
+        } else {
+            var pdiv = '<div id="_statistics_pids"></div>';
+            $(document.body).append(pdiv);
+            dDialog = $("#_statistics_pids").dialog({
+                bgiframe: true,
+                width:  800,
+                height:  600,
+                modal: true,
+                title: dictionary['statistics.report.dates'],
+                buttons: [{
+                              text:dictionary['common.close'],
+                              click:function() { $(this).dialog("close"); }
+                }]
+            });
+        }
+        $("#_statistics_pids").html(data);
+    },this));    
+}
+/** ~pids */
 
 
 /** Model **/
