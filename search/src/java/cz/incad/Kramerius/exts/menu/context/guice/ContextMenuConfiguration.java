@@ -37,6 +37,7 @@ import cz.incad.Kramerius.exts.menu.context.impl.adm.items.Reindex;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.Rights;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ServerSort;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.SetPolicyFlag;
+import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ShowStatistics;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.StreamRights;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.VirtualCollectionAdd;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
@@ -87,8 +88,11 @@ public class ContextMenuConfiguration extends AbstractModule {
         adminMenuItems.addBinding().to(ParametrizedPdfExport.class);
         adminMenuItems.addBinding().to(GenerateDeepZoom.class);
         adminMenuItems.addBinding().to(DeleteGeneratedDeepZoom.class);
+        adminMenuItems.addBinding().to(ShowStatistics.class);
+
         adminMenuItems.addBinding().to(Rights.class);
         adminMenuItems.addBinding().to(StreamRights.class);
+
 
         adminMenuItems.addBinding().to(Editor.class);
         adminMenuItems.addBinding().to(VirtualCollectionAdd.class);
