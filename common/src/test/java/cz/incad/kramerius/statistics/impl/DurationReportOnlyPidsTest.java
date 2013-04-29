@@ -28,17 +28,20 @@ import org.junit.Test;
  * @author pavels
  *
  */
-public class DateDurationReportTest {
+public class DurationReportOnlyPidsTest {
 
     @Test
     public void testTemplate() {
-        StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport");
+        StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectPidReport");
         statRecord.setAttribute("action", "PDF");
+        statRecord.setAttribute("pids", new String[] {"uuid:1","uuid:2","uuid:3","uuid:4"});
         System.out.println(statRecord.toString());
         Assert.assertNotNull(statRecord.toString());
 
-        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport");
+        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectPidReport");
         statRecord.setAttribute("action", null);
+        statRecord.setAttribute("pids", new String[] {"uuid:1","uuid:2","uuid:3","uuid:4"});
+        System.out.println(statRecord.toString());
         Assert.assertNotNull(statRecord.toString());
         
     }

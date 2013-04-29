@@ -48,7 +48,6 @@ import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
 /**
  * @author pavels
- *
  */
 public class DateDurationReport implements StatisticReport{
 
@@ -65,7 +64,7 @@ public class DateDurationReport implements StatisticReport{
     @Override
     public List<Map<String, Object>> getReportPage(ReportedAction repAction, StatisticReportOffset reportOffset, Object filteringValue) {
         try {
-            
+            //TODO: move to JSON object
             String[] splitted = filteringValue.toString().split("-");
             
             final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport");

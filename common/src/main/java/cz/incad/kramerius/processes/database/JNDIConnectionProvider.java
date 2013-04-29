@@ -12,13 +12,11 @@ import javax.sql.DataSource;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import cz.incad.kramerius.intconfig.InternalConfiguration;
-
 /**
  * PRovides connection from datasource defined in context.xml
  * @author pavels
  */
-public abstract class JNDIConnectionProvider implements Provider<Connection>{
+public abstract class JNDIConnectionProvider implements Provider<Connection> {
     
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(JNDIConnectionProvider.class.getName());
@@ -42,6 +40,9 @@ public abstract class JNDIConnectionProvider implements Provider<Connection>{
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			return null;
 		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);;
+			return null;
+		} catch(Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);;
 			return null;
 		}

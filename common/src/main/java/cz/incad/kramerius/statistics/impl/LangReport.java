@@ -41,8 +41,8 @@ import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
 /**
+ * 
  * @author pavels
- *
  */
 public class LangReport implements StatisticReport{
 

@@ -41,7 +41,6 @@ import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
 /**
  * @author pavels
- *
  */
 public class ModelStatisticReport implements StatisticReport {
 
