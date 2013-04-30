@@ -87,7 +87,7 @@ public class PidsReport implements StatisticReport {
 	public void processAccessLog(ReportedAction repAction,final StatisticsReportSupport sup, Object filteringValue,Object... args) throws StatisticsReportException {
 		String[] pids = filteringValue.toString().split(",");
 
-		final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport");
+		final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectPidReport");
 		statRecord.setAttribute("action", repAction != null ? repAction.name(): null);
 		statRecord.setAttribute("paging", false);
 		statRecord.setAttribute("pids", pids);
