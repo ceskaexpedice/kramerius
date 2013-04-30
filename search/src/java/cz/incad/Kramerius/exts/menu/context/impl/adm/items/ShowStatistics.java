@@ -18,7 +18,7 @@ public class ShowStatistics extends AbstractContextMenuItem implements AdminCont
 
 	@Override
 	public boolean isMultipleSelectSupported() {
-		return false;
+		return true;
 	}
 
 	@Override

@@ -2,6 +2,7 @@
 function Statistics() { 
     this.reportDialogs = []; 
     this.dialog = null; 
+    this.contextDialog = null;
 }
 
 Statistics.prototype._url=function(report,format) {
@@ -12,12 +13,12 @@ Statistics.prototype._url=function(report,format) {
 /** Show context dialog **/
 Statistics.prototype.showContextDialog = function() {
     $.get("inc/admin/_statistics_context_container.jsp", bind(function(data) {
-        if (this.dialog) {
-            this.dialog.dialog('open');
+        if (this.contextDialog) {
+            this.contextDialog.dialog('open');
         } else {
             var pdiv = '<div id="statistic_context"></div>';
             $(document.body).append(pdiv);
-            this.dialog = $("#statistic_context").dialog({
+            this.contextDialog = $("#statistic_context").dialog({
                 bgiframe: true,
                 width:  600,
                 height:  450,
@@ -34,6 +35,7 @@ Statistics.prototype.showContextDialog = function() {
         $("#statistic_context").html(data);
     },this));    
 }
+
 /** Show main dialog **/
 Statistics.prototype.showDialog = function() {
     $.get("inc/admin/_statistics_container.jsp", bind(function(data) {
@@ -298,13 +300,13 @@ Statistics.prototype.pidsXML=function(action, pids) {
 
 Statistics.prototype.reloadPidsReport=function(action,type, val, offset,size) {
     var url = "inc/admin/_statistics_pids.jsp?type=pids&val="+val+"&offset="+offset+"&size="+size;
-    if (action !== null) {
-        url = url + '&action='+action;
-    }
     url = reduce(function(base, item, status) {
         base = base+item+ (status.last ? "": ",");
         return base;
     }, url,pids); 
+    if (action !== null) {
+        url = url + '&action='+action;
+    }
     if (console) console.log("url "+url);
     $.get(url, bind(function(data) {
         $("#_statistics_pids").html(data);
@@ -313,13 +315,13 @@ Statistics.prototype.reloadPidsReport=function(action,type, val, offset,size) {
 
 Statistics.prototype.showPidsReport = function(action,pids) {
     var url = "inc/admin/_statistics_pids.jsp?type=pids&val=";
-    if (action !== null) {
-        url = url + '&action='+action;
-    }
     url = reduce(function(base, item, status) {
         base = base+item+ (status.last ? "": ",");
         return base;
     }, url,pids); 
+    if (action !== null) {
+        url = url + '&action='+action;
+    }
     $.get(url, bind(function(data) {
         var dDialog = this.reportDialogs['dates'];
         if (dDialog) {

@@ -118,7 +118,7 @@ $(document).ready(function(){
     <div id="model_report_buttons">
 
         <div style="text-align: center;" >
-        <h2> <view:msg>statistics.pids.model</view:msg> </h2>
+        <h2> <view:msg>statistics.report.pids</view:msg> </h2>
         </div>
 
         <div style="position: relative;" class="buttons">

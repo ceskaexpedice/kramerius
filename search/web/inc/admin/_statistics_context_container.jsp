@@ -80,6 +80,8 @@
 
 </fieldset>
 
+<hr></hr>
+
 <fieldset  style="border: 0px; margin: 0px; padding: 0px;">
     <table style="width:100%">
         <thead>
@@ -90,7 +92,7 @@
         <tbody>
 
 
-        <tr><td colspan="3"> <strong><view:msg>statistics.report.dates</view:msg></strong></td></tr>    
+        <tr><td colspan="3"> <strong><view:msg>statistics.report.pids</view:msg></strong></td></tr>    
         <tr>
             <td></td>
             
