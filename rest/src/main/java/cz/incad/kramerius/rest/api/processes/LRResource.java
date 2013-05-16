@@ -56,6 +56,7 @@ import biz.sourcecode.base64Coder.Base64Coder;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.sun.jersey.api.NotFoundException;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.BatchStates;
@@ -162,7 +163,8 @@ public class LRResource {
         }
     }
 
-
+    
+    
     /**
      * Start process without params
      * @param def Process definition
@@ -171,12 +173,13 @@ public class LRResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response startWitoutParams(@QueryParam("def")String def) {
-        //TODO: security
         return plainProcessStart(def,new JSONArray());
-    }    
+    }
+
     
     Response plainProcessStart(String def, JSONArray array){
         LRProcessDefinition definition = processDefinition(def);
+        if (definition == null) throw new NoProcessFound("definition not found");
 
         
         String loggedUserKey = findLoggedUserKey();
@@ -236,7 +239,8 @@ public class LRResource {
 
     Response parametrizedProcessStart(@PathParam("def")String def,  JSONObject mapping){
         LRProcessDefinition definition = processDefinition(def);
-
+        if (definition == null) throw new NoProcessFound("definition not found");
+        
         String loggedUserKey = findLoggedUserKey();
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
