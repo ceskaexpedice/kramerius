@@ -1,42 +1,15 @@
 package org.kramerius.importmets.convertor;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.regex.Pattern;
-
-import javax.imageio.ImageIO;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import com.lizardtech.djvu.DjVuOptions;
+import com.qbizm.kramerius.imp.jaxb.*;
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import cz.incad.kramerius.service.XSLService;
+import cz.incad.kramerius.service.impl.XSLServiceImpl;
+import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -49,42 +22,34 @@ import org.kramerius.importmets.MetsConvertor.NamespacePrefixMapperImpl;
 import org.kramerius.importmets.MetsConvertor.NamespacePrefixMapperInternalImpl;
 import org.kramerius.importmets.utils.UUIDManager;
 import org.kramerius.importmets.utils.XSLTransformer;
-import org.kramerius.importmets.valueobj.ConvertorConfig;
-import org.kramerius.importmets.valueobj.DublinCore;
-import org.kramerius.importmets.valueobj.Foxml;
-import org.kramerius.importmets.valueobj.ImageMetaData;
+import org.kramerius.importmets.valueobj.*;
 import org.kramerius.importmets.valueobj.FileDescriptor;
-import org.kramerius.importmets.valueobj.RelsExt;
-import org.kramerius.importmets.valueobj.ServiceException;
-import org.kramerius.importmets.valueobj.StreamFileType;
-import org.kramerius.mods.IdentifierDefinition;
-import org.kramerius.mods.ModsCollectionDefinition;
-import org.kramerius.mods.ModsDefinition;
-import org.kramerius.mods.TitleInfoDefinition;
-import org.kramerius.mods.XsString;
+import org.kramerius.mods.*;
 import org.kramerius.srwdc.DcCollectionType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import com.lizardtech.djvu.DjVuOptions;
-import com.qbizm.kramerius.imp.jaxb.ContentLocationType;
-import com.qbizm.kramerius.imp.jaxb.DatastreamType;
-import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.ObjectPropertiesType;
-import com.qbizm.kramerius.imp.jaxb.PropertyType;
-import com.qbizm.kramerius.imp.jaxb.StateType;
-import com.qbizm.kramerius.imp.jaxb.XmlContentType;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-
-import cz.incad.kramerius.service.XSLService;
-import cz.incad.kramerius.service.impl.XSLServiceImpl;
-import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.imgs.ImageMimeType;
-import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import javax.imageio.ImageIO;
+import javax.xml.bind.*;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public abstract class BaseConvertor {
     static{
@@ -382,13 +347,12 @@ public abstract class BaseConvertor {
      *
      * @param foxmlObject
      * @param dc
-     * @param re
      * @param mods
      * @param policyID
      * @param files
      * @throws ServiceException
      */
-    protected final void setCommonStreams(DigitalObject foxmlObject,  Element dc, Element re, Element mods, String policyID, FileDescriptor[] files)
+    protected final void setCommonStreams(DigitalObject foxmlObject,  Element dc,  Element mods, String policyID, FileDescriptor[] files, Foxml foxmlModel)
             throws ServiceException {
         // /== DUBLIN CORE
         DatastreamType dcStream = this.createDublinCoreStream(dc);
@@ -396,7 +360,7 @@ public abstract class BaseConvertor {
         // \== DUBLIN CORE
 
         // /== BASE64 stream
-        this.addBase64Streams(foxmlObject, files);
+        this.addBase64Streams(foxmlObject, files,  foxmlModel);
         // \== BASE64 stream
 
         // /== BIBLIO_MODS stream
@@ -404,10 +368,6 @@ public abstract class BaseConvertor {
         addCheckedDataStream(foxmlObject, biblioModsStream);
         // \== BIBLIO_MODS stream
 
-        // /== RELS-EXT stream
-        DatastreamType relsExtStream = this.createRelsExtStream(re);
-        addCheckedDataStream(foxmlObject, relsExtStream);
-        // \== RELS-EXT stream
 
         // /== POLICY stream
         if (policyID != null) {
@@ -682,7 +642,9 @@ public abstract class BaseConvertor {
      * @param files
      * @throws ServiceException
      */
-    private void addBase64Streams(DigitalObject foxmlObject, FileDescriptor[] files) throws ServiceException {
+    private void addBase64Streams(DigitalObject foxmlObject, FileDescriptor[] files, Foxml foxmlModel) throws ServiceException {
+        boolean useImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
+
         if (files != null) {
             for (FileDescriptor f : files) {
                 if (f != null) {
@@ -693,11 +655,13 @@ public abstract class BaseConvertor {
                             case USER_IMAGE:
                                 BufferedImage img = null;
                                 try{
-                                    img = readImage(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
+                                    if (!useImageServer){
+                                        img = readImage(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
+                                    }
                                 } catch (Exception e) {
                                     throw new ServiceException("Problem with file: "+f.getFilename(),e);
                                 }
-                                DatastreamType fullStream = this.createFullStream(img, f.getFilename());
+                                DatastreamType fullStream = this.createFullStream(img, f.getFilename(), foxmlModel);
                                 if (fullStream != null) {
                                     addCheckedDataStream(foxmlObject,fullStream);
                                 }
@@ -857,7 +821,7 @@ public abstract class BaseConvertor {
      */
     private DatastreamType createOCRStream(String filename) throws ServiceException {
         try {
-            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
+            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.txt", "encoded");
             DatastreamType stream = new DatastreamType();
             stream.setID(STREAM_ID_TXT);
             if ("external".equalsIgnoreCase(streamType)){
@@ -939,10 +903,15 @@ public abstract class BaseConvertor {
      * @param filename
      * @return stream
      */
-    private DatastreamType createFullStream(BufferedImage img, String filename) throws ServiceException {
+    private DatastreamType createFullStream(BufferedImage img, String filename, Foxml foxmlModel) throws ServiceException {
         try {
             String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
             boolean convertToJPG = KConfiguration.getInstance().getConfiguration().getBoolean("convert.originalToJPG", false);
+            boolean useImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
+            if (useImageServer){
+                streamType = "external";
+                convertToJPG=false;
+            }
             DatastreamType stream = new DatastreamType();
             stream.setID(FedoraUtils.IMG_FULL_STREAM);
             if ("external".equalsIgnoreCase(streamType)){
@@ -960,7 +929,11 @@ public abstract class BaseConvertor {
             // long start = System.currentTimeMillis();
 
             if (!convertToJPG){
-                version.setMIMETYPE(getImageMime(filename));
+                if (useImageServer){
+                    version.setMIMETYPE("image/jpeg");
+                }else{
+                    version.setMIMETYPE(getImageMime(filename));
+                }
                 File pageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + filename);
 
                 if ("encoded".equalsIgnoreCase(streamType)){
@@ -968,13 +941,30 @@ public abstract class BaseConvertor {
                     version.setBinaryContent(binaryContent);
                 }else{//external or referenced
                     String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "img";
+                    if (useImageServer){
+                        String externalImagesDirectory = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerDirectory");
+                        binaryDirectory = externalImagesDirectory +  System.getProperty("file.separator") + getConfig().getContract();
+                    }
+
                     // Destination directory
                     File dir = IOUtils.checkDirectory(binaryDirectory);
                     // Move file to new directory
                     File target = new File(dir, pageFile.getName());
                     FileUtils.copyFile(pageFile, target);
                     ContentLocationType cl = new ContentLocationType();
-                    cl.setREF(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath()));
+                    if (useImageServer) {
+                        String prefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerURLPrefix");
+                        String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.big");
+                        cl.setREF(prefix + "/"+getConfig().getContract()+"/"+pageFile.getName()+"/"+suffix);
+                        //Adjust RELS-EXT
+                        String suffixTiles = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.tiles");
+                        if (!"".equals(suffixTiles)){
+                            suffixTiles = "/"+suffixTiles;
+                        }
+                        foxmlModel.getRe().addRelation(RelsExt.TILES_URL,prefix + "/"+getConfig().getContract()+"/"+pageFile.getName()+ suffixTiles,true);
+                    }   else{
+                        cl.setREF(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath()));
+                    }
                     cl.setTYPE("URL");
                     version.setContentLocation(cl);
                 }
@@ -1020,6 +1010,10 @@ public abstract class BaseConvertor {
     private DatastreamType createThumbnailStream(BufferedImage img, String filename) throws ServiceException {
         try {
             String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.thumbnails", "encoded");
+            boolean useImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
+            if (useImageServer){
+                streamType = "external";
+            }
             DatastreamType stream = new DatastreamType();
             stream.setID(FedoraUtils.IMG_THUMB_STREAM);
             if ("external".equalsIgnoreCase(streamType)){
@@ -1037,25 +1031,31 @@ public abstract class BaseConvertor {
             version.setMIMETYPE("image/jpeg");
 
             // long start = System.currentTimeMillis();
-
-            byte[] binaryContent = scaleImage(img, 0, FedoraUtils.THUMBNAIL_HEIGHT);
-            if (binaryContent.length == 0) {
-                return null;
+            byte[] binaryContent = null;
+            if (!useImageServer){
+                binaryContent = scaleImage(img, 0, FedoraUtils.THUMBNAIL_HEIGHT);
+                if (binaryContent== null || binaryContent.length == 0) {
+                    return null;
+                }
             }
 
             if ("encoded".equalsIgnoreCase(streamType)){
                 version.setBinaryContent(binaryContent);
             }else{//external or referenced
-
-                String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "thumbnail";
-                // Destination directory
-                File dir = IOUtils.checkDirectory(binaryDirectory);
-                // Move file to new directory
-                File target = new File(dir, filename.substring(filename.lastIndexOf(System.getProperty("file.separator")), filename.lastIndexOf('.'))+".jpg");
-                FileUtils.writeByteArrayToFile(target, binaryContent);
-
                 ContentLocationType cl = new ContentLocationType();
-                cl.setREF(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath()));
+                if (!useImageServer){
+                    String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "thumbnail";
+                    // Destination directory
+                    File dir = IOUtils.checkDirectory(binaryDirectory);
+                    // Move file to new directory
+                    File target = new File(dir, filename.substring(filename.lastIndexOf(System.getProperty("file.separator")), filename.lastIndexOf('.'))+".jpg");
+                    FileUtils.writeByteArrayToFile(target, binaryContent);
+                    cl.setREF(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath()));
+                }else{
+                    String prefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerURLPrefix");
+                    String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.thumb");
+                    cl.setREF(prefix + "/"+getConfig().getContract()+filename.substring(filename.lastIndexOf(System.getProperty("file.separator")))+"/"+suffix);
+                }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
             }
@@ -1086,6 +1086,10 @@ public abstract class BaseConvertor {
     private DatastreamType createPreviewStream(BufferedImage img, String filename) throws ServiceException {
         try {
             String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.previews", "encoded");
+            boolean useImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
+            if (useImageServer){
+                streamType = "external";
+            }
             DatastreamType stream = new DatastreamType();
             stream.setID(FedoraUtils.IMG_PREVIEW_STREAM);
             if ("external".equalsIgnoreCase(streamType)){
@@ -1104,25 +1108,32 @@ public abstract class BaseConvertor {
 
             // long start = System.currentTimeMillis();
             int previewSize =  KConfiguration.getInstance().getConfiguration().getInt("convert.previewSize", FedoraUtils.PREVIEW_HEIGHT);
-            byte[] binaryContent = scaleImage(img,previewSize, previewSize);
-            if (binaryContent.length == 0) {
-                return null;
+            byte[] binaryContent = null;
+            if (!useImageServer){
+                binaryContent = scaleImage(img,previewSize, previewSize);
+                if (binaryContent == null || binaryContent.length == 0) {
+                    return null;
+                }
             }
 
 
             if ("encoded".equalsIgnoreCase(streamType)){
                 version.setBinaryContent(binaryContent);
             }else{//external or referenced
-
-                String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "preview";
-                // Destination directory
-                File dir = IOUtils.checkDirectory(binaryDirectory);
-                // Move file to new directory
-                File target = new File(dir, filename.substring(filename.lastIndexOf(System.getProperty("file.separator")), filename.lastIndexOf('.'))+".jpg");
-                FileUtils.writeByteArrayToFile(target, binaryContent);
-
                 ContentLocationType cl = new ContentLocationType();
-                cl.setREF(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath()));
+                if (!useImageServer){
+                    String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "preview";
+                    // Destination directory
+                    File dir = IOUtils.checkDirectory(binaryDirectory);
+                    // Move file to new directory
+                    File target = new File(dir, filename.substring(filename.lastIndexOf(System.getProperty("file.separator")), filename.lastIndexOf('.'))+".jpg");
+                    FileUtils.writeByteArrayToFile(target, binaryContent);
+                    cl.setREF(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath()));
+                }else{
+                    String prefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerURLPrefix");
+                    String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.preview");
+                    cl.setREF(prefix +"/"+getConfig().getContract()+filename.substring(filename.lastIndexOf(System.getProperty("file.separator")))+"/"+suffix);
+                }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
             }
@@ -1154,7 +1165,7 @@ public abstract class BaseConvertor {
             if (! altoFile.exists() || !altoFile.canRead()) {
                 return null;
             }
-            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
+            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.txt", "encoded");
             DatastreamType stream = new DatastreamType();
             stream.setID(FedoraUtils.ALTO_STREAM);
             if ("external".equalsIgnoreCase(streamType)){
@@ -1208,7 +1219,7 @@ public abstract class BaseConvertor {
             if (! amdFile.exists() || !amdFile.canRead()) {
                 return null;
             }
-            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
+            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.amd", "encoded");
             DatastreamType stream = new DatastreamType();
             stream.setID(FedoraUtils.IMG_FULL_STREAM+"_AMD");
             if ("external".equalsIgnoreCase(streamType)){
@@ -1544,16 +1555,20 @@ public abstract class BaseConvertor {
     /**
      * Vytvori digitalni objekt dle zadanych parametru vcetne datastreamu
      *
-     * @param pid
-     * @param title
-     * @param dc
-     * @param re
-     * @param mods
-     * @param files
+     * @param foxml
      * @throws ServiceException
+     * @return
      */
-    protected DigitalObject createDigitalObject( String pid, String title, Element dc, Element re, Element mods, FileDescriptor[] files) throws ServiceException {
+    protected DigitalObject createDigitalObject(  Foxml foxml) throws ServiceException {
 
+        String pid = foxml.getPid();
+        String title = foxml.getTitle();
+        Element dc =  createDublinCoreElement(foxml.getDc());
+        Element mods =  createBiblioModsElement(foxml.getMods());
+        FileDescriptor[] files = null;
+        if (foxml.getFiles()!= null && foxml.getFiles().size()>0){
+            files = foxml.getFiles().toArray(new FileDescriptor[foxml.getFiles().size()]);
+        }
         if (log.isInfoEnabled()) {
             log.info(  "title=" + title + "; pid=" + pid); //TODO: log model
         }
@@ -1565,26 +1580,31 @@ public abstract class BaseConvertor {
         this.setCommonProperties(foxmlObject, pid, title);
 
 
-        this.setCommonStreams(foxmlObject, dc, re, mods, policyID, files);
+        this.setCommonStreams(foxmlObject, dc, mods, policyID, files, foxml);
 
         return foxmlObject;
     }
 
     protected void exportFoxml(Foxml foxml){
-        FileDescriptor[] files = null;
-        if (foxml.getFiles()!= null && foxml.getFiles().size()>0){
-            files = foxml.getFiles().toArray(new FileDescriptor[foxml.getFiles().size()]);
-        }
+
         try{
-        DigitalObject foxmlPeri = this.createDigitalObject( foxml.getPid(),foxml.getTitle(), createDublinCoreElement(foxml.getDc()), createRelsExtElement(foxml.getRe()), createBiblioModsElement(foxml.getMods()), files);
-        if (foxml.getOcr()!= null){
-            addCheckedDataStream(foxmlPeri, createEncodedStream(STREAM_ID_TXT, "text/plain", foxml.getOcr()));
-        }
-        if (foxml.getStruct()!= null){
-            addCheckedDataStream(foxmlPeri, createEncodedStream("STRUCT_MAP", "text/xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<parts>\n"+foxml.getStruct()+"</parts>\n"));
-            //System.out.print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<parts>\n"+foxml.getStruct()+"</parts>");
-        }
-        this.marshalDigitalObject(foxmlPeri);
+            DigitalObject foxmlPeri = this.createDigitalObject( foxml);
+
+            // /== RELS-EXT stream
+            Element re = createRelsExtElement(foxml.getRe());
+            DatastreamType relsExtStream = this.createRelsExtStream(re);
+            addCheckedDataStream(foxmlPeri, relsExtStream);
+            // \== RELS-EXT stream
+
+
+            if (foxml.getOcr()!= null){
+                addCheckedDataStream(foxmlPeri, createEncodedStream(STREAM_ID_TXT, "text/plain", foxml.getOcr()));
+            }
+            if (foxml.getStruct()!= null){
+                addCheckedDataStream(foxmlPeri, createEncodedStream("STRUCT_MAP", "text/xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<parts>\n"+foxml.getStruct()+"</parts>\n"));
+                //System.out.print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<parts>\n"+foxml.getStruct()+"</parts>");
+            }
+            this.marshalDigitalObject(foxmlPeri);
         }catch (ServiceException ex){
             log.error("Error marshalling FOXML:"+foxml.getTitle());
             throw ex;
