@@ -1049,9 +1049,10 @@ public abstract class BaseConvertor {
                     FileUtils.writeByteArrayToFile(target, binaryContent);
                     cl.setREF(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath()));
                 }else{
-                    String prefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerURLPrefix");
+                    String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
+                	//String prefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerURLPrefix");
                     String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.thumb");
-                    cl.setREF(prefix + "/"+getConfig().getContract()+filename.substring(filename.lastIndexOf(System.getProperty("file.separator")))+suffix);
+                    cl.setREF(imagesPrefix + "/"+getConfig().getContract()+filename.substring(filename.lastIndexOf(System.getProperty("file.separator")))+suffix);
                 }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
@@ -1127,9 +1128,10 @@ public abstract class BaseConvertor {
                     FileUtils.writeByteArrayToFile(target, binaryContent);
                     cl.setREF(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath()));
                 }else{
-                    String prefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerURLPrefix");
+                    //String prefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerURLPrefix");
+                    String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
                     String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.preview");
-                    cl.setREF(prefix +"/"+getConfig().getContract()+filename.substring(filename.lastIndexOf(System.getProperty("file.separator")))+suffix);
+                    cl.setREF(imagesPrefix +"/"+getConfig().getContract()+filename.substring(filename.lastIndexOf(System.getProperty("file.separator")))+suffix);
                 }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
