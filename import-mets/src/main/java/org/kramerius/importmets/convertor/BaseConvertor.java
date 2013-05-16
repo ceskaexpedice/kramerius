@@ -955,12 +955,9 @@ public abstract class BaseConvertor {
                     if (useImageServer) {
                         String prefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerURLPrefix");
                         String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.big");
-                        cl.setREF(prefix + "/"+getConfig().getContract()+"/"+pageFile.getName()+"/"+suffix);
+                        cl.setREF(prefix + "/"+getConfig().getContract()+"/"+pageFile.getName()+suffix);
                         //Adjust RELS-EXT
                         String suffixTiles = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.tiles");
-                        if (!"".equals(suffixTiles)){
-                            suffixTiles = "/"+suffixTiles;
-                        }
                         foxmlModel.getRe().addRelation(RelsExt.TILES_URL,prefix + "/"+getConfig().getContract()+"/"+pageFile.getName()+ suffixTiles,true);
                     }   else{
                         cl.setREF(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath()));
@@ -1054,7 +1051,7 @@ public abstract class BaseConvertor {
                 }else{
                     String prefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerURLPrefix");
                     String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.thumb");
-                    cl.setREF(prefix + "/"+getConfig().getContract()+filename.substring(filename.lastIndexOf(System.getProperty("file.separator")))+"/"+suffix);
+                    cl.setREF(prefix + "/"+getConfig().getContract()+filename.substring(filename.lastIndexOf(System.getProperty("file.separator")))+suffix);
                 }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
@@ -1132,7 +1129,7 @@ public abstract class BaseConvertor {
                 }else{
                     String prefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerURLPrefix");
                     String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.preview");
-                    cl.setREF(prefix +"/"+getConfig().getContract()+filename.substring(filename.lastIndexOf(System.getProperty("file.separator")))+"/"+suffix);
+                    cl.setREF(prefix +"/"+getConfig().getContract()+filename.substring(filename.lastIndexOf(System.getProperty("file.separator")))+suffix);
                 }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
