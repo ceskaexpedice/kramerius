@@ -3,8 +3,6 @@ package com.qbizm.kramerius.imptool.poc.valueobj;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.qbizm.kramerius.imptool.poc.convertor.BaseConvertor;
-
 /**
  * Value objekt pro naplneni dat RELS-EXT
  * 
@@ -44,6 +42,8 @@ public class RelsExt {
     public static final String ISSN = "issn";
     
     public static final String EXTID = "extid";
+
+    public static final String TILES_URL = "tiles-url";
     
     
 

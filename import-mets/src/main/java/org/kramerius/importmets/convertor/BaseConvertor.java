@@ -1028,7 +1028,6 @@ public abstract class BaseConvertor {
 
             version.setMIMETYPE("image/jpeg");
 
-            // long start = System.currentTimeMillis();
             byte[] binaryContent = null;
             if (!useImageServer){
                 binaryContent = scaleImage(img, 0, FedoraUtils.THUMBNAIL_HEIGHT);
@@ -1058,14 +1057,6 @@ public abstract class BaseConvertor {
                 version.setContentLocation(cl);
             }
 
-            // if (log.isDebugEnabled()) {
-            // log.debug("Binary attachment: time(read)="
-            // + (end - start)
-            // + "ms; filesize="
-            // + (pageFile.length() / 1024)
-            // + "kB; file="
-            // + pageFile.getName());
-            // }
             stream.getDatastreamVersion().add(version);
 
             return stream;
@@ -1104,7 +1095,6 @@ public abstract class BaseConvertor {
 
             version.setMIMETYPE("image/jpeg");
 
-            // long start = System.currentTimeMillis();
             int previewSize =  KConfiguration.getInstance().getConfiguration().getInt("convert.previewSize", FedoraUtils.PREVIEW_HEIGHT);
             byte[] binaryContent = null;
             if (!useImageServer){
@@ -1136,14 +1126,6 @@ public abstract class BaseConvertor {
                 version.setContentLocation(cl);
             }
 
-            // if (log.isDebugEnabled()) {
-            // log.debug("Binary attachment: time(read)="
-            // + (end - start)
-            // + "ms; filesize="
-            // + (pageFile.length() / 1024)
-            // + "kB; file="
-            // + pageFile.getName());
-            // }
             stream.getDatastreamVersion().add(version);
 
             return stream;

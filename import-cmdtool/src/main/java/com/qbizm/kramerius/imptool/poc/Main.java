@@ -1,21 +1,14 @@
 package com.qbizm.kramerius.imptool.poc;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.sax.SAXSource;
-
+import com.qbizm.kramerius.imp.jaxb.DigitalObject;
+import com.qbizm.kramerius.imp.jaxb.Monograph;
+import com.qbizm.kramerius.imp.jaxb.periodical.Periodical;
+import com.qbizm.kramerius.imptool.poc.convertor.MonographConvertor;
+import com.qbizm.kramerius.imptool.poc.convertor.PeriodicalConvertor;
+import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
+import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -25,16 +18,12 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.Monograph;
-import com.qbizm.kramerius.imp.jaxb.periodical.Periodical;
-import com.qbizm.kramerius.imptool.poc.convertor.MonographConvertor;
-import com.qbizm.kramerius.imptool.poc.convertor.PeriodicalConvertor;
-import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
-import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
-
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
+import javax.xml.bind.*;
+import javax.xml.transform.sax.SAXSource;
+import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 
 /**
@@ -84,6 +73,10 @@ public class Main {
         StringBuffer convertedURI = new StringBuffer();
         if (useDB){
             initDB();
+        }
+        boolean useImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
+        if (useImageServer){
+            IOUtils.checkDirectory(KConfiguration.getInstance().getConfiguration().getString("convert.imageServerDirectory"));
         }
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(Monograph.class, DigitalObject.class, Periodical.class);
