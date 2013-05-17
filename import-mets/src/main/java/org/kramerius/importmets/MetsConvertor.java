@@ -1,32 +1,16 @@
 package org.kramerius.importmets;
 
-import java.io.*;
-import java.util.Arrays;
-import java.util.logging.Level;
-
-import javax.management.RuntimeErrorException;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.xpath.XPathExpressionException;
-
+import com.qbizm.kramerius.imp.jaxb.DigitalObject;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import org.apache.commons.io.FileUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.log4j.Logger;
 import org.kramerius.Import;
-import org.kramerius.dc.OaiDcType;
 import org.kramerius.importmets.convertor.MetsPeriodicalConvertor;
-import org.kramerius.importmets.convertor.MonographConvertor;
-import org.kramerius.importmets.utils.XMLTools;
 import org.kramerius.importmets.valueobj.ConvertorConfig;
 import org.kramerius.importmets.valueobj.ServiceException;
 import org.kramerius.mets.Mets;
-import org.kramerius.mods.ModsDefinition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.EntityResolver;
@@ -35,12 +19,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.Monograph;
-import com.qbizm.kramerius.imp.jaxb.periodical.Periodical;
-
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
+import javax.xml.bind.*;
+import javax.xml.transform.sax.SAXSource;
+import java.io.*;
 
 
 /**
@@ -54,12 +35,13 @@ public class MetsConvertor {
 
     private static Marshaller marshaller = null;
     private static Unmarshaller unmarshaller = null;
+    private static boolean foundvalidPSP = false;
 
     public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
 
         if (args.length  != 3) {
             System.out.println("ANL METS to FOXML conversion tool.\n");
-            System.out.println("Usage: conversion-tool defaultVisibility <input-file> <output-folder>");
+            System.out.println("Usage: conversion-tool defaultVisibility <input-folder> <output-folder>");
             throw new RuntimeException("bad usage");
         } else {
             boolean defaultVisibility = Boolean.parseBoolean(args[0]);
@@ -76,19 +58,17 @@ public class MetsConvertor {
             } else {
                 exportRoot = importRoot + "-converted";
             }
-            
-            convert(importRoot, exportRoot,  defaultVisibility, null);
+            initMarshallers();
+            checkAndConvertDirectory(importRoot, exportRoot,  defaultVisibility);
+            if (!foundvalidPSP){
+                throw new RuntimeException("No valid PSP found.");
+            }
             Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), exportRoot);
 
         }
     }
 
-
-
-    public static String convert(String importRoot, String exportRoot, boolean defaultVisibility, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
-        System.setProperty("java.awt.headless", "true");
-        StringBuffer convertedURI = new StringBuffer();
-
+    private static void initMarshallers(){
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(Mets.class, DigitalObject.class);
             marshaller = jaxbContext.createMarshaller();
@@ -108,20 +88,45 @@ public class MetsConvertor {
             log.error("Cannot init JAXB", e);
             throw new RuntimeException(e);
         }
+    }
 
-
+    private static void checkAndConvertDirectory(String importRoot, String exportRoot, boolean defaultVisibility)throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         File importFolder = new File(importRoot);
 
         if (!importFolder.exists()) {
             log.error("Import root folder doesn't exist: " + importFolder.getAbsolutePath());
             throw new RuntimeException("Import root folder doesn't exist: " + importFolder.getAbsolutePath());
         }
+        File exportFolderFile = IOUtils.checkDirectory(exportRoot);
 
         File infoFile = new File(importFolder, "info.xml");
         if (!infoFile.exists()) {
-            log.error("info.xml file doesn't exist: " + infoFile.getAbsolutePath());
-            throw new RuntimeException("info.xml file doesn't exist: " + infoFile.getAbsolutePath());
+               for(File child: importFolder.listFiles()){
+                   if (child.isDirectory()){
+                       String subFolder = System.getProperty("file.separator")+child.getName();
+                       checkAndConvertDirectory(importRoot+subFolder, exportRoot+subFolder, defaultVisibility);
+                   }
+               }
+        }else{
+            if (!useContractSubfolders()){
+                IOUtils.cleanDirectory(exportFolderFile);
+            }
+            convert(importRoot, exportRoot, defaultVisibility);
         }
+
+    }
+
+
+    private static String convert(String importRoot, String exportRoot, boolean defaultVisibility) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+        System.setProperty("java.awt.headless", "true");
+        StringBuffer convertedURI = new StringBuffer();
+
+
+
+        File importFolder = new File(importRoot);
+
+        File infoFile = new File(importFolder, "info.xml");
+
 
 
         String packageid = getPackageid(infoFile);
@@ -129,18 +134,13 @@ public class MetsConvertor {
         File importFile = findMetsFile(importFolder);
 
 
+        foundvalidPSP = true;
 
-        //visitAllDirsAndFiles(importFile, importRoot, exportRoot,   defaultVisibility,  convertedURI, titleId);
 
 
-        File exportFolderFile = IOUtils.checkDirectory(exportRoot);
-        if (!useContractSubfolders()){
-            IOUtils.cleanDirectory(exportFolderFile);
-        }
 
-        //String subFolderName = importFolder.substring(importRoot.length());
 
-        String exportFolder = exportRoot; //+ subFolderName;
+        String exportFolder = exportRoot;
 
         ConvertorConfig config = new ConvertorConfig();
         config.setMarshaller(marshaller);
@@ -157,8 +157,8 @@ public class MetsConvertor {
             log.error("Cannot parse property contractNo.length", ex);
         }
         config.setContractLength(l);
-        //try {
-            convertOneDirectory(unmarshaller, importFile, config, convertedURI, titleId);
+
+        convertOneDirectory(unmarshaller, importFile, config, convertedURI);
 
         return convertedURI.toString();
     }
@@ -235,7 +235,7 @@ public class MetsConvertor {
                 }
                 config.setContractLength(l);
                 //try {
-                    convertOneDirectory(unmarshaller, importFile, config, convertedURI, titleId);
+                    convertOneDirectory(unmarshaller, importFile, config, convertedURI);
                 /*} catch (InterruptedException e) {
                     log.error("Cannot convert "+importFile, e);
                 } catch (JAXBException e) {
@@ -250,7 +250,7 @@ public class MetsConvertor {
         }
     }
 
-    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         long timeStart = System.currentTimeMillis();
 
         XMLReader reader = XMLReaderFactory.createXMLReader();
