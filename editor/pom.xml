@@ -33,7 +33,7 @@ along with this program. If not, see <http://www.gnu.org/licenses />.
     <parent>
         <groupId>cz.incad.kramerius</groupId>
         <artifactId>kramerius</artifactId>
-        <version>4.7.1.beta</version>
+        <version>4.7.1</version>
     </parent>
 
     <properties>
