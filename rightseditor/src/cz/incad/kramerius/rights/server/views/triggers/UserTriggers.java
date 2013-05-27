@@ -34,7 +34,7 @@ public class UserTriggers extends PersisterTriggers.Default {
     }
 
     @Override
-    public void beforeCreate(Record record, Context ctx) {
+    public void onCreate(Record record, Context ctx) {
         try {
             User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
             if ((user == null) || (!user.hasSuperAdministratorRole())) {
@@ -63,7 +63,7 @@ public class UserTriggers extends PersisterTriggers.Default {
 
 
     @Override
-    public void beforeUpdate(Record record, Context ctx) {/*
+    public void onUpdate(Record record, Context ctx) {/*
         String[] bfs = recordDTO.getModifiedByBfs();
         if (bfs.length == 0) {
             PropertyDTO<String> pswdDTO = structure.user.PASSWORD.clientClone(ctx);
@@ -78,7 +78,7 @@ public class UserTriggers extends PersisterTriggers.Default {
     }
 
     @Override
-    public void afterLoad(Record record, Context ctx){
+    public void onLoad(Record record, Context ctx){
         record.setPreview("<b>"+Structure.user.LOGINNAME.getValue(record)+"</b><br>"+Structure.user.SURNAME.getValue(record)+" "+Structure.user.NAME.getValue(record));
     }
 

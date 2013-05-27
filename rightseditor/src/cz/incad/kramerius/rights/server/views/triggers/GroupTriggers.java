@@ -25,7 +25,7 @@ public class GroupTriggers extends PersisterTriggers.Default {
     }
 
     @Override
-    public void beforeCreate(Record record, Context ctx) {
+    public void onCreate(Record record, Context ctx) {
         User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
         if ((user == null) || (!user.hasSuperAdministratorRole())) {
             List<Integer> groupsList = GetAdminGroupIds.getAdminGroupId(ctx);
@@ -35,7 +35,7 @@ public class GroupTriggers extends PersisterTriggers.Default {
 
 
     @Override
-    public void beforeUpdate(Record record, Context ctx) {
+    public void onUpdate(Record record, Context ctx) {
         /*User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
         if ((user == null) || (!user.hasSuperAdministratorRole())) {
             PropertyDTO<Integer> propertyDTO = structure.group.PERSONAL_ADMIN.clientClone(ctx);
