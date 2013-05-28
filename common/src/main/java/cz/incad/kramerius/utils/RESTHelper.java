@@ -9,6 +9,8 @@ import java.net.URLConnection;
 
 import com.google.gwt.user.server.Base64Utils;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 
 /**
  * Umoznuje se dotazovat na fedoru, ktera potrebuje autentizaci
@@ -28,6 +30,8 @@ public class RESTHelper {
 		String userPassword = user + ":" + pass;
 		String encoded = Base64Utils.toBase64(userPassword.getBytes()); 
 		URLConnection uc = url.openConnection();
+		uc.setReadTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout")));
+		uc.setConnectTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout")));
 		uc.setRequestProperty ("Authorization", "Basic " + encoded);
 		return uc;
 	}
