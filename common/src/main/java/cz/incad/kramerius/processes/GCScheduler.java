@@ -39,4 +39,10 @@ public interface GCScheduler {
 	 * @param procUuids
 	 */
 	void scheduleCheckFoundGCCandidates(List<String> procUuids);
+	
+	/**
+	 * Shutdown gc scheduler
+	 */
+	public void shutdown();
+
 }

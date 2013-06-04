@@ -108,11 +108,13 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 
 
-	private String defaultLPXML() {
+	private String defaultLPXML() throws Exception{
 		StringTemplateGroup grp = new StringTemplateGroup("m");
 		StringTemplate template = grp.getInstanceOf("cz/incad/kramerius/processes/res/lp");
 		template.setAttribute("user_home", System.getProperties().getProperty("user.home"));

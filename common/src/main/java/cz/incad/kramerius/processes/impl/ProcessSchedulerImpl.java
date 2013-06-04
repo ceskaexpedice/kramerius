@@ -17,6 +17,8 @@
 package cz.incad.kramerius.processes.impl;
 
 import java.util.Timer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.inject.Inject;
 
@@ -28,6 +30,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ProcessSchedulerImpl implements ProcessScheduler {
 
+	public static final Logger LOGGER = Logger.getLogger(ProcessScheduler.class.getName());
+	
 	private LRProcessManager lrProcessManager;
 	private DefinitionManager definitionManager;
 	
@@ -76,4 +80,10 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
     public String[] getAdditionalJarFiles() {
         return this.jarFiles;
     }
+
+	@Override
+	public void shutdown() {
+		LOGGER.info("canceling process scheduler");
+		this.timer.cancel();
+	}
 }

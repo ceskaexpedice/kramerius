@@ -47,10 +47,10 @@ public class NextSchedulerTask extends TimerTask {
 			}  else {
 				LOGGER.fine("no planned process found");
 			}
-		} catch (NotReadyException e) {
-		    LOGGER.log(Level.SEVERE,"connection not ready ");
-		} finally {
 			this.processScheduler.scheduleNextTask();
+		} catch(Throwable e) {
+			this.processScheduler.shutdown();
+			LOGGER.log(Level.SEVERE,e.getMessage(), e);
 		}
 		
 	}

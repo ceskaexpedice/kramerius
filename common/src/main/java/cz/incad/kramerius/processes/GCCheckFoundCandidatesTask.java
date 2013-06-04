@@ -63,9 +63,8 @@ public class GCCheckFoundCandidatesTask extends TimerTask {
 
 			this.gcScheduler.scheduleFindGCCandidates();
 			
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (InterruptedException e) {
+		} catch(Throwable e) {
+			this.gcScheduler.shutdown();
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}

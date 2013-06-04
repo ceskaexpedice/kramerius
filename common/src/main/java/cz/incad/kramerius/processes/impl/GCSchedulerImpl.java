@@ -3,6 +3,8 @@ package cz.incad.kramerius.processes.impl;
 import java.util.List;
 import java.util.Timer;
 
+import org.apache.log4j.Logger;
+
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.processes.DefinitionManager;
@@ -14,6 +16,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class GCSchedulerImpl implements GCScheduler {
 
+	public static Logger LOGGER = Logger.getLogger(GCScheduler.class.getName());
+	
 	private LRProcessManager lrProcessManager;
 	private DefinitionManager definitionManager;
 	
@@ -47,5 +51,10 @@ public class GCSchedulerImpl implements GCScheduler {
 	public void scheduleCheckFoundGCCandidates(List<String> procUuids) {
 		GCCheckFoundCandidatesTask checkCandidates = new GCCheckFoundCandidatesTask(lrProcessManager, this, procUuids, this.interval);
 		this.timer.schedule(checkCandidates, this.interval);
+	}
+	
+	public void shutdown() {
+		LOGGER.info("canceling gcscheduler");
+		this.timer.cancel();
 	}
 }

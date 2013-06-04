@@ -25,4 +25,10 @@ public interface ProcessScheduler {
 	public String getApplicationLib();
 	
 	public String[] getAdditionalJarFiles();
+	
+	/**
+	 * Shutdown scheduler
+	 */
+	public void shutdown();
+	
 }
