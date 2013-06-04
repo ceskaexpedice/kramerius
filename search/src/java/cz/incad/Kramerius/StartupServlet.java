@@ -124,4 +124,13 @@ public class StartupServlet extends GuiceServlet {
         super.init(config);
     }
 
+	@Override
+	public void destroy() {
+		super.destroy();
+		this.gcScheduler.shutdown();
+		this.processScheduler.shutdown();
+	}
+
+    
+    
 }
