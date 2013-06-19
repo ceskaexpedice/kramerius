@@ -54,7 +54,7 @@ public class VirtualCollectionsManager {
     static final String SPARQL_NS = "http://www.w3.org/2001/sw/DataAccess/rf1/result";
     static final String TEXT_DS_PREFIX = "TEXT_";
 
-    public static VirtualCollection getVirtualCollection_(FedoraAccess fedoraAccess, String collection, ArrayList<String> langs) {
+    private static VirtualCollection getVirtualCollectionOld(FedoraAccess fedoraAccess, String collection, ArrayList<String> langs) {
         try {
             IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
             Document doc = g.getVirtualCollections();
@@ -204,6 +204,10 @@ public class VirtualCollectionsManager {
                         vcs.add(vc);
                     }catch(Exception vcex){
                         logger.log(Level.WARNING, "Could not get virtual collection for  " + pid + ": " + vcex.toString());
+                        logger.log(Level.WARNING, "Trying old style foxml datastream...  ");
+                        VirtualCollection vc = getVirtualCollectionOld(fedoraAccess, pid, langs);
+                        vcs.add(vc);
+                        
                     }
                 }
             }
@@ -215,7 +219,7 @@ public class VirtualCollectionsManager {
     }
 
     
-    public static List<VirtualCollection> getVirtualCollections_(FedoraAccess fedoraAccess, ArrayList<String> langs) throws Exception {
+    public static List<VirtualCollection> getVirtualCollectionsOld(FedoraAccess fedoraAccess, ArrayList<String> langs) throws Exception {
         try {
             IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
             Document doc = g.getVirtualCollections();
@@ -327,24 +331,7 @@ public class VirtualCollectionsManager {
     public static void modifyTexts(String pid, FedoraAccess fedoraAccess, Map<String, String> textsMap) throws IOException {
         
         String texts = "<texts>";
-        Iterator it = textsMap.keySet().iterator();
-        while(it.hasNext()){
-            String lang = (String)it.next();
-            String text = textsMap.get(lang);
-            if (text != null) {
-                texts += String.format("<text language=\"%s\">%s</text>", lang, text, lang);
-            }
-        }
-        texts += "</texts>";
-        fedoraAccess.getAPIM().modifyDatastreamByValue(pid, "TEXT", null, "Localized texts for this object", "text/plain", null, texts.getBytes(), "DISABLED", null, "Change text description", true);        
-    }
-
-    public static void modifyTexts_(String pid, FedoraAccess fedoraAccess, Map<String, String> textsMap) throws IOException {
-        
-        String texts = "<texts>";
-        Iterator it = textsMap.keySet().iterator();
-        while(it.hasNext()){
-            String lang = (String)it.next();
+        for (String lang : textsMap.keySet()) {
             String text = textsMap.get(lang);
             if (text != null) {
                 texts += String.format("<text language=\"%s\">%s</text>", lang, text, lang);
