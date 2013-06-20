@@ -97,7 +97,7 @@
             </xsl:choose>
         </xsl:variable>
         <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
-        <table><tr><td valign="top">
+        <table><tr><td valign="top" class="cellThumb">
         <div class="resultThumb" valign="top">
             <a>
                 <xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>
@@ -106,7 +106,7 @@
             </img></a>
             <br/><xsl:value-of select="$bundle/value[@key=$model]"/>
         </div>
-        </td><td valign="top">
+        </td><td class="resultText_td" valign="top">
         <div class="resultText ">
             <a><xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>
             <b><xsl:value-of select="./str[@name='dc.title']"/></b></a>&#160;
