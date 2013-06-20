@@ -61,7 +61,7 @@
             </xsl:if>
             <xsl:choose>
                 <xsl:when test="count(./int) &gt; $numOpenedRows">
-                    <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
+                    <span class="ui-icon ui-icon-triangle-1-e folder" ><xsl:value-of select="$bundle/value[@key=$facetname_bundle]" /></span>
                     <a href="#"><xsl:value-of select="$bundle/value[@key=$facetname_bundle]" /></a>
                 </xsl:when>
                 <xsl:otherwise>
