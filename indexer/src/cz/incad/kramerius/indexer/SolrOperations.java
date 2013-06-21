@@ -545,6 +545,7 @@ public class SolrOperations {
         String POST_ENCODING = "UTF-8";
         try {
             urlc = (HttpURLConnection) solrUrl.openConnection();
+            urlc.setConnectTimeout(config.getInt("common.connectionTimeout", 300000));
             try {
                 urlc.setRequestMethod("POST");
             } catch (ProtocolException e) {
