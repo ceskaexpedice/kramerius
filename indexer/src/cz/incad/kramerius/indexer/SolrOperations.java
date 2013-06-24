@@ -195,7 +195,9 @@ public class SolrOperations {
             java.net.URL url = new java.net.URL(urlStr);
 
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            org.w3c.dom.Document solrDom = builder.parse(url.openStream());
+            HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+            urlc.setConnectTimeout(config.getInt("http.timeout", 10000));
+            org.w3c.dom.Document solrDom = builder.parse(urlc.getInputStream());
             String xPathStr = "/response/result/doc/str[@name='root_pid']";
             expr = xpath.compile(xPathStr);
             Node node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
