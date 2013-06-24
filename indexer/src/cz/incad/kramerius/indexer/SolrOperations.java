@@ -155,8 +155,10 @@ public class SolrOperations {
             factory = XPathFactory.newInstance();
             xpath = factory.newXPath();
             java.net.URL url = new java.net.URL(urlStr);
+            HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            org.w3c.dom.Document solrDom = builder.parse(url.openStream());
+            urlc.setConnectTimeout(config.getInt("http.timeout", 10000));
+            org.w3c.dom.Document solrDom = builder.parse(urlc.getInputStream());
             String xPathStr = "/response/result/@numFound";
             expr = xpath.compile(xPathStr);
             Node node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
@@ -671,7 +673,9 @@ public class SolrOperations {
             java.net.URL url = new java.net.URL(urlStr);
 
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            org.w3c.dom.Document solrDom = builder.parse(url.openStream());
+            HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+            urlc.setConnectTimeout(config.getInt("http.timeout", 10000));
+            org.w3c.dom.Document solrDom = builder.parse(urlc.getInputStream());
             String xPathStr = "/response/result/doc/int[@name='pages_count']";
             expr = xpath.compile(xPathStr);
             Node node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
@@ -701,7 +705,9 @@ public class SolrOperations {
         java.net.URL url = new java.net.URL(urlStr);
 
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        org.w3c.dom.Document solrDom = builder.parse(url.openStream());
+            HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+            urlc.setConnectTimeout(config.getInt("http.timeout", 10000));
+            org.w3c.dom.Document solrDom = builder.parse(urlc.getInputStream());
         String xPathStr = "/response/result/doc/str[@name='PID']";
         expr = xpath.compile(xPathStr);
         NodeList nodeList = (NodeList) expr.evaluate(solrDom, XPathConstants.NODESET);
@@ -749,7 +755,9 @@ public class SolrOperations {
         java.net.URL url = new java.net.URL(urlStr);
 
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        org.w3c.dom.Document solrDom = builder.parse(url.openStream());
+            HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+            urlc.setConnectTimeout(config.getInt("http.timeout", 10000));
+            org.w3c.dom.Document solrDom = builder.parse(urlc.getInputStream());
         String xPathStr = "/response/result/doc/str[@name='PID']";
         expr = xpath.compile(xPathStr);
         NodeList nodeList = (NodeList) expr.evaluate(solrDom, XPathConstants.NODESET);
@@ -788,7 +796,9 @@ public class SolrOperations {
         java.net.URL url = new java.net.URL(urlStr);
 
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        org.w3c.dom.Document solrDom = builder.parse(url.openStream());
+            HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+            urlc.setConnectTimeout(config.getInt("http.timeout", 10000));
+            org.w3c.dom.Document solrDom = builder.parse(urlc.getInputStream());
         String xPathStr = "/response/result/doc/str[@name='PID']";
         expr = xpath.compile(xPathStr);
         NodeList nodeList = (NodeList) expr.evaluate(solrDom, XPathConstants.NODESET);
