@@ -37,7 +37,8 @@
 String[] pismena = {"0","A","B","C","Č","D","E","F","G","H","CH","I","J","K","L","M","N","O","P","Q","R","Ř","S","Š","T","U","V","W","X","Y","Z","Ž"};
 pageContext.setAttribute("pismena", pismena);
 %>
-<c:forEach var="p" items="${pismena}"><div class="${p}"><a href="#">${p}</a></div></c:forEach>
+<div class="all"><a class="browse_autor" href="#"><span class="ui-icon ui-icon-arrowthickstop-1-n">all</span></a></div>
+<c:forEach var="p" items="${pismena}"><div class="${p}"><a class="browse_autor" href="#">${p}</a></div></c:forEach>
                     </td>
                 </tr></table>
 <script type="text/javascript">

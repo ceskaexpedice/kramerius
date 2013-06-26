@@ -70,9 +70,12 @@
         });
 
         $('.letters>div>a').live('click', function(){
-           var field = $(this).parent().parent().attr('id').substring("letters_".length);
+           //var field = $(this).parent().parent().attr('id').substring("letters_".length);
+           var field = $(this).attr("class");
            var value = $(this).html();
-           
+           if(value.startsWith("<")){
+               value = "";
+           }
            doBrowse(value, field);
            
         });
