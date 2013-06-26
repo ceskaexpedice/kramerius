@@ -112,8 +112,8 @@
     }
     
     function doBrowse(value, field){
-        var url = 'terms.jsp?field=' + field + '&t=' + value;
-        $.get(url, function(data){
+        var url = 'terms.jsp?field=' + field;
+        $.post(url, {t: value}, function(data){
             $('#'+field).html(data);
             $('#'+field).scrollTop(0);
             selectLetter(field);
@@ -132,9 +132,9 @@
 
     function getMoreTerms(field){
         var term = $('#'+field+">div.term:last>span").html();
-        var url = 'terms.jsp?i=false&field=' + field + '&t=' + term;
+        var url = 'terms.jsp?i=false&field=' + field;
         $('#'+field+" div.more_terms").remove();
-        $.get(url, function(data){
+        $.post(url, {t: term}, function(data){
             $('#'+field).append(data);
         });
     }
