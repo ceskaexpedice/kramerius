@@ -178,7 +178,7 @@ $(document).ready(function(){
 	$(".buttons>a").button();
 
     // page number title 
-    var title = dictionary['administrator.menu.dialogs.lrprocesses.title']  + " - #"+${processView.pageNumber};
+    var title = dictionary['administrator.menu.dialogs.lrprocesses.title']  + " - #"+${processView.pageLabel};
     processes.dialog.dialog('option', 'title',title);
 });
 
@@ -278,8 +278,8 @@ $(document).ready(function(){
 
             <tr>
                 <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
-                <td><label for="filter-started-before"><view:msg>administrator.processes.filter.startedbefore</view:msg>::</label></td>
-                <td><input type="text" name="started" class="filter-vals gt" id="started-before" value="${processView.startedBefore}"></input></td>
+                <td><label for="filter-started-before"><view:msg>administrator.processes.filter.startedbefore</view:msg>:</label></td>
+                <td><input type="text" name="started" class="filter-vals lt" id="started-before" value="${processView.startedBefore}"></input></td>
             </tr>
 
             <tr>
