@@ -96,6 +96,14 @@ public class AbstractSearchParamsViews {
     
         return browseTitle;
     }
+    public String getEscapedQuery(){
+        HttpServletRequest request = this.requestProvider.get();
+        String escaped_q = request.getParameter("q");
+        // * is not escaped, as we want wildcard search
+        String escapeChars ="[\\\\+\\-\\!\\(\\)\\:\\^\\]\\{\\}\\~\\?]";
+        escaped_q = escaped_q.replaceAll(escapeChars, "\\\\$0");
+        return escaped_q;
+    }
     public String getSearchResultsRows() {
         return KConfiguration.getInstance().getProperty("search.results.rows", "20");
     }

@@ -31,7 +31,7 @@
             <c:if test="${fn:containsIgnoreCase(param.q, '*')}" >
                 
             </c:if>
-            <c:param name="q" value="${param.q}" />
+            <c:param name="q" value="${searchParams.escapedQuery}" />
             <c:set var="rows" value="${rowsdefault}" scope="request" />
         </c:when>
 
@@ -178,6 +178,7 @@
             <c:param name="sort" value="level asc, score desc" />
         </c:otherwise>
     </c:choose>
+    <c:param name="defType" value="edismax" />
 </c:url>
 
     <c:import url="${url}" var="xml" charEncoding="UTF-8" />
@@ -185,6 +186,7 @@
 </c:catch>
 <c:choose>
     <c:when test="${searchException!=null}">
+        ${searchException}
         <%--<c:import url="empty.xml" var="xml" charEncoding="UTF-8" />--%>
         <c:set var="xml">
         <?xml version="1.0" encoding="UTF-8"?>
