@@ -14,7 +14,7 @@ public class RefenrenceToPersonalAdminView extends View {
     public RefenrenceToPersonalAdminView() {
         super(Structure.group, "RefenrenceToPersonalAdmin");
         addProperty(Structure.group.GNAME);
-        setSortProperty(Structure.group.GNAME);
+        setDefaultSortProperty(Structure.group.GNAME);
         setForm(createGroupForm());
     }
 

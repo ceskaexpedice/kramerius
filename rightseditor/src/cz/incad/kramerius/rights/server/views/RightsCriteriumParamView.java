@@ -10,7 +10,7 @@ public class RightsCriteriumParamView extends View {
 
     public RightsCriteriumParamView(Entity entity, Structure struct) {
         super(entity);
-        setSortProperty(Structure.criteriumParam.SHORT_DESC);
+        setDefaultSortProperty(Structure.criteriumParam.SHORT_DESC);
         addProperty(Structure.criteriumParam.SHORT_DESC);
         addProperty(Structure.criteriumParam.VALS);
 

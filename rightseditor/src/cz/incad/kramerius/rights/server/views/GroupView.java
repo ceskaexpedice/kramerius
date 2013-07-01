@@ -32,9 +32,23 @@ public class GroupView extends View {
         this.reference = reference;
         setLocalizationKey(Structure.group.getId());
         addProperty(Structure.group.GNAME);
-        setSortProperty(Structure.group.GNAME);
+        setDefaultSortProperty(Structure.group.GNAME);
         // setForm(createGroupForm());
-        setQueryGenerator(new GroupQueryGenerator());
+        addQueryDescriptor(new QueryDescriptor("default", "default") {
+            @Override
+            public QueryExpression getQueryExpression(List<QueryParameter> queryParameters, Context ctx) {
+                User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+                if (!user.hasSuperAdministratorRole()) {
+                    List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
+                    if (admId == null || admId.isEmpty()) {
+                        return null;
+                    }
+                    return new QueryCompareExpression<Integer>(Structure.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                } else
+                    return null;
+            }
+        }
+        );
         this.trigger = new GroupTriggers(this.struct);
     }
 
@@ -97,9 +111,24 @@ public class GroupView extends View {
             super(Structure.user);
             setLocalizationKey(Structure.user.getId());
             addProperty(Structure.user.LOGINNAME);
-            setSortProperty(Structure.user.LOGINNAME);
+            setDefaultSortProperty(Structure.user.LOGINNAME);
             setForm(createUserForm());
-            setQueryGenerator(new RefUsersGenerator());
+            addQueryDescriptor(new QueryDescriptor("default", "default"){
+                @Override
+                public QueryExpression getQueryExpression(List<QueryParameter> queryParameters, Context ctx) {
+                    User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+                    if (!user.hasSuperAdministratorRole()) {
+                        List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
+                        if (admId == null || admId.isEmpty()){
+                            return null;
+                        }
+                        return new QueryCompareExpression<Integer>(Structure.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                    } else {
+                        return null;
+                    }
+                }
+            }
+            );
         }
 
         private Form createUserForm() {
@@ -114,48 +143,10 @@ public class GroupView extends View {
             return form;
         }
 
-        public class RefUsersGenerator implements QueryGenerator {
 
-            @Override
-            public QueryParameter[] getQueryParameters(Context ctx) {
-                return new QueryParameter[] {};
-            }
-
-            @Override
-            public QueryExpression createWhere(QueryParameter[] queryParameters, Context ctx) {
-                User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
-                if (!user.hasSuperAdministratorRole()) {
-                    List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-                    if (admId == null || admId.isEmpty()){
-                        return null;
-                    }
-                    return new QueryCompareExpression<Integer>(Structure.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
-                } else {
-                    return null;
-                }
-
-            }
-        }
 
     }
 
-    public class GroupQueryGenerator implements QueryGenerator {
 
-        public QueryParameter[] getQueryParameters(Context ctx) {
-            return new QueryParameter[] {};
-        }
-
-        public QueryExpression createWhere(QueryParameter[] queryParameters, Context ctx) {
-            User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
-            if (!user.hasSuperAdministratorRole()) {
-                List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-                if (admId == null || admId.isEmpty()){
-                    return null;
-                }
-                return new QueryCompareExpression<Integer>(Structure.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
-            } else
-                return null;
-        }
-    }
 
 }

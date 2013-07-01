@@ -1,7 +1,6 @@
 package cz.incad.kramerius.rights.server.views;
 
 import cz.incad.kramerius.rights.server.GeneratePasswordExec;
-import cz.incad.kramerius.rights.server.Mailer;
 import cz.incad.kramerius.rights.server.Structure;
 import cz.incad.kramerius.rights.server.impl.PropertiesMailer;
 import cz.incad.kramerius.rights.server.utils.GetAdminGroupIds;
@@ -46,8 +45,22 @@ public class UserView extends View {
         this.vygenerovatHeslo = new Function("generatePasswordForPrivate","VygenerovatHeslo", generatePasswordForPrivate);
 
         addProperty(Structure.user.LOGINNAME).addProperty(Structure.user.NAME).addProperty(Structure.user.SURNAME);//.addProperty(Structure.user.PERSONAL_ADMIN.relate(Structure.group.GNAME));
-        setSortProperty(Structure.user.LOGINNAME);
-        setQueryGenerator(new UserQueryGenerator());
+        setDefaultSortProperty(Structure.user.LOGINNAME);
+        addQueryDescriptor(new QueryDescriptor("default", "default") {
+            @Override
+            public QueryExpression getQueryExpression(List<QueryParameter> queryParameters, Context ctx) {
+                User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+                if (!user.hasSuperAdministratorRole()) {
+                    List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
+                    if (admId == null || admId.isEmpty()) {
+                        return null;
+                    }
+                    return new QueryCompareExpression<Integer>(Structure.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                } else
+                    return null;
+            }
+        }
+        );
          //setForm(createUserFormForSuperAdmin(vygenerovatHeslo));
         refGroupView = new RefGroupView();
         userGroupsView = new UserGroupsView();
@@ -130,9 +143,24 @@ public class UserView extends View {
             super(Structure.group);
             addProperty(Structure.group.GNAME);
             //addProperty(Structure.group.PERSONAL_ADMIN.relate(Structure.group.GNAME));
-            setSortProperty(Structure.group.GNAME);
+            setDefaultSortProperty(Structure.group.GNAME);
             setForm(createGroupForm());
-            setQueryGenerator(new FormGroupGenerator());
+            addQueryDescriptor(new QueryDescriptor("default", "default") {
+                @Override
+                public QueryExpression getQueryExpression(List<QueryParameter> queryParameters, Context ctx) {
+                    User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
+                    if (!user.hasSuperAdministratorRole()) {
+                        List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
+                        if (admId == null || admId.isEmpty()) {
+                            return null;
+                        }
+                        return new QueryCompareExpression<Integer>(Structure.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                    } else {
+                        return null;
+                    }
+                }
+            }
+            );
         }
 
         private Form createGroupForm() {
@@ -144,48 +172,9 @@ public class UserView extends View {
             return form;
         }
 
-        public class FormGroupGenerator implements QueryGenerator {
 
-            @Override
-            public QueryParameter[] getQueryParameters(Context ctx) {
-                return new QueryParameter[] {};
-            }
-
-            @Override
-            public QueryExpression createWhere(QueryParameter[] queryParameters, Context ctx) {
-                User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
-                if (!user.hasSuperAdministratorRole()) {
-                    List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-                    if (admId == null || admId.isEmpty()){
-                        return null;
-                    }
-                    return new QueryCompareExpression<Integer>(Structure.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
-                } else {
-                    return null;
-                }
-
-            }
-        }
     }
 
-    public class UserQueryGenerator implements QueryGenerator {
-
-        public QueryParameter[] getQueryParameters(Context ctx) {
-            return new QueryParameter[] {};
-        }
-
-        public QueryExpression createWhere(QueryParameter[] queryParameters, Context ctx) {
-            User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
-            if (!user.hasSuperAdministratorRole()) {
-                List<Integer> admId = GetAdminGroupIds.getAdminGroupId(ctx);
-                if (admId == null || admId.isEmpty()){
-                    return null;
-                }
-                return new QueryCompareExpression<Integer>(Structure.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
-            } else
-                return null;
-        }
-    }
 
 
     public static ListProvider<Integer> getGroupList() {
