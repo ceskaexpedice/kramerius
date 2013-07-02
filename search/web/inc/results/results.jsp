@@ -71,7 +71,6 @@
 </div>
     </div>
 <script type="text/javascript">
-    
     $("#docs").tabs();
     $("#filters").tabs({
         show: function(event, ui){

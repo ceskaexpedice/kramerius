@@ -157,9 +157,11 @@
             </th>
             <th style="min-width:240px;" align="left">PID</th>
             <th style="min-width:138px;" align="left"><fmt:message>common.date</fmt:message></th></tr></thead>
-        <tbody style="overflow:auto;display:block;width:100%;"><tr><td align="center" colspan="5" width="768"><img src="img/loading.gif" /></td></tr></tbody>
-        
-
+        <tbody style="overflow:auto;display:block;width:100%;">
+            <tr>
+                <td align="center" colspan="5" width="768"><img src="img/loading.gif" /></td>
+            </tr>
+        </tbody>
     </table>
     </div>
  

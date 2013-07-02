@@ -28,6 +28,7 @@
         out.println(xml);
     }
 %>
+<view:kconfig var="policyPublic" key="search.policy.public" defaultValue="false" />
 <c:catch var="exceptions">
     <c:url var="facetxslurl" value="inc/results/xsl/facets.xsl" />
     <c:import url="${facetxslurl}" var="facetxsl" charEncoding="UTF-8"  />
@@ -42,6 +43,7 @@
             <x:transform doc="${xml}"  xslt="${facetxsl}">
                 <x:param name="bundle_url" value="${i18nServlet}"/>
                 <x:param name="numOpenedRows" value="${numOpenedRows}"/>
+                <x:param name="policyPublic" value="${policyPublic}"/>
             </x:transform>
     </c:otherwise>
 </c:choose>

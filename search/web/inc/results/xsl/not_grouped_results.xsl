@@ -12,6 +12,7 @@
     <xsl:param name="collection" select="collection" />
     <xsl:param name="cols" select="cols" />
     <xsl:param name="numOpenedRows" select="5" />
+    <xsl:param name="policyPublic" select="policyPublic"/>
     <xsl:variable name="numDocs"><xsl:value-of select="number(/response/result/@numFound)" /></xsl:variable>
     <xsl:variable name="generic" select="exts:new()" />
     
@@ -62,22 +63,32 @@
 
 <xsl:template name="docs">
     <xsl:for-each select="/response/result/doc" >
-                    <xsl:if test="position() mod 2 = 1" ><div class="clear"></div></xsl:if>
-                    <xsl:variable name="pid" ><xsl:value-of select="./str[@name='PID']" /></xsl:variable>
-                    <div>
-                        <xsl:attribute name="class">search_result <xsl:value-of select="position() mod 2"/></xsl:attribute>
-                        <xsl:attribute name="id">res_<xsl:value-of select="./arr[@name='model_path']/str[position()=1]"/>_<xsl:value-of select="./str[@name='PID']"/></xsl:attribute>
-                    <div>
-                        <xsl:attribute name="class">result</xsl:attribute>
-                        <xsl:call-template name="doc">
-                            <xsl:with-param name="pos"><xsl:value-of select="position()" /></xsl:with-param>
-                            <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
-                        </xsl:call-template>
-                    </div>
-                    
-                    <div class="collapse_label" style="text-align:right;">&#160;</div>
-                    </div>
-                </xsl:for-each>
+        <xsl:if test="position() mod 2 = 1" ><div class="clear"></div></xsl:if>
+        <xsl:variable name="pid" ><xsl:value-of select="./str[@name='PID']" /></xsl:variable>
+        <div>
+            <xsl:attribute name="class">search_result <xsl:value-of select="position() mod 2"/></xsl:attribute>
+            <xsl:attribute name="id">res_<xsl:value-of select="./arr[@name='model_path']/str[position()=1]"/>_<xsl:value-of select="./str[@name='PID']"/></xsl:attribute>
+            <xsl:if test="$policyPublic='true' and ./str[@name='dostupnost']='public'" >
+                <div style="position:absolute;left:7px;top:7px;">
+                    <img src="img/public.png" />
+                </div>
+            </xsl:if>    
+            <xsl:if test="$policyPublic='false' and ./str[@name='dostupnost']='private'" >
+                <div style="position:absolute;left:7px;top:7px;">
+                    <img src="img/lock.png" />
+                </div>
+            </xsl:if>    
+            <div>
+                <xsl:attribute name="class">result  <xsl:value-of select="./str[@name='dostupnost']" /></xsl:attribute>
+                <xsl:call-template name="doc">
+                    <xsl:with-param name="pos"><xsl:value-of select="position()" /></xsl:with-param>
+                    <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
+                </xsl:call-template>
+            </div>
+
+            <div class="collapse_label" style="text-align:right;">&#160;</div>
+        </div>
+    </xsl:for-each>
 </xsl:template>
 
     <xsl:template name="doc">

@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 <%@ page isELIgnored="false"%>
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
@@ -17,7 +18,7 @@
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
 %>
-
+<view:kconfig var="policyPublic" key="search.policy.public" defaultValue="false" />
 <c:url var="url" value="${kconfig.solrHost}/select" >
     <c:param name="q" >
         PID:"${param.pid}"
@@ -58,6 +59,7 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
                 <x:param name="pid" value="${param.pid}"/>
                 <x:param name="model_path" value="${param.model_path}"/>
                 <x:param name="onlyinfo" value="true"/>
+                <x:param name="policyPublic" value="${policyPublic}"/>
             </x:transform>
             <c:set var="obj" value="#tabs_${param.level}" />
             <c:set var="href" value="#{href}" />

@@ -6,6 +6,7 @@
     <xsl:param name="model_path" select="model_path"/>
     <xsl:param name="onlyrels" select="onlyrels"/>
     <xsl:param name="onlyinfo" select="onlyinfo"/>
+    <xsl:param name="policyPublic" select="policyPublic"/>
     <xsl:key name="keyModel" match="doc" use="str[@name='fedora.model']" />
     <xsl:template match="/">
         <xsl:choose>
@@ -131,12 +132,17 @@
                 <xsl:attribute name="title"><xsl:value-of select="./str[@name='img_full_mime']" /></xsl:attribute>
             mime</span>
         </xsl:if>
-        <xsl:if test="not(./str[@name='dostupnost']='public')" >
+        <xsl:if test="not($policyPublic='true')  andnot(./str[@name='dostupnost']='public')" >
             <span>
                 <xsl:attribute name="style">text-indent:-200px;background: url('img/lock.png'); width:16px;height:16px;float:left;</xsl:attribute>
                 <xsl:attribute name="title"><xsl:value-of select="./str[@name='dostupnost']" /></xsl:attribute>
             private</span>
-            <!--<img src="img/lock.png" />-->
+        </xsl:if>
+        <xsl:if test="$policyPublic='true' and ./str[@name='dostupnost']='public'" >
+            <span>
+                <xsl:attribute name="style">text-indent:-200px;background: url('img/public.png'); width:16px;height:16px;float:left;</xsl:attribute>
+                <xsl:attribute name="title"><xsl:value-of select="./str[@name='dostupnost']" /></xsl:attribute>
+            public</span>
         </xsl:if>
         <label>
             <xsl:choose>

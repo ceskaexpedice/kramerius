@@ -141,6 +141,10 @@
         <div id="vc_dialog" style="display:none;"><div class="content"></div></div>
 </scrd:loggedusers>
 <script type="text/javascript">
+    
+    
+    
+    var policyPublic = ${policyPublic};
 
     $(document).ready(function(){
         $('#contextMenuList>li>a').click(function(e) {

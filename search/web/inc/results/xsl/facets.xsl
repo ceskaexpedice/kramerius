@@ -8,6 +8,7 @@
     <xsl:param name="bundle_url" select="bundle_url" />
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
     <xsl:param name="numOpenedRows" select="numOpenedRows" />
+    <xsl:param name="policyPublic" select="policyPublic"/>
     <xsl:variable name="generic" select="exts:new()" />
     <xsl:variable name="fqVal"><xsl:value-of select="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='fq']/text()" /></xsl:variable>
     <xsl:template match="/">
@@ -72,19 +73,21 @@
             <ul><xsl:for-each select="./int">
                 <xsl:variable name="fqId"><xsl:value-of select="$facetname" />:"<xsl:value-of select="@name" />"</xsl:variable>
                 <xsl:variable name="displayName"><xsl:choose>
-                    <xsl:when test="@name=''"><xsl:value-of select="$bundle/value[@key='facets.uknown']" /></xsl:when>
+                    <xsl:when test="@name=''"><xsl:value-of select="$bundle/value[@key='facets.uknown']" /> (<xsl:value-of select="." />)</xsl:when>
                     <xsl:when test="$facetname='document_type'">
                         <xsl:variable name="f"><xsl:value-of select="concat('fedora.model.', @name)" /></xsl:variable>
                         <xsl:choose>
                              <xsl:when test="$bundle/value[@key=$f]!=''"><xsl:value-of select="$bundle/value[@key=$f]" /></xsl:when>
                              <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
-                        </xsl:choose>
+                        </xsl:choose> (<xsl:value-of select="." />)
                     </xsl:when>
                     <xsl:when test="$facetname='dostupnost'">
                         <xsl:variable name="f"><xsl:value-of select="concat('dostupnost.', @name)" /></xsl:variable>
-                        <xsl:value-of select="$bundle/value[@key=$f]" />
+                        <xsl:if test="$policyPublic='false' or @name='public'" >
+                            <xsl:value-of select="$bundle/value[@key=$f]" /> (<xsl:value-of select="." />)
+                        </xsl:if>
                     </xsl:when>
-                    <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
+                    <xsl:otherwise><xsl:value-of select="@name" /> (<xsl:value-of select="." />)</xsl:otherwise>
                 </xsl:choose></xsl:variable>
                 <xsl:if test="not (contains($fqVal, $fqId))">
                     <xsl:if test="position() = $numOpenedRows+1"><li class="more_facets" >
@@ -94,7 +97,7 @@
                         <xsl:attribute name="class">more_facets</xsl:attribute>
                         <xsl:attribute name="style">display:none;</xsl:attribute>
                     </xsl:if>
-                    <a><xsl:attribute name="href">javascript:addFilter('<xsl:value-of select="$facetname" />', '<xsl:value-of select="@name" />')</xsl:attribute><xsl:value-of select="$displayName" /></a> (<xsl:value-of select="." />)
+                    <a><xsl:attribute name="href">javascript:addFilter('<xsl:value-of select="$facetname" />', '<xsl:value-of select="@name" />')</xsl:attribute><xsl:value-of select="$displayName" /></a>
                     </li>
                 </xsl:if>
             </xsl:for-each>

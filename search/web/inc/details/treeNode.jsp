@@ -19,6 +19,7 @@
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
 %>
+<view:kconfig var="policyPublic" key="search.policy.public" defaultValue="false" />
 <c:set var="escaped_pid">\:</c:set>
 <c:set var="escaped_pid">${fn:replace(param.pid, ":" , escaped_pid)}</c:set>
 
@@ -72,6 +73,8 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
         <x:param name="model_path" value="${param.model_path}"/>
         <x:param name="onlyrels" value="${param.onlyrels}"/>
         <x:param name="onlyinfo" value="${param.onlyinfo}"/>
+        <x:param name="onlyinfo" value="${param.onlyinfo}"/>
+        <x:param name="policyPublic" value="${policyPublic}"/>
     </x:transform>
 </c:catch>
 <c:choose>

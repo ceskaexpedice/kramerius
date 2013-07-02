@@ -136,8 +136,11 @@
             $(jq('tv_'+uuid)+'>img').attr('src', 'img?uuid='+uuid.split('_')[1]+'&stream=IMG_THUMB&action=GETRAW');
             $(jq('tv_'+uuid)).removeClass('inactive');
         }
-        if(isPrivate(uuid)){
+        var p = isPrivate(uuid);
+        if(p && !policyPublic){
             $(jq('dost_'+uuid)+'>img').attr('src', 'img/lock.png');
+        }else if(!p && policyPublic){
+            $(jq('dost_'+uuid)+'>img').attr('src', 'img/public.png');
         } 
     }
     

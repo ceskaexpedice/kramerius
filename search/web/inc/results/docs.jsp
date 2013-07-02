@@ -4,10 +4,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view"%>
 <%@ page isELIgnored="false"%>
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext, cz.incad.kramerius.FedoraAccess"%>
 
+<view:kconfig var="policyPublic" key="search.policy.public" defaultValue="false" />
 <%
     try {
         
@@ -47,6 +49,7 @@
                     <x:param name="collection" value="&collection=${param.collection}" />
                 </c:if>
                 <x:param name="fqs"><c:forEach var="fqs" items="${paramValues.fq}">&fq=<c:out value="${fqs}" escapeXml="false" /></c:forEach></x:param>
+                <x:param name="policyPublic" value="${policyPublic}"/>
             </x:transform>
     </c:otherwise>
 </c:choose>

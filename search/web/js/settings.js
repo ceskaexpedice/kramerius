@@ -5,7 +5,8 @@ function _k4Settings(){
 			window.location="./?error=accessdenied";	
 		}
 	},
-	cache:false
+	cache:false,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8"
     });
     this.currentSelectedPage = "";
     this.activeUuids = [];

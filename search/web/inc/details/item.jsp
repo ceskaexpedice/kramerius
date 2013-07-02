@@ -13,6 +13,7 @@
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
+<view:kconfig var="policyPublic" key="search.policy.public" defaultValue="false" />
 <style type="text/css">
     #split {
         height: 700px;
