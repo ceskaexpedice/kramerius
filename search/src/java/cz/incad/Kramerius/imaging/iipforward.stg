@@ -1,7 +1,7 @@
 group iipserver;
 
 /** DeepZoom url */
-ndzi(url) ::="$url$/deepzoom.dzi"
+ndzi(url) ::="$url$.dzi"
 
 /** Zoomify url */
 zoomify(url) ::="$url$/ImageProperties.xml"

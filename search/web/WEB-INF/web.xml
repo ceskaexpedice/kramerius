@@ -58,10 +58,6 @@
         <listener-class>cz.incad.kramerius.users.impl.http.LoggedUserSessionListener</listener-class>
     </listener>
     
-    <listener>
-        <!--Shuts down ehcache cache manager (if not already down) on application shutdown.-->
-        <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
-    </listener>
 
 
     <!-- Servlets -->

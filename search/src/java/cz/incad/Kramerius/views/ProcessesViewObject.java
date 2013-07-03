@@ -34,7 +34,11 @@ import cz.incad.kramerius.utils.params.ParamsParser;
 
 public class ProcessesViewObject implements Initializable {
 
-    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessesViewObject.class.getName());
+    private static final int SMALL_SET_OF_DIRECT_PAGES = 25;
+
+    private static final int LARGE_SET_OF_DIRECT_PAGES = 25;
+
+	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessesViewObject.class.getName());
 
     @Inject
     protected LRProcessManager processManager;
@@ -55,9 +59,12 @@ public class ProcessesViewObject implements Initializable {
     protected OutputTemplateFactory outputTemplateFactory;
     
     private LRProcessOrdering ordering;
-    private LRProcessOffset offset;
+    //private LRProcessOffset offset;
     private TypeOfOrdering typeOfOrdering;
-
+    
+    private String page;
+    private String pageSize;
+    
     private String lrUrl;
 
     private LRPRocessFilter filter;
@@ -72,33 +79,39 @@ public class ProcessesViewObject implements Initializable {
     
     public void init() {
         try {
+
+            String type = this.requestProvider.get().getParameter("type");
+            if ((type == null) || (type.trim().equals(""))) {
+                type = "DESC";
+            }
+            this.typeOfOrdering = TypeOfOrdering.valueOf(type);
+
             String ordering = this.requestProvider.get().getParameter("ordering");
             if ((ordering == null) || (ordering.trim().equals(""))) {
                 ordering = LRProcessOrdering.PLANNED.name();
             }
             this.ordering = LRProcessOrdering.valueOf(ordering);
 
-            String offset = this.requestProvider.get().getParameter("offset");
-            if ((offset == null) || (offset.trim().equals(""))) {
-                offset = "0";
-            }
+            
+        	this.filterParam = this.requestProvider.get().getParameter("filter");
+            this.filter = this.createProcessFilter();
 
-            String size = this.requestProvider.get().getParameter("size");
+        	String size = this.requestProvider.get().getParameter("size");
             if ((size == null) || (size.trim().equals(""))) {
                 size = "5";
             }
-            this.offset = new LRProcessOffset(offset, size);
+            this.pageSize = size;
+
+        	
+            String page = this.requestProvider.get().getParameter("page");
+        	if (page != null) {
+        		this.page = page;
+        	} else {
+        		this.page = ""+getFirstPage();
+        	}
+
 
             
-            String type = this.requestProvider.get().getParameter("type");
-            if ((type == null) || (type.trim().equals(""))) {
-                type = "DESC";
-            }
-            this.typeOfOrdering = TypeOfOrdering.valueOf(type);
-            
-            this.filterParam = this.requestProvider.get().getParameter("filter");
-
-            this.filter = this.createProcessFilter();
         } catch (RecognitionException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             throw new RuntimeException(e);
@@ -110,17 +123,24 @@ public class ProcessesViewObject implements Initializable {
     }
     
     public List<ProcessViewObject> getProcesses() {
-        List<LRProcess> lrProcesses = this.processManager.getLongRunningProcessesAsGrouped(this.ordering, this.typeOfOrdering, this.offset, this.filter);
+    	int pageSize = getPageSize();
+    	if (this.isCurrentFirstPage()) {
+    		pageSize = pageSize + (getNumberOfRunningProcess() % getPageSize());
+    	}
+
+    	LRProcessOffset offset = new LRProcessOffset(""+getOffset(getPage()), ""+getPageSize());
+    	
+    	List<LRProcess> lrProcesses = this.processManager.getLongRunningProcessesAsGrouped(this.ordering, this.typeOfOrdering, offset, this.filter);
         List<ProcessViewObject> objects = new ArrayList<ProcessViewObject>();
         for (LRProcess lrProcess : lrProcesses) {
             LRProcessDefinition def = this.definitionManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
-            ProcessViewObject pw = new ProcessViewObject(lrProcess, def, this.ordering, this.offset, this.typeOfOrdering, this.bundleService, this.localesProvider.get(), this.outputTemplateFactory);
+            ProcessViewObject pw = new ProcessViewObject(lrProcess, def, this.ordering, offset, this.typeOfOrdering, this.bundleService, this.localesProvider.get(), this.outputTemplateFactory);
             if (lrProcess.isMasterProcess()) {
                 List<LRProcess> childSubprecesses = this.processManager.getLongRunningProcessesByGroupToken(lrProcess.getGroupToken());
                 for (LRProcess child : childSubprecesses) {
                     if (!child.getUUID().equals(lrProcess.getUUID())) {
                         LRProcessDefinition childDef = this.definitionManager.getLongRunningProcessDefinition(child.getDefinitionId());
-                        ProcessViewObject childPW = new ProcessViewObject(child, childDef, this.ordering, this.offset, this.typeOfOrdering, this.bundleService, this.localesProvider.get(), this.outputTemplateFactory);
+                        ProcessViewObject childPW = new ProcessViewObject(child, childDef, this.ordering, offset, this.typeOfOrdering, this.bundleService, this.localesProvider.get(), this.outputTemplateFactory);
                         pw.addChildProcess(childPW);
                     }
                 }
@@ -130,7 +150,17 @@ public class ProcessesViewObject implements Initializable {
         return objects;
     }
 
-    private LRPRocessFilter createProcessFilter() throws RecognitionException {
+    private int getOffset(int page) {
+    	// max page - min offset
+    	int offsetPage = getNumberOfPages() -1 - page;
+    	if (offsetPage >= 1) {
+    		return offsetPage*getPageSize() + (getNumberOfRunningProcess() % getPageSize());
+    	} else {
+    		return offsetPage*getPageSize();
+    	}
+	}
+
+	private LRPRocessFilter createProcessFilter() throws RecognitionException {
         if (this.filterParam == null)
             return null;
         try {
@@ -182,11 +212,14 @@ public class ProcessesViewObject implements Initializable {
             return null;
     }
 
+    public boolean getHasPrevious() {
+    	int page = getPage();
+    	int numberOfPages = getNumberOfPages();
+    	return page < (numberOfPages-1);
+    }
+    
     public boolean getHasNext() {
-        int count = getNumberOfRunningProcess();
-        int oset = Integer.parseInt(this.offset.getOffset());
-        int size = Integer.parseInt(this.offset.getSize());
-        return (oset + size) < count;
+    	return getPage() >0 ;
     }
 
     public int getNumberOfRunningProcess() {
@@ -196,36 +229,40 @@ public class ProcessesViewObject implements Initializable {
         return this.numberOfRunningProcesses;
     }
 
-    public int getOffsetValue() {
-        return Integer.parseInt(this.offset.getOffset());
-    }
 
     public int getPageSize() {
-        return Integer.parseInt(this.offset.getSize());
+    	return Integer.parseInt(this.pageSize);
     }
     
-    public int getPageNumber() {
-        return getOffsetValue() / getPageSize();
+    public int getNumberOfPages() {
+    	return getNumberOfRunningProcess() / getPageSize();
+    }
+
+    
+    
+    public int getPage() {
+    	return Integer.parseInt(this.page);
+    }
+    
+    public String getPageLabel() {
+    	return page;
     }
 
     public int getPrevPageValue() {
-        return Math.max(0, getOffsetValue() - getPageSize());
+    	return (getPage() < getNumberOfPages()) ? getPage() + 1 : 0; 
     }
 
     public int getNextPageValue() {
-        int count = getNumberOfRunningProcess();
-        return Math.min(count - getPageSize(), getOffsetValue() + getPageSize());
+    	return (getPage() >0) ? getPage() -1 : getNumberOfPages();
+    }
+
+    
+    public int getFirstPage() {
+    	return Math.max(getNumberOfPages() - 1,0);
     }
     
-    public int getSkipPrevPageValue() {
-        int r = getOffsetValue() - (getPageSize() * 10);
-        return Math.max(0, r);
-    }
-    
-    public int getSkipNextPageValue() {
-        int count = getNumberOfRunningProcess();
-        int r = getOffsetValue() + (getPageSize() * 10);
-        return Math.min(count - getPageSize(), r);
+    public int getLastPage() {
+    	return 0;
     }
     
     
@@ -237,68 +274,96 @@ public class ProcessesViewObject implements Initializable {
         return this.typeOfOrdering.getTypeOfOrdering();
     }
 
-    public String getMoreNextAHREF() {
-        try {
-            String nextString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.next");
-            int count = getNumberOfRunningProcess();
-            int offset = Integer.parseInt(this.offset.getOffset());
-            int size = Integer.parseInt(this.offset.getSize())*5;
-            if ((offset + size) < count) {
-                return "<a href=\"javascript:_wait();processes.modifyProcessDialogData('" + this.ordering + "','" + this.offset.getNextOffset() + "','" + size + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + nextString + " <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
-            } else {
-                return "<span>" + nextString + "</span> <img border=\"0\" src=\"img/next_arr.png\" alt=\"next\" />";
-            }
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return "<img border=\"0\" src=\"img/next_arr.png\" alt=\"next\" />";
+    public boolean isNecessaryDisplayMorePages() {
+    	return this.getNumberOfPages() > SMALL_SET_OF_DIRECT_PAGES;
+    }
+
+//
+//    public boolean isLastPage() {
+//        int pages  = getNumberOfPages();
+//        int page = getPage();
+//        return page == pages;
+//    }
+//    
+//    public boolean isFirstPage() {
+//    	return getPage() == 0;
+//    }
+    
+    public List<String> getLargeSetOfDirectPates() {
+    	List<String> hrefs = new ArrayList<String>();
+        int pages  = getNumberOfPages();
+        int page = getPage();
+        for (int i = pages-1; i >= 0  ; i--) {
+        	String href = "<a id=\"process_page_"+i+"\" href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + i + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + i + "</a>";
+            hrefs.add(href);
+        }
+        return hrefs;
+    	
+    }
+    
+    public List<String> getSmallSetOfDirectPages() {
+    	// pokud je doprava vic stranek, tato posledni a vsechny doleva
+    	// pokud ne, pak tato uprostred a zacit odleva
+    	List<String> hrefs = new ArrayList<String>();
+    	int pageFrom = getPage();
+    	if (pageFrom < SMALL_SET_OF_DIRECT_PAGES) {
+    		pageFrom = SMALL_SET_OF_DIRECT_PAGES;
+    	}
+    	for (int i = pageFrom,j=0; i >= 0 && j<SMALL_SET_OF_DIRECT_PAGES ; i--,j++) {
+        	String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + i + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + i + "</a>";
+            hrefs.add(href);
         }
         
+        return hrefs;
+    	
     }
     
     public List<String> getDirectPages() {
         List<String> hrefs = new ArrayList<String>();
-        int count = getNumberOfRunningProcess();
-        int size = Integer.parseInt(this.offset.getSize());
-        int pages  = count / size;
-        for (int i = 0; i < pages; i++) {
-            String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogData('" + this.ordering + "','" + (i*size) + "','" + this.offset.getSize() + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + i + "</a>";
-            hrefs.add(href);
-        }
-
-        int rest = count % size;
-        if (rest != 0) {
-            String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogData('" + this.ordering + "','" + pages + "','" + this.offset.getSize() + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + pages + "</a>";
+        int pages  = getNumberOfPages();
+        for (int i = pages-1; i >= 0; i--) {
+        	String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + i + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + i + "</a>";
             hrefs.add(href);
         }
         return hrefs;
     }
     
-    public String getNextAHREF() {
+    
+    
+//    public String getFirstPageAHREF() {
+//        try {
+//            String nextString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.next");
+//            return "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + 1 + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + nextString + " <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
+//        } catch (IOException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            return "<img border=\"0\" src=\"img/next_arr.png\" alt=\"next\" />";
+//        }
+//    }
+//    
+//    public String getLastPageAHREF() {
+//        try {
+//            String nextString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.next");
+//            return "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + 1 + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + nextString + " <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
+//        } catch (IOException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            return "<img border=\"0\" src=\"img/next_arr.png\" alt=\"next\" />";
+//        }
+//    }
+    
+    public String getNextPageAHREF() {
         try {
             String nextString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.next");
-            int count = getNumberOfRunningProcess();
-            int offset = Integer.parseInt(this.offset.getOffset());
-            int size = Integer.parseInt(this.offset.getSize());
-            if ((offset + size) < count) {
-                return "<a href=\"javascript:_wait();processes.modifyProcessDialogData('" + this.ordering + "','" + this.offset.getNextOffset() + "','" + this.offset.getSize() + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + nextString + " <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
-            } else {
-                return "<span>" + nextString + "</span> <img border=\"0\" src=\"img/next_arr.png\" alt=\"next\" />";
-            }
+            return "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + getNextPageValue() + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + nextString + " <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return "<img border=\"0\" src=\"img/next_arr.png\" alt=\"next\" />";
         }
     }
 
-    public String getPrevAHREF() {
+    public String getPrevPageAHREF() {
         try {
             String prevString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.prev");
-            int offset = Integer.parseInt(this.offset.getOffset());
-            if (offset > 0) {
-                return "<a href=\"javascript:_wait();processes.modifyProcessDialogData('" + this.ordering + "','" + this.offset.getPrevOffset() + "','" + this.offset.getSize() + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> <img border=\"0\" src=\"img/prev_arr.png\"/> " + prevString + " </a>";
-            } else {
-                return "<img border=\"0\" src=\"img/prev_arr.png\" alt=\"prev\" /> <span>" + prevString + "</span>";
-            }
+            return "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + this.getPrevPageValue() + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> <img border=\"0\" src=\"img/prev_arr.png\"/> " + prevString + " </a>";
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return "<img border=\"0\" src=\"img/prev_arr.png\" alt=\"prev\" /> ";
@@ -425,6 +490,8 @@ public class ProcessesViewObject implements Initializable {
         }
     }
 
+    
+    
     public boolean isBatchStateOrdered() {
         return this.ordering.equals(LRProcessOrdering.BATCHSTATE);
     }
@@ -442,7 +509,7 @@ public class ProcessesViewObject implements Initializable {
     }
     
     private String newOrderingURL(LRProcessOrdering nOrdering, String name, TypeOfOrdering ntypeOfOrdering) {
-        String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogData('" + nOrdering + "','" + this.offset.getOffset() + "','" + this.offset.getSize() + "','" + ntypeOfOrdering.getTypeOfOrdering() + "');\"";
+        String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + nOrdering + "','" + this.page + "','" + this.pageSize + "','" + ntypeOfOrdering.getTypeOfOrdering() + "');\"";
         if (this.ordering.equals(nOrdering)) {
             // href += orderingImg(nOrdering);
             if (typeOfOrdering.equals(TypeOfOrdering.DESC)) {
@@ -590,4 +657,55 @@ public class ProcessesViewObject implements Initializable {
         } else
             return "";
     }
+
+	public LRProcessManager getProcessManager() {
+		return processManager;
+	}
+
+	public void setProcessManager(LRProcessManager processManager) {
+		this.processManager = processManager;
+	}
+
+	public DefinitionManager getDefinitionManager() {
+		return definitionManager;
+	}
+
+	public void setDefinitionManager(DefinitionManager definitionManager) {
+		this.definitionManager = definitionManager;
+	}
+
+	public ResourceBundleService getBundleService() {
+		return bundleService;
+	}
+
+	public void setBundleService(ResourceBundleService bundleService) {
+		this.bundleService = bundleService;
+	}
+
+	public Provider<Locale> getLocalesProvider() {
+		return localesProvider;
+	}
+
+	public void setLocalesProvider(Provider<Locale> localesProvider) {
+		this.localesProvider = localesProvider;
+	}
+
+	public Provider<HttpServletRequest> getRequestProvider() {
+		return requestProvider;
+	}
+
+	public void setRequestProvider(Provider<HttpServletRequest> requestProvider) {
+		this.requestProvider = requestProvider;
+	}
+
+	public boolean isCurrentFirstPage() {
+		return getPage() == getNumberOfPages();
+	}
+
+	public boolean isCurrentLastPage() {
+		return getPage() == 0;
+	}
+	
+	
+	
 }

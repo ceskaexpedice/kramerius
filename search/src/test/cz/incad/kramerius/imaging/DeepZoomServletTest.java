@@ -21,6 +21,7 @@ package cz.incad.kramerius.imaging;
 
 import junit.framework.Assert;
 
+import org.antlr.stringtemplate.StringTemplate;
 import org.junit.Test;
 
 import cz.incad.Kramerius.imaging.DeepZoomServlet;
@@ -31,7 +32,7 @@ import cz.incad.Kramerius.imaging.DeepZoomServlet;
  */
 public class DeepZoomServletTest {
 
-    @Test
+    //@Test
     public void testDeepZoom() {
         String disected = DeepZoomServlet.disectZoom("http://krameriusdemo.mzk.cz/search/deepZoom/uuid:4a7ec660-af36-11dd-a782-000d606f5dc6/_files/10/1_0.jpg");
         Assert.assertTrue("uuid:4a7ec660-af36-11dd-a782-000d606f5dc6/_files/10/1_0.jpg".equals(disected));
@@ -43,4 +44,27 @@ public class DeepZoomServletTest {
         Assert.assertTrue("uuid:4a57a2a7-d0e9-11e1-945e-0050569d679d/TileGroup0/0-0-0.jpg".equals(disected));
 
     }
+
+    @Test
+    public void testAB() {
+    	String dataStreamUrl = "http://localhost/fcgi-bin/iipsrv.fcgi?DeepZoom=/home/k4/iip-data/aba009-000029/UC_aba009-000029_0001.jp2";
+    	StringTemplate tileUrl = DeepZoomServlet.stGroup().getInstanceOf("ntile");
+        if (dataStreamUrl.endsWith("/")) dataStreamUrl = dataStreamUrl.substring(0, dataStreamUrl.length()-1);
+        tileUrl.setAttribute("url", dataStreamUrl);
+        tileUrl.setAttribute("level", "10");
+        tileUrl.setAttribute("tile", "10");
+        System.out.println(tileUrl);
+    }
+
+    @Test
+    public void testBC() {
+    	String dataStreamUrl = "http://localhost/fcgi-bin/iipsrv.fcgi?DeepZoom=/home/k4/iip-data/aba009-000029/UC_aba009-000029_0001.jp2";
+    
+        StringTemplate dziUrl = DeepZoomServlet.stGroup().getInstanceOf("ndzi");
+        if (dataStreamUrl.endsWith("/")) dataStreamUrl = dataStreamUrl.substring(0, dataStreamUrl.length()-1);
+        dziUrl.setAttribute("url", dataStreamUrl);
+
+        System.out.println(dziUrl);
+    }
+
 }

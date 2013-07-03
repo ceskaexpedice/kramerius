@@ -84,6 +84,18 @@
         right: 55px;
     }
 
+    /* processline */
+    #processes div.processesline{
+        width:60%;
+        display: none;
+        padding-bottom: 20px;
+        
+        position: absolute; 
+        top: 15px;
+        right: 200px;
+    }
+
+
     /* outputTemplates */
     #processes div.outputTemplate{
         width:250px;
@@ -124,6 +136,7 @@
     .buttons>a>.ui-button-text{
         padding:3px;
     }
+    
      
          
 </style>
@@ -136,9 +149,9 @@
 function _wait() {
 	$("#processes").html('<div style="margin-top:30px;width:100%;text-align:center;"><img src="img/loading.gif" alt="loading" /></div>');
 }
-function _ref(ordering, offset, size, type) {
+function _ref(ordering, page, size, type) {
     _wait();
-	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type+processes.currentFilter.filterPostfix();
+	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&page="+page+"&size="+size+"&type="+type+processes.currentFilter.filterPostfix();
 	$.get(refreshurl, function(sdata) {
 		$("#processes").html(sdata);
 
@@ -150,6 +163,23 @@ function _ref(ordering, offset, size, type) {
 function _toggle_filter() {
 	$(".filter").toggle();
     $(".displayButton").toggle();
+
+}
+
+function _toggle_processline() {
+	$(".processesline").toggle();
+	
+	$('#processesline_table_div').animate({
+         scrollLeft:  $("#process_page_${processView.page}").offset().left-$('#processesline_table').offset().left
+     }, 200);
+}
+
+
+function _change_buttons(from) {
+	for(var i=0,j=from;i<25;i++) {
+		var id = "processesline_button_"+i;
+		$("processesline_button_"+id).text(""+j);
+	}
 }
 
 function OutputTemplates() {}
@@ -169,7 +199,10 @@ OutputTemplates.prototype.select=function(templateId, processUUID) {
     this.close(processUUID);
 }
 
+
+
 var outoutTemplates = new OutputTemplates();
+
 
 
 
@@ -180,6 +213,7 @@ $(document).ready(function(){
     // page number title 
     var title = dictionary['administrator.menu.dialogs.lrprocesses.title']  + " - #"+${processView.pageLabel};
     processes.dialog.dialog('option', 'title',title);
+
 });
 
 
@@ -191,26 +225,56 @@ $(document).ready(function(){
 
 
     <div class="buttons">
-        <c:if test="${processView.offsetValue>0}" >
-            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.skipPrevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-prev">previous skip</span></a>
-            <a title="<view:msg>administrator.processes.prev</view:msg>" href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.prevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
+        <c:if test="${processView.hasPrevious}" >
+            <a href="javascript:processes.modifyProcessDialogDataByPage('${processView.ordering}',${processView.firstPage},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-prev">previous skip</span></a>
+
+            <a title="<view:msg>administrator.processes.prev</view:msg>" href="javascript:processes.modifyProcessDialogDataByPage('${processView.ordering}',${processView.prevPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-w">previous</span></a>
         </c:if>
 
         
         &emsp;
         <c:if test="${processView.hasNext}">
-            <a title="<view:msg>administrator.processes.next</view:msg>" href=" javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.nextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
-            <a href="javascript:processes.modifyProcessDialogData('${processView.ordering}',${processView.skipNextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-next">next</span></a>
+            <a title="<view:msg>administrator.processes.next</view:msg>" href=" javascript:processes.modifyProcessDialogDataByPage('${processView.ordering}',${processView.nextPageValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-arrowthick-1-e">next</span></a>
+            <a href="javascript:processes.modifyProcessDialogDataByPage('${processView.ordering}',${processView.lastPage},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-seek-next">next</span></a>
         </c:if>
-        <a title="<view:msg>administrator.processes.refresh</view:msg>" href="javascript:_ref('${processView.ordering}',${processView.offsetValue},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-transferthick-e-w">refresh</span></a>
+        
+        <a title="<view:msg>administrator.processes.refresh</view:msg>" href="javascript:_ref('${processView.ordering}',${processView.page},${processView.pageSize},'${processView.typeOfOrdering}');"><span class="ui-icon ui-icon-transferthick-e-w">refresh</span></a>
         <a href="javascript:_toggle_filter();" title="<view:msg>administrator.processes.filter</view:msg>"><span class="ui-icon ui-icon-scissors">filter</span></a>
         &nbsp;
     </div>
+	
+	
 
     <div class="buttons" style="padding-right: 20px;">
-        <c:forEach items="${processView.directPages}" var="pageHref">${pageHref}</c:forEach>
+        <c:forEach items="${processView.smallSetOfDirectPages}" var="pageHref">${pageHref}</c:forEach>
+		<c:if test="${processView.necessaryDisplayMorePages}">
+	        <a title="<view:msg>administrator.processes.refresh</view:msg>" href="javascript:_toggle_processline();"><span class="ui-icon ui-icon-triangle-1-s">more processes</span></a>
+		</c:if>
     </div>
     
+</div>
+
+<div class="processesline shadow ui-widget ui-widget-content">
+    <div id="processesline_table_div" style="width:99%; overflow:auto; position:relative;">
+		<table id="processesline_table" style="padding:10px; ">
+			<tr>
+		        <c:forEach items="${processView.largeSetOfDirectPates}" var="pageHref" varStatus="pageHrefStatus">
+					<td>
+						<div class="buttons">
+							${pageHref}
+						</div>
+					</td>
+		        </c:forEach>
+			</tr>
+		</table>
+    </div>
+
+	<hr></hr>
+
+     <div class="apply" style="width:80px;">
+        <button name="close" title='<view:msg>common.close</view:msg>' onclick="_toggle_processline();"> <view:msg>common.close</view:msg> </button>
+     </div>
+	
 </div>
 
 <div class="filter shadow ui-widget ui-widget-content" style="">
@@ -335,7 +399,7 @@ $(document).ready(function(){
     </script>    
 
      <div class="apply" style="width:170px;">
-        <button name="apply" title='<view:msg>common.ok</view:msg>' onclick="processes.currentFilter.apply('${processView.ordering}',0,${processView.pageSize},'${processView.typeOfOrdering}'); "> <view:msg>common.apply</view:msg> </button>
+        <button name="apply" title='<view:msg>common.ok</view:msg>' onclick="processes.currentFilter.apply('${processView.ordering}',${processView.pageSize},'${processView.typeOfOrdering}'); "> <view:msg>common.apply</view:msg> </button>
         <button name="apply" title='<view:msg>common.apply</view:msg>' onclick="processes.currentFilter.close()"> <view:msg>common.close</view:msg> </button>
      </div>
      

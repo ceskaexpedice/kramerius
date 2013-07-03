@@ -4,7 +4,7 @@ function ProcessessFilter() {
 }
 
 
-ProcessessFilter.prototype.apply=function(ordering, offset, size, type) {
+ProcessessFilter.prototype.apply=function(ordering, size, type) {
 	this.filter = [];
 	$(".filter-vals").each(bind(function(i,val) {
 		if ($(val).val()) {
@@ -30,10 +30,10 @@ ProcessessFilter.prototype.apply=function(ordering, offset, size, type) {
 	
 
 	processes.wait();
-	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type+this.filterPostfix();
+	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+"&size="+size+"&type="+type+this.filterPostfix();
 	$.get(url, function(data) {
 		$("#processes").html(data);
-		process.repairDisplayed();
+		processes.repairDisplayed();
 	});
 	
 	$(".filter").toggle();
@@ -103,7 +103,7 @@ Processes.prototype.openProcessDialog = function() {
 
 
 Processes.prototype.processes = function (){
-	var url = "inc/admin/_processes_data.jsp?offset=0&size=20&type=DESC";
+	var url = "inc/admin/_processes_data.jsp?size=20&ordering=PLANNED&type=DESC";
 		this.openProcessDialog();
 		this.dialog.dialog('option', 'position', [10, 10]);
 		this.dialog.dialog("option", "width", $(window).width()-20);
@@ -119,6 +119,19 @@ Processes.prototype.wait = function() {
 	   $("#processes").html('<div style="margin-top:30px;width:100%;text-align:center;"><img src="img/loading.gif" alt="loading" /></div>');
 }
 
+
+
+Processes.prototype.modifyProcessDialogDataByPage = function(ordering, page, size, type) {
+	this.wait();
+	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+"&page="+page+"&size="+size+"&type="+type+this.currentFilter.filterPostfix();
+	$.get(url, bind(function(data) {
+		$("#processes").html(data);
+	    this.repairDisplayed();
+	},this));
+
+}
+
+/*
 Processes.prototype.modifyProcessDialogData = function(ordering, offset, size, type) {
 	this.wait();
 	
@@ -127,17 +140,17 @@ Processes.prototype.modifyProcessDialogData = function(ordering, offset, size, t
 		$("#processes").html(data);
 	    this.repairDisplayed();
 	},this));
-}
+}*/
 
-Processes.prototype.doActionAndRefresh=function(url,ordering, offset, size, type) {
+Processes.prototype.doActionAndRefresh=function(url,ordering, page, size, type) {
 	$.get(url, bind(function(fdata) {
-		this.refreshProcesses(ordering, offset, size, type);
+		this.refreshProcesses(ordering, page, size, type);
 	},this));
 }
 
-Processes.prototype.refreshProcesses = function(ordering, offset, size, type) {
+Processes.prototype.refreshProcesses = function(ordering, page, size, type) {
 	this.wait();
-	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type;
+	var refreshurl = "inc/admin/_processes_data.jsp?ordering="+ordering+"&page="+page+"&size="+size+"&type="+type;
 	$.get(refreshurl, function(sdata) {
 		$("#processes").html(sdata);
 	});
