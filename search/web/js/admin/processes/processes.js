@@ -131,17 +131,6 @@ Processes.prototype.modifyProcessDialogDataByPage = function(ordering, page, siz
 
 }
 
-/*
-Processes.prototype.modifyProcessDialogData = function(ordering, offset, size, type) {
-	this.wait();
-	
-	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+"&offset="+offset+"&size="+size+"&type="+type+this.currentFilter.filterPostfix();
-	$.get(url, bind(function(data) {
-		$("#processes").html(data);
-	    this.repairDisplayed();
-	},this));
-}*/
-
 Processes.prototype.doActionAndRefresh=function(url,ordering, page, size, type) {
 	$.get(url, bind(function(fdata) {
 		this.refreshProcesses(ordering, page, size, type);
