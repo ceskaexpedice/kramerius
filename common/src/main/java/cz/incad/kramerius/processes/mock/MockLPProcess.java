@@ -34,9 +34,7 @@ public class MockLPProcess {
 				LOGGER.info("  diff = "+(System.currentTimeMillis()-start)+"ms and i ="+i);
 			}
 		}
+		System.err.println(" Pochyby, pochyby, pochyby...");
 		LOGGER.info(" stop with "+(System.currentTimeMillis()-start)+"ms");
-//        LOGGER.info(" invoking exception ");
-//        
-//        "".substring(10, 20);
 	}
 }

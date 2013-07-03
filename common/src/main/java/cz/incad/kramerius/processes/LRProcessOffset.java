@@ -4,6 +4,7 @@ public class LRProcessOffset {
 	
 	private String offset;
 	private String size;
+	private String page;
 
 	public LRProcessOffset(String offset, String size) {
 		super();
@@ -13,6 +14,10 @@ public class LRProcessOffset {
 		Integer.parseInt(this.offset);
 	}
 	
+	
+
+
+
 	public String getSQLOffset	() {
 		//return "OFFSET "+this.offset+" ROWS FETCH NEXT "+this.size+" ROWS ONLY";
 		return " LIMIT "+this.size+" OFFSET "+this.offset+" ";

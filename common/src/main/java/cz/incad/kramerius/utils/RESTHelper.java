@@ -24,6 +24,9 @@ public class RESTHelper {
 		return uc.getInputStream();
 	}
 
+	
+	
+	
 	public static URLConnection openConnection(String urlString, String user,
 			String pass) throws MalformedURLException, IOException {
 		URL url = new URL(urlString);

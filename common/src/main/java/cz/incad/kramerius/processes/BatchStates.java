@@ -74,7 +74,7 @@ public enum BatchStates {
      */
     public static BatchStates calculateBatchState(List<States> childStates) {
         // ve stavu planned nebo running
-        if (States.one(childStates, States.FAILED)) {
+        if (States.one(childStates, States.FAILED, States.WARNING)) {
             return BATCH_FAILED;
         } else {
             if (States.one(childStates, States.PLANNED, States.RUNNING)) {

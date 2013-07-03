@@ -17,6 +17,7 @@
 package cz.incad.kramerius.processes.impl;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -39,6 +40,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.States;
+import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.logging.LoggingLoader;
@@ -117,7 +119,30 @@ public class ProcessStarter {
                 processMethod.getMethod().invoke(null, objs);
             }
             
+            checkErrorFile();
             updateStatus(States.FINISHED);
+        }catch(WarningException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            try {
+                updateStatus(States.WARNING);
+            } catch(IOException ex) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+            if (outStream != null) {
+                try {
+                    outStream.close();
+                } catch (Exception e1) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+            if (errStream != null) {
+                try {
+                    errStream.close();
+                } catch (Exception e1) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+        	
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             try {
@@ -148,7 +173,13 @@ public class ProcessStarter {
         }
     }
 
-    private static void setDefaultLoggingIfNecessary() {
+    private static void checkErrorFile() {
+    	String serrFileName = System.getProperty(SERR_FILE);
+    	File serrFile = new File(serrFileName);
+    	if (serrFile.length() > 0) throw new WarningException("system error file contains errors");
+    }
+
+	private static void setDefaultLoggingIfNecessary() {
         String classProperty = System.getProperty(LOGGING_CLASS_PROPERTY);
         String fileProperty = System.getProperty(LOGGING_FILE_PROPERTY);
         if ((classProperty == null) && (fileProperty == null)) {

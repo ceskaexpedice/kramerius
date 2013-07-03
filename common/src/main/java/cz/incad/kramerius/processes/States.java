@@ -41,6 +41,11 @@ public enum States {
      */
     PLANNED(5),
 
+    /**
+     * Finished with some errors
+     */
+    WARNING(9),
+    
     /*
      * WARNING(10)
      */
