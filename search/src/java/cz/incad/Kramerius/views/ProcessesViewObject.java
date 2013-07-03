@@ -152,7 +152,7 @@ public class ProcessesViewObject implements Initializable {
 
     private int getOffset(int page) {
     	// max page - min offset
-    	int offsetPage = getNumberOfPages() -1 - page;
+    	int offsetPage = Math.max(getNumberOfPages() -1 - page,0);
     	if (offsetPage >= 1) {
     		return offsetPage*getPageSize() + (getNumberOfRunningProcess() % getPageSize());
     	} else {
@@ -278,16 +278,6 @@ public class ProcessesViewObject implements Initializable {
     	return this.getNumberOfPages() > SMALL_SET_OF_DIRECT_PAGES;
     }
 
-//
-//    public boolean isLastPage() {
-//        int pages  = getNumberOfPages();
-//        int page = getPage();
-//        return page == pages;
-//    }
-//    
-//    public boolean isFirstPage() {
-//    	return getPage() == 0;
-//    }
     
     public List<String> getLargeSetOfDirectPates() {
     	List<String> hrefs = new ArrayList<String>();
@@ -302,14 +292,10 @@ public class ProcessesViewObject implements Initializable {
     }
     
     public List<String> getSmallSetOfDirectPages() {
-    	// pokud je doprava vic stranek, tato posledni a vsechny doleva
-    	// pokud ne, pak tato uprostred a zacit odleva
     	List<String> hrefs = new ArrayList<String>();
-    	int pageFrom = getPage();
-    	if (pageFrom < SMALL_SET_OF_DIRECT_PAGES) {
-    		pageFrom = SMALL_SET_OF_DIRECT_PAGES;
-    	}
-    	for (int i = pageFrom,j=0; i >= 0 && j<SMALL_SET_OF_DIRECT_PAGES ; i--,j++) {
+    	int pageFrom = Math.min(Math.max(getPage(), SMALL_SET_OF_DIRECT_PAGES), getNumberOfPages()-1);
+    	int pageTo = Math.max(pageFrom - SMALL_SET_OF_DIRECT_PAGES, 0);
+    	for (int i = pageFrom; i>= pageTo ; i--) {
         	String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + i + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + i + "</a>";
             hrefs.add(href);
         }
@@ -330,25 +316,6 @@ public class ProcessesViewObject implements Initializable {
     
     
     
-//    public String getFirstPageAHREF() {
-//        try {
-//            String nextString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.next");
-//            return "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + 1 + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + nextString + " <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
-//        } catch (IOException e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//            return "<img border=\"0\" src=\"img/next_arr.png\" alt=\"next\" />";
-//        }
-//    }
-//    
-//    public String getLastPageAHREF() {
-//        try {
-//            String nextString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.next");
-//            return "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + 1 + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + nextString + " <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
-//        } catch (IOException e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//            return "<img border=\"0\" src=\"img/next_arr.png\" alt=\"next\" />";
-//        }
-//    }
     
     public String getNextPageAHREF() {
         try {

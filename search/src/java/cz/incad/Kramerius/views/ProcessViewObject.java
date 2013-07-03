@@ -107,6 +107,10 @@ public class ProcessViewObject {
         return lrProcess.getProcessState().equals(States.RUNNING);
     }
     
+    public boolean isWarningState() {
+        return lrProcess.getProcessState().equals(States.WARNING);
+    }
+    
     public boolean isFailedState() {
         return lrProcess.getProcessState().equals(States.FAILED);
     }

@@ -482,6 +482,9 @@ $(document).ready(function(){
                     <c:when test="${lrProc.failedState}">
                         <td title="${lrProc.processState}" style="color: red;"><strong> ${lrProc.processState}</strong>&nbsp;</td>
                     </c:when>
+                    <c:when test="${lrProc.warningState}">
+                        <td title="${lrProc.processState}" style="color: red;"><strong> ${lrProc.processState}</strong>&nbsp;</td>
+                    </c:when>
                     <c:when test="${lrProc.runningState}">
                         <td title="${lrProc.processState}" style="color: green;"><strong> ${lrProc.processState}</strong>&nbsp;</td>
                     </c:when>
