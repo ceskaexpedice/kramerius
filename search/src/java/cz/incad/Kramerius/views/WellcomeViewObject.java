@@ -53,11 +53,11 @@ public class WellcomeViewObject {
     
     public String getIntro() throws IOException {
         boolean operationPermited = actionAllowed.isActionAllowed(SecuredActions.EDIT_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
-        return operationPermited ? getEditIntro() : getTextIntro();
+        return operationPermited ? getTextIntro() : getTextIntro();
     }
     
     public String getEditIntro() throws IOException {
-        StringTemplate template = stGroup().getInstanceOf("editor");
+    	StringTemplate template = stGroup().getInstanceOf("editor");
         template.setAttribute("text", getTextIntro());
         template.setAttribute("lang", provider.get().getLanguage());
         return template.toString();
