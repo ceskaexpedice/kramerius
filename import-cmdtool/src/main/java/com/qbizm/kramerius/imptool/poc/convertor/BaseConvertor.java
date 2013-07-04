@@ -804,7 +804,7 @@ public abstract class BaseConvertor {
                 }else{
                     String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
                     String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.thumb");
-                    cl.setREF(imagesPrefix + "/"+getConfig().getContract()+filename+suffix);
+                    cl.setREF(imagesPrefix + "/"+getConfig().getContract()+"/"+filename+suffix);
                 }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
@@ -873,7 +873,7 @@ public abstract class BaseConvertor {
                 }else{
                     String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
                     String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.preview");
-                    cl.setREF(imagesPrefix +"/"+getConfig().getContract()+filename+suffix);
+                    cl.setREF(imagesPrefix +"/"+getConfig().getContract()+"/"+filename+suffix);
                 }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
