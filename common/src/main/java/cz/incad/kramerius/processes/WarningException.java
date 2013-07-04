@@ -1,7 +1,8 @@
 package cz.incad.kramerius.processes;
 
 /**
- * Warning signal
+ * Warning signal. The system change the process state to WARNING
+ * @see States#WARNING
  * @author pavels
  */
 public class WarningException extends RuntimeException {

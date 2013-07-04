@@ -12,6 +12,9 @@
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <parameters>one two</parameters>
+		
+		<checkErrorStream>false</checkErrorStream>
+		
     </process>
 
     <process>

@@ -149,6 +149,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 			command.add("-D"+ProcessStarter.UUID_KEY+"="+this.uuid);
             command.add("-D"+ProcessStarter.TOKEN_KEY+"="+this.getGroupToken());
             command.add("-D"+ProcessStarter.AUTH_TOKEN_KEY+"="+this.getAuthToken());
+            command.add("-D"+ProcessStarter.SHOULD_CHECK_ERROR_STREAM+"="+this.definition.isCheckedErrorStream());
             
 			
 			File standardStreamFile = standardOutFile(processWorkingDir);

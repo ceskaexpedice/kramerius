@@ -44,7 +44,9 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 	private String securedAction;
 	
 	private List<LRDefinitionAction> actions = new ArrayList<LRDefinitionAction>();
-
+	
+	private boolean shouldCheckErrorStream = true;
+	
 
 	public LRProcessDefinitionImpl(LRProcessManager pm, KConfiguration configuration) {
 		super();
@@ -135,6 +137,12 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 				if (nodeName.equals("actions")) {
 					actions(item);
 				}
+				if (nodeName.equals("checkErrorStream")) {
+					String textContent = item.getTextContent();
+					if (textContent !=  null)
+						this.shouldCheckErrorStream = Boolean.parseBoolean(textContent.trim());
+				}
+
 				if (nodeName.equals("templates")){
 				    NodeList templateItems = item.getChildNodes();
 				    for (int j = 0,itl=templateItems.getLength(); j < itl; j++) {
@@ -299,5 +307,11 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
     public void setSecuredAction(String act) {
         this.securedAction = act;
     }
-	
+
+	@Override
+	public boolean isCheckedErrorStream() {
+		return this.shouldCheckErrorStream;
+	}
+
+    
 }

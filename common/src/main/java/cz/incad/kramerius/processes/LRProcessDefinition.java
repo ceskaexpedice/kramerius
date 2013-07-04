@@ -122,4 +122,11 @@ public interface LRProcessDefinition {
 	 * @return
 	 */
 	public String getSecuredAction();
+
+	/**
+	 * Returns true, if the system should observe stderr and throw WarningException (if found any messages)
+	 * @see WarningException
+	 * @return
+	 */
+	public boolean isCheckedErrorStream();
 }

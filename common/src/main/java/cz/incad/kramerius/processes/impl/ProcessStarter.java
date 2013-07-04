@@ -57,6 +57,7 @@ public class ProcessStarter {
     public static final String LOGGING_FILE_PROPERTY = "java.util.logging.config.file";
     public static final String LOGGING_CLASS_PROPERTY = "java.util.logging.config.class";
     
+    
     public static final String MAIN_CLASS_KEY = "mainClass";
     public static final String UUID_KEY = "uuid";
     public static final String TOKEN_KEY = "token";
@@ -65,6 +66,8 @@ public class ProcessStarter {
     public static final String AUTOMATIC_CLOSE_TOKEN="shouldCloseToken";
     public static final String CLASSPATH_NAME = "CLASSPATH";
 
+    public static final String SHOULD_CHECK_ERROR_STREAM="shouldCheckErrorStream";
+    
     
     
     public static final String SOUT_FILE = "SOUT";
@@ -174,9 +177,11 @@ public class ProcessStarter {
     }
 
     private static void checkErrorFile() {
-    	String serrFileName = System.getProperty(SERR_FILE);
-    	File serrFile = new File(serrFileName);
-    	if (serrFile.length() > 0) throw new WarningException("system error file contains errors");
+    	if (Boolean.getBoolean(ProcessStarter.SHOULD_CHECK_ERROR_STREAM)) {
+        	String serrFileName = System.getProperty(SERR_FILE);
+        	File serrFile = new File(serrFileName);
+        	if (serrFile.length() > 0) throw new WarningException("system error file contains errors");
+    	}
     }
 
 	private static void setDefaultLoggingIfNecessary() {
