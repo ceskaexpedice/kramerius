@@ -435,6 +435,13 @@ $(document).ready(function(){
                     <td><strong>${processView.batchStateOrdering} </strong>  </td>
                 </tr></table>
             </td>
+
+            <td width="20px;">
+                <table><tr>
+                    <td><c:if test="${processView.plannedDateOrdered}">${processView.orderingIcon}</c:if> </td>
+                    <td><strong>${processView.plannedDateOrdering}</strong> </td>
+                  </tr></table>
+            </td>
             
             <td width="20px;"> 
                 <table><tr>
@@ -444,12 +451,6 @@ $(document).ready(function(){
             </td>
 
               
-            <td width="20px;">
-                <table><tr>
-                    <td><c:if test="${processView.plannedDateOrdered}">${processView.orderingIcon}</c:if> </td>
-                    <td><strong>${processView.plannedDateOrdering}</strong> </td>
-                  </tr></table>
-            </td>
 
             <td width="20px;"> 
                 <table><tr>
@@ -503,8 +504,8 @@ $(document).ready(function(){
                 </c:choose>
 
 
-                <td title="${lrProc.start}">${lrProc.start}</td>
                 <td title="${lrProc.planned}">${lrProc.planned}</td>
+                <td title="${lrProc.start}">${lrProc.start}</td>
                 <td title="${lrProc.finished} ( ${lrProc.duration} )">${lrProc.finished}</td>
                 
                 <td>${lrProc.startedBy}</td>
