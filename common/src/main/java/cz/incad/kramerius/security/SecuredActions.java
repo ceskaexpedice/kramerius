@@ -71,6 +71,8 @@ public enum SecuredActions {
     
     //K4_REPLICATIONS("k4_replications"),
     
+    // Issue 159
+    @Deprecated 
     EDIT_INFO_TEXT("edit_info_text"),
     
     /** Akce umozni spoustet editor uzivatelu superadmin modu */
