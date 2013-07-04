@@ -1,6 +1,7 @@
 package cz.incad.Kramerius.views;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -151,7 +152,7 @@ public class ProcessViewObject {
         } else return "";
     }
 
-    public StringBuilder formatDuration(long startTime, long finishTime, ResourceBundle bundle) {
+    public static StringBuilder formatDuration(long startTime, long finishTime, ResourceBundle bundle) {
         int days = 0;
         int hours = 0;
         int minutes = 0;
@@ -165,23 +166,23 @@ public class ProcessViewObject {
         processingCal.setTimeInMillis(startTime);
 
         //final long day = 1000*60*60*24;
-        if (moreThenPeriod(processingCal.getTimeInMillis(), startTimeCal.getTimeInMillis(), 1000*60*60*24)) {
+        if (moreThenPeriod(finishTimeCal.getTimeInMillis(), processingCal.getTimeInMillis(), 1000*60*60*24)) {
             days = duration(finishTimeCal, processingCal, 1000*60*60*24);
         }
         
-        if (moreThenPeriod(finishTimeCal.getTimeInMillis(),startTimeCal.getTimeInMillis(),1000*60*60)) {
-            hours = duration(finishTimeCal, processingCal, 1000*60);
+        if (moreThenPeriod(finishTimeCal.getTimeInMillis(),processingCal.getTimeInMillis(),1000*60*60)) {
+            hours = duration(finishTimeCal, processingCal, 1000*60*60);
         }
 
-        if (moreThenPeriod(finishTimeCal.getTimeInMillis(),startTimeCal.getTimeInMillis(), 1000*60)) {
+        if (moreThenPeriod(finishTimeCal.getTimeInMillis(),processingCal.getTimeInMillis(), 1000*60)) {
             minutes = duration(finishTimeCal, processingCal, 1000*60);
         }
 
-        if (moreThenPeriod(finishTimeCal.getTimeInMillis(),startTimeCal.getTimeInMillis(), 1000)) {
+        if (moreThenPeriod(finishTimeCal.getTimeInMillis(),processingCal.getTimeInMillis(), 1000)) {
             seconds = duration(finishTimeCal, processingCal, 1000);
         }
 
-        milisconds =  finishTimeCal.getTime().getTime()-processingCal.getTime().getTime();
+        milisconds =  finishTimeCal.getTimeInMillis()-processingCal.getTimeInMillis();
         
         StringBuilder builder = new StringBuilder();
 
@@ -194,13 +195,14 @@ public class ProcessViewObject {
         return builder;
     }
 
+
     private static int duration(Calendar finishTime, Calendar startTime, long period) {
         int calcualated = 0;
 
         long ftime = finishTime.getTimeInMillis();
         long stime = startTime.getTimeInMillis();
         
-        while((stime+period) < ftime) {
+        while((stime+period) <= ftime) {
             stime += period;
             calcualated +=1;
         }
@@ -211,9 +213,10 @@ public class ProcessViewObject {
     }
 
     private static boolean moreThenPeriod(long finishTime, long startTime, long period) {
-        return (finishTime - startTime) > period;
+        return (finishTime - startTime) >= period;
     }
 
+    
     
     
     public String getStart() {
@@ -373,5 +376,7 @@ public class ProcessViewObject {
         }
         return new ArrayList<OutputTemplateViewObjectItem>();
     }
+
+
     
 }
