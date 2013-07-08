@@ -87,6 +87,9 @@
             </div>
 
             <div class="collapse_label" style="text-align:right;">&#160;</div>
+            <input type="hidden" class="root_pid">
+                <xsl:attribute name="value"><xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
+            </input>
         </div>
     </xsl:for-each>
 </xsl:template>

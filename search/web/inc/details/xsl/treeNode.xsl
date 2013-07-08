@@ -132,7 +132,7 @@
                 <xsl:attribute name="title"><xsl:value-of select="./str[@name='img_full_mime']" /></xsl:attribute>
             mime</span>
         </xsl:if>
-        <xsl:if test="not($policyPublic='true')  andnot(./str[@name='dostupnost']='public')" >
+        <xsl:if test="not($policyPublic='true')  and not(./str[@name='dostupnost']='public')" >
             <span>
                 <xsl:attribute name="style">text-indent:-200px;background: url('img/lock.png'); width:16px;height:16px;float:left;</xsl:attribute>
                 <xsl:attribute name="title"><xsl:value-of select="./str[@name='dostupnost']" /></xsl:attribute>

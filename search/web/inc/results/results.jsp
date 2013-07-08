@@ -142,6 +142,7 @@ $(document).ready(function(){
         
     });
     getExtInfo();
+    getCollapsedPolicy();
     $('.loading_docs').hide();
     
     $('#docs_content>div.content').bind('scroll', function(event){
@@ -354,6 +355,33 @@ $(document).ready(function(){
             var div2 = $(div).next();
             checkRowHeight(div, div2);
         }
+    }
+    
+    function getCollapsedPolicy(){
+        $(".search_result>input.root_pid").each(function(){
+            var root_pid = $(this).val();
+            var res_id = $(this).parent().attr("id");
+            var url =  "inc/results/collapsed_policy.jsp?root=" + root_pid;
+            $.get(url, function(data) {
+                var src = "img/empty.gif";
+                var title = "";
+                if(data=='0'){
+                    //mix
+                    src = 'img/mixed.png';
+                    title = "mixed";
+                }else if(data=='1'){
+                    //public
+                    src = 'img/public.png';
+                    title = "public";
+                }else if(data=='2'){
+                    //private
+                    src = 'img/lock.png';
+                    title = "private";
+                }
+                $(jq(res_id)+' img.dost').attr('src', src);
+                $(jq(res_id)+' img.dost').attr('title', title);
+            });
+        });
     }
     
     function getExtInfo(){

@@ -89,6 +89,9 @@
         <div>
             <xsl:attribute name="class">search_result <xsl:value-of select="position() mod 2"/></xsl:attribute>
             <xsl:attribute name="id">res_<xsl:value-of select="./arr[@name='model_path']/str[position()=1]"/>_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
+            <input type="hidden" class="root_pid">
+                <xsl:attribute name="value"><xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
+            </input>
         <div>
             <xsl:attribute name="class">result</xsl:attribute>
             <xsl:call-template name="doc">
@@ -137,7 +140,9 @@
                 <xsl:attribute name="href"><xsl:value-of select="normalize-space($link)"/></xsl:attribute>
             <img class="th" border="1" ><xsl:attribute name="id">img_<xsl:value-of select="$pid"/></xsl:attribute>
             <xsl:attribute name="src"><xsl:value-of select="$imagepid" /></xsl:attribute>
-            </img></a>
+            </img>
+            </a>
+            <div style="position:absolute;left:2px;top:2px;"><img class="dost" src="img/empty.gif" /></div>
             <br/><xsl:value-of select="$bundle/value[@key=$model]"/>
         </div>
         </td><td class="resultText_td" valign="top">
