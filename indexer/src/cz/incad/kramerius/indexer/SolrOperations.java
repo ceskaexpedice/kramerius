@@ -735,6 +735,7 @@ public class SolrOperations {
         for (String model : models) {
             checkIntegrityByModel(model, 0);
         }
+        commit();
     }
 
     private void checkIntegrityByModel(String model) throws Exception {
