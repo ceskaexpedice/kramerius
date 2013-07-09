@@ -13,8 +13,6 @@ import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.client.shared.descriptor.QueryParameter;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.*;
-import org.aplikator.server.query.QueryCompareExpression;
-import org.aplikator.server.query.QueryCompareOperator;
 import org.aplikator.server.query.QueryExpression;
 
 import java.sql.ResultSet;
@@ -55,7 +53,7 @@ public class UserView extends View {
                     if (admId == null || admId.isEmpty()) {
                         return null;
                     }
-                    return new QueryCompareExpression<Integer>(Structure.user.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                    return Structure.user.PERSONAL_ADMIN.EQUAL(admId.get(0));
                 } else
                     return null;
             }
@@ -154,7 +152,7 @@ public class UserView extends View {
                         if (admId == null || admId.isEmpty()) {
                             return null;
                         }
-                        return new QueryCompareExpression<Integer>(Structure.group.PERSONAL_ADMIN, QueryCompareOperator.IS, admId.get(0));
+                        return Structure.group.PERSONAL_ADMIN.EQUAL(admId.get(0));
                     } else {
                         return null;
                     }
