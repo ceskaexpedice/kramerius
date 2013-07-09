@@ -307,8 +307,15 @@ div.search_result{
     padding:5px;
     padding-bottom:8px;
     position:relative;
-    overflow:auto;
+    word-wrap: break-word;
 }
+
+div.search_result *{
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+
 
 .uncollapsed{
     position:absolute;
@@ -317,7 +324,7 @@ div.search_result{
     /*width:370px;*/
     max-height: 300px;
     _height: expression(this.scrollHeight > 300? "300px" : "auto" );
-    overflow:auto;
+    overflow: visible;
     z-index:100;
     width:100%;
     text-align: left;
@@ -451,4 +458,10 @@ div.search_result{
 .socialbuttons .clear {
     clear: both;
     font-size: 0;    
+}
+
+.policy_icon{
+    position:absolute;
+    left:7px;
+    top:7px;
 }

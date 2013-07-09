@@ -142,7 +142,7 @@
             <xsl:attribute name="src"><xsl:value-of select="$imagepid" /></xsl:attribute>
             </img>
             </a>
-            <div style="position:absolute;left:2px;top:2px;"><img class="dost" src="img/empty.gif" /></div>
+            <div class="policy_icon"><img class="dost" src="img/empty.gif" /></div>
             <br/><xsl:value-of select="$bundle/value[@key=$model]"/>
         </div>
         </td><td class="resultText_td" valign="top">

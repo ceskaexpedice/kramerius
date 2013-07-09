@@ -69,12 +69,12 @@
             <xsl:attribute name="class">search_result <xsl:value-of select="position() mod 2"/></xsl:attribute>
             <xsl:attribute name="id">res_<xsl:value-of select="./arr[@name='model_path']/str[position()=1]"/>_<xsl:value-of select="./str[@name='PID']"/></xsl:attribute>
             <xsl:if test="$policyPublic='true' and ./str[@name='dostupnost']='public'" >
-                <div style="position:absolute;left:7px;top:7px;">
+                <div class="policy_icon">
                     <img src="img/public.png" />
                 </div>
             </xsl:if>    
             <xsl:if test="$policyPublic='false' and ./str[@name='dostupnost']='private'" >
-                <div style="position:absolute;left:7px;top:7px;">
+                <div class="policy_icon">
                     <img src="img/lock.png" />
                 </div>
             </xsl:if>    

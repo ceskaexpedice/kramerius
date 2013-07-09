@@ -356,7 +356,8 @@ $(document).ready(function(){
             checkRowHeight(div, div2);
         }
     }
-    
+    <view:kconfig var="policyPublic" key="search.policy.public" defaultValue="false" />
+    var policyConf = ${policyPublic};
     function getCollapsedPolicy(){
         $(".search_result>input.root_pid").each(function(){
             var root_pid = $(this).val();
@@ -364,22 +365,24 @@ $(document).ready(function(){
             var url =  "inc/results/collapsed_policy.jsp?root=" + root_pid;
             $.get(url, function(data) {
                 var src = "img/empty.gif";
-                var title = "";
-                if(data=='0'){
-                    //mix
-                    src = 'img/mixed.png';
-                    title = "mixed";
-                }else if(data=='1'){
-                    //public
-                    src = 'img/public.png';
-                    title = "public";
+                var title = "dostupnost.";
+                if(policyConf){
+                    if(data=='0'){
+                        //mix
+                        src = 'img/mixed.png';
+                        title += "mixed";
+                    }else if(data=='1'){
+                        //public
+                        src = 'img/public.png';
+                        title += "public";
+                    }
                 }else if(data=='2'){
                     //private
                     src = 'img/lock.png';
-                    title = "private";
+                    title += "private";
                 }
                 $(jq(res_id)+' img.dost').attr('src', src);
-                $(jq(res_id)+' img.dost').attr('title', title);
+                $(jq(res_id)+' img.dost').attr('title', dictionary[title]);
             });
         });
     }

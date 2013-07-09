@@ -65,10 +65,10 @@
             </xsl:if>
         </xsl:variable>
         <div class="header">
-            <div style="float:left;margin-left:5px;width:190px;">
+            <div style="float:left;margin-left:5px;">
                 <span><xsl:value-of select="$numDocs" />&#160;<xsl:value-of select="$numDocsStr" /></span>
             </div>
-            <div style="float:left;margin-left:80px;width:200px;text-align:center;">
+            <div style="float:left;margin-left:30px;width:260px;text-align:center;">
                 <span><xsl:value-of select="$bundle/value[@key='results.sortby']"/>:</span>&#160;&#160;
                 <xsl:choose>
                     <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='level asc, title_sort asc'">

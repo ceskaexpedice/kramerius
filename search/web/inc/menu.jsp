@@ -7,11 +7,14 @@
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 
 <%@ page isELIgnored="false"%>
+<c:set var="quote">"</c:set>
+<c:set var="escapedquote">&quot;</c:set>
 <div  id="main_menu_in">
     <view:object name="buttons" clz="cz.incad.Kramerius.views.inc.MenuButtonsViewObject"></view:object>
 
     <c:forEach items="${buttons.languageItems}" var="langitm">
-        <a href="${langitm.link}">${langitm.name}</a>
+        <c:set var="escapedLink" >${fn:replace(langitm.link, quote, escapedquote)}</c:set>
+        <a href="${escapedLink}">${langitm.name}</a>
     </c:forEach>
         <!-- Registrace pouze pro neprihlasene -->
         <scrd:notloggedusers>
