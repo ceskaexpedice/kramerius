@@ -19,7 +19,7 @@
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
 %>
-<view:kconfig var="policyPublic" key="search.policy.public" defaultValue="false" />
+<view:kconfig var="policyPublic" key="search.policy.public" defaultValue="true" />
 <c:set var="escaped_pid">\:</c:set>
 <c:set var="escaped_pid">${fn:replace(param.pid, ":" , escaped_pid)}</c:set>
 
