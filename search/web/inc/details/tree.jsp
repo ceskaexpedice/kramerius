@@ -6,6 +6,7 @@
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view"%>
 <%@ page isELIgnored="false"%>
 <%@ page import="java.util.*"%>
+<view:kconfig var="expandTree" key="search.expand.tree" defaultValue="true" />
 <style type="text/css">
     #item_tree{
         padding-left: 2px;
@@ -228,7 +229,9 @@
                     }else{
                         if(id){
                             if(id.split('_')[1].indexOf("@")!=0){
-                                //loadTreeNode(id);
+        <c:if test="${expandTree}">                                
+                                loadTreeNode(id);
+        </c:if>                        
                                 return;
                             }
                         } 
