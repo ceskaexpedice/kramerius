@@ -2,7 +2,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
         xmlns:fn="http://www.w3.org/2005/xpath-functions"
 xmlns:sp="http://www.fedora.info/definitions/1/0/types/"
-version="1.0">
+version="1.0" exclude-result-prefixes="fn sp">
     <xsl:output method="html" encoding="UTF-8" />
 
     <xsl:param name="bundle_url" select="bundle_url" />
@@ -26,7 +26,10 @@ version="1.0">
             <a title="index document"><xsl:attribute name="href">javascript:indexDoc('<xsl:value-of select="./sp:pid" />', '<xsl:value-of select="$titleescaped" />');</xsl:attribute><xsl:value-of select="./sp:title" />
             (<xsl:value-of select="$bundle/value[@key=$model]"/>)</a></td>
             <td width="240px" style="min-width:240px;" ><xsl:value-of select="./sp:pid"/></td>
-            <td width="138px"><xsl:value-of select="./sp:mDate" /></td>
+            <td style="min-width:138px;"><xsl:value-of select="concat(
+                      substring(./sp:mDate, 1, 10),
+                      '&#160;',
+                      substring(./sp:mDate, 12, 8))" /></td>
             </tr>
         </xsl:for-each>
     </xsl:template>

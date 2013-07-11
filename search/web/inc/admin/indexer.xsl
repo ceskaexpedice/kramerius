@@ -28,7 +28,10 @@ version="1.0">
                     <td width="100%"> - 
                     <a title="index document"><xsl:attribute name="href">javascript:indexDoc('<xsl:value-of select="./sp:object/@uri" />', '<xsl:value-of select="$titleescaped" />');</xsl:attribute><xsl:value-of select="./sp:title" /></a>
                     </td>
-                    <td style="min-width:138px;"><xsl:value-of select="./sp:date" /></td>
+                    <td width="240px" style="min-width:240px;" ><xsl:value-of select="substring-after(./sp:object/@uri, 'info:fedora/')"/></td>
+                    <td style="min-width:138px;">
+                        <xsl:value-of select="./sp:date" />
+                    </td>
                     </tr>
                 </xsl:otherwise>
             </xsl:choose>

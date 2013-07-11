@@ -116,6 +116,7 @@
                 <th width="100%" align="left">
                 <fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message>
                 </th>
+                <th style="min-width:240px;" align="left">PID</th>
                 <th style="min-width:138px;" align="left">
                     <input type="hidden" id="indexer_order_dir" value="${order_dir}" />
                     <input type="hidden" id="indexer_offset" value="0" />
@@ -156,7 +157,7 @@
             (<fmt:message bundle="${lctx}">document.type</fmt:message>)
             </th>
             <th style="min-width:240px;" align="left">PID</th>
-            <th style="min-width:138px;" align="left"><fmt:message>common.date</fmt:message></th></tr></thead>
+            <th style="min-width:138px;" align="left"><span><fmt:message>common.date</fmt:message></span></th></tr></thead>
         <tbody style="overflow:auto;display:block;width:100%;">
             <tr>
                 <td align="center" colspan="5" width="768"><img src="img/loading.gif" /></td>
