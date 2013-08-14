@@ -123,7 +123,7 @@ Processes.prototype.wait = function() {
 
 Processes.prototype.modifyProcessDialogDataByPage = function(ordering, page, size, type) {
 	this.wait();
-	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+"&page="+page+"&size="+size+"&type="+type+this.currentFilter.filterPostfix();
+	var url = "inc/admin/_processes_data.jsp?ordering="+ordering+ (page != null ? "&page="+page : "") +"&size="+size+"&type="+type+this.currentFilter.filterPostfix();
 	$.get(url, bind(function(data) {
 		$("#processes").html(data);
 	    this.repairDisplayed();

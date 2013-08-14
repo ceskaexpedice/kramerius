@@ -47,8 +47,10 @@ public class ProcessViewObject {
     private OutputTemplateFactory outputTemplateFactory;
     
     private List<ProcessViewObject> childProcesses = new ArrayList<ProcessViewObject>();
+
+	private String page;
     
-    public ProcessViewObject(LRProcess lrProcess, LRProcessDefinition definition, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering,  ResourceBundleService service, Locale locale, OutputTemplateFactory factory) {
+    public ProcessViewObject(LRProcess lrProcess, LRProcessDefinition definition, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering,  ResourceBundleService service, Locale locale, OutputTemplateFactory factory, String page) {
         super();
         this.lrProcess = lrProcess;
         this.ordering = ordering;
@@ -58,6 +60,7 @@ public class ProcessViewObject {
         this.bundleService = service;
         this.locale = locale;
         this.outputTemplateFactory = factory;
+        this.page = page;
     }
 
     public String getPid() {
@@ -259,7 +262,7 @@ public class ProcessViewObject {
             if ((this.lrProcess.getProcessState().equals(States.RUNNING)) || (this.lrProcess.getProcessState().equals(States.PLANNED))) {
                 String url = "lr?action=stop&uuid=" + this.lrProcess.getUUID();
                 String fn = "showConfirmDialog(dictionary['administrator.processes.kill.process.confirm'], function() {" +
-                        "processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');" +
+                        "processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + (this.page != null ? ("'"+this.page+"'") :null)  + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');" +
                 "});";
                 
                 String renderedAHREF = "<a href=\"javascript:"+fn+ "\">"
@@ -287,7 +290,7 @@ public class ProcessViewObject {
 
                 String url = "lr?action=delete&uuid=" + this.lrProcess.getUUID();
                 String fn = "showConfirmDialog(dictionary['administrator.processes.delete.process.confirm'], function() {" +
-                    "processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + this.offset.getOffset() + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');" +
+                    "processes.doActionAndRefresh('" + url + "','" + this.ordering.name() + "'," + (this.page != null ? ("'"+this.page+"'") : null ) + "," + this.offset.getSize() + ",'" + this.typeOfOrdering.name() + "');" +
                 "});";
 
                 String renderedAHREF = "<a href=\"javascript:"+fn+ "\">"
