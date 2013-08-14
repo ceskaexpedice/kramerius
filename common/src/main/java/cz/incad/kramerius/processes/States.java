@@ -157,12 +157,14 @@ public enum States {
         return false;
     }
 
+    
+    
     /**
      * Returns true given state is not running state
      * @param realState
      * @return
      */
     public static boolean notRunningState(States realState) {
-        return expect(realState, States.FAILED, States.FINISHED, States.KILLED);
+        return expect(realState, States.FAILED, States.FINISHED, States.KILLED, States.NOT_RUNNING, States.WARNING, States.BATCH_FAILED, States.BATCH_FINISHED, States.BATCH_STARTED);
     }
 }

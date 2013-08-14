@@ -167,6 +167,18 @@ public class DatabaseProcessManager implements LRProcessManager {
             final String token = longRunningProcess.getGroupToken();
             final List<LRProcess> childSubprecesses = getLongRunningProcessesByGroupToken(token);
 
+ 
+            final int id = ProcessDatabaseUtils.getProcessId(longRunningProcess, connectionProvider.get());
+            commands.add(new JDBCCommand() {
+                
+                @Override
+                public Object executeJDBCCommand(Connection con) throws SQLException {
+                    PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESS_2_TOKEN where process_id = ?");
+                    prepareStatement.setInt(1, id);
+                    return prepareStatement.executeUpdate();
+                }
+            });
+
             for (final LRProcess lrProcess : childSubprecesses) {
                 if (lrProcess.getAuthToken() != null) {
                     commands.add(new JDBCCommand() {
