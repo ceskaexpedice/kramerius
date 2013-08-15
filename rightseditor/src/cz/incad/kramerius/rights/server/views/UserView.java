@@ -175,21 +175,21 @@ public class UserView extends View {
 
 
 
-    public static ListProvider<Integer> getGroupList() {
+    public static ListProvider getGroupList() {
         String query = "select group_id,gname from group_entity";
 
-        List<ListItem<Integer>> groupsList = new JDBCQueryTemplate<ListItem<Integer>>(SecurityDBUtils.getConnection()) {
+        List<ListItem> groupsList = new JDBCQueryTemplate<ListItem>(SecurityDBUtils.getConnection()) {
             @Override
-            public boolean handleRow(ResultSet rs, List<ListItem<Integer>> retList) throws SQLException {
+            public boolean handleRow(ResultSet rs, List<ListItem> retList) throws SQLException {
                 int groupId = rs.getInt("group_id");
                 String groupName = rs.getString("gname");
-                retList.add(new ListItem.Default<Integer>(groupId, groupName));
+                retList.add(new ListItem.Default(groupId, groupName));
                 return true;
             }
 
         }.executeQuery(query);
 
-        return new ListProvider.Default<Integer>(groupsList);
+        return new ListProvider.Default(groupsList);
     }
 }
 

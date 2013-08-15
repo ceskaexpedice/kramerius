@@ -133,7 +133,7 @@ public class Structure extends Application {
             TYPE = integerProperty("TYPE");
 
             QNAME = stringProperty("QNAME", 255, true);
-            QNAME.setListProvider(new ListProvider.Default<String>(new ListItem.Default<String>("cz.incad.kramerius.security.impl.criteria.MovingWall", "cz.incad.kramerius.security.impl.criteria.MovingWall"), new ListItem.Default<String>("cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter", "cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter")));
+            QNAME.setListProvider(new ListProvider.Default(new ListItem.Default("cz.incad.kramerius.security.impl.criteria.MovingWall", "cz.incad.kramerius.security.impl.criteria.MovingWall"), new ListItem.Default("cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter", "cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter")));
 
             PARAM = referenceProperty(criteriumParam, "citeriumParam");
         }
