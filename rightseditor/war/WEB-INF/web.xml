@@ -10,11 +10,6 @@
         <param-value>true</param-value>
     </context-param>
 
-    <!-- We have to register RestEasy providers manually during integration testing because the scan doesn't see them. -->
-    <context-param>
-        <param-name>resteasy.providers</param-name>
-        <param-value>org.jboss.errai.jaxrs.ErraiProvider</param-value>
-    </context-param>
 
     <filter>
         <filter-name>Resteasy</filter-name>
@@ -51,14 +46,6 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
-    <servlet>
-        <servlet-name>jUnitHostImpl</servlet-name>
-        <servlet-class>com.google.gwt.junit.server.JUnitHostImpl</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>jUnitHostImpl</servlet-name>
-        <url-pattern>/rightseditor/junithost/*</url-pattern>
-    </servlet-mapping>
 
 
     <servlet-mapping>
