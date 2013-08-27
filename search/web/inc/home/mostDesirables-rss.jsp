@@ -41,27 +41,103 @@
    <c:out value="${exceptions}" />
    <c:out value="${xml}" />
   </c:when>
-  <c:otherwise>
-   <x:parse var="doc" xml="${xml}" />
+   <c:otherwise>
+        <x:parse var="doc" xml="${xml}"  />
+        <x:forEach varStatus="status" select="$doc/response/result/doc">
+            <c:set var="pid"><x:out select="./str[@name='PID']"/></c:set>
+            <c:set var="t"><x:out select="./str[@name='root_title']"/></c:set>
+            <c:set var="title"><x:out select="./str[@name='dc.title']"/></c:set>
+            <c:set var="fmodel"><x:out select="./str[@name='fedora.model']"/></c:set>
+          	<c:set var="date"><x:out select="./str[@name='datum_str']"/></c:set>
+          	<c:set var="issn"><x:out select="./str[@name='issn']"/></c:set>
+          	<c:set var="rozsah"><x:out select="./int[@name='pages_count']"/></c:set>
+          	<c:set var="jazyk"><x:out select="./arr[@name='language']"/></c:set> 
+          	<c:set var="pocet_jazyku"><x:out select="count(./arr[@name='language']/str)"/></c:set>         	         	          
+            <item>
+            	<title>${title}</title>
+            	<description>
+            		<![CDATA[
+            		<p>
+            		<a href="${rssHome.applicationURL}/handle/${pid}">
+            		<img src="${rssHome.applicationURL}/img?uuid=${pid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" hspace="10" vspace="2" style="border: 0pt none;" align="left" />
+            		</a>             		
+            		]]>            		           	
+             	    <x:forEach select="./arr[@name='dc.creator']/str" var="aut"> 
+             	     <c:set var="autor"><x:out select="." /></c:set>
+             	     <c:choose>
+             	   	 	<c:when test="${not empty autor}">  
+             	   	 		<![CDATA[Autor: ${autor} <br/>]]>     	   	 		               	    		
+             	  	 	</c:when>             	    			
+             	   	  </c:choose> 				
+					</x:forEach>	
+															
+					<c:choose>
+             	   	 	<c:when test="${not empty date}">
+             	   	 		<![CDATA[Rok vydání: ${date} <br/>]]>
+             	  	 	</c:when>             	    			
+             	   	</c:choose>
+             	   	
+             	   	<c:choose>
+             	   	 	<c:when test="${not empty fmodel}">
+             	   	 		<![CDATA[Typ svazku: <view:msg>fedora.model.${fmodel}</view:msg> <br/>]]>
+             	  	 	</c:when>             	    			
+             	   	</c:choose> 
+             	   	
+             	   	<c:choose>
+             	   	 	<c:when test="${not empty rozsah && rozsah > 0}">
+             	   	 		<![CDATA[Rozsah: ${rozsah} <br/>]]>
+             	  	 	</c:when>             	  	 	            	    		
+             	   	</c:choose>
 
-   <x:forEach varStatus="status" select="$doc/response/result/doc">
-    <c:set var="pid">
-     <x:out select="./str[@name='PID']" />
-    </c:set>
-    <c:set var="t">
-     <x:out select="./str[@name='root_title']" />
-    </c:set>
-    <c:set var="title">
-     <x:out select="./str[@name='dc.title']" />
-    </c:set>
-    <c:set var="fmodel">
-     <x:out select="./str[@name='fedora.model']" />
-    </c:set>
-    <item> <title>${title}</title> <description>PID:
-    ${pid} Model: <view:msg>${fmodel}</view:msg> </description> <link>${rssHome.applicationURL}/handle/${pid}</link>
-    <guid>${rssHome.applicationURL}/handle/${pid}</guid> </item>
-   </x:forEach>
-
-  </c:otherwise>
- </c:choose>
-</c:forEach> </channel> </rss>
+             	   	<%
+             	   		int zbyvajiciJazyky = Integer.parseInt(pageContext.getAttribute("pocet_jazyku").toString());
+             	   		if (zbyvajiciJazyky > 0) {
+							out.print("<![CDATA[Jazyk: ]]>");
+             	   		}
+					%>        	   	             	   	
+             	   	<x:forEach select="./arr[@name='language']/str" var="lang">             	                	                	   	
+             	     <c:set var="jazyk"><x:out select="." /></c:set>
+             	     <c:choose>
+             	   	 	<c:when test="${not empty jazyk}">
+             	   	 		<![CDATA[<view:msg>language.${jazyk}</view:msg>]]><%
+             	   	 			zbyvajiciJazyky--;
+             	   	 			if (zbyvajiciJazyky > 0) {
+             	   	 				out.print(", ");
+             	   	 			}
+             	   	 		%>                  	   	 		        	               	   	 			 		             	   	 	
+             	  	 	</c:when>              	    			
+             	   	  </c:choose> 				
+					</x:forEach> 
+					<![CDATA[<br/>]]>
+					
+             	   	<c:choose>
+             	   	 	<c:when test="${not empty issn}">
+             	   	 	<% 
+             	   	 	    String issn = pageContext.getAttribute("issn").toString();
+             	   	 		String type = "";
+             	   	 		if (issn.matches("[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9X]")) {
+        	   	 	  			type = "ISSN";        	   	 	  			 
+        	   	 	    	} else {
+        	   	 	    		type = "ISBN";
+        	   	 	    	}
+             	   	 	%> 
+             	   	 		<![CDATA[<%=type%>: ${issn} <br/>]]>
+             	  	 	</c:when>             	    			
+             	   	</c:choose> 
+             	   	
+             	   	<![CDATA[</p>]]>
+                </description>                
+                <link>${rssHome.applicationURL}/handle/${pid}</link>
+                <guid>${rssHome.applicationURL}/handle/${pid}</guid>
+            </item>
+        </x:forEach>
+        
+    </c:otherwise>
+</c:choose>
+<c:if test="${param.debug}" >
+    <c:out value="${url}" /><br/>
+    <c:out value="${param.parentPid}" />
+</c:if>
+        </c:forEach>
+  </channel>
+  </rss>
