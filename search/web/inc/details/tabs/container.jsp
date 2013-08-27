@@ -1,3 +1,4 @@
+
 <%@page import="com.google.inject.Injector"%>
 <%@page import="java.util.Locale"%>
 <%@page import="com.google.inject.Provider"%>
@@ -10,6 +11,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page isELIgnored="false"%>
+
 <%
     String[] tabs = kconfig.getPropertyList("search.item.tabs");
     pageContext.setAttribute("tabs", tabs);
@@ -19,14 +21,12 @@
         <li><a href="#bigThumbZone" class="vertical-text" ><fmt:message bundle="${lctx}">item.tab.image</fmt:message></a>        </li>
         <li><a href="#extendedMetadata" class="vertical-text" ><fmt:message bundle="${lctx}">item.tab.metadata</fmt:message></a></li>
         <c:forEach varStatus="status" var="tab" items="${tabs}"><c:if test="${! empty tab}">
-                <li><a href="#itemtab_${fn:substringAfter(tab, '.')}" class="vertical-text"><fmt:message bundle="${lctx}">item.tab.${tab}</fmt:message></a></li>
+                <li id="${fn:substringAfter(tab, '.')}_li" style="display: none;"><a href="#itemtab_${fn:substringAfter(tab, '.')}" class="vertical-text"><fmt:message bundle="${lctx}">item.tab.${tab}</fmt:message></a></li>
             </c:if></c:forEach>
         </ul>
     <%@include file="metadata.jsp" %>
     <%@include file="image.jsp" %>
-    <%--<%@include file="audioplayer.jsp" %>--%>
     <c:forEach varStatus="status" var="tab" items="${tabs}">
-        <!--TODO: asi tady povolit tab "přehrávač" jen pro vybrané věci-->
         <c:if test="${! empty tab}">
             <c:set var="ds" value="${fn:substringBefore(tab, '.')}" />
             <c:set var="xsl" value="${fn:substringAfter(tab, '.')}" />
@@ -36,18 +36,18 @@
                     //updateCustomTab('${tab}', '${pid_path}');
                     $('#itemtab_${xsl}.viewer').bind('viewReady', function(event, viewerOptions){
                         var pid_path = getPidPath(viewerOptions.fullid);
-                <c:choose>
-                    <c:when test="${tab =='VIRTUAL.audioPlayer'}">
-                                if (console) console.log("updating audioplayer tab ");
-                                updateAudioplayerTab('${tab}', pid_path);
-                    </c:when>
-                    <c:otherwise>
-                                if (console) console.log("update custom tab " + '${tab}' + ", pidPath: " + pid_path);
-                                updateCustomTab('${tab}', pid_path);
-                    </c:otherwise>
-                </c:choose>
-                        });
+                		<c:choose>
+                    	<c:when test="${tab =='VIRTUAL.audioPlayer'}">
+                           	if (console) console.log("updating audioplayer tab " + '${tab}' + ", pidPath: " + pid_path);
+                        	updateAudioplayerTab('${tab}', pid_path);
+                    	</c:when>
+                    	<c:otherwise>
+                        	if (console) console.log("update custom tab " + '${tab}' + ", pidPath: " + pid_path);
+                            updateCustomTab('${tab}', pid_path);
+                    	</c:otherwise>
+                	</c:choose>
                     });
+                });
             </script>
         </c:if>
     </c:forEach>
@@ -61,11 +61,13 @@
     }
     
     function updateAudioplayerTab(tab, pid_path){
-        $.get('audioTracks?action=canContainTracks&pid_path=' + pid_path, function(data){
-            if (data.canContainTracks){
-                $.get('inc/details/tabs/audioplayer.jsp?pid_path=' + pid_path, function(data){
+    	var pid_path_parts = pid_path.split('/');
+    	var topLevelPid = pid_path_parts[0];
+        $.get('audioTracks?action=canContainTracks&pid_path=' + topLevelPid, function(data){
+            if (data.canContainTracks){                
+                $.get('inc/details/tabs/audioplayer.jsp', function(data){
                     $('#itemtab_'+tab.split(".")[1]).html(data);
-                });
+                });                
             }
         });
     }
@@ -80,6 +82,7 @@
 
         //w = $('#centralContent').width();
         $("#centralContent>div").css('width', w-30-25);
+        $("#audio").css('width', w-30-25);
         $("#extendedMetadata").css('width', w-30-25);
         $("#bigThumbZone").css('width', w-30-25);
     }

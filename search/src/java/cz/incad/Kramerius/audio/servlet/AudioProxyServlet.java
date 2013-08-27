@@ -52,7 +52,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AudioProxyServlet extends GuiceServlet {
 
-    @Inject
+	@Inject
     IsActionAllowed actionAllowed;
     @Inject
     SolrAccess solrAccess;

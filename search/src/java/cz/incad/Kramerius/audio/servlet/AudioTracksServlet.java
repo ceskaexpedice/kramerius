@@ -49,7 +49,7 @@ import org.w3c.dom.NodeList;
  */
 public class AudioTracksServlet extends GuiceServlet {
 
-    static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AudioTracksServlet.class.getName());
+	static final Logger LOGGER = java.util.logging.Logger.getLogger(AudioTracksServlet.class.getName());
     private static final String INFO_FEDORA_PREFIX = "info:fedora/";
     @Inject
     TextsService textsService;
@@ -103,10 +103,11 @@ public class AudioTracksServlet extends GuiceServlet {
         String pidPath = request.getParameter("pid_path");
         if (pidPath != null) {
             String[] pid_path_parts = pidPath.split("/");
-            if (pid_path_parts.length != 0) {
-                String topLevelPid = pid_path_parts[0];
+            int parts = pid_path_parts.length;
+            if (parts != 0) {
+                String pid = pid_path_parts[parts-1];
                 String action = request.getParameter("action");
-                processAction(response, topLevelPid, action);
+                processAction(response, pid, action);
             } else {
                 response.sendError(400, "empty pid_path");
             }
@@ -115,16 +116,20 @@ public class AudioTracksServlet extends GuiceServlet {
         }
     }
 
-    private void processAction(HttpServletResponse response, String topLevelPid, String action)
+    private void processAction(HttpServletResponse response, String pid, String action)
             throws ServletException, IOException {
         if ("canContainTracks".equals(action)) {
-            boolean canContainTracks = canContainTracks(topLevelPid);
-            String json = toCanContainTracksJson(topLevelPid, canContainTracks);
+            boolean canContainTracks = canContainTracks(pid);
+            String json = toCanContainTracksJson(pid, canContainTracks);
+            response.getOutputStream().print(json);
+        } else if ("isTrack".equals(action)) {
+        	boolean isTrack = isTrack(pid);
+            String json = toIsTrackJson(pid, isTrack);
             response.getOutputStream().print(json);
         } else if ("getTracks".equals(action)) {
-            List<String> tracksPids = getTrackPids(topLevelPid);
+            List<String> tracksPids = getTrackPids(pid);
             List<Track> tracks = buildTracksFromPids(tracksPids);
-            String json = toJson(topLevelPid, tracks);
+            String json = toJson(pid, tracks);
             response.getOutputStream().print(json);
         } else {
             response.sendError(400, "illegal action '" + action + "'");
@@ -138,11 +143,25 @@ public class AudioTracksServlet extends GuiceServlet {
                 || "model:soundunit".equals(model)
                 || "model:track".equals(model);
     }
+    
+    private boolean isTrack(String pid) throws IOException {
+        Document relsExt = fedoraAccess.getRelsExt(pid);
+        String model = getModel(pid, relsExt);
+        return "model:track".equals(model);
+    }
 
     private String toCanContainTracksJson(String topLevelPid, boolean canContain) {
         Map map = new HashMap();
         map.put("topLevelPid", topLevelPid);
         map.put("canContainTracks", Boolean.valueOf(canContain));
+        JSONObject object = JSONObject.fromObject(map);
+        return object.toString();
+    }
+    
+    private String toIsTrackJson(String topLevelPid, boolean isTrack) {
+        Map map = new HashMap();
+        map.put("pid", topLevelPid);
+        map.put("isTrack", Boolean.valueOf(isTrack));
         JSONObject object = JSONObject.fromObject(map);
         return object.toString();
     }
