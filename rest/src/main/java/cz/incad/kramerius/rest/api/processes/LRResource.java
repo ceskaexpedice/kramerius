@@ -480,9 +480,15 @@ public class LRResource {
             @QueryParam("userid")  String filterUserId,
             @QueryParam("userFirstname")  String filterUserFirstname,
             @QueryParam("userSurname")  String filterUserSurname,
-
             @QueryParam("offset") String of,
-            @QueryParam("resultSize") String resultSize) {
+            @QueryParam("resultSize") String resultSize,
+            @QueryParam("ordering") String ordering) {
+    	
+    	ordering = ordering.toUpperCase();
+    	if (!ordering.equals("ASC") && !ordering.equals("DESC")) {
+    		ordering = "ASC";
+    	}
+    	LOGGER.log(Level.SEVERE, "ordering je " + ordering);
 
         //LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
         String loggedUserKey = findLoggedUserKey();
@@ -508,7 +514,7 @@ public class LRResource {
                     if (StringUtils.isAnyString(filterUserSurname)) filterMap.put("userSurname", filterUserSurname);
                 };
                 LRPRocessFilter filter = lrPRocessFilter(filterMap);
-                List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(LRProcessOrdering.PLANNED.name()), typeOfOrdering(null), offset(of, resultSize), filter);
+                List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(LRProcessOrdering.PLANNED.name()), typeOfOrdering(ordering), offset(of, resultSize), filter);
                 JSONArray retList = new JSONArray();
 
                 for (LRProcess lrProcess : lrProcesses) {
