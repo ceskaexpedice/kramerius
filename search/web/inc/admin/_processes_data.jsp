@@ -193,6 +193,15 @@ OutputTemplates.prototype.close=function(uuid) {
     $("#outputTemplate_"+uuid).hide();
 } 
 
+OutputTemplates.prototype.switch=function(uuid) {
+    if ($("#outputTemplate_"+uuid).is(':visible')) { 
+		this.close(uuid);
+    } else {
+		this.show(uuid);
+    }
+} 
+
+
 OutputTemplates.prototype.select=function(templateId, processUUID) {
     var link = "lr?action=outputTemplate&templateId="+templateId+"&uuid="+processUUID;
     window.open(link);
@@ -513,7 +522,7 @@ $(document).ready(function(){
 
                 <c:choose>
                     <c:when test="${lrProc.outputTemplatesDefined}">
-                        <td id="outputTemplateCell_${lrProc.UUID}" class="buttons"> <a href="javascript:outoutTemplates.show('${lrProc.UUID}');"><span class="ui-icon ui-icon-circle-triangle-s"></span> </a> 
+                        <td id="outputTemplateCell_${lrProc.UUID}" class="buttons"> <a href="javascript:outoutTemplates.switch('${lrProc.UUID}');"><span class="ui-icon ui-icon-circle-triangle-s"></span> </a> 
                             <div style="position: relative;">
                                <div id="outputTemplate_${lrProc.UUID}" style="display: none;" class="outputTemplate shadow ui-widget ui-widget-content">
                                     <table style="width: 100%">
