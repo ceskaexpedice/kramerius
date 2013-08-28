@@ -50,6 +50,7 @@ import com.google.inject.Inject;
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -73,6 +74,9 @@ public class ZoomifyServlet extends AbstractImageServlet {
     @Inject
     DeepZoomTileSupport tileSupport;
 
+    @Inject
+    StatisticsAccessLog accessLog;
+    
     @Override
     public ScalingMethod getScalingMethod() {
         ScalingMethod method = ScalingMethod.valueOf(KConfiguration.getInstance().getProperty("deepZoom.scalingMethod", "BICUBIC_STEPPED"));
@@ -120,7 +124,8 @@ public class ZoomifyServlet extends AbstractImageServlet {
     }
 
     private void renderXMLDescriptor(String pid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
-        setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
+    	this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+    	setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
         if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {

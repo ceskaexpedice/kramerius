@@ -39,6 +39,7 @@ import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -66,6 +67,10 @@ public class DeepZoomServlet extends AbstractImageServlet {
     
     @Inject
     SolrAccess solrAccess;
+    
+    
+    @Inject
+    StatisticsAccessLog accessLog;
     
     @Override
     public void init() throws ServletException {
@@ -122,7 +127,9 @@ public class DeepZoomServlet extends AbstractImageServlet {
     }
 
     private void renderDZI(String pid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
-        setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
+    	// report access
+    	this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+    	setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
         if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
