@@ -1231,7 +1231,20 @@ control.activate();}},addControls:function(controls){if(!(OpenLayers.Util.isArra
 this.controls=this.controls.concat(controls);for(var i=0,len=controls.length;i<len;i++){var control=controls[i],element=this.createControlMarkup(control);OpenLayers.Element.addClass(element,control.displayClass+"ItemInactive");OpenLayers.Element.addClass(element,"olButton");if(control.title!=""&&!element.title){element.title=control.title;}
 control.panel_div=element;}
 if(this.map){this.addControlsToMap(controls);this.redraw();}},createControlMarkup:function(control){return document.createElement("div");},addControlsToMap:function(controls){var control;for(var i=0,len=controls.length;i<len;i++){control=controls[i];if(control.autoActivate===true){control.autoActivate=false;this.map.addControl(control);control.autoActivate=true;}else{this.map.addControl(control);control.deactivate();}
-control.events.on({activate:this.iconOn,deactivate:this.iconOff});}},iconOn:function(){var d=this.panel_div;var re=new RegExp("\\b("+this.displayClass+"Item)Inactive\\b");d.className=d.className.replace(re,"$1Active");},iconOff:function(){var d=this.panel_div;var re=new RegExp("\\b("+this.displayClass+"Item)Active\\b");d.className=d.className.replace(re,"$1Inactive");},onButtonClick:function(evt){var controls=this.controls,button=evt.buttonElement;for(var i=controls.length-1;i>=0;--i){if(controls[i].panel_div===button){this.activateControl(controls[i]);break;}}},getControlsBy:function(property,match){var test=(typeof match.test=="function");var found=OpenLayers.Array.filter(this.controls,function(item){return item[property]==match||(test&&match.test(item[property]));});return found;},getControlsByName:function(match){return this.getControlsBy("name",match);},getControlsByClass:function(match){return this.getControlsBy("CLASS_NAME",match);},CLASS_NAME:"OpenLayers.Control.Panel"});OpenLayers.Control.ZoomIn=OpenLayers.Class(OpenLayers.Control,{type:OpenLayers.Control.TYPE_BUTTON,trigger:function(){this.map.zoomIn();},CLASS_NAME:"OpenLayers.Control.ZoomIn"});OpenLayers.Control.ZoomOut=OpenLayers.Class(OpenLayers.Control,{type:OpenLayers.Control.TYPE_BUTTON,trigger:function(){this.map.zoomOut();},CLASS_NAME:"OpenLayers.Control.ZoomOut"});OpenLayers.Control.ZoomToMaxExtent=OpenLayers.Class(OpenLayers.Control,{type:OpenLayers.Control.TYPE_BUTTON,trigger:function(){if(this.map){this.map.zoomToMaxExtent();}},CLASS_NAME:"OpenLayers.Control.ZoomToMaxExtent"});OpenLayers.Control.ZoomPanel=OpenLayers.Class(OpenLayers.Control.Panel,{initialize:function(options){OpenLayers.Control.Panel.prototype.initialize.apply(this,[options]);this.addControls([new OpenLayers.Control.ZoomIn(),new OpenLayers.Control.ZoomToMaxExtent(),new OpenLayers.Control.ZoomOut()]);},CLASS_NAME:"OpenLayers.Control.ZoomPanel"});OpenLayers.Layer.HTTPRequest=OpenLayers.Class(OpenLayers.Layer,{URL_HASH_FACTOR:(Math.sqrt(5)-1)/2,url:null,params:null,reproject:false,initialize:function(name,url,params,options){OpenLayers.Layer.prototype.initialize.apply(this,[name,options]);this.url=url;if(!this.params){this.params=OpenLayers.Util.extend({},params);}},destroy:function(){this.url=null;this.params=null;OpenLayers.Layer.prototype.destroy.apply(this,arguments);},clone:function(obj){if(obj==null){obj=new OpenLayers.Layer.HTTPRequest(this.name,this.url,this.params,this.getOptions());}
+control.events.on({activate:this.iconOn,deactivate:this.iconOff});}},iconOn:function(){var d=this.panel_div;var re=new RegExp("\\b("+this.displayClass+"Item)Inactive\\b");d.className=d.className.replace(re,"$1Active");},iconOff:function(){var d=this.panel_div;var re=new RegExp("\\b("+this.displayClass+"Item)Active\\b");d.className=d.className.replace(re,"$1Inactive");},onButtonClick:function(evt){var controls=this.controls,button=evt.buttonElement;for(var i=controls.length-1;i>=0;--i){if(controls[i].panel_div===button){this.activateControl(controls[i]);break;}}},getControlsBy:function(property,match){var test=(typeof match.test=="function");var found=OpenLayers.Array.filter(this.controls,function(item){return item[property]==match||(test&&match.test(item[property]));});return found;},getControlsByName:function(match){return this.getControlsBy("name",match);},getControlsByClass:function(match){return this.getControlsBy("CLASS_NAME",match);},CLASS_NAME:"OpenLayers.Control.Panel"});OpenLayers.Control.ZoomIn=OpenLayers.Class(OpenLayers.Control,{type:OpenLayers.Control.TYPE_BUTTON,trigger:function(){this.map.zoomIn();},CLASS_NAME:"OpenLayers.Control.ZoomIn"});OpenLayers.Control.ZoomOut=OpenLayers.Class(OpenLayers.Control,{type:OpenLayers.Control.TYPE_BUTTON,trigger:function(){this.map.zoomOut();},CLASS_NAME:"OpenLayers.Control.ZoomOut"});
+OpenLayers.Control.Rotate = OpenLayers.Class(OpenLayers.Control, {
+    type: OpenLayers.Control.TYPE_BUTTON,
+    trigger: function () {
+    	if (OpenLayers.Element.hasClass(this.map.viewPortDiv, 'rotateClass')) {
+    		OpenLayers.Element.removeClass(this.map.viewPortDiv, 'rotateClass');
+    	} else {
+    		OpenLayers.Element.addClass(this.map.viewPortDiv, 'rotateClass');
+    	}
+		
+    },
+    CLASS_NAME: "OpenLayers.Control.Rotate"
+});
+OpenLayers.Control.ZoomToMaxExtent=OpenLayers.Class(OpenLayers.Control,{type:OpenLayers.Control.TYPE_BUTTON,trigger:function(){if(this.map){this.map.zoomToMaxExtent();}},CLASS_NAME:"OpenLayers.Control.ZoomToMaxExtent"});OpenLayers.Control.ZoomPanel=OpenLayers.Class(OpenLayers.Control.Panel,{initialize:function(options){OpenLayers.Control.Panel.prototype.initialize.apply(this,[options]);this.addControls([new OpenLayers.Control.ZoomIn(),new OpenLayers.Control.ZoomToMaxExtent(),new OpenLayers.Control.ZoomOut()]);},CLASS_NAME:"OpenLayers.Control.ZoomPanel"});OpenLayers.Layer.HTTPRequest=OpenLayers.Class(OpenLayers.Layer,{URL_HASH_FACTOR:(Math.sqrt(5)-1)/2,url:null,params:null,reproject:false,initialize:function(name,url,params,options){OpenLayers.Layer.prototype.initialize.apply(this,[name,options]);this.url=url;if(!this.params){this.params=OpenLayers.Util.extend({},params);}},destroy:function(){this.url=null;this.params=null;OpenLayers.Layer.prototype.destroy.apply(this,arguments);},clone:function(obj){if(obj==null){obj=new OpenLayers.Layer.HTTPRequest(this.name,this.url,this.params,this.getOptions());}
 obj=OpenLayers.Layer.prototype.clone.apply(this,[obj]);return obj;},setUrl:function(newUrl){this.url=newUrl;},mergeNewParams:function(newParams){this.params=OpenLayers.Util.extend(this.params,newParams);var ret=this.redraw();if(this.map!=null){this.map.events.triggerEvent("changelayer",{layer:this,property:"params"});}
 return ret;},redraw:function(force){if(force){return this.mergeNewParams({"_olSalt":Math.random()});}else{return OpenLayers.Layer.prototype.redraw.apply(this,[]);}},selectUrl:function(paramString,urls){var product=1;for(var i=0,len=paramString.length;i<len;i++){product*=paramString.charCodeAt(i)*this.URL_HASH_FACTOR;product-=Math.floor(product);}
 return urls[Math.floor(product*urls.length)];},getFullRequestString:function(newParams,altUrl){var url=altUrl||this.url;var allParams=OpenLayers.Util.extend({},this.params);allParams=OpenLayers.Util.extend(allParams,newParams);var paramsString=OpenLayers.Util.getParameterString(allParams);if(OpenLayers.Util.isArray(url)){url=this.selectUrl(paramsString,url);}
@@ -2095,10 +2108,58 @@ return true;}else{return false;}},getBoxOffsets:function(){if(!this.boxOffsets){
 return this.boxOffsets;},CLASS_NAME:"OpenLayers.Handler.Box"});OpenLayers.Control.ZoomBox=OpenLayers.Class(OpenLayers.Control,{type:OpenLayers.Control.TYPE_TOOL,out:false,keyMask:null,alwaysZoom:false,draw:function(){this.handler=new OpenLayers.Handler.Box(this,{done:this.zoomBox},{keyMask:this.keyMask});},zoomBox:function(position){if(position instanceof OpenLayers.Bounds){var bounds;if(!this.out){var minXY=this.map.getLonLatFromPixel({x:position.left,y:position.bottom});var maxXY=this.map.getLonLatFromPixel({x:position.right,y:position.top});bounds=new OpenLayers.Bounds(minXY.lon,minXY.lat,maxXY.lon,maxXY.lat);}else{var pixWidth=Math.abs(position.right-position.left);var pixHeight=Math.abs(position.top-position.bottom);var zoomFactor=Math.min((this.map.size.h/pixHeight),(this.map.size.w/pixWidth));var extent=this.map.getExtent();var center=this.map.getLonLatFromPixel(position.getCenterPixel());var xmin=center.lon-(extent.getWidth()/2)*zoomFactor;var xmax=center.lon+(extent.getWidth()/2)*zoomFactor;var ymin=center.lat-(extent.getHeight()/2)*zoomFactor;var ymax=center.lat+(extent.getHeight()/2)*zoomFactor;bounds=new OpenLayers.Bounds(xmin,ymin,xmax,ymax);}
 var lastZoom=this.map.getZoom();this.map.zoomToExtent(bounds);if(lastZoom==this.map.getZoom()&&this.alwaysZoom==true){this.map.zoomTo(lastZoom+(this.out?-1:1));}}else{if(!this.out){this.map.setCenter(this.map.getLonLatFromPixel(position),this.map.getZoom()+1);}else{this.map.setCenter(this.map.getLonLatFromPixel(position),this.map.getZoom()-1);}}},CLASS_NAME:"OpenLayers.Control.ZoomBox"});OpenLayers.Control.DragPan=OpenLayers.Class(OpenLayers.Control,{type:OpenLayers.Control.TYPE_TOOL,panned:false,interval:1,documentDrag:false,kinetic:null,enableKinetic:false,kineticInterval:10,draw:function(){if(this.enableKinetic){var config={interval:this.kineticInterval};if(typeof this.enableKinetic==="object"){config=OpenLayers.Util.extend(config,this.enableKinetic);}
 this.kinetic=new OpenLayers.Kinetic(config);}
-this.handler=new OpenLayers.Handler.Drag(this,{"move":this.panMap,"done":this.panMapDone,"down":this.panMapStart},{interval:this.interval,documentDrag:this.documentDrag});},panMapStart:function(){if(this.kinetic){this.kinetic.begin();}},panMap:function(xy){if(this.kinetic){this.kinetic.update(xy);}
-this.panned=true;this.map.pan(this.handler.last.x-xy.x,this.handler.last.y-xy.y,{dragging:true,animate:false});},panMapDone:function(xy){if(this.panned){var res=null;if(this.kinetic){res=this.kinetic.end(xy);}
-this.map.pan(this.handler.last.x-xy.x,this.handler.last.y-xy.y,{dragging:!!res,animate:false});if(res){var self=this;this.kinetic.move(res,function(x,y,end){self.map.pan(x,y,{dragging:!end,animate:false});});}
-this.panned=false;}},CLASS_NAME:"OpenLayers.Control.DragPan"});OpenLayers.Handler.Click=OpenLayers.Class(OpenLayers.Handler,{delay:300,single:true,'double':false,pixelTolerance:0,dblclickTolerance:13,stopSingle:false,stopDouble:false,timerId:null,touch:false,down:null,last:null,first:null,rightclickTimerId:null,touchstart:function(evt){if(!this.touch){this.unregisterMouseListeners();this.touch=true;}
+this.handler=new OpenLayers.Handler.Drag(this,{"move":this.panMap,"done":this.panMapDone,"down":this.panMapStart},{interval:this.interval,documentDrag:this.documentDrag});},panMapStart:function(){if(this.kinetic){this.kinetic.begin();}},
+panMap: function (xy) {
+    if (this.kinetic) {
+        this.kinetic.update(xy);
+    }
+    this.panned = true;
+    if (OpenLayers.Element.hasClass(this.map.viewPortDiv, 'rotateClass')) {
+        this.map.pan(this.handler.last.y - xy.y,
+            xy.x - this.handler.last.x, {
+                dragging: true,
+                animate: false
+            });
+    } else {
+        this.map.pan(this.handler.last.x - xy.x,
+            this.handler.last.y - xy.y, {
+                dragging: true,
+                animate: false
+            });
+    }
+},
+panMapDone: function (xy) {
+    if (this.panned) {
+        var res = null;
+        if (this.kinetic) {
+            res = this.kinetic.end(xy);
+        }
+        if (OpenLayers.Element.hasClass(this.map.viewPortDiv, 'rotateClass')) {
+            this.map.pan(this.handler.last.y - xy.y,
+                xy.x - this.handler.last.x, {
+                    dragging: !! res,
+                    animate: false
+                });
+        } else {
+            this.map.pan(this.handler.last.x - xy.x,
+                this.handler.last.y - xy.y, {
+                    dragging: !! res,
+                    animate: false
+                });
+        }
+        if (res) {
+            var self = this;
+            this.kinetic.move(res, function (x, y, end) {
+                self.map.pan(x, y, {
+                        dragging: !end,
+                        animate: false
+                    });
+            });
+        }
+        this.panned = false;
+    }
+},
+CLASS_NAME:"OpenLayers.Control.DragPan"});OpenLayers.Handler.Click=OpenLayers.Class(OpenLayers.Handler,{delay:300,single:true,'double':false,pixelTolerance:0,dblclickTolerance:13,stopSingle:false,stopDouble:false,timerId:null,touch:false,down:null,last:null,first:null,rightclickTimerId:null,touchstart:function(evt){if(!this.touch){this.unregisterMouseListeners();this.touch=true;}
 this.down=this.getEventInfo(evt);this.last=this.getEventInfo(evt);return true;},touchmove:function(evt){this.last=this.getEventInfo(evt);return true;},touchend:function(evt){if(this.down){evt.xy=this.last.xy;evt.lastTouches=this.last.touches;this.handleSingle(evt);this.down=null;}
 return true;},unregisterMouseListeners:function(){this.map.events.un({mousedown:this.mousedown,mouseup:this.mouseup,click:this.click,dblclick:this.dblclick,scope:this});},mousedown:function(evt){this.down=this.getEventInfo(evt);this.last=this.getEventInfo(evt);return true;},mouseup:function(evt){var propagate=true;if(this.checkModifiers(evt)&&this.control.handleRightClicks&&OpenLayers.Event.isRightClick(evt)){propagate=this.rightclick(evt);}
 return propagate;},rightclick:function(evt){if(this.passesTolerance(evt)){if(this.rightclickTimerId!=null){this.clearTimer();this.callback('dblrightclick',[evt]);return!this.stopDouble;}else{var clickEvent=this['double']?OpenLayers.Util.extend({},evt):this.callback('rightclick',[evt]);var delayedRightCall=OpenLayers.Function.bind(this.delayedRightCall,this,clickEvent);this.rightclickTimerId=window.setTimeout(delayedRightCall,this.delay);}}

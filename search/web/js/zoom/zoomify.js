@@ -12,6 +12,7 @@ function ZoomifyViewerInitObject() {
     
     this.zoomIn = null;
     this.zoomOut = null;
+    this.rotate = null;
     
     this.divs = {
     		"ol-image":"ol-image",
@@ -108,6 +109,8 @@ ZoomifyViewerInitObject.prototype.open = function(pid,altoObject) {
         this.map.addControl(this.zoomIn);
         this.zoomOut = new OpenLayers.Control.ZoomOut();
         this.map.addControl(this.zoomOut);
+        this.rotate = new OpenLayers.Control.Rotate();
+        this.map.addControl(this.rotate);
 
         this.map.addControl(new OpenLayers.Control.KeyboardDefaults());
         this.map.addControl(new OpenLayers.Control.Navigation({
@@ -140,6 +143,10 @@ ZoomifyViewerInitObject.prototype.minus = function() {
 
 ZoomifyViewerInitObject.prototype.plus = function() {
     this.zoomIn.trigger();
+}
+
+ZoomifyViewerInitObject.prototype.rotateImg = function() {
+    this.rotate.trigger();
 }
 
 

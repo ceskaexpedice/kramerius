@@ -24,6 +24,13 @@
     .buttons>a>span.ui-button-text{
         padding:3px;
     }
+    
+    .rotateClass{
+    transform: rotate(90deg);
+	-ms-transform: rotate(90deg); 		/* IE 9 */
+	-webkit-transform: rotate(90deg); 	/* Safari a Chrome */
+	-moz-transform: rotate(90deg);		/* Firefox */
+	}
 
 /*    
     span.ui-button-text {
@@ -54,6 +61,19 @@ function onLoadPlainImage() {
     <script type="text/javascript" src="${script}"></script>
 </c:forEach>
 
+<%@ page import="java.io.File" %>
+<%@ page import="java.util.Properties" %>
+<%@ page import="java.io.FileInputStream" %>
+<%@ page import="java.io.InputStream" %>
+<% 
+	String rotateFlg = KConfiguration.getInstance().getProperty("search.rotationEnabled");
+
+	String rotateButton = "";
+	if (rotateFlg.equals("true")) {
+	 	rotateButton = "<a id=\"zoomifyRotateButton\" onclick=\"javascript:zoomInit.rotateImg();\" style=\"z-index: 1002\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" >rotate</span></a>";  
+	}
+%>
+
 <div id="bigThumbZone" class="viewer">
     <div id="container"  class="view_div"  style="display:none;  height: 512px;">
     </div>
@@ -66,6 +86,7 @@ function onLoadPlainImage() {
        <a id="zoomifyMinusButton" onclick="javascript:zoomInit.minus();" style="z-index: 1002"><span class="ui-icon ui-icon-minus" >-</span></a>
        <a id="zoomifyButtonPrev" onclick="javascript:previousImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-w" >prev</span></a>
        <a id="zoomifyButtonNext" onclick="javascript:nextImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-e" >next</span></a>
+       <%= rotateButton %>  
       </div>
    
     <div id="ol-wrapper" style="height: 512px; position: relative; top:-25px;">
