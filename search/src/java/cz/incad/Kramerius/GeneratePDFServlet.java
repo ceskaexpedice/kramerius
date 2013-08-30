@@ -132,7 +132,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 	        } else {
 	            try {
 	                LOGGER.fine("sending error to client");
-                    renderErrorPagePDF(req, resp);
+                    renderErrorServerBusy(req, resp);
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(),e);
                 }
@@ -143,10 +143,31 @@ public class GeneratePDFServlet extends GuiceServlet {
 		}
 	}
 
-    private void renderErrorPagePDF(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+    static void renderErrorServerBusy(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         LOGGER.info("server busy forward");
-        RequestDispatcher dispatcher = req.getRequestDispatcher("serverbusy.jsp");
-        dispatcher.forward(req, resp);
+//        RequestDispatcher dispatcher = req.getRequestDispatcher("serverbusy.jsp");
+//        dispatcher.forward(req, resp);
+        
+        resp.setContentType("text/plain");
+        resp.getWriter().println("{" +
+        	"errorType:'serverbusy',\n"
+        	+ "redirect:'serverbusy.jsp',\n"
+        	+ "returnUrl:'"+req.getParameter("redirectURL")+"'"+
+        "}");
+
+        
+    }
+
+    
+    static void renderErrorTooMuchPages(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        LOGGER.info("server busy forward");
+
+        resp.setContentType("text/plain");
+        resp.getWriter().println("{" +
+        	"errorType:'maxpage',\n"
+        	+ "redirect:'pdfmaxpageserror.jsp',\n"
+        	+ "returnUrl:'"+req.getParameter("redirectURL")+"'"+
+        "}");
     }
 
     public void renderPDF(HttpServletRequest req, HttpServletResponse resp) throws MalformedURLException, IOException, ProcessSubtreeException {
@@ -193,40 +214,45 @@ public class GeneratePDFServlet extends GuiceServlet {
                     ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(par)));
                     List params = parser.params();
                     
-                    //PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
+                    if (params.size() < Integer.parseInt(KConfiguration.getInstance().getProperty("generatePdfMaxRange"))) {
+                        //PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
 
-                    File tmpFile = File.createTempFile("body", "pdf");
-                    filesToDelete.add(tmpFile);
-                    FileOutputStream bodyTmpFos = new FileOutputStream(tmpFile);
-                    File fpage = File.createTempFile("head", "pdf");
-                    filesToDelete.add(fpage);
-                    FileOutputStream fpageFos = new FileOutputStream(fpage);
+                        File tmpFile = File.createTempFile("body", "pdf");
+                        filesToDelete.add(tmpFile);
+                        FileOutputStream bodyTmpFos = new FileOutputStream(tmpFile);
+                        File fpage = File.createTempFile("head", "pdf");
+                        filesToDelete.add(fpage);
+                        FileOutputStream fpageFos = new FileOutputStream(fpage);
 
-                    int[] irects = srect(srect);
-                    
-                    FontMap fMap = new FontMap(pdfService.fontsFolder());
-                    
-                    AbstractRenderedDocument rdoc = documentService.buildDocumentFromSelection((String[])params.toArray(new String[params.size()]), irects);
-                    LOGGER.fine("creating documents takes "+(System.currentTimeMillis() - start)+" ms ");
-                    
-                    start = System.currentTimeMillis();
-                    firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, (String[])params.toArray(new String[params.size()]) , imgServletUrl, i18nUrl, fMap);
-                    LOGGER.fine("generating first page takes "+(System.currentTimeMillis() - start)+" ms ");
-                    
-                    start = System.currentTimeMillis();
-                    pdfService.generateCustomPDF(rdoc, bodyTmpFos, fMap, imgServletUrl, i18nUrl, ImageFetcher.WEB);
-                    LOGGER.fine("generating custom pdf takes "+(System.currentTimeMillis() - start)+" ms ");
-                    
-                    bodyTmpFos.close();fpageFos.close();
+                        int[] irects = srect(srect);
+                        
+                        FontMap fMap = new FontMap(pdfService.fontsFolder());
+                        
+                        AbstractRenderedDocument rdoc = documentService.buildDocumentFromSelection((String[])params.toArray(new String[params.size()]), irects);
+                        LOGGER.fine("creating documents takes "+(System.currentTimeMillis() - start)+" ms ");
+                        
+                        start = System.currentTimeMillis();
+                        firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, (String[])params.toArray(new String[params.size()]) , imgServletUrl, i18nUrl, fMap);
+                        LOGGER.fine("generating first page takes "+(System.currentTimeMillis() - start)+" ms ");
+                        
+                        start = System.currentTimeMillis();
+                        pdfService.generateCustomPDF(rdoc, bodyTmpFos, fMap, imgServletUrl, i18nUrl, ImageFetcher.WEB);
+                        LOGGER.fine("generating custom pdf takes "+(System.currentTimeMillis() - start)+" ms ");
+                        
+                        bodyTmpFos.close();fpageFos.close();
 
-                    File generatedPDF = File.createTempFile("rendered","pdf");
-                    generatedPDFFos = new FileOutputStream(generatedPDF);
+                        File generatedPDF = File.createTempFile("rendered","pdf");
+                        generatedPDFFos = new FileOutputStream(generatedPDF);
 
-                    start = System.currentTimeMillis();
-                    mergeToOutput(generatedPDFFos, tmpFile, fpage);
-                    LOGGER.fine("merging document pdf takes "+(System.currentTimeMillis() - start)+" ms ");
+                        start = System.currentTimeMillis();
+                        mergeToOutput(generatedPDFFos, tmpFile, fpage);
+                        LOGGER.fine("merging document pdf takes "+(System.currentTimeMillis() - start)+" ms ");
 
-                    outputJSON(response, generatedPDF, generatedPDFFos, tmpFile, fpage);
+                        outputJSON(response, generatedPDF, generatedPDFFos, tmpFile, fpage);
+                    	
+                    } else {
+                    	renderErrorTooMuchPages(request, response);
+                    }
                     
                     
                 } catch (IOException e) {
@@ -241,7 +267,9 @@ public class GeneratePDFServlet extends GuiceServlet {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (DocumentException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                } finally {
+                } catch (ServletException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+				} finally {
                     for (File file : filesToDelete) {
                         file.delete();
                     }

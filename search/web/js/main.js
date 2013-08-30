@@ -234,7 +234,11 @@ PDF.prototype.renderPDF = function() {
 		$.get(u, bind(function(data) {
 			this.waitDialog.dialog("close");
 			var obj = eval('(' + data + ')');
-			window.location.href = 'pdf?action=FILE&pdfhandle='+obj.pdfhandle;
+			if ("errorType" in obj) {
+				window.location.href = obj.redirect+"?redirectURL="+obj.returnUrl;
+			} else {
+				window.location.href = 'pdf?action=FILE&pdfhandle='+obj.pdfhandle;
+			}
 		},this));
 		
 	} else {
