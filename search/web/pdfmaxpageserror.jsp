@@ -55,9 +55,9 @@ pageContext.setAttribute("redirectURL", redirectURL);
      });
     </script>
     <div id="error_pdf_dialog" style="display: none;">
-        <h3><fmt:message bundle="${lctx}">generatePdfTitle</fmt:message></h3>    
+        <h3><fmt:message bundle="${lctx}">pdf.pdfError.label</fmt:message></h3>    
         <div>
-            <span><fmt:message bundle="${lctx}">pdf.validationError.toomuch</fmt:message></span>
+            <span><fmt:message bundle="${lctx}">pdf.pdfError.toomuch</fmt:message></span>
         </div>
     </div>
 </body>
