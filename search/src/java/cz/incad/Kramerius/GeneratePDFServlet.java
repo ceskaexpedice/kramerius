@@ -289,6 +289,8 @@ public class GeneratePDFServlet extends GuiceServlet {
                     String pid = request.getParameter(PID_FROM);
                     String srect = request.getParameter(RECT);
          
+                    if (Integer.parseInt(howMany) < Integer.parseInt(KConfiguration.getInstance().getProperty("generatePdfMaxRange"))) {
+                    	
                     File tmpFile = File.createTempFile("body", "pdf");
                     filesToDelete.add(tmpFile);
 
@@ -324,6 +326,10 @@ public class GeneratePDFServlet extends GuiceServlet {
                     mergeToOutput(generatedPDFFos, tmpFile, fpage);
 
                     outputJSON(response, generatedPDF, generatedPDFFos, tmpFile, fpage);
+                    	
+                    } else {
+                    	renderErrorTooMuchPages(request, response);
+                    }
 
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -333,7 +339,9 @@ public class GeneratePDFServlet extends GuiceServlet {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (DocumentException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                } finally {
+                } catch (ServletException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+				} finally {
                     for (File file : filesToDelete) {
                         file.delete();
                     }
