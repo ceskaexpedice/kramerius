@@ -10,36 +10,32 @@ package cz.incad.kramerius.resourceindex;
  */
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.util.List;
-import java.util.logging.Level;
-
-import javax.sql.DataSource;
-
-import java.util.logging.Logger;
-import org.nsdl.mptstore.core.TableManager;
-import org.nsdl.mptstore.util.NTriplesUtil;
-
-import java.util.Properties;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.nsdl.mptstore.core.BasicTableManager;
 import org.nsdl.mptstore.core.DDLGenerator;
+import org.nsdl.mptstore.core.TableManager;
+import org.nsdl.mptstore.util.NTriplesUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import org.apache.commons.configuration.Configuration;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MPTStoreService implements IResourceIndex {
 
@@ -286,60 +282,61 @@ public class MPTStoreService implements IResourceIndex {
             Element results = xmldoc.createElementNS(SPARQL_NS, "results");
             xmldoc.appendChild(root);
             root.appendChild(results);
-            
-            String sql = "select " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_dcType + ".o from " +
-                    table_dcTitle + "," + table_dcType + "," + table_model;
-            
-            sql += " where " + table_model + ".o='<info:fedora/model:collection>' and " + table_dcTitle + ".s=" + table_dcType + ".s and " + table_dcTitle + ".s=" + table_model + ".s ";
+            if (checkTableMappings()){
+                String sql = "select " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_dcType + ".o from " +
+                        table_dcTitle + "," + table_dcType + "," + table_model;
 
-            s = c.prepareStatement(sql,
-                    ResultSet.FETCH_FORWARD,
-                    ResultSet.CONCUR_READ_ONLY);
-            r = s.executeQuery();
-            String uuid;
+                sql += " where " + table_model + ".o='<info:fedora/model:collection>' and " + table_dcTitle + ".s=" + table_dcType + ".s and " + table_dcTitle + ".s=" + table_model + ".s ";
 
-            /*
-             *
-             * <sparql xmlns="http://www.w3.org/2001/sw/DataAccess/rf1/result">
-            <head>
-            <variable name="object"/>
-            <variable name="title"/>
-            <variable name="date"/>
-            </head>
-            <results>
-            <result>
-            <object uri="info:fedora/uuid:9c1ad6d4-e645-11de-a504-001143e3f55c"/>
-            
-            <title>Spisy Masarykovy Akademie Prace 1921</title>
-            <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2010-05-03T08:24:40.776Z</date>
-            </result>
-            
-             */
-            Element e, e2;
-            Node n;
-            while (r.next()) {
-                e = xmldoc.createElementNS(SPARQL_NS, "result");
-                uuid = r.getString(1);
-                //uuid = r.getString(1).split("info:fedora/")[1];
-                uuid = uuid.substring(1, uuid.length() - 1);
+                s = c.prepareStatement(sql,
+                        ResultSet.FETCH_FORWARD,
+                        ResultSet.CONCUR_READ_ONLY);
+                r = s.executeQuery();
+                String uuid;
 
-                e2 = xmldoc.createElementNS(SPARQL_NS, "object");
-                e2.setAttribute("uri", uuid);
-                //n = xmldoc.createTextNode(uuid);
-                //e.appendChild(n);
-                e.appendChild(e2);
+                /*
+                 *
+                 * <sparql xmlns="http://www.w3.org/2001/sw/DataAccess/rf1/result">
+                <head>
+                <variable name="object"/>
+                <variable name="title"/>
+                <variable name="date"/>
+                </head>
+                <results>
+                <result>
+                <object uri="info:fedora/uuid:9c1ad6d4-e645-11de-a504-001143e3f55c"/>
 
-                e2 = xmldoc.createElementNS(SPARQL_NS, "title");
-                n = xmldoc.createTextNode(org.nsdl.mptstore.util.NTriplesUtil.unescapeLiteralValue(r.getString(2)));
-                e2.appendChild(n);
-                e.appendChild(e2);
-                
-                e2 = xmldoc.createElementNS(SPARQL_NS, "canLeave");
-                n = xmldoc.createTextNode(r.getString(3));
-                e2.appendChild(n);
-                e.appendChild(e2);
+                <title>Spisy Masarykovy Akademie Prace 1921</title>
+                <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2010-05-03T08:24:40.776Z</date>
+                </result>
 
-                results.appendChild(e);
+                 */
+                Element e, e2;
+                Node n;
+                while (r.next()) {
+                    e = xmldoc.createElementNS(SPARQL_NS, "result");
+                    uuid = r.getString(1);
+                    //uuid = r.getString(1).split("info:fedora/")[1];
+                    uuid = uuid.substring(1, uuid.length() - 1);
+
+                    e2 = xmldoc.createElementNS(SPARQL_NS, "object");
+                    e2.setAttribute("uri", uuid);
+                    //n = xmldoc.createTextNode(uuid);
+                    //e.appendChild(n);
+                    e.appendChild(e2);
+
+                    e2 = xmldoc.createElementNS(SPARQL_NS, "title");
+                    n = xmldoc.createTextNode(org.nsdl.mptstore.util.NTriplesUtil.unescapeLiteralValue(r.getString(2)));
+                    e2.appendChild(n);
+                    e.appendChild(e2);
+
+                    e2 = xmldoc.createElementNS(SPARQL_NS, "canLeave");
+                    n = xmldoc.createTextNode(r.getString(3));
+                    e2.appendChild(n);
+                    e.appendChild(e2);
+
+                    results.appendChild(e);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -356,6 +353,17 @@ public class MPTStoreService implements IResourceIndex {
         }
         //return result.toString();
         return xmldoc;
+    }
+
+    /**
+     * Check the existence of table mappings necessary for getVortualCollections MPTstore sql query
+     * @return true if all necessary table mappings are defined
+     */
+    private boolean checkTableMappings(){
+        if (table_dcType == null || "".equals(table_dcType)||"null".equalsIgnoreCase(table_dcType)) return false;
+        if (table_dcTitle == null || "".equals(table_dcTitle)||"null".equalsIgnoreCase(table_dcTitle)) return false;
+        if (table_model == null || "".equals(table_model)||"null".equalsIgnoreCase(table_model)) return false;
+        return true;
     }
 
     @Override
