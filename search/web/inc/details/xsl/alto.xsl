@@ -11,7 +11,11 @@
     <xsl:variable name="generic" select="exts:new()" />
 
     <xsl:template  match="/" >
-        <xsl:variable name="coeficient" select="$h div number(/alto:alto/alto:Layout/alto:Page/alto:PrintSpace/@HEIGHT)"/>
+        <xsl:variable name="page_height"><xsl:choose>
+                <xsl:when test="/alto:alto/alto:Layout/alto:Page/@HEIGHT"><xsl:value-of select="/alto:alto/alto:Layout/alto:Page/@HEIGHT" /></xsl:when>
+                <xsl:otherwise><xsl:value-of select="/alto:alto/alto:Layout/alto:Page/alto:PrintSpace/@HEIGHT" /></xsl:otherwise>
+        </xsl:choose></xsl:variable>
+        <xsl:variable name="coeficient" select="$h div number($page_height)"/>
         <xsl:for-each select="//alto:String">
             <xsl:if test="exts:contains($generic, ./@CONTENT, $q) or exts:contains($generic, ./@SUBS_CONTENT, $q)">
         <div class="alto_selection">
