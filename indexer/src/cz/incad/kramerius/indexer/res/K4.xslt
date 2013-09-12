@@ -109,6 +109,15 @@
                         <xsl:value-of select="exts:prepareCzech($generic, text())"/>##<xsl:value-of select="text()"/>
                     </field>
                 </xsl:for-each>
+        
+                <xsl:for-each select="foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:contributor">
+                    <field name="dc.creator" boost="1.5">
+                        <xsl:value-of select="text()"/>
+                    </field>
+                    <field name="browse_autor" >
+                        <xsl:value-of select="exts:prepareCzech($generic, text())"/>##<xsl:value-of select="text()"/>
+                    </field>
+                </xsl:for-each>
                 
             </xsl:when>
             <xsl:otherwise>
