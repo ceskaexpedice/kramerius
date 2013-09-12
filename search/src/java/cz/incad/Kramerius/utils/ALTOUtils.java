@@ -19,15 +19,14 @@
  */
 package cz.incad.Kramerius.utils;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.XMLUtils.ElementsFilter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.XMLUtils.ElementsFilter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author pavels
@@ -51,11 +50,18 @@ public class ALTOUtils {
             }
         }
 
-        Element pageElm = XMLUtils.findElement(dom.getDocumentElement(), "PrintSpace");
+        Element pageElm = XMLUtils.findElement(dom.getDocumentElement(), "Page");
         if (pageElm != null) {
             //<Page ID="Page0" PHYSICAL_IMG_NR="0" HEIGHT="3232" WIDTH="2515">
             String imageHeight = pageElm.getAttribute("HEIGHT");
             String imageWidth = pageElm.getAttribute("WIDTH");
+            if (imageHeight == null || imageWidth == null){
+                pageElm = XMLUtils.findElement(dom.getDocumentElement(), "PrintSpace");
+                if (pageElm != null) {
+                    imageHeight = pageElm.getAttribute("HEIGHT");
+                    imageWidth = pageElm.getAttribute("WIDTH");
+                }
+            }
             Map<String, Double> image = new HashMap<String, Double>();
             image.put("HEIGHT", Double.parseDouble(imageHeight));
             image.put("WIDTH", Double.parseDouble(imageWidth));
