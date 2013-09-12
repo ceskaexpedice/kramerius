@@ -37,6 +37,7 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -71,6 +72,7 @@ import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.TypeOfOrdering;
+import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.processes.exceptions.CannotReadLogs;
 import cz.incad.kramerius.rest.api.processes.exceptions.CannotStartProcess;
@@ -482,13 +484,15 @@ public class LRResource {
             @QueryParam("userSurname")  String filterUserSurname,
             @QueryParam("offset") String of,
             @QueryParam("resultSize") String resultSize,
-            @QueryParam("ordering") String ordering) {
+            @QueryParam("ordering") @DefaultValue("ASC")String ordering) {
     	
-    	ordering = ordering.toUpperCase();
-    	if (!ordering.equals("ASC") && !ordering.equals("DESC")) {
-    		ordering = "ASC";
+    	
+    	if (ordering != null) {
+        	ordering = ordering.toUpperCase();
+        	if (!ordering.equals("ASC") && !ordering.equals("DESC")) {
+        		ordering = "ASC";
+        	}
     	}
-    	LOGGER.log(Level.SEVERE, "ordering je " + ordering);
 
         //LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
         String loggedUserKey = findLoggedUserKey();
