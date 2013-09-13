@@ -51,15 +51,15 @@
 	function loadTrack(pid){
         $.get('audioTracks?action=getTracks&pid_path=' + pid, function(data){
         	if (data.tracks[0].mp3) {
-    			var mp3 = "http://krameriustest.mzk.cz/search/audioProxy/" + pid + "/MP3";
+    			var mp3 = "http://" + window.location.host + "/search/audioProxy/" + pid + "/MP3";
     			$('<source src="' + mp3 + '" type="audio/mpeg">').appendTo("audio");
             }
         	if (data.tracks[0].ogg) {
-        		var ogg = "http://krameriustest.mzk.cz/search/audioProxy/" + pid + "/OGG";
+        		var ogg = "http://" + window.location.host + "/search/audioProxy/" + pid + "/OGG";
         		$('<source src="' + ogg + '" type="audio/ogg">').appendTo("audio");
             }            
             if (data.tracks[0].wav) {
-    			var wav = "http://krameriustest.mzk.cz/search/audioProxy/" + pid + "/WAV";
+    			var wav = "http://" + window.location.host + "/search/audioProxy/" + pid + "/WAV";
     			$('<source src="' + wav + '" type="audio/wav">').appendTo("audio");
             }
         });
