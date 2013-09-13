@@ -17,6 +17,8 @@
             String i18nServlet = cz.incad.Kramerius.I18NServlet.i18nServlet(request) + "?action=bundle&lang=" + lctx.getLocale().getLanguage() + "&country=" + lctx.getLocale().getCountry() + "&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
 %>
+<%@ page isELIgnored="false"%>
+
 <view:kconfig var="solrHost" key="solrHost" />
 <c:url var="url" value="${solrHost}/select" >
     <c:param name="q" >PID:"${param.pid}"</c:param>
