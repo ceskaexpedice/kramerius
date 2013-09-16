@@ -55,6 +55,8 @@
 <script type="text/javascript">
                 
     function updateCustomTab(tab, pid_path){
+		$("#"+tab.split(".")[1]+"_li").show();
+    
         $.get('inc/details/tabs/loadCustom.jsp?tab='+tab+'&pid_path=' + pid_path, function(data){
             $('#itemtab_'+tab.split(".")[1]).html(data) ;
         });
