@@ -72,7 +72,14 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
     
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
-    
+
+
+	private XPathFactory xpfactory;
+	
+	public MovingWall() {
+        this.xpfactory = XPathFactory.newInstance();
+	}
+	
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
         int wallFromConf = Integer.parseInt((String)getObjects()[0]);
@@ -120,7 +127,6 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
 
     public EvaluatingResult evaluateDoc(int wallFromConf, Document xmlDoc, String xPathExpression) throws XPathExpressionException {
-        XPathFactory xpfactory = XPathFactory.newInstance();
         XPath xpath = xpfactory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         XPathExpression expr = xpath.compile(xPathExpression);
