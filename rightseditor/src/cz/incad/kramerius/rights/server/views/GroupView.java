@@ -32,7 +32,7 @@ public class GroupView extends View {
         addProperty(Structure.group.GNAME);
         setDefaultSortProperty(Structure.group.GNAME);
         // setForm(createGroupForm());
-        addQueryDescriptor(new QueryDescriptor("default", "default") {
+        addQueryDescriptor(new QueryDescriptor("groupview-default", "default") {
             @Override
             public QueryExpression getQueryExpression(List<QueryParameter> queryParameters, Context ctx) {
                 User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
@@ -111,7 +111,7 @@ public class GroupView extends View {
             addProperty(Structure.user.LOGINNAME);
             setDefaultSortProperty(Structure.user.LOGINNAME);
             setForm(createUserForm());
-            addQueryDescriptor(new QueryDescriptor("default", "default"){
+            addQueryDescriptor(new QueryDescriptor("refuserview-default", "default"){
                 @Override
                 public QueryExpression getQueryExpression(List<QueryParameter> queryParameters, Context ctx) {
                     User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());

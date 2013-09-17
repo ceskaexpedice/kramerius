@@ -44,7 +44,7 @@ public class UserView extends View {
 
         addProperty(Structure.user.LOGINNAME).addProperty(Structure.user.NAME).addProperty(Structure.user.SURNAME);//.addProperty(Structure.user.PERSONAL_ADMIN.relate(Structure.group.GNAME));
         setDefaultSortProperty(Structure.user.LOGINNAME);
-        addQueryDescriptor(new QueryDescriptor("default", "default") {
+        addQueryDescriptor(new QueryDescriptor("userview-default", "default") {
             @Override
             public QueryExpression getQueryExpression(List<QueryParameter> queryParameters, Context ctx) {
                 User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
@@ -143,7 +143,7 @@ public class UserView extends View {
             //addProperty(Structure.group.PERSONAL_ADMIN.relate(Structure.group.GNAME));
             setDefaultSortProperty(Structure.group.GNAME);
             setForm(createGroupForm());
-            addQueryDescriptor(new QueryDescriptor("default", "default") {
+            addQueryDescriptor(new QueryDescriptor("refgrouview-default", "default") {
                 @Override
                 public QueryExpression getQueryExpression(List<QueryParameter> queryParameters, Context ctx) {
                     User user = GetCurrentLoggedUser.getCurrentLoggedUser(ctx.getHttpServletRequest());
