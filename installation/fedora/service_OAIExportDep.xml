@@ -23,6 +23,7 @@
             <fedora-model:isContractorOf rdf:resource="info:fedora/model:map"/>
             <fedora-model:isContractorOf rdf:resource="info:fedora/model:sheetmusic"/>
             <fedora-model:isContractorOf rdf:resource="info:fedora/model:article"/>
+            <fedora-model:isContractorOf rdf:resource="info:fedora/model:supplement"/>
           </rdf:Description>
         </rdf:RDF>
       </foxml:xmlContent>
