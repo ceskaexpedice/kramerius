@@ -521,10 +521,10 @@ c) Rgb;
 </foxml:datastream>
 <foxml:datastream CONTROL_GROUP="E" ID="SOME_IMAGE" STATE="A" VERSIONABLE="true">
 <foxml:datastreamVersion CREATED="2012-11-23T06:11:58.140Z" ID="SOME_IMAGE.0" LABEL="Enter a label here." MIMETYPE="text/xml">
-<foxml:contentLocation REF="file://$imgfile$" TYPE="URL"/>
+<foxml:contentLocation REF="$imgfile$" TYPE="URL"/>
 </foxml:datastreamVersion>
 <foxml:datastreamVersion CREATED="2012-11-23T06:12:28.538Z" ID="SOME_IMAGE.1" LABEL="Enter a label here." MIMETYPE="image/jpeg">
-<foxml:contentLocation REF="file://$imgfile$" TYPE="URL"/>
+<foxml:contentLocation REF="$imgfile$" TYPE="URL"/>
 </foxml:datastreamVersion>
 </foxml:datastream>
 </foxml:digitalObject>

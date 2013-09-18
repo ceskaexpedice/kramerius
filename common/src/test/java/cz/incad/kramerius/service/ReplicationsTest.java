@@ -19,39 +19,10 @@
  */
 package cz.incad.kramerius.service;
 
-import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyRelsExt;
-import static cz.incad.kramerius.fedora.impl.DataPrepare.narodniListyRelsExt;
-import static org.easymock.EasyMock.createMockBuilder;
-import static org.easymock.EasyMock.replay;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.antlr.stringtemplate.StringTemplate;
-import org.easymock.EasyMock;
-import org.fedora.api.FedoraAPIM;
-import org.junit.Assert;
-import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.name.Names;
-
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -63,6 +34,27 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
+import org.antlr.stringtemplate.StringTemplate;
+import org.easymock.EasyMock;
+import org.fedora.api.FedoraAPIM;
+import org.junit.Assert;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyRelsExt;
+import static cz.incad.kramerius.fedora.impl.DataPrepare.narodniListyRelsExt;
+import static org.easymock.EasyMock.createMockBuilder;
+import static org.easymock.EasyMock.replay;
 
 /**
  * @author pavels
@@ -86,9 +78,9 @@ public class ReplicationsTest {
         URL resource  = ReplicationsTest.class.getResource("impl/foxml_ext.xml");
 
         File file = new File(resource.getFile());
-        
+
         StringTemplate template = new StringTemplate(IOUtils.readAsString(resource.openConnection().getInputStream(), Charset.forName("UTF-8"),true));
-        template.setAttribute("imgfile", new File(file.getParentFile(), "img.jpeg").getAbsolutePath());
+        template.setAttribute("imgfile", new File(file.getParentFile(), "img.jpeg").toURI().toURL().toString());
 
         IOUtils.copyStreams(new ByteArrayInputStream(template.toString().getBytes("UTF-8")), bos);
         
