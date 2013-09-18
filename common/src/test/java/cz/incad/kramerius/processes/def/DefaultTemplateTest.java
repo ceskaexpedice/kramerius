@@ -79,6 +79,18 @@ public class DefaultTemplateTest {
         
         InputStream resStream = DefaultTemplateTest.class.getResourceAsStream("expecting.txt");
         String expected = IOUtils.readAsString(resStream, Charset.forName("UTF-8"), true);
+        System.out.println(expected);
+        
+        String str1 = stringWriter.toString();
+        String str2 = expected;
+        int l = Math.min(stringWriter.toString().length(), expected.length());
+        for (int i = 0; i < l; i++) {
+			if (str1.charAt(i) != str2.charAt(i)) {
+				String hex1 = String.format ("\\u%04x", (int)str1.charAt(i));
+				String hex2 = String.format ("\\u%04x", (int)str2.charAt(i));
+				System.out.println("char ["+i+"]; first str = '"+str1.charAt(i)+"' ("+hex1+"); second str = '"+str2.charAt(i)+"' ("+hex2+")");
+			}
+		}
         
         Assert.assertEquals(expected, stringWriter.toString());
     }
