@@ -19,13 +19,23 @@ package cz.incad.kramerius.editor.server;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.processes.DefinitionManager;
+import cz.incad.kramerius.processes.LRProcess;
+import cz.incad.kramerius.processes.LRProcessDefinition;
+import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.relation.RelationUtils;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.utils.DCUtils;
+
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.w3c.dom.Document;
 
 /**
@@ -35,7 +45,10 @@ import org.w3c.dom.Document;
 public final class RemoteServicesImpl implements RemoteServices {
 
     private FedoraAccess fedoraAccess;
-
+//    private DefinitionManager definitionManager;
+    
+    
+    
     @Inject
     public RemoteServicesImpl(@Named("rawFedoraAccess") FedoraAccess fedoraAccess) {
         this.fedoraAccess = fedoraAccess;
@@ -59,9 +72,12 @@ public final class RemoteServicesImpl implements RemoteServices {
     }
 
     void reindex(String uuid, String title) {
-        IndexerProcessStarter.spawnIndexer(true, title, uuid);
+    	// reindexace je nyni pres ajaxcall primo do k4
+    	//IndexerProcessStarter.spawnIndexer(true, title, uuid);
     }
 
+    
+    
     @Override
     public String fetchDCName(String pid) throws IOException {
         Document dc = RelationUtils.getDC(pid, fedoraAccess);

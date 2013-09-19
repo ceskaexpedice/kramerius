@@ -162,6 +162,7 @@ public final class EditorViewImpl implements EditorView {
     void onSaveClick(ClickEvent ce) {
         if (callback != null) {
             callback.onSaveClick();
+
         }
     }
 

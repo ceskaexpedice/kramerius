@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.SuggestOracle.Callback;
 import com.google.gwt.user.client.ui.SuggestOracle.Request;
 import com.google.gwt.user.client.ui.SuggestOracle.Response;
+
 import cz.incad.kramerius.editor.client.EditorConfiguration;
 import cz.incad.kramerius.editor.client.EditorMessages;
 import cz.incad.kramerius.editor.client.view.ContainerViewImpl;
@@ -50,12 +51,14 @@ import cz.incad.kramerius.editor.share.rpc.GetSuggestionResult;
 import cz.incad.kramerius.editor.share.rpc.GetSuggestionResult.Suggestion;
 import cz.incad.kramerius.editor.share.rpc.SaveRelationsQuery;
 import cz.incad.kramerius.editor.share.rpc.SaveRelationsResult;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import net.customware.gwt.dispatch.client.DispatchAsync;
 import net.customware.gwt.dispatch.shared.BatchAction;
 import net.customware.gwt.dispatch.shared.BatchResult;
@@ -78,6 +81,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
     private final Map<GWTRelationModel, Presenter.Display> relModel2viewMap = new LinkedHashMap<GWTRelationModel, Display>();
     private final DispatchAsync dispatcher;
     private boolean isBound = false;
+
 
 //    @Inject
 //    public EditorPresenter(EditorDisplay display, Provider<ContainerDisplay> contDisplayProvider) {
@@ -123,11 +127,12 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
     }
 
     public void load(String pid) {
-        load(pid, null);
+    	load(pid, null);
     }
 
     private void load(String pid, final Runnable callback) {
-        // first check if pid is already loaded
+
+    	// first check if pid is already loaded
         for (GWTRelationModel rm : this.relModel2viewMap.keySet()) {
             if (rm.getKrameriusObject().getPID().equals(pid)) {
                 Display relView = this.relModel2viewMap.get(rm);
@@ -157,6 +162,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
             }
 
         });
+
     }
 
     private void editRelations(GWTRelationModel relationModel) {
@@ -205,6 +211,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
                     GWTRelationModel relModel = relModels.get(i);
                     if (saveResult != null) {
                         relModel.save();
+                        buildUrl(relModel.getKrameriusObject().getPID());
                     } else {
                         ++errCount;
                         GWTKrameriusObject kobj = relModel.getKrameriusObject();
@@ -221,6 +228,8 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
                 } else if (callback != null) {
                     callback.run();
                 }
+
+                reindexAjaxCall();
             }
         });
     }
@@ -283,7 +292,7 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
 
     @Override
     public void onSaveClick() {
-        this.saveView.setCallback(new SaveView.Callback() {
+    	this.saveView.setCallback(new SaveView.Callback() {
 
             @Override
             public void onSaveViewCommit(boolean discard) {
@@ -299,6 +308,30 @@ public class EditorPresenter implements Presenter, LoadView.Callback, EditorView
         this.saveView.show();
     }
 
+    
+    public static native void buildUrl(String pid) /*-{
+		var link = "http://"+$wnd.location.host+"/search/lr?action=start&def=reindex&out=text&params=reindexDoc,"+pid+",editor+reindex";
+		if (typeof $wnd.reindex == 'undefined') {
+			$wnd.reindex = [link];
+		} else {
+			$wnd.reindex.push(link);
+		}
+		console.log("Reindex build "+$wnd.reindex);
+  	}-*/;
+
+    
+    public static native void reindexAjaxCall() /*-{
+		var links = $wnd.reindex ;
+		for (var i=0;i<links.length;i++) {
+			var link = links[i];
+			console.log(link);
+			var xhReq = new XMLHttpRequest();
+	 		xhReq.open("GET", link, false);
+	 		xhReq.send(null);
+	 		var serverResponse = xhReq.responseText;
+		}
+  	}-*/;
+    
     @Override
     public void onLoadViewCommit(String input) {
         Validator<String> validator = InputValidator.validatePID(input);

@@ -20,12 +20,15 @@ package cz.incad.kramerius.editor.server.guice;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
+import com.google.inject.util.Providers;
+
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.editor.server.RemoteServices;
 import cz.incad.kramerius.editor.server.RemoteServicesImpl;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -37,6 +40,9 @@ public class EditorGuiceModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
+        //bind(StatisticsAccessLog.class).toInstance(null);
+        bind(StatisticsAccessLog.class).toProvider(Providers.<StatisticsAccessLog>of(null));
+        
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(RemoteServices.class).to(RemoteServicesImpl.class).in(Scopes.SINGLETON);
