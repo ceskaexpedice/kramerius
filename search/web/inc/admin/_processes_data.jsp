@@ -506,6 +506,11 @@ $(document).ready(function(){
                     <c:when test="${lrProc.failedBatchState}">
                         <td title="${lrProc.batchState}" style="color: red;"><strong> ${lrProc.batchState}</strong></td>
                     </c:when>
+
+                    <c:when test="${lrProc.warningBatchState}">
+                        <td title="${lrProc.batchState}" style="color: red;"><strong> ${lrProc.batchState}</strong></td>
+                    </c:when>
+
                     <c:when test="${lrProc.runningdBatchState}">
                         <td title="${lrProc.batchState}" style="color: green;"><strong> ${lrProc.batchState}</strong></td>
                     </c:when>
@@ -553,6 +558,9 @@ $(document).ready(function(){
 
                    <c:choose>
                        <c:when test="${childLrProc.failedState}">
+                           <td title="${childLrProc.processState}" style="color: red;"><strong> ${childLrProc.processState}</strong></td>
+                       </c:when>
+                       <c:when test="${childLrProc.warningState}">
                            <td title="${childLrProc.processState}" style="color: red;"><strong> ${childLrProc.processState}</strong></td>
                        </c:when>
                        <c:when test="${childLrProc.runningState}">
