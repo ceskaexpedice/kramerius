@@ -295,7 +295,7 @@ PDF.prototype.onKeyup=function(id,type,pidsstring) {
 	var val = $("#"+id+"_input").val();
 	if (!isNaN(val)) {
 		var n=parseInt($("#"+id+"_input").val());;
-		if (n <= k4Settings.pdf.generatePdfMaxRange) {
+		if (n > k4Settings.pdf.generatePdfMaxRange) {
 			$("#"+id+"_error").text("");
 		} else {
 			$("#"+id+"_error").text(dictionary["pdf.validationError.toomuch"]);
