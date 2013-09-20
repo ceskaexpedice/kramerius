@@ -305,6 +305,7 @@ public class DocumentServiceImpl implements DocumentService {
                 PageNumbersBuilder pageNumbersBuilder = new PageNumbersBuilder();
                 pageNumbersBuilder.build(biblioMods, map, modelName);
                 List<String> pageNumbers = map.get(PageNumbersBuilder.MODS_PAGENUMBER);
+                pageNumbers = pageNumbers != null ? pageNumbers : new ArrayList<String>();
                 String pageNumber = pageNumbers.isEmpty() ? "" : pageNumbers.get(0);    
 
                 page.setPageNumber(pageNumber);
