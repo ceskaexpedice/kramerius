@@ -124,6 +124,10 @@ public class ProcessViewObject {
         return lrProcess.getBatchState() != null && lrProcess.getBatchState().equals(BatchStates.BATCH_FAILED);
     }
 
+    public boolean isWarningBatchState() {
+        return lrProcess.getBatchState() != null && lrProcess.getBatchState().equals(BatchStates.BATCH_WARNING);
+    }
+
     public boolean isRunningdBatchState() {
         return lrProcess.getBatchState() != null && lrProcess.getBatchState().equals(BatchStates.BATCH_STARTED);
     }
