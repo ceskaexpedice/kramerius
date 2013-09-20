@@ -214,7 +214,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                     ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(par)));
                     List params = parser.params();
                     
-                    if (params.size() < Integer.parseInt(KConfiguration.getInstance().getProperty("generatePdfMaxRange"))) {
+                    if (params.size() <= Integer.parseInt(KConfiguration.getInstance().getProperty("generatePdfMaxRange"))) {
                         //PDFFontConfigBean configBean = fontConfigParams(fontConfigParams(null, request.getParameter(LOGO_FONT), FontMap.BIG_FONT), request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
 
                         File tmpFile = File.createTempFile("body", "pdf");
@@ -289,7 +289,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                     String pid = request.getParameter(PID_FROM);
                     String srect = request.getParameter(RECT);
          
-                    if (Integer.parseInt(howMany) < Integer.parseInt(KConfiguration.getInstance().getProperty("generatePdfMaxRange"))) {
+                    if (Integer.parseInt(howMany) <= Integer.parseInt(KConfiguration.getInstance().getProperty("generatePdfMaxRange"))) {
                     	
                     File tmpFile = File.createTempFile("body", "pdf");
                     filesToDelete.add(tmpFile);

@@ -28,10 +28,8 @@ import cz.incad.kramerius.utils.imgs.ImageMimeType;
 
 public class MenuMimeTypesUtils {
 
-    public static String mimeTypeDisect(HttpServletRequest request, FedoraAccess fedoraAccess) throws IOException, XPathExpressionException {
-        String pid = request.getParameter(PID_PARAMETER);
-    
-        boolean imgfullAvailable = (pid != null && !pid.trim().equals("")) ? fedoraAccess.isImageFULLAvailable(pid) : false;
+    public static String mimeTypeDisect(String pid, FedoraAccess fedoraAccess) throws IOException, XPathExpressionException {
+    	boolean imgfullAvailable = (pid != null && !pid.trim().equals("")) ? fedoraAccess.isImageFULLAvailable(pid) : false;
         String mimeType = imgfullAvailable ? fedoraAccess.getImageFULLMimeType(pid) : "";
         return mimeType;
     }

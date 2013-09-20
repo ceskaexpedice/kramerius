@@ -17,6 +17,8 @@
 package cz.incad.Kramerius.exts.menu.context.impl.pub.items;
 
 
+import static cz.incad.utils.IKeys.PID_PARAMETER;
+
 import java.io.IOException;
 import java.util.logging.Level;
 
@@ -29,6 +31,7 @@ import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.utils.MenuMimeTypesUtils;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Generate PDF menu item
@@ -55,8 +58,16 @@ public class GeneratePDF extends AbstractContextMenuItem implements PublicContex
 
     public boolean isEnabledForMimeType() {
         try {
-            String mimeType = MenuMimeTypesUtils.mimeTypeDisect(this.requestProvider.get(), this.fedoraAccess);
+            String pid = this.requestProvider.get().getParameter(PID_PARAMETER);
+            // hledani 
+            if (pid == null) {
+            	return true;
+            }
+        
+            //zobrazujeme titul 
+            String mimeType = MenuMimeTypesUtils.mimeTypeDisect(this.fedoraAccess.findFirstViewablePid(pid), this.fedoraAccess);
             return !MenuMimeTypesUtils.isPDFMimeType(mimeType);
+
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             return false;
@@ -66,7 +77,7 @@ public class GeneratePDF extends AbstractContextMenuItem implements PublicContex
         }
     }
 
-    @Override
+    @Override	
     public String getRenderedItem() throws IOException {
         return super.renderContextMenuItem("javascript:generatepdf();", "administrator.menu.generatepdf");
     }
