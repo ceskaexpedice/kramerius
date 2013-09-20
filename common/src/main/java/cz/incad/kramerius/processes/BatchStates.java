@@ -41,9 +41,16 @@ public enum BatchStates {
     BATCH_FAILED(2),
 
     /**
+     * Batch failed (some of child process finished with state WARNING)
+     */
+    BATCH_WARNING(4),
+
+    
+    /**
      * Batch finished (all child processes finished with state FINISH)
      */
     BATCH_FINISHED(3);
+
 
     
     /**  load from value */
@@ -74,8 +81,10 @@ public enum BatchStates {
      */
     public static BatchStates calculateBatchState(List<States> childStates) {
         // ve stavu planned nebo running
-        if (States.one(childStates, States.FAILED, States.WARNING)) {
+        if (States.one(childStates, States.FAILED)) {
             return BATCH_FAILED;
+        } else if (States.one(childStates,States.WARNING)) {
+            return BATCH_WARNING;
         } else {
             if (States.one(childStates, States.PLANNED, States.RUNNING)) {
                 return BATCH_STARTED;
