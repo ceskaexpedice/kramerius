@@ -442,14 +442,24 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
             if (fedoraAccess.isImageFULLAvailable(uuid)) {
                 // bypass
                 //String imgUrl = createIMGFULL(uuid, imgServletUrl);
+            	// kdyz je pdf, musi
                 String mimetypeString = fedoraAccess.getImageFULLMimeType(uuid);
                 ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
-                if (mimetype != null) {
-                    BufferedImage javaImg = fetcher.fetch(uuid, imgServletUrl,mimetype, this.fedoraAccess);
+                if (mimetype != null && (!ImageMimeType.PDF.equals(mimetype))) {
+                	BufferedImage javaImg = fetcher.fetch(uuid, imgServletUrl,mimetype, this.fedoraAccess);
                     insertJavaImage(document, percentage, javaImg);
+                } else {
+                    String text = textsService.getText("image_not_available", localeProvider.get());
+                    text = text != null  ? text : "image_not_available";
+                    Chunk chunk = new Chunk(text, font);
+                    Paragraph na = new Paragraph();
+                    na.add(chunk);
+                    document.add(na);
                 }
             } else {
-                Chunk chunk = new Chunk(textsService.getText("image_not_available", localeProvider.get()), font);
+                String text = textsService.getText("image_not_available", localeProvider.get());
+                text = text != null  ? text : "image_not_available";
+                Chunk chunk = new Chunk(text, font);
                 Paragraph na = new Paragraph();
                 na.add(chunk);
                 document.add(na);
