@@ -928,11 +928,13 @@ public abstract class BaseConvertor {
 
             // long start = System.currentTimeMillis();
 
-            if (!convertToJPG){
+            String mime = getImageMime(filename);
+
+            if (!convertToJPG || "application/pdf".equals(mime)){
                 if (useImageServer){
                     version.setMIMETYPE("image/jpeg");
                 }else{
-                    version.setMIMETYPE(getImageMime(filename));
+                    version.setMIMETYPE(mime);
                 }
                 File pageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + filename);
 
