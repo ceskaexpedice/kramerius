@@ -334,7 +334,7 @@ Statistics.prototype.showPidsReport = function(action,pids) {
                 width:  800,
                 height:  600,
                 modal: true,
-                title: dictionary['statistics.report.dates'],
+                title: dictionary['statistics.report.pids'],
                 buttons: [{
                               text:dictionary['common.close'],
                               click:function() { $(this).dialog("close"); }
