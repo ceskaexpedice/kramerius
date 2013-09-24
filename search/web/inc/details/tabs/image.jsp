@@ -101,7 +101,7 @@ function onLoadPlainImage() {
     </div>
 
     <div id="pdfImage" style="display:none;position:relative;text-align:center;">
-        <img class="view_div" id="pdfImageImg" onclick="showBornDigitalPDF(viewerOptions.uuid,${image.pagePid ? image.page : "1"})"
+        <img class="view_div" style="cursor: pointer;" id="pdfImageImg" onclick="showBornDigitalPDF(viewerOptions.uuid,${image.pagePid ? image.page : "1"})"
              onload='onLoadPDFImage()' border="0" alt="" src="" height="650px" />
         
     </div>
