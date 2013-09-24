@@ -3,7 +3,7 @@
     xmlns:java="http://xml.apache.org/xslt/java"
     exclude-result-prefixes="exts java"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-    <xsl:output method="xml" indent="no" encoding="UTF-8" omit-xml-declaration="yes" />
+    <xsl:output method="html" indent="no" encoding="UTF-8" omit-xml-declaration="yes" />
 
     <xsl:param name="bundle_url" select="bundle_url" />
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
