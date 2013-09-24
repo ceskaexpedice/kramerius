@@ -15,6 +15,10 @@
                 <td><input type="text" value="<c:out value="${param.title}" />" size="20" name="title" id="title"></td>
             </tr>
             <tr>
+        	<td><fmt:message bundle="${lctx}" key="filter.query.keywords"/></td>
+        	<td><input type="text" value="<c:out value="${param.keywords}" />" size="20" name="keywords" id="keywords"></td>
+    	    </tr>
+            <tr>
                 <td><fmt:message bundle="${lctx}" key="filter.query.author" /></td>
                 <td><input type="text" value="<c:out value="${param.author}" />" size="20" name="author" id="author"></td>
             </tr>

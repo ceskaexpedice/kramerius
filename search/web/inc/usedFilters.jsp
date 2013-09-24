@@ -95,7 +95,7 @@
             <c:if test="${!empty param.keywords}">
                 <li>
                 <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeAdvFilter('keywords', '<c:out value="${param.keywords}" />');">
-                <fmt:message bundle="${lctx}" key="Keywords" />: &#160;<c:out value="${param.keywords}"/></a>
+                <fmt:message bundle="${lctx}" key="filter.keywords" />: &#160;<c:out value="${param.keywords}"/></a>
                 </li>
             </c:if>
             <c:if test="${!empty param.udc}">
