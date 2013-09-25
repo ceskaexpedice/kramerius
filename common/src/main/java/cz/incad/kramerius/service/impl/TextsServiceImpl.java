@@ -73,8 +73,10 @@ public class TextsServiceImpl implements TextsService {
         }
         File textFile = textFile(name, locale);
         if ((!textFile.exists())  || (!textFile.canRead())) {
-            if (this.internalTexts.containsKey(localizedName(name, locale))) {
-                return this.internalTexts.get(localizedName(name, locale));
+            if (this.internalTexts.containsKey(longLocalizedName(name, locale))) {
+                return this.internalTexts.get(longLocalizedName(name, locale));
+            } else if (this.internalTexts.containsKey(shortLocalizedName(name, locale))) {
+                return this.internalTexts.get(shortLocalizedName(name, locale));
             } else {
                 return this.internalTexts.get(name);
             }
@@ -86,10 +88,15 @@ public class TextsServiceImpl implements TextsService {
 
 
     private File textFile(String name, Locale locale) {
-        File textFile = textFile(textsFolder(), name, locale);
+        File textFile = longTextFile(textsFolder(), name, locale);
+    	LOGGER.fine("trying long text file  '"+textFile.getAbsolutePath()+"'");
         if (!textFile.exists()) {
-        	textFile = textFileWithoutLocale(textsFolder(), name);
-        	LOGGER.info("using textFile without locale '"+textFile+"'");
+        	LOGGER.fine("trying short text file  '"+textFile.getAbsolutePath()+"'");
+        	textFile = shortTextFile(textsFolder(), name, locale);
+        	if (!textFile.exists()) {
+            	LOGGER.fine("using textFile without locale '"+textFile+"'");
+            	textFile = textFileWithoutLocale(textsFolder(), name);
+        	}
         }
         return textFile;
     }
@@ -115,7 +122,7 @@ public class TextsServiceImpl implements TextsService {
     	if (locale == null) {
     		locale = Locale.getDefault();
     	}
-        File file = textFile(textsFolder(), name, locale);
+        File file = longTextFile(textsFolder(), name, locale);
         if (!file.exists()) {
             file.createNewFile();
         }
@@ -164,9 +171,6 @@ public class TextsServiceImpl implements TextsService {
 	
 	
 	private String readInternalTexts(String path) throws IOException {
-	    URL resource = this.getClass().getClassLoader().getResource(path);
-	    System.out.println(resource);
-	    
 	    String str = IOUtils.readAsString(this.getClass().getClassLoader().getResourceAsStream(path), Charset.forName("UTF-8"), true);
         return str ;
 	}
@@ -184,14 +188,24 @@ public class TextsServiceImpl implements TextsService {
 	}
 
 
-	private File textFile(File textsDir, String name, Locale locale) {
-		File textFile = new File(textsDir, localizedName(name, locale));
+	private File longTextFile(File textsDir, String name, Locale locale) {
+		File textFile = new File(textsDir, longLocalizedName(name, locale));
+		return textFile;
+	}
+
+	private File shortTextFile(File textsDir, String name, Locale locale) {
+		File textFile = new File(textsDir, shortLocalizedName(name, locale));
 		return textFile;
 	}
 
 
-    public String localizedName(String name, Locale locale) {
-        return name + "_" + locale.getCountry()+"_"+locale.getLanguage();
+    public String shortLocalizedName(String name, Locale locale) {
+    	return name + "_"+locale.getLanguage();
+    }
+	
+	
+    public String longLocalizedName(String name, Locale locale) {
+    	return name + "_" + locale.getCountry()+"_"+locale.getLanguage();
     }
 
 }
