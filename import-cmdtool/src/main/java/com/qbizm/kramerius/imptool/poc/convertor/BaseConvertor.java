@@ -64,7 +64,8 @@ public abstract class BaseConvertor {
     /**
      * Validacni pattern na PID FOXML objektu - prevzato z fedory
      */
-    protected static final String PID_PATTERN = "([A-Za-z0-9]|-|\\.)+:(([A-Za-z0-9])|-|\\.|~|_|(%[0-9A-F]{2}))+";
+    //protected static final String PID_PATTERN = "([A-Za-z0-9]|-|\\.)+:(([A-Za-z0-9])|-|\\.|~|_|(%[0-9A-F]{2}))+";
+    protected static final String PID_PATTERN = "([A-Za-z0-9]|-|\\.)+:(([A-Za-z0-9])|-|\\.|~|(%[0-9A-F]{2}))+";
 
     /**
      * Prefix pid

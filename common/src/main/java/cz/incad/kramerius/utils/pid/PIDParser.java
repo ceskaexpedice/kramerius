@@ -186,7 +186,7 @@ public class PIDParser {
                     TokenType.MINUS,
                     TokenType.DOT,
                     TokenType.TILDA,
-                    TokenType.UNDERSCOPE,
+                    //TokenType.UNDERSCOPE,
                     TokenType.PERCENT,
                     TokenType.HEXDIGIT,});
         StringBuffer buffer = new StringBuffer();
@@ -207,4 +207,6 @@ public class PIDParser {
         }
         return buffer.toString();
     }
+
+
 }
