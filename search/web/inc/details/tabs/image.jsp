@@ -107,7 +107,7 @@ function onLoadPlainImage() {
     </div>
 
     <div id="plainImage" style="display:none;position:relative;text-align:center;">
-        <img id="plainImageImg" class="view_div" onclick="showFullImage()" onload="onLoadPlainImage()" border="0"  src="img/empty.gif" alt="" />
+        <img id="plainImageImg" class="view_div" style="cursor: pointer;"  onclick="showFullImage()" onload="onLoadPlainImage()" border="0"  src="img/empty.gif" alt="" />
 
         <div class="buttons" style="position:absolute; top:10px; left:10px;">
             <a id="plainButtonFull" onclick="javascript:showFullImage();"><span class=" ui-icon ui-icon-arrow-4-diag" >full</span></a>
