@@ -79,7 +79,6 @@ public class CDKReplicationsResource {
     public Response prepare(@QueryParam("date")String date, @QueryParam("offset") @DefaultValue("100")String offset) throws ReplicateException, UnsupportedEncodingException {
         try {
         	//TODO: permissions
-            // musi se vejit do pameti
         	Document document = this.solrAccess.request("fl=PID,modified_date&sort=modified_date%20asc&q=modified_date:{"+date+"%20TO%20NOW}&start=0&rows="+offset);
             return Response.ok().entity(document).build();
         } catch(FileNotFoundException e) {
