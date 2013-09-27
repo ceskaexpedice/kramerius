@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,8 +20,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
+import net.sf.json.JSONObject;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import biz.sourcecode.base64Coder.Base64Coder;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -45,6 +51,8 @@ import cz.incad.kramerius.utils.XMLUtils;
 @Path("/cdk")
 public class CDKReplicationsResource {
 
+	public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+	
     @Inject
     ReplicationService replicationService;
 
@@ -78,6 +86,9 @@ public class CDKReplicationsResource {
     @Produces(MediaType.APPLICATION_XML+";charset=utf-8")
     public Response prepare(@QueryParam("date")String date, @QueryParam("offset") @DefaultValue("100")String offset) throws ReplicateException, UnsupportedEncodingException {
         try {
+    		if (date == null) {
+    			date = FORMAT.format(new Date());
+    		}
         	//TODO: permissions
         	Document document = this.solrAccess.request("fl=PID,modified_date&sort=modified_date%20asc&q=modified_date:{"+date+"%20TO%20NOW}&start=0&rows="+offset);
             return Response.ok().entity(document).build();
@@ -88,6 +99,24 @@ public class CDKReplicationsResource {
         }
     }
 
+
+    @GET
+    @Path("prepare")
+    @Produces(MediaType.APPLICATION_JSON+";charset=utf-8")
+    public Response prepareJSON(@QueryParam("date")String date, @QueryParam("offset") @DefaultValue("100")String offset) throws ReplicateException, UnsupportedEncodingException {
+        try {
+    		if (date == null) {
+    			date = FORMAT.format(new Date());
+    		}
+        	//TODO: permissions
+        	Document document = this.solrAccess.request("fl=PID,modified_date&sort=modified_date%20asc&q=modified_date:{"+date+"%20TO%20NOW}&start=0&rows="+offset+"&wt=json");
+            return Response.ok().entity(document).build();
+        } catch(FileNotFoundException e) {
+            throw new ReplicateException(e);
+        } catch (IOException e) {
+            throw new ReplicateException(e);
+        }
+    }
 
     /**
      * Returns exported FOXML in xml format
@@ -117,8 +146,23 @@ public class CDKReplicationsResource {
     }
 
     
-    public static void main(String[] args) throws UnsupportedEncodingException {
-		String decoded = URLDecoder.decode("http://localhost:8080/solr/select?fl=PID,modified_date&sort=modified_date%20asc&q=modified_date:%7B2012-09-26T10:23:43Z%20TO%20NOW%7D&start=0&rows=100","UTF-8");
-		System.out.println(decoded);
+    @GET
+    @Path("{pid}/foxml")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getExportedJSONFOXML(@PathParam("pid")String pid) throws ReplicateException, UnsupportedEncodingException {
+        try {
+            // musi se vejit do pameti
+            byte[] bytes = replicationService.getExportedFOXML(pid, FormatType.CDK);
+            char[] encoded = Base64Coder.encode(bytes);
+            JSONObject jsonObj = new JSONObject();
+            jsonObj.put("raw", new String(encoded));
+            return Response.ok().entity(jsonObj).build();
+
+        } catch(FileNotFoundException e) {
+            throw new ObjectNotFound("cannot find pid '"+pid+"'");
+        } catch (IOException e) {
+            throw new ReplicateException(e);
+        }
     }
+
 }
