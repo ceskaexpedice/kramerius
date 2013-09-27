@@ -17,6 +17,7 @@
 package cz.incad.kramerius.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -125,4 +126,14 @@ public class SolrAccessImpl implements SolrAccess {
        }
     }
     
+
+    public Document request(String req) throws IOException {
+		try {
+			return SolrUtils.getSolrDataInternal(req);
+		} catch (ParserConfigurationException e) {
+			throw new IOException(e);
+		} catch (SAXException e) {
+			throw new IOException(e);
+		}
+    }
 }

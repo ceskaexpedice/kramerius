@@ -1,8 +1,17 @@
 package cz.incad.kramerius.service.replication;
 
+/**
+ * Replication formats
+ * @author pavels
+ */
 public enum FormatType {
-
-	IDENTITY(IdentityFormat.class), CDK(CDKFormat.class), EXTERNALREFERENCES(ExternalReferencesFormat.class);
+	
+	/** No changes in FOXML format */
+	IDENTITY(IdentityFormat.class), 
+	/** CDK format */
+	CDK(CDKFormat.class), 
+	/** K4 replication format */
+	EXTERNALREFERENCES(ExternalReferencesFormat.class);
 
 	private Class<?> clazz;
 

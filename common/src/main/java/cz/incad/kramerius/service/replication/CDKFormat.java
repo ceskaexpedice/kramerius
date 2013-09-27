@@ -31,6 +31,10 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
+/**
+ * CDK format
+ * @author pavels
+ */
 public class CDKFormat implements ReplicationFormat {
 
 	@Inject

@@ -32,6 +32,7 @@ import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.impl.ReplicationServiceImpl;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -148,6 +149,8 @@ public class ReplicationsTest {
         // neni pritomny element location ale je pritomny elemnet binaryContent
         Assert.assertNull(XMLUtils.findElement(dataStreamVersion, "contentLocation",  dataStreamVersion.getNamespaceURI()));
         Assert.assertNotNull(XMLUtils.findElement(dataStreamVersion, "binaryContent",  dataStreamVersion.getNamespaceURI()));
+
+        //Assert.assertNotNull(XMLUtils.findElement(document.getDocumentElement(), "replicatedFrom",  FedoraUtils.RELS_EXT_STREAM));
     }
 
 	private ServletContext scontext() {

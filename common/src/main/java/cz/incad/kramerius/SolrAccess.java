@@ -17,6 +17,7 @@
 package cz.incad.kramerius;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.w3c.dom.Document;
 
@@ -73,4 +74,7 @@ public interface SolrAccess {
      */
     public ObjectModelsPath[] getPathOfModels(String pid) throws IOException;
 
+
+    public Document request(String req) throws IOException;
+    
 }
