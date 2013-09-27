@@ -118,13 +118,20 @@ public class CDKReplicationsResource {
         }
     }
 
-    /**
-     * Returns exported FOXML in xml format
-     * @param pid PID of object 
-     * @return FOXML as application xml
-     * @throws ReplicateException An error has been occured
-     * @throws UnsupportedEncodingException  UTF-8 is not supported
-     */
+    @GET
+    @Path("{pid}/solrxml")
+    @Produces(MediaType.APPLICATION_XML+";charset=utf-8")
+    public Response getExportedSolrXML(@PathParam("pid")String pid) throws ReplicateException, UnsupportedEncodingException {
+        try {
+        	Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+            return Response.ok().entity(solrDoc).build();
+        } catch(FileNotFoundException e) {
+            throw new ObjectNotFound("cannot find pid '"+pid+"'");
+        } catch (IOException e) {
+            throw new ReplicateException(e);
+		}
+    }
+
     @GET
     @Path("{pid}/foxml")
     @Produces(MediaType.APPLICATION_XML+";charset=utf-8")
