@@ -24,19 +24,28 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.service.ReplicateException;
+import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
@@ -44,10 +53,14 @@ import cz.incad.kramerius.utils.XMLUtils;
  * Explore given FOXML data and replace all <code>file:///</code> external referenced datastreams  into internal type datastream (type M)
  * @author pavels
  */
-public class ExternalReferencesFilter implements ReplicationServiceFoxmlFilter {
+public class ExternalReferencesFormat implements ReplicationFormat {
 
+	@Inject
+	Provider<HttpServletRequest> requestProvider;
+
+	
     @Override
-    public byte[] filterFoxmlData(byte[] input) throws ReplicateException{
+    public byte[] formatFoxmlData(byte[] input) throws ReplicateException{
         try {
             Document document = XMLUtils.parseDocument(new ByteArrayInputStream(input), true);
             Element docElement = document.getDocumentElement();
@@ -64,6 +77,23 @@ public class ExternalReferencesFilter implements ReplicationServiceFoxmlFilter {
                 for (Element datStreamElm : datastreamsElements) {
                     dataStreamVersions(document, datStreamElm);
                 }
+                
+				List<Element> relsExt = XMLUtils.getElements(
+						docElement, new XMLUtils.ElementsFilter() {
+		
+							@Override
+							public boolean acceptElement(Element elm) {
+								String elmName = elm.getLocalName();
+								String idName = elm.getAttribute("ID");
+								return elmName.equals("datastream")
+										&& idName.equals(FedoraUtils.RELS_EXT_STREAM);
+							}
+					});
+					
+					if (!relsExt.isEmpty()) {
+						original(document,relsExt.get(0));
+					}
+
             } else { 
                 throw new ReplicateException("Not valid FOXML");
             }
@@ -79,7 +109,11 @@ public class ExternalReferencesFilter implements ReplicationServiceFoxmlFilter {
             throw new ReplicateException(e);
         } catch (TransformerException e) {
             throw new ReplicateException(e);
-        }
+        } catch (DOMException e) {
+            throw new ReplicateException(e);
+		} catch (URISyntaxException e) {
+            throw new ReplicateException(e);
+		}
     }
 
     /**
@@ -138,4 +172,21 @@ public class ExternalReferencesFilter implements ReplicationServiceFoxmlFilter {
             IOUtils.tryClose(is);
         }
     }
+    
+    
+	private void original(Document document, Element element) throws DOMException, MalformedURLException, URISyntaxException {
+		Element original = document.createElementNS(
+				FedoraNamespaces.KRAMERIUS_URI, "replicatedFrom");
+		document.adoptNode(original);
+		original.setTextContent(makeHANDLE(document).toURI().toString());
+		Element descElement = XMLUtils.findElement(element, "Description",FedoraNamespaces.RDF_NAMESPACE_URI);
+		descElement.appendChild(original);
+	}
+
+	private URL makeHANDLE(Document doc) throws MalformedURLException {
+		HttpServletRequest req = this.requestProvider.get();
+		String pid = doc.getDocumentElement().getAttribute("PID");
+		String imgServ =  ApplicationURL.applicationURL(req)+"/handle/"+pid;
+		return new URL(imgServ);
+	}
 }

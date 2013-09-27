@@ -19,7 +19,8 @@ package cz.incad.kramerius.service;
 import java.io.IOException;
 import java.util.List;
 
-import cz.incad.kramerius.service.replication.ReplicationServiceFoxmlFilter;
+import cz.incad.kramerius.service.replication.FormatType;
+import cz.incad.kramerius.service.replication.ReplicationFormat;
 
 /**
  * Main replication service
@@ -43,6 +44,8 @@ public interface ReplicationService {
      * @throws IOException 
      */
     public byte[] getExportedFOXML(String pid) throws ReplicateException, IOException;
+    
+    public byte[] getExportedFOXML(String pid, FormatType formatType) throws ReplicateException, IOException;
     
     
 

@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+import javax.servlet.ServletContext;
 import javax.xml.soap.Detail;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
@@ -38,8 +40,9 @@ import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.ReplicationService;
-import cz.incad.kramerius.service.replication.ExternalReferencesFilter;
-import cz.incad.kramerius.service.replication.ReplicationServiceFoxmlFilter;
+import cz.incad.kramerius.service.replication.ExternalReferencesFormat;
+import cz.incad.kramerius.service.replication.FormatType;
+import cz.incad.kramerius.service.replication.ReplicationFormat;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ReplicationServiceImpl implements ReplicationService{
@@ -53,9 +56,10 @@ public class ReplicationServiceImpl implements ReplicationService{
     @Inject
     SolrAccess solrAccess;
     
+    @Inject
+    ServletContext servletContext;
     
-//    private ReplicationServiceFoxmlFilter foxmlFilter = new ExternalReferenciesFilter();
-
+    FormatType formatType = FormatType.EXTERNALREFERENCES; 
     
     
     @Override
@@ -106,15 +110,20 @@ public class ReplicationServiceImpl implements ReplicationService{
             throw new ReplicateException(e);
         }
     }
-
+    
     @Override
-    public byte[] getExportedFOXML(String pid) throws ReplicateException,IOException {
-        String instance = KConfiguration.getInstance().getConfiguration().getString("cz.incad.kramerius.service.replication.ReplicationServiceFoxmlFilter", ExternalReferencesFilter.class.getName());
-        ReplicationServiceFoxmlFilter  filter = foxmlFilterInstance(instance);
+	public byte[] getExportedFOXML(String pid) throws ReplicateException,
+			IOException {
+    	return this.getExportedFOXML(pid,this.formatType);
+    }
+
+	@Override
+    public byte[] getExportedFOXML(String pid, FormatType fType) throws ReplicateException,IOException {
+        ReplicationFormat  format = formatInstantiate(fType.getClazz());
         try {
             byte[] exported = fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
-            if (filter != null) {
-                return filter.filterFoxmlData(exported);
+            if (format != null) {
+                return format.formatFoxmlData(exported);
             } else return exported;
         } catch (SOAPFaultException e) {
             SOAPFault fault = e.getFault();
@@ -125,14 +134,17 @@ public class ReplicationServiceImpl implements ReplicationService{
         }
     }
 
-    private ReplicationServiceFoxmlFilter foxmlFilterInstance(String instance) throws ReplicateException{
+	
+	
+    private ReplicationFormat formatInstantiate(Class<?> clz) throws ReplicateException{
         try {
-            return (ReplicationServiceFoxmlFilter) Class.forName(instance).newInstance();
+        	ReplicationFormat repFormat = (ReplicationFormat) clz.newInstance();
+            Injector inj = (Injector) servletContext.getAttribute(Injector.class.getName());
+            inj.injectMembers(repFormat);
+        	return repFormat;
         } catch (InstantiationException e) {
             throw new ReplicateException(e);
         } catch (IllegalAccessException e) {
-            throw new ReplicateException(e);
-        } catch (ClassNotFoundException e) {
             throw new ReplicateException(e);
         }
     }

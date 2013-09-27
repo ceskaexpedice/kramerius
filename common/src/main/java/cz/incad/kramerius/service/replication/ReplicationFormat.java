@@ -22,12 +22,17 @@ package cz.incad.kramerius.service.replication;
 import cz.incad.kramerius.service.ReplicateException;
 
 /**
+ * Represents formating mechanism 
  * @author pavels
  */
-public class NoFilter implements ReplicationServiceFoxmlFilter {
-
-    @Override
-    public byte[] filterFoxmlData(byte[] input) throws ReplicateException {
-        return input;
-    }
+public interface ReplicationFormat {
+    
+    
+    /**
+     * Format output data
+     * @param input Input data
+     * @return
+     */
+    public byte[] formatFoxmlData(byte[] input) throws ReplicateException;
+    
 }

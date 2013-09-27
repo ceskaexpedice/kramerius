@@ -70,4 +70,13 @@ public class PIDParserTest {
 	    
 	}
 	
+	@Test
+	public void testPidParserNLK() throws LexerException {
+		String pid = "uuid:MED00178583_test";
+	    PIDParser parser = new PIDParser(pid);
+	    parser.objectPid();
+	    Assert.assertFalse(parser.isDatastreamPid());
+        Assert.assertTrue( parser.getObjectPid().equals(pid));
+	}
+	
 }
