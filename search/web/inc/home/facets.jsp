@@ -63,6 +63,7 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
         out.println(xml);
     }
 %>
+<view:kconfig var="policyPublic" key="search.policy.public" defaultValue="false" />
 <c:catch var="exceptions">
     <c:url var="facetxslurl" value="xsl/facets_home.xsl" />
     <c:import url="${facetxslurl}" var="facetxsl" charEncoding="UTF-8"  />
@@ -77,6 +78,7 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
             <x:transform doc="${xml}"  xslt="${facetxsl}">
                 <x:param name="bundle_url" value="${i18nServlet}"/>
                 <x:param name="numOpenedRows" value="10"/>
+                <x:param name="policyPublic" value="${policyPublic}"/>
             </x:transform>
     </c:otherwise>
 </c:choose>
