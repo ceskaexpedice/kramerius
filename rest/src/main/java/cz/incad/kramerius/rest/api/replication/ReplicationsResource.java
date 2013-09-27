@@ -26,10 +26,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -61,6 +63,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.ReplicationService;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.service.replication.FormatType;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.XMLUtils;
 
@@ -185,11 +188,12 @@ public class ReplicationsResource {
     @GET
     @Path("foxml")
     @Produces(MediaType.APPLICATION_XML+";charset=utf-8")
-    public Response getExportedFOXML(@PathParam("pid")String pid) throws ReplicateException, UnsupportedEncodingException {
+    public Response getExportedFOXML(@PathParam("pid")String pid
+    		) throws ReplicateException, UnsupportedEncodingException {
         try {
             if (checkPermission(pid)) {
                 // musi se vejit do pameti
-                byte[] bytes = replicationService.getExportedFOXML(pid);
+                byte[] bytes = replicationService.getExportedFOXML(pid, FormatType.EXTERNALREFERENCES);
                 return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
             }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {

@@ -23,6 +23,7 @@ import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
 import cz.incad.kramerius.rest.api.processes.LRResource;
+import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
 
 /**
@@ -37,6 +38,7 @@ public class ApiServletModule extends JerseyServletModule {
     protected void configureServlets() {
         // API Resources
         bind(ReplicationsResource.class);
+        bind(CDKReplicationsResource.class);
         bind(LRResource.class);
 
         // api
