@@ -3,7 +3,6 @@
 
 <!-- search form object -->
 <view:object name="searchFormViewObject" clz="cz.incad.Kramerius.views.SearchFormViewObject"></view:object>
-<view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
 
 <div class="clear" id="header"><div style="float:left;"><%@ include file="logo.jsp" %></div>
 <%--    <div style="float:right;position:absolute;top:0px;right:2px;"><%@ include file="themes.jsp" %></div>  --%>

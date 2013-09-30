@@ -27,6 +27,9 @@
 <!-- tweet button -->
 <view:object name="tweet" clz="cz.incad.Kramerius.views.social.TweetButton"></view:object>
 
+<!-- virtual collections -->
+<view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
+
 
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.kramerius.service.ResourceBundleService"%>
@@ -191,5 +194,13 @@
                     });
                 });
             }
+            
+            var collectionsDict = {
+            <c:forEach var="col" items="${cols.virtualCollectionsLocale}">
+                    <c:forEach items="${col.descriptions}" var="desc" >
+                        "${col.pid}": "${desc.text}",
+                    </c:forEach>
+            </c:forEach>
+                "dummy":""};
     </script>
 </head>

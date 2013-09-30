@@ -31,11 +31,20 @@
             <c:if test="${fn:containsIgnoreCase(param.q, '*')}" >
                 
             </c:if>
-            <c:param name="q" value="${searchParams.escapedQuery}" />
+            <c:choose>
+                <c:when test="${param.asis}">
+                    <c:param name="q" value="${param.q}" />
+                </c:when>
+                <c:otherwise><c:param name="q" value="${searchParams.escapedQuery}" /></c:otherwise>
+            </c:choose>
+            
             <c:set var="rows" value="${rowsdefault}" scope="request" />
         </c:when>
 
     </c:choose>
+    <c:if test="${!empty param.fl}">
+        <c:param name="fl" value="${param.fl}" />
+    </c:if>
     <%--
     <c:param name="fl" value="PID,score,root_title,path,pid_path,root_pid,dc.title,details,fedora.model,model_path,dc.creator,datum,page_format,text" />
     --%>
@@ -152,15 +161,20 @@
     </c:if>
 
     <%-- Hit highlight --%>
+    <c:if test="${param.hl != 'false'}">
     <c:param name="hl" value="true" />
     <c:param name="hl.fl" value="text_ocr" />
     <c:param name="hl.simple.pre" value="<span>" />
     <c:param name="hl.simple.post" value="</span>"  />
     <c:param name="hl.mergeContiguous" value="true" />
     <c:param name="hl.snippets" value="2" />
+    </c:if>
 
     <%-- sort param --%>
     <c:choose>
+        <c:when test="${param.sort != null && !empty param.sort && param.asis}" >
+            <c:param name="sort" value="${param.sort}" />
+        </c:when>
         <c:when test="${param.sort != null && !empty param.sort}" >
             <c:param name="sort" value="level asc, ${param.sort}" />
         </c:when>
