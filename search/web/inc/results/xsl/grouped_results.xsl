@@ -101,7 +101,6 @@
         </div>
 
         <div class="collapse_label" style="text-align:right;">&#160;
-
         <xsl:call-template name="collapse">
             <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
             <xsl:with-param name="root_pid"><xsl:value-of select="./str[@name='root_pid']" /></xsl:with-param>
@@ -113,6 +112,7 @@
                 <xsl:attribute name="id">uncollapsed_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
             </div>
         </div>
+        <xsl:call-template name="collections" />
         </div>
     </xsl:for-each>
 </xsl:template>
@@ -143,7 +143,9 @@
             </img>
             </a>
             <div class="policy_icon"><img class="dost" src="img/empty.gif" /></div>
-            <br/><xsl:value-of select="$bundle/value[@key=$model]"/>
+            <div><xsl:value-of select="$bundle/value[@key=$model]"/></div>
+            
+            
         </div>
         </td><td class="resultText_td" valign="top">
         <div class="resultText ">
@@ -165,6 +167,26 @@
             </div>
         </div>
         </td></tr></table>
+    </xsl:template>
+    
+    <xsl:template name="collections" >
+        <xsl:if test="./arr[@name='collection']/str">
+            <xsl:variable name="colsText">
+                <xsl:choose>
+                    <xsl:when test="count(./arr[@name='collection']/str)=1">found.in.collection</xsl:when>
+                    <xsl:otherwise>found.in.collections</xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+            <div class="collections">
+                <span class="ui-icon ui-icon-folder-open">collections</span>
+                <div class="cols shadow-bottom ui-widget ui-widget-content">
+                    <h4>
+                        <xsl:value-of select="$bundle/value[@key=$colsText]"/>
+                    </h4>
+                    <xsl:for-each select="./arr[@name='collection']/str"><div class="collection"><xsl:value-of select="."/></div></xsl:for-each>
+                </div>
+            </div>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template name="othersfields" >

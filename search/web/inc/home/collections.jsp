@@ -10,8 +10,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
-<%@ page isELIgnored="false"%><view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
+<%@ page isELIgnored="false"%>
 
+<!-- virtual collections -->
+<view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
 
 <c:if test="${empty param.refresh}">
 <style type="text/css">
@@ -52,7 +54,7 @@
 <a id="col_refresh" style="float:right;" href="javascript:refreshCollections();" title="<view:msg>common.refresh</view:msg>"><span class="ui-icon ui-icon-refresh">refresh</span></a>
 <div class="collections" id="collection_list" style="font-size:1.2em;">
 </c:if>
-        <ul>
+    <ul>
 <c:forEach var="col" items="${cols.virtualCollectionsLocale}">
     <li>
         <c:forEach items="${col.descriptions}" var="desc">
@@ -60,7 +62,7 @@
         </c:forEach>
     </li>
 </c:forEach>
-        </ul>
+    </ul>
     <c:if test="${empty param.refresh}">
 </div>
     </c:if>

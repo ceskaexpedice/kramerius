@@ -118,7 +118,8 @@
             <img class="th" border="1" ><xsl:attribute name="id">img_<xsl:value-of select="$pid"/></xsl:attribute>
             <xsl:attribute name="src"><xsl:value-of select="$imagepid" /></xsl:attribute>
             </img></a>
-            <br/><xsl:value-of select="$bundle/value[@key=$model]"/>
+            <div><xsl:value-of select="$bundle/value[@key=$model]"/></div>
+            <xsl:call-template name="collections" />
         </div>
         </td><td class="resultText_td" valign="top">
         <div class="resultText ">
@@ -140,6 +141,26 @@
             </div>
         </div>
         </td></tr></table>
+    </xsl:template>
+    
+    <xsl:template name="collections" >
+        <xsl:if test="./arr[@name='collection']/str">
+            <xsl:variable name="colsText">
+                <xsl:choose>
+                    <xsl:when test="count(./arr[@name='collection']/str)=1">found.in.collection</xsl:when>
+                    <xsl:otherwise>found.in.collections</xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+            <div class="collections">
+                <span class="ui-icon ui-icon-folder-open">collections</span>
+                <div class="cols shadow-bottom ui-widget ui-widget-content">
+                    <h4>
+                        <xsl:value-of select="$bundle/value[@key=$colsText]"/>
+                    </h4>
+                    <xsl:for-each select="./arr[@name='collection']/str"><div class="collection"><xsl:value-of select="."/></div></xsl:for-each>
+                </div>
+            </div>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template name="othersfields" >

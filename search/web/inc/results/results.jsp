@@ -27,12 +27,27 @@
         position:absolute;
         bottom:5px;
         right:5px;
-        width:100%;
+        width:90%;
     }
     
     #split {
         height: 700px;
         width: 1000px;
+    }
+    
+    div.collections{
+        float:left;
+    }
+    
+    div.collections div.cols{
+        display:none;
+        position:absolute;
+        padding:3px;
+        z-index:99;
+    }
+    
+    div.collections h4{
+        margin: 1px;
     }
 
 </style>
@@ -83,6 +98,8 @@
         }
     });
 $(document).ready(function(){
+    
+    
     $.get("inc/da.jsp", function(data){
         $("#dadiv").html(data);
         if($("#dadiv").length==0){
@@ -141,6 +158,7 @@ $(document).ready(function(){
         }
         
     });
+    translateCollections();
     getExtInfo();
     getCollapsedPolicy();
     $('.loading_docs').hide();
@@ -201,6 +219,21 @@ $(document).ready(function(){
         resizeAll();
     });
 });
+
+    function translateCollections(){
+        $("div.collections").mouseenter(function(){
+            $(this).children("div.cols").show();
+        });
+        $("div.collections").mouseleave(function(){
+            $(this).children("div.cols").hide();
+        });
+        $("div.collection").each(function(){
+            var id = $(this).text();
+            var title = collectionsDict[id];
+            $(this).html(title);
+        });
+           // alert(a);
+    }
 
     function resizeAll(){
         var w;
