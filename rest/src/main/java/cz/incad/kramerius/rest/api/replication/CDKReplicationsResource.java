@@ -84,13 +84,13 @@ public class CDKReplicationsResource {
     @GET
     @Path("prepare")
     @Produces(MediaType.APPLICATION_XML+";charset=utf-8")
-    public Response prepare(@QueryParam("date")String date, @QueryParam("offset") @DefaultValue("100")String offset) throws ReplicateException, UnsupportedEncodingException {
+    public Response prepare(@QueryParam("date")String date, @QueryParam("offset") @DefaultValue("0")String offset, @QueryParam("rows") @DefaultValue("100")String rows) throws ReplicateException, UnsupportedEncodingException {
         try {
     		if (date == null) {
     			date = FORMAT.format(new Date());
     		}
         	//TODO: permissions
-        	Document document = this.solrAccess.request("fl=PID,modified_date&sort=modified_date%20asc&q=modified_date:{"+date+"%20TO%20NOW}&start=0&rows="+offset);
+        	Document document = this.solrAccess.request("fl=PID,modified_date&sort=modified_date%20asc&q=modified_date:{"+date+"%20TO%20NOW}&start="+offset+"&rows="+rows);
             return Response.ok().entity(document).build();
         } catch(FileNotFoundException e) {
             throw new ReplicateException(e);
