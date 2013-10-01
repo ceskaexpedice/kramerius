@@ -117,7 +117,7 @@ public class LoadCustomViewObject implements Initializable{
                     } catch (cz.incad.kramerius.security.SecurityException e) {
                         securityError(stringBuilder, pid,ds);
                     }
-                } else if (mime.equals("text/xml")) {
+                } else if (mime.equals("text/xml") || mime.equals("application/rdf+xml")) {
                     try {
                         org.w3c.dom.Document xml = XMLUtils.parseDocument(fedoraAccess.getDataStream(pid, ds), true);
                         if (xslService.isAvailable(xsl)) {

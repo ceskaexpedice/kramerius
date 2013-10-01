@@ -18,6 +18,7 @@ import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.service.impl.SortingServiceImpl;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.fedora.api.FedoraAPIM;
@@ -44,19 +45,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Import {
+
     static FedoraAPIMService service;
     static FedoraAPIM port;
     static ObjectFactory of;
     static int counter = 0;
-
     private static final Logger log = Logger.getLogger(Import.class.getName());
-
     private static Unmarshaller unmarshaller = null;
-
     private static List<String> rootModels = null;
-
     private static SortingService sortingService;
-
 
     static {
         try {
@@ -119,8 +116,10 @@ public class Import {
                 throw new RuntimeException(e);
             }
             try {
-                for (String line; (line = reader.readLine()) != null; ) {
-                    if ("".equals(line)) continue;
+                for (String line; (line = reader.readLine()) != null;) {
+                    if ("".equals(line)) {
+                        continue;
+                    }
                     File importItem = new File(line);
                     if (!importItem.exists()) {
                         log.severe("Import folder doesn't exist: " + importItem.getAbsolutePath());
@@ -145,17 +144,17 @@ public class Import {
         if (new Boolean(startSortProperty)) {
 
 
-        if (sortRelations.isEmpty()) {
-            log.info("NO MERGED OBJECTS FOR RELATIONS SORTING FOUND.");
-        } else {
-            for (String sortPid : sortRelations) {
-                  sortingService.sortRelations(sortPid, false);
+            if (sortRelations.isEmpty()) {
+                log.info("NO MERGED OBJECTS FOR RELATIONS SORTING FOUND.");
+            } else {
+                for (String sortPid : sortRelations) {
+                    sortingService.sortRelations(sortPid, false);
+                }
+                log.info("ALL MERGED OBJECTS RELATIONS SORTED.");
             }
-            log.info("ALL MERGED OBJECTS RELATIONS SORTED.");
+        } else {
+            log.info("RELATIONS SORTING DISABLED.");
         }
-    } else {
-        log.info("RELATIONS SORTING DISABLED.");
-    }
 
         String startIndexerProperty = System.getProperties().containsKey("ingest.startIndexer") ? System.getProperty("ingest.startIndexer") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true");
         if (new Boolean(startIndexerProperty)) {
@@ -194,7 +193,9 @@ public class Import {
     }
 
     private static void visitAllDirsAndFiles(File importFile, List<TitlePidTuple> roots, List<String> sortRelations) {
-        if (importFile == null) return;
+        if (importFile == null) {
+            return;
+        }
         if (importFile.isDirectory()) {
 
             File[] children = importFile.listFiles();
@@ -221,6 +222,35 @@ public class Import {
         }
     }
 
+    public static void ingest(InputStream is, String pid, List<String> sortRelations) throws IOException {
+        
+        long start = System.currentTimeMillis();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        IOUtils.copyStreams(is, bos);
+        byte[] bytes = bos.toByteArray();
+        try {
+            port.ingest(bytes, "info:fedora/fedora-system:FOXML-1.1", "Initial ingest");
+        } catch (SOAPFaultException sfex) {
+
+            //if (sfex.getMessage().contains("ObjectExistsException")) {
+            if (objectExists(pid)) {
+                log.info("Merging with existing object " + pid);
+                merge(bytes);
+                if (sortRelations != null) {
+                    sortRelations.add(pid);
+                }
+            } else {
+
+                log.severe("Ingest SOAP fault:" + sfex);
+                throw new RuntimeException(sfex);
+            }
+
+        }
+
+        counter++;
+        log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
+    }
+
     public static void ingest(File file, String pid, List<String> sortRelations) {
         if (pid == null) {
             try {
@@ -234,55 +264,9 @@ public class Import {
 
         try {
 
-            long start = System.currentTimeMillis();
             //System.out.println("Processing:"+file.getAbsolutePath());
             FileInputStream is = new FileInputStream(file);
-            // Get the size of the file
-            long length = file.length();
-
-            if (length > Integer.MAX_VALUE) {
-                throw new RuntimeException("File is too large: " + file.getName());
-            }
-
-            // Create the byte array to hold the data
-            byte[] bytes = new byte[(int) length];
-
-            // Read in the bytes
-            int offset = 0;
-            int numRead = 0;
-            while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
-                offset += numRead;
-            }
-
-            // Ensure all the bytes have been read in
-            if (offset < bytes.length) {
-                throw new RuntimeException("Could not completely read file " + file.getName());
-            }
-
-            // Close the input stream and return bytes
-            is.close();
-
-            try {
-                port.ingest(bytes, "info:fedora/fedora-system:FOXML-1.1", "Initial ingest");
-            } catch (SOAPFaultException sfex) {
-
-                //if (sfex.getMessage().contains("ObjectExistsException")) {
-                if (objectExists(pid)) {
-                    log.info("Merging with existing object " + pid);
-                    merge(bytes);
-                    if (sortRelations!=null){
-                        sortRelations.add(pid);
-                    }
-                } else {
-
-                    log.severe("Ingest SOAP fault:" + sfex);
-                    throw new RuntimeException(sfex);
-                }
-
-            }
-
-            counter++;
-            log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
+            ingest(is, pid, sortRelations);
 
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Ingestion error ", ex);
@@ -346,9 +330,10 @@ public class Import {
         return retval;
     }
 
-
     /**
-     * Parse FOXML file and if it has model in fedora.topLevelModels, add its PID to roots list. Objects in the roots list then will be submitted to indexer
+     * Parse FOXML file and if it has model in fedora.topLevelModels, add its
+     * PID to roots list. Objects in the roots list then will be submitted to
+     * indexer
      */
     private static void checkRoot(DigitalObject dobj, List<TitlePidTuple> roots) {
         try {
@@ -424,6 +409,7 @@ public class Import {
 }
 
 class RDFTuple {
+
     String subject;
     String predicate;
     String object;
@@ -447,28 +433,37 @@ class RDFTuple {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (!(obj instanceof RDFTuple))
+        }
+        if (!(obj instanceof RDFTuple)) {
             return false;
+        }
         RDFTuple other = (RDFTuple) obj;
         if (object == null) {
-            if (other.object != null)
+            if (other.object != null) {
                 return false;
-        } else if (!object.equals(other.object))
+            }
+        } else if (!object.equals(other.object)) {
             return false;
+        }
         if (predicate == null) {
-            if (other.predicate != null)
+            if (other.predicate != null) {
                 return false;
-        } else if (!predicate.equals(other.predicate))
+            }
+        } else if (!predicate.equals(other.predicate)) {
             return false;
+        }
         if (subject == null) {
-            if (other.subject != null)
+            if (other.subject != null) {
                 return false;
-        } else if (!subject.equals(other.subject))
+            }
+        } else if (!subject.equals(other.subject)) {
             return false;
+        }
         return true;
     }
 
@@ -476,10 +471,10 @@ class RDFTuple {
     public String toString() {
         return "RDFTuple [subject=" + subject + ", predicate=" + predicate + ", object=" + object + "]";
     }
-
 }
 
 class TitlePidTuple {
+
     public String title;
     public String pid;
 
@@ -492,10 +487,10 @@ class TitlePidTuple {
     public String toString() {
         return "Title:" + title + " PID:" + pid;
     }
-
 }
 
 class ImportModule extends AbstractModule {
+
     @Override
     protected void configure() {
         bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
