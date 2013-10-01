@@ -60,9 +60,11 @@ public class ExternalReferencesFormat implements ReplicationFormat {
 
 	
     @Override
-    public byte[] formatFoxmlData(byte[] input) throws ReplicateException{
+    public byte[] formatFoxmlData(byte[] input, Object... params) throws ReplicateException{
         try {
-            Document document = XMLUtils.parseDocument(new ByteArrayInputStream(input), true);
+
+        	
+        	Document document = XMLUtils.parseDocument(new ByteArrayInputStream(input), true);
             Element docElement = document.getDocumentElement();
             if (docElement.getLocalName().equals("digitalObject")) {
                 List<Element> datastreamsElements = XMLUtils.getElements(docElement, new XMLUtils.ElementsFilter() {
@@ -94,6 +96,10 @@ public class ExternalReferencesFormat implements ReplicationFormat {
 						original(document,relsExt.get(0));
 					}
 
+					// remove virtual collections
+					removeVirtualCollections(document,relsExt.get(0));
+
+					
             } else { 
                 throw new ReplicateException("Not valid FOXML");
             }
@@ -116,7 +122,17 @@ public class ExternalReferencesFormat implements ReplicationFormat {
 		}
     }
 
-    /**
+	private void removeVirtualCollections(Document document, Element element) {
+		Element descElement = XMLUtils.findElement(element, "Description",FedoraNamespaces.RDF_NAMESPACE_URI);
+		List<Element> delems = XMLUtils.getElements(descElement);
+		for (Element del : delems) {
+			if (del.getNamespaceURI().equals(FedoraNamespaces.RDF_NAMESPACE_URI) && del.getLocalName().equals("isMemberOfCollection")) {
+				descElement.removeChild(del);
+			}
+		}
+	}
+
+	/**
      * @param dataStreamElm
      * @throws ReplicateException 
      */
@@ -188,5 +204,11 @@ public class ExternalReferencesFormat implements ReplicationFormat {
 		String pid = doc.getDocumentElement().getAttribute("PID");
 		String imgServ =  ApplicationURL.applicationURL(req)+"/handle/"+pid;
 		return new URL(imgServ);
+	}
+
+	@Override
+	public byte[] formatFoxmlData(byte[] input)
+			throws ReplicateException {
+		return formatFoxmlData(input, new Object[0]);
 	}
 }

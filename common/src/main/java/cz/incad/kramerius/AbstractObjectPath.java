@@ -108,6 +108,7 @@ public abstract class AbstractObjectPath {
         return getPathFromLeafToRoot()[index];
     }
 
+    
     protected String[] cutHeadInternal(int indexFrom) {
         String[] path = getPathFromRootToLeaf();
         int nlength = path.length - (indexFrom+1);

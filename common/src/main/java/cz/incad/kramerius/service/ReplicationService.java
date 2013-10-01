@@ -47,6 +47,7 @@ public interface ReplicationService {
     
     public byte[] getExportedFOXML(String pid, FormatType formatType) throws ReplicateException, IOException;
     
+    public byte[] getExportedFOXML(String pid, FormatType formatType, Object...formatParams) throws ReplicateException, IOException;
     
 
 }

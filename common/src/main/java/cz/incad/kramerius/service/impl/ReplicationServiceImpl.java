@@ -136,7 +136,30 @@ public class ReplicationServiceImpl implements ReplicationService{
 
 	
 	
-    private ReplicationFormat formatInstantiate(Class<?> clz) throws ReplicateException{
+	
+    @Override
+	public byte[] getExportedFOXML(String pid, FormatType fType,
+			Object... formatParams) throws ReplicateException, IOException {
+        ReplicationFormat  format = formatInstantiate(fType.getClazz());
+        try {
+            byte[] exported = fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
+            if (format != null) {
+            	if (formatParams != null && formatParams.length >= 1) {
+                    return format.formatFoxmlData(exported, formatParams);
+            	} else {
+                    return format.formatFoxmlData(exported);
+            	}
+            } else return exported;
+        } catch (SOAPFaultException e) {
+            SOAPFault fault = e.getFault();
+            String str = fault.getFaultString();
+            if (str.startsWith("org.fcrepo.server.errors.ObjectNotInLowlevelStorageException")) {
+                throw new FileNotFoundException(e.getMessage());
+            } else throw new ReplicateException(e);
+        }
+	}
+
+	private ReplicationFormat formatInstantiate(Class<?> clz) throws ReplicateException{
         try {
         	ReplicationFormat repFormat = (ReplicationFormat) clz.newInstance();
             Injector inj = (Injector) servletContext.getAttribute(Injector.class.getName());

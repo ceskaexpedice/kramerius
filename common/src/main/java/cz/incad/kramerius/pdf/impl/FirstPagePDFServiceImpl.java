@@ -210,7 +210,6 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
             }
         }
         
-        
 
         // hlavni nazev
         List<DetailItem> details = new ArrayList<FirstPagePDFServiceImpl.DetailItem>();

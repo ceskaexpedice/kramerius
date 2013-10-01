@@ -47,7 +47,7 @@ public class CDKFormat implements ReplicationFormat {
 
 	
 	@Override
-	public byte[] formatFoxmlData(byte[] input) throws ReplicateException {
+	public byte[] formatFoxmlData(byte[] input, Object ... params) throws ReplicateException {
 		try {
 			Document document = XMLUtils.parseDocument(
 					new ByteArrayInputStream(input), true);
@@ -91,6 +91,16 @@ public class CDKFormat implements ReplicationFormat {
 				if (!relsExt.isEmpty()) {
 					original(document,relsExt.get(0));
 				}
+				
+				// remove virtual collections
+				removeVirtualCollections(document,relsExt.get(0));
+				
+				
+				if (params != null && params.length > 0) {
+					String vcname = params[0].toString();
+					virtualCollectionName(vcname, document, relsExt.get(0));
+				}
+				
 			} else {
 				throw new ReplicateException("Not valid FOXML");
 			}
@@ -113,6 +123,24 @@ public class CDKFormat implements ReplicationFormat {
 		}
 	}
 
+	private void virtualCollectionName(String vcname,Document document, Element element) {
+		Element descElement = XMLUtils.findElement(element, "Description",FedoraNamespaces.RDF_NAMESPACE_URI);
+		Element elm = document.createElementNS( FedoraNamespaces.RDF_NAMESPACE_URI,"isMemberOfCollection");
+		elm.setAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource", vcname);
+		document.adoptNode(elm);
+		descElement.appendChild(elm);
+	}
+
+	private void removeVirtualCollections(Document document, Element element) {
+		Element descElement = XMLUtils.findElement(element, "Description",FedoraNamespaces.RDF_NAMESPACE_URI);
+		List<Element> delems = XMLUtils.getElements(descElement);
+		for (Element del : delems) {
+			if (del.getNamespaceURI().equals(FedoraNamespaces.RDF_NAMESPACE_URI) && del.getLocalName().equals("isMemberOfCollection")) {
+				descElement.removeChild(del);
+			}
+		}
+	}
+	
 	private void original(Document document, Element element) throws DOMException, MalformedURLException, URISyntaxException {
 		Element original = document.createElementNS(
 				FedoraNamespaces.KRAMERIUS_URI, "replicatedFrom");
@@ -203,4 +231,10 @@ public class CDKFormat implements ReplicationFormat {
 		}
 	}
 
+	@Override
+	public byte[] formatFoxmlData(byte[] input)
+			throws ReplicateException {
+		return this.formatFoxmlData(input, new Object[0]);
+	}
+	
 }

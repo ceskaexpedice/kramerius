@@ -30,4 +30,12 @@ public class IdentityFormat implements ReplicationFormat {
     public byte[] formatFoxmlData(byte[] input) throws ReplicateException {
         return input;
     }
+
+	@Override
+	public byte[] formatFoxmlData(byte[] input, Object... params)
+			throws ReplicateException {
+		return input;
+	}
+
+    
 }
