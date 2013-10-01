@@ -24,14 +24,14 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestJSONException;
 
 
 /**
  * Object is not found in K4
  * @author pavels
  */
-public class ObjectNotFound extends AbstractRestException {
+public class ObjectNotFound extends AbstractRestJSONException {
 
     public ObjectNotFound(String message) {
         super(message,HttpServletResponse.SC_NOT_FOUND);
