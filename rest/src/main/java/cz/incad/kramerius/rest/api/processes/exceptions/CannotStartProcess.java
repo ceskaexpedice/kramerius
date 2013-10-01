@@ -24,13 +24,13 @@ import javax.ws.rs.core.Response;
 
 import com.sun.jersey.api.Responses;
 
-import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestJSONException;
 
 /**
  * Cannot start process
  * @author pavels
  */
-public class CannotStartProcess extends AbstractRestException{
+public class CannotStartProcess extends AbstractRestJSONException{
 
     public CannotStartProcess(String message) {
         super(message, HttpServletResponse.SC_BAD_REQUEST);

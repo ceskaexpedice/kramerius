@@ -24,13 +24,13 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestJSONException;
 
 /**
  * Cannot stop process
  * @author pavels
  */
-public class CannotStopProcess extends AbstractRestException{
+public class CannotStopProcess extends AbstractRestJSONException{
 
     public CannotStopProcess(String message) {
         super(message,HttpServletResponse.SC_CONFLICT);

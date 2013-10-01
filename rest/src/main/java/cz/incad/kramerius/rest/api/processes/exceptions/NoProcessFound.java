@@ -22,13 +22,13 @@ import javax.ws.rs.core.Response;
 
 import com.sun.jersey.api.Responses;
 
-import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestJSONException;
 
 /**
  * No such process found
  * @author pavels
  */
-public class NoProcessFound extends AbstractRestException{
+public class NoProcessFound extends AbstractRestJSONException{
 
     public NoProcessFound(String message) {
         super(message,Responses.NOT_FOUND);

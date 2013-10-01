@@ -26,13 +26,13 @@ import javax.ws.rs.core.Response;
 
 import org.antlr.stringtemplate.StringTemplate;
 
-import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestJSONException;
 
 /**
  * No logs found
  * @author pavels
  */
-public class LogsNotFound extends AbstractRestException {
+public class LogsNotFound extends AbstractRestJSONException {
 
     public LogsNotFound(String message, Exception ex) {
         super(message,ex,HttpServletResponse.SC_NOT_FOUND);

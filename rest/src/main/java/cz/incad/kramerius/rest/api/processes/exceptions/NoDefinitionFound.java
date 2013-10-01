@@ -24,13 +24,13 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestJSONException;
 
 /**
  * No process definition found
  * @author pavels
  */
-public class NoDefinitionFound extends AbstractRestException{
+public class NoDefinitionFound extends AbstractRestJSONException{
 
     public NoDefinitionFound(String message) {
         super(message, HttpServletResponse.SC_NOT_FOUND);

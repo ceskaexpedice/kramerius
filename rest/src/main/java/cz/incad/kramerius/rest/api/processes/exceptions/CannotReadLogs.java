@@ -24,13 +24,13 @@ import javax.ws.rs.core.Response;
 
 import com.sun.jersey.api.Responses;
 
-import cz.incad.kramerius.rest.api.exceptions.AbstractRestException;
+import cz.incad.kramerius.rest.api.exceptions.AbstractRestJSONException;
 
 /**
  * Logs are not readable
  * @author pavels
  */
-public class CannotReadLogs extends AbstractRestException{
+public class CannotReadLogs extends AbstractRestJSONException{
 
     public CannotReadLogs(String message) {
         super(message,Responses.PRECONDITION_FAILED);
