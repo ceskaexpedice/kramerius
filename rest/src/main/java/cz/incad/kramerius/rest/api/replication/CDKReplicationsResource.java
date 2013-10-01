@@ -140,12 +140,18 @@ public class CDKReplicationsResource {
     @GET
     @Path("{pid}/foxml")
     @Produces(MediaType.APPLICATION_XML+";charset=utf-8")
-    public Response getExportedFOXML(@PathParam("pid")String pid) throws ReplicateException, UnsupportedEncodingException {
+    public Response getExportedFOXML(@PathParam("pid")String pid, @QueryParam("collection") String collection ) throws ReplicateException, UnsupportedEncodingException {
         try {
         	//TODO: permissions
             // musi se vejit do pameti
-            byte[] bytes = replicationService.getExportedFOXML(pid, FormatType.CDK);
-            return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
+        	byte[] bytes = new byte[0];
+        	if (collection != null) {
+                bytes = replicationService.getExportedFOXML(pid, FormatType.CDK, collection);
+                return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
+        	} else {
+                bytes = replicationService.getExportedFOXML(pid, FormatType.CDK);
+                return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
+        	}
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");
         } catch (IOException e) {
@@ -161,10 +167,15 @@ public class CDKReplicationsResource {
     @GET
     @Path("{pid}/foxml")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getExportedJSONFOXML(@PathParam("pid")String pid) throws ReplicateException, UnsupportedEncodingException {
+    public Response getExportedJSONFOXML(@PathParam("pid")String pid, @QueryParam("collection") String collection) throws ReplicateException, UnsupportedEncodingException {
         try {
             // musi se vejit do pameti
-            byte[] bytes = replicationService.getExportedFOXML(pid, FormatType.CDK);
+        	byte[] bytes = new byte[0];
+        	if (collection != null) {
+                bytes = replicationService.getExportedFOXML(pid, FormatType.CDK, collection);
+        	} else {
+                bytes = replicationService.getExportedFOXML(pid, FormatType.CDK);
+        	}
             char[] encoded = Base64Coder.encode(bytes);
             JSONObject jsonObj = new JSONObject();
             jsonObj.put("raw", new String(encoded));
