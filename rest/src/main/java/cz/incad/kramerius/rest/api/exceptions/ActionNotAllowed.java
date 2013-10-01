@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
  * User is not permitted to permorm action
  * @author pavels
  */
-public class ActionNotAllowed extends AbstractRestException{
+public class ActionNotAllowed extends AbstractRestJSONException{
 
     public ActionNotAllowed(String message) {
         super(message,HttpServletResponse.SC_FORBIDDEN);

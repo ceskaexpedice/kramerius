@@ -30,13 +30,13 @@ import cz.incad.kramerius.rest.api.utils.ExceptionJSONObjectUtils;
  * Abstract API exception
  * @author pavels
  */
-public class AbstractRestException extends WebApplicationException{
+public class AbstractRestJSONException extends WebApplicationException{
 
-    public AbstractRestException(String message, int status) {
+    public AbstractRestJSONException(String message, int status) {
         super(Response.status(status).entity(ExceptionJSONObjectUtils.fromMessage(message, status).toString()).type(MediaType.APPLICATION_JSON).build());
     }
     
-    public AbstractRestException(String message,Exception ex, int status) {
+    public AbstractRestJSONException(String message,Exception ex, int status) {
         super(Response.status(status).entity(ExceptionJSONObjectUtils.fromMessage(message, status,ex).toString()).type(MediaType.APPLICATION_JSON).build());
     }
 }
