@@ -1,49 +1,28 @@
 package cz.incad.kramerius.utils.imgs;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Transparency;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageOutputStreamImpl;
-import javax.swing.JPanel;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-
 import com.lizardtech.djvu.DjVuInfo;
 import com.lizardtech.djvu.DjVuOptions;
 import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuImage;
-
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.fedora.Handler;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+
+import javax.imageio.*;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStreamImpl;
+import javax.swing.*;
+import javax.xml.xpath.XPathExpressionException;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
 
 public class KrameriusImageSupport {
 
@@ -119,6 +98,14 @@ public class KrameriusImageSupport {
             try {
 
                 document = PDDocument.load(stream);
+                if( document.isEncrypted() ){
+                    try{
+                        document.decrypt( KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword") );
+                    }
+                    catch( Exception e ){
+                        throw new RuntimeException(e);
+                    }
+                }
                 //int resolution = 96;
                 int resolution = 160;
                 List pages = document.getDocumentCatalog().getAllPages();
