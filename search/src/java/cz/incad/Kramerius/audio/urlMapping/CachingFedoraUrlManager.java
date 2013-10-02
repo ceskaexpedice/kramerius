@@ -22,15 +22,16 @@ import cz.incad.Kramerius.Initializable;
 import cz.incad.Kramerius.audio.AudioStreamId;
 import cz.incad.Kramerius.audio.XpathEvaluator;
 import cz.incad.kramerius.FedoraAccess;
+import org.w3c.dom.Document;
+
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import org.w3c.dom.Document;
 
 /**
  * This implementation gets PID+DS -> URL from Fedora. Urls are present in
@@ -63,7 +64,8 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
     private XPathExpression createDsLocationExpression() {
         try {
             XpathEvaluator xpathEvaluator = new XpathEvaluator();
-            return xpathEvaluator.createExpression("//fedora-management:dsLocation");
+            //return xpathEvaluator.createExpression("//fedora-management:dsLocation");
+            return xpathEvaluator.createExpression("//*[local-name()='dsLocation']");
         } catch (XPathExpressionException ex) {
             //should never happen unless someone breaks xpath expressions
             LOGGER.log(Level.SEVERE, null, ex);

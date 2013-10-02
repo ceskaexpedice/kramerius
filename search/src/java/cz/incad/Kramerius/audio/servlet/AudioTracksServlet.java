@@ -24,24 +24,20 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.sf.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import net.sf.json.JSONObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -78,9 +74,12 @@ public class AudioTracksServlet extends GuiceServlet {
             rdfContainsTracks = evaluator.createExpression("//rdf:Description/rel:containsTrack/@rdf:resource");
             dcTitles = evaluator.createExpression("//dc:title");
             dcFormats = evaluator.createExpression("//dc:format");
-            dsMp3 = evaluator.createExpression("//fedora-access:datastream[@dsid='MP3']");
-            dsOgg = evaluator.createExpression("//fedora-access:datastream[@dsid='OGG']");
-            dsWav = evaluator.createExpression("//fedora-access:datastream[@dsid='WAV']");
+            //dsMp3 = evaluator.createExpression("//fedora-access:datastream[@dsid='MP3']");
+            dsMp3 = evaluator.createExpression("//*[local-name()='datastream'][@dsid='MP3']");
+            //dsOgg = evaluator.createExpression("//fedora-access:datastream[@dsid='OGG']");
+            dsOgg = evaluator.createExpression("//*[local-name()='datastream'][@dsid='OGG']");
+            //dsWav = evaluator.createExpression("//fedora-access:datastream[@dsid='WAV']");
+            dsWav = evaluator.createExpression("//*[local-name()='datastream'][@dsid='WAV']");
         } catch (XPathExpressionException ex) {
             //should never happen unless someone breaks xpath expressions
             LOGGER.log(Level.SEVERE, null, ex);
