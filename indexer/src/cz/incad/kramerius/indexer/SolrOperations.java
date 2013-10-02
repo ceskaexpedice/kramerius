@@ -67,7 +67,7 @@ public class SolrOperations {
     public SolrOperations(FedoraOperations _fedoraOperations) throws IOException {
         fedoraOperations = _fedoraOperations;
         config = KConfiguration.getInstance().getConfiguration();
-        isSoftCommit = config.getBoolean("indexer.isHardCommit", false);
+        isSoftCommit = config.getBoolean("indexer.isSoftCommit", false);
         transformer = new GTransformer();
         initCustomTransformations();
         extendedFields = new ExtendedFields(fedoraOperations);
@@ -626,9 +626,9 @@ public class SolrOperations {
     private void commit() throws java.rmi.RemoteException, Exception {
         String s;
         if(isSoftCommit){
-            s = "<commit softCommit=\"false\" />";
-        }else{
             s = "<commit />";
+        }else{
+            s = "<commit softCommit=\"false\" />";
         }
         logger.log(Level.FINE, "commit");
 
