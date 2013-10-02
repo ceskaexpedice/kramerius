@@ -283,13 +283,13 @@ public class Import {
         List<RelationshipTuple> existingWS = port.getRelationships(pid, null);
         List<RDFTuple> existing = new ArrayList<RDFTuple>(existingWS.size());
         for (RelationshipTuple t : existingWS) {
-            existing.add(new RDFTuple(t.getSubject(), t.getPredicate(), t.getObject()));
+            existing.add(new RDFTuple(t.getSubject(), t.getPredicate(), t.getObject(), t.isIsLiteral()));
         }
         ingested.removeAll(existing);
         for (RDFTuple t : ingested) {
             if (t.object != null) {
                 try {
-                    port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, false, null);
+                    port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, t.literal, null);
                 } catch (Exception ex) {
                     log.severe("WARNING- could not add relationship:" + t + "(" + ex + ")");
                 }
@@ -315,7 +315,14 @@ public class Import {
                     if (inRdf) {
                         String predicate = r.getName().getNamespaceURI() + r.getName().getLocalPart();
                         String object = r.getAttributeValue(r.getNamespaceURI("rdf"), "resource");
-                        retval.add(new RDFTuple(subject, predicate, object));
+                        boolean literal = false;
+                        if (object == null){
+                            object = r.getElementText();
+                            if (object != null){
+                                literal = true;
+                            }
+                        }
+                        retval.add(new RDFTuple(subject, predicate, object, literal));
                     }
                 }
                 if (r.isEndElement()) {
@@ -330,6 +337,20 @@ public class Import {
         return retval;
     }
 
+   /* public static void main TestReadRDF (String[] args){
+        try{
+            File file = new File("/Work/Kramerius/data/prvnidavka-converted/40114/0eaa6730-9068-11dd-97de-000d606f5dc6.xml");
+            FileInputStream is = new FileInputStream(file);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(is, bos);
+            byte[] bytes = bos.toByteArray();
+            List<RDFTuple> rdf = readRDF(bytes);
+            System.out.print(rdf);
+        }catch(Throwable th){
+            System.out.print(th);
+        }
+    }
+*/
     /**
      * Parse FOXML file and if it has model in fedora.topLevelModels, add its
      * PID to roots list. Objects in the roots list then will be submitted to
@@ -413,63 +434,49 @@ class RDFTuple {
     String subject;
     String predicate;
     String object;
+    boolean literal;
 
-    public RDFTuple(String subject, String predicate, String object) {
+    public RDFTuple(String subject, String predicate, String object, boolean literal) {
         super();
         this.subject = subject;
         this.predicate = predicate;
         this.object = object;
+        this.literal = literal;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((object == null) ? 0 : object.hashCode());
-        result = prime * result + ((predicate == null) ? 0 : predicate.hashCode());
-        result = prime * result + ((subject == null) ? 0 : subject.hashCode());
-        return result;
-    }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof RDFTuple)) {
-            return false;
-        }
-        RDFTuple other = (RDFTuple) obj;
-        if (object == null) {
-            if (other.object != null) {
-                return false;
-            }
-        } else if (!object.equals(other.object)) {
-            return false;
-        }
-        if (predicate == null) {
-            if (other.predicate != null) {
-                return false;
-            }
-        } else if (!predicate.equals(other.predicate)) {
-            return false;
-        }
-        if (subject == null) {
-            if (other.subject != null) {
-                return false;
-            }
-        } else if (!subject.equals(other.subject)) {
-            return false;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RDFTuple rdfTuple = (RDFTuple) o;
+
+        if (literal != rdfTuple.literal) return false;
+        if (object != null ? !object.equals(rdfTuple.object) : rdfTuple.object != null) return false;
+        if (predicate != null ? !predicate.equals(rdfTuple.predicate) : rdfTuple.predicate != null) return false;
+        if (subject != null ? !subject.equals(rdfTuple.subject) : rdfTuple.subject != null) return false;
+
         return true;
     }
 
     @Override
+    public int hashCode() {
+        int result = subject != null ? subject.hashCode() : 0;
+        result = 31 * result + (predicate != null ? predicate.hashCode() : 0);
+        result = 31 * result + (object != null ? object.hashCode() : 0);
+        result = 31 * result + (literal ? 1 : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
-        return "RDFTuple [subject=" + subject + ", predicate=" + predicate + ", object=" + object + "]";
+        return "RDFTuple{" +
+                "subject='" + subject + '\'' +
+                ", predicate='" + predicate + '\'' +
+                ", object='" + object + '\'' +
+                ", literal=" + literal +
+                '}';
     }
 }
 
