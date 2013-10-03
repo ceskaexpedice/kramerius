@@ -55,17 +55,33 @@ public class StatisticDatabaseInitializator {
                 alterStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
                 alterStatisticsTableSessionId(connection);
+                //Issue 619
+                alterStatisticsAuthorTablePrimaryKey(connection);
+                
             } else if (versionCondition(version, "<", "6.0.0")){
                 createStatisticTables(connection);
                 alterStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
                 alterStatisticsTableSessionId(connection);
+
+                //Issue 619
+                alterStatisticsAuthorTablePrimaryKey(connection);
+
             } else if (versionCondition(version, "=", "6.0.0")) {
                 alterStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
                 alterStatisticsTableSessionId(connection);
+
+                //Issue 619
+                alterStatisticsAuthorTablePrimaryKey(connection);
             } else if (versionCondition(version, "=", "6.1.0")) {
                 alterStatisticsTableSessionId(connection);
+
+                //Issue 619
+                alterStatisticsAuthorTablePrimaryKey(connection);
+            } else if ((versionCondition(version, ">", "6.1.0")) && (versionCondition(version, "<", "6.5.0"))) {
+                //Issue 619
+                alterStatisticsAuthorTablePrimaryKey(connection);
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -126,6 +142,37 @@ public class StatisticDatabaseInitializator {
         }
     }    
 
+    // change pk
+    // Issue 619
+    public static void alterStatisticsAuthorTablePrimaryKey(final Connection con) throws SQLException {
+
+        JDBCCommand deletePKCommand = new JDBCCommand() {
+        	
+			@Override
+			public Object executeJDBCCommand(Connection con) throws SQLException {
+				JDBCUpdateTemplate template = new JDBCUpdateTemplate(con,false);
+				template.setUseReturningKeys(false);
+				template.executeUpdate("ALTER TABLE statistic_access_log_detail_authors DROP CONSTRAINT statistic_access_log_detail_authors_pkey",new Object[0]);
+				return null;
+			}
+		};
+
+        JDBCCommand createPKCommand = new JDBCCommand() {
+        	
+			@Override
+			public Object executeJDBCCommand(Connection con) throws SQLException {
+				JDBCUpdateTemplate template = new JDBCUpdateTemplate(con,false);
+				template.setUseReturningKeys(false);
+				template.executeUpdate("ALTER TABLE statistic_access_log_detail_authors ADD  PRIMARY KEY (author_id)",new Object[0]);
+				return null;
+			}
+		};
+
+        new JDBCTransactionTemplate(con, false).updateWithTransaction(deletePKCommand, createPKCommand);
+        
+    }    
+
+    
     /**
      * @param connection
      * @throws IOException 
