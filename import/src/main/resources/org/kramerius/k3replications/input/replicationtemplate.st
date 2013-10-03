@@ -80,7 +80,7 @@ form(migrationDirectory,targetDirectory,importRootDirectory,visibility,otherSett
             var defaultRights = \$('#defaultRightsPublic').attr('checked');
 
             var ingestSkip = !importToFedora;
-            var replTypeId = \$("input[@name=repltype]:checked").attr('value');
+            var replTypeId = \$("input[name=repltype]:checked").val();
             // TODO: idlist encode 
             var encodedData = Base64.encode(\$('#idlist').val()).escapeChars(charsThatMustBeEscaped);
             
