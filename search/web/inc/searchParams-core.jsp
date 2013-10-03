@@ -62,9 +62,10 @@
         <c:param name="fq" value="(rok:[${searchParams.yearFrom} TO ${searchParams.yearUntil}]) OR (datum_begin:[1 TO ${searchParams.yearUntil}] AND datum_end:[${searchParams.yearFrom} TO 3000]) OR datum:[${searchParams.dateFromFormatted} TO ${searchParams.dateUntilFormatted}]" />
             <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
-
-    <c:param name="start" value="${param.offset}" />
-
+    <c:if test="${!empty param.offset}">
+        <c:param name="start" value="${param.offset}" />
+    </c:if>
+    
     <c:if test="${isCollapsed}">
         <%--
         <c:param name="collapse.field" value="root_pid" />
@@ -76,7 +77,7 @@
         <c:param name="group.field" value="root_pid" />
         <c:param name="group.type" value="normal" />
         <c:param name="group.threshold" value="1" />
-        <c:param name="group.facet" value="before" />
+        <c:param name="group.facet" value="true" />
         <c:param name="group" value="true" />
         <c:param name="group.ngroups" value="true" />
     </c:if>

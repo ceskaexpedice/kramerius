@@ -42,7 +42,9 @@
         </c:otherwise>
     </c:choose>
     <c:param name="rows" value="${rows}" />
-    <c:param name="start" value="${param.offset}" />
+    <c:if test="${!empty param.offset}">
+        <c:param name="start" value="${param.offset}" />
+    </c:if>
 <%--    <c:param name="sort" value="fedora.model asc" /> --%>
     <c:param name="fq" >
         NOT(PID:${escaped_pid}/@*)

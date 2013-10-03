@@ -34,7 +34,10 @@
         <c:param name="fq" value="${fqs}" />
         <c:set var="filters" scope="request"><c:out value="${filters}" />&fq=<c:out value="${fqs}" /></c:set>
     </c:forEach>
-    <c:param name="start" value="${param.offset}" />
+    
+    <c:if test="${!empty param.offset}">
+        <c:param name="start" value="${param.offset}" />
+    </c:if>
     <c:param name="sort" value="level asc, created_date desc" />
 </c:url>
 <c:catch var="exceptions"> 
