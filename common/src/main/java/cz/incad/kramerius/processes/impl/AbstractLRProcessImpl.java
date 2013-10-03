@@ -145,6 +145,10 @@ public abstract class AbstractLRProcessImpl implements LRProcess{
 				command.add(jpParam);
 			}
 
+            if (configuration.getConfiguration().getBoolean("indexer.remoteDebug", false) ) {
+                LOGGER.info("Process is waiting for the debugger to attach");
+                command.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=" + configuration.getConfiguration().getInt("indexer.port", 8001));
+            }
 			command.add("-D"+ProcessStarter.MAIN_CLASS_KEY+"="+this.definition.getMainClass());
 			command.add("-D"+ProcessStarter.UUID_KEY+"="+this.uuid);
             command.add("-D"+ProcessStarter.TOKEN_KEY+"="+this.getGroupToken());
