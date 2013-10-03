@@ -229,7 +229,8 @@ $(document).ready(function(){
         });
         $("div.collection").each(function(){
             var id = $(this).text();
-            var title = collectionsDict[id];
+            var title = "";
+            title = collectionsDict[id];
             $(this).html(title);
         });
            // alert(a);
@@ -446,6 +447,7 @@ $(document).ready(function(){
             $(jq(id)).removeClass('more_docs');
             getExtInfo();
             $('.loading_docs').hide();
+            translateCollections();
             checkHeight(offset);
 <scrd:loggedusers>
             $(jq(id)+' div.search_result').prepend('<input type="checkbox" style="float:right;" />');
