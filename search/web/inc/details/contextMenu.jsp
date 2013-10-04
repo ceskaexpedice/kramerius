@@ -249,6 +249,10 @@
     function isPrivate(id){
     	return $(jq(id)).hasClass('private');
     }
+    
+    function isPublic(id) {
+    	return $(jq(id)).hasClass('public');
+    }
 
     var _feedbackDialog;
     function feedbackDialog(){
@@ -920,11 +924,22 @@
 
               var html = reduce(function(base,element, status) {
                   //TODO: isPrivate nefunguje 
-            	  function containsPrivateAttribute(modelPidIdent) {
-                      return $(jq(modelPidIdent)+" >div>a>span[title=\"private\"]").size() > 0;
-                  }
+            	  //function containsPrivateAttribute(modelPidIdent) {
+                  //    return $(jq(modelPidIdent)+" >div>a>span[title=\"public\"]").size() > 0;
+                  //}
                   
-                  var key = containsPrivateAttribute(element) ? "administrator.dialogs.changevisibility.private" : "administrator.dialogs.changevisibility.public";
+                  var pub = isPublic(element);
+                  var priv = isPrivate(element);
+                  
+                  var key ="";
+                  if (pub && !priv) {
+					key = "administrator.dialogs.changevisibility.public";
+                  } else if (!pub && priv) {
+					key = "administrator.dialogs.changevisibility.private";
+                  } else {
+					key = "administrator.dialogs.changevisibility.uknown";
+                  }
+
                   var label = $(jq(element)+">div>a>label").text();
                   return base+  "<tr><td><span class='ui-icon ui-icon-triangle-1-e folder'>folder</span></td> <td width='60%'>"+label+"</td> <td><strong>"+dictionary[key]+"</strong></td>  </tr>";                 
                },"<table style='width:100%;'>",getAffectedPids())+"</table>";
