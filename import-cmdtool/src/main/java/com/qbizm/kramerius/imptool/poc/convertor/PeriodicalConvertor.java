@@ -1,41 +1,16 @@
 package com.qbizm.kramerius.imptool.poc.convertor;
 
+import com.qbizm.kramerius.imp.jaxb.DigitalObject;
+import com.qbizm.kramerius.imp.jaxb.periodical.*;
+import com.qbizm.kramerius.imptool.poc.valueobj.*;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
-
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.apache.commons.lang.StringUtils;
-
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.periodical.Contributor;
-import com.qbizm.kramerius.imp.jaxb.periodical.ContributorName;
-import com.qbizm.kramerius.imp.jaxb.periodical.CoreBibliographicDescriptionPeriodical;
-import com.qbizm.kramerius.imp.jaxb.periodical.Creator;
-import com.qbizm.kramerius.imp.jaxb.periodical.CreatorName;
-import com.qbizm.kramerius.imp.jaxb.periodical.ItemRepresentation;
-import com.qbizm.kramerius.imp.jaxb.periodical.Language;
-import com.qbizm.kramerius.imp.jaxb.periodical.MainTitle;
-import com.qbizm.kramerius.imp.jaxb.periodical.PageIndex;
-import com.qbizm.kramerius.imp.jaxb.periodical.PageRepresentation;
-import com.qbizm.kramerius.imp.jaxb.periodical.Periodical;
-import com.qbizm.kramerius.imp.jaxb.periodical.PeriodicalInternalComponentPart;
-import com.qbizm.kramerius.imp.jaxb.periodical.PeriodicalItem;
-import com.qbizm.kramerius.imp.jaxb.periodical.PeriodicalPage;
-import com.qbizm.kramerius.imp.jaxb.periodical.PeriodicalVolume;
-import com.qbizm.kramerius.imp.jaxb.periodical.Publisher;
-import com.qbizm.kramerius.imp.jaxb.periodical.Subject;
-import com.qbizm.kramerius.imp.jaxb.periodical.TechnicalDescription;
-import com.qbizm.kramerius.imp.jaxb.periodical.UniqueIdentifier;
-import com.qbizm.kramerius.imp.jaxb.periodical.UniqueIdentifierURNType;
-import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
-import com.qbizm.kramerius.imptool.poc.valueobj.DublinCore;
-import com.qbizm.kramerius.imptool.poc.valueobj.ImageMetaData;
-import com.qbizm.kramerius.imptool.poc.valueobj.ImageRepresentation;
-import com.qbizm.kramerius.imptool.poc.valueobj.RelsExt;
-import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
 /**
  * Konvertor periodika do sady foxml digitalnich objektu
@@ -225,11 +200,6 @@ public class PeriodicalConvertor extends BaseConvertor {
         }
         getConfig().setContract(contract);
 
-        for (PeriodicalItem item : volume.getPeriodicalItem()) {
-            this.convertItem(item, visibility);
-            re.addRelation(RelsExt.HAS_ITEM, pid(uuid(item.getUniqueIdentifier())),false);
-        }
-
         Map<Integer, String> pageIdMap = new TreeMap<Integer, String>();
         for (PeriodicalPage page : volume.getPeriodicalPage()) {
             this.convertPage(page, visibility);
@@ -238,6 +208,13 @@ public class PeriodicalConvertor extends BaseConvertor {
             re.addRelation(RelsExt.HAS_PAGE, ppid,false);
             fillPageIdMap(pageIdMap, page.getIndex(), ppid);
         }
+
+        for (PeriodicalItem item : volume.getPeriodicalItem()) {
+            this.convertItem(item, visibility);
+            re.addRelation(RelsExt.HAS_ITEM, pid(uuid(item.getUniqueIdentifier())),false);
+        }
+
+
 
         for (PeriodicalInternalComponentPart part : volume.getPeriodicalInternalComponentPart()) {
             this.convertInternalPart(part, pageIdMap, visibility);

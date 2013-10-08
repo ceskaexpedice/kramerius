@@ -984,7 +984,7 @@ public abstract class BaseConvertor {
                     // Destination directory
                     File dir = IOUtils.checkDirectory(binaryDirectory);
                     // Move file to new directory
-                    File target = new File(dir, filename.substring(filename.lastIndexOf(System.getProperty("file.separator")), filename.lastIndexOf('.'))+".jpg");
+                    File target = new File(dir, filename.substring(filename.lastIndexOf("/"), filename.lastIndexOf('.'))+".jpg");
                     FileUtils.writeByteArrayToFile(target, binaryContent);
 
                     ContentLocationType cl = new ContentLocationType();
@@ -1048,13 +1048,13 @@ public abstract class BaseConvertor {
                     // Destination directory
                     File dir = IOUtils.checkDirectory(binaryDirectory);
                     // Move file to new directory
-                    File target = new File(dir, filename.substring(filename.lastIndexOf(System.getProperty("file.separator")), filename.lastIndexOf('.'))+".jpg");
+                    File target = new File(dir, filename.substring(filename.lastIndexOf("/"), filename.lastIndexOf('.'))+".jpg");
                     FileUtils.writeByteArrayToFile(target, binaryContent);
                     cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
                 }else{
                     String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
                 	String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.thumb");
-                    cl.setREF(PathEncoder.encPath(imagesPrefix + "/"+getConfig().getContract()+filename.substring(filename.lastIndexOf(System.getProperty("file.separator")))+suffix));
+                    cl.setREF(PathEncoder.encPath(imagesPrefix + "/"+getConfig().getContract()+filename.substring(filename.lastIndexOf("/"))+suffix));
                 }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
@@ -1117,13 +1117,13 @@ public abstract class BaseConvertor {
                     // Destination directory
                     File dir = IOUtils.checkDirectory(binaryDirectory);
                     // Move file to new directory
-                    File target = new File(dir, filename.substring(filename.lastIndexOf(System.getProperty("file.separator")), filename.lastIndexOf('.'))+".jpg");
+                    File target = new File(dir, filename.substring(filename.lastIndexOf("/"), filename.lastIndexOf('.'))+".jpg");
                     FileUtils.writeByteArrayToFile(target, binaryContent);
                     cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
                 }else{
                     String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
                     String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.preview");
-                    cl.setREF(PathEncoder.encPath(imagesPrefix +"/"+getConfig().getContract()+filename.substring(filename.lastIndexOf(System.getProperty("file.separator")))+suffix));
+                    cl.setREF(PathEncoder.encPath(imagesPrefix +"/"+getConfig().getContract()+filename.substring(filename.lastIndexOf("/"))+suffix));
                 }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);

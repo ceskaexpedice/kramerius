@@ -1,50 +1,23 @@
 package org.kramerius;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
+import com.qbizm.kramerius.imptool.poc.Main;
+import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
+import cz.incad.kramerius.service.impl.IndexerProcessStarter;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
+import javax.net.ssl.*;
+import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.rmi.RemoteException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import com.qbizm.kramerius.imptool.poc.Main;
-import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
-
-import cz.incad.kramerius.service.impl.IndexerProcessStarter;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class Download {
 
@@ -164,8 +137,7 @@ public class Download {
             successWriter = new FileWriter("replication-success.txt");
             failedWriter = new FileWriter("replication-failed.txt");
         } catch (Exception e) {
-
-            e.printStackTrace();
+            log.log(Level.SEVERE,"Error in logfiles init:" ,e);
         }
     }
 
@@ -174,16 +146,18 @@ public class Download {
             successWriter.append(ID+"\t"+uuid+"\n");
             successWriter.flush();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE,"Error in logSuccess method:" ,e);
         }
     }
 
     private static void logFailed(String ID, Throwable t){
         try {
+            log.log(Level.SEVERE,"Error when downloading document ID:"+ID ,t);
             failedWriter.append(ID+"\t"+t+"\n");
             failedWriter.flush();
+
         } catch (Exception e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE,"Error in logFailed method:" ,e);
         }
     }
 
@@ -192,7 +166,7 @@ public class Download {
             successWriter.close();
             failedWriter.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE,"Error in logfiles close:" ,e);
         }
     }
 
@@ -364,7 +338,7 @@ public class Download {
             }
             in.close();
         } catch (IOException e) {
-            log.severe("Exception reading document list file: " + e);
+            log.log(Level.SEVERE,"Exception reading document list file: "+documentListFile, e);
             throw new RuntimeException(e);
         }
         return documents;
@@ -383,7 +357,7 @@ public class Download {
             is.close();
             os.close();
         } catch (IOException e) {
-            log.severe("IOException in copyRemote: " + e);
+            log.log(Level.SEVERE,"IOException in copyRemote: "+fromURL+" , "+toFileName , e);
             throw new RuntimeException(e);
         }
     }
@@ -424,12 +398,12 @@ public class Download {
         } catch (NoSuchAlgorithmException e) {
             if (conn != null)
                 conn.disconnect();
-            log.severe("NoSuchAlgorithmException in getRemoteInputStream: " + e);
+            log.log(Level.SEVERE,"NoSuchAlgorithmException in getRemoteInputStream: "+fromURL , e);
             throw new RuntimeException(e);
         } catch (KeyManagementException e) {
             if (conn != null)
                 conn.disconnect();
-            log.severe("KeyManagementException in getRemoteInputStream: " + e);
+            log.log(Level.SEVERE,"KeyManagementException in getRemoteInputStream: "+fromURL , e);
             throw new RuntimeException(e);
         } catch (FileNotFoundException e) {
             if (conn != null)
@@ -438,7 +412,7 @@ public class Download {
         } catch (IOException e) {
             if (conn != null)
                 conn.disconnect();
-            log.severe("IOException in getRemoteInputStream: " + e);
+            log.log(Level.SEVERE,"IOException in getRemoteInputStream: " +fromURL, e);
             throw new RuntimeException(e);
         }
 
@@ -559,7 +533,7 @@ public class Download {
         try {
             return URLEncoder.encode(stringToEncode, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            // Encoding UTF-8 is supported
+            log.log(Level.SEVERE,"", e);
         }
 
         return encodedString;

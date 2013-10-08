@@ -1,5 +1,10 @@
 package com.qbizm.kramerius.imptool.poc.convertor;
 
+import com.qbizm.kramerius.imp.jaxb.*;
+import com.qbizm.kramerius.imptool.poc.valueobj.*;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.lang.StringUtils;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,39 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
-
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-
-import com.qbizm.kramerius.imp.jaxb.Contributor;
-import com.qbizm.kramerius.imp.jaxb.ContributorName;
-import com.qbizm.kramerius.imp.jaxb.Creator;
-import com.qbizm.kramerius.imp.jaxb.CreatorName;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.Language;
-import com.qbizm.kramerius.imp.jaxb.Monograph;
-import com.qbizm.kramerius.imp.jaxb.MonographBibliographicRecord;
-import com.qbizm.kramerius.imp.jaxb.MonographComponentPart;
-import com.qbizm.kramerius.imp.jaxb.MonographComponentPartRepresentation;
-import com.qbizm.kramerius.imp.jaxb.MonographPage;
-import com.qbizm.kramerius.imp.jaxb.MonographUnit;
-import com.qbizm.kramerius.imp.jaxb.MonographUnitRepresentation;
-import com.qbizm.kramerius.imp.jaxb.PageIndex;
-import com.qbizm.kramerius.imp.jaxb.PageRepresentation;
-import com.qbizm.kramerius.imp.jaxb.PartInImage;
-import com.qbizm.kramerius.imp.jaxb.PartInText;
-import com.qbizm.kramerius.imp.jaxb.Publisher;
-import com.qbizm.kramerius.imp.jaxb.Subject;
-import com.qbizm.kramerius.imp.jaxb.TechnicalDescription;
-import com.qbizm.kramerius.imp.jaxb.UniqueIdentifier;
-import com.qbizm.kramerius.imp.jaxb.UniqueIdentifierURNType;
-import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
-import com.qbizm.kramerius.imptool.poc.valueobj.DublinCore;
-import com.qbizm.kramerius.imptool.poc.valueobj.ImageMetaData;
-import com.qbizm.kramerius.imptool.poc.valueobj.ImageRepresentation;
-import com.qbizm.kramerius.imptool.poc.valueobj.RelsExt;
-import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
 /**
  * Konvertor monografii do foxml
@@ -89,6 +61,14 @@ public class MonographConvertor extends BaseConvertor {
         return pid;
     }
 
+    private String storeLocalId(UniqueIdentifier uid) throws ServiceException {
+        String pid = null;
+        if ( uid.getUniqueIdentifierURNType() != null && !Pattern.matches(PID_PATTERN, PID_PREFIX + first(uid.getUniqueIdentifierURNType().getContent()))) {
+            pid = first(uid.getUniqueIdentifierURNType().getContent());
+        }
+        return pid;
+    }
+
     /**
      * Konvertuje monografii a vsechny podobjekty do sady foxml souboru
      *
@@ -101,6 +81,7 @@ public class MonographConvertor extends BaseConvertor {
         if (mono.getUniqueIdentifier() == null) {
             mono.setUniqueIdentifier(new UniqueIdentifier());
         }
+        String localId = storeLocalId(mono.getUniqueIdentifier());
         String uuid = uuid(mono.getUniqueIdentifier());
         String pid = pid(uuid);
 
@@ -122,10 +103,7 @@ public class MonographConvertor extends BaseConvertor {
         }
         getConfig().setContract(contract);
 
-        for (MonographUnit unit : mono.getMonographUnit()) {
-            this.convertUnit(unit, visibility);
-            re.addRelation(RelsExt.HAS_UNIT,pid( uuid(unit.getUniqueIdentifier())), false);
-        }
+
 
         Map<Integer, String> pageIdMap = new TreeMap<Integer, String>();
         for (MonographPage page : mono.getMonographPage()) {
@@ -134,6 +112,11 @@ public class MonographConvertor extends BaseConvertor {
             String ppid = pid(uuid(page.getUniqueIdentifier()));
             re.addRelation(RelsExt.HAS_PAGE, ppid, false);
             fillPageIdMap(pageIdMap, page.getIndex(), ppid);
+        }
+
+        for (MonographUnit unit : mono.getMonographUnit()) {
+            this.convertUnit(unit, visibility);
+            re.addRelation(RelsExt.HAS_UNIT,pid( uuid(unit.getUniqueIdentifier())), false);
         }
 
         for (MonographComponentPart part : mono.getMonographComponentPart()) {
@@ -152,6 +135,9 @@ public class MonographConvertor extends BaseConvertor {
         dc.addQualifiedIdentifier(RelsExt.ISBN, ISBN);
         if (ISBN == null || "".equals(ISBN)) {
             dc.addQualifiedIdentifier(RelsExt.EXTID, convertExtId(uuid));
+        }
+        if (localId!= null){
+            dc.addQualifiedIdentifier("local",localId);
         }
         for (Subject subj : biblio.getSubject()) {
             if (subj.getDDC() != null) {
