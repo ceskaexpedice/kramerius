@@ -33,8 +33,10 @@
        <a id="fullZoomifyMinusButton" onclick="javascript:fullZoomInit.minus();" style="z-index: 1002"><span class="ui-icon ui-icon-minus" >-</span></a>
        <a id="fullZoomifyButtonPrev" onclick="javascript:previousImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-w" >prev</span></a>
        <a id="fullZoomifyButtonNext" onclick="javascript:nextImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-e" >next</span></a>
-	
-	    <a href="javascript:hideFullZoomify();"><span class="ui-icon ui-icon-closethick">close</span></a>
+       <c:if test="${rotation == 'true'}">
+        <a id="fullZoomifyRotateButton" onclick="javascript:fullZoomInit.rotateImg();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowrefresh-1-s" >rotate</span></a>
+       </c:if>
+	   <a href="javascript:hideFullZoomify();"><span class="ui-icon ui-icon-closethick">close</span></a>
     </div>
 </div>
 

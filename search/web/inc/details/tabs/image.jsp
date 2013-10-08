@@ -1,4 +1,3 @@
-
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ page trimDirectiveWhitespaces="true"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -24,13 +23,27 @@
     .buttons>a>span.ui-button-text{
         padding:3px;
     }
-    
-    .rotateClass{
-    transform: rotate(90deg);
-	-ms-transform: rotate(90deg); 		/* IE 9 */
-	-webkit-transform: rotate(90deg); 	/* Safari a Chrome */
-	-moz-transform: rotate(90deg);		/* Firefox */
-	}
+
+    .rotateClass90{
+        transform: rotate(90deg);
+        -ms-transform: rotate(90deg); 		/* IE 9 */
+        -webkit-transform: rotate(90deg); 	/* Safari a Chrome */
+        -moz-transform: rotate(90deg);		/* Firefox */
+    }
+
+    .rotateClass180{
+        transform: rotate(180deg);
+        -ms-transform: rotate(180deg); 		/* IE 9 */
+        -webkit-transform: rotate(180deg); 	/* Safari a Chrome */
+        -moz-transform: rotate(180deg);		/* Firefox */
+    }
+
+    .rotateClass270{
+        transform: rotate(270deg);
+        -ms-transform: rotate(270deg); 		/* IE 9 */
+        -webkit-transform: rotate(270deg); 	/* Safari a Chrome */
+        -moz-transform: rotate(270deg);		/* Firefox */
+    }
 
 /*    
     span.ui-button-text {
