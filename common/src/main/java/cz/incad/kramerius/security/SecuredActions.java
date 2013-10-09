@@ -69,6 +69,10 @@ public enum SecuredActions {
     
     IMPORT_K4_REPLICATIONS("import_k4_replications"),
     
+    
+    /** Akce pro poskytovani dat pro CDK */
+    EXPORT_CDK_REPLICATIONS("export_cdk_replications"),
+    
     //K4_REPLICATIONS("k4_replications"),
     
     // Issue 159
