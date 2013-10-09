@@ -32,10 +32,13 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.ReplicationService;
@@ -86,17 +89,25 @@ public class CDKReplicationsResource {
     @Produces(MediaType.APPLICATION_XML+";charset=utf-8")
     public Response prepare(@QueryParam("date")String date, @QueryParam("offset") @DefaultValue("0")String offset, @QueryParam("rows") @DefaultValue("100")String rows) throws ReplicateException, UnsupportedEncodingException {
         try {
-    		if (date == null) {
-    			date = FORMAT.format(new Date());
-    		}
-        	//TODO: permissions
-        	Document document = this.solrAccess.request(makeRequestURL(date, offset, rows));
-            return Response.ok().entity(document).build();
+            if (checkPermission()) {
+	    		if (date == null) {
+	    			date = FORMAT.format(new Date());
+	    		}
+	        	//TODO: permissions
+	        	Document document = this.solrAccess.request(makeRequestURL(date, offset, rows));
+	            return Response.ok().entity(document).build();
+            }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ReplicateException(e);
         } catch (IOException e) {
             throw new ReplicateException(e);
         }
+    }
+
+    boolean checkPermission() throws IOException {
+        ObjectPidsPath path = new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid());
+        if (this.isActionAllowed.isActionAllowed(SecuredActions.EXPORT_CDK_REPLICATIONS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, path)) return true;
+        return false;
     }
 
 
@@ -110,12 +121,14 @@ public class CDKReplicationsResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=utf-8")
     public Response prepareJSON(@QueryParam("date")String date, @QueryParam("offset") @DefaultValue("0")String offset, @QueryParam("rows") @DefaultValue("100")String rows) throws ReplicateException, UnsupportedEncodingException {
         try {
-    		if (date == null) {
-    			date = FORMAT.format(new Date());
-    		}
-        	//TODO: permissions
-        	Document document = this.solrAccess.request(makeRequestURL(date, offset, rows)+"&wt=json");
-            return Response.ok().entity(document).build();
+            if (checkPermission()) {
+	    		if (date == null) {
+	    			date = FORMAT.format(new Date());
+	    		}
+	        	//TODO: permissions
+	        	Document document = this.solrAccess.request(makeRequestURL(date, offset, rows)+"&wt=json");
+	            return Response.ok().entity(document).build();
+            }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ReplicateException(e);
         } catch (IOException e) {
@@ -128,8 +141,10 @@ public class CDKReplicationsResource {
     @Produces(MediaType.APPLICATION_XML+";charset=utf-8")
     public Response getExportedSolrXML(@PathParam("pid")String pid) throws ReplicateException, UnsupportedEncodingException {
         try {
-        	Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
-            return Response.ok().entity(solrDoc).build();
+            if (checkPermission()) {
+	        	Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+	            return Response.ok().entity(solrDoc).build();
+            }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");
         } catch (IOException e) {
@@ -142,16 +157,18 @@ public class CDKReplicationsResource {
     @Produces(MediaType.APPLICATION_XML+";charset=utf-8")
     public Response getExportedFOXML(@PathParam("pid")String pid, @QueryParam("collection") String collection ) throws ReplicateException, UnsupportedEncodingException {
         try {
-        	//TODO: permissions
-            // musi se vejit do pameti
-        	byte[] bytes = new byte[0];
-        	if (collection != null) {
-                bytes = replicationService.getExportedFOXML(pid, FormatType.CDK, collection);
-                return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
-        	} else {
-                bytes = replicationService.getExportedFOXML(pid, FormatType.CDK);
-                return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
-        	}
+            if (checkPermission()) {
+	        	//TODO: permissions
+	            // musi se vejit do pameti
+	        	byte[] bytes = new byte[0];
+	        	if (collection != null) {
+	                bytes = replicationService.getExportedFOXML(pid, FormatType.CDK, collection);
+	                return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
+	        	} else {
+	                bytes = replicationService.getExportedFOXML(pid, FormatType.CDK);
+	                return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
+	        	}
+            }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");
         } catch (IOException e) {
@@ -169,18 +186,19 @@ public class CDKReplicationsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getExportedJSONFOXML(@PathParam("pid")String pid, @QueryParam("collection") String collection) throws ReplicateException, UnsupportedEncodingException {
         try {
-            // musi se vejit do pameti
-        	byte[] bytes = new byte[0];
-        	if (collection != null) {
-                bytes = replicationService.getExportedFOXML(pid, FormatType.CDK, collection);
-        	} else {
-                bytes = replicationService.getExportedFOXML(pid, FormatType.CDK);
-        	}
-            char[] encoded = Base64Coder.encode(bytes);
-            JSONObject jsonObj = new JSONObject();
-            jsonObj.put("raw", new String(encoded));
-            return Response.ok().entity(jsonObj).build();
-
+            if (checkPermission()) {
+	            // musi se vejit do pameti
+	        	byte[] bytes = new byte[0];
+	        	if (collection != null) {
+	                bytes = replicationService.getExportedFOXML(pid, FormatType.CDK, collection);
+	        	} else {
+	                bytes = replicationService.getExportedFOXML(pid, FormatType.CDK);
+	        	}
+	            char[] encoded = Base64Coder.encode(bytes);
+	            JSONObject jsonObj = new JSONObject();
+	            jsonObj.put("raw", new String(encoded));
+	            return Response.ok().entity(jsonObj).build();
+            }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");
         } catch (IOException e) {
