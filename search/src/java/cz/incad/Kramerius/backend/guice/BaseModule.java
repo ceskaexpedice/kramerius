@@ -6,6 +6,8 @@ import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
+
+import cz.incad.Kramerius.audio.AudioLifeCycleHook;
 import cz.incad.Kramerius.audio.urlMapping.CachingFedoraUrlManager;
 import cz.incad.Kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.Constants;
@@ -24,6 +26,7 @@ import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.service.GoogleAnalytics;
+import cz.incad.kramerius.service.LifeCycleHook;
 import cz.incad.kramerius.service.METSService;
 import cz.incad.kramerius.service.impl.GoogleAnalyticsImpl;
 import cz.incad.kramerius.service.impl.METSServiceImpl;
@@ -34,6 +37,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
 
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
+
 import java.io.File;
 import java.sql.Connection;
 import java.util.Locale;
@@ -77,7 +81,11 @@ public class BaseModule extends AbstractModule {
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
 
+        
         bind(RepositoryUrlManager.class).to(CachingFedoraUrlManager.class).in(Scopes.SINGLETON); //TODO: implement correct shutdown (Issue 567)
+
+        Multibinder<LifeCycleHook> lfhooks = Multibinder.newSetBinder(binder(), LifeCycleHook.class);
+        lfhooks.addBinding().to(AudioLifeCycleHook.class);
     }
 
     @Provides
