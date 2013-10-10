@@ -12,8 +12,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.rmi.RemoteException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.logging.Level;
@@ -379,7 +377,8 @@ public class Download {
                 connSec.setHostnameVerifier(new MyHostnameVerifier());
             }
             if (conn.getResponseCode() == 200) {
-                if (!conn.getContentType().startsWith("text/html")) {
+                String contentType = conn.getContentType();
+                if (contentType== null || !contentType.startsWith("text/html")) {
                     is = new BufferedInputStream(conn.getInputStream());
                 } else {
                     Reader r = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -395,24 +394,14 @@ public class Download {
                 log.fine("Remote document not found: " + fromURL +" (responseCode:"+conn.getResponseCode()+")");
                 throw new FileNotFoundException("Remote document not found: " + fromURL +" (responseCode:"+conn.getResponseCode()+")");
             }
-        } catch (NoSuchAlgorithmException e) {
-            if (conn != null)
-                conn.disconnect();
-            log.log(Level.SEVERE,"NoSuchAlgorithmException in getRemoteInputStream: "+fromURL , e);
-            throw new RuntimeException(e);
-        } catch (KeyManagementException e) {
-            if (conn != null)
-                conn.disconnect();
-            log.log(Level.SEVERE,"KeyManagementException in getRemoteInputStream: "+fromURL , e);
-            throw new RuntimeException(e);
         } catch (FileNotFoundException e) {
             if (conn != null)
                 conn.disconnect();
             throw new RuntimeException (e);
-        } catch (IOException e) {
+        } catch (Throwable e) {
             if (conn != null)
                 conn.disconnect();
-            log.log(Level.SEVERE,"IOException in getRemoteInputStream: " +fromURL, e);
+            log.log(Level.SEVERE,"Exception in getRemoteInputStream: " +fromURL, e);
             throw new RuntimeException(e);
         }
 
