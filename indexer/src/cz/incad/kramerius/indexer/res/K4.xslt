@@ -118,6 +118,10 @@
                         <xsl:value-of select="exts:prepareCzech($generic, text())"/>##<xsl:value-of select="text()"/>
                     </field>
                 </xsl:for-each>
+        
+                <xsl:for-each select="foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:identifier">
+                    <field name="dc.identifier"><xsl:value-of select="text()"/></field>
+                </xsl:for-each>
                 
             </xsl:when>
             <xsl:otherwise>
@@ -208,6 +212,9 @@
                 <field name="keywords" boost="1.2">
                     <xsl:value-of select="."/>
                 </field>
+            </xsl:for-each>
+            <xsl:for-each select="mods:identifier">
+                <field name="dc.identifier"><xsl:value-of select="."/></field>
             </xsl:for-each>
             <field name="issn">
                 <xsl:value-of select="mods:identifier[@type='isbn']/text()"/>

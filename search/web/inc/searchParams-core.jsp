@@ -92,7 +92,7 @@
     <c:set var="fieldedSearch" value="false" scope="request" />
     <%-- advanced params --%>
     <c:if test="${!empty param.issn}">
-        <c:param name="fq" value="issn:${param.issn}" />
+        <c:param name="fq" value="issn:${param.issn} OR dc.identifier:${param.issn}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
