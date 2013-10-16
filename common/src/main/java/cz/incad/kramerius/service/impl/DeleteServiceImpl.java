@@ -1,17 +1,7 @@
 package cz.incad.kramerius.service.impl;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
-
-import org.fedora.api.RelationshipTuple;
-
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.DCConent;
@@ -22,6 +12,14 @@ import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.service.DeleteService;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.fedora.api.RelationshipTuple;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 
 public class DeleteServiceImpl implements DeleteService {
 
@@ -39,13 +37,23 @@ public class DeleteServiceImpl implements DeleteService {
     @Override
     public void deleteTree(String pid, String message) throws IOException {
         Set<String> pids = fedoraAccess.getPids(pid);
+        boolean purge = KConfiguration.getInstance().getConfiguration().getBoolean("delete.purgeObjects", false);
         for (String s : pids) {
             String p = s.replace(INFO, "");
-            LOGGER.info("Deleting object: "+p);
-            try{
-                fedoraAccess.getAPIM().purgeObject(p, message, false);
-            }catch(Exception ex){
-                LOGGER.warning("Cannot delete object "+p+", skipping: "+ex);
+            if (purge){
+                LOGGER.info("Purging object: "+p);
+                try{
+                    fedoraAccess.getAPIM().purgeObject(p, message, false);
+                }catch(Exception ex){
+                    LOGGER.warning("Cannot purge object "+p+", skipping: "+ex);
+                }
+            }else{
+                LOGGER.info("Marking object as deleted: "+p);
+                try{
+                    fedoraAccess.getAPIM().modifyObject(p, "D", null, null, "Marked as deleted");
+                }catch(Exception ex){
+                    LOGGER.warning("Cannot mark object "+p+" as deleted, skipping: "+ex);
+                }
             }
         }
     }
@@ -66,7 +74,7 @@ public class DeleteServiceImpl implements DeleteService {
         Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(inst.fedoraAccess, solrAccess, Arrays.asList(args[0]));
         List<DCConent> list = dcs.get(args[0]);
         DCConent dcConent = DCConent.collectFirstWin(list);
-        ProcessStarter.updateName("Mazani objektu '"+dcConent.getTitle()+"'");
+        ProcessStarter.updateName("Mazání objektu '"+dcConent.getTitle()+"'");
 
         inst.deleteTree(args[0], null);
 
