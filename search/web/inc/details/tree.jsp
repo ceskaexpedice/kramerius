@@ -203,6 +203,12 @@
                 }
                 
                 id = path + "_" + pid_path[cur-1];
+                
+                if(pid_path[cur-1].indexOf("@")!=0){
+                    id = path + "_" + pid_path[cur-1];
+                }else{
+                    id = path + "_" + pid_path[cur-2] + "/" + pid_path[cur-1];
+                }
                 cur++;
                 if($(jq(id)+">ul>li").length>0){
                     loadInitNodes();
@@ -367,7 +373,7 @@
                 var d = trim10(data);
                 if(d.length>0){
                     $(jq(id)).append(d);
-                    if($(jq(id)+">ul").html().trim().length==0){
+                    if($(jq(id)+">ul").html()==null || $(jq(id)+">ul").html().trim().length==0){
                         $(jq(id)+">ul").hide();
                     }
                 }else{

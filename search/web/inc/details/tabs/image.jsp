@@ -213,6 +213,7 @@ function onLoadPlainImage() {
         } else {
             // has right
         	if (viewerOptions.isContentPDF()) {
+                $("#split").layout().hide('north');
                 displayImageContainer("#pdfImage");
 
                 var requestedImg = null;
@@ -227,6 +228,7 @@ function onLoadPlainImage() {
                 }      
                 
                 $("#pdfImageImg").attr('src',requestedImg);
+                
                 
             } else {
 
