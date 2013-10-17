@@ -415,7 +415,12 @@ public class FedoraAccessImpl implements FedoraAccess {
         try {
             pid = makeSureObjectPid(pid);
             if (this.accessLog != null && this.accessLog.isReportingAccess(pid,IMG_FULL_STREAM)) {
-                this.accessLog.reportAccess(pid,IMG_FULL_STREAM);
+            	try {	
+            		this.accessLog.reportAccess(pid,IMG_FULL_STREAM);
+				} catch (Exception e) {
+					LOGGER.severe("cannot write statistic records");
+					LOGGER.log(Level.SEVERE, e.getMessage(),e);
+				}
             }
             HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStreamPath(configuration, makeSureObjectPid(pid), IMG_FULL_STREAM), configuration.getFedoraUser(), configuration.getFedoraPass());
             con.connect();
@@ -776,7 +781,9 @@ public class FedoraAccessImpl implements FedoraAccess {
             } catch (Exception ex) {
                 LOGGER.warning("could not read root RELS-EXT, skipping object  (" + pid + "):" + ex);
             }
-            processSubtreeInternal(pid, relsExt, processor, 0, new Stack<String>());
+            if (!processor.skipBranch(pid, 0)) {
+                processSubtreeInternal(pid, relsExt, processor, 0, new Stack<String>());
+            }
         } catch (LexerException e) {
             throw new ProcessSubtreeException(e);
         } catch (XPathExpressionException e) {
@@ -798,6 +805,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         XPathExpression expr = xpath.compile("/rdf:RDF/rdf:Description/*");
         NodeList nodes = (NodeList) expr.evaluate(relsExt, XPathConstants.NODESET);
+        
         if(pidStack.contains(pid)){
             LOGGER.log(Level.WARNING, "Cyclic reference on "+pid);
             return breakProcessing;
@@ -817,13 +825,13 @@ public class FedoraAccessImpl implements FedoraAccess {
                         pidParser.disseminationURI();
                         String objectId = pidParser.getObjectPid();
                         if (pidParser.getNamespaceId().equals("uuid")) {
-                            StringBuffer buffer = new StringBuffer();
-                            {   // debug print
-                                for (int k = 0; k < level; k++) {
-                                    buffer.append(" ");
-                                }
-                                LOGGER.fine(buffer.toString() + " processing pid [" + attVal + "]");
-                            }
+//                            StringBuffer buffer = new StringBuffer();
+//                            {   // debug print
+//                                for (int k = 0; k < level; k++) {
+//                                    buffer.append(" ");
+//                                }
+//                                LOGGER.fine(buffer.toString() + " processing pid [" + attVal + "]");
+//                            }
                             if (!processor.skipBranch(objectId, level + 1)) {
                                 Document iterationgRelsExt = null;
 
@@ -889,7 +897,12 @@ public class FedoraAccessImpl implements FedoraAccess {
         try {
             pid = makeSureObjectPid(pid);
             if (this.accessLog != null && this.accessLog.isReportingAccess(pid,datastreamName)) {
-                this.accessLog.reportAccess(pid,datastreamName);
+                try {
+					this.accessLog.reportAccess(pid,datastreamName);
+				} catch (Exception e) {
+					LOGGER.severe("cannot write statistic records");
+					LOGGER.log(Level.SEVERE, e.getMessage(),e);
+				}
             }
             String datastream = configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
             HttpURLConnection con = (HttpURLConnection) openConnection(datastream, configuration.getFedoraUser(), configuration.getFedoraPass());
