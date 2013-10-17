@@ -42,11 +42,11 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
-import cz.incad.utils.RelsExtHelper;
 
 public class DeepZoomServlet extends AbstractImageServlet {
 
@@ -128,7 +128,14 @@ public class DeepZoomServlet extends AbstractImageServlet {
 
     private void renderDZI(String pid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
     	// report access
-    	this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+
+        try {
+        	this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+		} catch (Exception e) {
+			LOGGER.severe("cannot write statistic records");
+			LOGGER.log(Level.SEVERE, e.getMessage(),e);
+		}
+
     	setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
