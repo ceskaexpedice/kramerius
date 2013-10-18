@@ -131,6 +131,8 @@ public class CDKFormat implements ReplicationFormat {
 		descElement.appendChild(elm);
 	}
 
+
+
 	private void removeVirtualCollections(Document document, Element element) {
 		Element descElement = XMLUtils.findElement(element, "Description",FedoraNamespaces.RDF_NAMESPACE_URI);
 		List<Element> delems = XMLUtils.getElements(descElement);
@@ -213,6 +215,10 @@ public class CDKFormat implements ReplicationFormat {
 			URISyntaxException {
 		InputStream is = null;
 		try {
+			Element digestElm = XMLUtils.findElement( version,"contentDigest",version.getNamespaceURI());
+			if (digestElm != null) {
+	            version.removeChild(XMLUtils.findElement( version,"contentDigest",version.getNamespaceURI()));
+			}
 			
 			Element location = document.createElementNS(
 					version.getNamespaceURI(), "contentLocation");
