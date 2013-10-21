@@ -137,8 +137,10 @@ public class CDKFormat implements ReplicationFormat {
 		Element descElement = XMLUtils.findElement(element, "Description",FedoraNamespaces.RDF_NAMESPACE_URI);
 		List<Element> delems = XMLUtils.getElements(descElement);
 		for (Element del : delems) {
-			if (del.getNamespaceURI().equals(FedoraNamespaces.RDF_NAMESPACE_URI) && del.getLocalName().equals("isMemberOfCollection")) {
-				descElement.removeChild(del);
+			if (del.getNamespaceURI() != null) {
+				if (del.getNamespaceURI().equals(FedoraNamespaces.RDF_NAMESPACE_URI) && del.getLocalName().equals("isMemberOfCollection")) {
+					descElement.removeChild(del);
+				}
 			}
 		}
 	}
