@@ -2,6 +2,7 @@ package com.qbizm.kramerius.imptool.poc.convertor;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.periodical.*;
+import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.valueobj.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang.StringUtils;
@@ -202,13 +203,19 @@ public class PeriodicalConvertor extends BaseConvertor {
 
         boolean visibility = isPublic(uuid, parentVisibility, "p_periodicalvolume");
 
-        String contract = getContract(volume.getPeriodicalPage());
-        if (contract == null){
-            PeriodicalItem item = firstItem(volume.getPeriodicalItem());
-            if (item !=  null){
-                contract = getContract(item.getPeriodicalPage());
+        String contract = null;
+        if (Main.useContractAsSubfoldersName()){
+            contract = getContract(volume.getPeriodicalPage());
+            if (contract == null){
+                PeriodicalItem item = firstItem(volume.getPeriodicalItem());
+                if (item !=  null){
+                    contract = getContract(item.getPeriodicalPage());
+                }
             }
+        }else{
+            contract = uuid;
         }
+
         getConfig().setContract(contract);
 
         Map<Integer, String> pageIdMap = new TreeMap<Integer, String>();

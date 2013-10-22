@@ -1,6 +1,7 @@
 package com.qbizm.kramerius.imptool.poc.convertor;
 
 import com.qbizm.kramerius.imp.jaxb.*;
+import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.valueobj.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang.StringUtils;
@@ -96,13 +97,19 @@ public class MonographConvertor extends BaseConvertor {
 
         RelsExt re = new RelsExt(pid, MODEL_MONOGRAPH);
         boolean visibility = isPublic(uuid, config.isDefaultVisibility(), "m_monograph");
-        String contract = getContract(mono.getMonographPage());
-        if (contract == null) {
-            MonographUnit unit = firstItem(mono.getMonographUnit());
-            if (unit != null) {
-                contract = getContract(unit.getMonographPage());
+        String contract = null;
+        if (Main.useContractAsSubfoldersName()){
+            contract = getContract(mono.getMonographPage());
+            if (contract == null) {
+                MonographUnit unit = firstItem(mono.getMonographUnit());
+                if (unit != null) {
+                    contract = getContract(unit.getMonographPage());
+                }
             }
+        }else{
+            contract = uuid;
         }
+
         getConfig().setContract(contract);
 
 

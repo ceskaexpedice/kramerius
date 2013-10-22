@@ -324,6 +324,10 @@ public class Main {
     public static boolean useContractSubfolders(){
     	return KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractSubfolders", false);
     }
+
+    public static boolean useContractAsSubfoldersName(){
+        return KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractAsSubfoldersName", true);
+    }
     
     public static boolean copyOriginal(){
     	return KConfiguration.getInstance().getConfiguration().getBoolean("convert.copyOriginal", false);

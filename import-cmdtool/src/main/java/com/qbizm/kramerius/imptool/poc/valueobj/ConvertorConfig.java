@@ -1,12 +1,10 @@
 package com.qbizm.kramerius.imptool.poc.valueobj;
 
-import java.sql.Connection;
+import com.qbizm.kramerius.imptool.poc.Main;
+import cz.incad.kramerius.utils.IOUtils;
 
 import javax.xml.bind.Marshaller;
-
-import com.qbizm.kramerius.imptool.poc.Main;
-
-import cz.incad.kramerius.utils.IOUtils;
+import java.sql.Connection;
 
 /**
  * Konfigurace konvertoru
@@ -79,9 +77,9 @@ public class ConvertorConfig {
     }
 
 	public void setContract(String contract) {
-		this.contract = contract;
+		this.contract = contract.replace(':','_');
 		if (Main.useContractSubfolders()){
-			this.exportFolder = this.exportFolder+ System.getProperty("file.separator")+contract;
+			this.exportFolder = this.exportFolder+ System.getProperty("file.separator")+this.contract;
 			IOUtils.checkDirectory(this.exportFolder);
 			String xmlSubfolder = this.exportFolder+ System.getProperty("file.separator")+"xml";//Issue 73
 			IOUtils.checkDirectory(xmlSubfolder);
