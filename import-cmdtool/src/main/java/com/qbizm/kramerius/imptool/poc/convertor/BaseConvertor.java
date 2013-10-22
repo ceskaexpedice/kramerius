@@ -1354,4 +1354,10 @@ public abstract class BaseConvertor {
         }
     }
 
+    protected void putLocalId2DC(String localId, DublinCore dc){
+        if (localId!= null){
+            dc.addQualifiedIdentifier("local",localId);
+        }
+    }
+
 }

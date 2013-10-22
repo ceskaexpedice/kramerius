@@ -61,13 +61,15 @@ public class MonographConvertor extends BaseConvertor {
         return pid;
     }
 
-    private String storeLocalId(UniqueIdentifier uid) throws ServiceException {
+    private String getLocalId(UniqueIdentifier uid) throws ServiceException {
         String pid = null;
         if ( uid.getUniqueIdentifierURNType() != null && !Pattern.matches(PID_PATTERN, PID_PREFIX + first(uid.getUniqueIdentifierURNType().getContent()))) {
             pid = first(uid.getUniqueIdentifierURNType().getContent());
         }
         return pid;
     }
+
+
 
     /**
      * Konvertuje monografii a vsechny podobjekty do sady foxml souboru
@@ -81,7 +83,7 @@ public class MonographConvertor extends BaseConvertor {
         if (mono.getUniqueIdentifier() == null) {
             mono.setUniqueIdentifier(new UniqueIdentifier());
         }
-        String localId = storeLocalId(mono.getUniqueIdentifier());
+        String localId = getLocalId(mono.getUniqueIdentifier());
         String uuid = uuid(mono.getUniqueIdentifier());
         String pid = pid(uuid);
 
@@ -136,9 +138,7 @@ public class MonographConvertor extends BaseConvertor {
         if (ISBN == null || "".equals(ISBN)) {
             dc.addQualifiedIdentifier(RelsExt.EXTID, convertExtId(uuid));
         }
-        if (localId!= null){
-            dc.addQualifiedIdentifier("local",localId);
-        }
+
         for (Subject subj : biblio.getSubject()) {
             if (subj.getDDC() != null) {
                 for (String ddc : subj.getDDC().getContent()) {
@@ -165,7 +165,7 @@ public class MonographConvertor extends BaseConvertor {
         if (lang != null){
             dc.setLanguage(first(lang.getContent()));
         }
-
+        putLocalId2DC(localId, dc);
 
         ImageRepresentation[] files = new ImageRepresentation[1];
         if (mono.getTechnicalDescription() != null) {
@@ -232,6 +232,7 @@ public class MonographConvertor extends BaseConvertor {
         if (page.getUniqueIdentifier() == null) {
             page.setUniqueIdentifier(new UniqueIdentifier());
         }
+        String localId = getLocalId(page.getUniqueIdentifier());
         String uuid = uuid(page.getUniqueIdentifier());
         String pid = pid(uuid);
 
@@ -251,6 +252,7 @@ public class MonographConvertor extends BaseConvertor {
         DublinCore dc = this.createMonographDublinCore(pid, title, null, null, null);
         convertHandle(uuid, dc, re);
         dc.setType(MODEL_PAGE);
+        putLocalId2DC(localId, dc);
 
         DigitalObject foxmlPage = this.createDigitalObject(page, pid, title, dc, re, XSL_MODS_MONOGRAPH_PAGE, files.toArray(new ImageRepresentation[files.size()]), visibility);
 
@@ -269,6 +271,7 @@ public class MonographConvertor extends BaseConvertor {
         if (unit.getUniqueIdentifier() == null) {
             unit.setUniqueIdentifier(new UniqueIdentifier());
         }
+        String localId = getLocalId(unit.getUniqueIdentifier());
         String uuid = uuid(unit.getUniqueIdentifier());
         String pid = pid(uuid);
         boolean visibility = isPublic(uuid, parentVisibility, "m_monographunit");
@@ -324,6 +327,7 @@ public class MonographConvertor extends BaseConvertor {
         if (publ!= null){
             dc.setDate(publ.getDateOfPublication()==null?null:first(publ.getDateOfPublication().getContent()));
         }
+        putLocalId2DC(localId, dc);
         DigitalObject foxmlUnit = this.createDigitalObject(unit, pid, title, dc, re, XSL_MODS_MONOGRAPH_UNIT, files.toArray(new ImageRepresentation[files.size()]), visibility);
 
         this.marshalDigitalObject(foxmlUnit);
@@ -341,6 +345,7 @@ public class MonographConvertor extends BaseConvertor {
         if (part.getUniqueIdentifier() == null) {
             part.setUniqueIdentifier(new UniqueIdentifier());
         }
+        String localId = getLocalId(part.getUniqueIdentifier());
         String uuid = uuid(part.getUniqueIdentifier());
         String pid = pid(uuid);
         //String title = first(part.getPageNumber().getContent());
@@ -380,6 +385,7 @@ public class MonographConvertor extends BaseConvertor {
         if (lang != null){
             dc.setLanguage(first(lang.getContent()));
         }
+        putLocalId2DC(localId, dc);
         DigitalObject foxmlPart = this.createDigitalObject(part, pid, title, dc, re, XSL_MODS_MONOGRAPH_PART, binaryObjects, visibility);
 
         this.marshalDigitalObject(foxmlPart);

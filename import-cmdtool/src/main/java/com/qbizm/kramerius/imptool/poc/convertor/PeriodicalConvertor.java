@@ -77,6 +77,14 @@ public class PeriodicalConvertor extends BaseConvertor {
         return StringUtils.EMPTY;
     }
 
+    private String getLocalId(UniqueIdentifier uid) throws ServiceException {
+        String pid = null;
+        if ( uid.getUniqueIdentifierURNType() != null && !Pattern.matches(PID_PATTERN, PID_PREFIX + first(uid.getUniqueIdentifierURNType().getContent()))) {
+            pid = first(uid.getUniqueIdentifierURNType().getContent());
+        }
+        return pid;
+    }
+
     /**
      * Prevede periodikum a vsechny navazane objekty do sady foxml souboru
      *
@@ -92,6 +100,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         if (peri.getUniqueIdentifier() == null) {
             peri.setUniqueIdentifier(new UniqueIdentifier());
         }
+        String localId = getLocalId(peri.getUniqueIdentifier());
         String uuid = uuid(peri.getUniqueIdentifier());
         String pid = pid (uuid);
 
@@ -144,6 +153,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         if (lang != null){
             dc.setLanguage(first(lang.getContent()));
         }
+        putLocalId2DC(localId, dc);
 
         ImageRepresentation[] files = new ImageRepresentation[1];
         if (peri.getTechnicalDescription() != null) {
@@ -184,6 +194,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         if (volume.getUniqueIdentifier() == null) {
             volume.setUniqueIdentifier(new UniqueIdentifier());
         }
+        String localId = getLocalId(volume.getUniqueIdentifier());
         String uuid = uuid(volume.getUniqueIdentifier());
         String pid = pid (uuid);
 
@@ -236,6 +247,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
 
         dc.setType(MODEL_PERIODICAL_VOLUME);
+        putLocalId2DC(localId, dc);
 
         ImageRepresentation[] files = new ImageRepresentation[1];
         if (volume.getTechnicalDescription() != null) {
@@ -263,6 +275,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         if (part.getUniqueIdentifier() == null) {
             part.setUniqueIdentifier(new UniqueIdentifier());
         }
+        String localId = getLocalId(part.getUniqueIdentifier());
         String uuid = uuid(part.getUniqueIdentifier());
         String pid = pid(uuid);
 
@@ -308,6 +321,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         if (lang != null){
             dc.setLanguage(first(lang.getContent()));
         }
+        putLocalId2DC(localId, dc);
 
         DigitalObject foxmlPart = this.createDigitalObject(part, pid, title, dc, re, XSL_MODS_PERIODICAL_PART, null, visibility);
 
@@ -332,6 +346,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         if (item.getUniqueIdentifier() == null) {
             item.setUniqueIdentifier(new UniqueIdentifier());
         }
+        String localId = getLocalId(item.getUniqueIdentifier());
         String uuid = uuid(item.getUniqueIdentifier());
         String pid = pid (uuid);
 
@@ -377,6 +392,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         if (item.getPeriodicalItemIdentification() != null && item.getPeriodicalItemIdentification().getPeriodicalItemDate() != null) {
             dc.setDate(first(item.getPeriodicalItemIdentification().getPeriodicalItemDate().getContent()));
         }
+        putLocalId2DC(localId, dc);
 
         DigitalObject foxmlItem = this.createDigitalObject(item, pid, title, dc, re, XSL_MODS_PERIODICAL_ITEM, files.toArray(new ImageRepresentation[files.size()]), visibility);
 
@@ -395,6 +411,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         if (page.getUniqueIdentifier() == null) {
             page.setUniqueIdentifier(new UniqueIdentifier());
         }
+        String localId = getLocalId(page.getUniqueIdentifier());
         String uuid = uuid(page.getUniqueIdentifier());
         String pid = pid (uuid);
 
@@ -418,6 +435,7 @@ public class PeriodicalConvertor extends BaseConvertor {
         convertHandle(uuid, dc, re);
 
         dc.setType(MODEL_PAGE);
+        putLocalId2DC(localId, dc);
 
         DigitalObject foxmlPage = this.createDigitalObject(page, pid, title, dc, re, XSL_MODS_PERIODICAL_PAGE, files.toArray(new ImageRepresentation[files.size()]), visibility);
 
