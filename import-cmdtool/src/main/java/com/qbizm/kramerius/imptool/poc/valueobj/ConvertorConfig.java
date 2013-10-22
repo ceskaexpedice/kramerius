@@ -77,7 +77,7 @@ public class ConvertorConfig {
     }
 
 	public void setContract(String contract) {
-		this.contract = contract.replace(':','_');
+        this.contract = contract.replaceAll("[\\\\/:\"*?<>|]","_");
 		if (Main.useContractSubfolders()){
 			this.exportFolder = this.exportFolder+ System.getProperty("file.separator")+this.contract;
 			IOUtils.checkDirectory(this.exportFolder);

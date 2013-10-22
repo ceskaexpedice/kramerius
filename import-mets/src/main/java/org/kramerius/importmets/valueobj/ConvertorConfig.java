@@ -1,13 +1,10 @@
 package org.kramerius.importmets.valueobj;
 
-import java.sql.Connection;
-
-import javax.xml.bind.Marshaller;
-
+import cz.incad.kramerius.utils.IOUtils;
 import org.kramerius.importmets.MetsConvertor;
 
-
-import cz.incad.kramerius.utils.IOUtils;
+import javax.xml.bind.Marshaller;
+import java.sql.Connection;
 
 /**
  * Konfigurace konvertoru
@@ -80,9 +77,9 @@ public class ConvertorConfig {
     }
 
 	public void setContract(String contract) {
-		this.contract = contract;
+        this.contract = contract.replaceAll("[\\\\/:\"*?<>|]","_");
 		if (MetsConvertor.useContractSubfolders()){
-			this.exportFolder = this.exportFolder+ System.getProperty("file.separator")+contract;
+			this.exportFolder = this.exportFolder+ System.getProperty("file.separator")+this.contract;
 			IOUtils.checkDirectory(this.exportFolder);
 			String xmlSubfolder = this.exportFolder+ System.getProperty("file.separator")+"xml";//Issue 73
 			IOUtils.checkDirectory(xmlSubfolder);
@@ -93,7 +90,7 @@ public class ConvertorConfig {
 		return contract;
 	}
 
-	
+
 
 	
 }
