@@ -21,6 +21,7 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -134,6 +135,24 @@ public class XSLServiceImpl implements XSLService {
         StreamResult destStream = new StreamResult(new StringWriter());
 
         transformer.setParameter("bundle_url", createBundleURL(locale));
+
+        transformer.transform(new DOMSource(xml), destStream);
+
+        StringWriter sw = (StringWriter) destStream.getWriter();
+        return sw.getBuffer().toString();
+    }
+    @Override
+    public String transform(Document xml, String xsltName, Locale locale, Map<String, String> params) throws Exception {
+
+        Transformer transformer = getTransformer(xsltName);
+
+        StreamResult destStream = new StreamResult(new StringWriter());
+
+        transformer.setParameter("bundle_url", createBundleURL(locale));
+        
+        for(Map.Entry<String, String> entry : params.entrySet()){
+            transformer.setParameter(entry.getKey(), entry.getValue());
+        }
 
         transformer.transform(new DOMSource(xml), destStream);
 

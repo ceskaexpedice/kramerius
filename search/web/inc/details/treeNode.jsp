@@ -1,4 +1,4 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html" pageEncoding="UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -10,6 +10,7 @@
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.Kramerius.I18NServlet"%>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
+<%@page import="java.util.Map,java.util.HashMap"%>
 <%
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
@@ -57,6 +58,12 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
     try {
         String xsl = "treeNode.xsl";
         if (xs.isAvailable(xsl)) {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("pid", request.getParameter("pid"));
+            params.put("model_path", request.getParameter("model_path"));
+            params.put("onlyrels", request.getParameter("onlyrels"));
+            params.put("onlyinfo", request.getParameter("onlyinfo"));
+            params.put("policyPublic", request.getParameter("policyPublic"));
             String text = xs.transform(xml, xsl, lctx.getLocale());
             out.println(text);
             return;
@@ -74,7 +81,6 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
         <x:param name="pid" value="${param.pid}"/>
         <x:param name="model_path" value="${param.model_path}"/>
         <x:param name="onlyrels" value="${param.onlyrels}"/>
-        <x:param name="onlyinfo" value="${param.onlyinfo}"/>
         <x:param name="onlyinfo" value="${param.onlyinfo}"/>
         <x:param name="policyPublic" value="${policyPublic}"/>
     </x:transform>
