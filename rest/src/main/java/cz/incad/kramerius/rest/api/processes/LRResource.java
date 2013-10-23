@@ -308,7 +308,7 @@ public class LRResource {
                 this.definitionManager.load();
                 LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
                 if (lrProcess == null) throw new NoProcessFound("cannot find process "+uuid);
-                if (!States.isFinishState(lrProcess.getProcessState())) {
+                if (!States.notRunningState(lrProcess.getProcessState())) {
                     lrProcess.stopMe();
                     lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
                     LRProcess nLrProcess = lrProcessManager.getLongRunningProcess(uuid);
