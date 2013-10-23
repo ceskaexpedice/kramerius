@@ -64,7 +64,7 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
             params.put("onlyrels", request.getParameter("onlyrels"));
             params.put("onlyinfo", request.getParameter("onlyinfo"));
             params.put("policyPublic", request.getParameter("policyPublic"));
-            String text = xs.transform(xml, xsl, lctx.getLocale());
+            String text = xs.transform(xml, xsl, lctx.getLocale(), params);
             out.println(text);
             return;
         }

@@ -33,7 +33,12 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
     try {
         String xsl = "treeNode.xsl";
         if (xs.isAvailable(xsl)) {
-            String text = xs.transform(xml, xsl, lctx.getLocale());
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("pid", request.getParameter("pid"));
+            params.put("model_path", request.getParameter("model_path"));
+            params.put("onlyinfo", "true");
+            params.put("policyPublic", request.getParameter("policyPublic"));
+            String text = xs.transform(xml, xsl, lctx.getLocale(), params);
             out.println(text);
             return;
         }
