@@ -9,6 +9,7 @@
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.Kramerius.I18NServlet"%>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
+<%@page import="java.util.Map,java.util.HashMap"%>
 <%
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
@@ -35,9 +36,13 @@ cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLServic
         if (xs.isAvailable(xsl)) {
             Map<String, String> params = new HashMap<String, String>();
             params.put("pid", request.getParameter("pid"));
-            params.put("model_path", request.getParameter("model_path"));
+            if(request.getParameter("model_path")!=null){
+                params.put("model_path", request.getParameter("model_path"));
+            }
             params.put("onlyinfo", "true");
-            params.put("policyPublic", request.getParameter("policyPublic"));
+            if(request.getParameter("policyPublic")!=null){
+                params.put("policyPublic", request.getParameter("policyPublic"));
+            }
             String text = xs.transform(xml, xsl, lctx.getLocale(), params);
             out.println(text);
             return;

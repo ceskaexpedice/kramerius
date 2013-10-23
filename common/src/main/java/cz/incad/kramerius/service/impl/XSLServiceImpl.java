@@ -121,6 +121,24 @@ public class XSLServiceImpl implements XSLService {
         StringWriter sw = (StringWriter) destStream.getWriter();
         return sw.getBuffer().toString();
     }
+    
+    @Override
+    public String transform(String xml, String xsltName, Locale locale, Map<String, String> params) throws Exception {
+
+        Transformer transformer = getTransformer(xsltName);
+
+        StreamResult destStream = new StreamResult(new StringWriter());
+
+        transformer.setParameter("bundle_url", createBundleURL(locale));
+        
+        for(Map.Entry<String, String> entry : params.entrySet()){
+            transformer.setParameter(entry.getKey(), entry.getValue());
+        }
+        transformer.transform(new StreamSource(new StringReader(xml)), destStream);
+
+        StringWriter sw = (StringWriter) destStream.getWriter();
+        return sw.getBuffer().toString();
+    }
 
 
     @Override

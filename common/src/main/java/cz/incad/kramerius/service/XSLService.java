@@ -29,6 +29,8 @@ public boolean isAvailable(String name);
     public String transform(String xml, String xsltName) throws Exception;
 
     public String transform(String xml, String xsltName, Locale locale) throws Exception;
+    
+    public String transform(String xml, String xsltName, Locale locale, Map<String, String> params) throws Exception;
 
     public String transform(Document xml, String xsltName) throws Exception;
 
