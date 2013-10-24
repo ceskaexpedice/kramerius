@@ -240,6 +240,9 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                         LOGGER.severe("no <file.. element in RELS-EXT");
                         fileNameFromRelsExt = "uknown";
                     }
+                    if (fileNameFromRelsExt.indexOf('.') > 0) {
+                    	fileNameFromRelsExt = fileNameFromRelsExt.substring(0, fileNameFromRelsExt.lastIndexOf('.'));
+                    }
                     resp.setHeader("Content-disposition", "attachment; filename=" + fileNameFromRelsExt);
                 }
                 
