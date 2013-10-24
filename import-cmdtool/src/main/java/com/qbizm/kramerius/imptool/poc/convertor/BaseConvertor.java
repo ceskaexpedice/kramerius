@@ -610,7 +610,13 @@ public abstract class BaseConvertor {
                     FileUtils.copyFile(pageFile, target);
                 //}
                 ContentLocationType cl = new ContentLocationType();
-                cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                String externalPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.externalStreamsUrlPrefix");
+                if (externalPrefix!= null&& !"".equals(externalPrefix)){
+                    cl.setREF(externalPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+subfolderName+pageFile.getName()));
+                }else{
+
+                    cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
             }
@@ -719,7 +725,12 @@ public abstract class BaseConvertor {
                         String suffixTiles = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.tiles");
                         re.addRelation(RelsExt.TILES_URL,tilesPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+"/"+pageFile.getName())+ suffixTiles,true);
                     }   else{
-                        cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                        String externalPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.externalStreamsUrlPrefix");
+                        if (externalPrefix!= null&& !"".equals(externalPrefix)){
+                            cl.setREF(externalPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+"/img/"+pageFile.getName()));
+                        }else{
+                            cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                        }
                     }
                     cl.setTYPE("URL");
                     version.setContentLocation(cl);
@@ -806,7 +817,12 @@ public abstract class BaseConvertor {
                     // Move file to new directory
                     File target = new File(dir, filename.substring(0, filename.lastIndexOf('.'))+".jpg");
                     FileUtils.writeByteArrayToFile(target, binaryContent);
-                    cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                    String externalPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.externalStreamsUrlPrefix");
+                    if (externalPrefix!= null&& !"".equals(externalPrefix)){
+                        cl.setREF(externalPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+"/thumbnail/"+filename.substring(0, filename.lastIndexOf('.'))+".jpg"));
+                    }else{
+                        cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                    }
                 }else{
                     String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
                     String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.thumb");
@@ -875,7 +891,12 @@ public abstract class BaseConvertor {
                     // Move file to new directory
                     File target = new File(dir, filename.substring(0, filename.lastIndexOf('.'))+".jpg");
                     FileUtils.writeByteArrayToFile(target, binaryContent);
-                    cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                    String externalPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.externalStreamsUrlPrefix");
+                    if (externalPrefix!= null&& !"".equals(externalPrefix)){
+                        cl.setREF(externalPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+"/preview/"+filename.substring(0, filename.lastIndexOf('.'))+".jpg"));
+                    }else{
+                        cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                    }
                 }else{
                     String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
                     String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.preview");
@@ -937,7 +958,13 @@ public abstract class BaseConvertor {
                 File target = new File(dir, altoFile.getName());
                 FileUtils.copyFile(altoFile, target);
                 ContentLocationType cl = new ContentLocationType();
-                cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                String externalPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.externalStreamsUrlPrefix");
+                if (externalPrefix!= null&& !"".equals(externalPrefix)){
+                    cl.setREF(externalPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+"/txt/"+altoFile.getName()));
+                }else{
+
+                    cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
             }
