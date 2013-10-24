@@ -519,7 +519,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     // zmena procesu
                     changeProcessState(processManager, state, longRunningProcess);
 
-                    if (States.isFinishState(States.valueOf(state))) {
+                    if (States.notRunningState(States.valueOf(state))) {
                         longRunningProcess.setFinishedTime(System.currentTimeMillis());
                         processManager.updateLongRunningProcessFinishedDate(longRunningProcess);
                     }
