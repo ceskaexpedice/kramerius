@@ -69,7 +69,7 @@
         <xsl:param name="pageNum" />
         <xsl:choose>
             <xsl:when test="$pageNum = 0">
-                <field name="PID" boost="2.5">
+                <field name="PID">
                     <xsl:value-of select="$PID"/>
                 </field>
                 <field name="fedora.model">
@@ -125,7 +125,7 @@
                 
             </xsl:when>
             <xsl:otherwise>
-                <field name="PID" boost="2.5">
+                <field name="PID">
                     <xsl:value-of select="$PID"/>/@<xsl:value-of select="$pageNum"/>
                 </field>
                 <field name="fedora.model">page</field>
@@ -145,9 +145,7 @@
         <field name="created_date">
             <xsl:value-of select="foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#createdDate']/@VALUE"/>
         </field>
-        <field name="modified_date">
-            <xsl:value-of select="foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/view#lastModifiedDate']/@VALUE"/>
-        </field>
+        <field name="modified_date"><xsl:value-of select="foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/view#lastModifiedDate']/@VALUE"/></field>
         <field name="dostupnost">
             <xsl:value-of select="substring(/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/kramerius:policy, 8)"/>
         </field>
@@ -209,7 +207,7 @@
         </xsl:for-each>
         <xsl:if test="$PAGENUM=0">
             <xsl:for-each select="mods:subject/mods:topic/text()">
-                <field name="keywords" boost="1.2">
+                <field name="keywords" >
                     <xsl:value-of select="."/>
                 </field>
             </xsl:for-each>
@@ -228,8 +226,16 @@
             </field>
             <xsl:if test="$MODEL = 'monographunit'">
                 <field name="details">
-                    <xsl:value-of select="mods:part/mods:detail/mods:title" /><xsl:value-of select="'##'" />
-                   <xsl:value-of select="mods:part/mods:detail/mods:number" />
+                    <xsl:choose>
+                        <xsl:when test="mods:titleInfo/mods:partNumber">
+                            <xsl:value-of select="mods:titleInfo/mods:partNumber" /><xsl:value-of select="'##'" />
+                            <xsl:value-of select="mods:titleInfo/mods:partName" />
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="mods:part/mods:detail/mods:title" /><xsl:value-of select="'##'" />
+                            <xsl:value-of select="mods:part/mods:detail/mods:number" />
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </field>
             </xsl:if>
             <xsl:if test="$MODEL = 'page'">
