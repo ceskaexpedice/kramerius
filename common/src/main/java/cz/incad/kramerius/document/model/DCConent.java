@@ -126,6 +126,7 @@ public  class DCConent {
      * @return collected DCCpontent object
      */
     public static DCConent collectFirstWin(List<DCConent> contents) {
+        if (contents == null) return null;
         String type = null;
         String title = null;
         String date = null;

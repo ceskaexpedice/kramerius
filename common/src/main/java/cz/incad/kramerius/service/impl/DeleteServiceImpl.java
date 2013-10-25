@@ -74,7 +74,7 @@ public class DeleteServiceImpl implements DeleteService {
         Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(inst.fedoraAccess, solrAccess, Arrays.asList(args[0]));
         List<DCConent> list = dcs.get(args[0]);
         DCConent dcConent = DCConent.collectFirstWin(list);
-        ProcessStarter.updateName("Mazání objektu '"+dcConent.getTitle()+"'");
+        ProcessStarter.updateName("Mazání objektu '"+dcConent!= null?dcConent.getTitle():"bez názvu"+"'");
 
         inst.deleteTree(args[0], null);
 
