@@ -24,7 +24,6 @@ import java.util.logging.Level;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -38,6 +37,7 @@ import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.database.MostDesirableDatabaseInitializator;
 import cz.incad.kramerius.processes.database.ProcessDatabaseInitializator;
 import cz.incad.kramerius.security.database.SecurityDatabaseInitializator;
+import cz.incad.kramerius.service.LifeCycleHookRegistry;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.statistics.database.StatisticDatabaseInitializator;
 import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
@@ -64,12 +64,15 @@ public class StartupServlet extends GuiceServlet {
     @Inject
     VersionService versionService;
     
-    @Inject
-    ProcessScheduler processScheduler;
+//    @Inject
+//    ProcessScheduler processScheduler;
+//    
+//    @Inject
+//    GCScheduler gcScheduler;
     
-    @Inject
-    GCScheduler gcScheduler;
-    
+
+    @Inject 
+    LifeCycleHookRegistry lifecycleRegistry;
     
     @Override
     public void init() throws ServletException {
@@ -112,11 +115,12 @@ public class StartupServlet extends GuiceServlet {
             if (connection != null) { DatabaseUtils.tryClose(connection); }
         }
         
+        this.lifecycleRegistry.startNotification();
         
-        // find dead process
-        this.gcScheduler.scheduleFindGCCandidates();
-        // find process to start
-        this.processScheduler.scheduleNextTask();
+//        // find dead process
+//        this.gcScheduler.scheduleFindGCCandidates();
+//        // find process to start
+//        this.processScheduler.scheduleNextTask();
     }
 
     @Override
@@ -127,10 +131,12 @@ public class StartupServlet extends GuiceServlet {
 	@Override
 	public void destroy() {
 		super.destroy();
-		this.gcScheduler.shutdown();
-		this.processScheduler.shutdown();
-	}
+		
+		if (this.lifecycleRegistry != null) {
+			this.lifecycleRegistry.shutdownNotification();
+		}
 
-    
-    
+//		this.gcScheduler.shutdown();
+//		this.processScheduler.shutdown();
+	}
 }
