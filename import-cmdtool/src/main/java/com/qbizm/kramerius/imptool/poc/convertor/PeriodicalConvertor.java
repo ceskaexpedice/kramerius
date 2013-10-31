@@ -110,7 +110,7 @@ public class PeriodicalConvertor extends BaseConvertor {
 
         String volumeuuid= null;
         for (PeriodicalVolume volume : peri.getPeriodicalVolume()) {
-            volumeuuid = this.convertVolume(volume, visibility);
+            volumeuuid = this.convertVolume(volume, visibility, uuid);
             re.addRelation(RelsExt.HAS_VOLUME, pid(uuid(volume.getUniqueIdentifier())),false);
         }
         String cleanTitle= StringUtils.replaceEach(title, new String[]{"\t", "\n"}, new String[]{" ", " "});
@@ -183,7 +183,7 @@ public class PeriodicalConvertor extends BaseConvertor {
      * @param volume
      * @throws ServiceException
      */
-    private String convertVolume(PeriodicalVolume volume, boolean parentVisibility) throws ServiceException {
+    private String convertVolume(PeriodicalVolume volume, boolean parentVisibility, String titleUUID ) throws ServiceException {
         CoreBibliographicDescriptionPeriodical biblio = volume.getCoreBibliographicDescriptionPeriodical();
         if (biblio == null) {
             biblio = new CoreBibliographicDescriptionPeriodical();
@@ -213,7 +213,7 @@ public class PeriodicalConvertor extends BaseConvertor {
                 }
             }
         }else{
-            contract = uuid;
+            contract = titleUUID+"_"+uuid;
         }
 
         getConfig().setContract(contract);
