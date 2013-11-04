@@ -31,12 +31,23 @@
             pageContext.setAttribute("term", term);
             pageContext.setAttribute("including", including);
 %>
+<%--
 <c:url var="url" value="${kconfig.solrHost}/terms" >
     <c:param name="terms.fl" value="${param.field}" />
     <c:param name="terms.lower.incl" value="${including}" />
     <c:param name="terms.sort" value="index" />
     <c:param name="terms.limit" value="50" />
     <c:param name="terms.lower" value="${term}" />
+</c:url>
+--%>
+<c:url var="url" value="${kconfig.solrHost}/select" >
+    <c:param name="q" value="${param.field}:[${term}* TO *]" />
+    <c:param name="facet.field" value="${param.field}" />
+    <c:param name="f.${param.field}.facet.sort" value="false" />
+    <c:param name="facet.mincount" value="1" />
+    <c:param name="facet.limit" value="50" />
+    <c:param name="rows" value="0" />
+    <c:param name="facet" value="true" />
 </c:url>
 <c:import url="${url}" var="xml" charEncoding="UTF-8" />
 <c:url var="xslPage" value="inc/home/xsl/autocomplete.xsl" />

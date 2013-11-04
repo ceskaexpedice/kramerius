@@ -14,5 +14,26 @@
         </xsl:for-each>
         <div class="more_terms">&#160;</div>
         </xsl:if>
+        <xsl:for-each select="response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst">
+            <xsl:variable name="navName" >
+                <xsl:value-of select="./@name"/>
+            </xsl:variable>
+            <xsl:call-template name="facet">
+                <xsl:with-param name="facetname"><xsl:value-of select="./@name" /></xsl:with-param>
+            </xsl:call-template>
+        </xsl:for-each>
+        <xsl:if test="count(/response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst/int) &gt; 1">
+        <div class="more_terms">&#160;</div>
+        </xsl:if>
+    </xsl:template>
+    
+    <xsl:template name="facet">
+        <xsl:param name="facetname" />
+        <xsl:for-each select="./int">
+            <div>
+                <xsl:attribute name="class">term r<xsl:value-of select="position() mod 2" /></xsl:attribute>
+                - <span><xsl:value-of select="substring-after(./@name, '##')" /></span> (<xsl:value-of select="." />) 
+            </div>
+        </xsl:for-each>
     </xsl:template>
 </xsl:stylesheet>
