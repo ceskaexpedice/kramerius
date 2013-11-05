@@ -112,12 +112,12 @@
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.udc}">
-        <c:param name="fq" value="udc:${param.udc}" />
+        <c:param name="fq" value="mdt:${param.udc}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.ddc}">
-        <c:param name="fq" value="ddc:${param.ddc}" />
+        <c:param name="fq" value="ddt:${param.ddc}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
