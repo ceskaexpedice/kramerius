@@ -50,7 +50,6 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.solr.SolrUtils;
-import cz.incad.utils.RelsExtHelper;
 
 public class ActionAllowedServlet extends GuiceServlet {
 
