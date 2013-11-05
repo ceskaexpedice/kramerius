@@ -110,7 +110,7 @@ public class AbstractPDFRenderSupport {
         
         PdfTextUnderImage textUnderImage = new PdfTextUnderImage();
         ScaledImageOptions options = insertJavaImage(document, percentage, javaImg);
-        textUnderImage.setDebug(true);
+        //textUnderImage.setDebug(true);
         
         textUnderImage.imageWithAlto(document, pdfWriter,alto,  options);
         return options;
