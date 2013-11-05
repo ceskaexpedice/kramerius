@@ -71,7 +71,6 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
 
     public boolean isActionAllowed(User user, String actionName, String pid,String stream, ObjectPidsPath path) {
         try {
-            
             return isAllowedInternalForFedoraDocuments(actionName, pid, stream, path, user);
         } catch (RightCriteriumException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
@@ -86,7 +85,6 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
     @Override
     public boolean[] isActionAllowedForAllPath(String actionName, String pid, String stream, ObjectPidsPath path) {
         try {
-            System.out.println();
             User user = this.currentLoggedUser.get();
             RightCriteriumContext ctx = this.ctxFactory.create(pid,stream, user, this.provider.get().getRemoteHost(), this.provider.get().getRemoteAddr());
             EvaluatingResult[] evalResults = this.rightsManager.resolveAllPath(ctx, pid, path, actionName, user);

@@ -1,0 +1,315 @@
+package cz.knav.pdf;
+
+import java.awt.Color;
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.xml.transform.TransformerException;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Font;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.Image;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.BaseFont;
+import com.lowagie.text.pdf.ColumnText;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfWriter;
+
+import cz.incad.kramerius.pdf.impl.AbstractPDFRenderSupport.ScaledImageOptions;
+import cz.incad.kramerius.utils.XMLUtils;
+
+
+/**
+ * Creates searchable PDF (with text under images) from images and ALTO documents.
+ * Works with horizontal writing systems.
+ */
+public class PdfTextUnderImage {
+	
+	public static final Logger LOGGER = Logger.getLogger(PdfTextUnderImage.class.getName());
+
+	
+	public static HashMap<String, String> REMAP_FAMILIES = new HashMap<String, String>(); static {
+		REMAP_FAMILIES.put("arial", "arial ce");
+		REMAP_FAMILIES.put("times new roman","gentium plus");
+	}
+	
+	private static boolean registerFontDirectoriesDone = false;
+	
+	private Color fontColor = Color.black;
+	private boolean debug = false;
+	
+	public PdfTextUnderImage() {
+		super();
+	}
+
+	/**
+	This is an “expensive” method if you have a lot
+	of fonts on your system. Don’t use it in a servlet because it takes time to scan
+	the font directories; it’s better to use it when the JVM starts up, so that you
+	can use the font factory throughout your web application.
+	@param fontDirectories
+	 */
+	public static void registerFontDirectories(List<String> fontDirectories) {
+		FontFactory.registerDirectories();
+		if (fontDirectories != null) {
+			for (Iterator<String> iterator = fontDirectories.iterator(); iterator.hasNext();) {
+				String s = iterator.next();
+				int number = FontFactory.registerDirectory(s);
+				LOGGER.log(Level.INFO,"registred fonts "+number);
+			}
+		}
+		registerFontDirectoriesDone = true;
+	}
+
+
+	
+
+	public boolean isDebug() {
+		return debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
+
+	public void imageWithAlto(Document document, PdfWriter writer, org.w3c.dom.Document alto, ScaledImageOptions options) {
+		PdfContentByte canvas = writer.getDirectContentUnder();
+		if (this.debug) {
+			this.fontColor = Color.yellow;
+			canvas = writer.getDirectContent();
+		}
+		putTextsToPdf(document, alto, canvas,options);
+	}
+	
+	
+	private void putTextsToPdf(Document document,org.w3c.dom.Document alto,PdfContentByte canvas, ScaledImageOptions options) {
+		NodeList nodeList = alto.getElementsByTagName("*");
+    	for (int i = 0; i < nodeList.getLength(); i++) {
+    		Element element = (Element) nodeList.item(i); 
+    		if (isString(element) || isSP(element) || isHYP(element)) {
+    			String text;
+    			int fontStyle = Font.NORMAL;
+    			
+    			if (isString(element)) {
+    				text = element.getAttribute("CONTENT");
+    			} else if (isSP(element)) {
+    				text = " ";
+    			} else {
+    				text = "‐";
+    			}
+    			
+    			final String style = "STYLE";
+    			if (element.hasAttribute(style)) {
+    				fontStyle = getFontStyle(element.getAttribute(style));
+    			} else {
+    				fontStyle = getFontStyle(element, alto);
+    			}
+    			
+    	    	String fontFamily = getFontFamily(element, alto);
+    	    	if (REMAP_FAMILIES.containsKey(fontFamily.toLowerCase())) {
+    	    		fontFamily = REMAP_FAMILIES.get(fontFamily.toLowerCase());
+    	    	}
+    	    	
+    	    	Font font = FontFactory.getFont(fontFamily, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 
+    	    			getFontSize(element, alto, options), fontStyle, fontColor);
+    	        Phrase phrase = new Phrase(text, font);
+    	        
+    	        ColumnText.showTextAligned(canvas, com.lowagie.text.Element.ALIGN_LEFT, phrase, 
+    	        		getLowerLeftHorizontal(element, options.getScaleFactor(), options.getXoffset()), getLowerLeftVertical(document,element, options.getScaleFactor(), options.getYoffset()), getRotation(element));
+    		}
+    	}
+	}
+
+	private String getFontFamily(Element element, org.w3c.dom.Document alto) {
+		String r = null;
+		Element textStyle = getTextStyle(element, alto);
+		if (textStyle != null) {
+			final String s = "FONTFAMILY";
+			if (textStyle.hasAttribute(s)) {
+				r = textStyle.getAttribute(s);
+			}
+		}
+		if (r == null) {
+			throwPdfTextUnderImageException();
+		}
+		return r;
+	}
+
+	
+	private Float getFontSize(Element element, org.w3c.dom.Document alto, ScaledImageOptions options) {
+		//TODO: change it
+		Float r = null;
+		Element textStyle = getTextStyle(element, alto);
+		if (textStyle != null) {
+			final String s = "FONTSIZE";
+			if (textStyle.hasAttribute(s)) {
+				r = new Float(pxOrPtOr(textStyle.getAttribute(s), true));
+			}
+		}
+		if (r == null) {
+			throwPdfTextUnderImageException();
+		}
+		
+		if (options.getScaleFactor() != 1.0) {
+			r = r * options.getScaleFactor();
+		}
+		return r;
+	}
+
+	private int getFontStyle(Element element, org.w3c.dom.Document alto) {
+		int r = Font.NORMAL;
+		Element textStyle = getTextStyle(element, alto);
+		if (textStyle != null) {
+			final String s = "FONTSTYLE";
+			if (textStyle.hasAttribute(s)) {
+				r = getFontStyle(textStyle.getAttribute(s));
+			}
+		}
+		return r;
+	}
+	
+	private static int getFontStyle(String fontStylesType) {
+		int r = Font.NORMAL;
+		if (fontStylesType.contains("bold")) {
+			r = r | Font.BOLD;
+		}
+		if (fontStylesType.contains("italics")) {
+			r = r | Font.ITALIC;
+		}
+		if (fontStylesType.contains("underline")) {
+			r = r | Font.UNDERLINE;
+		}
+		return r;
+	}
+	
+	private static float getAttrFromElementOrParent(Element element, String attrName, Float scale) {
+		float r = 0;
+		if (element.hasAttribute(attrName)) {
+			r = pxOrPtOr(element.getAttribute(attrName));
+		} else if (((Element) element.getParentNode()).hasAttribute(attrName)) {
+			r = pxOrPtOr(((Element) element.getParentNode()).getAttribute(attrName));
+		} else {
+			throwPdfTextUnderImageException();
+		}
+		if (scale.floatValue() == 1.0) {
+			return r;
+		} else return r*scale.floatValue();
+	}
+	
+	private static float getHeight(Element element, Float scale) {
+		return getAttrFromElementOrParent(element, "HEIGHT", scale);
+	}
+
+	private static float getLowerLeftHorizontal(Element element, Float scale, int xoffset) {
+		return getAttrFromElementOrParent(element, "HPOS",scale) + xoffset;
+	}
+	
+	private float getLowerLeftVertical(Document document, Element element, Float scale, int yoffset) {
+		return document.getPageSize().getHeight() - getAttrFromElementOrParent(element, "VPOS",scale) - getHeight(element, scale) + yoffset;
+	}
+	
+	private static float getRotation(Element element) {
+		float r = 0;
+		final String rotation = "ROTATION";
+		Element e = element;
+		while (!e.hasAttribute(rotation) && e.getParentNode() != null) {
+			if (e.getParentNode() instanceof Element) {
+				e = (Element) e.getParentNode();
+			} else {
+				break;
+			}
+		}
+		if (e.hasAttribute(rotation)) {
+			r = (new Float(e.getAttribute(rotation))).floatValue();
+		}
+		return r;
+	}
+	
+	private Element getTextStyle(Element element, org.w3c.dom.Document alto) {
+		Element r = null;
+		final String stylerefs = "STYLEREFS";
+		Element e = element;
+		while (!e.hasAttribute(stylerefs) && e.getParentNode() != null) {
+			if (e.getParentNode() instanceof Element) {
+				e = (Element) e.getParentNode();
+			} else {
+				break;
+			}
+		}
+		if (e.hasAttribute(stylerefs)) {
+			String textStyleId = e.getAttribute(stylerefs);
+			int ix = textStyleId.lastIndexOf("font");
+			if (ix != -1) {
+				textStyleId = textStyleId.substring(ix);
+		    	NodeList nodeList = alto.getElementsByTagName("TextStyle");
+		    	for (int i = 0; i < nodeList.getLength(); i++) {
+		    		Element textStyle = (Element) nodeList.item(i);
+		    		final String id = "ID";
+		    		if (textStyle.hasAttribute(id) && textStyleId.equals(textStyle.getAttribute(id))) {
+		    			r = textStyle;
+		    		}
+		    	}
+			}
+		}
+		return r;
+	}
+	
+	private static boolean isString(Element e) {
+		return e.getTagName().equals("String");
+	}
+	
+	private static boolean isSP(Element e) {
+		return e.getTagName().equals("SP");
+	}
+	
+	private static boolean isHYP(Element e) {
+		return e.getTagName().equals("HYP");
+	}
+	
+	
+    private static float pxOrPtOr(String s) {
+    	return pxOrPtOr(s, false);
+    }
+    private static float pxOrPtOr(String s, boolean ptToPx) {
+    	float r = (new Float(s)).floatValue();
+    	if (ptToPx) {
+    		r = 15 * r / 4;
+    	} else {
+    		//bad: r = 4 * r / 15;
+    	}
+    	return r;
+    	/* bad:
+    	float r = (new Float(s)).floatValue();
+    	if (ptToPx) {
+    		r = 3 * r / 4;
+    	} else {
+    		//r = 4 * r / 3;
+    	}
+    	return r;
+    	*/
+    }
+
+	private static void throwPdfTextUnderImageException() throws PdfTextUnderImageException {
+		throw new PdfTextUnderImageException();
+	}
+
+	private static void throwPdfTextUnderImageException(String s) throws PdfTextUnderImageException {
+		throw new PdfTextUnderImageException(s);
+	}
+
+	private static void throwPdfTextUnderImageException(Exception e) throws PdfTextUnderImageException {
+		throw new PdfTextUnderImageException(e.getMessage(), e);
+	}
+	
+}

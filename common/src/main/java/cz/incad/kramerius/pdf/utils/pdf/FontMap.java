@@ -57,24 +57,24 @@ public class FontMap {
         super();
         this.fontDirectory = fontDirectory;
     
-        Font logoFont = createFont(this.fontDirectory);
+        Font logoFont = createGentiumFont(this.fontDirectory);
         logoFont.setSize(48f);
 
-        Font normalFont = createFont(this.fontDirectory);
+        Font normalFont = createGentiumFont(this.fontDirectory);
         normalFont.setSize(14f);
 
-        Font strongFont = createFont(this.fontDirectory);
+        Font strongFont = createGentiumFont(this.fontDirectory);
         strongFont.setSize(14f);
         strongFont.setStyle(Font.BOLD);
 
-        Font header4Font = createFont(this.fontDirectory);
+        Font header4Font = createGentiumFont(this.fontDirectory);
         header4Font.setSize(16f);
         header4Font.setStyle(Font.BOLD);
 
-        Font smallerFont = createFont(this.fontDirectory);
+        Font smallerFont = createGentiumFont(this.fontDirectory);
         smallerFont.setSize(12f);
 
-        Font smallFont = createFont(this.fontDirectory);
+        Font smallFont = createGentiumFont(this.fontDirectory);
         smallFont.setSize(10f);
         
         this.registerFont(NORMAL_FONT, normalFont);
@@ -83,6 +83,7 @@ public class FontMap {
         this.registerFont(HEADER4_FONT, header4Font);
         this.registerFont(SMALLER_FONT, smallerFont);
         this.registerFont(SMALL_FONT, smallFont);
+
     }
 
     /**
@@ -106,7 +107,13 @@ public class FontMap {
     
     
 
-    private Font createFont(File fontDirectory) throws DocumentException, IOException {
+    private Font createArialFont(File fontDirectory) throws DocumentException, IOException {
+        File fontFile = new File(fontDirectory.getAbsolutePath(), "ext_ontheflypdf_ArialCE.ttf");
+        BaseFont bf = BaseFont.createFont(fontFile.getAbsolutePath(), BaseFont.CP1250, true);
+        return new Font(bf);
+    }
+    
+    private Font createGentiumFont(File fontDirectory) throws DocumentException, IOException {
         File fontFile = new File(fontDirectory.getAbsolutePath(), "GentiumPlus-R.ttf");
         BaseFont bf = BaseFont.createFont(fontFile.getAbsolutePath(), BaseFont.CP1250, true);
         return new Font(bf);

@@ -34,5 +34,5 @@ create table statistic_access_log_detail_authors(
    DETAIL_ID INT NOT NULL REFERENCES statistic_access_log_detail(detail_id),
    RECORD_ID INT NOT NULL REFERENCES statistics_access_log(record_ID),
    PRIMARY KEY(detail_ID)
- );
-    
+);
+ 

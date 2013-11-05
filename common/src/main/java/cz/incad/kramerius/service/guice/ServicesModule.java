@@ -33,6 +33,8 @@ public class ServicesModule extends AbstractModule {
         bind(ReplicationService.class).to(ReplicationServiceImpl.class).in(Scopes.SINGLETON);
 
         bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);
+        
+        bind(LifeCycleHookRegistry.class);
     }
 
 }

@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +19,7 @@ import java.io.StringReader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -25,6 +27,8 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -67,6 +71,7 @@ import cz.incad.kramerius.document.model.ImagePage;
 import cz.incad.kramerius.document.model.OutlineItem;
 import cz.incad.kramerius.document.model.TextPage;
 import cz.incad.kramerius.imaging.ImageStreams;
+import cz.incad.kramerius.impl.fedora.FedoraStreamUtils;
 import cz.incad.kramerius.pdf.Break;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.PDFContext;
@@ -77,11 +82,14 @@ import cz.incad.kramerius.pdf.utils.pdf.FontDirectoryProvider;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import cz.knav.pdf.ImageAndAlto;
+import cz.knav.pdf.PdfTextUnderImage;
 
 public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements GeneratePDFService {
 
@@ -110,9 +118,15 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
         this.solrAccess = solrAccess;
         this.documentService = documentService;
         this.fontDirectory = fontDirectoryProvider;
+        
+        this.fontRegistration();
     }
 
-    public void init() throws IOException {
+    private void fontRegistration() {
+    	PdfTextUnderImage.registerFontDirectories(Arrays.asList(this.fontDirectory.get().getAbsolutePath()));
+	}
+
+	public void init() throws IOException {
         String[] texts = { 
         "security_fail", "security_fail_CZ_cs",
         // TODO: Move to another position
@@ -418,7 +432,6 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
                 if (mimetype != null) {
                     float smallImage = 0.2f;
                     BufferedImage javaImg = fetcher.fetch(uuidToFirstPage, djvuUrl, mimetype, this.fedoraAccess);
-                    //BufferedImage javaImg = readImage(new URL(imgUrl), mimetype, 0);
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     writeImageToStream(javaImg, "jpeg", bos);
 
@@ -447,7 +460,24 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
                 ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
                 if (mimetype != null && (!ImageMimeType.PDF.equals(mimetype))) {
                 	BufferedImage javaImg = fetcher.fetch(uuid, imgServletUrl,mimetype, this.fedoraAccess);
-                    insertJavaImage(document, percentage, javaImg);
+                	boolean textocr = this.fedoraAccess.isStreamAvailable(uuid, FedoraUtils.ALTO_STREAM);
+            		boolean useAlto = KConfiguration.getInstance().getConfiguration().getBoolean("pdfQueue.useAlto", true);
+                	if (textocr && useAlto) {
+                		try {
+							org.w3c.dom.Document alto = XMLUtils.parseDocument(this.fedoraAccess.getDataStream(uuid, FedoraUtils.ALTO_STREAM));
+							insertJavaImageWithOCR(document, percentage, pdfWriter,alto, javaImg);
+						} catch (ParserConfigurationException e) {
+				            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+	                    	insertJavaImage(document, percentage, javaImg);
+						} catch (SAXException e) {
+				            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+	                    	insertJavaImage(document, percentage, javaImg);
+						}
+
+                	} else {
+                    	insertJavaImage(document, percentage, javaImg);
+                	}
+                	
                 } else {
                     String text = textsService.getText("image_not_available", localeProvider.get());
                     text = text != null  ? text : "image_not_available";
@@ -469,7 +499,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
             Chunk chunk = new Chunk(textsService.getText("security_fail", localeProvider.get()), font);
             Paragraph na = new Paragraph(chunk);
             document.add(na);
-        }
+		}
     }
 
     /**
