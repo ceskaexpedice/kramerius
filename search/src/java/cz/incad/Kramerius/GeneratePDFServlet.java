@@ -269,6 +269,8 @@ public class GeneratePDFServlet extends GuiceServlet {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (ServletException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
 				} finally {
                     for (File file : filesToDelete) {
                         file.delete();
