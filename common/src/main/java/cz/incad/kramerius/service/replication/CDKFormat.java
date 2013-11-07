@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -30,6 +28,7 @@ import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
  * CDK format
@@ -126,7 +125,11 @@ public class CDKFormat implements ReplicationFormat {
 	private void virtualCollectionName(String vcname,Document document, Element element) {
 		Element descElement = XMLUtils.findElement(element, "Description",FedoraNamespaces.RDF_NAMESPACE_URI);
 		Element elm = document.createElementNS( FedoraNamespaces.RDF_NAMESPACE_URI,"isMemberOfCollection");
-		elm.setAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource", vcname);
+		if (!vcname.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
+			elm.setAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource", PIDParser.INFO_FEDORA_PREFIX+vcname);
+		} else {
+			elm.setAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource", vcname);
+		}
 		document.adoptNode(elm);
 		descElement.appendChild(elm);
 	}
