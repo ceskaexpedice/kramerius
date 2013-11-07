@@ -20,6 +20,7 @@
 
 <c:catch var="searchException">
     <c:set var="isCollapsed" value="${param.collapsed != 'false'}" scope="request"  />
+    <c:set var="filterByType" value="false" scope="request" />
     <c:set var="rowsdefault" value="${searchParams.searchResultsRows}" scope="request" />
     <c:set var="rows" value="${rowsdefault}" scope="request" />
 <c:url var="url" value="${kconfig.solrHost}/select" >
@@ -50,7 +51,10 @@
     --%>
     
     <c:forEach var="fqs" items="${paramValues.fq}">
-        <c:if test="${fn:startsWith(fqs, 'document_type')}"><c:set var="isCollapsed" value="false" scope="request" /></c:if>
+        <c:if test="${fn:startsWith(fqs, 'document_type')}">
+            <c:set var="isCollapsed" value="false" scope="request" />
+            <c:set var="filterByType" value="true" scope="request" />
+        </c:if>
 
         <c:param name="fq">${fqs}</c:param>
         <c:set var="rows" value="${rowsdefault}" scope="request" />
@@ -182,6 +186,12 @@
         <c:when test="${sort != null && !empty sort}" >
             <c:param name="sort" value="level asc, ${sort}" />
             <c:param name="group.sort" value="level asc, ${sort}" />
+        </c:when>
+        <c:when test="${filterByType && empty param.q}" >
+            <c:param name="sort" value="title_sort asc" />
+        </c:when>
+        <c:when test="${filterByType && !empty param.q}" >
+            <c:param name="sort" value="score desc, title_sort asc" />
         </c:when>
         <c:when test="${fieldedSearch}">
             <c:param name="sort" value="level asc, title_sort asc, score desc" />
