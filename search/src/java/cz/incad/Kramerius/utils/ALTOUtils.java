@@ -19,8 +19,10 @@
  */
 package cz.incad.Kramerius.utils;
 
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.XMLUtils.ElementsFilter;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -55,7 +57,7 @@ public class ALTOUtils {
             //<Page ID="Page0" PHYSICAL_IMG_NR="0" HEIGHT="3232" WIDTH="2515">
             String imageHeight = pageElm.getAttribute("HEIGHT");
             String imageWidth = pageElm.getAttribute("WIDTH");
-            if (imageHeight == null || imageWidth == null){
+            if ( (!StringUtils.isAnyString(imageHeight)) &&   (!StringUtils.isAnyString(imageWidth)) ){
                 pageElm = XMLUtils.findElement(dom.getDocumentElement(), "PrintSpace");
                 if (pageElm != null) {
                     imageHeight = pageElm.getAttribute("HEIGHT");
@@ -72,14 +74,15 @@ public class ALTOUtils {
             
             @Override
             public boolean acceptElement(Element element) {
-                if (element.getNodeName().equals("String")) {
-                    String content = element.getAttribute("CONTENT");
-                    if ((content != null) && (content.equals(parameter))) {
-                        return true;
-                    }
+            	if (element.getNodeName().equals("String")) {
+            		String content = element.getAttribute("CONTENT");
+            		if (matchContent(content, parameter)) {
+            			return true;
+            		}
                 }
                 return false;
             }
+
         });
         if (foundElement != null) {
             Map<String, Double> box = new HashMap<String, Double>();
@@ -100,5 +103,13 @@ public class ALTOUtils {
         
         return map;
     }
+
+	protected static boolean matchContent(String content, String parameter) {
+		if (content != null && parameter != null) {
+			String smallContent = content.toLowerCase();
+			String smallParam = parameter.toLowerCase();
+			return smallContent.equals(smallParam);
+		} else return content == parameter;
+	}
 
 }
