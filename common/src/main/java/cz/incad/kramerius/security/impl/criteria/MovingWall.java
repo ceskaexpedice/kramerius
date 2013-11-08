@@ -41,7 +41,6 @@ import org.w3c.dom.Text;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -84,15 +83,15 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     public EvaluatingResult evalute() throws RightCriteriumException {
         int wallFromConf = Integer.parseInt((String)getObjects()[0]);
         try {
-            
             ObjectPidsPath[] pathsToRoot = getEvaluateContext().getPathsToRoot();
             EvaluatingResult result = null;
             for (ObjectPidsPath pth : pathsToRoot) {
                 String[] pids = pth.getPathFromLeafToRoot();
                 for (String pid : pids) {
                     
+                    if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
+                	Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
                     // try all xpaths on mods
-                    Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
                     for (String xp : MODS_XPATHS) {
                         result = resolveInternal(wallFromConf,pid,xp,biblioMods);
                         if (result !=null) break;

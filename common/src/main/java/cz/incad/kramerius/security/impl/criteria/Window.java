@@ -61,6 +61,7 @@ public class Window extends AbstractCriterium implements RightCriterium {
 	                for (String pid : pids) {
 	                    
 	                    // try all xpaths on mods
+	                    if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
 	                    Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
 	                    for (String xp : MODS_XPATHS) {
 	                        result = resolveInternal(firstVal,secondVal,pid,xp,biblioMods);
