@@ -180,6 +180,9 @@
         <c:when test="${param.sort != null && !empty param.sort && param.asis}" >
             <c:param name="sort" value="${param.sort}" />
         </c:when>
+        <c:when test="${param.sort != null && !empty param.sort && filterByType}" >
+            <c:param name="sort" value="${param.sort}" />
+        </c:when>
         <c:when test="${param.sort != null && !empty param.sort}" >
             <c:param name="sort" value="level asc, ${param.sort}" />
         </c:when>
