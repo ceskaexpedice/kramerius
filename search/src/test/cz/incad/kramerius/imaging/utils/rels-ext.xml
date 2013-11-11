@@ -1,0 +1,10 @@
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#" xmlns:kramerius4="http://www.nsdl.org/ontologies/relationships#" xmlns:oai="http://www.openarchives.org/OAI/2.0/">
+                    <rdf:Description rdf:about="info:fedora/uuid:5fd94d78af7144f1fd358c9349646c4a">
+                        <fedora-model:hasModel rdf:resource="info:fedora/model:page"></fedora-model:hasModel>
+                        <oai:itemID>uuid:5fd94d78af7144f1fd358c9349646c4a</oai:itemID>
+                        <kramerius:file>2_a0002_1L.tif</kramerius:file>
+                        <kramerius:policy>policy:private</kramerius:policy>
+                        <kramerius4:tiles-url>http://krameriusndktest.mzk.cz/imageserver/NDK/2012/ec78e650-298d-11e2-9f39-005056827e51/2_a0002_1L.tif</kramerius4:tiles-url>
+                    <replicatedFrom xmlns="http://www.nsdl.org/ontologies/relationships#">http://kramerius.mzk.cz/search/handle/uuid:5fd94d78af7144f1fd358c9349646c4a</replicatedFrom><replicatedFrom xmlns="http://www.nsdl.org/ontologies/relationships#">http://cdk-test.lib.cas.cz/search/handle/uuid:5fd94d78af7144f1fd358c9349646c4a</replicatedFrom></rdf:Description>
+                </rdf:RDF>
