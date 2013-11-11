@@ -65,40 +65,52 @@
             </xsl:if>
         </xsl:variable>
         <div class="header">
-            <div style="float:left;margin-left:5px;">
+            <table style="width:100%;">
+                <tr>
+            <td style="width:200px;text-align:left;padding-left:5px;">
                 <span><xsl:value-of select="$numDocs" />&#160;<xsl:value-of select="$numDocsStr" /></span>
-            </div>
-            <div style="float:left;margin-left:30px;width:260px;text-align:center;">
+            </td>
+            <td align="center">
                 <span><xsl:value-of select="$bundle/value[@key='results.sortby']"/>:</span>&#160;&#160;
+                <xsl:variable name="sortParam" select="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']" />
                 <xsl:choose>
-                    <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='level asc, title_sort asc'">
+                    <xsl:when test="contains($sortParam,'title_sort asc')">
                         <a href="javascript:sortByTitle('desc');"  style="font-weight:bolder;"><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
                         <span class="ui-icon ui-icon-triangle-1-n"  >asc</span>
-                        <span>&#160;|&#160;</span><a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
+                        <xsl:if test="$q">
+                            <span>&#160;|&#160;</span><a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
+                        </xsl:if>
                     </xsl:when>
-                    <xsl:when test="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='sort']='level asc, title_sort desc'">
+                    <xsl:when test="contains($sortParam,'title_sort desc')">
                         <a href="javascript:sortByTitle('asc');"  style="font-weight:bolder;"><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
                         <span class="ui-icon ui-icon-triangle-1-s"  >desc</span>
-                        <span>&#160;|&#160;</span><a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
+                        <xsl:if test="$q">
+                            <span>&#160;|&#160;</span><a href="javascript:sortByRank();"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></a>
+                        </xsl:if>
                     </xsl:when>
                     <xsl:otherwise>
                         <a href="javascript:sortByTitle('asc');"><xsl:value-of select="$bundle/value[@key='results.sortby.name']"/></a>&#160;
-                        <span>&#160;|&#160;</span><span style="font-weight:bolder;"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></span>
+                        <xsl:if test="$q">
+                            <span>&#160;|&#160;</span><span style="font-weight:bolder;"><xsl:value-of select="$bundle/value[@key='results.sortby.relevance']"/></span>
+                        </xsl:if>
+                        
                     </xsl:otherwise>
                 </xsl:choose>
-            </div>
-            <div style="float:right;margin-right:30px;">
+            </td>
+            <td align="right" style="width:180px;text-align:right;padding-right:3px;">
                 <xsl:choose>
                     <xsl:when test="$cols='2'">
-                        <a id="cols1" class="cols" href="javascript:toggleColumns(true);"><xsl:value-of select="$bundle/value[@key='results.1column']"/></a>
-                        <a id="cols2" class="cols" href="javascript:toggleColumns(true);" style="display:none;"><xsl:value-of select="$bundle/value[@key='results.2column']"/></a>
+                        <a style="float:none;" id="cols1" class="cols" href="javascript:toggleColumns(true);"><xsl:value-of select="$bundle/value[@key='results.1column']"/></a>
+                        <a id="cols2" class="cols" href="javascript:toggleColumns(true);" style="float:none;display:none;"><xsl:value-of select="$bundle/value[@key='results.2column']"/></a>
                     </xsl:when>
                     <xsl:otherwise>
-                        <a id="cols1" class="cols" href="javascript:toggleColumns(true);" style="display:none;"><xsl:value-of select="$bundle/value[@key='results.1column']"/></a>
-                        <a id="cols2" class="cols" href="javascript:toggleColumns(true);"><xsl:value-of select="$bundle/value[@key='results.2column']"/></a>
+                        <a id="cols1" class="cols" href="javascript:toggleColumns(true);" style="float:none;display:none;"><xsl:value-of select="$bundle/value[@key='results.1column']"/></a>
+                        <a style="float:none;" id="cols2" class="cols" href="javascript:toggleColumns(true);"><xsl:value-of select="$bundle/value[@key='results.2column']"/></a>
                     </xsl:otherwise>
                 </xsl:choose>                            
-            </div>
+            </td>
+            </tr>
+            </table>
         </div>
     </xsl:template>
 
