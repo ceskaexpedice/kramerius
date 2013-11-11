@@ -48,6 +48,7 @@ import org.xml.sax.SAXException;
 import com.google.inject.Inject;
 
 import cz.incad.Kramerius.AbstractImageServlet;
+import cz.incad.Kramerius.imaging.utils.ZoomChangeFromReplicated;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
@@ -181,7 +182,11 @@ public class ZoomifyServlet extends AbstractImageServlet {
 
     
     private void renderIIPrenderXMLDescriptor(String uuid, HttpServletResponse resp, String url) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
-        String urlForStream = getURLForStream(uuid, url);
+    	String urlForStream = getURLForStream(uuid, url);
+    	if (useFromReplicated()) {
+    		Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+    		urlForStream = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
+    	}
         if (urlForStream != null) {
             StringTemplate dziUrl = stGroup().getInstanceOf("zoomify");
             if (urlForStream.endsWith("/")) urlForStream = urlForStream.substring(0, urlForStream.length()-1);
@@ -189,6 +194,11 @@ public class ZoomifyServlet extends AbstractImageServlet {
             copyFromImageServer(dziUrl.toString(), resp);
         }
     }
+
+	private boolean useFromReplicated() {
+		boolean useFromReplicated = KConfiguration.getInstance().getConfiguration().getBoolean("zoom.useFromReplicated",false);
+		return useFromReplicated;
+	}
     
     private void renderTile(String pid, String slevel, String x, String y, String ext, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(pid, FedoraUtils.IMG_FULL_STREAM, resp);
@@ -267,6 +277,10 @@ public class ZoomifyServlet extends AbstractImageServlet {
 
     private void renderIIPTile(String uuid, String slevel, String x,String y, String ext, HttpServletResponse resp, String url) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
         String dataStreamUrl = getURLForStream(uuid, url);
+        if (useFromReplicated()) {
+    		Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+    		dataStreamUrl = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
+        }
         if (dataStreamUrl != null) {
             StringTemplate tileUrl = stGroup().getInstanceOf("zoomifytile");
             //setStringTemplateModel(uuid, dataStreamPath, tileUrl, fedoraAccess);

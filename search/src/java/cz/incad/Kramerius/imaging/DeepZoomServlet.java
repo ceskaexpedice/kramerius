@@ -31,6 +31,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.AbstractImageServlet;
+import cz.incad.Kramerius.imaging.utils.ZoomChangeFromReplicated;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -155,6 +156,10 @@ public class DeepZoomServlet extends AbstractImageServlet {
 
     private void renderIIPDZIDescriptor(String uuid, HttpServletResponse resp, String url) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
         String urlForStream = getURLForStream(uuid, url);
+    	if (useFromReplicated()) {
+    		Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+    		urlForStream = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
+    	}
         if (urlForStream != null) {
             StringTemplate dziUrl = stGroup().getInstanceOf("ndzi");
             if (urlForStream.endsWith("/")) urlForStream = urlForStream.substring(0, urlForStream.length()-1);
@@ -200,6 +205,10 @@ public class DeepZoomServlet extends AbstractImageServlet {
 
     private void renderIIPTile(String uuid, String slevel, String stile, HttpServletResponse resp, String url) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
         String dataStreamUrl = getURLForStream(uuid, url);
+    	if (useFromReplicated()) {
+    		Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+    		dataStreamUrl = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
+    	}
         if (dataStreamUrl != null) {
             StringTemplate tileUrl = stGroup().getInstanceOf("ntile");
             //setStringTemplateModel(uuid, dataStreamPath, tileUrl, fedoraAccess);
@@ -313,4 +322,9 @@ public class DeepZoomServlet extends AbstractImageServlet {
     }
     
     
+	private boolean useFromReplicated() {
+		boolean useFromReplicated = KConfiguration.getInstance().getConfiguration().getBoolean("zoom.useFromReplicated",false);
+		return useFromReplicated;
+	}
+
 }
