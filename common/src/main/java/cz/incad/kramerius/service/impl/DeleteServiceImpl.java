@@ -37,7 +37,7 @@ public class DeleteServiceImpl implements DeleteService {
     @Override
     public void deleteTree(String pid, String message) throws IOException {
         Set<String> pids = fedoraAccess.getPids(pid);
-        boolean purge = KConfiguration.getInstance().getConfiguration().getBoolean("delete.purgeObjects", false);
+        boolean purge = KConfiguration.getInstance().getConfiguration().getBoolean("delete.purgeObjects", true);
         for (String s : pids) {
             String p = s.replace(INFO, "");
             if (purge){
