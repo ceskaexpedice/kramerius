@@ -100,6 +100,10 @@ public class CDKFormat implements ReplicationFormat {
 					virtualCollectionName(vcname, document, relsExt.get(0));
 				}
 				
+				// change IIP point
+				changeIIPPoint(document, relsExt.get(0));
+				
+				
 			} else {
 				throw new ReplicateException("Not valid FOXML");
 			}
@@ -120,6 +124,37 @@ public class CDKFormat implements ReplicationFormat {
 		} catch (URISyntaxException e) {
 			throw new ReplicateException(e);
 		}
+	}
+
+	private void changeIIPPoint(Document document, Element element) throws DOMException, MalformedURLException, URISyntaxException {
+		Element descElement = XMLUtils.findElement(element, "Description",FedoraNamespaces.RDF_NAMESPACE_URI);
+		List<Element> tiles = XMLUtils.getElements(descElement);
+		for (Element iip : tiles) {
+			if (iip.getNamespaceURI() != null) {
+				if (iip.getNamespaceURI().equals(FedoraNamespaces.KRAMERIUS_URI) && iip.getLocalName().equals("tiles-url")) {
+					if (iip.getTextContent().contains("DeepZoom")) {
+						iip.setTextContent(deepZoomURI(document).toURI().toString());
+					} else {
+						iip.setTextContent(zoomifyURI(document).toURI().toString());
+					}
+				}
+			}
+		}
+		
+	}
+
+	private URL zoomifyURI(Document doc) throws MalformedURLException {
+		HttpServletRequest req = this.requestProvider.get();
+		String pid = doc.getDocumentElement().getAttribute("PID");
+		String is =  ApplicationURL.applicationURL(req)+"/zoomify/"+pid;
+		return new URL(is);
+	}
+
+	private URL deepZoomURI(Document doc) throws MalformedURLException {
+		HttpServletRequest req = this.requestProvider.get();
+		String pid = doc.getDocumentElement().getAttribute("PID");
+		String is =  ApplicationURL.applicationURL(req)+"/deepZoom/"+pid;
+		return new URL(is);
 	}
 
 	private void virtualCollectionName(String vcname,Document document, Element element) {
