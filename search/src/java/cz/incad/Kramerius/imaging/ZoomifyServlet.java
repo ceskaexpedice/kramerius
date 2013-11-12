@@ -46,11 +46,17 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.Kramerius.imaging.utils.ZoomChangeFromReplicated;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -77,6 +83,16 @@ public class ZoomifyServlet extends AbstractImageServlet {
 
     @Inject
     StatisticsAccessLog accessLog;
+
+    @Inject
+    IsActionAllowed actionAllowed;
+    
+    @Inject
+    Provider<User> userProvider;
+    
+    @Inject
+    SolrAccess solrAccess;
+
     
     @Override
     public ScalingMethod getScalingMethod() {
@@ -98,26 +114,36 @@ public class ZoomifyServlet extends AbstractImageServlet {
             StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
             String pid = tokenizer.nextToken();
             String rest = tokenizer.hasMoreTokens() ?  tokenizer.nextToken() : "";
-            //http://imageserver.mzk.cz/ANL/4a57a2a7-d0e9-11e1-945e-0050569d679d/ImageProperties.xml
-            if (rest.equals("ImageProperties.xml")) {
-                renderXMLDescriptor(pid, req, resp);
-            } else {
-                if (tokenizer.hasMoreTokens()) {
-                    String files = tokenizer.nextToken();
-                    String ext = "jpg";
-                    if (files.contains(".")) {
-                        ext = files.substring(files.indexOf('.')+1);
-                        files = files.substring(0, files.indexOf('.'));
-                    }
-                    
-                    StringTokenizer substokenizer = new StringTokenizer(files,"-");
-                    if (substokenizer.countTokens() == 3) {
-                        String level = substokenizer.nextToken();
-                        String x = substokenizer.nextToken();
-                        String y = substokenizer.nextToken();
-                        renderTile(pid, level, x, y, ext, req, resp);
+
+            ObjectPidsPath[] paths = solrAccess.getPath(pid);
+            boolean premited = false;
+            for (ObjectPidsPath pth : paths) {
+                premited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth);
+                if (premited) break;
+            }
+            if (premited) {
+                if (rest.equals("ImageProperties.xml")) {
+                    renderXMLDescriptor(pid, req, resp);
+                } else {
+                    if (tokenizer.hasMoreTokens()) {
+                        String files = tokenizer.nextToken();
+                        String ext = "jpg";
+                        if (files.contains(".")) {
+                            ext = files.substring(files.indexOf('.')+1);
+                            files = files.substring(0, files.indexOf('.'));
+                        }
+                        StringTokenizer substokenizer = new StringTokenizer(files,"-");
+                        if (substokenizer.countTokens() == 3) {
+                            String level = substokenizer.nextToken();
+                            String x = substokenizer.nextToken();
+                            String y = substokenizer.nextToken();
+                            renderTile(pid, level, x, y, ext, req, resp);
+                        }
                     }
                 }
+        
+            } else {
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             }
         } catch (XPathExpressionException e) {
             e.printStackTrace();
