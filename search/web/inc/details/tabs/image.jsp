@@ -12,8 +12,7 @@
 
 <view:object name="image" clz="cz.incad.Kramerius.views.inc.details.tabs.ImageViewObject"></view:object>
 <view:object name="alto" clz="cz.incad.Kramerius.views.inc.details.tabs.AltoSupportViewObject"></view:object>
-
-
+<view:kconfig var="hidePdfThumbs" key="search.hide.pdf.thumbs" defaultValue="true" />
 
 <style type="text/css">
     .buttons>a{
@@ -213,7 +212,9 @@ function onLoadPlainImage() {
         } else {
             // has right
         	if (viewerOptions.isContentPDF()) {
+             <c:if test="${hidePdfThumbs}">
                 $("#split").layout().hide('north');
+             </c:if>   
                 displayImageContainer("#pdfImage");
 
                 var requestedImg = null;
