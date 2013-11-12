@@ -20,7 +20,7 @@
 <view:kconfig var="fedoraHost" key="fedoraHost" />
 <c:catch var="ex">
 <c:url var="url" value="${fedoraHost}/objects" >
-    <c:param name="query" >title~${param.s}</c:param>
+    <c:param name="query" >title~'${param.s}'</c:param>
     <c:param name="resultFormat" value="xml" />
     <c:param name="pid" value="true" />
     <c:param name="title" value="true" />
