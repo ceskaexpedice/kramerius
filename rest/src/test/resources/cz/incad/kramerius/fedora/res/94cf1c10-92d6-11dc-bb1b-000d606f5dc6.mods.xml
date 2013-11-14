@@ -1,0 +1,17 @@
+
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+                    <mods:mods version="3.3">
+                        <mods:identifier type="urn">94cf1c10-92d6-11dc-bb1b-000d606f5dc6</mods:identifier>
+                        <mods:identifier type="sici"></mods:identifier>
+                        <mods:typeOfResource>text</mods:typeOfResource>
+                        <mods:part type="NormalPage">
+                            <mods:detail type="pageNumber">
+                                <mods:number>4</mods:number>
+                            </mods:detail>
+                            <mods:detail type="pageIndex">
+                                <mods:number>3</mods:number>
+                            </mods:detail>
+                            <mods:text></mods:text>
+                        </mods:part>
+                    </mods:mods>
+                </mods:modsCollection>

@@ -19,9 +19,30 @@ package cz.incad.kramerius.rest.api.guice;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.inject.multibindings.Multibinder;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
+import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
+import cz.incad.kramerius.rest.api.k5.client.item.Decorator;
+import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
+import cz.incad.kramerius.rest.api.k5.client.item.context.DefaultTreeRenderer;
+import cz.incad.kramerius.rest.api.k5.client.item.context.ItemTreeRender;
+import cz.incad.kramerius.rest.api.k5.client.item.context.TreeAggregate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.HandleDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.RightsDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.SmallImageDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrTitleDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.display.DeepZoomDisplayType;
+import cz.incad.kramerius.rest.api.k5.client.item.display.DisplayType;
+import cz.incad.kramerius.rest.api.k5.client.item.display.DisplayTypeAggregate;
+import cz.incad.kramerius.rest.api.k5.client.item.display.PDFDisplayType;
+import cz.incad.kramerius.rest.api.k5.client.item.display.PlainImageDisplayType;
+import cz.incad.kramerius.rest.api.k5.client.item.display.ZoomifyDisplayType;
+import cz.incad.kramerius.rest.api.k5.client.item.metadata.DefaultMetadataImpl;
+import cz.incad.kramerius.rest.api.k5.client.item.metadata.Metadata;
+import cz.incad.kramerius.rest.api.k5.client.item.metadata.MetadataAggregate;
+import cz.incad.kramerius.rest.api.k5.client.virtualcollection.VirtualCollectionResource;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
@@ -40,7 +61,24 @@ public class ApiServletModule extends JerseyServletModule {
         bind(ReplicationsResource.class);
         bind(CDKReplicationsResource.class);
         bind(LRResource.class);
+        // k5 - znovu...
+        bind(ItemResource.class);
+        bind(FeederResource.class);
+        bind(VirtualCollectionResource.class);
+        
+        //decorators
+        decs();
+        
+        // matadata
+        metadata();
+        
+        // displayTypes
+        displayTypes();
+        
+        //trees
+        trees();
 
+        
         // api
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("com.sun.jersey.api.json.POJOMappingFeature", "true");
@@ -48,4 +86,46 @@ public class ApiServletModule extends JerseyServletModule {
 
         serve("/api/"+VERSION+"/*").with(GuiceContainer.class, parameters);
     }
+
+    private void decs() {
+		Multibinder<Decorator> decs
+        = Multibinder.newSetBinder(binder(), Decorator.class);
+		
+		decs.addBinding().to(RightsDecorate.class);
+		decs.addBinding().to(SmallImageDecorate.class);
+		decs.addBinding().to(HandleDecorate.class);
+		decs.addBinding().to(SolrTitleDecorate.class);
+    }
+
+	//TODO: remove
+	private void trees() {
+		Multibinder<ItemTreeRender> tcollectors
+        = Multibinder.newSetBinder(binder(), ItemTreeRender.class);
+		tcollectors.addBinding().to(DefaultTreeRenderer.class);
+
+		// tree aggregator
+		bind(TreeAggregate.class);
+		
+	}
+
+	private void displayTypes() {
+		Multibinder<DisplayType> dcollectors
+        = Multibinder.newSetBinder(binder(), DisplayType.class);
+        dcollectors.addBinding().to(PlainImageDisplayType.class);
+        dcollectors.addBinding().to(PDFDisplayType.class);
+        dcollectors.addBinding().to(DeepZoomDisplayType.class);
+        dcollectors.addBinding().to(ZoomifyDisplayType.class);
+        // display aggregator
+        bind(DisplayTypeAggregate.class);
+		
+	}
+
+	//TODO: remove
+	private void metadata() {
+		Multibinder<Metadata> mcollectors
+        = Multibinder.newSetBinder(binder(), Metadata.class);
+        mcollectors.addBinding().to(DefaultMetadataImpl.class);
+        // metadata aggregator
+        bind(MetadataAggregate.class);
+	}
 }

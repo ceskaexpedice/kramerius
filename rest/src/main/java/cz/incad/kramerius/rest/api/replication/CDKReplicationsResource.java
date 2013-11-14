@@ -8,6 +8,7 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
@@ -54,6 +55,8 @@ import cz.incad.kramerius.utils.XMLUtils;
 @Path("/cdk")
 public class CDKReplicationsResource {
 
+	public static Logger LOGGER = Logger.getLogger(CDKReplicationsResource.class.getName());
+	
 	public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 	
     @Inject
@@ -105,9 +108,9 @@ public class CDKReplicationsResource {
     }
 
     boolean checkPermission() throws IOException {
-        ObjectPidsPath path = new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid());
-        if (this.isActionAllowed.isActionAllowed(SecuredActions.EXPORT_CDK_REPLICATIONS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, path)) return true;
-        return false;
+		ObjectPidsPath path = new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid());
+		if (this.isActionAllowed.isActionAllowed(SecuredActions.EXPORT_CDK_REPLICATIONS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, path)) return true;
+		return false;
     }
 
 

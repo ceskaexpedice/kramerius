@@ -1,0 +1,66 @@
+
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+                    <mods:mods version="3.3">
+                        <mods:identifier type="urn">ae876087-435d-11dd-b505-00145e5790ea</mods:identifier>
+                        <mods:identifier type="sici"></mods:identifier>
+                        <mods:identifier type="issn">1214-1240</mods:identifier>
+                        <mods:identifier type="coden"></mods:identifier>
+                        <mods:subject>
+                            <mods:topic></mods:topic>
+                        </mods:subject>
+                        <mods:abstract></mods:abstract>
+                        <mods:location>
+                            <mods:physicalLocation>ABA000</mods:physicalLocation>
+                            <mods:shelfLocator>54 A 150</mods:shelfLocator>
+                            <mods:shelfLocator>54 A 2277</mods:shelfLocator>
+                        </mods:location>
+                        <mods:titleInfo>
+                            <mods:title>Národní listy</mods:title>
+                            <mods:subTitle></mods:subTitle>
+                            <mods:partName></mods:partName>
+                        </mods:titleInfo>
+                        <mods:titleInfo type="alternative">
+                            <mods:title></mods:title>
+                        </mods:titleInfo>
+                        <mods:titleInfo type="uniform">
+                            <mods:title></mods:title>
+                        </mods:titleInfo>
+                        <mods:typeOfResource>text</mods:typeOfResource>
+                        <mods:originInfo transliteration="publisher">
+                            <mods:place>
+                                <mods:placeTerm type="text">Praha</mods:placeTerm>
+                            </mods:place>
+                            <mods:publisher>Julius Grégr</mods:publisher>
+                            <mods:dateIssued>1861 - 1941</mods:dateIssued>
+                        </mods:originInfo>
+                        <mods:originInfo>
+                            <mods:issuance>continuing</mods:issuance>
+                            <mods:frequency>denně</mods:frequency>
+                        </mods:originInfo>
+                        <mods:language>
+                            <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+                        </mods:language>
+                        <mods:physicalDescription>
+                            <mods:form type="technique"></mods:form>
+                            <mods:extent></mods:extent>
+                            <mods:note>nekvalitní a poškozená předloha; v období od 28.4.1867 do
+            31.7.1867 a od 17.7.1868 do 19.10.1868 vycházel titul jako
+            Národní noviny; v období od 1.11.1868 do 1.5.1869 vycházel
+            titul jako Naše listy;</mods:note>
+                        </mods:physicalDescription>
+                        <mods:classification authority="ddc"></mods:classification>
+                        <mods:classification authority="udc"></mods:classification>
+                        <mods:part>
+                            <mods:detail type="regularsupplement">
+                                <mods:title></mods:title>
+                            </mods:detail>
+                            <mods:detail type="specialSupplement">
+                                <mods:title></mods:title>
+                            </mods:detail>
+                        </mods:part>
+                        <mods:recordInfo>
+                            <mods:recordOrigin></mods:recordOrigin>
+                        </mods:recordInfo>
+                        <mods:accessCondition type="restrictionOnAccess"></mods:accessCondition>
+                    </mods:mods>
+                </mods:modsCollection>

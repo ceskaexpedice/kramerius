@@ -1,0 +1,41 @@
+
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+                    <mods:mods version="3.3">
+                        <mods:identifier type="urn">b32d1210-91f6-11dc-94d0-000d606f5dc6</mods:identifier>
+                        <mods:identifier type="sici"></mods:identifier>
+                        <mods:identifier type="coden"></mods:identifier>
+                        <mods:subject>
+                            <mods:topic></mods:topic>
+                        </mods:subject>
+                        <mods:abstract></mods:abstract>
+                        <mods:titleInfo>
+                            <mods:title></mods:title>
+                            <mods:subTitle></mods:subTitle>
+                            <mods:partName></mods:partName>
+                        </mods:titleInfo>
+                        <mods:titleInfo type="alternative">
+                            <mods:title></mods:title>
+                        </mods:titleInfo>
+                        <mods:titleInfo type="uniform">
+                            <mods:title></mods:title>
+                        </mods:titleInfo>
+                        <mods:typeOfResource>text</mods:typeOfResource>
+                        <mods:originInfo>
+                            <mods:issuance>continuing</mods:issuance>
+                        </mods:originInfo>
+                        <mods:physicalDescription>
+                            <mods:form type="technique"></mods:form>
+                            <mods:extent></mods:extent>
+                            <mods:note>ranní vydání;  3. vydání;</mods:note>
+                        </mods:physicalDescription>
+                        <mods:classification authority="ddc"></mods:classification>
+                        <mods:classification authority="udc"></mods:classification>
+                        <mods:part type="PeriodicalIssue">
+                            <mods:detail type="issue">
+                                <mods:number>1</mods:number>
+                            </mods:detail>
+                            <mods:date>1.1.1941</mods:date>
+                        </mods:part>
+                        <mods:accessCondition type="restrictionOnAccess"></mods:accessCondition>
+                    </mods:mods>
+                </mods:modsCollection>

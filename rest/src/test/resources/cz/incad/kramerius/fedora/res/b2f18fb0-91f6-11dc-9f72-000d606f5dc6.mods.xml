@@ -1,0 +1,46 @@
+
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+                    <mods:mods version="3.3">
+                        <mods:identifier type="urn">b2f18fb0-91f6-11dc-9f72-000d606f5dc6</mods:identifier>
+                        <mods:identifier type="sici"></mods:identifier>
+                        <mods:identifier type="coden"></mods:identifier>
+                        <mods:subject>
+                            <mods:topic></mods:topic>
+                        </mods:subject>
+                        <mods:abstract></mods:abstract>
+                        <mods:titleInfo>
+                            <mods:title></mods:title>
+                            <mods:subTitle></mods:subTitle>
+                            <mods:partName></mods:partName>
+                        </mods:titleInfo>
+                        <mods:titleInfo type="alternative">
+                            <mods:title></mods:title>
+                        </mods:titleInfo>
+                        <mods:titleInfo type="uniform">
+                            <mods:title></mods:title>
+                        </mods:titleInfo>
+                        <mods:typeOfResource>text</mods:typeOfResource>
+                        <mods:originInfo>
+                            <mods:issuance>continuing</mods:issuance>
+                        </mods:originInfo>
+                        <mods:physicalDescription>
+                            <mods:form type="technique"></mods:form>
+                            <mods:extent></mods:extent>
+                            <mods:note></mods:note>
+                        </mods:physicalDescription>
+                        <mods:classification authority="ddc"></mods:classification>
+                        <mods:classification authority="udc"></mods:classification>
+                        <mods:part>
+                            <mods:detail type="volume">
+                                <mods:number>81</mods:number>
+                            </mods:detail>
+                            <mods:date>1941</mods:date>
+                            <mods:text>nekvalitní a poškozená předloha; č. 1 večerní
+                vydání není k dispozici; č. 2 ranní vydání není k
+                dispozici; č. 120 večerní vydání není k dispozici; č.
+                121 ranní vydání není k dispozici; od č. 134 ranní
+                vydání není k dispozici;</mods:text>
+                        </mods:part>
+                        <mods:accessCondition type="restrictionOnAccess"></mods:accessCondition>
+                    </mods:mods>
+                </mods:modsCollection>
