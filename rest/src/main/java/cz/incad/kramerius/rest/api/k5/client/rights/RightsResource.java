@@ -27,10 +27,8 @@ import javax.ws.rs.core.Response;
 public class RightsResource {
 
 	@GET
-	@Path("")
     @Produces(MediaType.APPLICATION_JSON)
 	public Response repository(@QueryParam("read") String read) {
-		
 		return null;
 	}
 	
