@@ -42,6 +42,7 @@ import cz.incad.kramerius.rest.api.k5.client.item.display.ZoomifyDisplayType;
 import cz.incad.kramerius.rest.api.k5.client.item.metadata.DefaultMetadataImpl;
 import cz.incad.kramerius.rest.api.k5.client.item.metadata.Metadata;
 import cz.incad.kramerius.rest.api.k5.client.item.metadata.MetadataAggregate;
+import cz.incad.kramerius.rest.api.k5.client.user.UsersResource;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.VirtualCollectionResource;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
@@ -65,6 +66,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(ItemResource.class);
         bind(FeederResource.class);
         bind(VirtualCollectionResource.class);
+        bind(UsersResource.class);
         
         //decorators
         decs();
