@@ -149,7 +149,12 @@ public class SolrUtils   {
 
     public static InputStream getSolrDataInternal(String query, String format) throws IOException, ParserConfigurationException, SAXException {
         String solrHost = KConfiguration.getInstance().getSolrHost();
-        String uri = solrHost +"/select/?" +query+"&wt="+format;
+        String uri = solrHost +"/select/?" +query;
+        if (!uri.endsWith("&")) {
+            uri = uri + "&wt="+format;
+        } else {
+        	uri = uri+"wt="+format;
+        }
         InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
         return inputStream;
     }
