@@ -110,16 +110,20 @@ public class AuthFilter extends K4GuiceFilter{
                         HttpServletRequest authenticated = BasicAuthenticatedHTTPServletProxy.newInstance(request, principal);
                         arg2.doFilter(authenticated, response);
                     } else {
-                        sendError(response);
+                    	arg2.doFilter(request, response);
+//                    	sendError(response);
                     }
                 } else {
-                    sendError(response);
+                	arg2.doFilter(request, response);
+//                    sendError(response);
                 }
             } else {
-                sendError(response);
+            	arg2.doFilter(request, response);
+//                sendError(response);
             }
         } else {
-            sendError(response);
+        	arg2.doFilter(request, response);
+//            sendError(response);
         }
     }
 
