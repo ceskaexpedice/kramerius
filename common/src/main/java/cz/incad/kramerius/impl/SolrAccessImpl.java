@@ -136,4 +136,17 @@ public class SolrAccessImpl implements SolrAccess {
 			throw new IOException(e);
 		}
     }
+
+    
+    public InputStream request(String req, String type) throws IOException {
+		try {
+			return SolrUtils.getSolrDataInternal(req, type);
+		} catch (ParserConfigurationException e) {
+			throw new IOException(e);
+		} catch (SAXException e) {
+			throw new IOException(e);
+		}
+    }
+
+
 }
