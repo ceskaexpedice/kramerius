@@ -24,6 +24,9 @@ import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
 import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.Decorator;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.item.context.DefaultTreeRenderer;
@@ -42,6 +45,7 @@ import cz.incad.kramerius.rest.api.k5.client.item.display.ZoomifyDisplayType;
 import cz.incad.kramerius.rest.api.k5.client.item.metadata.DefaultMetadataImpl;
 import cz.incad.kramerius.rest.api.k5.client.item.metadata.Metadata;
 import cz.incad.kramerius.rest.api.k5.client.item.metadata.MetadataAggregate;
+import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 import cz.incad.kramerius.rest.api.k5.client.user.UsersResource;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.VirtualCollectionResource;
 import cz.incad.kramerius.rest.api.processes.LRResource;
@@ -67,6 +71,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(FeederResource.class);
         bind(VirtualCollectionResource.class);
         bind(UsersResource.class);
+        bind(SearchResource.class);
         
         //decorators
         decs();
@@ -97,6 +102,12 @@ public class ApiServletModule extends JerseyServletModule {
 		decs.addBinding().to(SmallImageDecorate.class);
 		decs.addBinding().to(HandleDecorate.class);
 		decs.addBinding().to(SolrTitleDecorate.class);
+
+		decs.addBinding().to(SolrDateDecorate.class);
+		decs.addBinding().to(SolrISSNDecorate.class);
+		decs.addBinding().to(SolrLanguageDecorate.class);
+
+		
     }
 
 	//TODO: remove
