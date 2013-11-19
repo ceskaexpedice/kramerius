@@ -53,6 +53,7 @@ public class SearchResource {
 			Set<String> keys = queryParameters.keySet();
 			for (String k : keys) {
 				builder.append(k+"="+queryParameters.getFirst(k));
+				builder.append("&");
 			}		
 			InputStream istream = this.solrAccess.request(builder.toString(), "json");
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
