@@ -1,5 +1,6 @@
 package cz.incad.kramerius.rest.api.k5.client.item;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -55,6 +56,7 @@ import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -291,14 +293,23 @@ public class ItemResource {
 		}
     }
 
+	
 
 	@GET
-	@Path("{pid}/details")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response details(@PathParam("pid")String pid) {
-		return Response.ok().entity(details(pid).toString()).build();
-    }
-
+	@Path("{pid}/thumb")
+    @Produces("image/png")
+    public Response thumb(@PathParam("pid")String pid) {
+		try {
+			InputStream is = fedoraAccess.getDataStream(pid, FedoraUtils.IMG_THUMB_STREAM);
+			String mimeType = fedoraAccess.getMimeTypeForStream(pid, FedoraUtils.IMG_THUMB_STREAM);
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			IOUtils.copyStreams(is, bos);
+			return Response.ok(bos.toByteArray()).type(mimeType).build();
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
+    		throw new PIDNotFound("pid not found '"+pid+"'");
+		} 
+	}
 	
 	
 	@GET

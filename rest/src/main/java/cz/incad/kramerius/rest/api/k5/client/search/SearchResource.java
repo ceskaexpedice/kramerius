@@ -21,7 +21,7 @@ import javax.ws.rs.Path;
 @Path("/k5/search")
 public class SearchResource {
 
-	
+
 	
 	
 }
