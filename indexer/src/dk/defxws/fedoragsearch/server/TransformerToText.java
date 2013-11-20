@@ -8,15 +8,6 @@
 package dk.defxws.fedoragsearch.server;
 
 import cz.incad.kramerius.utils.UnicodeUtil;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.xml.transform.stream.StreamSource;
-
 import org.apache.lucene.demo.html.HTMLParser;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.encryption.DocumentEncryption;
@@ -25,6 +16,14 @@ import org.apache.pdfbox.exceptions.InvalidPasswordException;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
+
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * performs transformations from formatted documents to text
@@ -189,7 +188,7 @@ public class TransformerToText {
         String password = "";
         // extract PDF document's textual content
         try {
-            PDFTextStripper stripper = new PDFTextStripper();
+            PDFTextStripper stripper = new PDFTextStripper("UTF-8");
             int page = Integer.parseInt(pageNum);
             if(page!=-1){
                 stripper.setStartPage(page);
@@ -244,7 +243,7 @@ public class TransformerToText {
 
         // extract PDF document's textual content
         try {
-            PDFTextStripper stripper = new PDFTextStripper();
+            PDFTextStripper stripper = new PDFTextStripper("UTF-8");
             int page = Integer.parseInt(pageNum);
             if(page!=-1){
                 stripper.setStartPage(page);

@@ -5,20 +5,20 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
+import cz.incad.kramerius.utils.UTFSort;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.UTFSort;
-import dk.defxws.fedoragsearch.server.*;
+import dk.defxws.fedoragsearch.server.TransformerToText;
+import org.fedora.api.FedoraAPIA;
+import org.fedora.api.MIMETypedStream;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.fedora.api.FedoraAPIA;
-import org.fedora.api.MIMETypedStream;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 public class FedoraOperations {
 
