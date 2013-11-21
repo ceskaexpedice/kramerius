@@ -1,24 +1,15 @@
 package cz.incad.Kramerius.views;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-
-import org.apache.commons.collections.map.HashedMap;
-
 import cz.incad.kramerius.processes.LRDefinitionAction;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.*;
+import java.util.logging.Level;
 
 public class ProcessLogsViewObject {
 
@@ -70,7 +61,7 @@ public class ProcessLogsViewObject {
             errorProcessRAFile = this.process.getErrorProcessRAFile();
             return  errorProcessRAFile.length();
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+            LOGGER.log(Level.FINE,ex.getMessage(),ex);
             return 0;
         } finally {
             if (errorProcessRAFile !=  null) errorProcessRAFile.close();
@@ -83,7 +74,7 @@ public class ProcessLogsViewObject {
             stdProcessRAFile = this.process.getStandardProcessRAFile();
             return  stdProcessRAFile.length();
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+            LOGGER.log(Level.FINE,ex.getMessage(),ex);
             return 0;
         } finally {
             if (stdProcessRAFile !=  null) stdProcessRAFile.close();
@@ -96,14 +87,14 @@ public class ProcessLogsViewObject {
 	        raf = this.process.getErrorProcessRAFile();
 		    return  bufferFromRAF(raf, this.errFrom);
 		} catch (FileNotFoundException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			LOGGER.log(Level.FINE, e.getMessage(), e);
 		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			LOGGER.log(Level.FINE, e.getMessage(), e);
 		} finally {
 		    try {
                 if (raf != null) raf.close();
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                LOGGER.log(Level.FINE, e.getMessage(), e);
             }
 		}
 		return "";
@@ -117,9 +108,9 @@ public class ProcessLogsViewObject {
             raf = this.process.getStandardProcessRAFile();
             return  bufferFromRAF(raf, this.stdFrom);
 		} catch (FileNotFoundException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			LOGGER.log(Level.FINE, e.getMessage(), e);
 		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			LOGGER.log(Level.FINE, e.getMessage(), e);
 		}
 		return "";
 	}
