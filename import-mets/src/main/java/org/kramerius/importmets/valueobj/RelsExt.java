@@ -2,6 +2,7 @@ package org.kramerius.importmets.valueobj;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 
 /**
@@ -65,6 +66,23 @@ public class RelsExt {
         relations.add(new Relation(key, id, literal));
     }
 
+    public void insertPage( String id) {
+        if (id == null || "".equals(id))
+            return;
+        ListIterator<Relation> it = relations.listIterator();
+        while(it.hasNext()){
+            String k = it.next().getKey();
+            if (HAS_MODEL.equals(k)||ITEM_ID.equals(k)){
+                continue;
+            }
+            if(!HAS_PAGE.equals(k)){
+                it.previous();
+                break;
+            }
+        }
+        it.add(new Relation(RelsExt.HAS_PAGE, id, false));
+    }
+
     public List<Relation> getRelations() {
         return relations;
     }
@@ -100,6 +118,24 @@ public class RelsExt {
             return literal;
         }
 
+        @Override
+        public String toString() {
+            return "Relation{" +
+                    "key='" + key + '\'' +
+                    ", id='" + id + '\'' +
+                    ", literal=" + literal +
+                    "}\n";
+        }
     }
+
+    @Override
+    public String toString() {
+        return "RelsExt{" +
+                "pid='" + pid + '\'' +
+                ", relations=" + relations +
+                '}';
+    }
+
+
 
 }

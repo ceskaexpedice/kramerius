@@ -1,16 +1,6 @@
 package org.kramerius.importmets.convertor;
 
-import java.io.File;
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
-import javax.xml.bind.Unmarshaller;
-
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.log4j.Logger;
 import org.kramerius.alto.Alto;
 import org.kramerius.alto.Alto.Layout.Page;
@@ -20,34 +10,28 @@ import org.kramerius.alto.TextBlockType;
 import org.kramerius.alto.TextBlockType.TextLine;
 import org.kramerius.dc.ElementType;
 import org.kramerius.dc.OaiDcType;
-import org.kramerius.importmets.valueobj.ConvertorConfig;
-import org.kramerius.importmets.valueobj.Foxml;
-import org.kramerius.importmets.valueobj.FileDescriptor;
-import org.kramerius.importmets.valueobj.RelsExt;
-import org.kramerius.importmets.valueobj.ServiceException;
-import org.kramerius.importmets.valueobj.StreamFileType;
-import org.kramerius.mets.AreaType;
-import org.kramerius.mets.DivType;
+import org.kramerius.importmets.valueobj.*;
+import org.kramerius.mets.*;
 import org.kramerius.mets.DivType.Fptr;
-import org.kramerius.mets.FileType;
 import org.kramerius.mets.FileType.FLocat;
-import org.kramerius.mets.MdSecType;
-import org.kramerius.mets.Mets;
 import org.kramerius.mets.MetsType.FileSec;
 import org.kramerius.mets.MetsType.FileSec.FileGrp;
 import org.kramerius.mets.MetsType.StructLink;
 import org.kramerius.mets.StructLinkType.SmLink;
-import org.kramerius.mets.StructMapType;
-import org.kramerius.mods.DetailDefinition;
-import org.kramerius.mods.ModsCollectionDefinition;
-import org.kramerius.mods.ModsDefinition;
-import org.kramerius.mods.PartDefinition;
-import org.kramerius.mods.XsString;
+import org.kramerius.mods.*;
 import org.kramerius.srwdc.DcCollectionType;
 import org.kramerius.srwdc.SrwDcType;
 import org.w3c.dom.Element;
 
-import cz.incad.kramerius.utils.conf.KConfiguration;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.UnmarshalException;
+import javax.xml.bind.Unmarshaller;
+import java.io.File;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Konvertor periodika do sady foxml digitalnich objektu
@@ -454,6 +438,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
     }
 
     protected void processStructLink(StructLink structLink){
+        boolean pagesFirst = KConfiguration.getInstance().getConfiguration().getBoolean("convert.pagesFirst", true);
         for ( Object o: structLink.getSmLinkOrSmLinkGrp()){
             if (o instanceof SmLink){
                 SmLink smLink = (SmLink)o;
@@ -471,7 +456,11 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                     continue;
                 }
                 if (from.startsWith("ISSUE")||from.startsWith("VOLUME")||from.startsWith("SUPPLEMENT")){
-                    part.getRe().addRelation(RelsExt.HAS_PAGE, target.getPid(), false);
+                    if (pagesFirst){
+                        part.getRe().insertPage( target.getPid());
+                    }else{
+                        part.getRe().addRelation(RelsExt.HAS_PAGE, target.getPid(), false);
+                    }
                 }else{
                     part.getRe().addRelation(RelsExt.IS_ON_PAGE, target.getPid(), false);
                 }
