@@ -21,11 +21,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -39,40 +37,84 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
 import cz.incad.kramerius.virtualcollections.VirtualCollection.CollectionDescription;
 import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
+import javax.ws.rs.PathParam;
 
 @Path("/k5/vc")
 public class VirtualCollectionResource {
-	
-	public static final Logger LOGGER = Logger.getLogger(VirtualCollectionResource.class.getName());
 
-	@Inject
-	VirtualCollectionsManager manager;
-	
-	@Inject
-	@Named("securedFedoraAccess")
-	FedoraAccess fedoraAccess;
-	
-	
-	@GET
-    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response list(@QueryParam("lang") List<String> langs) {
-		try {
-			ArrayList<String> ll = new ArrayList<String>();
-			if (langs != null) ll.addAll(langs);
-			JSONArray jsonArray = new JSONArray();
-			List<VirtualCollection> vcs = manager.getVirtualCollections(this.fedoraAccess, ll);
-			for (VirtualCollection vc : vcs) {
-				JSONObject jsonObj = new JSONObject();
-				jsonObj.put("label", vc.getLabel());
-				jsonObj.put("pid", vc.getPid());
-				jsonArray.add(vc);
-			}
-			return Response.ok().entity(jsonArray.toString()).build();
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(),e);
-			return Response.ok().entity("{}").build();
-		}
-		
-	}
-	
+    public static final Logger LOGGER = Logger.getLogger(VirtualCollectionResource.class.getName());
+
+    @Inject
+    VirtualCollectionsManager manager;
+
+    @Inject
+    @Named("securedFedoraAccess")
+    FedoraAccess fedoraAccess;
+
+    @GET
+    @Path("{language}")
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    public Response list(@PathParam("language")String language) {
+        try {
+            ArrayList<String> langs = new ArrayList<String>();
+            langs.add(language);
+            JSONArray jsonArray = new JSONArray();
+            List<VirtualCollection> vcs = manager.getVirtualCollections(this.fedoraAccess, langs);
+            for (VirtualCollection vc : vcs) {
+                JSONObject jsonObj = new JSONObject();
+                String label = vc.getLabel();
+                jsonObj.put("label", vc.getLabel());
+                jsonObj.put("pid", vc.getPid());
+
+                List<CollectionDescription> descs = vc.getDescriptions();
+                if (!descs.isEmpty()) {
+                    //JSONArray descArr = new JSONArray();
+                    for (CollectionDescription cdesc : descs) {
+                        jsonObj.put(cdesc.getLang(), cdesc.getText());
+                    }
+                }
+                jsonArray.add(jsonObj);
+
+            }
+            return Response.ok().entity(jsonArray.toString()).build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.ok().entity("{}").build();
+        }
+
+    }
+    
+    @GET
+    @Path("{pid}/{language}")
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    public Response select(@PathParam("pid")String pid, @PathParam("language")String language) {
+        try {
+            ArrayList<String> langs = new ArrayList<String>();
+            langs.add(language);
+            JSONArray jsonArray = new JSONArray();
+            VirtualCollection vc = manager.getVirtualCollection(this.fedoraAccess, pid, langs);
+            
+                JSONObject jsonObj = new JSONObject();
+                String label = vc.getLabel();
+                jsonObj.put("label", vc.getLabel());
+                jsonObj.put("pid", vc.getPid());
+
+                List<CollectionDescription> descs = vc.getDescriptions();
+                if (!descs.isEmpty()) {
+                    //JSONArray descArr = new JSONArray();
+                    for (CollectionDescription cdesc : descs) {
+                        jsonObj.put(cdesc.getLang(), cdesc.getText());
+                    }
+                }
+                jsonArray.add(jsonObj);
+
+            
+            return Response.ok().entity(jsonArray.toString()).build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.ok().entity("{}").build();
+        }
+
+    }
+
 }

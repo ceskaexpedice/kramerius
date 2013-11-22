@@ -219,7 +219,7 @@ public class VirtualCollectionsManager {
         }
     }
 
-    public static List<VirtualCollection> getVirtualCollections(FedoraAccess fedoraAccess, ArrayList<String> langs) throws Exception {
+    public static List<VirtualCollection> getVirtualCollections(FedoraAccess fedoraAccess, ArrayList<String> languages) throws Exception {
         try {
             IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
             Document doc = g.getVirtualCollections();
@@ -230,6 +230,20 @@ public class VirtualCollectionsManager {
             String name;
             String pid;
             boolean canLeave;
+            
+            
+            ArrayList<String> langs = new ArrayList<String>();
+            
+            if(languages == null || languages.isEmpty()){
+                String[] ls = KConfiguration.getInstance().getPropertyList("interface.languages");
+                for (int i = 0; i < ls.length; i++) {
+                            String lang = ls[++i];
+                    langs.add(lang);
+                }
+            }else{
+                langs = new ArrayList<String>(languages);
+            }
+            
             List<VirtualCollection> vcs = new ArrayList<VirtualCollection>();
             for (int i = 0; i < nodes.getLength(); i++) {
                 canLeave = false;
@@ -356,7 +370,7 @@ public class VirtualCollectionsManager {
         for (String pid : pids) {
             String fedoraPid = pid.startsWith("info:fedora/") ? pid : "info:fedora/" + pid;
             fedoraAccess.getAPIM().purgeRelationship(fedoraPid, predicate, fedoraColl, false, null);
-            logger.log(Level.INFO, pid + " removed from collection " + collection);
+            logger.log(Level.INFO, "{0} removed from collection {1}", new Object[]{pid, collection});
         }
     }
 
@@ -376,10 +390,10 @@ public class VirtualCollectionsManager {
         String url = k4url + "?action=TEXT&content=" + URLEncoder.encode(ds, "UTF8");
         if (!fedoraAccess.isStreamAvailable(pid, dsName)) {
             fedoraAccess.getAPIM().addDatastream(pid, dsName, null, "Description " + lang, false, "text/plain", null, url, "M", "A", "DISABLED", null, "Add text description");
-            System.out.println("Datastream added");
+            logger.log(Level.INFO, "Datastream added");
         } else {
             fedoraAccess.getAPIM().modifyDatastreamByReference(pid, dsName, null, "Description " + lang, "text/plain", null, url, "DISABLED", null, "Change text description", true);
-
+            logger.log(Level.INFO, "Datastream modified");
         }
     }
 

@@ -79,4 +79,6 @@ public interface SolrAccess {
     
     public InputStream request(String req, String type) throws IOException;
     
+    public InputStream terms(String req, String type) throws IOException;
+    
 }

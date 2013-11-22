@@ -35,34 +35,60 @@ import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.utils.IOUtils;
+import java.net.URLEncoder;
 import net.sf.json.JSONObject;
 
-@Path("/k5/solr")
+@Path("/k5/search")
 public class SearchResource {
 
+    @Inject
+    SolrAccess solrAccess;
 
-	@Inject
-	SolrAccess solrAccess;
+    @GET
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    public Response select(@Context UriInfo uriInfo) {
+        try {
+            MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+            StringBuilder builder = new StringBuilder();
+            Set<String> keys = queryParameters.keySet();
+            for (String k : keys) {
+                for (String v : queryParameters.get(k)) {
+                    builder.append(k + "=" + URLEncoder.encode(v, "UTF-8"));
+                    builder.append("&");
+                }
+            }
+            InputStream istream = this.solrAccess.request(builder.toString(), "json");
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(istream, bos);
 
-	@GET
-    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-	public Response select(@Context UriInfo uriInfo) {
-		try {
-			MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-			StringBuilder builder = new StringBuilder();
-			Set<String> keys = queryParameters.keySet();
-			for (String k : keys) {
-				builder.append(k+"="+queryParameters.getFirst(k));
-				builder.append("&");
-			}		
-			InputStream istream = this.solrAccess.request(builder.toString(), "json");
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			IOUtils.copyStreams(istream, bos);
-			
-			return Response.ok().entity(bos.toByteArray()).build();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-		
+            return Response.ok().entity(bos.toByteArray()).build();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GET
+    @Path("terms")
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    public Response terms(@Context UriInfo uriInfo) {
+        try {
+            MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+            StringBuilder builder = new StringBuilder();
+            Set<String> keys = queryParameters.keySet();
+            for (String k : keys) {
+                for (String v : queryParameters.get(k)) {
+                    builder.append(k + "=" + URLEncoder.encode(v, "UTF-8"));
+                    builder.append("&");
+                }
+            }
+            InputStream istream = this.solrAccess.terms(builder.toString(), "json");
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(istream, bos);
+
+            return Response.ok().entity(bos.toByteArray()).build();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
