@@ -3,6 +3,8 @@ package cz.incad.kramerius.rest.api.k5.client.item;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -294,18 +296,37 @@ public class ItemResource {
     }
 
 	
+	@GET
+	@Path("{pid}/full")
+    public Response full(@PathParam("pid")String pid) {
+		try {
+			URI uri = new URI("../../img?pid="+pid+"&stream=IMG_FULL&action=GETRAW");
+			return Response.temporaryRedirect(uri).build();
+		} catch (URISyntaxException e) {
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
+    		throw new PIDNotFound("pid not found '"+pid+"'");
+		} 
+	}
+
+	@GET
+	@Path("{pid}/preview")
+    public Response preview(@PathParam("pid")String pid) {
+		try {
+			URI uri = new URI("../../img?pid="+pid+"&stream=IMG_PREVIEW&action=GETRAW");
+			return Response.temporaryRedirect(uri).build();
+		} catch (URISyntaxException e) {
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
+    		throw new PIDNotFound("pid not found '"+pid+"'");
+		} 
+	}
 
 	@GET
 	@Path("{pid}/thumb")
-    @Produces("image/png")
     public Response thumb(@PathParam("pid")String pid) {
 		try {
-			InputStream is = fedoraAccess.getDataStream(pid, FedoraUtils.IMG_THUMB_STREAM);
-			String mimeType = fedoraAccess.getMimeTypeForStream(pid, FedoraUtils.IMG_THUMB_STREAM);
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			IOUtils.copyStreams(is, bos);
-			return Response.ok(bos.toByteArray()).type(mimeType).build();
-		} catch (IOException e) {
+			URI uri = new URI("../../img?pid="+pid+"&stream=IMG_THUMB&action=GETRAW");
+			return Response.temporaryRedirect(uri).build();
+		} catch (URISyntaxException e) {
 			LOGGER.log(Level.SEVERE,e.getMessage(),e);
     		throw new PIDNotFound("pid not found '"+pid+"'");
 		} 
