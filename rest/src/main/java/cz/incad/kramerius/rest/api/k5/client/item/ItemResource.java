@@ -89,6 +89,7 @@ public class ItemResource {
 	@Inject
 	DecoratorsAggregate decoratorsAggregate;
 
+	
 	@GET
 	@Path("{pid}/mods")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
@@ -298,9 +299,10 @@ public class ItemResource {
 	
 	@GET
 	@Path("{pid}/full")
-    public Response full(@PathParam("pid")String pid) {
+	public Response full(@PathParam("pid")String pid) {
 		try {
-			URI uri = new URI("../../img?pid="+pid+"&stream=IMG_FULL&action=GETRAW");
+			String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_FULL&action=GETRAW";
+			URI uri = new URI(suri);
 			return Response.temporaryRedirect(uri).build();
 		} catch (URISyntaxException e) {
 			LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -312,7 +314,8 @@ public class ItemResource {
 	@Path("{pid}/preview")
     public Response preview(@PathParam("pid")String pid) {
 		try {
-			URI uri = new URI("../../img?pid="+pid+"&stream=IMG_PREVIEW&action=GETRAW");
+			String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_PREVIEW&action=GETRAW";
+			URI uri = new URI(suri);
 			return Response.temporaryRedirect(uri).build();
 		} catch (URISyntaxException e) {
 			LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -324,7 +327,8 @@ public class ItemResource {
 	@Path("{pid}/thumb")
     public Response thumb(@PathParam("pid")String pid) {
 		try {
-			URI uri = new URI("../../img?pid="+pid+"&stream=IMG_THUMB&action=GETRAW");
+			String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_THUMB&action=GETRAW";
+			URI uri = new URI(suri);
 			return Response.temporaryRedirect(uri).build();
 		} catch (URISyntaxException e) {
 			LOGGER.log(Level.SEVERE,e.getMessage(),e);
