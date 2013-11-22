@@ -23,6 +23,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
+import cz.incad.kramerius.rest.api.k5.client.authentication.AuthenticationResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
@@ -72,6 +73,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(VirtualCollectionResource.class);
         bind(UsersResource.class);
         bind(SearchResource.class);
+        bind(AuthenticationResource.class);
         
         //decorators
         decs();
