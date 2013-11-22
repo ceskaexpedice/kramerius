@@ -1,33 +1,23 @@
 package cz.knav.pdf;
 
-import java.awt.Color;
-import java.io.ByteArrayOutputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.xml.transform.TransformerException;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
-import com.lowagie.text.Image;
 import com.lowagie.text.Phrase;
-import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.ColumnText;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfWriter;
-
 import cz.incad.kramerius.pdf.impl.AbstractPDFRenderSupport.ScaledImageOptions;
-import cz.incad.kramerius.utils.XMLUtils;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -140,9 +130,13 @@ public class PdfTextUnderImage {
 				r = textStyle.getAttribute(s);
 			}
 		}
-		if (r == null) {
-			throwPdfTextUnderImageException();
-		}
+        if (r == null) {
+            if (isSP(element)) {
+                r = "Arial";
+            } else {
+                throwPdfTextUnderImageException();
+            }
+        }
 		return r;
 	}
 
@@ -157,9 +151,13 @@ public class PdfTextUnderImage {
 				r = new Float(pxOrPtOr(textStyle.getAttribute(s), true));
 			}
 		}
-		if (r == null) {
-			throwPdfTextUnderImageException();
-		}
+        if (r == null) {
+            if (isSP(element)) {
+                r = 10f;
+            } else {
+                throwPdfTextUnderImageException();
+            }
+        }
 		
 		if (options.getScaleFactor() != 1.0) {
 			r = r * options.getScaleFactor();
