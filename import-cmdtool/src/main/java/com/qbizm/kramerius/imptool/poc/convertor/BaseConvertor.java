@@ -754,7 +754,12 @@ public abstract class BaseConvertor {
                     FileUtils.writeByteArrayToFile(target, binaryContent);
 
                     ContentLocationType cl = new ContentLocationType();
-                    cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                    String externalPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.externalStreamsUrlPrefix");
+                    if (externalPrefix!= null&& !"".equals(externalPrefix)){
+                        cl.setREF(externalPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+"/img/"+filename.substring(0, filename.lastIndexOf('.'))+".jpg"));
+                    }else{
+                        cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                    }
                     cl.setTYPE("URL");
                     version.setContentLocation(cl);
                 }
@@ -1370,10 +1375,11 @@ public abstract class BaseConvertor {
         return PID_PREFIX + uuid;
     }
 
-    private String fixWindowsFileURL(String url){
+    private static String fixWindowsFileURL(String url){
         if(url == null){
             return null;
         }
+        url = url.replace("\\","/");
         if (url.startsWith("/")){
             return url;
         }else{
@@ -1386,5 +1392,7 @@ public abstract class BaseConvertor {
             dc.addQualifiedIdentifier("local",localId);
         }
     }
+
+
 
 }
