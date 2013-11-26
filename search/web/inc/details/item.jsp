@@ -156,6 +156,7 @@
         $("#centralContent>div.ui-tabs-panel").css("padding", "3px");
         $("#centralContent>div.ui-tabs-panel").css("height", w);
         resizeSplit();
+        checkThumbsVisibility();
     }
     
     
