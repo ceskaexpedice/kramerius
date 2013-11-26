@@ -19,7 +19,7 @@
 --%>
 
 <c:catch var="searchException">
-    <c:set var="isCollapsed" value="${param.collapsed != 'false'}" scope="request"  />
+    <c:set var="isCollapsed" value="${!isHome && (param.collapsed != 'false')}" scope="request"  />
     <c:set var="filterByType" value="false" scope="request" />
     <c:set var="rowsdefault" value="${searchParams.searchResultsRows}" scope="request" />
     <c:set var="rows" value="${rowsdefault}" scope="request" />
@@ -141,9 +141,12 @@
         <c:param name="fq" value="collection:\"${cols.current.pid}\"" />
     </c:if>
 
+   
+    <c:if test="${isHome}" >
+        <c:set var="rows" value="0" scope="request" />
+    </c:if>
     <c:if test="${param.rows != null}" >
         <c:set var="rows" value="${param.rows}" scope="request" />
-        <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
 
     <c:param name="rows" value="${rows}" />
@@ -166,7 +169,7 @@
     </c:if>
 
     <%-- Hit highlight --%>
-    <c:if test="${param.hl != 'false'}">
+    <c:if test="${!isHome && (param.hl != 'false')}">
     <c:param name="hl" value="true" />
     <c:param name="hl.fl" value="text_ocr" />
     <c:param name="hl.simple.pre" value="<span>" />

@@ -24,7 +24,7 @@
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang=" + lctx.getLocale().getLanguage() + "&country=" + lctx.getLocale().getCountry() + "&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
 %>
-
+<c:set var="isHome" value="true" />
 <%@ include file="inc/searchParams-html.jsp" %>
 <c:set var="title"><fmt:message bundle="${lctx}">application.title</fmt:message></c:set>
 <html>
