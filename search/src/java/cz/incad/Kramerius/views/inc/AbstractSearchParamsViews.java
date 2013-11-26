@@ -96,6 +96,44 @@ public class AbstractSearchParamsViews {
     
         return browseTitle;
     }
+    
+    public String getEscapedIssn(){
+        return getEscapedParameter("issn");
+    }
+    
+    public String getEscapedTitle(){
+        return getEscapedParameter("title");
+    }
+    
+    public String getEscapedAuthor(){
+        return getEscapedParameter("author");
+    }
+    
+    public String getEscapedRok(){
+        return getEscapedParameter("rok");
+    }
+    
+    public String getEscapedUdc(){
+        return getEscapedParameter("udc");
+    }
+    
+    public String getEscapedDdc(){
+        return getEscapedParameter("ddc");
+    }
+    
+    public String getEscapedKeywords(){
+        return getEscapedParameter("keywords");
+    }
+        
+    public String getEscapedParameter(String param){
+        HttpServletRequest request = this.requestProvider.get();
+        String escaped_q = request.getParameter(param);
+        escaped_q = escaped_q.replaceAll(" ", "+");
+        // * is not escaped, as we want wildcard search
+        String escapeChars ="[\\\\+\\-\\!\\(\\)\\:\\^\\]\\{\\}\\~\\?]";
+        escaped_q = escaped_q.replaceAll(escapeChars, "\\\\$0");
+        return escaped_q;
+    }
     public String getEscapedQuery(){
         HttpServletRequest request = this.requestProvider.get();
         String escaped_q = request.getParameter("q");

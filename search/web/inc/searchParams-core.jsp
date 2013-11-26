@@ -96,37 +96,37 @@
     <c:set var="fieldedSearch" value="false" scope="request" />
     <%-- advanced params --%>
     <c:if test="${!empty param.issn}">
-        <c:param name="fq" value="issn:${param.issn} OR dc.identifier:${param.issn}" />
+        <c:param name="fq" value="issn:${searchParams.escapedIssn} OR dc.identifier:${searchParams.escapedIssn}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.title}">
-        <c:param name="fq" value="dc.title:${param.title}" />
+        <c:param name="fq" value="dc.title:${searchParams.escapedTitle}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.author}">
-        <c:param name="fq" value="dc.creator:${param.author}" />
+        <c:param name="fq" value="dc.creator:${searchParams.escapedAuthor}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.rok}">
-        <c:param name="fq" value="rok:${param.rok}" />
+        <c:param name="fq" value="rok:${searchParams.escapedRok}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.udc}">
-        <c:param name="fq" value="mdt:${param.udc}" />
+        <c:param name="fq" value="mdt:${searchParams.escapedUdc}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.ddc}">
-        <c:param name="fq" value="ddt:${param.ddc}" />
+        <c:param name="fq" value="ddt:${searchParams.escapedDdc}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.keywords}">
-        <c:param name="fq" value="keywords:${param.keywords}" />
+        <c:param name="fq" value="keywords:${searchParams.escapedKeywords}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>

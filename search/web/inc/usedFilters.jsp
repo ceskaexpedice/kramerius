@@ -71,7 +71,7 @@
             <%-- advanced params --%>
             <c:if test="${!empty param.issn}">
                 <li> <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeAdvFilter('issn', '<c:out value="${param.issn}" />');">
-                <fmt:message bundle="${lctx}" key="issn" />: <c:out value="${param.issn}"/></a>
+                <fmt:message bundle="${lctx}" key="filter.query.isbnissn" />: <c:out value="${param.issn}"/></a>
                 </li>
             </c:if>
             <c:if test="${!empty param.title}">
