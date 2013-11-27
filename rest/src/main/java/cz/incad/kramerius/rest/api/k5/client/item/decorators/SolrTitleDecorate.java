@@ -55,9 +55,13 @@ public class SolrTitleDecorate implements Decorator {
 			if (result != null) {
 				Element doc = XMLUtils.findElement(result, "doc");
 				if (doc != null) {
-					String title = SOLRUtils.string(doc, "root_title");
+					String title = SOLRUtils.string(doc, "dc.title");
 					if (title != null) {
 						jsonObject.put("title", title);
+					}
+					String root_title = SOLRUtils.string(doc, "root_title");
+					if (root_title != null) {
+						jsonObject.put("root_title", root_title);
 					}
 				}
 			}
