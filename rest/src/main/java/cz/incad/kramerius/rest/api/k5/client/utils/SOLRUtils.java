@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -24,6 +25,18 @@ import cz.incad.kramerius.utils.XMLUtils;
 
 
 public class SOLRUtils {
+
+
+	public static String string(final Element doc) {
+		List<Element> elms = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+			
+			@Override
+			public boolean acceptElement(Element element) {
+				return element.getNodeName().equals("str");
+			}
+		});
+		return elms.isEmpty() ? null : elms.get(0).getTextContent();
+	}
 
 	public static String string(final Element doc, final String attributeName) {
 		List<Element> elms = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
@@ -35,5 +48,22 @@ public class SOLRUtils {
 		});
 		return elms.isEmpty() ? null : elms.get(0).getTextContent();
 	}
-	
+
+	public static List<String> arr(final Element doc, final String attributeName) {
+		List<String> retVals = new ArrayList<String>();
+		List<Element> items = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+			
+			@Override
+			public boolean acceptElement(Element element) {
+				return (element.getNodeName().equals("arr") && element.hasAttribute("name") && element.getAttribute("name").equals(attributeName));
+			}
+		});
+
+		for (Element it : items) {
+			String str = string(it);
+			if (str != null ) retVals.add(str);
+		}
+		return retVals;
+	}
+
 }
