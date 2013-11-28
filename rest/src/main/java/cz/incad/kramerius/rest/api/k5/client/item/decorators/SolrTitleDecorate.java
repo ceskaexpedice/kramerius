@@ -31,49 +31,79 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.item.Decorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import java.util.ArrayList;
+import net.sf.json.JSONArray;
 
 public class SolrTitleDecorate implements Decorator {
 
-	public static final Logger LOGGER = Logger.getLogger(SolrTitleDecorate.class.getName());
-	
-	public static final String SOLR_TITLE_KEY ="SOLR_TITLE";
-	
-	@Inject
-	SolrAccess solrAccess;
-	
-	@Override
-	public String getKey() {
-		return SOLR_TITLE_KEY;
-	}
+    public static final Logger LOGGER = Logger.getLogger(SolrTitleDecorate.class.getName());
 
-	@Override
-	public void decorate(JSONObject jsonObject) {
-		try {
-			String pid = jsonObject.getString("pid");
-			Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
-			Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
-			if (result != null) {
-				Element doc = XMLUtils.findElement(result, "doc");
-				if (doc != null) {
-					String title = SOLRUtils.string(doc, "dc.title");
-					if (title != null) {
-						jsonObject.put("title", title);
-					}
-					String root_title = SOLRUtils.string(doc, "root_title");
-					if (root_title != null) {
-						jsonObject.put("root_title", root_title);
-					}
-				}
-			}
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(),e);
-		}
-	}
+    public static final String SOLR_TITLE_KEY = "SOLR_TITLE";
 
-	@Override
-	public boolean applyOnContext(String context) {
-		// TODO: jaky kontext dat ??
-		return true;
-	}
+    @Inject
+    SolrAccess solrAccess;
+
+    @Override
+    public String getKey() {
+        return SOLR_TITLE_KEY;
+    }
+
+    @Override
+    public void decorate(JSONObject jsonObject) {
+        try {
+            String pid = jsonObject.getString("pid");
+            Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+            Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
+            if (result != null) {
+                Element doc = XMLUtils.findElement(result, "doc");
+                if (doc != null) {
+                    String title = SOLRUtils.string(doc, "dc.title");
+                    if (title != null) {
+                        jsonObject.put("title", title);
+                    }
+                    String root_title = SOLRUtils.string(doc, "root_title");
+                    if (root_title != null) {
+                        jsonObject.put("root_title", root_title);
+                    }
+                    String root_model = SOLRUtils.string(doc, "root_model");
+                    if (root_model != null) {
+                        jsonObject.put("root_model", root_model);
+                    }
+                    String root_pid = SOLRUtils.string(doc, "root_pid");
+                    if (root_pid != null) {
+                        jsonObject.put("root_pid", root_pid);
+                    }
+                    
+                    ArrayList<String> pid_paths = SOLRUtils.stringArray(doc, "pid_path");
+                    JSONArray ja = new JSONArray();
+                    for (String pid_path : pid_paths) {
+                        ja.add(pid_path);
+                    }
+                    jsonObject.put("pid_path", ja);
+                    
+                    ArrayList<String> model_paths = SOLRUtils.stringArray(doc, "model_path");
+                    JSONArray jaa = new JSONArray();
+                    for (String model_path : model_paths) {
+                        jaa.add(model_path);
+                    }
+                    jsonObject.put("model_path", jaa);
+                    
+                    String viewable = SOLRUtils.bool(doc, "viewable");
+                    if (viewable != null) {
+                        jsonObject.put("viewable", viewable);
+                    }
+
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public boolean applyOnContext(String context) {
+        // TODO: jaky kontext dat ??
+        return true;
+    }
 
 }

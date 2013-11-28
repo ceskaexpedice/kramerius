@@ -65,286 +65,271 @@ import net.sf.json.JSONObject;
 
 @Path("/k5/item")
 public class ItemResource {
-	
-	public static final Logger LOGGER = Logger.getLogger(ItemResource.class.getName());
-	
-	
-	
-	@Inject
-	@Named("securedFedoraAccess")
-	FedoraAccess fedoraAccess;
 
-	@Inject
-	SolrAccess solrAccess;
-	
-	@Inject
-	Provider<HttpServletRequest> requestProvider;
-	
-	@Inject
-	MetadataAggregate metadataAggregate;
-	
-	@Inject
-	DisplayTypeAggregate displayTypeAggregate;
-	
-	@Inject
-	DecoratorsAggregate decoratorsAggregate;
+    public static final Logger LOGGER = Logger.getLogger(ItemResource.class.getName());
 
-	
-	@GET
-	@Path("{pid}/mods")
-    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response modsJSON(@PathParam("pid")String pid) {
-		try {
-			InputStream iStream = fedoraAccess.getDataStream(pid, FedoraUtils.BIBLIO_MODS_STREAM);
-			Document document = XMLUtils.parseDocument(iStream,true);
-			JSONObject retval = new JSONObject();
-			
-			JSONElementTree theTree = JSONUtils.elementTree(document);
-			retval.put(theTree.getKey(), theTree.toJSON(retval));
-			
-			return Response.ok().entity(retval.toString()).build();
-		} catch (IOException e) {
-			e.printStackTrace();
-            return Response.noContent().build();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-            return Response.noContent().build();
-		} catch (SAXException e) {
-			e.printStackTrace();
-            return Response.noContent().build();
-		}
-	}
+    @Inject
+    @Named("securedFedoraAccess")
+    FedoraAccess fedoraAccess;
 
-	@GET
-	@Path("{pid}/mods")
-    @Produces(MediaType.APPLICATION_XML)
-    public Response modsXML(@PathParam("pid")String pid) {
-		try {
-			InputStream iStream = fedoraAccess.getDataStream(pid, FedoraUtils.BIBLIO_MODS_STREAM);
-			String string = IOUtils.readAsString(iStream, Charset.forName("UTF-8"), true);
-			return Response.ok().entity(string).build();
-		} catch (IOException e) {
-			e.printStackTrace();
-            return Response.noContent().build();
-		}
-	}
+    @Inject
+    SolrAccess solrAccess;
 
-	
-	@GET
-	@Path("{pid}/dc")
-    @Produces(MediaType.APPLICATION_XML)
-    public Response dcXML(@PathParam("pid")String pid) {
-		try {
-			InputStream iStream = fedoraAccess.getDataStream(pid, FedoraUtils.DC_STREAM);
-			String string = IOUtils.readAsString(iStream, Charset.forName("UTF-8"), true);
-			return Response.ok().entity(string).build();
-		} catch (IOException e) {
-			e.printStackTrace();
-            return Response.noContent().build();
-		}
-	}
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
 
-	
-	@GET
-	@Path("{pid}/dc")
-    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response dcJSON(@PathParam("pid")String pid) {
-		try {
-			InputStream iStream = fedoraAccess.getDataStream(pid, FedoraUtils.DC_STREAM);
-			Document document = XMLUtils.parseDocument(iStream,true);
-			JSONObject retval = new JSONObject();
-			
-			JSONElementTree theTree = JSONUtils.elementTree(document);
-			retval.put(theTree.getKey(), theTree.toJSON(retval));
-			
-			return Response.ok().entity(retval.toString()).build();
-		} catch (IOException e) {
-			e.printStackTrace();
-            return Response.noContent().build();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-            return Response.noContent().build();
-		} catch (SAXException e) {
-			e.printStackTrace();
-            return Response.noContent().build();
-		}
-	}
+    @Inject
+    MetadataAggregate metadataAggregate;
 
-	
+    @Inject
+    DisplayTypeAggregate displayTypeAggregate;
 
-	@GET
-	@Path("{pid}/children")
-    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response children(@PathParam("pid")String pid) {
-		try {
-			ChildrenNodeProcessor ch = new ChildrenNodeProcessor();	
-			fedoraAccess.processSubtree(pid, ch);
-			List<String> children = ch.getChildren();
-			JSONArray jsonArray = new JSONArray();
-			for (String p : children) {
-				// metadata decorator
-				JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess, "children", this.decoratorsAggregate);
-				jsonArray.add(jsonObject);
-			}
-			return Response.ok().entity(jsonArray.toString()).build();
-		}catch(IOException ex) {
-			ex.printStackTrace();
-            return Response.ok().entity("{}").build();
-		} catch (ProcessSubtreeException e) {
-			e.printStackTrace();
-			return Response.ok().entity("{}").build();
-		}
+    @Inject
+    DecoratorsAggregate decoratorsAggregate;
+
+    @GET
+    @Path("{pid}/mods")
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    public Response modsJSON(@PathParam("pid") String pid) {
+        try {
+            InputStream iStream = fedoraAccess.getDataStream(pid, FedoraUtils.BIBLIO_MODS_STREAM);
+            Document document = XMLUtils.parseDocument(iStream, true);
+            JSONObject retval = new JSONObject();
+
+            JSONElementTree theTree = JSONUtils.elementTree(document);
+            retval.put(theTree.getKey(), theTree.toJSON(retval));
+
+            return Response.ok().entity(retval.toString()).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Response.noContent().build();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+            return Response.noContent().build();
+        } catch (SAXException e) {
+            e.printStackTrace();
+            return Response.noContent().build();
+        }
     }
 
-	@GET
-	@Path("{pid}/siblings")
-    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response siblings(@PathParam("pid")String pid) {
-		try {
-			ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
-			JSONArray sibsList = new JSONArray();
-			for (ObjectPidsPath onePath : paths) {
-				// metadata decorator	
-				sibsList.add(siblings(pid, onePath));
-			}
-			return Response.ok().entity(sibsList.toString()).build();
-		}catch(IOException ex) {
-			ex.printStackTrace();
-            return Response.ok().entity("{}").build();
-		} catch (ProcessSubtreeException e) {
-			e.printStackTrace();
-			return Response.ok().entity("{}").build();
-		}
+    @GET
+    @Path("{pid}/mods")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response modsXML(@PathParam("pid") String pid) {
+        try {
+            InputStream iStream = fedoraAccess.getDataStream(pid, FedoraUtils.BIBLIO_MODS_STREAM);
+            String string = IOUtils.readAsString(iStream, Charset.forName("UTF-8"), true);
+            return Response.ok().entity(string).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Response.noContent().build();
+        }
     }
 
-	private JSON siblings(String pid, ObjectPidsPath onePath)
-			throws ProcessSubtreeException, IOException {
-		List<String> children = new ArrayList<String>();
-		if (onePath.getLength() >= 2) {
-			String[] pth = onePath.getPathFromRootToLeaf();
-			ChildrenNodeProcessor ch = new ChildrenNodeProcessor();	
-			fedoraAccess.processSubtree(pth[pth.length-2], ch);
-			children = ch.getChildren();
-		} else {
-			children.add(pid);
-		}
-		JSONObject object = new JSONObject();
-		JSONArray pathArray = new JSONArray();
-		for (String p : onePath.getPathFromRootToLeaf()) {
-			JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess, "siblings",this.decoratorsAggregate);
-			pathArray.add(jsonObject);
-		}
-		object.put("path", pathArray);
-		JSONArray jsonArray = new JSONArray();
-		for (String p : children) {
-			JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess,"siblings",this.decoratorsAggregate);
+    @GET
+    @Path("{pid}/dc")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response dcXML(@PathParam("pid") String pid) {
+        try {
+            InputStream iStream = fedoraAccess.getDataStream(pid, FedoraUtils.DC_STREAM);
+            String string = IOUtils.readAsString(iStream, Charset.forName("UTF-8"), true);
+            return Response.ok().entity(string).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Response.noContent().build();
+        }
+    }
+
+    @GET
+    @Path("{pid}/dc")
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    public Response dcJSON(@PathParam("pid") String pid) {
+        try {
+            InputStream iStream = fedoraAccess.getDataStream(pid, FedoraUtils.DC_STREAM);
+            Document document = XMLUtils.parseDocument(iStream, true);
+            JSONObject retval = new JSONObject();
+
+            JSONElementTree theTree = JSONUtils.elementTree(document);
+            retval.put(theTree.getKey(), theTree.toJSON(retval));
+
+            return Response.ok().entity(retval.toString()).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Response.noContent().build();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+            return Response.noContent().build();
+        } catch (SAXException e) {
+            e.printStackTrace();
+            return Response.noContent().build();
+        }
+    }
+
+    @GET
+    @Path("{pid}/children")
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    public Response children(@PathParam("pid") String pid) {
+        try {
+            ChildrenNodeProcessor ch = new ChildrenNodeProcessor();
+            fedoraAccess.processSubtree(pid, ch);
+            List<String> children = ch.getChildren();
+            JSONArray jsonArray = new JSONArray();
+            for (String p : children) {
+                // metadata decorator
+                JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess, "children", this.decoratorsAggregate);
+                jsonArray.add(jsonObject);
+            }
+            return Response.ok().entity(jsonArray.toString()).build();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return Response.ok().entity("{}").build();
+        } catch (ProcessSubtreeException e) {
+            e.printStackTrace();
+            return Response.ok().entity("{}").build();
+        }
+    }
+
+    @GET
+    @Path("{pid}/siblings")
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    public Response siblings(@PathParam("pid") String pid) {
+        try {
+            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            JSONArray sibsList = new JSONArray();
+            for (ObjectPidsPath onePath : paths) {
+                // metadata decorator	
+                sibsList.add(siblings(pid, onePath));
+            }
+            return Response.ok().entity(sibsList.toString()).build();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return Response.ok().entity("{}").build();
+        } catch (ProcessSubtreeException e) {
+            e.printStackTrace();
+            return Response.ok().entity("{}").build();
+        }
+    }
+
+    private JSON siblings(String pid, ObjectPidsPath onePath)
+            throws ProcessSubtreeException, IOException {
+        List<String> children = new ArrayList<String>();
+        if (onePath.getLength() >= 2) {
+            String[] pth = onePath.getPathFromRootToLeaf();
+            ChildrenNodeProcessor ch = new ChildrenNodeProcessor();
+            fedoraAccess.processSubtree(pth[pth.length - 2], ch);
+            children = ch.getChildren();
+        } else {
+            children.add(pid);
+        }
+        JSONObject object = new JSONObject();
+        JSONArray pathArray = new JSONArray();
+        for (String p : onePath.getPathFromRootToLeaf()) {
+            JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess, "siblings", this.decoratorsAggregate);
+            pathArray.add(jsonObject);
+        }
+        object.put("path", pathArray);
+        JSONArray jsonArray = new JSONArray();
+        for (String p : children) {
+            JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess, "siblings", this.decoratorsAggregate);
 //			String str = ApplicationURL.applicationURL(this.requestProvider.get()).toString()+"/img?pid="+p+"&stream=IMG_THUMB&action=GETRAW";
 //			jsonObject.put("url", str);
-			jsonObject.put("selected", p.equals(pid));
-			jsonArray.add(jsonObject);
-		}
-		object.put("siblings", jsonArray);
-		return object;
-	}
+            jsonObject.put("selected", p.equals(pid));
+            jsonArray.add(jsonObject);
+        }
+        object.put("siblings", jsonArray);
+        return object;
+    }
 
-	
-	// TODO 
-	@GET
-	@Path("{pid}/context")
-    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response context(@PathParam("pid")String pid) {
-		try {
-			ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
-			JSONArray jsonArray = new JSONArray();
-			for (ObjectPidsPath ppath : paths) {
-				JSONArray subArr = jsonArr(ppath, "context", decoratorsAggregate);
-				jsonArray.add(subArr);
-			}
-			return Response.ok().entity(jsonArray.toString()).build();
-		}catch(IOException ex) {
+    // TODO 
+    @GET
+    @Path("{pid}/context")
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    public Response context(@PathParam("pid") String pid) {
+        try {
+            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            JSONArray jsonArray = new JSONArray();
+            for (ObjectPidsPath ppath : paths) {
+                JSONArray subArr = jsonArr(ppath, "context", decoratorsAggregate);
+                jsonArray.add(subArr);
+            }
+            return Response.ok().entity(jsonArray.toString()).build();
+        } catch (IOException ex) {
             return Response.ok().entity("{}").build();
-		}
+        }
 
     }
 
+    private JSONArray jsonArr(ObjectPidsPath ppath, String context, DecoratorsAggregate decoratorsAggregate) throws IOException {
+        JSONArray subArray = new JSONArray();
+        String[] pths = ppath.getPathFromRootToLeaf();
+        for (String p : pths) {
+            JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, this.fedoraAccess, context, decoratorsAggregate);
+            // TODO: decorators
+            subArray.add(jsonObject);
+        }
+        return subArray;
+    }
 
-	private JSONArray jsonArr( ObjectPidsPath ppath,String context, DecoratorsAggregate decoratorsAggregate) throws IOException {
-		JSONArray subArray = new JSONArray();
-		String[] pths = ppath.getPathFromRootToLeaf();
-		for (String p : pths) {
-			JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, this.fedoraAccess, context, decoratorsAggregate);
-			// TODO: decorators
-			subArray.add(jsonObject);
-		}
-		return subArray;
-	}
-
-	
-
-
-	
-	@GET
-	@Path("{pid}/display")
+    @GET
+    @Path("{pid}/display")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response display(@PathParam("pid")String pid) {
-		HashMap<String, Object> opts = new HashMap<String, Object>();
-		DisplayType dtype = this.displayTypeAggregate.getDisplayType(pid, opts);
-		if (dtype != null) {
+    public Response display(@PathParam("pid") String pid) {
+        HashMap<String, Object> opts = new HashMap<String, Object>();
+        DisplayType dtype = this.displayTypeAggregate.getDisplayType(pid, opts);
+        if (dtype != null) {
             return Response.ok().entity(dtype.getDisplay(pid, opts).toString()).build();
-		} else {
+        } else {
             return Response.ok().entity("{}").build();
-		}
+        }
     }
 
-	
-	@GET
-	@Path("{pid}/full")
-	public Response full(@PathParam("pid")String pid) {
-		try {
-			String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_FULL&action=GETRAW";
-			URI uri = new URI(suri);
-			return Response.temporaryRedirect(uri).build();
-		} catch (URISyntaxException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-    		throw new PIDNotFound("pid not found '"+pid+"'");
-		} 
-	}
+    @GET
+    @Path("{pid}/full")
+    public Response full(@PathParam("pid") String pid) {
+        try {
+            String suri = ApplicationURL.applicationURL(this.requestProvider.get()) + "/img?pid=" + pid + "&stream=IMG_FULL&action=GETRAW";
+            URI uri = new URI(suri);
+            return Response.temporaryRedirect(uri).build();
+        } catch (URISyntaxException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new PIDNotFound("pid not found '" + pid + "'");
+        }
+    }
 
-	@GET
-	@Path("{pid}/preview")
-    public Response preview(@PathParam("pid")String pid) {
-		try {
-			String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_PREVIEW&action=GETRAW";
-			URI uri = new URI(suri);
-			return Response.temporaryRedirect(uri).build();
-		} catch (URISyntaxException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-    		throw new PIDNotFound("pid not found '"+pid+"'");
-		} 
-	}
+    @GET
+    @Path("{pid}/preview")
+    public Response preview(@PathParam("pid") String pid) {
+        try {
+            String suri = ApplicationURL.applicationURL(this.requestProvider.get()) + "/img?pid=" + pid + "&stream=IMG_PREVIEW&action=GETRAW";
+            URI uri = new URI(suri);
+            return Response.temporaryRedirect(uri).build();
+        } catch (URISyntaxException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new PIDNotFound("pid not found '" + pid + "'");
+        }
+    }
 
-	@GET
-	@Path("{pid}/thumb")
-    public Response thumb(@PathParam("pid")String pid) {
-		try {
-			String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_THUMB&action=GETRAW";
-			URI uri = new URI(suri);
-			return Response.temporaryRedirect(uri).build();
-		} catch (URISyntaxException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-    		throw new PIDNotFound("pid not found '"+pid+"'");
-		} 
-	}
-	
-	
-	@GET
-	@Path("{pid}")
+    @GET
+    @Path("{pid}/thumb")
+    public Response thumb(@PathParam("pid") String pid) {
+        try {
+            String suri = ApplicationURL.applicationURL(this.requestProvider.get()) + "/img?pid=" + pid + "&stream=IMG_THUMB&action=GETRAW";
+            URI uri = new URI(suri);
+            return Response.temporaryRedirect(uri).build();
+        } catch (URISyntaxException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new PIDNotFound("pid not found '" + pid + "'");
+        }
+    }
+
+    @GET
+    @Path("{pid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response basic(@PathParam("pid")String pid) {
-    	try {
-        	if (pid != null) {
-        		JSONObject jsonObject = new JSONObject();	
-        		JSONUtils.pidAndModelDesc(pid, jsonObject, this.fedoraAccess, "", this.decoratorsAggregate);
+    public Response basic(@PathParam("pid") String pid) {
+        try {
+            if (pid != null) {
+                JSONObject jsonObject = new JSONObject();
+                JSONUtils.pidAndModelDesc(pid, jsonObject, this.fedoraAccess, "", this.decoratorsAggregate);
 //        		
 //        		jsonObject.put("tree", UriBuilder.fromPath("{pid}/tree").build(pid).toString());
 //        		jsonObject.put("display", UriBuilder.fromPath("{pid}/display").build(pid).toString());
@@ -366,13 +351,12 @@ public class ItemResource {
 //        		String appURL = ApplicationURL.applicationURL(this.requestProvider.get());
 //        		
                 return Response.ok().entity(jsonObject.toString()).build();
-        	} else {
-        		throw new PIDNotFound("pid not found '"+pid+"'");
-        	}
-    	} catch(IOException e) {
-    		throw new PIDNotFound("pid not found '"+pid+"'");
-		}
+            } else {
+                throw new PIDNotFound("pid not found '" + pid + "'");
+            }
+        } catch (IOException e) {
+            throw new PIDNotFound("pid not found '" + pid + "'");
+        }
     }
 
-	
 }
