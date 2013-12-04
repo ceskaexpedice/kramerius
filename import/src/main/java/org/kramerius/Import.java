@@ -217,12 +217,12 @@ public class Import {
                 log.info("Skipping file " + importFile.getName() + " - not an FOXML object.");
                 return;
             }
-            ingest(importFile, dobj.getPID(), sortRelations);
+            ingest(importFile, dobj.getPID(), sortRelations, roots);
             checkRoot(dobj, roots);
         }
     }
 
-    public static void ingest(InputStream is, String pid, List<String> sortRelations) throws IOException {
+    public static void ingest(InputStream is, String pid, List<String> sortRelations, List<TitlePidTuple> roots) throws IOException {
         
         long start = System.currentTimeMillis();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -239,6 +239,8 @@ public class Import {
                 if (sortRelations != null) {
                     sortRelations.add(pid);
                 }
+                TitlePidTuple npt = new TitlePidTuple("", pid);
+                roots.add(npt);
             } else {
 
                 log.severe("Ingest SOAP fault:" + sfex);
@@ -251,7 +253,7 @@ public class Import {
         log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
 
-    public static void ingest(File file, String pid, List<String> sortRelations) {
+    public static void ingest(File file, String pid, List<String> sortRelations, List<TitlePidTuple> roots) {
         if (pid == null) {
             try {
                 Object obj = unmarshaller.unmarshal(file);
@@ -266,7 +268,7 @@ public class Import {
 
             //System.out.println("Processing:"+file.getAbsolutePath());
             FileInputStream is = new FileInputStream(file);
-            ingest(is, pid, sortRelations);
+            ingest(is, pid, sortRelations, roots);
 
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Ingestion error ", ex);
