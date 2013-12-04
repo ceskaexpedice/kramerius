@@ -117,13 +117,19 @@ public class SortingServiceImpl implements SortingService {
                     if (numeric){
                         try{
                             Integer ordinal = Integer.parseInt(sortingValue);
-                            sortedMap.put(ordinal,pid);
+                            String existing = sortedMap.put(ordinal,pid);
+                            if (existing != null){
+                                failedList.add(existing);
+                            }
                         }catch (Exception ex){
                             failedList.add(pid);
                             LOGGER.info("Cannot sort relation for value:"+sortingValue + " ("+pid+")");
                         }
                     }else{
-                        sortedMap.put(sortingValue,pid);
+                        String existing = sortedMap.put(sortingValue,pid);
+                        if (existing != null){
+                            failedList.add(existing);
+                        }
                     }
                 }
             } catch (IOException e) {
