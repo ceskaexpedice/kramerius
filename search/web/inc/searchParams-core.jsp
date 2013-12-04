@@ -71,17 +71,10 @@
     </c:if>
     
     <c:if test="${isCollapsed}">
-        <%--
-        <c:param name="collapse.field" value="root_pid" />
-        <c:param name="collapse.type" value="normal" />
-        <c:param name="collapse.threshold" value="1" />
-        <c:param name="collapse.facet" value="before" />
-        <c:param name="group.main" value="true" />
-        --%>
         <c:param name="group.field" value="root_pid" />
         <c:param name="group.type" value="normal" />
         <c:param name="group.threshold" value="1" />
-        <c:param name="group.facet" value="true" />
+        <c:param name="group.facet" value="false" />
         <c:param name="group" value="true" />
         <c:param name="group.ngroups" value="true" />
     </c:if>
@@ -116,17 +109,17 @@
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.udc}">
-        <c:param name="fq" value="mdt:${searchParams.escapedUdc}" />
+        <c:param name="fq" value="mdt:\"${param.udc}\"" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.ddc}">
-        <c:param name="fq" value="ddt:${searchParams.escapedDdc}" />
+        <c:param name="fq" value="ddt:\"${param.ddc}\"" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.keywords}">
-        <c:param name="fq" value="keywords:${searchParams.escapedKeywords}" />
+        <c:param name="fq" value="keywords:\"${param.keywords}\"" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
