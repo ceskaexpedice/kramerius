@@ -31,7 +31,7 @@
     <parent>
         <groupId>cz.incad.kramerius</groupId>
         <artifactId>kramerius</artifactId>
-        <version>4.8.0</version>
+        <version>5.0.0-SNAPSHOT</version>
     </parent>
 
 

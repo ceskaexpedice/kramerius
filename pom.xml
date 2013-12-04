@@ -4,7 +4,7 @@
     <groupId>cz.incad.kramerius</groupId>
     <artifactId>kramerius</artifactId>
     <packaging>pom</packaging>
-    <version>4.8.0</version>
+    <version>5.0.0-SNAPSHOT</version>
     <!-- name>kramerius</name-->
 
 
@@ -209,6 +209,7 @@
    <profiles>
    	<profile>
    		<id>wri</id>
+
    		<modules>
 
 	        <module>common</module>
