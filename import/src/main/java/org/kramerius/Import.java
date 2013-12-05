@@ -239,8 +239,10 @@ public class Import {
                 if (sortRelations != null) {
                     sortRelations.add(pid);
                 }
-                TitlePidTuple npt = new TitlePidTuple("", pid);
-                roots.add(npt);
+                if (roots!= null){
+                    TitlePidTuple npt = new TitlePidTuple("", pid);
+                    roots.add(npt);
+                }
             } else {
 
                 log.severe("Ingest SOAP fault:" + sfex);
