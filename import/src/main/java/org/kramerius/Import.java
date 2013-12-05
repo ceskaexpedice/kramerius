@@ -38,9 +38,7 @@ import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -103,8 +101,8 @@ public class Import {
 
         initialize(user, pwd);
 
-        List<TitlePidTuple> roots = new ArrayList<TitlePidTuple>();
-        List<String> sortRelations = new ArrayList<String>();
+        Set<TitlePidTuple> roots = new HashSet<TitlePidTuple>();
+        Set<String> sortRelations = new HashSet<String>();
         if (importFile.isDirectory()) {
             visitAllDirsAndFiles(importFile, roots, sortRelations);
         } else {
@@ -192,7 +190,7 @@ public class Import {
         of = new ObjectFactory();
     }
 
-    private static void visitAllDirsAndFiles(File importFile, List<TitlePidTuple> roots, List<String> sortRelations) {
+    private static void visitAllDirsAndFiles(File importFile, Set<TitlePidTuple> roots, Set<String> sortRelations) {
         if (importFile == null) {
             return;
         }
@@ -222,7 +220,7 @@ public class Import {
         }
     }
 
-    public static void ingest(InputStream is, String pid, List<String> sortRelations, List<TitlePidTuple> roots) throws IOException {
+    public static void ingest(InputStream is, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots) throws IOException {
         
         long start = System.currentTimeMillis();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -235,13 +233,16 @@ public class Import {
             //if (sfex.getMessage().contains("ObjectExistsException")) {
             if (objectExists(pid)) {
                 log.info("Merging with existing object " + pid);
-                merge(bytes);
-                if (sortRelations != null) {
-                    sortRelations.add(pid);
-                }
-                if (roots!= null){
-                    TitlePidTuple npt = new TitlePidTuple("", pid);
-                    roots.add(npt);
+                if (merge(bytes)){
+                    if (sortRelations != null) {
+                        sortRelations.add(pid);
+                        log.info("Added merged object for sorting relations:"+pid);
+                    }
+                    if(roots!= null ){
+                        TitlePidTuple npt = new TitlePidTuple("", pid);
+                        roots.add(npt);
+                        log.info("Added merged object for indexing:"+pid);
+                    }
                 }
             } else {
 
@@ -255,7 +256,7 @@ public class Import {
         log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
 
-    public static void ingest(File file, String pid, List<String> sortRelations, List<TitlePidTuple> roots) {
+    public static void ingest(File file, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots) {
         if (pid == null) {
             try {
                 Object obj = unmarshaller.unmarshal(file);
@@ -267,21 +268,18 @@ public class Import {
         }
 
         try {
-
-            //System.out.println("Processing:"+file.getAbsolutePath());
             FileInputStream is = new FileInputStream(file);
             ingest(is, pid, sortRelations, roots);
-
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Ingestion error ", ex);
             throw new RuntimeException(ex);
         }
     }
 
-    private static void merge(byte[] bytes) {
+    private static boolean merge(byte[] bytes) {
         List<RDFTuple> ingested = readRDF(bytes);
         if (ingested.isEmpty()) {
-            return;
+            return false;
         }
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
         List<RelationshipTuple> existingWS = port.getRelationships(pid, null);
@@ -290,15 +288,18 @@ public class Import {
             existing.add(new RDFTuple(t.getSubject(), t.getPredicate(), t.getObject(), t.isIsLiteral()));
         }
         ingested.removeAll(existing);
+        boolean touched = false;
         for (RDFTuple t : ingested) {
             if (t.object != null) {
                 try {
                     port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, t.literal, null);
+                    touched = true;
                 } catch (Exception ex) {
                     log.severe("WARNING- could not add relationship:" + t + "(" + ex + ")");
                 }
             }
         }
+        return touched;
     }
 
     private static List<RDFTuple> readRDF(byte[] bytes) {
@@ -360,7 +361,7 @@ public class Import {
      * PID to roots list. Objects in the roots list then will be submitted to
      * indexer
      */
-    private static void checkRoot(DigitalObject dobj, List<TitlePidTuple> roots) {
+    private static void checkRoot(DigitalObject dobj, Set<TitlePidTuple> roots) {
         try {
 
             boolean isRootObject = false;
@@ -402,8 +403,10 @@ public class Import {
             }
             if (isRootObject) {
                 TitlePidTuple npt = new TitlePidTuple(title, dobj.getPID());
-                roots.add(npt);
-                log.info("Found object for indexing - " + npt);
+                if(roots!= null){
+                    roots.add(npt);
+                    log.info("Found object for indexing - " + npt);
+                }
             }
 
         } catch (Exception ex) {
@@ -488,6 +491,23 @@ class TitlePidTuple {
 
     public String title;
     public String pid;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TitlePidTuple that = (TitlePidTuple) o;
+
+        if (pid != null ? !pid.equals(that.pid) : that.pid != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return pid != null ? pid.hashCode() : 0;
+    }
 
     public TitlePidTuple(String name, String pid) {
         this.title = name;
