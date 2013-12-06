@@ -74,7 +74,7 @@ public class InputTemplate implements ProcessInputTemplate {
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
         // root ?
-        File homeFolder = new File(configuration.getProperty("migration.directory")).getParentFile();
+        File homeFolder = new File(configuration.getProperty("migration.directory"));
         InputStream iStream = this.getClass().getResourceAsStream("replicationtemplate.st");
         
         TreeItem rootNode = TreeModelUtils.prepareTreeModel(homeFolder,new TreeModelFilter() {
