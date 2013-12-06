@@ -188,7 +188,8 @@ public class LRResource {
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
             // no user
-            throw new SecurityException("access denided");
+            //throw new SecurityException("access denided");
+            throw new ActionNotAllowed("action is not allowed");
         }
 
         SecuredActions actionFromDef = securedAction(def, definition);
@@ -247,7 +248,8 @@ public class LRResource {
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
             // no user
-            throw new SecurityException("access denided");
+            //throw new SecurityException("access denided");
+            throw new ActionNotAllowed("action is not allowed");
         }
 
         SecuredActions actionFromDef = securedAction(def, definition);
@@ -298,7 +300,8 @@ public class LRResource {
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
             // no user
-            throw new SecurityException("access denided");
+            //throw new SecurityException("access denided");
+            throw new ActionNotAllowed("action is not allowed");
         }
 
         SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
@@ -338,7 +341,8 @@ public class LRResource {
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
             // no user
-            throw new SecurityException("access denided");
+            //throw new SecurityException("access denided");
+            throw new ActionNotAllowed("action is not allowed");
         }
 
         SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
@@ -385,7 +389,8 @@ public class LRResource {
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
             // no user
-            throw new SecurityException("access denided");
+            //throw new SecurityException("access denided");
+            throw new ActionNotAllowed("action is not allowed");
         }
 
         SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
@@ -432,7 +437,8 @@ public class LRResource {
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
             // no user
-            throw new SecurityException("access denided");
+            //throw new SecurityException("access denided");
+            throw new ActionNotAllowed("action is not allowed");
         }
 
         SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
@@ -499,7 +505,8 @@ public class LRResource {
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
             // no user
-            throw new SecurityException("access denided");
+            //throw new SecurityException("access denided");
+            throw new ActionNotAllowed("action is not allowed");
         }
 
         boolean permitted = permit(actionAllowed,  user);
@@ -618,7 +625,8 @@ public class LRResource {
         
         if (groupToken() != null) {
             if (lrProcessManager.isAuthTokenClosed(authToken())) {
-                throw new SecurityException("access denided");
+                //throw new SecurityException("access denided");
+                throw new ActionNotAllowed("action is not allowed");
             }
             List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(groupToken());
             if (!processes.isEmpty()) {

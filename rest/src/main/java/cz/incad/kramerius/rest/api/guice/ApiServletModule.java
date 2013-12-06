@@ -23,6 +23,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
+import cz.incad.kramerius.rest.api.k5.admin.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.client.authentication.AuthenticationResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
@@ -30,12 +31,8 @@ import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.Decorator;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
-import cz.incad.kramerius.rest.api.k5.client.item.context.DefaultTreeRenderer;
-import cz.incad.kramerius.rest.api.k5.client.item.context.ItemTreeRender;
-import cz.incad.kramerius.rest.api.k5.client.item.context.TreeAggregate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.HandleDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.RightsDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.SmallImageDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrTitleDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.display.DeepZoomDisplayType;
 import cz.incad.kramerius.rest.api.k5.client.item.display.DisplayType;
@@ -43,7 +40,6 @@ import cz.incad.kramerius.rest.api.k5.client.item.display.DisplayTypeAggregate;
 import cz.incad.kramerius.rest.api.k5.client.item.display.PDFDisplayType;
 import cz.incad.kramerius.rest.api.k5.client.item.display.PlainImageDisplayType;
 import cz.incad.kramerius.rest.api.k5.client.item.display.ZoomifyDisplayType;
-import cz.incad.kramerius.rest.api.k5.client.item.metadata.DefaultMetadataImpl;
 import cz.incad.kramerius.rest.api.k5.client.item.metadata.Metadata;
 import cz.incad.kramerius.rest.api.k5.client.item.metadata.MetadataAggregate;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
@@ -75,6 +71,8 @@ public class ApiServletModule extends JerseyServletModule {
         bind(SearchResource.class);
         bind(AuthenticationResource.class);
         
+        bind(RightsResource.class);
+        
         //decorators
         decs();
         
@@ -85,7 +83,7 @@ public class ApiServletModule extends JerseyServletModule {
         displayTypes();
         
         //trees
-        trees();
+//        trees();
 
         
         // api
@@ -101,7 +99,7 @@ public class ApiServletModule extends JerseyServletModule {
         = Multibinder.newSetBinder(binder(), Decorator.class);
 		
 		decs.addBinding().to(RightsDecorate.class);
-		decs.addBinding().to(SmallImageDecorate.class);
+//		decs.addBinding().to(SmallImageDecorate.class);
 		decs.addBinding().to(HandleDecorate.class);
 		decs.addBinding().to(SolrTitleDecorate.class);
 
@@ -113,15 +111,15 @@ public class ApiServletModule extends JerseyServletModule {
     }
 
 	//TODO: remove
-	private void trees() {
-		Multibinder<ItemTreeRender> tcollectors
-        = Multibinder.newSetBinder(binder(), ItemTreeRender.class);
-		tcollectors.addBinding().to(DefaultTreeRenderer.class);
-
-		// tree aggregator
-		bind(TreeAggregate.class);
-		
-	}
+//	private void trees() {
+//		Multibinder<ItemTreeRender> tcollectors
+//        = Multibinder.newSetBinder(binder(), ItemTreeRender.class);
+//		tcollectors.addBinding().to(DefaultTreeRenderer.class);
+//
+//		// tree aggregator
+//		bind(TreeAggregate.class);
+//		
+//	}
 
 	private void displayTypes() {
 		Multibinder<DisplayType> dcollectors
@@ -139,7 +137,6 @@ public class ApiServletModule extends JerseyServletModule {
 	private void metadata() {
 		Multibinder<Metadata> mcollectors
         = Multibinder.newSetBinder(binder(), Metadata.class);
-        mcollectors.addBinding().to(DefaultMetadataImpl.class);
         // metadata aggregator
         bind(MetadataAggregate.class);
 	}
