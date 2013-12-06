@@ -61,7 +61,7 @@ public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
         // root ?
-        File homeFolder = new File(KConfiguration.getInstance().getProperty("import.directory")).getParentFile();
+        File homeFolder = new File(KConfiguration.getInstance().getProperty("import.directory"));
         InputStream iStream = this.getClass().getResourceAsStream("parametrizedimport.stg");
         
 
