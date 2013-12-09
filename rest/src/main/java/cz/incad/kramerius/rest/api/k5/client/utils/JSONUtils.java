@@ -28,11 +28,26 @@ import cz.incad.kramerius.utils.XMLUtils;
 
 public class JSONUtils {
 
+	public static enum Operations {
+		read, edit, create, delete
+	}
 	
-	public static JSONObject pidAndModelDesc(String pid, JSONObject jsonObject, FedoraAccess fedoraAccess,String callContext, DecoratorsAggregate decoratorsAggregate)
+	public static JSONObject link(JSONObject obj, String key, String link , Operations op) {
+		JSONObject json = new JSONObject();
+		json.put("href", link);
+		json.put("rel", op.name());
+		obj.put(key, json);
+		return obj;
+	}
+	
+	public static JSONObject pidAndModelDesc(String pid, JSONObject jsonObject, FedoraAccess fedoraAccess,String callContext, DecoratorsAggregate decoratorsAggregate, String baseLink)
 			throws IOException {
 		jsonObject.put("pid", pid);
 		jsonObject.put("model", fedoraAccess.getKrameriusModelName(pid));
+		//jsonObject.put("base,", link)
+		if (baseLink != null) {
+			JSONUtils.link(jsonObject, "base", baseLink, JSONUtils.Operations.read);
+		}
 		// apply decorator
 		if (callContext != null && decoratorsAggregate != null) {
 			List<Decorator> ldecs = decoratorsAggregate.getDecorators();
@@ -45,9 +60,9 @@ public class JSONUtils {
 		return jsonObject;
 	}
 
-	public static JSONObject pidAndModelDesc(String pid, FedoraAccess fedoraAccess, String callContext, DecoratorsAggregate decoratorsAggregate)
+	public static JSONObject pidAndModelDesc(String pid, FedoraAccess fedoraAccess, String callContext, DecoratorsAggregate decoratorsAggregate, String baseUrl)
 			throws IOException {
-		return pidAndModelDesc(pid, new JSONObject(),fedoraAccess, callContext, decoratorsAggregate);
+		return pidAndModelDesc(pid, new JSONObject(),fedoraAccess, callContext, decoratorsAggregate, baseUrl);
 	}
 	
 	public static JSONObject miniature(String pid, FedoraAccess fedoraAccess, JSONObject jsonObject) {

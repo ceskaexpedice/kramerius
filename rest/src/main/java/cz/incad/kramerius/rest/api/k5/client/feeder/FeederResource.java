@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,6 +30,9 @@ import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.DecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.users.UserProfile;
+import cz.incad.kramerius.users.UserProfileManager;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.XMLUtils;
 import net.sf.json.JSONArray;
@@ -58,6 +62,14 @@ public class FeederResource {
 	@Inject 
 	SolrAccess solrAccess;
 
+	@Inject
+	Provider<User> userProvider;
+	
+    @Inject
+    UserProfileManager userProfileManager;
+
+	
+	
 	@GET
 	@Path("newest")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
@@ -82,7 +94,8 @@ public class FeederResource {
 				String pid = SOLRUtils.string(doc, "PID");
 				if (pid != null) {
 					try {
-						JSONObject mdis = JSONUtils.pidAndModelDesc(pid, fedoraAccess,"mostdesirable", this.decoratorsAggregate);
+						String uriString = UriBuilder.fromPath("{pid}").build(pid).toString();
+						JSONObject mdis = JSONUtils.pidAndModelDesc(pid, fedoraAccess,"mostdesirable", this.decoratorsAggregate, uriString);
 						jsonArray.add(mdis);
 					}catch(IOException ex) {
 						LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
@@ -108,7 +121,8 @@ public class FeederResource {
 		JSONArray jsonArray = new JSONArray();
 		for (String pid : mostDesirable) {
 			try {
-				JSONObject mdis = JSONUtils.pidAndModelDesc(pid, fedoraAccess,"mostdesirable", this.decoratorsAggregate);
+				String uriString = UriBuilder.fromPath("{pid}").build(pid).toString();
+				JSONObject mdis = JSONUtils.pidAndModelDesc(pid, fedoraAccess,"mostdesirable", this.decoratorsAggregate, uriString);
 				jsonArray.add(mdis);
 			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
