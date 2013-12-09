@@ -8,6 +8,7 @@
 <%@ page isELIgnored="false"%>
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext, cz.incad.kramerius.FedoraAccess"%>
+<%@page import="java.util.Map,java.util.HashMap"%>
 
 <view:kconfig var="policyPublic" key="search.policy.public" defaultValue="false" />
 <%
@@ -20,13 +21,19 @@
             xsl = "not_grouped_results.xsl";
         }
         if (xs.isAvailable(xsl)) {
-            String text = xs.transform(xml, xsl, lctx.getLocale());
+            Map<String, String> params = new HashMap<String, String>();
+            if(request.getParameter("q")!=null){
+                params.put("q", request.getParameter("q"));
+            }
+            if(request.getParameter("collection")!=null){
+                params.put("collection", "&collection=" + request.getParameter("collection"));
+            }
+            if(request.getParameter("policyPublic")!=null){
+                params.put("policyPublic", request.getParameter("policyPublic"));
+            }
+            String text = xs.transform(xml, xsl, lctx.getLocale(), params);
             out.println(text);
-            return;
-        }
-    } catch (Exception e) {
-        out.println(e);
-    }
+        }else{
 %>
 <c:catch var="exceptions">
     <c:choose>
@@ -53,3 +60,10 @@
             </x:transform>
     </c:otherwise>
 </c:choose>
+                
+<%
+        }
+    } catch (Exception e) {
+        out.println(e);
+    }
+%>
