@@ -47,7 +47,9 @@ public class FedoraUtils {
     public static final String DC_STREAM = "DC";
     public static final String BIBLIO_MODS_STREAM = "BIBLIO_MODS";
     public static final String TEXT_OCR_STREAM = "TEXT_OCR";
-
+    
+    public static final String POLICY_STREAM="POLICY";
+    
     public static List<String> INTERNAL_STREAM = new ArrayList<String>(){{
        add(RELS_EXT_STREAM);
        add(IMG_THUMB_STREAM);
@@ -57,6 +59,14 @@ public class FedoraUtils {
        add(DC_STREAM);
        add(BIBLIO_MODS_STREAM);
     }};
+
+    /** Stream for fedora internal use */
+    public static List<String> FEDORA_INTERNAL_STREAMS = new ArrayList<String>(){{
+        add(RELS_EXT_STREAM);
+        add(POLICY_STREAM);
+     }};
+    
+
     
     public static final int THUMBNAIL_HEIGHT = 128;
     public static final int PREVIEW_HEIGHT = 700;

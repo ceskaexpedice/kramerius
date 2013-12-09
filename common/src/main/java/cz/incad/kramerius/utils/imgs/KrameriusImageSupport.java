@@ -146,9 +146,6 @@ public class KrameriusImageSupport {
             DjVuPage page = doc.getPage(0, 1, true);
             DjVuInfo info = page.getInfoWait();
             DjVuImage djvuImage = new DjVuImage(new DjVuPage[]{page}, true);
-            Rectangle pageBounds = djvuImage.getPageBounds(0);
-            System.out.println(pageBounds);
-            System.out.println(new Dimension(info.width, info.height));
 
             return new Dimension(info.width, info.height);
         }
