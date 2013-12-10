@@ -5,43 +5,31 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.Writer;
+import dk.defxws.fedoragsearch.server.GTransformer;
+import org.apache.commons.configuration.Configuration;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-
-import javax.xml.transform.stream.StreamSource;
-
-import dk.defxws.fedoragsearch.server.GTransformer;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
-import org.apache.commons.configuration.Configuration;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * performs the Solr specific parts of the operations
@@ -533,7 +521,7 @@ public class SolrOperations {
     }
     
     private String removeTroublesomeCharacters(String inString) throws UnsupportedEncodingException {
-        return inString.replaceAll("[\\x00-\\x1F]", " ");
+        return inString.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", " ");
 
     }
 
