@@ -160,7 +160,7 @@ public class Import {
                 log.info("NO ROOT OBJECTS FOR INDEXING FOUND.");
             } else {
                 StringBuilder pids = new StringBuilder();
-                String pidSeparator = KConfiguration.getInstance().getConfiguration().getString("indexer.pidSeparator", "$");
+                String pidSeparator = KConfiguration.getInstance().getConfiguration().getString("indexer.pidSeparator", ";");
                 for (TitlePidTuple tpt : roots) {
                     if (pids.length()>0){
                         pids.append(pidSeparator);

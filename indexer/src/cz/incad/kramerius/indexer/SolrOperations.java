@@ -58,7 +58,7 @@ public class SolrOperations {
         fedoraOperations = _fedoraOperations;
         config = KConfiguration.getInstance().getConfiguration();
         isSoftCommit = config.getBoolean("indexer.isSoftCommit", false);
-        pidSeparator = config.getString("indexer.pidSeparator", "$");
+        pidSeparator = config.getString("indexer.pidSeparator", ";");
         transformer = new GTransformer();
         initCustomTransformations();
         extendedFields = new ExtendedFields(fedoraOperations);
