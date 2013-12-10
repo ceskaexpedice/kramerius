@@ -230,7 +230,6 @@ public class FedoraOperations {
             return "";
         }
         StringBuffer dsBuffer = new StringBuffer();
-        String mimetype = "";
         ds = null;
 
         try {
@@ -241,7 +240,7 @@ public class FedoraOperations {
                 return "";
             }
             ds = mts.getStream();
-            mimetype = mts.getMIMEType();
+            String mimetype = mts.getMIMEType();
 
             if (ds != null) {
                 if (mimetype.equals("application/pdf")) {

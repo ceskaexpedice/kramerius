@@ -23,6 +23,7 @@ import java.net.URL;
 import javax.xml.transform.stream.StreamSource;
 
 import dk.defxws.fedoragsearch.server.GTransformer;
+import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -63,11 +64,13 @@ public class SolrOperations {
     private ArrayList<String> customTransformations;
     private ArrayList<String> indexedCache = new ArrayList<String>();
     private boolean isSoftCommit = true;
+    String pidSeparator;
 
     public SolrOperations(FedoraOperations _fedoraOperations) throws IOException {
         fedoraOperations = _fedoraOperations;
         config = KConfiguration.getInstance().getConfiguration();
         isSoftCommit = config.getBoolean("indexer.isSoftCommit", false);
+        pidSeparator = config.getString("indexer.pidSeparator", "$");
         transformer = new GTransformer();
         initCustomTransformations();
         extendedFields = new ExtendedFields(fedoraOperations);
@@ -84,13 +87,29 @@ public class SolrOperations {
         try {
             initDocCount = getDocCount();
             if ("deleteDocument".equals(action)) {
-                deleteDocument(value);
+                for(String v : value.split(pidSeparator)){
+                    deleteDocument(v);
+                    commit();
+                }
+//                deleteDocument(value);
             } else if ("deleteModel".equals(action)) {
-                deleteModel(value);
+                for(String v : value.split(pidSeparator)){
+                    deleteModel(v);
+                    commit();
+                }
+//                deleteModel(value);
             } else if ("deletePid".equals(action)) {
-                deletePid(value);
+                for(String v : value.split(pidSeparator)){
+                    deletePid(v);
+                    commit();
+                }
+//                deletePid(value);
             } else if ("fromPid".equals(action)) {
-                fromPid(value);
+                for(String v : value.split(pidSeparator)){
+                    fromPid(v);
+                    commit();
+                }
+//                fromPid(value);
             } else if ("fullRepo".equals(action)) {
                 fullRepo();
             } else if ("fullRepoWithClean".equals(action)) {
@@ -98,25 +117,52 @@ public class SolrOperations {
             } else if ("optimize".equals(action)) {
                 optimize();
             } else if ("fromKrameriusModel".equals(action)) {
-                deleteDocument(value);
-                fromKrameriusModel(value);
-                commit();
+                for(String v : value.split(pidSeparator)){
+                    deleteDocument(v);
+                    fromKrameriusModel(v);
+                    commit();
+                }
+//                deleteDocument(value);
+//                fromKrameriusModel(value);
+//                commit();
             } else if ("fromKrameriusModelNoCheck".equals(action)) {
-                fromKrameriusModel(value);
-                commit();
+                for(String v : value.split(pidSeparator)){
+                    fromKrameriusModel(v);
+                    commit();
+                }
+//                fromKrameriusModel(value);
+//                commit();
             } else if ("krameriusModel".equals(action)) {
-                deleteModel(value);
-                krameriusModel(value);
-                commit();
+                for(String v : value.split(pidSeparator)){
+                    deleteModel(v);
+                    krameriusModel(v);
+                    commit();
+                }
+//                deleteModel(value);
+//                krameriusModel(value);
+//                commit();
             } else if ("krameriusModelNoCheck".equals(action)) {
-                krameriusModel(value);
-                commit();
+                for(String v : value.split(pidSeparator)){
+                    krameriusModel(v);
+                    commit();
+                }
+//                krameriusModel(value);
+//                commit();
             } else if ("reindexDoc".equals(action)) {
-                reindexDoc(value, false);
-                commit();
+                for(String v : value.split(pidSeparator)){
+                    reindexDoc(v, false);
+                    commit();
+                }
+            
+                //reindexDoc(value, false);
+                //commit();
             } else if ("reindexDocForced".equals(action)) {
-                reindexDoc(value, true);
-                commit();
+                for(String v : value.split(pidSeparator)){
+                    reindexDoc(v, true);
+                    commit();
+                }
+//                reindexDoc(value, true);
+//                commit();
             } else if ("checkIntegrity".equals(action)) {
                 checkIntegrity();
             } else if ("checkIntegrityByModel".equals(action)) {
@@ -433,8 +479,14 @@ public class SolrOperations {
             num += docs;
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error indexing document " + pid, e);
-            throw new Exception(e);
+            if(config.getBoolean("indexer.continueOnError", false)){
+                // continuing
+                logger.log(Level.SEVERE, "Error indexing document " + pid + ". Continuing.", e);
+            }else{
+                logger.log(Level.SEVERE, "Error indexing document " + pid, e);
+                throw new Exception(e);
+            }
+            
         }
 
         return num;
@@ -469,16 +521,20 @@ public class SolrOperations {
             applyCustomTransformations(sb, foxmlStream, params);
             String doc = "<?xml version=\"1.1\" encoding=\"UTF-8\"?><add><doc>"
                     + sb.toString()
-                    + extendedFields.toXmlString(i)
-                    //+ removeTroublesomeCharacters(extendedFields.toXmlString(i))
+                    //+ extendedFields.toXmlString(i)
+                    + removeTroublesomeCharacters(extendedFields.toXmlString(i))
                     + "</doc></add>";
-            //logger.info(doc);
             logger.log(Level.FINE, "indexDoc=\n{0}", doc);
             if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
                 postData(config.getString("IndexBase") + "/update", new StringReader(doc), new StringBuilder());
                 updateTotal++;
             }
         }
+    }
+    
+    private String removeTroublesomeCharacters(String inString) throws UnsupportedEncodingException {
+        return inString.replaceAll("[\\x00-\\x1F]", " ");
+
     }
 
     private void initCustomTransformations() {
