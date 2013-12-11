@@ -184,7 +184,6 @@ public class ExtendedFields {
             String[] pids = s.split("/");
             if (pageNum != 0) {
                 sb.append("<field name=\"parent_pid\">").append(pids[pids.length - 1]).append("</field>");
-                sb.append("<field name=\"virtual\">true</field>");
                 sb.append("<field name=\"text\">").append(getPDFPage(pageNum)).append("</field>");
                 
             } else {
