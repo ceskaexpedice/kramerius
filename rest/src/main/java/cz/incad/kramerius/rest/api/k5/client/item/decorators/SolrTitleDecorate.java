@@ -73,22 +73,22 @@ public class SolrTitleDecorate implements Decorator {
                     if (root_pid != null) {
                         jsonObject.put("root_pid", root_pid);
                     }
+                    // -> context nepatri sem
+//                    List<String> pid_paths = SOLRUtils.array(doc, "pid_path", String.class);
+//                    JSONArray ja = new JSONArray();
+//                    for (String pid_path : pid_paths) {
+//                        ja.add(pid_path);
+//                    }
+//                    jsonObject.put("pid_path", ja);
+                    /// ??? -> context  nepatri sem
+//                    List<String> model_paths = SOLRUtils.array(doc, "model_path", String.class);
+//                    JSONArray jaa = new JSONArray();
+//                    for (String model_path : model_paths) {
+//                        jaa.add(model_path);
+//                    }
+//                    jsonObject.put("model_path", jaa);
                     
-                    List<String> pid_paths = SOLRUtils.array(doc, "pid_path", String.class);
-                    JSONArray ja = new JSONArray();
-                    for (String pid_path : pid_paths) {
-                        ja.add(pid_path);
-                    }
-                    jsonObject.put("pid_path", ja);
-                    
-                    List<String> model_paths = SOLRUtils.array(doc, "model_path", String.class);
-                    JSONArray jaa = new JSONArray();
-                    for (String model_path : model_paths) {
-                        jaa.add(model_path);
-                    }
-                    jsonObject.put("model_path", jaa);
-                    
-                    // ?? -> display options
+                    // ?? -> display options - asi vyhodit
 //                    String viewable = SOLRUtils.value(doc, "viewable", Boolean.class);
 //                    if (viewable != null) {
 //                        jsonObject.put("viewable", viewable);
