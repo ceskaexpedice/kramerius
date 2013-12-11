@@ -88,7 +88,7 @@ public class SolrTitleDecorate implements Decorator {
                     }
                     jsonObject.put("model_path", jaa);
                     
-                    // ?? 
+                    // ?? -> display options
 //                    String viewable = SOLRUtils.value(doc, "viewable", Boolean.class);
 //                    if (viewable != null) {
 //                        jsonObject.put("viewable", viewable);
