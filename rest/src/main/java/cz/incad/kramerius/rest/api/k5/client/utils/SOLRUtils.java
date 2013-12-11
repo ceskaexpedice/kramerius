@@ -22,11 +22,21 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import cz.incad.kramerius.utils.XMLUtils;
+
 import java.util.ArrayList;
 
 public class SOLRUtils {
+	
+	public static <T> T  value(String val, Class<T> clz) {
+		if (clz.equals(String.class)) return (T) val;
+		else if (clz.equals(Boolean.class)) return (T) new Boolean(val);
+		else if (clz.equals(Integer.class)) return (T) Integer.valueOf(val);
+		else throw new IllegalArgumentException("unsupported type "+clz+"");
+	}
+	
 
-    public static String string(final Element doc, final String attributeName) {
+	
+    public static <T> T value(final Element doc, final String attributeName, Class<T> clz) {
         List<Element> elms = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
 
             @Override
@@ -34,22 +44,12 @@ public class SOLRUtils {
                 return (element.getNodeName().equals("str") && element.hasAttribute("name") && element.getAttribute("name").equals(attributeName));
             }
         });
-        return elms.isEmpty() ? null : elms.get(0).getTextContent();
+        Object obj= elms.isEmpty() ? null : elms.get(0).getTextContent();
+    	return value(obj.toString(), clz);
     }
 
-    public static String bool(final Element doc, final String attributeName) {
-        List<Element> elms = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
-
-            @Override
-            public boolean acceptElement(Element element) {
-                return (element.getNodeName().equals("bool") && element.hasAttribute("name") && element.getAttribute("name").equals(attributeName));
-            }
-        });
-        return elms.isEmpty() ? null : elms.get(0).getTextContent();
-    }
-
-    public static ArrayList<String> stringArray(final Element doc, final String attributeName) {
-        ArrayList<String> ret = new ArrayList<String>();
+    public static  <T>  List<T> array(final Element doc, final String attributeName,Class<T> clz) {
+        List<T> ret = new ArrayList<T>();
         List<Element> elms = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
 
             @Override
@@ -57,11 +57,49 @@ public class SOLRUtils {
                 return (element.getNodeName().equals("arr") && element.hasAttribute("name") && element.getAttribute("name").equals(attributeName));
             }
         });
-        //return elms.isEmpty() ? null : elms.get(0).getTextContent();
         for (Element e : elms) {
-            ret.add(elms.get(0).getTextContent());
+            ret.add(value(elms.get(0).getTextContent(),clz));
         }
         return ret;
     }
 
+    
+//    public static String string(final Element doc, final String attributeName) {
+//        List<Element> elms = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+//
+//            @Override
+//            public boolean acceptElement(Element element) {
+//                return (element.getNodeName().equals("str") && element.hasAttribute("name") && element.getAttribute("name").equals(attributeName));
+//            }
+//        });
+//        return elms.isEmpty() ? null : elms.get(0).getTextContent();
+//    }
+//
+//    public static String bool(final Element doc, final String attributeName) {
+//        List<Element> elms = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+//
+//            @Override
+//            public boolean acceptElement(Element element) {
+//                return (element.getNodeName().equals("bool") && element.hasAttribute("name") && element.getAttribute("name").equals(attributeName));
+//            }
+//        });
+//        return elms.isEmpty() ? null : elms.get(0).getTextContent();
+//    }
+//
+//    public static ArrayList<String> stringArray(final Element doc, final String attributeName) {
+//        ArrayList<String> ret = new ArrayList<String>();
+//        List<Element> elms = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+//
+//            @Override
+//            public boolean acceptElement(Element element) {
+//                return (element.getNodeName().equals("arr") && element.hasAttribute("name") && element.getAttribute("name").equals(attributeName));
+//            }
+//        });
+//        //return elms.isEmpty() ? null : elms.get(0).getTextContent();
+//        for (Element e : elms) {
+//            ret.add(elms.get(0).getTextContent());
+//        }
+//        return ret;
+//    }
+//
 }

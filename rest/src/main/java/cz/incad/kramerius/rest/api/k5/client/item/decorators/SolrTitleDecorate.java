@@ -57,41 +57,42 @@ public class SolrTitleDecorate implements Decorator {
             if (result != null) {
                 Element doc = XMLUtils.findElement(result, "doc");
                 if (doc != null) {
-                    String title = SOLRUtils.string(doc, "dc.title");
+                    String title = SOLRUtils.value(doc, "dc.title", String.class);
                     if (title != null) {
                         jsonObject.put("title", title);
                     }
-                    String root_title = SOLRUtils.string(doc, "root_title");
+                    String root_title = SOLRUtils.value(doc, "root_title", String.class);
                     if (root_title != null) {
                         jsonObject.put("root_title", root_title);
                     }
-                    String root_model = SOLRUtils.string(doc, "root_model");
+                    String root_model = SOLRUtils.value(doc, "root_model", String.class);
                     if (root_model != null) {
                         jsonObject.put("root_model", root_model);
                     }
-                    String root_pid = SOLRUtils.string(doc, "root_pid");
+                    String root_pid = SOLRUtils.value(doc, "root_pid", String.class);
                     if (root_pid != null) {
                         jsonObject.put("root_pid", root_pid);
                     }
                     
-                    ArrayList<String> pid_paths = SOLRUtils.stringArray(doc, "pid_path");
+                    List<String> pid_paths = SOLRUtils.array(doc, "pid_path", String.class);
                     JSONArray ja = new JSONArray();
                     for (String pid_path : pid_paths) {
                         ja.add(pid_path);
                     }
                     jsonObject.put("pid_path", ja);
                     
-                    ArrayList<String> model_paths = SOLRUtils.stringArray(doc, "model_path");
+                    List<String> model_paths = SOLRUtils.array(doc, "model_path", String.class);
                     JSONArray jaa = new JSONArray();
                     for (String model_path : model_paths) {
                         jaa.add(model_path);
                     }
                     jsonObject.put("model_path", jaa);
                     
-                    String viewable = SOLRUtils.bool(doc, "viewable");
-                    if (viewable != null) {
-                        jsonObject.put("viewable", viewable);
-                    }
+                    // ?? 
+//                    String viewable = SOLRUtils.value(doc, "viewable", Boolean.class);
+//                    if (viewable != null) {
+//                        jsonObject.put("viewable", viewable);
+//                    }
 
                 }
             }

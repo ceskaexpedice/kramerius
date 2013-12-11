@@ -91,7 +91,7 @@ public class FeederResource {
 			});
 
 			for (Element doc : docs) {
-				String pid = SOLRUtils.string(doc, "PID");
+				String pid = SOLRUtils.value(doc, "PID", String.class);
 				if (pid != null) {
 					try {
 						String uriString = UriBuilder.fromPath("{pid}").build(pid).toString();

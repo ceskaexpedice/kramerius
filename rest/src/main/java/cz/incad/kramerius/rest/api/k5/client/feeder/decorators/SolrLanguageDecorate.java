@@ -56,7 +56,7 @@ public class SolrLanguageDecorate implements Decorator {
 			if (result != null) {
 				Element doc = XMLUtils.findElement(result, "doc");
 				if (doc != null) {
-					String lang = SOLRUtils.string(doc, "language");
+					String lang = SOLRUtils.value(doc, "language", String.class);
 					if (lang != null) {
 						jsonObject.put("language", lang);
 					}

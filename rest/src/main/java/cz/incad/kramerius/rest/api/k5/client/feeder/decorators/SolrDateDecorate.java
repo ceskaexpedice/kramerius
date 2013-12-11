@@ -54,7 +54,7 @@ public class SolrDateDecorate implements Decorator{
 			if (result != null) {
 				Element doc = XMLUtils.findElement(result, "doc");
 				if (doc != null) {
-					String date = SOLRUtils.string(doc, "datum_str");
+					String date = SOLRUtils.value(doc, "datum_str", String.class);
 					if (date != null) {
 						jsonObject.put("datumstr", date);
 					}

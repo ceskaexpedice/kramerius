@@ -55,7 +55,7 @@ public class SolrISSNDecorate implements Decorator {
 			if (result != null) {
 				Element doc = XMLUtils.findElement(result, "doc");
 				if (doc != null) {
-					String date = SOLRUtils.string(doc, "issn");
+					String date = SOLRUtils.value(doc, "issn", String.class);
 					if (date != null) {
 						jsonObject.put("issn", date);
 					}
