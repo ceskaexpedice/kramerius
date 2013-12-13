@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,20 +23,21 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.rest.api.k5.client.item.Decorator;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.DecoratorsAggregate;
+import cz.incad.kramerius.rest.api.k5.client.Decorator;
+import cz.incad.kramerius.rest.api.k5.client.DecoratorsAggregate;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class JSONUtils {
 
-	public static enum Operations {
-		read, edit, create, delete
-	}
+	public static final Logger LOGGER = Logger.getLogger(JSONUtils.class.getName());
 	
-	public static JSONObject link(JSONObject obj, String key, String link , Operations op) {
+//	public static enum Operations {
+//		read, edit, create, delete
+//	}
+	
+	public static JSONObject link(JSONObject obj, String key, String link ) {
 		JSONObject json = new JSONObject();
 		json.put("href", link);
-		json.put("rel", op.name());
 		obj.put(key, json);
 		return obj;
 	}
@@ -44,16 +46,17 @@ public class JSONUtils {
 			throws IOException {
 		jsonObject.put("pid", pid);
 		jsonObject.put("model", fedoraAccess.getKrameriusModelName(pid));
-		//jsonObject.put("base,", link)
-		if (baseLink != null) {
-			JSONUtils.link(jsonObject, "base", baseLink, JSONUtils.Operations.read);
-		}
+//		//jsonObject.put("base,", link)
+//		if (baseLink != null) {
+//			//JSONUtils.link(jsonObject, "base", baseLink);
+//		}
 		// apply decorator
 		if (callContext != null && decoratorsAggregate != null) {
+			Map<String, Object> m = new HashMap<String, Object>();
 			List<Decorator> ldecs = decoratorsAggregate.getDecorators();
 			for (Decorator d : ldecs) {
 				if (d.applyOnContext(callContext)) {
-					d.decorate(jsonObject);
+					d.decorate(jsonObject, m);
 				} 
 			}
 		}
