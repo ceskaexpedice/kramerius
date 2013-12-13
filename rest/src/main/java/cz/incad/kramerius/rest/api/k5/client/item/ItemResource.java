@@ -41,14 +41,12 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.DecoratorsAggregate;
+import cz.incad.kramerius.rest.api.k5.client.DecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.item.display.DisplayType;
 import cz.incad.kramerius.rest.api.k5.client.item.display.DisplayTypeAggregate;
 import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
-import cz.incad.kramerius.rest.api.k5.client.item.metadata.MetadataAggregate;
 import cz.incad.kramerius.rest.api.k5.client.utils.ChildrenNodeProcessor;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
-import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils.Operations;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -58,7 +56,6 @@ import cz.incad.kramerius.utils.XMLUtils;
 public class ItemResource {
 	
 	public static final Logger LOGGER = Logger.getLogger(ItemResource.class.getName());
-	
 	
 	
 	@Inject
@@ -71,8 +68,6 @@ public class ItemResource {
 	@Inject
 	Provider<HttpServletRequest> requestProvider;
 	
-	@Inject
-	MetadataAggregate metadataAggregate;
 	
 	@Inject
 	DisplayTypeAggregate displayTypeAggregate;

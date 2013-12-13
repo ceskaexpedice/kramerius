@@ -18,6 +18,7 @@ package cz.incad.kramerius.rest.api.k5.client.item.decorators;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,13 +29,17 @@ import com.google.inject.Inject;
 
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.item.Decorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractSolrDecorator;
+import cz.incad.kramerius.rest.api.k5.client.Decorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+
 import java.util.ArrayList;
+
 import net.sf.json.JSONArray;
 
-public class SolrTitleDecorate implements Decorator {
+public class SolrTitleDecorate extends AbstractSolrDecorator {
 
     public static final Logger LOGGER = Logger.getLogger(SolrTitleDecorate.class.getName());
 
@@ -49,10 +54,10 @@ public class SolrTitleDecorate implements Decorator {
     }
 
     @Override
-    public void decorate(JSONObject jsonObject) {
+    public void decorate(JSONObject jsonObject, Map<String, Object> context) {
         try {
-            String pid = jsonObject.getString("pid");
-            Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+        	String pid = jsonObject.getString("pid");
+            Document solrDoc = getSolrPidDocument(pid, context, solrAccess);
             Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
             if (result != null) {
                 Element doc = XMLUtils.findElement(result, "doc");
@@ -73,26 +78,6 @@ public class SolrTitleDecorate implements Decorator {
                     if (root_pid != null) {
                         jsonObject.put("root_pid", root_pid);
                     }
-                    // -> context nepatri sem
-//                    List<String> pid_paths = SOLRUtils.array(doc, "pid_path", String.class);
-//                    JSONArray ja = new JSONArray();
-//                    for (String pid_path : pid_paths) {
-//                        ja.add(pid_path);
-//                    }
-//                    jsonObject.put("pid_path", ja);
-                    /// ??? -> context  nepatri sem
-//                    List<String> model_paths = SOLRUtils.array(doc, "model_path", String.class);
-//                    JSONArray jaa = new JSONArray();
-//                    for (String model_path : model_paths) {
-//                        jaa.add(model_path);
-//                    }
-//                    jsonObject.put("model_path", jaa);
-                    
-                    // ?? -> display options - asi vyhodit
-//                    String viewable = SOLRUtils.value(doc, "viewable", Boolean.class);
-//                    if (viewable != null) {
-//                        jsonObject.put("viewable", viewable);
-//                    }
 
                 }
             }
@@ -104,7 +89,7 @@ public class SolrTitleDecorate implements Decorator {
     @Override
     public boolean applyOnContext(String context) {
         // TODO: jaky kontext dat ??
-        return true;
+        return "".equals(context);
     }
 
 }

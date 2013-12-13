@@ -9,7 +9,6 @@ import java.util.Set;
 
 import com.google.inject.Inject;
 
-import cz.incad.kramerius.rest.api.k5.client.item.metadata.Metadata;
 
 public class DisplayTypeAggregate {
 

@@ -16,18 +16,21 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.item.decorators;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import net.sf.json.JSONObject;
-import cz.incad.kramerius.rest.api.k5.client.item.Decorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
+import cz.incad.kramerius.rest.api.k5.client.Decorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 
-public class HandleDecorate  implements Decorator {
+public class HandleDecorate  extends AbstractDecorator {
 
 	private static final String KEY = "HREF";
 
@@ -42,9 +45,9 @@ public class HandleDecorate  implements Decorator {
 	}
 
 	@Override
-	public void decorate(JSONObject jsonObject) {
+	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
 		String str = ApplicationURL.applicationURL(this.requestProvider.get()).toString()+"/handle/"+jsonObject.getString("pid");
-		JSONUtils.link(jsonObject, "handle", str, JSONUtils.Operations.read);
+		JSONUtils.link(jsonObject, "handle", str);
 		//jsonObject.put("handle", str);
 	}
 
