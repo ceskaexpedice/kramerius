@@ -17,6 +17,7 @@
 package cz.incad.kramerius.rest.api.k5.client.feeder.decorators;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,11 +28,12 @@ import com.google.inject.Inject;
 
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.item.Decorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractSolrDecorator;
+import cz.incad.kramerius.rest.api.k5.client.Decorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
-public class SolrISSNDecorate implements Decorator {
+public class SolrISSNDecorate extends AbstractSolrDecorator  {
 
 	public static Logger LOGGER = Logger.getLogger(SolrISSNDecorate.class.getName());
 	
@@ -47,10 +49,10 @@ public class SolrISSNDecorate implements Decorator {
 	}
 
 	@Override
-	public void decorate(JSONObject jsonObject) {
+	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
 		try {
 			String pid = jsonObject.getString("pid");
-			Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+			Document solrDoc = getSolrPidDocument(pid, context, solrAccess);	
 			Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
 			if (result != null) {
 				Element doc = XMLUtils.findElement(result, "doc");

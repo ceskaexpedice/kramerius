@@ -27,7 +27,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.DecoratorsAggregate;
+import cz.incad.kramerius.rest.api.k5.client.DecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.security.User;
