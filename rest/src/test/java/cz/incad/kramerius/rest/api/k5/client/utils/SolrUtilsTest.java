@@ -38,7 +38,7 @@ public class SolrUtilsTest {
 		Document document = XMLUtils.parseDocument(is);
 		Element topElm = XMLUtils.findElement(document.getDocumentElement(),"result");
 		List<Element> elements = XMLUtils.getElements(topElm);
-		List<String> arr = SOLRUtils.stringArray(elements.get(0),"collection");
+		List<String> arr = SOLRUtils.array(elements.get(0),"collection", String.class);
 		Assert.assertTrue(arr.size() == 1);
 	}
 }
