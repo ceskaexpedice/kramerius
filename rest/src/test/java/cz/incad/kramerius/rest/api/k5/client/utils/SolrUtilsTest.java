@@ -35,7 +35,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 
 public class SolrUtilsTest {
 
-//	@Test
+	@Test
 	public void testSolr() throws ParserConfigurationException, SAXException, IOException {
 		InputStream is = SolrUtilsTest.class.getResourceAsStream("select.xml");
 		Document document = XMLUtils.parseDocument(is);
@@ -45,10 +45,4 @@ public class SolrUtilsTest {
 		Assert.assertTrue(arr.size() == 1);
 	}
 
-	@Test
-	public void testUriEnc() throws UnsupportedEncodingException {
-		String str = "Location: https://accounts.google.com/o/oauth2/auth?redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&response_type=code&client_id=407408718192.apps.googleusercontent.com&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform&approval_prompt=force&access_type=offline";
-		String string = URLDecoder.decode(str, "UTF-8");
-		System.out.println(string);
-	}
 }
