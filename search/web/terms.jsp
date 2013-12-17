@@ -34,7 +34,7 @@
 <c:choose>
     <c:when test="${param.field == 'browse_title'}">
         <c:url var="url" value="${kconfig.solrHost}/select" >
-            <c:param name="q" value="${param.field}:[${term}* TO *]" />
+            <c:param name="q" value="${param.field}:[\"${term}*\" TO *]" />
             <c:param name="facet.field" value="${param.field}" />
             <c:param name="f.${param.field}.facet.sort" value="false" />
             <c:param name="facet.mincount" value="1" />
