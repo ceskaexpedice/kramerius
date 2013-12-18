@@ -1,0 +1,29 @@
+*.log
+*.class
+
+.gwt
+.settings
+
+# build
+/target
+
+# Eclipse
+.classpath
+.project
+.settings
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
+
+.DS_Store
+
+gwt-unitCache
+webapp/kramerius_editor
+WEB-INF/deploy
+war/rightseditor
+
+.errai
+.idea
