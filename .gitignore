@@ -27,3 +27,27 @@ war/rightseditor
 
 .errai
 .idea
+/security-core/target/
+/fedora-api/target/
+/common/target/
+/editor/target/
+/import-jaxb/target/
+/import-jaxb-periodical/target/
+/import-cmdtool/target/
+/import/target/
+/import-jaxb-dc/target/
+/import-jaxb-srwdc/target/
+/import-jaxb-mets/target/
+/import-jaxb-alto/target/
+/import-jaxb-mods/target/
+/import-mets/target/
+/indexer/target/
+/static-export/target/
+/rest/target/
+/search/target/
+/rightseditor/target/
+/rightseditor/war/rightseditor/
+/rightseditor/war/WEB-INF/classes/
+/rightseditor/war/WEB-INF/deploy/
+/editor/src/main/webapp/WEB-INF/deploy/
+/editor/src/main/webapp/kramerius_editor/
