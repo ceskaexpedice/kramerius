@@ -1306,7 +1306,7 @@ public abstract class BaseConvertor {
 
         Connection con = config.getDbConnection();
         if (con != null) {
-            int oldPublic = PFLAG_PRIVATE;
+            int oldPublic = PFLAG_INHERIT;
             Statement st = null;
             ResultSet rs = null;
             try {
