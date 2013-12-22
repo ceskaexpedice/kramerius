@@ -1,0 +1,24 @@
+apply plugin: 'java'
+
+
+
+sourceSets {
+	main {
+		resources {
+		    srcDir 'src/java'
+		    include '**/*.p*'
+		    include '**/*.st*'
+		    include '**/*.t*'
+		    exclude '**/*.java'
+		}
+        }
+}
+
+
+dependencies {
+    compile 'org.json:json:20090211'
+    compile 'commons-codec:commons-codec:1.5'
+
+}
+
+

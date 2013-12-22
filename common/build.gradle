@@ -1,0 +1,84 @@
+
+sourceSets {
+    main {
+    	    resources {
+    	    	    srcDir 'src/main/java'
+    	    }
+    }
+}
+
+dependencies {
+    compile project(':security-core')
+    compile project(':fedora-api')
+    // Nullable annotation	    
+    compile 'com.google.code.findbugs:jsr305:1.3.9'
+
+    compile 'javax.servlet:servlet-api:2.5'
+    
+    compile 'org.json:json:20090211'
+    compile 'commons-codec:commons-codec:1.5'
+    compile 'org.apache.pdfbox:pdfbox:1.8.2'
+    compile 'com.levigo.jbig2:levigo-jbig2-imageio:1.6.1'
+
+    compile 'com.ibm.icu:icu4j:3.8'
+    compile 'org.bouncycastle:bcprov-jdk15:1.44'
+    compile 'org.bouncycastle:bcmail-jdk15:1.44'
+    /*
+    compile "postgresql:postgresql:${ext.postgresversion}"
+    compile "com.google.inject:guice:${ext.guiceversion}"
+    compile "com.google.inject.extensions:guice-multibindings:${ext.guiceversion}"
+    compile "com.google.inject.extensions:guice-multibindings:${ext.guiceversion}"
+    compile "com.google.inject.extensions:guice-servlet:${ext.guiceversion}"
+    compile "com.google.inject.extensions:guice-assistedinject:${ext.guiceversion}"
+    compile "javax.inject:javax.inject:1"
+    */
+    compile "javax.mail:mail:1.4.1"
+    compile "com.google.gwt:gwt-servlet:2.4.0"
+    compile "commons-io:commons-io:2.3"
+    compile "commons-codec:commons-codec:1.5"
+    compile "com.lowagie:itext:2.1.7"
+    compile "org.antlr:stringtemplate:3.2.1"
+    compile "com.foxtrottechnologies:javadjvu:0.8.09"
+    compile "com.foxtrottechnologies:djvuframe:0.8.09"
+    compile "commons-configuration:commons-configuration:1.6"
+    compile "commons-lang:commons-lang:2.5"
+    /*
+    compile "org.slf4j:slf4j-api:${ext.slf4jversion}"
+    compile "org.slf4j:log4j-over-slf4j:${ext.slf4jversion}"
+    compile "org.slf4j:slf4j-jdk14:${ext.slf4jversion}"
+    compile "org.slf4j:jcl-over-slf4j:${ext.slf4jversion}"
+    */
+    
+    compile "javax.media.jai:com.springsource.javax.media.jai.core:1.1.3"
+    compile "javax.media.jai:com.springsource.javax.media.jai.codec:1.1.3"
+   // compile "com.sun.media:jai_imageio:1.1"
+    compile "org.fcrepo:mptstore:0.9.4"
+    compile "commons-dbcp:commons-dbcp:1.4"
+    compile "net.sf.json-lib:json-lib:2.3:jdk15"
+
+    /*	    
+    compile "com.sun.jersey.contribs:jersey-guice:${ext.jerseyversion}"
+    compile "com.sun.jersey:jersey-client:${ext.jerseyversion}"
+    compile "com.sun.jersey.contribs:jersey-apache-client:${ext.jerseyversion}"
+    compile "com.sun.jersey:jersey-json:${ext.jerseyversion}"
+    */
+    
+    compile 'javax.ws.rs:jsr311-api:1.1.1'
+    // dependencies in maven profile
+    compile module("com.sun.jersey:jersey-server:1.12") {
+        dependency("com.sun.jersey:jersey-core:1.12")
+        dependency("com.sun.jersey:jersey-servlet:1.12")
+        dependency("com.sun.jersey:jersey-client:1.12")
+        dependency("com.sun.jersey.contribs:jersey-apache-client:1.12")
+        dependency("com.sun.jersey:jersey-json:1.12")
+    }
+    
+    testCompile "xmlunit:xmlunit:1.3"
+   
+}
+
+
+
+
+
+

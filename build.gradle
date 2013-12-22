@@ -1,0 +1,161 @@
+subprojects {
+         apply plugin:'java'
+         apply plugin: 'eclipse'
+
+         ext.guiceversion ='3.0'
+         ext.postgresversion = '8.4-702.jdbc4'
+         ext.slf4jversion='1.6.0'
+         ext.jerseyversion = '1.12'
+         
+         ext.generatedSources = "$buildDir/generated-sources"
+
+         
+         group='cz.incad.kramerius'
+         version='5.0.0-SNAPSHOT'
+         
+         sourceCompatibility = 1.6
+         targetCompatibility= 1.6
+         
+         dependencies {
+         	 // postgresql to all subprojects
+         	 compile "postgresql:postgresql:${ext.postgresversion}"
+         	 // guice to all subprojects
+         	 compile "com.google.inject:guice:${ext.guiceversion}"
+         	 compile "com.google.inject.extensions:guice-multibindings:${ext.guiceversion}"
+         	 compile "com.google.inject.extensions:guice-multibindings:${ext.guiceversion}"
+         	 compile "com.google.inject.extensions:guice-servlet:${ext.guiceversion}"
+         	 compile "com.google.inject.extensions:guice-assistedinject:${ext.guiceversion}"
+         	 compile "javax.inject:javax.inject:1"
+         	 
+         	 // logging
+         	 compile "org.slf4j:slf4j-api:${ext.slf4jversion}"
+         	 compile "org.slf4j:log4j-over-slf4j:${ext.slf4jversion}"
+         	 compile "org.slf4j:slf4j-jdk14:${ext.slf4jversion}"
+         	 compile "org.slf4j:jcl-over-slf4j:${ext.slf4jversion}"
+         	 
+         	 
+         	 //junit to all subprojects
+         	 testCompile "junit:junit:4.1"
+         	 testCompile "org.easymock:easymock:3.0"
+         }
+         
+         repositories {
+         	 mavenCentral()
+         	 mavenLocal()
+         	 
+         	 maven {
+         	 	 url "http://download.java.net/maven/2/"
+         	 }
+
+         	 maven {
+         	 	 url "https://m2.duraspace.org/content/repositories/releases"
+         	 }
+
+         	 maven {
+         	 	 url "https://maven.java.net/content/repositories/snapshots/"
+         	 }
+
+         	 maven {
+         	 	 url "http://guiceyfruit.googlecode.com/svn/repo/releases/"
+         	 }
+
+         	 maven {
+         	 	 url "http://kramerius.googlecode.com/svn/mvnrepo"
+         	 }
+
+         	 maven {
+         	 	 url "http://aplikator.googlecode.com/svn/mvnrepository"
+         	 }
+
+         	 maven {
+         	 	 url "http://jsdoctk-plugin.googlecode.com/svn/repo"
+         	 }
+         	 
+         	 maven {
+         	 	 url "http://repository.springsource.com/maven/bundles/external"
+         	 }
+
+         	 maven {
+         	 	 url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases"
+         	 }
+
+         	 maven {
+         	 	 url "http://download.osgeo.org/webdav/geotools/"
+         	 }
+         	 
+         	 maven {
+         	 	 url "https://maven.atlassian.com/content/groups/public"
+         	 }
+         	 
+         	 maven {
+         	 	 url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
+         	 }
+         }
+
+         // generate dir
+	 task createGeneratedDir {
+		outputs.upToDateWhen({ 
+			def f =new File(generatedSources);
+			def exists = f.exists()
+			return exists
+		});
+		createGeneratedDir <<{
+			mkdir generatedSources
+		}
+	 }
+
+         
+         // jaxb task
+         task jaxb(dependsOn: createGeneratedDir)  {
+		outputs.file(project.ext.generatedSources + "JAXB.generated")
+		outputs.upToDateWhen({ 
+			def f = new File(project.ext.generatedSources + "JAXB.generated")
+			return f.exists()
+		})
+	
+		jaxb << {
+			ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJC2Task', classpath: configurations.generate.asPath)
+			sourceSets.main.resources.srcDirs.each {
+				FileTree tree  = fileTree(dir: it)
+				tree.visit {element ->
+					if (!element.isDirectory()) {
+						ant.xjc(schema: element.getFile().getAbsolutePath(), package: 'com.qbizm.kramerius.imp.jaxb', destdir: generatedSources)
+					}
+				}
+	
+			}
+			new File(project.ext.generatedSources + "JAXB.generated").createNewFile()
+		}
+	 }
+	 
+	 //ws import task
+	 task wsimport(dependsOn: createGeneratedDir)  {
+
+		outputs.file(project.ext.generatedSources + "API.generated")
+		outputs.upToDateWhen({ 
+			def f = new File(project.ext.generatedSources + "API.generated")
+			return f.exists()
+		})
+
+	
+		wsimport <<{
+			ant.taskdef(name: 'wsimport', classname: 'com.sun.tools.ws.ant.WsImport', classpath: configurations.generate.asPath)
+			sourceSets.main.resources.srcDirs.each {
+				FileTree tree  = fileTree(dir: it)
+				tree.visit {element ->
+					if (!element.isDirectory()) {
+						ant.wsimport(wsdl: element.getFile().getAbsolutePath(), sourcedestdir: generatedSources, package: 'org.fedora.api', xnocompile: false, xendorsed:false, target:'2.1')
+					}
+				}
+		
+			}
+			new File(project.ext.generatedSources + "API.generated").createNewFile()
+		}
+	 }
+	 
+}
+
+
+
+
+

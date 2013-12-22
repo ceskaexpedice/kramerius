@@ -1,0 +1,22 @@
+
+
+configurations {
+    generate
+}
+ 
+sourceSets {
+    main {
+        java {
+            srcDirs generatedSources
+        }
+    }
+}
+ 
+dependencies {
+	generate 'com.sun.xml.bind:jaxb-xjc:2.2.7'
+}
+
+
+
+// inject jaxb task
+compileJava.dependsOn jaxb
