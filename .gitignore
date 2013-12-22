@@ -29,3 +29,8 @@ war/rightseditor
 .idea
 /rightseditor/war/rightseditor/
 /editor/src/main/webapp/kramerius_editor/
+
+#gradle
+*.gradle~
+.gradle
+build
