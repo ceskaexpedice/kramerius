@@ -1,1 +1,2 @@
-include 'security-core','fedora-api','common', 'import-jaxb','import-jaxb-periodical'
+include 'security-core','fedora-api','common', 'import-jaxb','import-jaxb-periodical','import-jaxb-alto','import-jaxb-dc' 
+//, 'import-jaxb','import-jaxb-periodical'

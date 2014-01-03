@@ -1,26 +1,20 @@
+apply plugin: 'wsimport'
 
 
+/** wsimport configuration */
+wsimportconf {
+	packageName "org.fedora.api"
+}
 
+/** dependencies for wsimport */
 configurations {
-    generate
+    wsimport
 }
- 
-sourceSets {
-    main {
-        java {
-            srcDirs generatedSources
-        }
-    }
-}
- 
+
 dependencies {
-    generate 'com.sun.xml.bind:jaxb-xjc:2.2.1'
-    //generate 'com.sun.xml.ws:jaxws-ri:2.2.1'
-    generate 'com.sun.xml.ws:jaxws-tools:2.2.1'
+    wsimport 'com.sun.xml.ws:jaxws-tools:2.2.1'
 }
 
 
- 
 
 
-compileJava.dependsOn wsimport
