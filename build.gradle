@@ -1,3 +1,5 @@
+
+
 subprojects {
          apply plugin:'java'
          apply plugin: 'eclipse'
@@ -91,68 +93,6 @@ subprojects {
          	 	 url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
          	 }
          }
-
-         // generate dir
-	 task createGeneratedDir {
-		outputs.upToDateWhen({ 
-			def f =new File(generatedSources);
-			def exists = f.exists()
-			return exists
-		});
-		createGeneratedDir <<{
-			mkdir generatedSources
-		}
-	 }
-
-         
-         // jaxb task
-         task jaxb(dependsOn: createGeneratedDir)  {
-		outputs.file(project.ext.generatedSources + "JAXB.generated")
-		outputs.upToDateWhen({ 
-			def f = new File(project.ext.generatedSources + "JAXB.generated")
-			return f.exists()
-		})
-	
-		jaxb << {
-			ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJC2Task', classpath: configurations.generate.asPath)
-			sourceSets.main.resources.srcDirs.each {
-				FileTree tree  = fileTree(dir: it)
-				tree.visit {element ->
-					if (!element.isDirectory()) {
-						ant.xjc(schema: element.getFile().getAbsolutePath(), package: 'com.qbizm.kramerius.imp.jaxb', destdir: generatedSources)
-					}
-				}
-	
-			}
-			new File(project.ext.generatedSources + "JAXB.generated").createNewFile()
-		}
-	 }
-	 
-	 //ws import task
-	 task wsimport(dependsOn: createGeneratedDir)  {
-
-		outputs.file(project.ext.generatedSources + "API.generated")
-		outputs.upToDateWhen({ 
-			def f = new File(project.ext.generatedSources + "API.generated")
-			return f.exists()
-		})
-
-	
-		wsimport <<{
-			ant.taskdef(name: 'wsimport', classname: 'com.sun.tools.ws.ant.WsImport', classpath: configurations.generate.asPath)
-			sourceSets.main.resources.srcDirs.each {
-				FileTree tree  = fileTree(dir: it)
-				tree.visit {element ->
-					if (!element.isDirectory()) {
-						ant.wsimport(wsdl: element.getFile().getAbsolutePath(), sourcedestdir: generatedSources, package: 'org.fedora.api', xnocompile: false, xendorsed:false, target:'2.1')
-					}
-				}
-		
-			}
-			new File(project.ext.generatedSources + "API.generated").createNewFile()
-		}
-	 }
-	 
 }
 
 

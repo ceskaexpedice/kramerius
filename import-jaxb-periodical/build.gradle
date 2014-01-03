@@ -1,7 +1,7 @@
 apply plugin: 'jaxb'
 
 jaxbconf {
-	packageName 'com.qbizm.kramerius.imp.jaxb'
+	packageName 'com.qbizm.kramerius.imp.jaxb.periodical'
 }
 
 configurations {
