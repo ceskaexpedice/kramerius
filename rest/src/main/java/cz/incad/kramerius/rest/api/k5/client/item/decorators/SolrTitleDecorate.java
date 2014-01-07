@@ -78,6 +78,12 @@ public class SolrTitleDecorate extends AbstractSolrDecorator {
                     if (root_pid != null) {
                         jsonObject.put("root_pid", root_pid);
                     }
+                    List details = SOLRUtils.array(doc, "details", String.class);
+                    if(details != null){
+                        JSONArray ja = new JSONArray();
+                        ja.addAll(details);
+                        jsonObject.put("details", ja);
+                    }
 
                 }
             }
@@ -89,7 +95,8 @@ public class SolrTitleDecorate extends AbstractSolrDecorator {
     @Override
     public boolean applyOnContext(String context) {
         // TODO: jaky kontext dat ??
-        return "".equals(context);
+        //return "".equals(context);
+        return true;
     }
 
 }
