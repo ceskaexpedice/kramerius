@@ -26,7 +26,7 @@ import java.util.List;
 import com.sun.tools.xjc.*
 
 /** XJC Task; call as java code */
-public class XJCTask extends SourceTask {
+public class XJCTask extends DefaultTask {
 	
 	/** Default package name */
 	public static final String DEFAULT_PACKAGE_NAME="com.qbizm.kramerius.imp.jaxb";
@@ -37,8 +37,9 @@ public class XJCTask extends SourceTask {
 	private FileCollection xjcClasspath;
 	private File outputDirectory;
 	private String packageName = DEFAULT_PACKAGE_NAME;
+	private List<File> xsds = new ArrayList<File>();
 	
-	
+		
 	
 	public String getPackageName() {
 		return this.packageName;
@@ -69,39 +70,35 @@ public class XJCTask extends SourceTask {
 		return this.xjcClasspath;
 	}
     	
+	public void addXsd(File xsd) {
+		this.xsds.add(xsd);
+	}
+	
+	public void removeXsd(File xsd) {
+		this.xsds.remove(xsd);
+	}
+	
+	public List<File> getXsds() {
+		return new ArrayList(this.xsds);
+	}
+	
 	private void configureExt(JAXBExtensions ext) {
 		setPackageName(ext.getPackageName());
 	}
     
 	@TaskAction
 	public void generate() {
-		
     	    JAXBExtensions ext = getProject().getExtensions().getByType(JAXBExtensions.class);
     	    if (ext != null) {
     	    	    configureExt(ext);
     	    }
-	    	    
-    	    FileCollection fc = this.getXjcClasspath();
-    	    XJC2Task task = new XJC2Task();
-    	    task.setProject(getAnt().getAntProject());
-    	    Path taskCp = task.createClasspath();
-    	    println "task classpath $taskCp"
-    	    println "task classpath $fc"
-    	    for (File dep : fc) {
-    	    	    println "dependency $dep"
-    	    	    taskCp.createPathElement().setLocation(dep);
+
+    	    ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJC2Task', classpath: getXjcClasspath().asPath)
+    	    for(File f:this.xsds) {
+    	    	    ant.xjc(schema: f.getAbsolutePath(), package: this.packageName, destdir: outputDirectory.getAbsolutePath(),removeOldOutput: true) {
+    	    	    	    //arg(line:'-Djava.endorsed.dirs=/home/pavels/nprojs/k4/kramerius/import-jaxb-dc/endorsed')
+    	    	    }
     	    }
-    	    
-    	    FileTree ft = this.getSource();	    
-    	    for(File f:ft.getFiles()) {
-    	    	    task.setSchema(f.getAbsolutePath());
-    	    }
-    	    
-    	    task.setPackage(this.packageName);
-    	    task.setDestdir(this.outputDirectory);
-    	    task.setRemoveOldOutput(true);
-    
-	    task.execute();
 	    
 	    new File(this.outputDirectory,"JAXB."+getName()+".generated").createNewFile();
     }

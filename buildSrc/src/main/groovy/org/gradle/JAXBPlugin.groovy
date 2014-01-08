@@ -48,14 +48,13 @@ class JAXBPlugin implements Plugin<ProjectInternal> {
 					// lookup xsd files
 					for(File f:files) {
 						if (f.getName().toLowerCase().endsWith(".xsd")) {
-							xjcTask.source(f);
+							xjcTask.addXsd(f);
 						}
 					}
 					
 					// copy configuration deps
 					xjcTask.getConventionMapping().map("xjcClasspath", new Callable<Object>() {
 						public Object call() throws Exception {
-							println "call called"
 							return project.getConfigurations().getByName(JAXBPlugin.XJC_CONFIGURATION_NAME).copy()
 							.setTransitive(true);
 						}
