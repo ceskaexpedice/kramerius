@@ -76,7 +76,7 @@ public class RegisterPublicUser extends AbstractPostUser{
                     
                     UserImpl user = new UserImpl(-1, firstName, surName, loginName, -1);
                     user.setEmail(email);
-                    this.userManager.insertPublicUser(user,pswd);
+                    this.userManager.insertUser(user,pswd);
                     
                     sendMail(user);
                 } else {

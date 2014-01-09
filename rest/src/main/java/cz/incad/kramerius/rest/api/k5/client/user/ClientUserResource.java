@@ -40,7 +40,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Path("/k5/user")
-public class UsersResource {
+public class ClientUserResource {
 
 
     @Inject

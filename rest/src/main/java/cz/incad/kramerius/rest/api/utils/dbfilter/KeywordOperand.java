@@ -14,10 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.processes.filter;
+package cz.incad.kramerius.rest.api.utils.dbfilter;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import cz.incad.kramerius.rest.api.processes.filter.BatchStateConvert;
+import cz.incad.kramerius.rest.api.processes.filter.StateConvert;
 
 public class KeywordOperand extends Operand{
 

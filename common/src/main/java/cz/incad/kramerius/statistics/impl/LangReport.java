@@ -35,10 +35,10 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticReportOffset;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+import cz.incad.kramerius.utils.database.Offset;
 
 /**
  * 
@@ -53,7 +53,7 @@ public class LangReport implements StatisticReport{
     Provider<Connection> connectionProvider;
 
     @Override
-    public List<Map<String, Object>> getReportPage(ReportedAction repAction,StatisticReportOffset reportOffset, Object filteredValue) {
+    public List<Map<String, Object>> getReportPage(ReportedAction repAction,Offset rOffset, Object filteredValue) {
         final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
         authors.setAttribute("action", repAction != null ? repAction.name() : null);
         //authors.setAttribute("paging", true);

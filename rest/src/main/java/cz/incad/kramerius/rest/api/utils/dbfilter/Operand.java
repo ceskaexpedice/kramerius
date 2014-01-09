@@ -14,7 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.processes.filter;
+package cz.incad.kramerius.rest.api.utils.dbfilter;
+
+import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.FormalNamesMapping;
+import cz.incad.kramerius.utils.database.SQLFilter;
+import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
+
 
 public abstract class Operand {
 
@@ -30,16 +35,16 @@ public abstract class Operand {
     public abstract String getValue();
     
     public abstract Convert getConvert();
-    
+
+    /*
     private static boolean isString(String val) {
         boolean simpleQuote =  val.startsWith("'") && val.endsWith("'");
         boolean doubleQuote = val.startsWith("\"") && val.endsWith("\"");
         return simpleQuote || doubleQuote;
-    }
+    }*/
 
-    public static Operand createOperand(String val) {
-        if (isString(val)) return new StringOperand(val);
-        return new KeywordOperand(val);
+    public static Operand createOperand(String val, FormalNamesMapping mapping, SQLFilter.TypesMapping types) {
+    	return new KeywordOperand(val);
     }
     
 }

@@ -19,14 +19,14 @@ import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.LRDefinitionAction;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
-import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.processes.template.OutputTemplateFactory;
 import cz.incad.kramerius.processes.template.ProcessOutputTemplate;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.users.database.Offset;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ProcessViewObject {
@@ -38,7 +38,7 @@ public class ProcessViewObject {
     private LRProcess lrProcess;
     private LRProcessDefinition definition;
     private LRProcessOrdering ordering;
-    private LRProcessOffset offset;
+    private Offset offset;
     private TypeOfOrdering typeOfOrdering;
     //private String lrUrl;
     private ResourceBundleService bundleService;
@@ -50,7 +50,7 @@ public class ProcessViewObject {
 
 	private String page;
     
-    public ProcessViewObject(LRProcess lrProcess, LRProcessDefinition definition, LRProcessOrdering ordering, LRProcessOffset offset, TypeOfOrdering typeOfOrdering,  ResourceBundleService service, Locale locale, OutputTemplateFactory factory, String page) {
+    public ProcessViewObject(LRProcess lrProcess, LRProcessDefinition definition, LRProcessOrdering ordering, Offset offset, TypeOfOrdering typeOfOrdering,  ResourceBundleService service, Locale locale, OutputTemplateFactory factory, String page) {
         super();
         this.lrProcess = lrProcess;
         this.ordering = ordering;

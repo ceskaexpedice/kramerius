@@ -19,6 +19,7 @@ package cz.incad.kramerius.rest.api.processes.filter;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.States;
+import cz.incad.kramerius.rest.api.utils.dbfilter.Convert;
 
 public class StateConvert implements Convert {
 

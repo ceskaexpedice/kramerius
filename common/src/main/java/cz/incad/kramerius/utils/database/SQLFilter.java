@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.processes;
+package cz.incad.kramerius.utils.database;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -30,26 +30,36 @@ import java.util.logging.Level;
  * Represents objects for filtering LRProcess list
  * @author pavels
  */
-public class LRPRocessFilter {
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LRPRocessFilter.class.getName());
+public class SQLFilter {
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SQLFilter.class.getName());
     
-    static Map<String, ConverterAndFormatter> CONVERTERS = new HashMap<String, LRPRocessFilter.ConverterAndFormatter>(); 
-    static {
-        CONVERTERS.put("status", new IntegerConverter());
-        CONVERTERS.put("batch_status", new IntegerConverter());
-        CONVERTERS.put("planned", new DateConvereter());
-        CONVERTERS.put("started", new DateConvereter());
-        CONVERTERS.put("finished", new DateConvereter());
-        CONVERTERS.put("default", new StringConverter());
+//    static Map<String, ConverterAndFormatter> CONVERTERS = new HashMap<String, SQLFilter.ConverterAndFormatter>(); 
+//    static {
+//        CONVERTERS.put("status", new IntegerConverter());
+//        CONVERTERS.put("batch_status", new IntegerConverter());
+//        CONVERTERS.put("planned", new DateConvereter());
+//        CONVERTERS.put("started", new DateConvereter());
+//        CONVERTERS.put("finished", new DateConvereter());
+//        CONVERTERS.put("default", new StringConverter());
+//    
+//    }
     
-    }
-    
-    private List<Tripple> tripples = new ArrayList<LRPRocessFilter.Tripple>();
+    private List<Tripple> tripples = new ArrayList<SQLFilter.Tripple>();
     private List<Object> objectsToPreparedStm = new ArrayList<Object>();
     
+    private TypesMapping typesMapping;
     
     
-    private LRPRocessFilter() {
+    private SQLFilter() {
+    }
+    
+    
+    public TypesMapping getTypesMapping() {
+    	return this.typesMapping;
+    }
+
+    public void setTypesMapping(TypesMapping tp) {
+    	this.typesMapping = tp;
     }
     
     /**
@@ -57,7 +67,12 @@ public class LRPRocessFilter {
      * @param tripple filter tripple
      */
     public void addTripple(Tripple tripple) {
-        this.tripples.add(tripple);
+    	if (this.typesMapping != null) {
+    		ConverterAndFormatter convert = this.typesMapping.getConvert(tripple.getName());
+    		if (convert == null) convert = new StringConverter();
+    		tripple.reinitializeValue(convert);
+    	}
+    	this.tripples.add(tripple);
     }
     
     /**
@@ -95,8 +110,9 @@ public class LRPRocessFilter {
      * @param triples Triples
      * @return new filter object
      */
-    public static LRPRocessFilter createFilter(Tripple...triples) {
-        LRPRocessFilter filter = new LRPRocessFilter();
+    public static SQLFilter createFilter(TypesMapping typesMapping,Tripple...triples) {
+        SQLFilter filter = new SQLFilter();
+        filter.setTypesMapping(typesMapping);
         for (Tripple tr : triples) {
             filter.addTripple(tr);
         }
@@ -108,8 +124,9 @@ public class LRPRocessFilter {
      * @param triples Triples
      * @return new filter object
      */
-    public static LRPRocessFilter createFilter(List<Tripple> triples) {
-        LRPRocessFilter filter = new LRPRocessFilter();
+    public static SQLFilter createFilter(TypesMapping typesMapping, List<Tripple> triples) {
+        SQLFilter filter = new SQLFilter();
+        filter.setTypesMapping(typesMapping);
         for (Tripple tr : triples) {
             filter.addTripple(tr);
         }
@@ -220,13 +237,14 @@ public class LRPRocessFilter {
         }
     }
     
-    public static String getFormattedValue(Tripple tripple) {
-        boolean contains = CONVERTERS.containsKey(tripple.getName());
-        if (contains) {
-            return  CONVERTERS.get(tripple.getName()).format(tripple.getVal());
-        } else {
-            return CONVERTERS.get("default").format(tripple.getVal());
-        }
+    public String getFormattedValue(Tripple tripple) {
+    	ConverterAndFormatter convert = this.typesMapping.getConvert(tripple.getName());
+    	if (convert != null) {
+    		return  convert.format(tripple.getVal());
+    	} else {
+    		// default is string converter
+    		return new StringConverter().format(tripple.getVal());
+    	}
     }
     
     /**
@@ -239,6 +257,7 @@ public class LRPRocessFilter {
         private Object val;
         private Op op;
         
+        
         public Tripple(String name, Object val, String opString) {
             super();
             this.name = name;
@@ -246,17 +265,23 @@ public class LRPRocessFilter {
             this.op = Op.valueOf(opString);
         }
 
-        public Tripple(String name, String val, String opString) {
+        public Tripple(String name, String val, String opString, ConverterAndFormatter caf) {
             super();
             this.name = name;
-            
+            /*
             boolean contains = CONVERTERS.containsKey(name);
             if (contains) {
                 this.val = CONVERTERS.get(name).convert(val);
             } else {
                 this.val = CONVERTERS.get("default").convert(val);
             }
+            */
+            this.val = caf.convert(val);
             this.op = Op.valueOf(opString);
+        }
+        
+        public void reinitializeValue(ConverterAndFormatter caf) {
+        	this.val = caf.convert(this.val.toString());
         }
 
         /**
@@ -325,6 +350,45 @@ public class LRPRocessFilter {
             return null;
         }
     }
+
+	public static class TypesAssociation {
+		private String rawName;
+		private ConverterAndFormatter convert;
+		
+		public TypesAssociation(String rn, ConverterAndFormatter c) {
+			this.rawName = rn;
+			this.convert = c;
+		}
+		
+		public String getRawName() {
+			return rawName;
+		}
+	
+		public ConverterAndFormatter getConvert() {
+			return convert;
+		}
+	}
+
+	public static class TypesMapping {
+	
+		private List<TypesAssociation> mappings = new ArrayList<TypesAssociation>();
+		
+		public void map(String rname, ConverterAndFormatter c) {
+			this.mappings.add(new TypesAssociation(rname, c));
+		}
+		
+		public boolean containsRawName(String rname) {
+			return getConvert(rname) != null;
+		}
+		
+		public ConverterAndFormatter getConvert(String rname) {
+			for (TypesAssociation ts : this.mappings) {
+				if (ts.getRawName().equals(rname)) return ts.getConvert();
+			}
+			return null;
+		}
+		
+	}
     
     
     

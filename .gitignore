@@ -34,3 +34,5 @@ war/rightseditor
 *.gradle~
 .gradle
 build
+classes
+deploy

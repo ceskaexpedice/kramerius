@@ -62,16 +62,11 @@ import com.sun.jersey.api.NotFoundException;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRPRocessFilter;
-import cz.incad.kramerius.processes.LRPRocessFilter.Op;
-import cz.incad.kramerius.processes.LRPRocessFilter.Tripple;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.processes.exceptions.CannotReadLogs;
@@ -80,17 +75,28 @@ import cz.incad.kramerius.rest.api.processes.exceptions.CannotStopProcess;
 import cz.incad.kramerius.rest.api.processes.exceptions.LogsNotFound;
 import cz.incad.kramerius.rest.api.processes.exceptions.NoDefinitionFound;
 import cz.incad.kramerius.rest.api.processes.exceptions.NoProcessFound;
-import cz.incad.kramerius.rest.api.processes.filter.FilterCondition;
-import cz.incad.kramerius.rest.api.processes.filter.Operand;
+import cz.incad.kramerius.rest.api.processes.filter.BatchStateConvert;
+import cz.incad.kramerius.rest.api.processes.filter.StateConvert;
+import cz.incad.kramerius.rest.api.utils.dbfilter.DateConvert;
+import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils;
+import cz.incad.kramerius.rest.api.utils.dbfilter.FilterCondition;
+import cz.incad.kramerius.rest.api.utils.dbfilter.IntegerConvert;
+import cz.incad.kramerius.rest.api.utils.dbfilter.Operand;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.database.Offset;
+import cz.incad.kramerius.utils.database.SQLFilter;
+import cz.incad.kramerius.utils.database.SQLFilter.Op;
+import cz.incad.kramerius.utils.database.SQLFilter.Tripple;
+import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
 
 
 /**
@@ -99,8 +105,16 @@ import cz.incad.kramerius.utils.StringUtils;
  */
 @Path("/processes")
 public class LRResource {
-
+	
     
+	public static TypesMapping TYPES = new TypesMapping(); static {
+		TYPES.map("status", new SQLFilter.IntegerConverter());
+		TYPES.map("batch_status", new SQLFilter.IntegerConverter());
+		TYPES.map("planned", new SQLFilter.DateConvereter());
+		TYPES.map("started", new SQLFilter.DateConvereter());
+		TYPES.map("finished", new SQLFilter.DateConvereter());
+	}
+	
     public static SimpleDateFormat FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS");
 
     
@@ -187,7 +201,6 @@ public class LRResource {
         String loggedUserKey = findLoggedUserKey();
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
-            // no user
             //throw new SecurityException("access denided");
             throw new ActionNotAllowed("action is not allowed");
         }
@@ -524,7 +537,7 @@ public class LRResource {
                     if (StringUtils.isAnyString(filterUserFirstname)) filterMap.put("userFirstname", filterUserFirstname);
                     if (StringUtils.isAnyString(filterUserSurname)) filterMap.put("userSurname", filterUserSurname);
                 };
-                LRPRocessFilter filter = lrPRocessFilter(filterMap);
+                SQLFilter filter = DbFilterUtils.simpleFilter(filterMap, TYPES);
                 List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(LRProcessOrdering.PLANNED.name()), typeOfOrdering(ordering), offset(of, resultSize), filter);
                 JSONArray retList = new JSONArray();
 
@@ -546,8 +559,9 @@ public class LRResource {
         }
     }
 
-    LRPRocessFilter lrPRocessFilter(Map<String, String>filterMap) {
-        List<Tripple> tripples = new ArrayList<LRPRocessFilter.Tripple>();
+    /*	
+    SQLFilter lrPRocessFilter(Map<String, String>filterMap) {
+        List<Tripple> tripples = new ArrayList<SQLFilter.Tripple>();
         for (String key : filterMap.keySet()) {
             String val = filterMap.get(key);
             if (val != null ) {
@@ -555,7 +569,7 @@ public class LRResource {
                 tripples.add(tripple);
             }
         }
-        return  LRPRocessFilter.createFilter(tripples);
+        return  SQLFilter.createFilter(tripples);
     }
 
     private Tripple createTripple(String trpl) {
@@ -576,12 +590,12 @@ public class LRResource {
             
         } 
         return null;
-    }
+    }*/
 
-    private LRProcessOffset offset(String of, String resultSize) {
+    private Offset offset(String of, String resultSize) {
         String sof = of != null ? of : "0";
         String sres = resultSize != null ? resultSize : DEFAULT_SIZE;
-        return new LRProcessOffset(sof, sres);
+        return new Offset(sof, sres);
     }
 
     private TypeOfOrdering typeOfOrdering(String type) {

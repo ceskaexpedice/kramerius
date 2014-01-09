@@ -47,7 +47,7 @@ public class PublicUserActivation extends ServletUsersCommand {
             String keyParam = request.getParameter(KEY);
             User user = this.notActivatedUsersSingleton.getNotActivatedUser(keyParam);
             if (user != null) {
-                this.userManager.activatePublicUser(user);
+                this.userManager.activateUser(user);
             }
             String appContext = ApplicationURL.applicationContextPath(request);
             this.responseProvider.get().sendRedirect("/"+appContext+"/useractivated.jsp");

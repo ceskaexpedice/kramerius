@@ -17,7 +17,8 @@
 /**
  * 
  */
-package cz.incad.kramerius.rest.api.processes.filter;
+package cz.incad.kramerius.rest.api.utils.dbfilter;
+
 
 /**
  * @author pavels

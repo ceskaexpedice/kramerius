@@ -37,7 +37,7 @@ public class SecurityDatabaseUtils {
     }
 
     private static StringTemplateGroup loadStGroup() {
-        InputStream is = SecurityDatabaseUtils.class.getResourceAsStream("database.stg");
+        InputStream is = SecurityDatabaseUtils.class.getResourceAsStream("udatabase.stg");
         StringTemplateGroup grp = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
         return grp;
     }

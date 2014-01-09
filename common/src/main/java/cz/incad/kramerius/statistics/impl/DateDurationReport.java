@@ -40,11 +40,11 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticReportOffset;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+import cz.incad.kramerius.utils.database.Offset;
 
 /**
  * @author pavels
@@ -62,7 +62,7 @@ public class DateDurationReport implements StatisticReport{
     Provider<Connection> connectionProvider;
 
     @Override
-    public List<Map<String, Object>> getReportPage(ReportedAction repAction, StatisticReportOffset reportOffset, Object filteringValue) {
+    public List<Map<String, Object>> getReportPage(ReportedAction repAction, Offset rOffset, Object filteringValue) {
         try {
             //TODO: move to JSON object
             String[] splitted = filteringValue.toString().split("-");
@@ -79,7 +79,7 @@ public class DateDurationReport implements StatisticReport{
                     returnsList.add(map);
                     return super.handleRow(rs, returnsList);
                 }
-            }.executeQuery(sql, new Timestamp(FORMAT.parse(splitted[0]).getTime()), new Timestamp(FORMAT.parse(splitted[1]).getTime()) , reportOffset.getOffset(), reportOffset.getSize());
+            }.executeQuery(sql, new Timestamp(FORMAT.parse(splitted[0]).getTime()), new Timestamp(FORMAT.parse(splitted[1]).getTime()) , rOffset.getOffset(), rOffset.getSize());
             
             return vals;
         } catch (ParseException e) {

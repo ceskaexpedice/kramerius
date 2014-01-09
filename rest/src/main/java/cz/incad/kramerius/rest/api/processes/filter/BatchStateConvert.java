@@ -19,6 +19,7 @@ package cz.incad.kramerius.rest.api.processes.filter;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.BatchStates;
+import cz.incad.kramerius.rest.api.utils.dbfilter.Convert;
 
 public class BatchStateConvert implements Convert {
 

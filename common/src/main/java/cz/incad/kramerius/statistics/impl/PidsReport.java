@@ -20,10 +20,10 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticReportOffset;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+import cz.incad.kramerius.utils.database.Offset;
 
 public class PidsReport implements StatisticReport {
 
@@ -38,7 +38,7 @@ public class PidsReport implements StatisticReport {
 
 	@Override
 	public List<Map<String, Object>> getReportPage(ReportedAction repAction,
-			StatisticReportOffset reportOffset, Object filteringValue) {
+			Offset rOffset, Object filteringValue) {
 
 		String[] pids = filteringValue.toString().split(",");
 
@@ -57,7 +57,7 @@ public class PidsReport implements StatisticReport {
 				returnsList.add(map);
 				return super.handleRow(rs, returnsList);
 			}
-		}.executeQuery(sql, reportOffset.getOffset(), reportOffset.getSize());
+		}.executeQuery(sql, rOffset.getOffset(), rOffset.getSize());
 
 		return vals;
 

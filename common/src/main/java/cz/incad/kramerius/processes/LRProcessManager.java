@@ -21,6 +21,9 @@ import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.database.TypeOfOrdering;
+import cz.incad.kramerius.utils.database.Offset;
+import cz.incad.kramerius.utils.database.SQLFilter;
 
 
 /**
@@ -63,7 +66,7 @@ public interface LRProcessManager {
 	 * @param offset Offset (paging)
 	 * @return
 	 */
-	public List<LRProcess> getLongRunningProcessesAsGrouped(LRProcessOrdering ordering,TypeOfOrdering typeOfOrdering, LRProcessOffset offset,LRPRocessFilter filter);
+	public List<LRProcess> getLongRunningProcessesAsGrouped(LRProcessOrdering ordering,TypeOfOrdering typeOfOrdering, Offset offset,SQLFilter filter);
 
 	/**
 	 * Returns all process filtered by given rules
@@ -72,7 +75,7 @@ public interface LRProcessManager {
 	 * @param offset Offset (paging)
 	 * @return
 	 */
-	public List<LRProcess> getLongRunningProcessesAsFlat(LRProcessOrdering ordering,TypeOfOrdering typeOfOrdering, LRProcessOffset offset);
+	public List<LRProcess> getLongRunningProcessesAsFlat(LRProcessOrdering ordering,TypeOfOrdering typeOfOrdering, Offset offset);
 
 	/**
 	 * Returns all processes for given state
@@ -93,7 +96,7 @@ public interface LRProcessManager {
 	 * Returns number of running processes
 	 * @return
 	 */
-	public int getNumberOfLongRunningProcesses(LRPRocessFilter filter);
+	public int getNumberOfLongRunningProcesses(SQLFilter filter);
 	
 	/**
 	 * Update process state 

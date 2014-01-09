@@ -1,4 +1,4 @@
-package cz.incad.kramerius.processes;
+package cz.incad.kramerius.security.database;
 
 public enum TypeOfOrdering {
 

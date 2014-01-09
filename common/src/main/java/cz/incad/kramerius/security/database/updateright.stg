@@ -107,3 +107,4 @@ insertRight_show_print_menu() ::=<<
         from group_entity
         where gname='k4_admins'
 >>
+

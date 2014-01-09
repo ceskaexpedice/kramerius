@@ -42,24 +42,24 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRPRocessFilter;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.NotReadyException;
 import cz.incad.kramerius.processes.ProcessManagerException;
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.TypeOfOrdering;
 import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
+import cz.incad.kramerius.utils.database.Offset;
+import cz.incad.kramerius.utils.database.SQLFilter;
 import cz.incad.kramerius.utils.properties.PropertiesStoreUtils;
 
 public class DatabaseProcessManager implements LRProcessManager {
@@ -372,7 +372,7 @@ public class DatabaseProcessManager implements LRProcessManager {
     }
 
     @Override
-    public int getNumberOfLongRunningProcesses(LRPRocessFilter filter) {
+    public int getNumberOfLongRunningProcesses(SQLFilter filter) {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready ");
@@ -492,7 +492,7 @@ public class DatabaseProcessManager implements LRProcessManager {
     }
 
     @Override
-    public List<LRProcess> getLongRunningProcessesAsFlat(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, LRProcessOffset offset) {
+    public List<LRProcess> getLongRunningProcessesAsFlat(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, Offset offset) {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready");
@@ -519,7 +519,7 @@ public class DatabaseProcessManager implements LRProcessManager {
     }
 
     @Override
-    public List<LRProcess> getLongRunningProcessesAsGrouped(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, LRProcessOffset offset, LRPRocessFilter filter) {
+    public List<LRProcess> getLongRunningProcessesAsGrouped(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, Offset offset, SQLFilter filter) {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready");

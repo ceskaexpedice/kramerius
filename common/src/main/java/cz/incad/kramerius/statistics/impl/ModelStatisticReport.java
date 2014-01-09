@@ -34,10 +34,10 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticReportOffset;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+import cz.incad.kramerius.utils.database.Offset;
 
 /**
  * @author pavels
@@ -52,7 +52,7 @@ public class ModelStatisticReport implements StatisticReport {
     Provider<Connection> connectionProvider;
 
     @Override
-    public List<Map<String,Object>> getReportPage(ReportedAction repAction, StatisticReportOffset reportOffset, Object filteringValue) {
+    public List<Map<String,Object>> getReportPage(ReportedAction repAction, Offset rOffset, Object filteringValue) {
         final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModelReport");
         statRecord.setAttribute("model", filteringValue);
         statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
@@ -70,7 +70,7 @@ public class ModelStatisticReport implements StatisticReport {
                 returnsList.add(val);
                 return super.handleRow(rs, returnsList);
             }
-        }.executeQuery(sql, reportOffset.getOffset(), reportOffset.getSize());
+        }.executeQuery(sql, rOffset.getOffset(), rOffset.getSize());
     
         return returns;
     }

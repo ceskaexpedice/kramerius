@@ -19,6 +19,8 @@ package cz.incad.kramerius.statistics;
 import java.util.List;
 import java.util.Map;
 
+import cz.incad.kramerius.utils.database.Offset;
+
 /**
  * Represents one report
  * @author pavels
@@ -33,10 +35,10 @@ public interface StatisticReport {
     
     /**
      * Returns reporting page
-     * @param reportOffset Offset and size
+     * @param rOffset Offset and size
      * @return
      */
-    public List<Map<String,Object>> getReportPage(ReportedAction reportedAction, StatisticReportOffset reportOffset, Object filteredValue) throws StatisticsReportException;
+    public List<Map<String,Object>> getReportPage(ReportedAction reportedAction, Offset rOffset, Object filteredValue) throws StatisticsReportException;
     
     /**
      * Returns optional filtering values

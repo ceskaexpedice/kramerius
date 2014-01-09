@@ -24,6 +24,9 @@ import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
 import cz.incad.kramerius.rest.api.k5.admin.rights.RightsResource;
+import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
+import cz.incad.kramerius.rest.api.k5.admin.users.RolesResource;
+import cz.incad.kramerius.rest.api.k5.admin.users.UsersResource;
 import cz.incad.kramerius.rest.api.k5.client.Decorator;
 import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
@@ -41,11 +44,12 @@ import cz.incad.kramerius.rest.api.k5.client.item.display.PDFDisplayType;
 import cz.incad.kramerius.rest.api.k5.client.item.display.PlainImageDisplayType;
 import cz.incad.kramerius.rest.api.k5.client.item.display.ZoomifyDisplayType;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
-import cz.incad.kramerius.rest.api.k5.client.user.UsersResource;
+import cz.incad.kramerius.rest.api.k5.client.user.ClientUserResource;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.VirtualCollectionResource;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
+import cz.incad.kramerius.statistics.ReportedAction;
 
 /**
  * REST API module
@@ -62,13 +66,17 @@ public class ApiServletModule extends JerseyServletModule {
         bind(CDKReplicationsResource.class);
         bind(LRResource.class);
         // k5 - znovu...
+        bind(ClientUserResource.class);
         bind(ItemResource.class);
         bind(FeederResource.class);
         bind(VirtualCollectionResource.class);
-        bind(UsersResource.class);
         bind(SearchResource.class);
         
         bind(RightsResource.class);
+        bind(UsersResource.class);
+        bind(RolesResource.class);
+        
+        bind(StatisticsResource.class);
         
         //decorators
         decs();
@@ -82,9 +90,6 @@ public class ApiServletModule extends JerseyServletModule {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("com.sun.jersey.api.json.POJOMappingFeature", "true");
         parameters.put("com.sun.jersey.config.property.packages", "cz.incad.kramerius.rest.api.processes.messages");
-        
-        
-        
         
         serve("/api/"+VERSION+"/*").with(GuiceContainer.class, parameters);
     }

@@ -123,7 +123,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
     }
 
 
-
+    // log with schibboleth
     public void tryToLogShib(HttpServletRequest httpServletRequest) throws FileNotFoundException, IOException, RecognitionException, TokenStreamException {
     	Principal p = httpServletRequest.getUserPrincipal();
     	String val = ((p != null && p.getName()!=null) ? httpServletRequest.getUserPrincipal().getName() : httpServletRequest.getRemoteUser());
@@ -170,7 +170,8 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             String loginName = principal.getName();
             User user = userManager.findUserByLoginName(loginName);
             if (user != null) {
-                List<Role> groupsList = new JDBCQueryTemplate<Role>(SecurityDBUtils.getConnection()) {
+
+            	List<Role> groupsList = new JDBCQueryTemplate<Role>(SecurityDBUtils.getConnection()) {
                     @Override
                     public boolean handleRow(ResultSet rs, List<Role> retList) throws SQLException {
                         retList.add(SecurityDBUtils.createRole(rs));

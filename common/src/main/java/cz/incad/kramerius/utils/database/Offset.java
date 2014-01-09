@@ -1,12 +1,12 @@
-package cz.incad.kramerius.processes;
+package cz.incad.kramerius.utils.database;
 
-public class LRProcessOffset {
+public class Offset {
 	
 	private String offset;
 	private String size;
 	private String page;
 
-	public LRProcessOffset(String offset, String size) {
+	public Offset(String offset, String size) {
 		super();
 		this.offset = offset;
 		this.size = size;
@@ -14,9 +14,6 @@ public class LRProcessOffset {
 		Integer.parseInt(this.offset);
 	}
 	
-	
-
-
 
 	public String getSQLOffset	() {
 		//return "OFFSET "+this.offset+" ROWS FETCH NEXT "+this.size+" ROWS ONLY";

@@ -5,11 +5,42 @@ jaxbconf {
 }
 
 configurations {
+    endorsed
     xjc
+    compile.extendsFrom endorsed
 }
 
 dependencies {
 	xjc 'com.sun.xml.bind:jaxb-xjc:2.2.7'
+	endorsed 'javax.xml.bind:jaxb-api:2.2.7'
 }
 
+/*
+dependencies {
+    endorsed group:'javax', name:'javaee-endorsed-api', version:'6.0'
+}
+*/
+task stageEndorsed(type: Sync) {
+	from configurations.endorsed
+    into temporaryDir
+    println "conf phase"
+    doFirst{
+    	    println "testik ${temporaryDir.exists()}"
+    	    temporaryDir.mkdirs()
+    	    println "testik ${temporaryDir.exists()}"
+    }
+}
+
+
+//compileJava dependsOn "stageEndorsed"
+
+project.getTasks().getByName("jaxbJaxbschemas").dependsOn("stageEndorsed");
+
+
+tasks.withType(Compile) {
+    dependsOn stageEndorsed
+    println " changing options ${stageEndorsed.destinationDir}"
+    options.compilerArgs << "-Djava.endorsed.dirs=${stageEndorsed.destinationDir}"
+    println " options ${options.compilerArgs}"
+}
 

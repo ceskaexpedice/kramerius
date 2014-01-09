@@ -14,21 +14,21 @@ import com.google.inject.Provider;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-
 import cz.incad.Kramerius.Initializable;
 import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRPRocessFilter;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.LRProcessOffset;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.TypeOfOrdering;
-import cz.incad.kramerius.processes.LRPRocessFilter.Tripple;
 import cz.incad.kramerius.processes.template.OutputTemplateFactory;
+import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.users.database.Offset;
+import cz.incad.kramerius.utils.database.SQLFilter;
+import cz.incad.kramerius.utils.database.SQLFilter.Tripple;
+import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
 import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
 
@@ -67,7 +67,7 @@ public class ProcessesViewObject implements Initializable {
     
     private String lrUrl;
 
-    private LRPRocessFilter filter;
+    private SQLFilter filter;
 
     private String filterParam;
 
@@ -118,7 +118,7 @@ public class ProcessesViewObject implements Initializable {
         }
     }
 
-    public LRPRocessFilter getFilter() {
+    public SQLFilter getFilter() {
         return filter;
     }
     
@@ -128,7 +128,7 @@ public class ProcessesViewObject implements Initializable {
     		pageSize = pageSize + (getNumberOfRunningProcess() % getPageSize());
     	}
 
-    	LRProcessOffset offset = new LRProcessOffset(""+getOffset(getPage()), ""+getPageSize());
+    	Offset offset = new Offset(""+getOffset(getPage()), ""+getPageSize());
     	
     	List<LRProcess> lrProcesses = this.processManager.getLongRunningProcessesAsGrouped(this.ordering, this.typeOfOrdering, offset, this.filter);
         List<ProcessViewObject> objects = new ArrayList<ProcessViewObject>();
@@ -160,13 +160,13 @@ public class ProcessesViewObject implements Initializable {
     	}
 	}
 
-	private LRPRocessFilter createProcessFilter() throws RecognitionException {
+	private SQLFilter createProcessFilter() throws RecognitionException {
         if (this.filterParam == null)
             return null;
         try {
             ParamsParser paramsParser = new ParamsParser(new ParamsLexer(new StringReader(this.filterParam)));
             List params = paramsParser.params();
-            List<Tripple> tripples = new ArrayList<LRPRocessFilter.Tripple>();
+            List<SQLFilter.Tripple> tripples = new ArrayList<SQLFilter.Tripple>();
             for (Object object : params) {
                 List trippleList = (List) object;
                 Tripple tripple = createTripple(trippleList);
@@ -174,7 +174,17 @@ public class ProcessesViewObject implements Initializable {
                     tripples.add(tripple);
                 }
             }
-            LRPRocessFilter filter = LRPRocessFilter.createFilter(tripples);
+            
+            TypesMapping types = new TypesMapping();
+            types.map("status", new SQLFilter.IntegerConverter());
+            types.map("batch_status", new SQLFilter.IntegerConverter());
+            types.map("planned", new SQLFilter.DateConvereter());
+            types.map("started", new SQLFilter.DateConvereter());
+            types.map("finished", new SQLFilter.DateConvereter());
+    
+            
+            
+            SQLFilter filter = SQLFilter.createFilter(types, tripples);
             // TODO: do it better
             if (filter!= null) {
 
@@ -493,8 +503,8 @@ public class ProcessesViewObject implements Initializable {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("planned") && tripple.getOp().equals(LRPRocessFilter.Op.GT)) {
-                    return LRPRocessFilter.getFormattedValue(tripple);
+                if (tripple.getName().equals("planned") && tripple.getOp().equals(SQLFilter.Op.GT)) {
+                    return this.filter.getFormattedValue(tripple);
                 }
             }
         } 
@@ -505,8 +515,9 @@ public class ProcessesViewObject implements Initializable {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("planned") && tripple.getOp().equals(LRPRocessFilter.Op.LT)) {
-                    return LRPRocessFilter.getFormattedValue(tripple);
+                if (tripple.getName().equals("planned") && tripple.getOp().equals(SQLFilter.Op.LT)) {
+                	
+                	return this.filter.getFormattedValue(tripple);
                 }
             }
         } 
@@ -518,8 +529,8 @@ public class ProcessesViewObject implements Initializable {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("started") && tripple.getOp().equals(LRPRocessFilter.Op.GT)) {
-                    return LRPRocessFilter.getFormattedValue(tripple);
+                if (tripple.getName().equals("started") && tripple.getOp().equals(SQLFilter.Op.GT)) {
+                	return this.filter.getFormattedValue(tripple);
                 }
             }
         } 
@@ -530,8 +541,8 @@ public class ProcessesViewObject implements Initializable {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("started") && tripple.getOp().equals(LRPRocessFilter.Op.LT)) {
-                    return LRPRocessFilter.getFormattedValue(tripple);
+                if (tripple.getName().equals("started") && tripple.getOp().equals(SQLFilter.Op.LT)) {
+                    return this.filter.getFormattedValue(tripple);
                 }
             }
         } 
@@ -543,8 +554,8 @@ public class ProcessesViewObject implements Initializable {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("finished") && tripple.getOp().equals(LRPRocessFilter.Op.GT)) {
-                    return LRPRocessFilter.getFormattedValue(tripple);
+                if (tripple.getName().equals("finished") && tripple.getOp().equals(SQLFilter.Op.GT)) {
+                    return this.filter.getFormattedValue(tripple);
                 }
             }
         } 
@@ -555,8 +566,8 @@ public class ProcessesViewObject implements Initializable {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("finished") && tripple.getOp().equals(LRPRocessFilter.Op.LT)) {
-                    return LRPRocessFilter.getFormattedValue(tripple);
+                if (tripple.getName().equals("finished") && tripple.getOp().equals(SQLFilter.Op.LT)) {
+                    return this.filter.getFormattedValue(tripple);
                 }
             }
         } 
@@ -568,8 +579,8 @@ public class ProcessesViewObject implements Initializable {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("name") && tripple.getOp().equals(LRPRocessFilter.Op.LIKE)) {
-                    return LRPRocessFilter.getFormattedValue(tripple);
+                if (tripple.getName().equals("name") && tripple.getOp().equals(SQLFilter.Op.LIKE)) {
+                    return this.filter.getFormattedValue(tripple);
                 }
             }
         }    
@@ -672,6 +683,8 @@ public class ProcessesViewObject implements Initializable {
 	public boolean isCurrentLastPage() {
 		return getPage() == 0;
 	}
+	
+	
 	
 	
 	

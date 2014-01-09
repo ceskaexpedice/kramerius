@@ -397,8 +397,12 @@ registerLoggedUserUpdateRoles(loggeduserid, roleid) ::=<<
 >>
 
 
+/** deletes user */
+deleteUser() ::=<<
+	delete from user_entity where user_id=?
+>>
 
-/** vlozi public uzivatele */
+/** crates new user */
 insertPublicUser(user) ::=<<
 
     insert into user_entity(user_id,name, surname,loginname,email,deactivated, update_timestamp)
@@ -442,3 +446,19 @@ select_object_using_param() ::=<<
 >>
 
 
+/** associate role */
+associateRole() ::=<<
+	insert into 
+		group_user_assoc(group_user_assoc_id,user_id, group_id) 
+	values (
+        nextval('group_user_assoc_id_sequence'),
+        ?, /*user id*/
+        ? /*role id*/
+	)
+>>
+
+
+/** disassociate role */
+disassociateRole() ::=<<
+	delete from group_user_assoc where user_id=? and group_id=?
+>>

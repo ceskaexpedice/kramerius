@@ -17,9 +17,16 @@
 package cz.incad.kramerius.security;
 
 import java.sql.SQLException;
+import java.util.List;
 
+import cz.incad.kramerius.processes.LRProcess;
+import cz.incad.kramerius.processes.LRProcessOrdering;
+import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.security.jaas.K4LoginModule;
 import cz.incad.kramerius.users.UserProfile;
+import cz.incad.kramerius.utils.database.Offset;
+import cz.incad.kramerius.utils.database.Ordering;
+import cz.incad.kramerius.utils.database.SQLFilter;
 
 /**
  * User's and group's manager
@@ -39,6 +46,13 @@ public interface UserManager {
 	 * @see K4LoginModule
 	 */
     public User validateUser(String loginName, String passwd);
+    
+    
+    public List<User> filterUsers(Ordering ordering,TypeOfOrdering typeOfOrdering, Offset offset,SQLFilter filter);
+
+	public List<Role> filterRoles(Ordering ordering,TypeOfOrdering typeOfOrdering, Offset offset, SQLFilter filter);
+
+
     
     /**
      * Find group associated with user represented by given user_id
@@ -192,6 +206,7 @@ public interface UserManager {
      * @throws SQLException
      */
     public void insertRole(Role role) throws SQLException;
+
     
     /**
      * Remove role
@@ -207,15 +222,48 @@ public interface UserManager {
      */
     public void editRole(Role role) throws SQLException;
     
-
+    
     /**
-     * Insert new public user
-     * @param user New public user
+     * Associate concrete role to given user
+     * @param user User
+     * @param role Role
+     * @throws SQLException SQL error has been occured
+     */
+    public void associateRole(User user, Role role) throws SQLException;
+    
+    /**
+     * Remove association role and user
+     * @param user User 
+     * @param role Role 
+     * @throws SQLException SQL error has been occured
+     */
+    public void disAssociateRole(User user, Role role) throws SQLException;
+    
+    /**
+     * Change roles for given user
+     * @param user User
+     * @param rnames Role names
+     * @throws SQLException
+     */
+    public void changeRoles(User user, List<String> rnames) throws SQLException;
+    
+    /**
+     * Insert new user
+     * @param user New user
      * @param pswd Password
      * @throws SQLException SQL error has been occurred
+     * @see UserManager#activateUser(User)
      */
-    public void insertPublicUser(User user, String pswd) throws SQLException;
+    public void insertUser(User user, String pswd) throws SQLException;
 
+    /**
+     * Delete user
+     * @param user
+     * @throws SQLException
+     */
+    public void deleteUser(User user) throws SQLException;
+    
+    
     /**
      * Save user's password
      * @param user User 
@@ -225,11 +273,11 @@ public interface UserManager {
     public void saveUserPassword(User user, String pswd) throws SQLException;
     
     /**
-     * Active public user
+     * Activate given user
      * @param user User
      * @throws SQLException SQL error has been occurred
      */
-    public void activatePublicUser(User user) throws SQLException;
+    public void activateUser(User user) throws SQLException;
     
     
     /**
