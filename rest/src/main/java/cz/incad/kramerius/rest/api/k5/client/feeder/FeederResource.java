@@ -105,6 +105,7 @@ public class FeederResource {
 			jsonObject.put("data", jsonArray);
 			return Response.ok().entity(jsonObject.toString()).build();
 		} catch (IOException ex) {
+			// vyjimky??
 			LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
 			return Response.ok().entity("{}").build();
 		}

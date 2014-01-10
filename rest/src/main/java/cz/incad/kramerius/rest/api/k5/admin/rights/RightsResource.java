@@ -33,6 +33,7 @@ import net.sf.json.JSONObject;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.security.RightCriteriumParams;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
@@ -53,6 +54,7 @@ public class RightsResource {
 
     @Inject
     RightsManager rightsManager;
+
     
     
     /*
@@ -68,20 +70,42 @@ public class RightsResource {
     }*/
     
     
+//	@GET
+//    @Path("params")
+//	@Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+//	public Response params(@PathParam("pid") String pid) {
+//		RightCriteriumParams[] params = this.rightsManager.findAllParams();
+//		for (RightCriteriumParams rp : params) {
+//			rp.getId();
+//		}
+//	}
+//    
+//	JSONObject param(RightCriteriumParams rp) {
+//		JSONObject jsonObj = new JSONObject();
+//		jsonObj.put("id", rp.getId());
+//		jsonObj.put("ldesc", rp.getLongDescription());
+//		
+//		JSONArray jsonArr = new JSONArray();
+//		Object[] objects = rp.getObjects();
+//		jsonObj.put("ldesc", rp.get);
+//	}
     
-	@GET
-    @Path("{pid}")
-	@Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-	public Response rightsForObject(@PathParam("pid") String pid) {
-		//this.rightsManager.findAllRights(pids, action);
-		
-		return null;
-	}    
 
+
+	@GET
+	@Path("params")
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+	public Response params() {
+		this.rightsManager.
+	}
 	
 	@GET
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
 	public Response rights() {
+		
+		
+		//this.rightsManager.findAllRights(pids, action);
+		
 		JSONObject jsonObj = new JSONObject();
 		SecuredActions[] values =  SecuredActions.values();
 		for (SecuredActions act : values) {
