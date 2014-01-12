@@ -107,35 +107,34 @@ public class SortingServiceImpl implements SortingService {
             throw new RuntimeException(e);
         }
         for (String pid : pids) {
+            String sortingValue = null;
             try{
                 Document mods = RelationUtils.getMods(pid, fedoraAccess);
-                String sortingValue = expr.evaluate(mods);
-                if (sortingValue == null || "".equals(sortingValue)){
-                    failedList.add(pid);
-                    LOGGER.info("Cannot sort relation for value:"+sortingValue + " ("+pid+")");
-                }else{
-                    if (numeric){
-                        try{
-                            Integer ordinal = Integer.parseInt(sortingValue);
-                            String existing = sortedMap.put(ordinal,pid);
-                            if (existing != null){
-                                failedList.add(existing);
-                            }
-                        }catch (Exception ex){
-                            failedList.add(pid);
-                            LOGGER.info("Cannot sort relation for value:"+sortingValue + " ("+pid+")");
-                        }
-                    }else{
-                        String existing = sortedMap.put(sortingValue,pid);
+                sortingValue = expr.evaluate(mods);
+            } catch (Exception e) {
+                //ignore, will be logged in next step  (sortingValue test)
+            }
+            if (sortingValue == null || "".equals(sortingValue)){
+                failedList.add(pid);
+                LOGGER.info("Cannot sort relation for invalid value:"+sortingValue + " ("+pid+")");
+            }else{
+                if (numeric){
+                    try{
+                        Integer ordinal = Integer.parseInt(sortingValue);
+                        String existing = sortedMap.put(ordinal,pid);
                         if (existing != null){
                             failedList.add(existing);
                         }
+                    }catch (Exception ex){
+                        failedList.add(pid);
+                        LOGGER.info("Cannot sort relation for invalid numeric value:"+sortingValue + " ("+pid+")");
+                    }
+                }else{
+                    String existing = sortedMap.put(sortingValue,pid);
+                    if (existing != null){
+                        failedList.add(existing);
                     }
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (XPathExpressionException e) {
-                throw new RuntimeException(e);
             }
         }
         List<String> result = new ArrayList<String>(pids.size());
