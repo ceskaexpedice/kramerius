@@ -96,8 +96,11 @@ public class KrameriusImageSupport {
             PDDocument document = null;
             InputStream stream = url.openStream();
             try {
-
-                document = PDDocument.load(stream);
+                if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdf.loadNonSeq", false)){
+                    document = PDDocument.loadNonSeq(stream, null);
+                }else{
+                    document = PDDocument.load(stream);
+                }
                 if( document.isEncrypted() ){
                     try{
                         document.decrypt( KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword") );
