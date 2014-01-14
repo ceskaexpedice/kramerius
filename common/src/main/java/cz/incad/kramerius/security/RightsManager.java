@@ -38,6 +38,13 @@ public interface RightsManager {
      */
     public Right[] findRights(String[] pids, String action, User user);
 
+    /**
+     * Finds all rights stored in database
+     * @return
+     */
+    public Right[] findRights(String[] ids, String[] pids, String[] actions, String[] roleNames);
+
+    
     // interpretuje prava
     /**
      * Right interpretation over given object (pid)

@@ -70,7 +70,7 @@ public class ModelStatisticReport implements StatisticReport {
                 returnsList.add(val);
                 return super.handleRow(rs, returnsList);
             }
-        }.executeQuery(sql, rOffset.getOffset(), rOffset.getSize());
+        }.executeQuery(sql, Integer.parseInt(rOffset.getOffset()), Integer.parseInt(rOffset.getSize()));
     
         return returns;
     }

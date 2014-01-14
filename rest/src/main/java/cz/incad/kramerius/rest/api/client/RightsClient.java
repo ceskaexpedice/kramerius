@@ -30,7 +30,7 @@ public class RightsClient {
 	
     public static String deleteRight(String delId) {
     	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/k5/admin/rights/"+delId);
+        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/rights/"+delId);
         r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
         String t = r.accept(MediaType.APPLICATION_JSON).delete(String.class);
         return t;
@@ -40,13 +40,13 @@ public class RightsClient {
     	Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/rights");
         r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).post(String.class);
+        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(jsonObj.toString()).post(String.class);
         return t;
     }
     
     public static String rights() {
     	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/rights");
+        WebResource r = c.resource("http://localhost:8080/search/k5/admin/rights");
         r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
         return t;
@@ -76,6 +76,14 @@ public class RightsClient {
         return t;
     }
 
+    public static String createParam(JSONObject json) {
+    	Client c = Client.create();
+        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/rights/params");
+        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(json.toString()).post(String.class);
+        return t;
+    }
+
     public static String deleteParam(String paramId) {
     	Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/rights/params/"+paramId);
@@ -97,17 +105,37 @@ public class RightsClient {
         return t;
     }
 
-    
-    public static void main(String[] args) {
-//		String rights = rights();
-//		System.out.println(rights);
-    	
-    	System.out.println(right("45"));
-    	System.out.println(deleteRight("45"));
-    	System.out.println(right("45"));
 
+    private static String createSampleRight2(String critqname,JSONObject param) {
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put("action", "read");
+		jsonObj.put("pid", "uuid:1");
+		jsonObj.put("role", JSONObject.fromObject(UsersClient.role("3")));
 		
+		JSONObject critJSON = new JSONObject();
+		critJSON.put("qname", critqname);
+		critJSON.put("params", param);
+		
+		jsonObj.put("criterium", critJSON);
+		
+    	Client c = Client.create();
+        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/rights");
+        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(jsonObj.toString()).post(String.class);
+        return t;
     }
 
-    
+
+    public static void main(String[] args) {
+//    	String l = params();
+//    	System.out.println(l);
+    	
+//    	String deleteRight = deleteRight("46");
+//    	System.out.println(deleteRight);
+//    	System.out.println("======>");
+//    	String created = createSampleRight2("cz.incad.kramerius.security.impl.criteria.Window", JSONObject.fromObject(param("1")));
+//    	System.out.println(created);
+//    	String deleted = deleteRight(JSONObject.fromObject(created).getString("id"));
+//    	System.out.println(deleted);
+    }
 }

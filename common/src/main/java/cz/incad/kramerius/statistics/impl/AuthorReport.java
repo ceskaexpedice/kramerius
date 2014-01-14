@@ -62,7 +62,8 @@ public class AuthorReport implements StatisticReport{
         authors.setAttribute("action", repAction != null ? repAction.name() : null);
         authors.setAttribute("paging", true);
         String sql = authors.toString();
-        List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
+        Connection conn = connectionProvider.get();
+		List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(conn) {
 
             @Override
             public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
@@ -72,7 +73,7 @@ public class AuthorReport implements StatisticReport{
                 returnsList.add(map);
                 return super.handleRow(rs, returnsList);
             }
-        }.executeQuery(sql.toString(), rOffset.getOffset(), rOffset.getSize());
+        }.executeQuery(sql.toString(), Integer.parseInt(rOffset.getOffset()), Integer.parseInt(rOffset.getSize()));
         
         return auths;
     }

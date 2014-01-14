@@ -38,6 +38,7 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 
 @Path("/k5/rights")
 public class ClientRightsResource {
@@ -60,8 +61,20 @@ public class ClientRightsResource {
 			@QueryParam("fullpath")boolean fullp
 			) {
 		try {
+			if (pid == null) pid = SpecialObjects.REPOSITORY.getPid();
 			ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+			
+			if (actionNames == null) {
+				SecuredActions[] vls = SecuredActions.values();
+				StringBuilder builder = new StringBuilder();
+				for (int i = 0; i < vls.length; i++) {
+					if (i>0) builder.append(',');
+					builder.append(vls[i].getFormalName());
+				}
+				actionNames = builder.toString();
+			}
 
+			
 			JSONObject object = new JSONObject();
 			if (fullp) {
 				fullPath(actionNames, pid, stream, paths, object);
@@ -79,14 +92,6 @@ public class ClientRightsResource {
 	private void fullPath(String actionNames, String pid, String stream,
 			ObjectPidsPath[] paths, JSONObject object) {
 
-		if (actionNames == null) {
-			SecuredActions[] vls = SecuredActions.values();
-			StringBuilder builder = new StringBuilder();
-			for (int i = 0; i < vls.length; i++) {
-				if (i>0) builder.append(',');
-				builder.append(vls[i].name());
-			}
-		}
 		StringTokenizer tokenizer = new StringTokenizer(actionNames,",");
 		while(tokenizer.hasMoreTokens()) {
 			String token = tokenizer.nextToken();

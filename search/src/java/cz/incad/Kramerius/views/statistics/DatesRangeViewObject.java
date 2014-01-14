@@ -35,7 +35,6 @@ import com.google.inject.Provider;
 
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticReportOffset;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
 

@@ -35,10 +35,10 @@ import cz.incad.Kramerius.utils.JSONUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticReportOffset;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
+import cz.incad.kramerius.utils.database.Offset;
 
 /**
  * @author pavels
@@ -86,7 +86,7 @@ public abstract class AbstractStatisticsViewObject {
             String offset = request.getParameter("offset") != null ? request.getParameter("offset") : "0";
             String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
             StatisticReport report = statisticsAccessLog.getReportById(type);
-            StatisticReportOffset reportOff = new StatisticReportOffset(Integer.parseInt(offset), Integer.parseInt(size));
+            Offset reportOff = new Offset(offset, size);
             this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null , reportOff,val);
         }
         return this.data;

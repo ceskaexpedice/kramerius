@@ -18,9 +18,16 @@ package cz.incad.kramerius.rest.api.k5.admin.statistics;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import net.sf.json.JSONArray;
@@ -32,6 +39,7 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -43,6 +51,7 @@ import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.database.Offset;
 
+@Path("/k5/admin/statistics")
 public class StatisticsResource {
 
 	@Inject
@@ -53,23 +62,27 @@ public class StatisticsResource {
 
 	@Inject
 	Provider<User> userProvider;
- 	
+
+	@GET
+	@Path("{report}")
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
 	public Response getReportPage(
-			@QueryParam("reportname") String rip, 
-			@QueryParam("action") @DefaultValue("READ") String raction, 
-			@QueryParam("filter") String filterVal, 
+			@PathParam("report") String rip, 
+			@QueryParam("action") String raction, 
+			@QueryParam("value") String val, 
 			@QueryParam("offset") String filterOffset,
             @QueryParam("resultSize") String filterResultSize
 			) {
 		if (permit(userProvider.get())) {
 			try {
 				StatisticReport report = statisticsAccessLog.getReportById(rip);
-				Offset offset = null;
-				if (StringUtils.isAnyString(filterOffset)) {
+				Offset offset = new Offset("0","25");
+				if (StringUtils.isAnyString(filterOffset) && StringUtils.isAnyString(filterResultSize)) {
 					offset = new Offset(filterOffset, filterResultSize);
 				}
 
-				List<Map<String, Object>> repPage = report.getReportPage(ReportedAction.valueOf(raction), offset, filterVal);
+				List<Map<String, Object>> repPage = report.getReportPage(raction != null ? ReportedAction.valueOf(raction):null, offset, val);
+
 				JSONArray jsonArr = new JSONArray();
 				for (Map<String, Object> map : repPage) {
 					JSONObject json = createJSON(map);
@@ -77,20 +90,21 @@ public class StatisticsResource {
 				}
 				return Response.ok().entity(jsonArr.toString()).build();
 			} catch (StatisticsReportException e) {
-				e.printStackTrace();
+				throw new GenericApplicationException(e.getMessage());
 			}
-			
 		} else {
     		throw new ActionNotAllowed("not allowed");
     	}
-		
-		return null;
 	}
-
+	
+	
     private JSONObject createJSON(Map<String, Object> map) {
     	JSONObject json = new JSONObject();
-    	
-    	return null;
+    	Set<String> keys = map.keySet();
+    	for (String k : keys) {
+			json.put(k, map.get(k));
+		}
+    	return json;
 	}
 
 	boolean permit(User user) {

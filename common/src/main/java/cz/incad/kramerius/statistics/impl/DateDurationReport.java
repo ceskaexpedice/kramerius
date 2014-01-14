@@ -79,7 +79,7 @@ public class DateDurationReport implements StatisticReport{
                     returnsList.add(map);
                     return super.handleRow(rs, returnsList);
                 }
-            }.executeQuery(sql, new Timestamp(FORMAT.parse(splitted[0]).getTime()), new Timestamp(FORMAT.parse(splitted[1]).getTime()) , rOffset.getOffset(), rOffset.getSize());
+            }.executeQuery(sql, new Timestamp(FORMAT.parse(splitted[0]).getTime()), new Timestamp(FORMAT.parse(splitted[1]).getTime()) , Integer.parseInt(rOffset.getOffset()), Integer.parseInt(rOffset.getSize()));
             
             return vals;
         } catch (ParseException e) {

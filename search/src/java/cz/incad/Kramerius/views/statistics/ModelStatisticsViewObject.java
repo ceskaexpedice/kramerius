@@ -37,7 +37,6 @@ import com.sun.corba.se.pept.transport.ContactInfo;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticReportOffset;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
 

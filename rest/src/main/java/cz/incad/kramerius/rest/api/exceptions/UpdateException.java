@@ -14,11 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.k5.admin.users;
+package cz.incad.kramerius.rest.api.exceptions;
 
 import javax.servlet.http.HttpServletResponse;
-
-import cz.incad.kramerius.rest.api.exceptions.AbstractRestJSONException;
 
 public class UpdateException extends AbstractRestJSONException{
 

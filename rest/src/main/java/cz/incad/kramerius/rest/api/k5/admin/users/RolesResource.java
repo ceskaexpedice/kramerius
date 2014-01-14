@@ -45,6 +45,8 @@ import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
+import cz.incad.kramerius.rest.api.exceptions.CreateException;
+import cz.incad.kramerius.rest.api.exceptions.DeleteException;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.FormalNamesMapping;
@@ -93,12 +95,25 @@ public class RolesResource {
 		TYPES.map("gname", new SQLFilter.StringConverter());
 	}
 
+    @GET
+    @Path("{id:[0-9]+}")
+    @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
+    public Response role(@PathParam("id") String roleId) {
+    	if (permit(this.userProvider.get())) {
+    		Role role = this.userManager.findRole(Integer.parseInt(roleId));
+    		if (role != null) {
+    			return Response.ok().entity(roleToJSON(role).toString()).build();
+    		} else throw new ObjectNotFound("cannot find role '"+roleId+"'");
+    	} else {
+    		throw new ActionNotAllowed("not allowed");
+    	}
+    }
+
     
     @GET
     @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
     public Response getRoles(
 
-            @QueryParam("id") String filterId,
             @QueryParam("name") String filterName,
             @QueryParam("offset") String filterOffset,
             @QueryParam("resultSize") String filterResultSize,
@@ -120,7 +135,6 @@ public class RolesResource {
         	}
         	
             Map<String, String> filterMap = new HashMap<String, String>(); {
-                if (StringUtils.isAnyString(filterId)) filterMap.put(transform(FNAMES, "id"), filterId);
                 if (StringUtils.isAnyString(filterName)) filterMap.put(transform(FNAMES, "name"), filterName);
             };
             SQLFilter filter = simpleFilter(filterMap, TYPES);
@@ -138,16 +152,16 @@ public class RolesResource {
 
     
     @DELETE
-    @Path("{gname}")
+    @Path("{id:[0-9]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("gname")String gname){
+    public Response delete(@PathParam("id")String id){
     	if (permit(this.userProvider.get())) {
         	try {
-				Role r = this.userManager.findRoleByName(gname);
+				Role r = this.userManager.findRole(Integer.parseInt(id));
 				if (r != null) {
 					this.userManager.removeRole(r);
 	                return Response.ok().entity(roleToJSON(r).toString()).build();
-				} else throw new ObjectNotFound("cannot find role '"+gname+"'");
+				} else throw new ObjectNotFound("cannot find role '"+id+"'");
 			} catch (SQLException e) {
         		throw new DeleteException(e.getMessage());
 			}

@@ -80,7 +80,8 @@ public class DatabaseRightsManager implements RightsManager {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllRightsFromWithGroups");
         template.setAttribute("pids", pids);
         template.setAttribute("action", action);
-
+        
+        
         String sql = template.toString();
 
         List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
@@ -102,7 +103,51 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     
-    @InitSecurityDatabase
+   
+    
+    @Override
+	public Right[] findRights(final String[] ids, final String[] pids, final String[] actions, final String[] rnames) {
+    	Map<String, List<String>> map = new HashMap<String, List<String>>();
+    	if (ids.length > 0) {
+        	map.put("id", Arrays.asList(ids));
+    	}
+    	if (pids.length > 0) {
+        	map.put("uuid", Arrays.asList(pids));
+    	}
+    	if (actions.length > 0) {
+        	map.put("action", Arrays.asList(actions));
+    	}
+    	if (rnames.length > 0) {
+        	map.put("gname", Arrays.asList(rnames));
+    	}
+
+    	StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllRights");
+    	template.setAttribute("params", map);
+    	
+    	String sql = template.toString();
+    	List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
+                int userId = rs.getInt("user_id");
+                int groupId = rs.getInt("group_id");
+                AbstractUser dbUser = null;
+                if (userId > 0) {
+                    dbUser = userManager.findUser(userId);
+                } else {
+                    dbUser = userManager.findRole(groupId);
+                }
+                returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
+                return true;
+            }
+        }.executeQuery(sql);
+        
+        return ((rights != null) && (!rights.isEmpty())) ? (Right[]) rights.toArray(new Right[rights.size()]) : new Right[0];
+	}
+
+
+
+
+	@InitSecurityDatabase
     public Right[] findRightsForGroup(final String[] pids, final String action, final Role group) {
         for (int i = 0; i < pids.length; i++) {
             if (!pids[i].startsWith("uuid:")) {
@@ -723,6 +768,7 @@ public class DatabaseRightsManager implements RightsManager {
         }.executeQuery(template.toString(), new Integer(paramId));
         return vals;
     }
+    
 }
 
 

@@ -16,6 +16,11 @@
  */
 package cz.incad.kramerius.security.database.impl;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import junit.framework.Assert;
 
 import org.antlr.stringtemplate.StringTemplate;
@@ -43,6 +48,54 @@ import cz.incad.kramerius.security.impl.http.MockGuiceSecurityHTTPModule;
 
 public class RightTemplatesTests {
 
+	@Test
+    public void testFindRights(){
+        StringTemplate tmpl = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllRights");
+        
+        Map<String, List<String>> m = new HashMap<String, List<String>>();
+        
+        m.put("gname", Arrays.asList("k4_admins","common_users"));
+        m.put("action", Arrays.asList("read","store"));
+        m.put("uuid", Arrays.asList("uuid:112233","uuid:223344"));
+
+        tmpl.setAttribute("params", m);
+        String expectedSQL = "select * from right_entity ent\n"+
+"left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id) left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id) left join  user_entity users on  (ent.user_id = users.user_id) left join  group_entity groups on  (ent.group_id = groups.group_id)\n"+
+" where  (action in ('read','store'))     and  (gname in ('k4_admins','common_users'))     and  (uuid in ('uuid:112233','uuid:223344'))        ";
+        
+        String templateString= tmpl.toString();
+        Assert.assertEquals(expectedSQL, templateString);
+	}	
+
+	@Test
+	public void testFindRights_SomeParams() {
+        StringTemplate tmpl = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllRights");
+        
+        Map<String, List<String>> m = new HashMap<String, List<String>>();
+        
+        m.put("gname", Arrays.asList("k4_admins","common_users"));
+        tmpl.setAttribute("params", m);
+        String expectedSQL = "select * from right_entity ent\n"+
+"left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id) left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id) left join  user_entity users on  (ent.user_id = users.user_id) left join  group_entity groups on  (ent.group_id = groups.group_id)\n"+
+" where  (gname in ('k4_admins','common_users'))        ";
+
+        String templateString= tmpl.toString();
+        Assert.assertEquals(expectedSQL, templateString);
+	}
+
+	@Test
+	public void testFindRights_NoParams() {
+        StringTemplate tmpl = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllRights");
+        tmpl.setAttribute("params", null);
+        String expectedSQL =
+        "select * from right_entity ent\n"+
+"left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id) left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id) left join  user_entity users on  (ent.user_id = users.user_id) left join  group_entity groups on  (ent.group_id = groups.group_id)\n"+
+"   ";
+        String templateString= tmpl.toString();
+        Assert.assertEquals(expectedSQL, templateString);
+		
+	}
+	
     @Test
     public void testInsertCriteriumTemplate(){
         Injector injector = injector();

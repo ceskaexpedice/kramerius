@@ -58,8 +58,44 @@ public class UsersClient {
         return t;
     }
     
+    public static String users() {
+    	Client c = Client.create();
+
+        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/users");
+        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+    	
+        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
+        return t;
+    }
+
+    public static String roles() {
+    	Client c = Client.create();
+
+        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/roles");
+        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+    	
+        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
+        return t;
+    }
+
+    public static String role(String rid) {
+    	Client c = Client.create();
+        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/roles/"+rid);
+        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
+        return t;
+    }
+    
     public static void main(String[] args) {
-    	String deletedUser = deleteUser("firstone");
-    	System.out.println(deletedUser);
+    	//String deletedUser = deleteUser("firstone");
+    	//System.out.println(deletedUser);
+    	/*
+    	String usrs = users();
+    	System.out.println(usrs);
+    	String roles = roles();
+    	System.out.println(roles);
+    	*/
+    	String rString = role("3");
+    	System.out.println(rString);
     }
 }
