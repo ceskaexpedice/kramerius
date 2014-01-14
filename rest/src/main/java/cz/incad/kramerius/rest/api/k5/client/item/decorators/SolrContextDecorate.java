@@ -39,50 +39,50 @@ import java.util.ArrayList;
 
 import net.sf.json.JSONArray;
 
-public class SolrTitleDecorate extends AbstractSolrDecorator {
+public class SolrContextDecorate extends AbstractSolrDecorator {
 
-    public static final Logger LOGGER = Logger.getLogger(SolrTitleDecorate.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(SolrContextDecorate.class.getName());
 
-    public static final String SOLR_TITLE_KEY = "SOLR_TITLE";
+    public static final String SOLR_CONTEXT_KEY = "SOLR_CONTEXT";
 
     @Inject
     SolrAccess solrAccess;
 
     @Override
     public String getKey() {
-        return SOLR_TITLE_KEY;
+        return SOLR_CONTEXT_KEY;
     }
 
     @Override
     public void decorate(JSONObject jsonObject, Map<String, Object> context) {
         try {
-        	String pid = jsonObject.getString("pid");
+            String pid = jsonObject.getString("pid");
             Document solrDoc = getSolrPidDocument(pid, context, solrAccess);
             Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
             if (result != null) {
                 Element doc = XMLUtils.findElement(result, "doc");
                 if (doc != null) {
-                    String title = SOLRUtils.value(doc, "dc.title", String.class);
-                    if (title != null) {
-                        jsonObject.put("title", title);
-                    }
-                    String root_title = SOLRUtils.value(doc, "root_title", String.class);
-                    if (root_title != null) {
-                        jsonObject.put("root_title", root_title);
-                    }
-                    String root_model = SOLRUtils.value(doc, "root_model", String.class);
-                    if (root_model != null) {
-                        jsonObject.put("root_model", root_model);
-                    }
-                    String root_pid = SOLRUtils.value(doc, "root_pid", String.class);
-                    if (root_pid != null) {
-                        jsonObject.put("root_pid", root_pid);
-                    }
-                    List details = SOLRUtils.array(doc, "details", String.class);
-                    if(details != null){
-                        JSONArray ja = new JSONArray();
-                        ja.addAll(details);
-                        jsonObject.put("details", ja);
+//                    String title = SOLRUtils.value(doc, "dc.title", String.class);
+//                    if (title != null) {
+//                        jsonObject.put("title", title);
+//                    }
+                    List<String> pidPaths = SOLRUtils.array(doc, "pid_path", String.class);
+                    List<String> modelPaths = SOLRUtils.array(doc, "model_path", String.class);
+                    if (pidPaths != null && modelPaths != null) {
+                        JSONArray jaContext = new JSONArray();
+                        for (int i = 0; i < pidPaths.size(); i++) {
+                            JSONArray ja = new JSONArray();
+                            String[] pids = pidPaths.get(i).split("/");
+                            String[] models = modelPaths.get(i).split("/");
+                            for (int j = 0; j < pids.length; j++) {
+                                JSONObject jo = new JSONObject();
+                                jo.put("pid", pids[j]);
+                                jo.put("model", models[j]);
+                                ja.add(jo);
+                            }
+                            jaContext.add(ja);
+                        }
+                        jsonObject.put("context", jaContext);
                     }
 
                 }

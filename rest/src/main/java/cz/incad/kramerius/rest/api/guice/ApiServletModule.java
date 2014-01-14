@@ -34,6 +34,7 @@ import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.HandleDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrContextDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrDataNode;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrSiblingsDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrTitleDecorate;
@@ -103,6 +104,7 @@ public class ApiServletModule extends JerseyServletModule {
 
 		decs.addBinding().to(HandleDecorate.class);
 		decs.addBinding().to(SolrTitleDecorate.class);
+		decs.addBinding().to(SolrContextDecorate.class);
 
 		decs.addBinding().to(SolrDateDecorate.class);
 		decs.addBinding().to(SolrISSNDecorate.class);

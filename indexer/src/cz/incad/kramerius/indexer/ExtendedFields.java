@@ -101,11 +101,16 @@ public class ExtendedFields {
             pdfPid = "";
             closePDFDocument();
                 InputStream is = fa.getDataStream(pid, "IMG_FULL");
-                PDFParser parser = new PDFParser(is);
-                parser.parse();
-                cosDoc = parser.getDocument();
-
-                pdDoc = new PDDocument(cosDoc);
+                if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdf.loadNonSeq", false)){
+                    PDDocument pdDocument = PDDocument.loadNonSeq(is, null);
+                    cosDoc = pdDocument.getDocument();
+                    pdDoc = new PDDocument(cosDoc);
+                }else{
+                    PDFParser parser = new PDFParser(is);
+                    parser.parse();
+                    cosDoc = parser.getDocument();
+                    pdDoc = new PDDocument(cosDoc);
+                }
                 pdfPid = pid;
 
                 if( pdDoc.isEncrypted() ){
