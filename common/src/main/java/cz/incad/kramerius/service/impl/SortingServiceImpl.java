@@ -63,6 +63,7 @@ public class SortingServiceImpl implements SortingService {
                     ProcessStarter.updateName("Sort relations (" + pid + ")");
                 }catch(Exception ex){}
             }
+            String lastTime = fedoraAccess.getAPIA().getObjectProfile(pid, null).getObjLastModDate();
             RelationModel model = relationService.load(pid);
             for (KrameriusModels kind : model.getRelationKinds()) {
                 if (KrameriusModels.DONATOR.equals(kind)) continue;
@@ -82,13 +83,15 @@ public class SortingServiceImpl implements SortingService {
                     relations.add(new Relation(sortedPid, kind));
                 }
             }
-            relationService.save(pid, model);
-            if (startIndexer){
-                IndexerProcessStarter.spawnIndexer(true, "Reindexing sorted relations", pid);
+            String currTime = fedoraAccess.getAPIA().getObjectProfile(pid, null).getObjLastModDate();
+            if (currTime.equals(lastTime)){
+                relationService.save(pid, model);
+                if (startIndexer){
+                    IndexerProcessStarter.spawnIndexer(true, "Reindexing sorted relations", pid);
+                }
+            }else{
+                LOGGER.warning("Cannot save sorted relations, object "+pid+" was modified.");
             }
-            
-
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
