@@ -94,9 +94,7 @@ public class SolrContextDecorate extends AbstractSolrDecorator {
 
     @Override
     public boolean applyOnContext(String context) {
-        // TODO: jaky kontext dat ??
-        //return "".equals(context);
-        return true;
+        return !"context".equals(context);
     }
 
 }
