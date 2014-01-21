@@ -23,8 +23,8 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.rest.api.k5.client.Decorator;
-import cz.incad.kramerius.rest.api.k5.client.DecoratorsAggregate;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class JSONUtils {
@@ -42,7 +42,7 @@ public class JSONUtils {
 		return obj;
 	}
 	
-	public static JSONObject pidAndModelDesc(String pid, JSONObject jsonObject, FedoraAccess fedoraAccess,String callContext, DecoratorsAggregate decoratorsAggregate, String baseLink)
+	public static JSONObject pidAndModelDesc(String pid, JSONObject jsonObject, FedoraAccess fedoraAccess,String callContext, JSONDecoratorsAggregate decoratorsAggregate, String baseLink)
 			throws IOException {
 		jsonObject.put("pid", pid);
 		jsonObject.put("model", fedoraAccess.getKrameriusModelName(pid));
@@ -53,8 +53,8 @@ public class JSONUtils {
 		// apply decorator
 		if (callContext != null && decoratorsAggregate != null) {
 			Map<String, Object> m = new HashMap<String, Object>();
-			List<Decorator> ldecs = decoratorsAggregate.getDecorators();
-			for (Decorator d : ldecs) {
+			List<JSONDecorator> ldecs = decoratorsAggregate.getDecorators();
+			for (JSONDecorator d : ldecs) {
 				if (d.applyOnContext(callContext)) {
 					d.decorate(jsonObject, m);
 				} 
@@ -63,7 +63,7 @@ public class JSONUtils {
 		return jsonObject;
 	}
 
-	public static JSONObject pidAndModelDesc(String pid, FedoraAccess fedoraAccess, String callContext, DecoratorsAggregate decoratorsAggregate, String baseUrl)
+	public static JSONObject pidAndModelDesc(String pid, FedoraAccess fedoraAccess, String callContext, JSONDecoratorsAggregate decoratorsAggregate, String baseUrl)
 			throws IOException {
 		return pidAndModelDesc(pid, new JSONObject(),fedoraAccess, callContext, decoratorsAggregate, baseUrl);
 	}

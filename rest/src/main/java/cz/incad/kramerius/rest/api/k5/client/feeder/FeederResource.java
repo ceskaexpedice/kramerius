@@ -27,7 +27,8 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
-import cz.incad.kramerius.rest.api.k5.client.DecoratorsAggregate;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.security.User;
@@ -39,7 +40,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 
-@Path("/k5/feed")
+@Path("/v5.0/k5/feed")
 public class FeederResource {
 
 	private static final int ROWS = 18;
@@ -57,7 +58,7 @@ public class FeederResource {
     Provider<HttpServletRequest> requestProvider;
     
 	@Inject
-	DecoratorsAggregate decoratorsAggregate;
+	JSONDecoratorsAggregate decoratorsAggregate;
 	
 	@Inject 
 	SolrAccess solrAccess;
@@ -105,9 +106,8 @@ public class FeederResource {
 			jsonObject.put("data", jsonArray);
 			return Response.ok().entity(jsonObject.toString()).build();
 		} catch (IOException ex) {
-			// vyjimky??
 			LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
-			return Response.ok().entity("{}").build();
+			throw new GenericApplicationException(ex.getMessage());
 		}
 	}
 	

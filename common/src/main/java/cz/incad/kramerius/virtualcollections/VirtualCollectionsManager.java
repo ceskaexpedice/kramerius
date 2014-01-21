@@ -54,6 +54,7 @@ public class VirtualCollectionsManager {
     static final String SPARQL_NS = "http://www.w3.org/2001/sw/DataAccess/rf1/result";
     static final String TEXT_DS_PREFIX = "TEXT_";
 
+    
     private static VirtualCollection getVirtualCollectionOld(FedoraAccess fedoraAccess, String collection, ArrayList<String> langs) {
         try {
             IResourceIndex g = ResourceIndexService.getResourceIndexImpl();

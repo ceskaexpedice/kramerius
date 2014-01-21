@@ -51,7 +51,7 @@ import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.database.Offset;
 
-@Path("/k5/admin/statistics")
+@Path("/v5.0/k5/admin/statistics")
 public class StatisticsResource {
 
 	@Inject

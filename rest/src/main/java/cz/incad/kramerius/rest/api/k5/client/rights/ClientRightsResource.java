@@ -40,7 +40,7 @@ import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 
-@Path("/k5/rights")
+@Path("/v5.0/k5/rights")
 public class ClientRightsResource {
 
 	public static final Logger LOGGER = Logger.getLogger(ClientRightsResource.class.getName());

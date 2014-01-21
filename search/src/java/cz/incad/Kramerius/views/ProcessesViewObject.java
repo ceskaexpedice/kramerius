@@ -25,7 +25,7 @@ import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.template.OutputTemplateFactory;
 import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.users.database.Offset;
+import cz.incad.kramerius.utils.database.Offset;
 import cz.incad.kramerius.utils.database.SQLFilter;
 import cz.incad.kramerius.utils.database.SQLFilter.Tripple;
 import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;

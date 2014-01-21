@@ -16,6 +16,10 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.user;
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -29,17 +33,21 @@ import javax.ws.rs.core.Response;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
+import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.security.utils.PasswordDigest;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.users.UserProfileManager;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-@Path("/k5/user")
+@Path("/v5.0/k5/user")
 public class ClientUserResource {
 
 
@@ -52,38 +60,49 @@ public class ClientUserResource {
     @Inject
     Provider<User> userProvider;
     
+    @Inject
+    UserManager userManager;
+    
     
 	@GET
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response info() {
 		User user = this.userProvider.get();
 		if (user != null) {
-			JSONObject jsonObject = new JSONObject();
-			jsonObject.put("firstname", user.getFirstName());
-			jsonObject.put("surname", user.getSurname());
-			jsonObject.put("loginname", user.getLoginname());
-			jsonObject.put("email", user.getEmail());
-			JSONArray jsonArr = new JSONArray();
-			Role[] roles = user.getGroups();
-			for (Role r : roles) {
-				jsonArr.add(jsonRole(r));
-			}
-			if (roles.length > 0) {
-				jsonObject.put("roles", jsonArr);
-			}
-			return Response.ok().entity(jsonObject.toString()).build();
+			return Response.ok().entity(UsersUtils.userToJSON(user).toString()).build();
 		} else {
 			return Response.ok().entity("{}").build();
 		}
 	}
 	
-
-	private Object jsonRole(Role r) {
-		JSONObject jsonObj = new JSONObject();
-		String rolename = r.getName();
-		jsonObj.put("name", rolename);
-		return jsonObj;
+	@POST
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+    @Consumes(MediaType.APPLICATION_JSON)
+	public Response changePassword(JSONObject rawdata) {
+		User user;
+		try {
+			user = this.userProvider.get();
+			if (user != null && user.getId() != -1) {
+				if (rawdata.containsKey("pswd")) {
+	                String newPswd = PasswordDigest.messageDigest( rawdata.getString("pswd"));
+					this.userManager.saveNewPassword(user.getId(), newPswd);
+					return Response.ok().entity(UsersUtils.userToJSON(user).toString()).build();
+				} else {
+					throw new ObjectNotFound("cannot find user "+user.getId());
+				}
+			} else {
+				throw new ObjectNotFound("cannot find user "+user.getId());
+			}
+		} catch (SQLException e) {
+			throw new GenericApplicationException(e.getMessage());
+		} catch (NoSuchAlgorithmException e) {
+			throw new GenericApplicationException(e.getMessage());
+		} catch (UnsupportedEncodingException e) {
+			throw new GenericApplicationException(e.getMessage());
+		}
 	}
+
+
 
 
 	@GET

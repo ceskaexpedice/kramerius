@@ -71,7 +71,7 @@ import cz.incad.kramerius.utils.XMLUtils;
  * API endpoint for replications
  * @author pavels
  */
-@Path("/replication/{pid}")
+@Path("/v4.6/replication/{pid}")
 public class ReplicationsResource {
 
     @Inject

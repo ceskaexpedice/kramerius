@@ -71,7 +71,7 @@ import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
  * Endpoint for users manipulation 
  * @author pavels
  */
-@Path("/k5/admin/users")
+@Path("/v5.0/k5/admin/users")
 public class UsersResource {
 
 	@Inject
@@ -99,19 +99,27 @@ public class UsersResource {
 		TYPES.map("fistname", new SQLFilter.StringConverter());
 		TYPES.map("surname", new SQLFilter.StringConverter());
 	}
-	/*
-    public static final Map<String, String> TRANSFORM_TABLE = new HashMap<String, String>(); static {
-    	TRANSFORM_TABLE.put("id","user_id");
-    	TRANSFORM_TABLE.put("lname","loginname");
-    }*/
     
     
+    @GET
+    @Path("{id:[0-9]+}")
+    @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
+    public Response role(@PathParam("id") String uid) {
+    	if (permit(this.userProvider.get())) {
+    		User ur = this.userManager.findUser(Integer.parseInt(uid));
+    		if (ur != null) {
+    			return Response.ok().entity(userToJSON(ur).toString()).build();
+    		} else throw new ObjectNotFound("cannot find role '"+uid+"'");
+    	} else {
+    		throw new ActionNotAllowed("not allowed");
+    	}
+    }
+
     
     @GET
     @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
     public Response getUsers(
 
-            @QueryParam("id") String filterId,
             @QueryParam("lname") String filterLoginName,
             @QueryParam("firstname")  String filterFirstname,
             @QueryParam("surname")  String filterSurname,
@@ -135,7 +143,6 @@ public class UsersResource {
         	}
         	
             Map<String, String> filterMap = new HashMap<String, String>(); {
-                if (StringUtils.isAnyString(filterId)) filterMap.put(transform(FNAMES, "id"), filterId);
                 if (StringUtils.isAnyString(filterLoginName)) filterMap.put(transform(FNAMES, "lname"), filterLoginName);
                 if (StringUtils.isAnyString(filterFirstname)) filterMap.put(transform(FNAMES, "firstname"), filterFirstname);
                 if (StringUtils.isAnyString(filterSurname)) filterMap.put(transform(FNAMES, "surname"), filterSurname);
@@ -155,13 +162,13 @@ public class UsersResource {
     }
 	
     @PUT
-    @Path("{lname}")
+    @Path("{id:[0-9]+}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response put(@PathParam("lname")String lname,JSONObject uOptions){
+    public Response put(@PathParam("id")String id,JSONObject uOptions){
     	if (permit(this.userProvider.get())) {
         	try {
-    			User u = userManager.findUserByLoginName(lname);
+    			User u = userManager.findUser(Integer.parseInt(id));
     			if (u!=null) {
     				//TODO: Update firstname, surname !!
     				JSONArray roles = uOptions.getJSONArray("roles");
@@ -170,7 +177,7 @@ public class UsersResource {
         			u =  this.userManager.findUser(u.getId());
         			return Response.ok().entity(userToJSON(u).toString()).build();
     			} else {
-        			throw new ObjectNotFound("cannot find user '"+lname+"'");
+        			throw new ObjectNotFound("cannot find user '"+id+"'");
     			}
     		} catch (SQLException e) {
     			throw new UpdateException(e.getMessage(),e);
@@ -181,13 +188,13 @@ public class UsersResource {
     }
 	
     @DELETE
-    @Path("{lname}")
+    @Path("{id:[0-9]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("lname")String lname){
+    public Response delete(@PathParam("id")String id){
     	if (permit(this.userProvider.get())) {
     		try {
     			
-    			User u = this.userManager.findUserByLoginName(lname);
+    			User u = this.userManager.findUser(Integer.parseInt(id));
 				if (u != null) {
 					User adminUser = this.userManager.findUserByLoginName("krameriusAdmin");
 					if (u.getId() == adminUser.getId()) {
@@ -199,10 +206,10 @@ public class UsersResource {
 					json.put("deleted", true);
 					return Response.ok().entity(json.toString()).build();
 				} else {
-        			throw new ObjectNotFound("cannot find user '"+lname+"'");
+        			throw new ObjectNotFound("cannot find user '"+id+"'");
 				}
 			} catch (SQLException e) {
-				throw new DeleteException("cannot find user '"+lname+"'");
+				throw new DeleteException("cannot find user '"+id+"'");
 			}
     	} else {
     		throw new ActionNotAllowed("not allowed");

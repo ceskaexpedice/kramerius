@@ -20,7 +20,7 @@ package cz.incad.kramerius.rest.api.k5.client;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractDecorator implements Decorator {
+public abstract class AbstractDecorator implements JSONDecorator {
 
 	private HashMap<String, Object> context = new HashMap<String, Object>();
 

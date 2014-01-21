@@ -27,7 +27,8 @@ import cz.incad.kramerius.rest.api.k5.admin.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
 import cz.incad.kramerius.rest.api.k5.admin.users.RolesResource;
 import cz.incad.kramerius.rest.api.k5.admin.users.UsersResource;
-import cz.incad.kramerius.rest.api.k5.client.Decorator;
+import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
@@ -47,7 +48,7 @@ import cz.incad.kramerius.rest.api.k5.client.item.display.ZoomifyDisplayType;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 import cz.incad.kramerius.rest.api.k5.client.user.ClientUserResource;
-import cz.incad.kramerius.rest.api.k5.client.virtualcollection.VirtualCollectionResource;
+import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
@@ -59,19 +60,20 @@ import cz.incad.kramerius.statistics.ReportedAction;
  */
 public class ApiServletModule extends JerseyServletModule {
 
-    public static String VERSION = "v4.6";
-    
+    //public static String VERSION = "v4.6";
+	
     @Override
     protected void configureServlets() {
         // API Resources
         bind(ReplicationsResource.class);
         bind(CDKReplicationsResource.class);
         bind(LRResource.class);
+
         // k5 - znovu...
         bind(ClientUserResource.class);
         bind(ItemResource.class);
         bind(FeederResource.class);
-        bind(VirtualCollectionResource.class);
+        bind(ClientVirtualCollections.class);
         bind(SearchResource.class);
         bind(ClientRightsResource.class);
         
@@ -79,28 +81,28 @@ public class ApiServletModule extends JerseyServletModule {
         bind(RightsResource.class);
         bind(UsersResource.class);
         bind(RolesResource.class);
+        bind(VirtualCollectionsResource.class);
         
         bind(StatisticsResource.class);
         
         //decorators
-        decs();
+        decorators();
         
         // displayTypes
         displayTypes();
      
-        
-        
         // api
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("com.sun.jersey.api.json.POJOMappingFeature", "true");
         parameters.put("com.sun.jersey.config.property.packages", "cz.incad.kramerius.rest.api.processes.messages");
         
-        serve("/api/"+VERSION+"/*").with(GuiceContainer.class, parameters);
+        serve("/api/*").with(GuiceContainer.class, parameters);
+        //serve("/api/"+VERSION+"/*").with(GuiceContainer.class, parameters);
     }
 
-    private void decs() {
-		Multibinder<Decorator> decs
-        = Multibinder.newSetBinder(binder(), Decorator.class);
+    private void decorators() {
+		Multibinder<JSONDecorator> decs
+        = Multibinder.newSetBinder(binder(), JSONDecorator.class);
 
 		decs.addBinding().to(HandleDecorate.class);
 		decs.addBinding().to(SolrTitleDecorate.class);

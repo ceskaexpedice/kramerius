@@ -38,7 +38,7 @@ import cz.incad.kramerius.utils.IOUtils;
 import java.net.URLEncoder;
 import net.sf.json.JSONObject;
 
-@Path("/k5/search")
+@Path("/v5.0/k5/search")
 public class SearchResource {
 
     @Inject

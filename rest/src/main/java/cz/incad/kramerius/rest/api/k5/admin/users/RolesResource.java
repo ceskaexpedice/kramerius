@@ -71,7 +71,7 @@ import net.sf.json.JSONObject;
  * Endpoint for manipulation with roles
  * @author pavels
  */
-@Path("/k5/admin/roles")
+@Path("/v5.0/k5/admin/roles")
 public class RolesResource {
 
 	@Inject
