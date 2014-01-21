@@ -23,6 +23,7 @@ public class VirtualCollectionProvider implements Provider<VirtualCollection> {
     FedoraAccess fedoraAccess;
     @Inject
     KConfiguration kConfiguration;
+    
     public static final String VIRTUAL_COLLECTION = "virtual_collection";
     private Provider<HttpServletRequest> provider;
     private Logger logger;

@@ -1,12 +1,18 @@
 package cz.incad.Kramerius.backend.guice;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.logging.Level;
 
 import javax.servlet.ServletContextEvent;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.name.Named;
 import com.google.inject.servlet.GuiceServletContextListener;
@@ -28,6 +34,7 @@ import cz.incad.kramerius.service.guice.I18NModule;
 import cz.incad.kramerius.service.guice.MailModule;
 import cz.incad.kramerius.service.guice.ServicesModule;
 import cz.incad.kramerius.users.guice.LoggedUsersModule;
+import cz.incad.kramerius.utils.IOUtils;
 
 public class GuiceConfigBean extends GuiceServletContextListener {
 
@@ -90,7 +97,26 @@ public class GuiceConfigBean extends GuiceServletContextListener {
         }
         return new ServletModule();
     }
-
+    
+    //only one extension module is now supported
+    public static Module extensionModule() throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
+    	URL urlRes = GuiceConfigBean.class.getResource("res/guice.module");
+    	if (urlRes != null) {
+    		InputStream istream = urlRes.openConnection().getInputStream();
+    		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    		IOUtils.copyStreams(istream, bos);
+    		Class clz = Class.forName(new String(bos.toByteArray()));
+    		return (Module) clz.newInstance();
+    	} else  return new AbstractModule() {
+			
+			@Override
+			protected void configure() {
+				// TODO Auto-generated method stub
+				
+			}
+		};
+    }
+    
     
     @Provides
     @Named("fontsDir")

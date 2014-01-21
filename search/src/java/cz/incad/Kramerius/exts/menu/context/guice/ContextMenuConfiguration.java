@@ -93,7 +93,6 @@ public class ContextMenuConfiguration extends AbstractModule {
         adminMenuItems.addBinding().to(Rights.class);
         adminMenuItems.addBinding().to(StreamRights.class);
 
-
         adminMenuItems.addBinding().to(Editor.class);
         adminMenuItems.addBinding().to(VirtualCollectionAdd.class);
         

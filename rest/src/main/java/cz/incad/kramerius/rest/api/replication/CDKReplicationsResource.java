@@ -52,7 +52,7 @@ import cz.incad.kramerius.utils.XMLUtils;
  * CDK replication resource
  * @author pavels
  */
-@Path("/cdk")
+@Path("/v4.6/cdk")
 public class CDKReplicationsResource {
 
 	public static Logger LOGGER = Logger.getLogger(CDKReplicationsResource.class.getName());

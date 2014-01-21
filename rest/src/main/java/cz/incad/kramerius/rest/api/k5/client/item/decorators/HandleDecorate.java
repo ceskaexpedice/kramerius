@@ -25,7 +25,7 @@ import com.google.inject.Provider;
 
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
-import cz.incad.kramerius.rest.api.k5.client.Decorator;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;

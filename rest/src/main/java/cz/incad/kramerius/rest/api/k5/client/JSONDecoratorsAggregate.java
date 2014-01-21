@@ -16,18 +16,29 @@
  */
 package cz.incad.kramerius.rest.api.k5.client;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
-import net.sf.json.JSONObject;
+import com.google.inject.Inject;
 
-public interface Decorator {
+import cz.incad.kramerius.rest.api.k5.client.item.display.DisplayType;
 
-	public String getKey();
-	
-	public void decorate(JSONObject jsonObject, Map<String, Object> context);
+public class JSONDecoratorsAggregate {
 
-	public boolean applyOnContext(String context);
-	
-	public Map<String, Object> getContext();
-	
+	List<JSONDecorator> decorators = new ArrayList<JSONDecorator>();
+
+    @Inject
+    public JSONDecoratorsAggregate(Set<JSONDecorator> decs) {
+        super();
+        for (JSONDecorator p : decs) {
+            this.decorators.add(p);
+        }
+    }
+
+    public List<JSONDecorator> getDecorators() {
+    	return new ArrayList<JSONDecorator>(this.decorators);
+    }
 }

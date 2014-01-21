@@ -34,8 +34,6 @@ public class SOLRUtils {
 		else throw new IllegalArgumentException("unsupported type "+clz+"");
 	}
 	
-
-	
     public static <T> T value(final Element doc, final String attributeName, Class<T> clz) {
         List<Element> elms = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
 

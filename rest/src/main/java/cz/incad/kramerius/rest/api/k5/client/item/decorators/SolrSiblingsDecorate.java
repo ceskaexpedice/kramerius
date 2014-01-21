@@ -30,7 +30,7 @@ import com.google.inject.Inject;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
 import cz.incad.kramerius.rest.api.k5.client.AbstractSolrDecorator;
-import cz.incad.kramerius.rest.api.k5.client.Decorator;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import net.sf.json.JSONArray;

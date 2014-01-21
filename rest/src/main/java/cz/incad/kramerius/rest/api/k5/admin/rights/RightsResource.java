@@ -45,10 +45,13 @@ import net.sf.json.JSONObject;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.security.AbstractUser;
+import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumParams;
@@ -57,6 +60,7 @@ import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightCriteriumWrapperImpl;
@@ -68,7 +72,7 @@ import cz.incad.kramerius.service.ResourceBundleService;
  * Rights end point
  * @author pavels
  */
-@Path("/k5/admin/rights")
+@Path("/v5.0/k5/admin/rights")
 public class RightsResource {
 
     @Inject
@@ -86,11 +90,10 @@ public class RightsResource {
     @Inject
     RightCriteriumWrapperFactory critFactory;
 
+    @Inject
+    IsActionAllowed actionAllowed;
 
-//	@GET
-//    @Path("{id:[0-9]+}")
-//    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    
+  
     /**
      * Delete right with given id
      * @param id Right id
@@ -100,17 +103,19 @@ public class RightsResource {
     @Path("{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
 	public Response delete(@PathParam("id") String id) {
-		Right r = this.rightsManager.findRightById(Integer.parseInt(id));
-		if (r != null) {
-			try {
-				this.rightsManager.deleteRight(r);
-				JSONObject jsonRet = rightsToJSON(r);
-				jsonRet.put("deleted", true);
-				return Response.ok().entity(jsonRet.toString()).build();
-			} catch (SQLException e) {
-				throw new GenericApplicationException(e.getMessage(), e);
-			}
-		} else throw new ObjectNotFound("cannot find right with id "+id);
+		if (permit(this.userProvider.get())) {
+			Right r = this.rightsManager.findRightById(Integer.parseInt(id));
+			if (r != null) {
+				try {
+					this.rightsManager.deleteRight(r);
+					JSONObject jsonRet = rightsToJSON(r);
+					jsonRet.put("deleted", true);
+					return Response.ok().entity(jsonRet.toString()).build();
+				} catch (SQLException e) {
+					throw new GenericApplicationException(e.getMessage(), e);
+				}
+			} else throw new ObjectNotFound("cannot find right with id "+id);
+		} else throw new ActionNotAllowed("action is not allowed");
 	}    
 
 	/**
@@ -122,23 +127,25 @@ public class RightsResource {
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
 	public Response insert(JSONObject json) {
-		Right r = this.rightFromJSON(json);		
-		if (r != null)  {
-			try {
-				int rid = this.rightsManager.insertRight(r);
-				Right nr = this.rightsManager.findRightById(rid);
-				URI uri = UriBuilder.fromResource(RightsResource.class).path("{id}").build(nr.getId());
-				return Response.created(uri).entity(rightsToJSON(nr)).build();
-			} catch (IllegalArgumentException e) {
-				throw new GenericApplicationException(e.getMessage(), e);
-			} catch (UriBuilderException e) {
-				throw new GenericApplicationException(e.getMessage(), e);
-			} catch (SQLException e) {
-				throw new GenericApplicationException(e.getMessage(), e);
+		if (permit(this.userProvider.get())) {
+			Right r = this.rightFromJSON(json);		
+			if (r != null)  {
+				try {
+					int rid = this.rightsManager.insertRight(r);
+					Right nr = this.rightsManager.findRightById(rid);
+					URI uri = UriBuilder.fromResource(RightsResource.class).path("{id}").build(nr.getId());
+					return Response.created(uri).entity(rightsToJSON(nr)).build();
+				} catch (IllegalArgumentException e) {
+					throw new GenericApplicationException(e.getMessage(), e);
+				} catch (UriBuilderException e) {
+					throw new GenericApplicationException(e.getMessage(), e);
+				} catch (SQLException e) {
+					throw new GenericApplicationException(e.getMessage(), e);
+				}
+			} else {
+				throw new GenericApplicationException("cannot insert right!");
 			}
-		} else {
-			throw new GenericApplicationException("cannot insert right!");
-		}
+		} else throw new ActionNotAllowed("action is not allowed");
 	}    
 
 	/**
@@ -150,18 +157,20 @@ public class RightsResource {
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
 	public Response update(JSONObject jsonObject) {
-		try {
-			Right r = this.rightFromJSON(jsonObject);		
-			if (r != null) {
-				this.rightsManager.updateRight(r);
-				Right nr = this.rightsManager.findRightById(r.getId());
-				return Response.ok().entity(rightsToJSON(nr)).build();
-			} else {
-				throw new ObjectNotFound("cannot find right for '"+jsonObject+"'");
+		if (permit(this.userProvider.get())) {
+			try {
+				Right r = this.rightFromJSON(jsonObject);		
+				if (r != null) {
+					this.rightsManager.updateRight(r);
+					Right nr = this.rightsManager.findRightById(r.getId());
+					return Response.ok().entity(rightsToJSON(nr)).build();
+				} else {
+					throw new ObjectNotFound("cannot find right for '"+jsonObject+"'");
+				}
+			} catch (SQLException e) {
+				throw new GenericApplicationException("cannot insert right!");
 			}
-		} catch (SQLException e) {
-			throw new GenericApplicationException("cannot insert right!");
-		}
+		} else throw new ActionNotAllowed("action is not allowed");
 	}    
 
 
@@ -169,75 +178,80 @@ public class RightsResource {
     @Path("{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response right( @PathParam("id")String id) {
-		Right r = this.rightsManager.findRightById(Integer.parseInt(id));
-		if (r != null) {
-			return Response.ok().entity(rightsToJSON(r)).build();
-		} else throw new ObjectNotFound("cannot find right '"+id+"'");
+		if (permit(this.userProvider.get())) {
+			Right r = this.rightsManager.findRightById(Integer.parseInt(id));
+			if (r != null) {
+				return Response.ok().entity(rightsToJSON(r)).build();
+			} else throw new ObjectNotFound("cannot find right '"+id+"'");
+		} else throw new ActionNotAllowed("action is not allowed");
 	}
 
     
 	@GET
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
 	public Response rights(  @QueryParam("roles")String roleList, @QueryParam("pids")String pidList, @QueryParam("actions")String actionList) {
+		if (permit(this.userProvider.get())) {
+			List<String> roles = new ArrayList<String>();
+			List<String> pids = new ArrayList<String>();
+			List<String> actions = new ArrayList<String>();
 
-		List<String> roles = new ArrayList<String>();
-		List<String> pids = new ArrayList<String>();
-		List<String> actions = new ArrayList<String>();
+			if (pidList != null) {
+				StringTokenizer tokenizer = new StringTokenizer(pidList);
+				while(tokenizer.hasMoreTokens()) {
+					String tk = tokenizer.nextToken();
+					pids.add(tk);
+				}
+			}
+			
+			if (roleList != null) {
+				StringTokenizer tokenizer = new StringTokenizer(roleList);
+				while(tokenizer.hasMoreTokens()) {
+					String tk = tokenizer.nextToken();
+					roles.add(tk);
+				}
+			}
+			
+			if (actionList != null) {
+				StringTokenizer tokenizer = new StringTokenizer(actionList);
+				while(tokenizer.hasMoreTokens()) {
+					String tk = tokenizer.nextToken();
+					actions.add(tk);
+				}
+			}
 
-		if (pidList != null) {
-			StringTokenizer tokenizer = new StringTokenizer(pidList);
-			while(tokenizer.hasMoreTokens()) {
-				String tk = tokenizer.nextToken();
-				pids.add(tk);
+			Right[] rights = this.rightsManager.findRights(new String[0],pids.toArray(new String[pids.size()]), actions.toArray(new String[actions.size()]), roles.toArray(new String[roles.size()]));
+			JSONArray jsonArr = new JSONArray();
+			for (Right r : rights) {
+				JSONObject json = rightsToJSON(r);
+				jsonArr.add(json);
 			}
-		}
-		
-		if (roleList != null) {
-			StringTokenizer tokenizer = new StringTokenizer(roleList);
-			while(tokenizer.hasMoreTokens()) {
-				String tk = tokenizer.nextToken();
-				roles.add(tk);
-			}
-		}
-		
-		if (actionList != null) {
-			StringTokenizer tokenizer = new StringTokenizer(actionList);
-			while(tokenizer.hasMoreTokens()) {
-				String tk = tokenizer.nextToken();
-				actions.add(tk);
-			}
-		}
-
-		Right[] rights = this.rightsManager.findRights(new String[0],pids.toArray(new String[pids.size()]), actions.toArray(new String[actions.size()]), roles.toArray(new String[roles.size()]));
-		JSONArray jsonArr = new JSONArray();
-		for (Right r : rights) {
-			JSONObject json = rightsToJSON(r);
-			jsonArr.add(json);
-		}
-		
-		return Response.ok().entity(jsonArr.toString()).build();
+			
+			return Response.ok().entity(jsonArr.toString()).build();
+		} else throw new ActionNotAllowed("action is not allowed");
 	}
 
 	@DELETE
 	@Path("params/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
 	public Response deleteParam(@PathParam("id")String id) {
-		try {
-			int id2 = Integer.parseInt(id);
-			RightCriteriumParams params = this.rightsManager.findParamById(id2);
-			if (params != null) {
-				this.rightsManager.deleteRightCriteriumParams(id2);
-				JSONObject jsonObject = paramToJSON(params);
-				jsonObject.put("deleted", true);
-				return Response.ok().entity(jsonObject).build();
-			} else {
-				throw new ObjectNotFound("cannot find param '"+id+"'");
+		if (permit(this.userProvider.get())) {
+			try {
+				int id2 = Integer.parseInt(id);
+				RightCriteriumParams params = this.rightsManager.findParamById(id2);
+				if (params != null) {
+					this.rightsManager.deleteRightCriteriumParams(id2);
+					JSONObject jsonObject = paramToJSON(params);
+					jsonObject.put("deleted", true);
+					return Response.ok().entity(jsonObject).build();
+				} else {
+					throw new ObjectNotFound("cannot find param '"+id+"'");
+				}
+			} catch (NumberFormatException e) {
+				throw new GenericApplicationException(e.getMessage());
+			} catch (SQLException e) {
+				throw new GenericApplicationException(e.getMessage());
 			}
-		} catch (NumberFormatException e) {
-			throw new GenericApplicationException(e.getMessage());
-		} catch (SQLException e) {
-			throw new GenericApplicationException(e.getMessage());
-		}
+		} else throw new ActionNotAllowed("action is not allowed");
 	}
 
 	@POST
@@ -245,33 +259,37 @@ public class RightsResource {
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
 	public Response createParam(JSONObject jsonObj) {
-		try {
-			RightCriteriumParams params = paramsFromJSON(jsonObj);
-			int id = this.rightsManager.insertRightCriteriumParams(params);
-			RightCriteriumParams[] p = this.rightsManager.findAllParams();
-			for (RightCriteriumParams rp : p) {
-				if (rp.getId() == id)  {
-					return Response.ok().entity(paramToJSON(rp)).build();
+		if (permit(this.userProvider.get())) {
+			try {
+				RightCriteriumParams params = paramsFromJSON(jsonObj);
+				int id = this.rightsManager.insertRightCriteriumParams(params);
+				RightCriteriumParams[] p = this.rightsManager.findAllParams();
+				for (RightCriteriumParams rp : p) {
+					if (rp.getId() == id)  {
+						return Response.ok().entity(paramToJSON(rp)).build();
+					}
 				}
+				throw new GenericApplicationException("cannot find created params '"+id+"'");
+			} catch (SQLException e) {
+				throw new GenericApplicationException(e.getMessage());
 			}
-			throw new GenericApplicationException("cannot find created params '"+id+"'");
-		} catch (SQLException e) {
-			throw new GenericApplicationException(e.getMessage());
-		}
+		} else throw new ActionNotAllowed("action is not allowed");
 	}
 
 	@GET
 	@Path("params/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
 	public Response params(@PathParam("id")String id) {
-		int iId = Integer.parseInt(id);
-		RightCriteriumParams[] params = this.rightsManager.findAllParams();
-		for (RightCriteriumParams rp : params) {
-			if (rp.getId() == iId) {
-				return Response.ok().entity(paramToJSON(rp).toString()).build();
+		if (permit(this.userProvider.get())) {
+			int iId = Integer.parseInt(id);
+			RightCriteriumParams[] params = this.rightsManager.findAllParams();
+			for (RightCriteriumParams rp : params) {
+				if (rp.getId() == iId) {
+					return Response.ok().entity(paramToJSON(rp).toString()).build();
+				}
 			}
-		}
-		throw new ObjectNotFound("cannot find param '"+id+"'");
+			throw new ObjectNotFound("cannot find param '"+id+"'");
+		} else throw new ActionNotAllowed("action is not allowed");
 	}
 
 	
@@ -281,13 +299,15 @@ public class RightsResource {
 	@Path("params")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
 	public Response params() {
-		RightCriteriumParams[] params = this.rightsManager.findAllParams();
-		JSONArray jsonArr = new JSONArray();
-		for (RightCriteriumParams rp : params) {
-			JSONObject jsonObj = paramToJSON(rp);
-			jsonArr.add(jsonObj);
-		}
-		return Response.ok().entity(jsonArr.toString()).build();
+		if (permit(this.userProvider.get())) {
+			RightCriteriumParams[] params = this.rightsManager.findAllParams();
+			JSONArray jsonArr = new JSONArray();
+			for (RightCriteriumParams rp : params) {
+				JSONObject jsonObj = paramToJSON(rp);
+				jsonArr.add(jsonObj);
+			}
+			return Response.ok().entity(jsonArr.toString()).build();
+		} else throw new ActionNotAllowed("action is not allowed");
 	}
 
 	private JSONObject userToJSON(AbstractUser au) {
@@ -400,4 +420,11 @@ public class RightsResource {
 
 	}
 	
+	boolean permit(User user) {
+    	if (user != null)
+    		return  this.actionAllowed.isActionAllowed(user,SecuredActions.ADMINISTRATE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH);
+    	else 
+    		return false;
+    }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Pavel Stastny
+ * Copyright (C) 2013 Pavel Stastny
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.processes;
+package cz.incad.kramerius.rest.api.k5.admin.processes;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 
@@ -57,7 +56,6 @@ import biz.sourcecode.base64Coder.Base64Coder;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.sun.jersey.api.NotFoundException;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.BatchStates;
@@ -67,21 +65,15 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
+import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.processes.exceptions.CannotReadLogs;
 import cz.incad.kramerius.rest.api.processes.exceptions.CannotStartProcess;
 import cz.incad.kramerius.rest.api.processes.exceptions.CannotStopProcess;
 import cz.incad.kramerius.rest.api.processes.exceptions.LogsNotFound;
 import cz.incad.kramerius.rest.api.processes.exceptions.NoDefinitionFound;
 import cz.incad.kramerius.rest.api.processes.exceptions.NoProcessFound;
-import cz.incad.kramerius.rest.api.processes.filter.BatchStateConvert;
-import cz.incad.kramerius.rest.api.processes.filter.StateConvert;
-import cz.incad.kramerius.rest.api.utils.dbfilter.DateConvert;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils;
-import cz.incad.kramerius.rest.api.utils.dbfilter.FilterCondition;
-import cz.incad.kramerius.rest.api.utils.dbfilter.IntegerConvert;
-import cz.incad.kramerius.rest.api.utils.dbfilter.Operand;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
@@ -94,19 +86,11 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.database.Offset;
 import cz.incad.kramerius.utils.database.SQLFilter;
-import cz.incad.kramerius.utils.database.SQLFilter.Op;
-import cz.incad.kramerius.utils.database.SQLFilter.Tripple;
 import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
 
+@Path("/k5/admin/processes")
+public class ProcessesResource {
 
-/**
- * Processes API endpoint
- * @author pavels
- */
-@Path("/v4.6/processes")
-public class LRResource {
-	
-    
 	public static TypesMapping TYPES = new TypesMapping(); static {
 		TYPES.map("status", new SQLFilter.IntegerConverter());
 		TYPES.map("batch_status", new SQLFilter.IntegerConverter());
@@ -683,5 +667,6 @@ public class LRResource {
     public SecuredActions securedAction(String def, LRProcessDefinition definition) {
         return definition.getSecuredAction() != null ? SecuredActions.findByFormalName(definition.getSecuredAction()) : SecuredActions.findByFormalName(def);
     }
+
 
 }

@@ -31,7 +31,7 @@ import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
 import cz.incad.kramerius.rest.api.k5.client.AbstractSolrDecorator;
-import cz.incad.kramerius.rest.api.k5.client.Decorator;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
@@ -62,16 +62,12 @@ public class SolrContextDecorate extends AbstractSolrDecorator {
             if (result != null) {
                 Element doc = XMLUtils.findElement(result, "doc");
                 if (doc != null) {
-//                    String title = SOLRUtils.value(doc, "dc.title", String.class);
-//                    if (title != null) {
-//                        jsonObject.put("title", title);
-//                    }
                     List<String> pidPaths = SOLRUtils.array(doc, "pid_path", String.class);
                     List<String> modelPaths = SOLRUtils.array(doc, "model_path", String.class);
                     if (pidPaths != null && modelPaths != null) {
                         JSONArray jaContext = new JSONArray();
                         for (int i = 0; i < pidPaths.size(); i++) {
-                            JSONArray ja = new JSONArray();
+                            JSONArray ja = new JSONArray() ;
                             String[] pids = pidPaths.get(i).split("/");
                             String[] models = modelPaths.get(i).split("/");
                             for (int j = 0; j < pids.length; j++) {

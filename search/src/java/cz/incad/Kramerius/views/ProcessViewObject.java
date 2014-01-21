@@ -27,7 +27,6 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.database.Offset;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ProcessViewObject {
 
@@ -38,7 +37,7 @@ public class ProcessViewObject {
     private LRProcess lrProcess;
     private LRProcessDefinition definition;
     private LRProcessOrdering ordering;
-    private Offset offset;
+    private cz.incad.kramerius.utils.database.Offset offset;
     private TypeOfOrdering typeOfOrdering;
     //private String lrUrl;
     private ResourceBundleService bundleService;
