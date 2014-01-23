@@ -14,32 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.k5.client;
+package cz.incad.kramerius.rest.api.k5.client.item.decorators.display;
 
-import java.io.IOException;
-import java.util.Map;
+import cz.incad.kramerius.rest.api.k5.client.AbstractItemDecorator;
 
-import org.w3c.dom.Document;
 
-import cz.incad.kramerius.SolrAccess;
+public abstract class AbstractDisplayDecorate extends AbstractItemDecorator {
 
-public abstract class AbstractSolrDecorator extends AbstractItemDecorator  {
+	public static final String DISPLAY_KEY="DISPLAY";
 	
-	public static final String SOLR_KEY="SOLR";
-
 	public static String key(String key) {
-		return AbstractDecorator.construct(SOLR_KEY, key);
-	}
-
-	
-	public static final String SOLR_PID_DOCUMENT_KEY ="solr_pid_document";
-	
-	public Document getSolrPidDocument(String pid, Map<String, Object> context, SolrAccess solrAccess) throws IOException {
-		String key = SOLR_PID_DOCUMENT_KEY+"_"+pid;
-		if (!context.containsKey(key)) {
-			context.put(key, solrAccess.getSolrDataDocument(pid));
-		}
-		return (Document) context.get(key);
+		return AbstractItemDecorator.construct(DISPLAY_KEY, key);
 	}
 	
 }

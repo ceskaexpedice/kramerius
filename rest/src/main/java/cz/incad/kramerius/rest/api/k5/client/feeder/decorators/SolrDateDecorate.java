@@ -28,17 +28,19 @@ import com.google.inject.Inject;
 
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
 import cz.incad.kramerius.rest.api.k5.client.AbstractSolrDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
-public class SolrDateDecorate extends AbstractSolrDecorator {
+public class SolrDateDecorate extends AbstractFeederDecorator {
 
 	public static final Logger LOGGER = Logger.getLogger(SolrDateDecorate.class.getName());
 	
-	private static final String KEY = "SOLR_DATE";
+	private static final String KEY = AbstractFeederDecorator.key("SOLRDATE");//"SOLR_DATE";
 
+	
 	@Inject
 	SolrAccess solrAccess;
 
@@ -69,8 +71,11 @@ public class SolrDateDecorate extends AbstractSolrDecorator {
 	}
 
 	@Override
-	public boolean applyOnContext(String context) {
-		return context.endsWith("mostdesirable");
+	public boolean apply(JSONObject jsonObject, String context) {
+		TokenizedPath fctx = super.feederContext(tokenize(context));
+		if (fctx.isParsed()) {
+			return ( (!fctx.getRestPath().isEmpty()) && fctx.getRestPath().get(0).equals("mostdesirable"));
+		} else return false;
 	}
 
 }

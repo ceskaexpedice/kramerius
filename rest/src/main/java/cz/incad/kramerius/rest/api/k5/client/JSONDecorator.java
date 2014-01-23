@@ -26,8 +26,11 @@ public interface JSONDecorator {
 	
 	public void decorate(JSONObject jsonObject, Map<String, Object> context);
 
-	public boolean applyOnContext(String context);
+	public boolean apply(JSONObject jsonObject, String context);
 	
-	public Map<String, Object> getContext();
+	public Map<String, Object> getRunningContext();
 	
+	public void before(Map<String, Object> runningContext);
+	
+	public void after();
 }

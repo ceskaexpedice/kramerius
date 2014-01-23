@@ -31,7 +31,7 @@ import com.google.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.AbstractSolrDecorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -40,8 +40,9 @@ public class SolrDataNode extends AbstractSolrDecorator {
 
 	public static final Logger LOGGER = Logger.getLogger(SolrSiblingsDecorate.class.getName());
 
-	public static final String KEY = "DATA_NODE";
+	public static final String KEY =  AbstractSolrDecorator.key("DATA_NODE");//"DATA_NODE";
 
+	
     @Inject
     SolrAccess solrAccess;
 
@@ -73,7 +74,7 @@ public class SolrDataNode extends AbstractSolrDecorator {
 	
 	// pro vsechny
 	@Override
-	public boolean applyOnContext(String context) {
+	public boolean apply(JSONObject jsonObject, String context) {
 		return true;
 	}
 }

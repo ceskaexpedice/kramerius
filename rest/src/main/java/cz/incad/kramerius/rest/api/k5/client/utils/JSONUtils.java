@@ -46,19 +46,17 @@ public class JSONUtils {
 			throws IOException {
 		jsonObject.put("pid", pid);
 		jsonObject.put("model", fedoraAccess.getKrameriusModelName(pid));
-//		//jsonObject.put("base,", link)
-//		if (baseLink != null) {
-//			//JSONUtils.link(jsonObject, "base", baseLink);
-//		}
 		// apply decorator
 		if (callContext != null && decoratorsAggregate != null) {
 			Map<String, Object> m = new HashMap<String, Object>();
 			List<JSONDecorator> ldecs = decoratorsAggregate.getDecorators();
+			for (JSONDecorator d : ldecs) { d.before(m); }
 			for (JSONDecorator d : ldecs) {
-				if (d.applyOnContext(callContext)) {
+				if (d.apply(jsonObject, callContext)) {
 					d.decorate(jsonObject, m);
 				} 
 			}
+			for (JSONDecorator d : ldecs) { d.after(); }
 		}
 		return jsonObject;
 	}
@@ -120,72 +118,6 @@ public class JSONUtils {
 		}
 		
 	}
-	
-//	public static JSONArray siblingsLeft(final String pid, FedoraAccess fedoraAccess, SolrAccess solrAccess) {
-//		try {
-//			JSONArray jsonArray = new JSONArray();
-//			
-//			ObjectPidsPath[] paths = solrAccess.getPath(pid);
-//			ObjectPidsPath path = selectPath(paths);
-//			if (path != null) {
-//				String[] pids = path.getPathFromRootToLeaf();
-//				if (pids.length >= 2) {
-//					String parent = pids[pids.length -2];
-//					final List<String> leftSibs = new ArrayList<String>();
-//
-//					
-//					
-//					fedoraAccess.processSubtree(parent, new TreeNodeProcessor() {
-//
-//						boolean beforeMyPid = true;
-//						
-//						@Override
-//						public boolean skipBranch(String p, int level) {
-//							return level > 1;
-//						}
-//						
-//						@Override
-//						public void process(String p, int level) throws ProcessSubtreeException {
-//							if (level == 1) {
-//								if (beforeMyPid) beforeMyPid = !p.equals(pid);
-//								
-//								if (beforeMyPid) {
-//									leftSibs.add(p);
-//								}
-//							}
-//						}
-//						
-//						@Override
-//						public boolean breakProcessing(String p, int level) {
-//							return false;
-//						}
-//					});
-//					
-//					for (String p : leftSibs) {
-//						JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess);
-//						jsonArray.add(jsonObject);
-//					}
-//					
-//					return jsonArray;
-//					
-//				} else {
-//					return new JSONArray();
-//				}
-//				
-//			} else {
-//				return new JSONArray();
-//			}
-//			
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return new JSONArray();
-//		} catch (ProcessSubtreeException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return new JSONArray();
-//		}
-//	}
 	
 
 	private static ObjectPidsPath selectPath(ObjectPidsPath[] paths) {

@@ -30,13 +30,14 @@ import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.AbstractSolrDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
-public class SolrLanguageDecorate extends AbstractSolrDecorator  {
+public class SolrLanguageDecorate extends AbstractFeederDecorator  {
 
 	
-	public static final String  KEY = "SOLR_LANG";
+	public static final String  KEY = AbstractFeederDecorator.key("SOLRLANG");
 	
 	public static Logger LOGGER = Logger.getLogger(SolrLanguageDecorate.class.getName());
 
@@ -71,8 +72,11 @@ public class SolrLanguageDecorate extends AbstractSolrDecorator  {
 	}
 
 	@Override
-	public boolean applyOnContext(String context) {
-		return context.endsWith("mostdesirable");
+	public boolean apply(JSONObject jsonObject, String context) {
+		TokenizedPath fctx = super.feederContext(tokenize(context));
+		if (fctx.isParsed()) {
+			return ( (!fctx.getRestPath().isEmpty()) && fctx.getRestPath().get(0).equals("mostdesirable"));
+		} else return false;
 	}
 
 	

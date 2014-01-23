@@ -28,9 +28,10 @@ import org.w3c.dom.Element;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.AbstractSolrDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import net.sf.json.JSONArray;
@@ -40,7 +41,7 @@ public class SolrSiblingsDecorate extends  AbstractSolrDecorator {
 
 	public static final Logger LOGGER = Logger.getLogger(SolrSiblingsDecorate.class.getName());
 	
-    public static final String SOLR_SIBLINGS_KEY = "SOLR_SIBLINGS";
+    public static final String SOLR_SIBLINGS_KEY = AbstractSolrDecorator.key("SIBLINGS");//"SOLR_SIBLINGS";
 
     @Inject
     SolrAccess solrAccess;
@@ -78,7 +79,9 @@ public class SolrSiblingsDecorate extends  AbstractSolrDecorator {
 	}
 
 	@Override
-	public boolean applyOnContext(String context) {
-		return (context.equals("siblings")); 
+	public boolean apply(JSONObject jsonObject, String context) {
+		//any context but must ends with 'siblings'
+		List<String> tokenized = tokenize(context);
+		return (!tokenized.isEmpty() && tokenized.get(tokenized.size() - 1).equals("siblings"));
 	}
 }

@@ -24,13 +24,13 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import net.sf.json.JSONObject;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 
-public class HandleDecorate  extends AbstractDecorator {
+public class HandleDecorate  extends AbstractItemDecorator {
 
 	private static final String KEY = "HREF";
 
@@ -46,13 +46,13 @@ public class HandleDecorate  extends AbstractDecorator {
 
 	@Override
 	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
-		String str = ApplicationURL.applicationURL(this.requestProvider.get()).toString()+"/handle/"+jsonObject.getString("pid");
+		String str = ApplicationURL.applicationURL(this.requestProvider.get()).toString()+"/handle/"+getPidFromJSON(jsonObject);
 		JSONUtils.link(jsonObject, "handle", str);
 		//jsonObject.put("handle", str);
 	}
 
 	@Override
-	public boolean applyOnContext(String context) {
+	public boolean apply(JSONObject jsonObject, String context) {
 		return true;
 	}
 }
