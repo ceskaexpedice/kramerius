@@ -95,8 +95,8 @@ public class FeederResource {
 				String pid = SOLRUtils.value(doc, "PID", String.class);
 				if (pid != null) {
 					try {
-						String uriString = UriBuilder.fromPath("{pid}").build(pid).toString();
-						JSONObject mdis = JSONUtils.pidAndModelDesc(pid, fedoraAccess,"mostdesirable", this.decoratorsAggregate, uriString);
+						String uriString = UriBuilder.fromResource(FeederResource.class).path("newest").build(pid).toString();
+						JSONObject mdis = JSONUtils.pidAndModelDesc(pid, fedoraAccess,uriString, this.decoratorsAggregate, uriString);
 						jsonArray.add(mdis);
 					}catch(IOException ex) {
 						LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
@@ -122,8 +122,8 @@ public class FeederResource {
 		JSONArray jsonArray = new JSONArray();
 		for (String pid : mostDesirable) {
 			try {
-				String uriString = UriBuilder.fromPath("{pid}").build(pid).toString();
-				JSONObject mdis = JSONUtils.pidAndModelDesc(pid, fedoraAccess,"mostdesirable", this.decoratorsAggregate, uriString);
+				String uriString = UriBuilder.fromResource(FeederResource.class).path("mostdesirable").build(pid).toString();
+				JSONObject mdis = JSONUtils.pidAndModelDesc(pid, fedoraAccess,uriString, this.decoratorsAggregate, uriString);
 				jsonArray.add(mdis);
 			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
