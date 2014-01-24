@@ -460,6 +460,11 @@
 
       /* add to favorite */
       function addToFavorites() {
+		  if (getAffectedPids().length == 0)   {
+              (new Message("favorites_no_selection")).show();
+			  return;
+		  }
+
           new Profile().modify(
                   function(json){
                       if (!json.favorites) {
