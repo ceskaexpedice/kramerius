@@ -42,8 +42,6 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
-import cz.incad.kramerius.rest.api.k5.client.item.display.DisplayType;
-import cz.incad.kramerius.rest.api.k5.client.item.display.DisplayTypeAggregate;
 import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
 import cz.incad.kramerius.rest.api.k5.client.utils.ChildrenNodeProcessor;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
@@ -69,8 +67,6 @@ public class ItemResource {
 	Provider<HttpServletRequest> requestProvider;
 	
 	
-	@Inject
-	DisplayTypeAggregate displayTypeAggregate;
 	
 	@Inject
 	JSONDecoratorsAggregate decoratorsAggregate;
@@ -148,16 +144,16 @@ public class ItemResource {
 			JSONArray jsonArray = new JSONArray();
 			for (String p : children) {
 				// metadata decorator
-				String uri = UriBuilder.fromPath("{pid}").build(p).toString();
-				JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess, "children", this.decoratorsAggregate, uri);
+				String uri = UriBuilder.fromPath("{pid}/children").build(p).toString();
+				JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess, uri.toString(), this.decoratorsAggregate, uri);
 				jsonArray.add(jsonObject);
 			}
 			return Response.ok().entity(jsonArray.toString()).build();
 		}catch(IOException ex) {
-			ex.printStackTrace();
+			LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
             return Response.ok().entity("{}").build();
 		} catch (ProcessSubtreeException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
 			return Response.ok().entity("{}").build();
 		}
     }
@@ -175,10 +171,10 @@ public class ItemResource {
 			}
 			return Response.ok().entity(sibsList.toString()).build();
 		}catch(IOException ex) {
-			ex.printStackTrace();
-            return Response.ok().entity("{}").build();
+			LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+			return Response.ok().entity("{}").build();
 		} catch (ProcessSubtreeException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
 			return Response.ok().entity("{}").build();
 		}
     }
@@ -206,8 +202,6 @@ public class ItemResource {
 		for (String p : children) {
 			String uriString = UriBuilder.fromPath("{pid}").build(p).toString();
 			JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess,"siblings",this.decoratorsAggregate, uriString);
-//			String str = ApplicationURL.applicationURL(this.requestProvider.get()).toString()+"/img?pid="+p+"&stream=IMG_THUMB&action=GETRAW";
-//			jsonObject.put("url", str);
 			jsonObject.put("selected", p.equals(pid));
 			jsonArray.add(jsonObject);
 		}
@@ -216,55 +210,11 @@ public class ItemResource {
 	}
 
 	
-//	// TODO 
-//	@GET
-//	@Path("{pid}/context")
-//    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-//    public Response context(@PathParam("pid")String pid) {
-//		try {
-//			ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
-//			JSONArray jsonArray = new JSONArray();
-//			for (ObjectPidsPath ppath : paths) {
-//				JSONArray subArr = jsonArr(ppath, "context", decoratorsAggregate);
-//				jsonArray.add(subArr);
-//			}
-//			return Response.ok().entity(jsonArray.toString()).build();
-//		}catch(IOException ex) {
-//            return Response.ok().entity("{}").build();
-//		}
-//
-//    }
-//
-
-//	private JSONArray jsonArr( ObjectPidsPath ppath,String context, DecoratorsAggregate decoratorsAggregate) throws IOException {
-//		JSONArray subArray = new JSONArray();
-//		String[] pths = ppath.getPathFromRootToLeaf();
-//		for (String p : pths) {
-//			String uriString = UriBuilder.fromPath("{pid}").build(p).toString();
-//			JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, this.fedoraAccess, context, decoratorsAggregate, uriString);
-//			// TODO: decorators
-//			subArray.add(jsonObject);
-//		}
-//		return subArray;
-//	}
 
 	
 
 
 	
-	@GET
-	@Path("{pid}/display")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response display(@PathParam("pid")String pid) {
-		HashMap<String, Object> opts = new HashMap<String, Object>();
-		DisplayType dtype = this.displayTypeAggregate.getDisplayType(pid, opts);
-		if (dtype != null) {
-            return Response.ok().entity(dtype.getDisplay(pid, opts).toString()).build();
-		} else {
-            return Response.ok().entity("{}").build();
-		}
-    }
-
 	
 	@GET
 	@Path("{pid}/full")
@@ -313,9 +263,10 @@ public class ItemResource {
     	try {
         	if (pid != null) {
         		JSONObject jsonObject = new JSONObject();	
-        		JSONUtils.pidAndModelDesc(pid, jsonObject, this.fedoraAccess, "", this.decoratorsAggregate, null);
-        		// switch pdf
-
+        		
+        		
+    			String uriString = UriBuilder.fromPath("{pid}").build(pid).toString();
+        		JSONUtils.pidAndModelDesc(pid, jsonObject, this.fedoraAccess, uriString, this.decoratorsAggregate, null);
         		
         		Document datastreams = this.fedoraAccess.getFedoraDataStreamsListAsDocument(pid);
         		Element documentElement = datastreams.getDocumentElement();
@@ -324,59 +275,8 @@ public class ItemResource {
         		for (Element e : elms) {
 					datastreamsEn.add(e.getAttribute("dsid"));
 				}
-        		
-        		
-//        		JSONObject links = new JSONObject();
-//        		// metadata
-//        		if (datastreamsEn.contains(FedoraUtils.DC_STREAM)) {
-//            		link(links, "dc", UriBuilder.fromPath("{pid}/dc").build(pid).toString(),Operations.read);
-//        		}
-//        		if (datastreamsEn.contains(FedoraUtils.BIBLIO_MODS_STREAM)) {
-//        			link(links, "mods", UriBuilder.fromPath("{pid}/mods").build(pid).toString(), Operations.read);
-//        		}
-//        		// display options
-//        		link(links, "display", UriBuilder.fromPath("{pid}/display").build(pid).toString(), Operations.read);
-//        		
-//        		// navigation
-//        		link(links, "context", UriBuilder.fromPath("{pid}/context").build(pid).toString(), Operations.read);
-//        		link(links, "children", UriBuilder.fromPath("{pid}/children").build(pid).toString(), Operations.read);
-//        		link(links, "siblings", UriBuilder.fromPath("{pid}/siblings").build(pid).toString(), Operations.read);
-//
-//        		// images
-//        		if (datastreamsEn.contains(FedoraUtils.IMG_THUMB_STREAM)) {
-//        			link(links, "thumb", UriBuilder.fromPath("{pid}/thumb").build(pid).toString(), Operations.read);
-//        		}
-//        		if (datastreamsEn.contains(FedoraUtils.IMG_PREVIEW_STREAM)) {
-//        			link(links, "preview", UriBuilder.fromPath("{pid}/preview").build(pid).toString(), Operations.read);
-//        		}
-//        		if (datastreamsEn.contains(FedoraUtils.IMG_FULL_STREAM)) {
-//        			link(links, "full", UriBuilder.fromPath("{pid}/full").build(pid).toString(), Operations.read);
-//        		}
-//        		
-//        		jsonObject.put("links", links);
 
-        		
-        		//        		
-//        		jsonObject.put("tree", UriBuilder.fromPath("{pid}/tree").build(pid).toString());
-//        		jsonObject.put("display", UriBuilder.fromPath("{pid}/display").build(pid).toString());
-//        		//details
-//        		jsonObject.put("details", details(pid));
-//        		
-//        		//metadata - extension point
-//        		Metadata metadata = this.metadataAggregate.getMetadataCollector(pid);
-//        		if (metadata != null) {
-//        			jsonObject.put("metadata", metadata.collect(pid));
-//        		}
-//        		
-//        		// display type & options
-//        		DisplayType dtype = this.displayTypeAggregate.getDisplayType(pid);
-//        		if (dtype != null) {
-//        			jsonObject.put("display", dtype.getDisplay(pid));
-//        		}
-//        		
-//        		String appURL = ApplicationURL.applicationURL(this.requestProvider.get());
-//        		
-                return Response.ok().entity(jsonObject.toString()).build();
+        		return Response.ok().entity(jsonObject.toString()).build();
         	} else {
         		throw new PIDNotFound("pid not found '"+pid+"'");
         	}
@@ -385,5 +285,4 @@ public class ItemResource {
 		}
     }
 
-	
 }

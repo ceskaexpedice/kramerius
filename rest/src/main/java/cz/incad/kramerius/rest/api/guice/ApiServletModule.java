@@ -39,12 +39,8 @@ import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrContextDecorate
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrDataNode;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrSiblingsDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrTitleDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.display.DeepZoomDisplayType;
-import cz.incad.kramerius.rest.api.k5.client.item.display.DisplayType;
-import cz.incad.kramerius.rest.api.k5.client.item.display.DisplayTypeAggregate;
-import cz.incad.kramerius.rest.api.k5.client.item.display.PDFDisplayType;
-import cz.incad.kramerius.rest.api.k5.client.item.display.PlainImageDisplayType;
-import cz.incad.kramerius.rest.api.k5.client.item.display.ZoomifyDisplayType;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.PDFDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.ZoomDecorate;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 import cz.incad.kramerius.rest.api.k5.client.user.ClientUserResource;
@@ -88,8 +84,6 @@ public class ApiServletModule extends JerseyServletModule {
         //decorators
         decorators();
         
-        // displayTypes
-        displayTypes();
      
         // api
         Map<String, String> parameters = new HashMap<String, String>();
@@ -113,19 +107,12 @@ public class ApiServletModule extends JerseyServletModule {
 		decs.addBinding().to(SolrLanguageDecorate.class);
 		
 		decs.addBinding().to(SolrDataNode.class);
+		
+		decs.addBinding().to(ZoomDecorate.class);
+		decs.addBinding().to(PDFDecorate.class);
+		
 		//decs.addBinding().to(SolrSiblingsDecorate.class);
     }
 
-	private void displayTypes() {
-		Multibinder<DisplayType> dcollectors
-        = Multibinder.newSetBinder(binder(), DisplayType.class);
-        dcollectors.addBinding().to(PlainImageDisplayType.class);
-        dcollectors.addBinding().to(PDFDisplayType.class);
-        dcollectors.addBinding().to(DeepZoomDisplayType.class);
-        dcollectors.addBinding().to(ZoomifyDisplayType.class);
-        // display aggregator
-        bind(DisplayTypeAggregate.class);
-		
-	}
 
 }

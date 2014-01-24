@@ -19,26 +19,37 @@ package cz.incad.kramerius.rest.api.k5.client;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.inject.Inject;
 
-import cz.incad.kramerius.rest.api.k5.client.item.display.DisplayType;
 
 public class JSONDecoratorsAggregate {
 
-	List<JSONDecorator> decorators = new ArrayList<JSONDecorator>();
-
+	Map<String, JSONDecorator> decoratorsMap = new HashMap<String, JSONDecorator>();
+	List<String> keys = new ArrayList<String>();
+	
     @Inject
     public JSONDecoratorsAggregate(Set<JSONDecorator> decs) {
         super();
         for (JSONDecorator p : decs) {
-            this.decorators.add(p);
+        	String k = p.getKey();
+        	if (keys.contains(k)) {
+        		keys.remove(k);
+        	}
+    		keys.add(k);
+        	this.decoratorsMap.put(k, p);
         }
     }
 
     public List<JSONDecorator> getDecorators() {
-    	return new ArrayList<JSONDecorator>(this.decorators);
+    	List<JSONDecorator> decorators = new ArrayList<JSONDecorator>();
+    	for (String	k: this.keys) {
+    		decorators.add(this.decoratorsMap.get(k));
+		}
+    	return decorators;
     }
 }

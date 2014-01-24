@@ -29,7 +29,7 @@ import com.google.inject.Inject;
 
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.AbstractSolrDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
@@ -43,7 +43,7 @@ public class SolrTitleDecorate extends AbstractSolrDecorator {
 
     public static final Logger LOGGER = Logger.getLogger(SolrTitleDecorate.class.getName());
 
-    public static final String SOLR_TITLE_KEY = "SOLR_TITLE";
+    public static final String SOLR_TITLE_KEY = AbstractSolrDecorator.key("TITLE");
 
     @Inject
     SolrAccess solrAccess;
@@ -78,13 +78,15 @@ public class SolrTitleDecorate extends AbstractSolrDecorator {
                     if (root_pid != null) {
                         jsonObject.put("root_pid", root_pid);
                     }
+                    // 
+
+                    /*
                     List details = SOLRUtils.array(doc, "details", String.class);
                     if(details != null){
                         JSONArray ja = new JSONArray();
                         ja.addAll(details);
                         jsonObject.put("details", ja);
-                    }
-
+                    }*/
                 }
             }
         } catch (IOException e) {
@@ -93,9 +95,7 @@ public class SolrTitleDecorate extends AbstractSolrDecorator {
     }
 
     @Override
-    public boolean applyOnContext(String context) {
-        // TODO: jaky kontext dat ??
-        //return "".equals(context);
+    public boolean apply(JSONObject jsonObject, String context) {
         return true;
     }
 

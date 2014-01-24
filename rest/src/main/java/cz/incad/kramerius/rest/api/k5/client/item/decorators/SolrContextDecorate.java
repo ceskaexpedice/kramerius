@@ -29,9 +29,10 @@ import com.google.inject.Inject;
 
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.AbstractSolrDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
@@ -43,7 +44,8 @@ public class SolrContextDecorate extends AbstractSolrDecorator {
 
     public static final Logger LOGGER = Logger.getLogger(SolrContextDecorate.class.getName());
 
-    public static final String SOLR_CONTEXT_KEY = "SOLR_CONTEXT";
+//    public static final String SOLR_CONTEXT_KEY = "SOLR_CONTEXT";
+  public static final String SOLR_CONTEXT_KEY = AbstractSolrDecorator.key("CONTEXT");
 
     @Inject
     SolrAccess solrAccess;
@@ -89,8 +91,8 @@ public class SolrContextDecorate extends AbstractSolrDecorator {
     }
 
     @Override
-    public boolean applyOnContext(String context) {
-        return !"context".equals(context);
+    public boolean apply(JSONObject jsonObject, String context) {
+		TokenizedPath tpath = super.itemContext(tokenize(context));
+		return (tpath.isParsed() && tpath.getRestPath().isEmpty());
     }
-
 }
