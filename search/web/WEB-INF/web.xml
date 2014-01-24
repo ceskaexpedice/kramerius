@@ -13,6 +13,7 @@
     <filter-mapping>
         <filter-name>basic</filter-name>
         <url-pattern>/api/*</url-pattern>
+        <url-pattern>/lr</url-pattern>
     </filter-mapping>
 
     <!-- mod_proxy filter; doesnt work in krameriusdemo don't know why (logout doesn't work)
