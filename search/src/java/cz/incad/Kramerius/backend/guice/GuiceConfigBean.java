@@ -5,6 +5,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.servlet.ServletContextEvent;
@@ -53,7 +57,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 
     @Override
     protected Injector getInjector() {
-        Injector injector = Guice.createInjector(
+    	List<AbstractModule> modules = Arrays.asList(
                 new BaseModule(), // base  module
                 
                 new ServicesModule(), // base services
@@ -78,9 +82,26 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 
                 new FormatterModule(), // statistics formatters
                 servletModule()
-        );
-
-        
+		); 
+    	
+    	try {
+			// api extensions
+			modules.addAll(extensionModule());
+		} catch (ClassNotFoundException e) {
+			LOGGER.log(Level.SEVERE,"ignoring API extensions");
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE,"ignoring API extensions");
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
+		} catch (InstantiationException e) {
+			LOGGER.log(Level.SEVERE,"ignoring API extensions");
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
+		} catch (IllegalAccessException e) {
+			LOGGER.log(Level.SEVERE,"ignoring API extensions");
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
+		}
+    	
+    	Injector injector = Guice.createInjector(modules);
         return injector;
     }
     
@@ -98,23 +119,18 @@ public class GuiceConfigBean extends GuiceServletContextListener {
         return new ServletModule();
     }
     
-    //only one extension module is now supported
-    public static Module extensionModule() throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
-    	URL urlRes = GuiceConfigBean.class.getResource("res/guice.module");
-    	if (urlRes != null) {
-    		InputStream istream = urlRes.openConnection().getInputStream();
+    public static List<AbstractModule> extensionModule() throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
+    	List<AbstractModule> list = new ArrayList<AbstractModule>();
+    	Enumeration<URL> urlRes = GuiceConfigBean.class.getClassLoader().getResources("/res/guice.module");
+    	while(urlRes.hasMoreElements()) {
+    		URL url = urlRes.nextElement();
+    		InputStream istream = url.openConnection().getInputStream();
     		ByteArrayOutputStream bos = new ByteArrayOutputStream();
     		IOUtils.copyStreams(istream, bos);
     		Class clz = Class.forName(new String(bos.toByteArray()));
-    		return (Module) clz.newInstance();
-    	} else  return new AbstractModule() {
-			
-			@Override
-			protected void configure() {
-				// TODO Auto-generated method stub
-				
-			}
-		};
+    		list.add( (AbstractModule) clz.newInstance());
+    	}
+    	return list;
     }
     
     
