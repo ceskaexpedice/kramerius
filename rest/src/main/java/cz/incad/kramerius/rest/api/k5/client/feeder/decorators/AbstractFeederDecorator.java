@@ -60,18 +60,12 @@ public abstract class AbstractFeederDecorator extends AbstractDecorator {
 			retvals.remove(0);
 		} else return new TokenizedPath(false, atoms);
 
-		if (!retvals.isEmpty()) {
-			try {
-				PIDParser pidParser = new PIDParser(retvals.get(0));
-				pidParser.objectPid();
-				retvals.remove(0);
-			} catch (LexerException e) {
-				// parse error 
-				return new TokenizedPath(false, atoms);
-			}
-		} else return new TokenizedPath(false, atoms);
 		
 		return new TokenizedPath(true, retvals);
+	}
+
+	protected boolean mostDesirableOrNewest(TokenizedPath fctx) {
+		return fctx.getRestPath().get(0).equals("mostdesirable") || fctx.getRestPath().get(0).equals("newest");
 	}
 
 	

@@ -75,7 +75,7 @@ public class SolrLanguageDecorate extends AbstractFeederDecorator  {
 	public boolean apply(JSONObject jsonObject, String context) {
 		TokenizedPath fctx = super.feederContext(tokenize(context));
 		if (fctx.isParsed()) {
-			return ( (!fctx.getRestPath().isEmpty()) && fctx.getRestPath().get(0).equals("mostdesirable"));
+			return ( (!fctx.getRestPath().isEmpty()) && mostDesirableOrNewest(fctx));
 		} else return false;
 	}
 

@@ -144,7 +144,7 @@ public class ItemResource {
 			JSONArray jsonArray = new JSONArray();
 			for (String p : children) {
 				// metadata decorator
-				String uri = UriBuilder.fromPath("{pid}/children").build(p).toString();
+				String uri = UriBuilder.fromResource(ItemResource.class).path("{pid}/children").build(p).toString();
 				JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess, uri.toString(), this.decoratorsAggregate, uri);
 				jsonArray.add(jsonObject);
 			}
@@ -193,14 +193,14 @@ public class ItemResource {
 		JSONObject object = new JSONObject();
 		JSONArray pathArray = new JSONArray();
 		for (String p : onePath.getPathFromRootToLeaf()) {
-			String uriString = UriBuilder.fromPath("{pid}").build(p).toString();
+			String uriString = UriBuilder.fromResource(ItemResource.class).path("{pid}").build(p).toString();
 			JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess, "siblings",this.decoratorsAggregate,uriString);
 			pathArray.add(jsonObject);
 		}
 		object.put("path", pathArray);
 		JSONArray jsonArray = new JSONArray();
 		for (String p : children) {
-			String uriString = UriBuilder.fromPath("{pid}").build(p).toString();
+			String uriString = UriBuilder.fromResource(ItemResource.class).path("{pid}").build(p).toString();
 			JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess,"siblings",this.decoratorsAggregate, uriString);
 			jsonObject.put("selected", p.equals(pid));
 			jsonArray.add(jsonObject);
@@ -265,7 +265,7 @@ public class ItemResource {
         		JSONObject jsonObject = new JSONObject();	
         		
         		
-    			String uriString = UriBuilder.fromPath("{pid}").build(pid).toString();
+    			String uriString = UriBuilder.fromResource(ItemResource.class).path("{pid}").build(pid).toString();
         		JSONUtils.pidAndModelDesc(pid, jsonObject, this.fedoraAccess, uriString, this.decoratorsAggregate, null);
         		
         		Document datastreams = this.fedoraAccess.getFedoraDataStreamsListAsDocument(pid);
