@@ -150,10 +150,10 @@ public class ItemResource {
 			}
 			return Response.ok().entity(jsonArray.toString()).build();
 		}catch(IOException ex) {
-			ex.printStackTrace();
+			LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
             return Response.ok().entity("{}").build();
 		} catch (ProcessSubtreeException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
 			return Response.ok().entity("{}").build();
 		}
     }
@@ -171,10 +171,10 @@ public class ItemResource {
 			}
 			return Response.ok().entity(sibsList.toString()).build();
 		}catch(IOException ex) {
-			ex.printStackTrace();
-            return Response.ok().entity("{}").build();
+			LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+			return Response.ok().entity("{}").build();
 		} catch (ProcessSubtreeException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
 			return Response.ok().entity("{}").build();
 		}
     }
@@ -202,8 +202,6 @@ public class ItemResource {
 		for (String p : children) {
 			String uriString = UriBuilder.fromPath("{pid}").build(p).toString();
 			JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess,"siblings",this.decoratorsAggregate, uriString);
-//			String str = ApplicationURL.applicationURL(this.requestProvider.get()).toString()+"/img?pid="+p+"&stream=IMG_THUMB&action=GETRAW";
-//			jsonObject.put("url", str);
 			jsonObject.put("selected", p.equals(pid));
 			jsonArray.add(jsonObject);
 		}
@@ -212,37 +210,6 @@ public class ItemResource {
 	}
 
 	
-//	// TODO 
-//	@GET
-//	@Path("{pid}/context")
-//    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-//    public Response context(@PathParam("pid")String pid) {
-//		try {
-//			ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
-//			JSONArray jsonArray = new JSONArray();
-//			for (ObjectPidsPath ppath : paths) {
-//				JSONArray subArr = jsonArr(ppath, "context", decoratorsAggregate);
-//				jsonArray.add(subArr);
-//			}
-//			return Response.ok().entity(jsonArray.toString()).build();
-//		}catch(IOException ex) {
-//            return Response.ok().entity("{}").build();
-//		}
-//
-//    }
-//
-
-//	private JSONArray jsonArr( ObjectPidsPath ppath,String context, DecoratorsAggregate decoratorsAggregate) throws IOException {
-//		JSONArray subArray = new JSONArray();
-//		String[] pths = ppath.getPathFromRootToLeaf();
-//		for (String p : pths) {
-//			String uriString = UriBuilder.fromPath("{pid}").build(p).toString();
-//			JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, this.fedoraAccess, context, decoratorsAggregate, uriString);
-//			// TODO: decorators
-//			subArray.add(jsonObject);
-//		}
-//		return subArray;
-//	}
 
 	
 
@@ -298,7 +265,8 @@ public class ItemResource {
         		JSONObject jsonObject = new JSONObject();	
         		
         		
-        		JSONUtils.pidAndModelDesc(pid, jsonObject, this.fedoraAccess, "", this.decoratorsAggregate, null);
+    			String uriString = UriBuilder.fromPath("{pid}").build(pid).toString();
+        		JSONUtils.pidAndModelDesc(pid, jsonObject, this.fedoraAccess, uriString, this.decoratorsAggregate, null);
         		
         		Document datastreams = this.fedoraAccess.getFedoraDataStreamsListAsDocument(pid);
         		Element documentElement = datastreams.getDocumentElement();
@@ -317,11 +285,4 @@ public class ItemResource {
 		}
     }
 
-
-	public static void main(String[] args) {
-		URI t = UriBuilder.fromResource(ItemResource.class).path("{pid}").build("xxx");
-		System.out.println(t);
-		
-
-	}
 }
