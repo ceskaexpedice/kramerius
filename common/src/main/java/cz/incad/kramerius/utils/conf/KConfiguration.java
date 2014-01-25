@@ -241,6 +241,7 @@ public class KConfiguration {
         return getConfiguration().getBoolean("deepZoom.deepZoomEnabled", false);
     }
     
+    
     public boolean isDeepZoomForPathEnabled(String[] path) {
         Configuration configuration = getConfiguration();
         for (int i = path.length - 1; i >=0; i--) {
@@ -250,6 +251,12 @@ public class KConfiguration {
         return false;
     }
 
+    public String[] getAPISolrFilter() {
+    	String[] resArray = getConfiguration().getStringArray("api.solr.filtered");
+    	return resArray;
+    }
+
+    
     public String getShibAssocRules() {
         return getConfiguration().getString("security.shib.rules", "${sys:user.home}/.kramerius4/shibrules.txt");
     }

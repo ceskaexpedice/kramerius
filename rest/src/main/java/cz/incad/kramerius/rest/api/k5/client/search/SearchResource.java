@@ -19,6 +19,7 @@ package cz.incad.kramerius.rest.api.k5.client.search;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Set;
 
@@ -34,8 +35,13 @@ import javax.ws.rs.core.UriInfo;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import java.net.URLEncoder;
+
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Path("/v5.0/k5/search")
@@ -48,7 +54,8 @@ public class SearchResource {
     @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response select(@Context UriInfo uriInfo) {
         try {
-            MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        	
+        	MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
             StringBuilder builder = new StringBuilder();
             Set<String> keys = queryParameters.keySet();
             for (String k : keys) {
@@ -60,12 +67,41 @@ public class SearchResource {
             InputStream istream = this.solrAccess.request(builder.toString(), "json");
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
-
-            return Response.ok().entity(bos.toByteArray()).build();
+            String rawString = new String(bos.toByteArray(),"UTF-8");
+            JSONObject jsonObject = filterJSON(rawString);
+            return Response.ok().entity(jsonObject.toString()).build();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
+	public JSONObject filterJSON(String rawString)
+			throws UnsupportedEncodingException {
+		JSONObject jsonObject = JSONObject.fromObject(rawString);
+		
+		JSONObject responsObject = jsonObject.getJSONObject("response");
+		if (responsObject.containsKey("docs")) {
+		    JSONArray jsonArray = responsObject.getJSONArray("docs");
+		    for (Object obj : jsonArray) {
+				JSONObject jsonObj = (JSONObject) obj;
+				if (jsonObj.containsKey("PID")) {
+					// pid contains '/' char
+					String pid = jsonObj.getString("PID");
+					if (pid.contains("/")) {
+						pid = pid.replace("/", "");
+					}
+				}
+				// filter
+				String[] filters = KConfiguration.getInstance().getAPISolrFilter();
+				for (String filterKey : filters) {
+					if (jsonObj.containsKey(filterKey)) {
+						jsonObj.remove(filterKey);
+					}
+				}
+			}
+		}
+		return jsonObject;
+	}
 
     @GET
     @Path("terms")
@@ -85,7 +121,10 @@ public class SearchResource {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
 
-            return Response.ok().entity(bos.toByteArray()).build();
+            String rawString = new String(bos.toByteArray(),"UTF-8");
+            JSONObject jsonObject = filterJSON(rawString);
+
+            return Response.ok().entity(jsonObject.toString()).build();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
