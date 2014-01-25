@@ -45,7 +45,13 @@ public class JSONUtils {
 	public static JSONObject pidAndModelDesc(String pid, JSONObject jsonObject, FedoraAccess fedoraAccess,String callContext, JSONDecoratorsAggregate decoratorsAggregate, String baseLink)
 			throws IOException {
 		jsonObject.put("pid", pid);
-		jsonObject.put("model", fedoraAccess.getKrameriusModelName(pid));
+		if (PIDSupport.isComposedPID(pid)) {
+			// page model
+			jsonObject.put("model", "page");
+		} else {
+			jsonObject.put("model", fedoraAccess.getKrameriusModelName(pid));
+		}
+
 		// apply decorator
 		if (callContext != null && decoratorsAggregate != null) {
 			Map<String, Object> m = new HashMap<String, Object>();
@@ -72,10 +78,10 @@ public class JSONUtils {
 	
 	
 	
+	
 	public static JSONArray children(final String pid, FedoraAccess fedoraAccess, SolrAccess solrAccess) {
 		try {
 			
-			long start = System.currentTimeMillis();
 			JSONArray jsonArray = new JSONArray();
 			
 
@@ -103,8 +109,6 @@ public class JSONUtils {
 			for (String chpid : children) {
 				jsonArray.add(chpid);
 			}
-			long end = System.currentTimeMillis();
-			System.out.println("takes == "+(end - start));
 			return jsonArray;
 			
 		} catch (IOException e) {

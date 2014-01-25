@@ -48,7 +48,6 @@ public class HandleDecorate  extends AbstractItemDecorator {
 	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
 		String str = ApplicationURL.applicationURL(this.requestProvider.get()).toString()+"/handle/"+getPidFromJSON(jsonObject);
 		JSONUtils.link(jsonObject, "handle", str);
-		//jsonObject.put("handle", str);
 	}
 
 	@Override

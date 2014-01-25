@@ -18,14 +18,18 @@ package cz.incad.kramerius.rest.api.k5.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 
 
 public abstract class AbstractItemDecorator extends AbstractDecorator  {
-
+	
+	public static final Logger LOGGER = Logger.getLogger(AbstractItemDecorator.class.getName());
 	
 	protected TokenizedPath itemContext(List<String> input) {
 
@@ -42,10 +46,20 @@ public abstract class AbstractItemDecorator extends AbstractDecorator  {
 
 		if (!retvals.isEmpty()) {
 			try {
-				PIDParser pidParser = new PIDParser(retvals.get(0));
-				pidParser.objectPid();
-				retvals.remove(0);
+				String sform = retvals.get(0);
+				if (PIDSupport.isComposedPID(sform)) {
+					String first = PIDSupport.first(sform);
+					String next = PIDSupport.rest(sform);
+					PIDParser pidParser = new PIDParser(first);
+					pidParser.objectPid();
+					retvals.remove(0);
+				} else {
+					PIDParser pidParser = new PIDParser(sform);
+					pidParser.objectPid();
+					retvals.remove(0);
+				}
 			} catch (LexerException e) {
+				LOGGER.log(Level.SEVERE,e.getMessage(),e);
 				// parse error 
 				return new TokenizedPath(false, atoms);
 			}

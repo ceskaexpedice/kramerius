@@ -31,6 +31,7 @@ import net.sf.json.JSONObject;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
 import cz.incad.kramerius.rest.api.k5.client.AbstractItemDecorator;
+import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
@@ -58,10 +59,12 @@ public class PDFDecorate extends AbstractDisplayDecorate {
 	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
 		try {
 			String pidFromJSON = getPidFromJSON(jsonObject);
-			String mimeTypeForStream = this.fedoraAccess.getMimeTypeForStream(pidFromJSON, FedoraUtils.IMG_FULL_STREAM);
-			ImageMimeType imType = ImageMimeType.loadFromMimeType(mimeTypeForStream);
-			if (imType != null && ImageMimeType.PDF.equals(imType)) {
-				jsonObject.put("pdf", options(pidFromJSON));
+			if (!PIDSupport.isComposedPID(pidFromJSON) && this.fedoraAccess.isImageFULLAvailable(pidFromJSON)) {
+				String mimeTypeForStream = this.fedoraAccess.getMimeTypeForStream(pidFromJSON, FedoraUtils.IMG_FULL_STREAM);
+				ImageMimeType imType = ImageMimeType.loadFromMimeType(mimeTypeForStream);
+				if (imType != null && ImageMimeType.PDF.equals(imType)) {
+					jsonObject.put("pdf", options(pidFromJSON));
+				}
 			}
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(),e);

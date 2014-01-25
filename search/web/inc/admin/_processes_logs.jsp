@@ -13,13 +13,8 @@
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.kramerius.processes.LRProcessManager"%>
 <%@page import="cz.incad.kramerius.processes.DefinitionManager"%>
-<%@page import="cz.incad.kramerius.processes.LRProcessOrdering"%>
-<%@page import="cz.incad.kramerius.processes.LRProcessOffset"%>
 
 <%@page import="cz.incad.Kramerius.views.ProcessesViewObject"%>
-<%@page import="cz.incad.kramerius.processes.LRProcessOrdering"%>
-<%@page import="cz.incad.kramerius.processes.LRProcessOffset"%>
-<%@page import="cz.incad.kramerius.processes.TypeOfOrdering"%>
 
 <%@ page isELIgnored="false"%>
 

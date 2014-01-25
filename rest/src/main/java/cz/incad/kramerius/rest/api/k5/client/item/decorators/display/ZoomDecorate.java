@@ -33,6 +33,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
+import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -69,9 +70,11 @@ public class ZoomDecorate extends AbstractDisplayDecorate {
 	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
 		try {
 			String pid = getPidFromJSON(jsonObject);
-			String url = RelsExtHelper.getRelsExtTilesUrl(pid, fedoraAccess);
-			if (url != null) {
-				jsonObject.put("zoom", zoom(pid));
+			if (!PIDSupport.isComposedPID(pid)) {
+				String url = RelsExtHelper.getRelsExtTilesUrl(pid, fedoraAccess);
+				if (url != null) {
+					jsonObject.put("zoom", zoom(pid));
+				}
 			}
 		} catch (XPathExpressionException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(),e);

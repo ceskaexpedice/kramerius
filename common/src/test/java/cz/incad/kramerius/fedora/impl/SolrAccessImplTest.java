@@ -47,10 +47,6 @@ public class SolrAccessImplTest {
         replay(solr);
         
         ObjectPidsPath[] paths = solr.getPath("uuid:0xAAA");
-        for (ObjectPidsPath path : paths) {
-            System.out.println(path.toString());
-            
-        }
     }
     
     @Test
