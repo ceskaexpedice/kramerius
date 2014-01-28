@@ -209,6 +209,10 @@
    <profiles>
    	<profile>
    		<id>wri</id>
+		<activation
+		<activation>
+			<profile>wri</profile>
+		</activation>
 
    		<modules>
 
