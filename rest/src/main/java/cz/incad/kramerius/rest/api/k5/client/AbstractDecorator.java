@@ -64,11 +64,11 @@ public abstract class AbstractDecorator implements JSONDecorator {
 			retvals.remove(0);
 		} else return new TokenizedPath(false, atoms);
 	
-		// version context
-		if (!retvals.isEmpty()) {
-			if (!retvals.get(0).equals("k5")) return new TokenizedPath(false, atoms);;	
-			retvals.remove(0);
-		} else return new TokenizedPath(false, atoms);;
+//		// version context
+//		if (!retvals.isEmpty()) {
+//			if (!retvals.get(0).equals("k5")) return new TokenizedPath(false, atoms);;	
+//			retvals.remove(0);
+//		} else return new TokenizedPath(false, atoms);;
 		
 		return new TokenizedPath(true, retvals);
 	}

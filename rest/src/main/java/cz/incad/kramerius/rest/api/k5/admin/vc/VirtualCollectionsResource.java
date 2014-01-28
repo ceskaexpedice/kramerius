@@ -53,7 +53,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
 import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
 
-@Path("/v5.0/k5/admin/vc")
+@Path("/v5.0/admin/vc")
 public class VirtualCollectionsResource {
 
 	public static final Logger LOGGER = Logger.getLogger(VirtualCollectionsResource.class.getName());

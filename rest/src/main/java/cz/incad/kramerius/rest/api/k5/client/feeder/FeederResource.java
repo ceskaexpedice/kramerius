@@ -40,7 +40,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 
-@Path("/v5.0/k5/feed")
+@Path("/v5.0/feed")
 public class FeederResource {
 
 	private static final int ROWS = 18;

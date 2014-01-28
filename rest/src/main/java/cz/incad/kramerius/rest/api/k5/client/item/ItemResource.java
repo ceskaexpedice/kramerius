@@ -58,7 +58,12 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
-@Path("/v5.0/k5/item")
+/**
+ * Item endpoint
+ * @author pavels
+ *
+ */
+@Path("/v5.0/item")
 public class ItemResource {
 	
 	public static final Logger LOGGER = Logger.getLogger(ItemResource.class.getName());
@@ -289,14 +294,6 @@ public class ItemResource {
 						String uriString = basicURL(pid);
 						JSONUtils.pidAndModelDesc(pid, jsonObject, this.fedoraAccess, uriString, this.decoratorsAggregate, null);
 						
-						/*
-						Document datastreams = this.fedoraAccess.getFedoraDataStreamsListAsDocument(pid);
-						Element documentElement = datastreams.getDocumentElement();
-						Set<String> datastreamsEn = new HashSet<String>();
-						List<Element> elms = XMLUtils.getElements(documentElement);
-						for (Element e : elms) {
-							datastreamsEn.add(e.getAttribute("dsid"));
-						}*/
 
 						return Response.ok().entity(jsonObject.toString()).build();
 					} catch (IllegalArgumentException e) {

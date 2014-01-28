@@ -46,7 +46,7 @@ import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
 
 import javax.ws.rs.PathParam;
 
-@Path("/v5.0/k5/vc")
+@Path("/v5.0/vc")
 public class ClientVirtualCollections {
 
     public static final Logger LOGGER = Logger.getLogger(ClientVirtualCollections.class.getName());

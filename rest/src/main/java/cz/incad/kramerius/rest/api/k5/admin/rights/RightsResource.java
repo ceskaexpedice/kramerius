@@ -72,7 +72,7 @@ import cz.incad.kramerius.service.ResourceBundleService;
  * Rights end point
  * @author pavels
  */
-@Path("/v5.0/k5/admin/rights")
+@Path("/v5.0/admin/rights")
 public class RightsResource {
 
     @Inject

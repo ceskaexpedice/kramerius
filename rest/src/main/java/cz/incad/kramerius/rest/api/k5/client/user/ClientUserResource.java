@@ -47,7 +47,7 @@ import cz.incad.kramerius.users.UserProfileManager;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-@Path("/v5.0/k5/user")
+@Path("/v5.0/user")
 public class ClientUserResource {
 
 

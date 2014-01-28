@@ -41,6 +41,7 @@ import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrSiblingsDecorat
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrTitleDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.PDFDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.ZoomDecorate;
+import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 import cz.incad.kramerius.rest.api.k5.client.user.ClientUserResource;
@@ -72,6 +73,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(ClientVirtualCollections.class);
         bind(SearchResource.class);
         bind(ClientRightsResource.class);
+        bind(PDFResource.class);
         
         
         bind(RightsResource.class);

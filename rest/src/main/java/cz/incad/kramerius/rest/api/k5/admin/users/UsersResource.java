@@ -71,7 +71,7 @@ import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
  * Endpoint for users manipulation 
  * @author pavels
  */
-@Path("/v5.0/k5/admin/users")
+@Path("/v5.0/admin/users")
 public class UsersResource {
 
 	@Inject

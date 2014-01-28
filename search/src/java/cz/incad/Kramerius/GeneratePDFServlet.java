@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 
 import javax.servlet.RequestDispatcher;
@@ -44,6 +43,7 @@ import cz.incad.kramerius.document.model.AbstractRenderedDocument;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.impl.ImageFetcher;
+import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -53,9 +53,6 @@ import cz.incad.kramerius.utils.params.ParamsParser;
 public class GeneratePDFServlet extends GuiceServlet {
 
     
-    // controls genrating PDF     
-    private static final Semaphore PDF_SEMAPHORE = new Semaphore(KConfiguration.getInstance().getConfiguration().getInt("pdfQueue.activeProcess",5));
-
     // stores handle for pdf 
     private static HashMap<String, File> PREPARED_FILES = new HashMap<String,File>();
     
@@ -118,7 +115,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
         boolean acquired = false; 
 	    try {
-	        acquired =  PDF_SEMAPHORE.tryAcquire();
+	        acquired =  PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
 	        if (acquired) {
 	            try {
 	                renderPDF(req, resp);
@@ -139,15 +136,12 @@ public class GeneratePDFServlet extends GuiceServlet {
 	        }
 
 	    } finally {
-		    if (acquired) PDF_SEMAPHORE.release();
+		    if (acquired) PDFExlusiveGenerateSupport.PDF_SEMAPHORE.release();
 		}
 	}
 
     static void renderErrorServerBusy(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         LOGGER.info("server busy forward");
-//        RequestDispatcher dispatcher = req.getRequestDispatcher("serverbusy.jsp");
-//        dispatcher.forward(req, resp);
-        
         resp.setContentType("text/plain");
         resp.getWriter().println("{" +
         	"errorType:'serverbusy',\n"
@@ -402,22 +396,6 @@ public class GeneratePDFServlet extends GuiceServlet {
             utility.mergeDocuments();
         }
 
-//        public PDFFontConfigBean fontConfigParams(PDFFontConfigBean config, String parameter, String fontMapName) throws RecognitionException, TokenStreamException {
-//            if (parameter == null) return config;
-//            PDFFontConfigBean pdfFontConfig = config != null ? config : new PDFFontConfigBean();
-//            ParamsParser bfparser = new ParamsParser(new ParamsLexer(new StringReader(parameter)));
-//            List bfs = bfparser.params();
-//            if (!bfs.isEmpty()) {
-//                String style = (String) bfs.remove(0);
-//                pdfFontConfig.setFontStyle(fontMapName, Integer.parseInt(style));
-//                
-//                if (!bfs.isEmpty()) {
-//                    String size = (String) bfs.remove(0);
-//                    pdfFontConfig.setFontSize(fontMapName, Integer.parseInt(size));
-//                }
-//            }
-//            return pdfFontConfig;
-//        }
 
         public void outputJSON(HttpServletResponse response, File generatedPDF, FileOutputStream generatedPDFFos, File tmpFile, File fpage) throws IOException, COSVisitorException {
             response.setContentType("text/plain");

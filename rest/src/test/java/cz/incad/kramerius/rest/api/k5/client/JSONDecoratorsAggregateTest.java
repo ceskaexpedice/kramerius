@@ -72,91 +72,91 @@ import cz.incad.kramerius.utils.pid.LexerException;
 
 public class JSONDecoratorsAggregateTest {
 
-//	@Test
-//	public void testApplyBasicPDF() throws IOException, ParserConfigurationException, SAXException, LexerException, SecurityException, NoSuchMethodException {
-//        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
-//
-//        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-//        .withConstructor(KConfiguration.getInstance(),aclog)
-//        .addMockedMethod("getRelsExt")
-//        .createMock();
-//        
-//        narodniListyRelsExt(fa);
-//        drobnustkyRelsExt(fa);
-//        
-//        
-//        SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
-//        		.addMockedMethod(SolrAccess.class.getMethod("request", String.class, String.class))
-//        		.createMock();
-//        
-//        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
-//        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
-//        
-//        replay(fa,aclog, sa, request, response);
-//
-//		Injector injector = Guice.createInjector(new JSONDecTestModule(sa, fa, request, response));
-//        JSONDecoratorsAggregate aggregate = injector.getInstance(JSONDecoratorsAggregate.class);
-//        
-//        
-//        List<JSONDecorator> list = aggregate.getDecorators();
-//        
-//        String pid = DataPrepare.DROBNUSTKY_PIDS[0]+"@2";
-//        // pdf pid
-//        String basicUrl = ItemResource.basicURL(pid);
-//        
-//        List<JSONDecorator> acceptedDecorators = new ArrayList<JSONDecorator>();
-//        for (JSONDecorator jsonDec : list) {
-//        	JSONObject jsonObject = new JSONObject();
-//    		jsonObject.put("pid", pid);
-//    		jsonObject.put("model",  "page");
-//        	if (jsonDec.apply(jsonObject, basicUrl)) { acceptedDecorators.add(jsonDec); }
-//        }
-//        Assert.assertTrue(acceptedDecorators.size() == 6);
-//
-//	}
-//	
-//	@Test
-//	public void testApplyBasic() throws IOException, ParserConfigurationException, SAXException, LexerException, SecurityException, NoSuchMethodException {
-//        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
-//
-//        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-//        .withConstructor(KConfiguration.getInstance(),aclog)
-//        .addMockedMethod("getRelsExt")
-//        .createMock();
-//        
-//        narodniListyRelsExt(fa);
-//        drobnustkyRelsExt(fa);
-//        
-//        
-//        SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
-//        		.addMockedMethod(SolrAccess.class.getMethod("request", String.class, String.class))
-//        		.createMock();
-//        
-//        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
-//        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
-//        
-//        replay(fa,aclog, sa, request, response);
-//
-//		Injector injector = Guice.createInjector(new JSONDecTestModule(sa, fa, request, response));
-//        JSONDecoratorsAggregate aggregate = injector.getInstance(JSONDecoratorsAggregate.class);
-//        
-//        
-//        List<JSONDecorator> list = aggregate.getDecorators();
-//        
-//        String pid = DataPrepare.DROBNUSTKY_PIDS[0];
-//        String basicUrl = ItemResource.basicURL(pid);
-//        
-//        List<JSONDecorator> acceptedDecorators = new ArrayList<JSONDecorator>();
-//        for (JSONDecorator jsonDec : list) {
-//        	JSONObject jsonObject = new JSONObject();
-//    		jsonObject.put("pid", pid);
-//    		jsonObject.put("model", fa.getKrameriusModelName(pid));
-//        	if (jsonDec.apply(jsonObject, basicUrl)) { acceptedDecorators.add(jsonDec); }
-//        }
-//        Assert.assertTrue(acceptedDecorators.size() == 6);
-//	}
-//
-//
+	@Test
+	public void testApplyBasicPDF() throws IOException, ParserConfigurationException, SAXException, LexerException, SecurityException, NoSuchMethodException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+
+        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance(),aclog)
+        .addMockedMethod("getRelsExt")
+        .createMock();
+        
+        narodniListyRelsExt(fa);
+        drobnustkyRelsExt(fa);
+        
+        
+        SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
+        		.addMockedMethod(SolrAccess.class.getMethod("request", String.class, String.class))
+        		.createMock();
+        
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        
+        replay(fa,aclog, sa, request, response);
+
+		Injector injector = Guice.createInjector(new JSONDecTestModule(sa, fa, request, response));
+        JSONDecoratorsAggregate aggregate = injector.getInstance(JSONDecoratorsAggregate.class);
+        
+        
+        List<JSONDecorator> list = aggregate.getDecorators();
+        
+        String pid = DataPrepare.DROBNUSTKY_PIDS[0]+"@2";
+        // pdf pid
+        String basicUrl = ItemResource.basicURL(pid);
+        
+        List<JSONDecorator> acceptedDecorators = new ArrayList<JSONDecorator>();
+        for (JSONDecorator jsonDec : list) {
+        	JSONObject jsonObject = new JSONObject();
+    		jsonObject.put("pid", pid);
+    		jsonObject.put("model",  "page");
+        	if (jsonDec.apply(jsonObject, basicUrl)) { acceptedDecorators.add(jsonDec); }
+        }
+        Assert.assertTrue(acceptedDecorators.size() == 6);
+
+	}
+	
+	@Test
+	public void testApplyBasic() throws IOException, ParserConfigurationException, SAXException, LexerException, SecurityException, NoSuchMethodException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+
+        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance(),aclog)
+        .addMockedMethod("getRelsExt")
+        .createMock();
+        
+        narodniListyRelsExt(fa);
+        drobnustkyRelsExt(fa);
+        
+        
+        SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
+        		.addMockedMethod(SolrAccess.class.getMethod("request", String.class, String.class))
+        		.createMock();
+        
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        
+        replay(fa,aclog, sa, request, response);
+
+		Injector injector = Guice.createInjector(new JSONDecTestModule(sa, fa, request, response));
+        JSONDecoratorsAggregate aggregate = injector.getInstance(JSONDecoratorsAggregate.class);
+        
+        
+        List<JSONDecorator> list = aggregate.getDecorators();
+        
+        String pid = DataPrepare.DROBNUSTKY_PIDS[0];
+        String basicUrl = ItemResource.basicURL(pid);
+        
+        List<JSONDecorator> acceptedDecorators = new ArrayList<JSONDecorator>();
+        for (JSONDecorator jsonDec : list) {
+        	JSONObject jsonObject = new JSONObject();
+    		jsonObject.put("pid", pid);
+    		jsonObject.put("model", fa.getKrameriusModelName(pid));
+        	if (jsonDec.apply(jsonObject, basicUrl)) { acceptedDecorators.add(jsonDec); }
+        }
+        Assert.assertTrue(acceptedDecorators.size() == 6);
+	}
+
+
 
 	@Test
 	public void testDecorateBasicPDF() throws IOException, ParserConfigurationException, SAXException, LexerException, SecurityException, NoSuchMethodException {

@@ -20,7 +20,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.GET;
@@ -30,11 +32,17 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
+import org.bouncycastle.jce.provider.JCEBlockCipher.DES;
 
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
+import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -44,12 +52,15 @@ import java.net.URLEncoder;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-@Path("/v5.0/k5/search")
+@Path("/v5.0/search")
 public class SearchResource {
 
     @Inject
     SolrAccess solrAccess;
 
+    @Inject
+    JSONDecoratorsAggregate jsonDecoratorAggregates;
+    
     @GET
     @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response select(@Context UriInfo uriInfo) {
@@ -68,17 +79,22 @@ public class SearchResource {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
             String rawString = new String(bos.toByteArray(),"UTF-8");
-            JSONObject jsonObject = filterJSON(rawString);
+
+            String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
+            JSONObject jsonObject = changeResult(rawString, uri);
+            
             return Response.ok().entity(jsonObject.toString()).build();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-	public JSONObject filterJSON(String rawString)
+	public JSONObject changeResult(String rawString, String context)
 			throws UnsupportedEncodingException {
-		JSONObject jsonObject = JSONObject.fromObject(rawString);
 		
+		List<JSONDecorator> decs = this.jsonDecoratorAggregates.getDecorators();
+		
+		JSONObject jsonObject = JSONObject.fromObject(rawString);
 		JSONObject responsObject = jsonObject.getJSONObject("response");
 		if (responsObject.containsKey("docs")) {
 		    JSONArray jsonArray = responsObject.getJSONArray("docs");
@@ -90,7 +106,18 @@ public class SearchResource {
 					if (pid.contains("/")) {
 						pid = pid.replace("/", "");
 					}
+					
+					//decorators
+					Map<String, Object> runtimeCtx = new HashMap<String, Object>();
+					for (JSONDecorator d : decs) { d.before(runtimeCtx); }
+					for (JSONDecorator jsonDec : decs) {
+						if (jsonDec.apply(jsonObj, context)) {
+							jsonDec.decorate(jsonObject, runtimeCtx);
+						}
+					}
+					for (JSONDecorator d : decs) { d.after(); }
 				}
+				
 				// filter
 				String[] filters = KConfiguration.getInstance().getAPISolrFilter();
 				for (String filterKey : filters) {
@@ -122,7 +149,8 @@ public class SearchResource {
             IOUtils.copyStreams(istream, bos);
 
             String rawString = new String(bos.toByteArray(),"UTF-8");
-            JSONObject jsonObject = filterJSON(rawString);
+            String uri = UriBuilder.fromResource(SearchResource.class).path("terms").build().toString();
+            JSONObject jsonObject = changeResult(rawString, uri);
 
             return Response.ok().entity(jsonObject.toString()).build();
         } catch (IOException e) {
