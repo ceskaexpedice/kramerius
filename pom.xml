@@ -183,40 +183,46 @@
 
     </build>
 
-     <modules>
-        <module>common</module>
-        <module>editor</module>
-        <module>fedora-api</module>
-        <module>import</module>
-        <module>import-cmdtool</module>
-        <module>import-jaxb</module>
-        <module>import-jaxb-periodical</module>
-        <module>import-jaxb-dc</module>
-        <module>import-jaxb-srwdc</module>
-        <module>import-jaxb-mets</module>
-        <module>import-jaxb-alto</module>
-        <module>import-jaxb-mods</module>
-        <module>import-mets</module>
-        <module>indexer</module>
-        <module>static-export</module>
-        <module>search</module>
-        <module>security-core</module>
-        <module>rightseditor</module>
-        <module>rest</module>
-    </modules>
-
-
+    
    <profiles>
+	<profile>
+		<id>all</id>
+		<activation>
+			<activeByDefault>true</activeByDefault>
+		</activation>
+		<modules>
+        		<module>common</module>
+        		<module>editor</module>
+        		<module>fedora-api</module>
+        		<module>import</module>
+        		<module>import-cmdtool</module>
+        		<module>import-jaxb</module>
+        		<module>import-jaxb-periodical</module>
+        		<module>import-jaxb-dc</module>
+        		<module>import-jaxb-srwdc</module>
+        		<module>import-jaxb-mets</module>
+        		<module>import-jaxb-alto</module>
+        		<module>import-jaxb-mods</module>
+        		<module>import-mets</module>
+        		<module>indexer</module>
+        		<module>static-export</module>
+        		<module>search</module>
+        		<module>security-core</module>
+        		<module>rightseditor</module>
+        		<module>rest</module>
+    		</modules>
+
+	</profile>
    	<profile>
    		<id>wri</id>
 	
-		<!--	
+			
 		<activation>
 			<property>
 				<name>wri</name>
 			</property>
 		</activation>
-		-->
+		
 
 
    		<modules>
