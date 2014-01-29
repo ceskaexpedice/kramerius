@@ -21,8 +21,17 @@ import javax.ws.rs.core.MediaType;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
+/**
+ * Ziskani nejnovejsich a neojblibenejsich
+ * @author pavels
+ *
+ */
 public class FeederResourceClient {
 	
+	/**
+	 * Nejoblibenejsi
+	 * @return
+	 */
 	public static String mostdesirable() {
         Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v5.0/feed/mostdesirable");
@@ -30,6 +39,10 @@ public class FeederResourceClient {
         return t;
 	}
 
+	/**
+	 * Nejnovejsi
+	 * @return
+	 */
 	public static String newest() {
         Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v5.0/feed/newest");
@@ -39,7 +52,6 @@ public class FeederResourceClient {
 	
 	public static void main(String[] args) {
 		System.out.println(mostdesirable());
-		
 		System.out.println(newest());
 	}
 

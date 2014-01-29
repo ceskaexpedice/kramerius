@@ -379,22 +379,13 @@ public class SearchResource {
 
             String rawString = new String(bos.toByteArray(),"UTF-8");
             String uri = UriBuilder.fromResource(SearchResource.class).path("terms").build().toString();
-            Document domObject = changeXMLResult(rawString, uri);
-
-            StringWriter strWriter = new StringWriter();
-            XMLUtils.print(domObject, strWriter);
+//            Document domObject = changeXMLResult(rawString, uri);
+//
+//            StringWriter strWriter = new StringWriter();
+//            XMLUtils.print(domObject, strWriter);
             
-            return Response.ok().entity(strWriter.toString()).build();
+            return Response.ok().entity(rawString).build();
         } catch (IOException e) {
-        	LOGGER.log(Level.SEVERE,e.getMessage());
-            throw new GenericApplicationException(e.getMessage());
-        } catch (TransformerException e) {
-        	LOGGER.log(Level.SEVERE,e.getMessage());
-            throw new GenericApplicationException(e.getMessage());
-		} catch (ParserConfigurationException e) {
-        	LOGGER.log(Level.SEVERE,e.getMessage());
-            throw new GenericApplicationException(e.getMessage());
-		} catch (SAXException e) {
         	LOGGER.log(Level.SEVERE,e.getMessage());
             throw new GenericApplicationException(e.getMessage());
 		}
@@ -420,10 +411,8 @@ public class SearchResource {
             IOUtils.copyStreams(istream, bos);
 
             String rawString = new String(bos.toByteArray(),"UTF-8");
-            String uri = UriBuilder.fromResource(SearchResource.class).path("terms").build().toString();
-            JSONObject jsonObject = changeJSONResult(rawString, uri);
 
-            return Response.ok().entity(jsonObject.toString()).build();
+            return Response.ok().entity(rawString).build();
         } catch (IOException e) {
         	LOGGER.log(Level.SEVERE,e.getMessage());
             throw new GenericApplicationException(e.getMessage());

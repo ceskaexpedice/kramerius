@@ -28,7 +28,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 
 /**
- * Ukazkova klientska trida
+ * Ziskava informace o titulu
  * @author pavels
  */
 public class ItemResourceClient {

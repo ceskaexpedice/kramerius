@@ -29,6 +29,10 @@ import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.rest.api.client.BasicAuthenticationFilter;
 import cz.incad.kramerius.security.utils.PasswordDigest;
 
+/**
+ * Informace o uzivateli
+ * @author pavels
+ */
 public class ClientUsersClient {
 
 	private static final String DEFAULT_NAME = "krameriusAdmin";
@@ -81,6 +85,10 @@ public class ClientUsersClient {
 		return t;
 	}
 
+	/**
+	 * Save profile
+	 * @return
+	 */
 	public static void saveProfile(JSONObject profile) {
 		Client c = Client.create();
 		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user/profile");

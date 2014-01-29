@@ -29,11 +29,19 @@ import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.rest.api.client.BasicAuthenticationFilter;
 
+/**
+ * Informace o pravech pro prave komunikujiciho uzivatele
+ * @author pavels
+ */
 public class RightsClient {
 
 	private static final String DEFAULT_NAME = "krameriusAdmin";
 	private static final String DEFAULT_PSWD = "krameriusAdmin";
 
+	/**
+	 * Globalni prava - prava na urovni repozitare
+	 * @return
+	 */
 	public static String globalRights() {
 		Client c = Client.create();
 
@@ -43,7 +51,14 @@ public class RightsClient {
 		String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
 		return t;
 	}
-
+	
+	
+	/**
+	 * Konkretni prava pro vybrane akce a vybrany pid
+	 * @param actions
+	 * @param pid
+	 * @return
+	 */
 	public static String concreteObjects(List<String> actions, String pid) {
 		Client c = Client.create();
 		StringBuilder builder = new StringBuilder();

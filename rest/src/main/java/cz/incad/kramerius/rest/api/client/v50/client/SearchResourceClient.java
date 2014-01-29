@@ -21,21 +21,47 @@ import javax.ws.rs.core.MediaType;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
+/**
+ * Ziskava informace z indexu
+ * @author pavels
+ *
+ */
 public class SearchResourceClient {
-
+	
+	/**
+	 * Vyhledavani v SOLRu
+	 * @param query
+	 * @return
+	 */
 	public static String search(String query) {
         Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v5.0/search?" + query );
         String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
         return t;
 	}
-	
+
+
+	/**
+	 * Komponenta terms
+	 * @param query
+	 * @return
+	 */
+	public static String terms(String query) {
+        Client c = Client.create();
+        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/search/terms?" + query );
+        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
+        return t;
+	}
+
 	public static void main(String[] args) {
 		String all = search("q=*:*");
 		System.out.println(all);
 		
-		String models = search("q=fedora.model:monograph");
-		System.out.println(models);
+		String monographs = search("q=fedora.model:monograph");
+		System.out.println(monographs);
+		
+		String terms = terms("terms.fl=language");
+		System.out.println(terms);
 	}
 	
 }
