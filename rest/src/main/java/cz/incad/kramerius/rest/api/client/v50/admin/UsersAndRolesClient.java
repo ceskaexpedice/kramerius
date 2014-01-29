@@ -30,6 +30,11 @@ import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.rest.api.client.BasicAuthenticationFilter;
 import cz.incad.kramerius.rest.api.client.v46.ProcessesClient;
 
+/**
+ * Administrace uzivatelu a roli
+ * @author pavels
+ *
+ */
 public class UsersAndRolesClient {
 
 	private static final String DEFAULT_NAME = "krameriusAdmin";
@@ -37,18 +42,27 @@ public class UsersAndRolesClient {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessesClient.class.getName());
     
+    /**
+     * Smaze uzivatele
+     * @param userId
+     * @return
+     */
     public static String deleteUser(String userId) {
     	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/users/"+userId);
+        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/users/"+userId);
         r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).delete(String.class);
         return t;
     }
 
+    /**
+     * Vytvoreni uzivatele
+     * @return
+     */
     public static String createUser() {
     	Client c = Client.create();
 
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/users");
+        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/users");
         r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
         JSONObject object = new JSONObject();
 
@@ -61,44 +75,50 @@ public class UsersAndRolesClient {
         return t;
     }
     
+    /**
+     * Seznam uzivatelu
+     * @return
+     */
     public static String users() {
     	Client c = Client.create();
 
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/users");
+        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/users");
         r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
     	
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
         return t;
     }
 
+    /**
+     * Seznam roli
+     * @return
+     */
     public static String roles() {
     	Client c = Client.create();
 
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/roles");
+        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/roles");
         r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
     	
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
         return t;
     }
 
+    /**
+     * Konkretni role
+     * @param rid
+     * @return
+     */
     public static String role(String rid) {
     	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/roles/"+rid);
+        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/roles/"+rid);
         r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
         return t;
     }
     
+    
     public static void main(String[] args) {
-    	//String deletedUser = deleteUser("firstone");
-    	//System.out.println(deletedUser);
-    	/*
-    	String usrs = users();
-    	System.out.println(usrs);
-    	String roles = roles();
-    	System.out.println(roles);
-    	*/
-    	String rString = role("3");
-    	System.out.println(rString);
-    }
+		String roles = roles();
+		System.out.println(roles);
+	}
 }

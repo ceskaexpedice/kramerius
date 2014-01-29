@@ -25,11 +25,19 @@ import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.rest.api.client.BasicAuthenticationFilter;
 
+/**
+ * Virtualni sbirky 
+ * @author pavels
+ */
 public class VirtualCollectionsResourceClient {
 
     private static final String DEFAULT_NAME = "krameriusAdmin";
 	private static final String DEFAULT_PSWD = "krameriusAdmin";
-
+	
+	/**
+	 * Vytvoreni nove
+	 * @return
+	 */
 	public static String createVirtualCollection() {
     	Client c = Client.create();
 
@@ -48,6 +56,12 @@ public class VirtualCollectionsResourceClient {
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(object.toString(), MediaType.APPLICATION_JSON).post(String.class);
         return t;
     }
+	
+	/**
+	 * Smazani stare
+	 * @param vc
+	 * @return
+	 */
 	public static String deleteVirtualCollection(String vc) {
     	Client c = Client.create();
 
@@ -58,10 +72,5 @@ public class VirtualCollectionsResourceClient {
         return t;
 	}
 
-	
-	public static void main(String[] args) {
-		String created = createVirtualCollection();
-		System.out.println(created);
-	}
 
 }

@@ -19,6 +19,10 @@ package cz.incad.kramerius.rest.api.k5.client.item.decorators.display;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 
 
+/**
+ * Decorate for display informations
+ * @author pavels
+ */
 public abstract class AbstractDisplayDecorate extends AbstractItemDecorator {
 
 	public static final String DISPLAY_KEY="DISPLAY";

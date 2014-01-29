@@ -29,17 +29,32 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 
 
 
+/**
+ * Abstract decorator for ~/item context
+ * @author pavels
+ */
 public abstract class AbstractItemDecorator extends AbstractDecorator  {
 
 	public static final Logger LOGGER = Logger.getLogger(AbstractItemDecorator.class.getName());
 	
 	public static final String ITEM_KEY="ITEM";
 
+	/**
+	 * Construct key 
+	 * @param key
+	 * @return
+	 */
 	public static String key(String key) {
 		return AbstractDecorator.construct(ITEM_KEY, key);
 	}
-
 	
+	
+	/**
+	 * Parse item context
+	 * @param input tokenized path
+	 * @return
+	 * @see super{@link #tokenize(String)}
+	 */
 	protected TokenizedPath itemContext(List<String> input) {
 
 		// basic path

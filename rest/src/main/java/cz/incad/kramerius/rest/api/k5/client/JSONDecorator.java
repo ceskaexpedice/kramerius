@@ -49,9 +49,20 @@ public interface JSONDecorator {
 	public boolean apply(JSONObject jsonObject, String context);
 	
 	
+	/**
+	 * Running context - suitable for sharing objects to prevent multiple request, for example. solr data document
+	 * @return
+	 */
 	public Map<String, Object> getRunningContext();
 	
+	/**
+	 * Before trigger - called before decorators started work
+	 * @param runningContext
+	 */
 	public void before(Map<String, Object> runningContext);
 	
+	/**
+	 * After trigger - called after decorators finish their work
+	 */
 	public void after();
 }
