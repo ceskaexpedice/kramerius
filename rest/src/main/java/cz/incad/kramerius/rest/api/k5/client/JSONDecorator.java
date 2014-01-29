@@ -20,13 +20,34 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
+/**
+ * Implementation of this interface is able to decorate resulting JSON object
+ * @author pavels
+ *
+ */
 public interface JSONDecorator {
 
+	/**
+	 * Returns unique key of this decorator
+	 * @return
+	 */
 	public String getKey();
 	
-	public void decorate(JSONObject jsonObject, Map<String, Object> context);
+	/**
+	 * Decorate method
+	 * @param jsonObject Resulting json object
+	 * @param runtimeContext Running context
+	 */
+	public void decorate(JSONObject jsonObject, Map<String, Object> runtimeContext);
 
+	/**
+	 * Returns true, if the decorator can be applied
+	 * @param jsonObject JSON object
+	 * @param context The web context
+	 * @return
+	 */
 	public boolean apply(JSONObject jsonObject, String context);
+	
 	
 	public Map<String, Object> getRunningContext();
 	

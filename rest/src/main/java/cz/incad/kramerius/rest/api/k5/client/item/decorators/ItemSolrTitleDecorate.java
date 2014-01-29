@@ -39,48 +39,42 @@ import java.util.ArrayList;
 
 import net.sf.json.JSONArray;
 
-public class SolrContextDecorate extends AbstractItemDecorator {
+/**
+ * Doplni titulky z indexu
+ * @author pavels
+ */
+public class ItemSolrTitleDecorate extends AbstractItemDecorator {
 
-    public static final Logger LOGGER = Logger.getLogger(SolrContextDecorate.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(ItemSolrTitleDecorate.class.getName());
 
-    public static final String SOLR_CONTEXT_KEY = AbstractItemDecorator.key("CONTEXT");
+    public static final String SOLR_TITLE_KEY = AbstractItemDecorator.key("TITLE");
 
     @Inject
     SolrAccess solrAccess;
 
     @Override
     public String getKey() {
-        return SOLR_CONTEXT_KEY;
+        return SOLR_TITLE_KEY;
     }
 
     @Override
     public void decorate(JSONObject jsonObject, Map<String, Object> context) {
         try {
-            String pid = jsonObject.getString("pid");
+        	
+        	String pid = jsonObject.getString("pid");
             Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid, context, solrAccess);
             Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
             if (result != null) {
                 Element doc = XMLUtils.findElement(result, "doc");
                 if (doc != null) {
-                    List<String> pidPaths = SOLRUtils.array(doc, "pid_path", String.class);
-                    List<String> modelPaths = SOLRUtils.array(doc, "model_path", String.class);
-                    if (pidPaths != null && modelPaths != null) {
-                        JSONArray jaContext = new JSONArray();
-                        for (int i = 0; i < pidPaths.size(); i++) {
-                            JSONArray ja = new JSONArray() ;
-                            String[] pids = pidPaths.get(i).split("/");
-                            String[] models = modelPaths.get(i).split("/");
-                            for (int j = 0; j < pids.length; j++) {
-                                JSONObject jo = new JSONObject();
-                                jo.put("pid", pids[j]);
-                                jo.put("model", models[j]);
-                                ja.add(jo);
-                            }
-                            jaContext.add(ja);
-                        }
-                        jsonObject.put("context", jaContext);
+                    String title = SOLRUtils.value(doc, "dc.title", String.class);
+                    if (title != null) {
+                        jsonObject.put("title", title);
                     }
-
+                    String root_title = SOLRUtils.value(doc, "root_title", String.class);
+                    if (root_title != null) {
+                        jsonObject.put("root_title", root_title);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -91,6 +85,7 @@ public class SolrContextDecorate extends AbstractItemDecorator {
     @Override
     public boolean apply(JSONObject jsonObject, String context) {
 		TokenizedPath tpath = super.itemContext(tokenize(context));
-		return (tpath.isParsed() && tpath.getRestPath().isEmpty());
+		return tpath.isParsed() ;
     }
+
 }

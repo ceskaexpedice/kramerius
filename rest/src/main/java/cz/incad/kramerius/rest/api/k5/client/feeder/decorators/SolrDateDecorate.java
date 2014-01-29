@@ -16,21 +16,21 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.feeder.decorators;
 
+import static cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils.getSolrPidDocument;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sf.json.JSONObject;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 
-import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
-import cz.incad.kramerius.rest.api.k5.client.AbstractSolrDecorator;
-import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 

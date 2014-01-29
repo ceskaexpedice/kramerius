@@ -25,10 +25,16 @@ import java.util.StringTokenizer;
 import net.sf.json.JSONObject;
 
 
+/**
+ * Abstract implementation of the JSONDecorator
+ * @author pavels
+ */
 public abstract class AbstractDecorator implements JSONDecorator {
-
+	
+	/** Default delimiter for the key */
 	protected static String DELITIMER = ".";
 
+	/** Runtime context hashmap */
 	protected Map<String, Object> context = new HashMap<String, Object>();
 	
 	@Override
@@ -44,10 +50,25 @@ public abstract class AbstractDecorator implements JSONDecorator {
 	@Override
 	public void after() {}
 
+	/**
+	 * Utility method -> Lookup pid from json
+	 * @param jsonObject
+	 * @return
+	 */
 	protected String getPidFromJSON(JSONObject jsonObject) {
 		return jsonObject.getString("pid");
 	}
-
+	
+	protected boolean containsPidInJSON(JSONObject jsonObject) {
+		return jsonObject.containsKey("pid");
+	}
+	
+	
+	/**
+	 * Tokenize path
+	 * @param input
+	 * @return List of path tokens
+	 */
 	protected static List<String> tokenize(String input) {
 		StringTokenizer tokenizer = new StringTokenizer(input,"/");
 		List<String> strs = new ArrayList<String>();
@@ -57,6 +78,11 @@ public abstract class AbstractDecorator implements JSONDecorator {
 		return strs;
 	}
 
+	/**
+	 * Parse basic context
+	 * @param atoms 
+	 * @return
+	 */
 	protected TokenizedPath basicContext(List<String> atoms) {
 		List<String> retvals = new ArrayList<String>(atoms);
 		if (!retvals.isEmpty()) {
@@ -64,16 +90,16 @@ public abstract class AbstractDecorator implements JSONDecorator {
 			retvals.remove(0);
 		} else return new TokenizedPath(false, atoms);
 	
-//		// version context
-//		if (!retvals.isEmpty()) {
-//			if (!retvals.get(0).equals("k5")) return new TokenizedPath(false, atoms);;	
-//			retvals.remove(0);
-//		} else return new TokenizedPath(false, atoms);;
 		
 		return new TokenizedPath(true, retvals);
 	}
 
 
+	/**
+	 * Utility method -> Helps with constructing KEY
+	 * @param keys
+	 * @return
+	 */
 	protected static String construct(String ... keys) {
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < keys.length; i++) {
@@ -86,7 +112,7 @@ public abstract class AbstractDecorator implements JSONDecorator {
 	
 	
 	/**
-	 * Tokenized path
+	 * Tokenized path object
 	 * @author pavels
 	 */
 	public static final class TokenizedPath {
@@ -100,10 +126,18 @@ public abstract class AbstractDecorator implements JSONDecorator {
 			this.restPath = restPath;
 		}
 		
+		/**
+		 * Returns true if the path is parsed
+		 * @return
+		 */
 		public boolean isParsed() {
 			return parsed;
 		}
 		
+		/**
+		 * REturns rest of the path
+		 * @return
+		 */
 		public List<String> getRestPath() {
 			return restPath;
 		}

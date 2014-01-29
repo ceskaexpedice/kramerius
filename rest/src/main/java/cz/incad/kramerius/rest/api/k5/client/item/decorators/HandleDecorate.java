@@ -24,8 +24,8 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import net.sf.json.JSONObject;
-import cz.incad.kramerius.rest.api.k5.client.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -46,12 +46,14 @@ public class HandleDecorate  extends AbstractItemDecorator {
 
 	@Override
 	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
-		String str = ApplicationURL.applicationURL(this.requestProvider.get()).toString()+"/handle/"+getPidFromJSON(jsonObject);
-		JSONUtils.link(jsonObject, "handle", str);
+		if (containsPidInJSON(jsonObject)) {
+			String str = ApplicationURL.applicationURL(this.requestProvider.get()).toString()+"/handle/"+getPidFromJSON(jsonObject);
+			JSONUtils.link(jsonObject, "handle", str);
+		}
 	}
 
 	@Override
 	public boolean apply(JSONObject jsonObject, String context) {
-		return true;
+		return false;
 	}
 }

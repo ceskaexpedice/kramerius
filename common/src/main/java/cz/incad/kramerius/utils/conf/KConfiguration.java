@@ -256,6 +256,11 @@ public class KConfiguration {
     	return resArray;
     }
 
+    public String[] getAPIPIDReplace() {
+    	String[] resArray = getConfiguration().getStringArray("api.solr.pidreplace");
+    	return resArray;
+    }
+
     
     public String getShibAssocRules() {
         return getConfiguration().getString("security.shib.rules", "${sys:user.home}/.kramerius4/shibrules.txt");

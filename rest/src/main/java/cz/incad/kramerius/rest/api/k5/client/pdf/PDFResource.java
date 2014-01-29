@@ -163,12 +163,7 @@ public class PDFResource {
 
 					SimpleDateFormat sdate = new SimpleDateFormat(
 							"yyyyMMdd_mmhhss");
-					return Response
-							.ok()
-							.header("Content-disposition",
-									"attachment; filename="
-											+ sdate.format(new Date()) + ".pdf")
-							.entity(stream).type("application/pdf").build();
+					return Response.ok().header("Content-disposition","attachment; filename="+ sdate.format(new Date()) + ".pdf").entity(stream).type("application/pdf").build();
 
 				} catch (MalformedURLException e) {
 					LOGGER.log(Level.SEVERE, e.getMessage(), e);

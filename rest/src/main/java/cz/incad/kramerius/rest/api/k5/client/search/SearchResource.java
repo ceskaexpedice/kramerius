@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -55,6 +56,8 @@ import net.sf.json.JSONObject;
 @Path("/v5.0/search")
 public class SearchResource {
 
+	public static Logger LOGGER = Logger.getLogger(SearchResource.class.getName());
+	
     @Inject
     SolrAccess solrAccess;
 
@@ -71,7 +74,7 @@ public class SearchResource {
             Set<String> keys = queryParameters.keySet();
             for (String k : keys) {
                 for (String v : queryParameters.get(k)) {
-                    builder.append(k + "=" + URLEncoder.encode(v, "UTF-8"));
+                	builder.append(k + "=" + URLEncoder.encode(v, "UTF-8"));
                     builder.append("&");
                 }
             }
@@ -89,45 +92,103 @@ public class SearchResource {
         }
     }
 
+    
 	public JSONObject changeResult(String rawString, String context)
 			throws UnsupportedEncodingException {
 		
 		List<JSONDecorator> decs = this.jsonDecoratorAggregates.getDecorators();
 		
-		JSONObject jsonObject = JSONObject.fromObject(rawString);
-		JSONObject responsObject = jsonObject.getJSONObject("response");
+		JSONObject resultJSONObject = JSONObject.fromObject(rawString);
+		JSONObject responsObject = resultJSONObject.getJSONObject("response");
 		if (responsObject.containsKey("docs")) {
 		    JSONArray jsonArray = responsObject.getJSONArray("docs");
 		    for (Object obj : jsonArray) {
-				JSONObject jsonObj = (JSONObject) obj;
-				if (jsonObj.containsKey("PID")) {
-					// pid contains '/' char
-					String pid = jsonObj.getString("PID");
-					if (pid.contains("/")) {
-						pid = pid.replace("/", "");
-					}
-					
-					//decorators
-					Map<String, Object> runtimeCtx = new HashMap<String, Object>();
-					for (JSONDecorator d : decs) { d.before(runtimeCtx); }
-					for (JSONDecorator jsonDec : decs) {
-						if (jsonDec.apply(jsonObj, context)) {
-							jsonDec.decorate(jsonObject, runtimeCtx);
-						}
-					}
-					for (JSONDecorator d : decs) { d.after(); }
-				}
+				JSONObject docJSON = (JSONObject) obj;
+				// check master pid 
+				changeMasterPid(docJSON);
+				// fiter protected fields
+				filterFields(docJSON);
 				
-				// filter
-				String[] filters = KConfiguration.getInstance().getAPISolrFilter();
-				for (String filterKey : filters) {
-					if (jsonObj.containsKey(filterKey)) {
-						jsonObj.remove(filterKey);
-					}
-				}
+				//decorators
+				decorators(context, decs,  docJSON);
+				
+				// replace pids
+				replacePids(docJSON);
+		    }
+		}
+		return resultJSONObject;
+	}
+
+
+	public void decorators(String context, List<JSONDecorator> decs,
+			JSONObject docJSON) {
+		//decorators
+		Map<String, Object> runtimeCtx = new HashMap<String, Object>();
+		for (JSONDecorator d : decs) { d.before(runtimeCtx); }
+		for (JSONDecorator jsonDec : decs) {
+			if (jsonDec.apply(docJSON, context)) {
+				jsonDec.decorate(docJSON, runtimeCtx);
 			}
 		}
-		return jsonObject;
+		for (JSONDecorator d : decs) { d.after(); }
+	}
+
+	public static void replacePids(JSONObject jsonObj) {
+		// repair results
+		String[] apiReplace = KConfiguration.getInstance().getAPIPIDReplace();
+		for (String k : apiReplace) {
+			if (k.equals("PID")) continue; //already replaced
+				if (jsonObj.containsKey(k)) {
+					Object object = jsonObj.get(k);
+					if (object instanceof String) {
+						String s = jsonObj.getString(k);
+						if (s.indexOf("/@") > 0) {
+							s.replace("/@", "@");
+							jsonObj.put(k, s);
+						}
+					} else if (object instanceof JSONArray) {
+						JSONArray jsonArr = (JSONArray) object;
+						JSONArray newJSONArray = new JSONArray();
+						int size = jsonArr.size();
+						for (int i = 0; i < size; i++) {
+							Object sObj = jsonArr.get(i);
+							if (sObj instanceof String) {
+								String s = (String) sObj;
+								s= s.replace("/@", "@");
+								newJSONArray.add(s);
+								
+							} else {
+								LOGGER.warning("skipping object type '"+sObj.getClass().getName()+"'");
+							}
+						}
+						jsonObj.put(k, newJSONArray);
+					} else {
+						LOGGER.warning("skipping object type '"+object.getClass().getName()+"'");
+					}
+				}
+		}
+	}
+
+	public static void filterFields(JSONObject jsonObj) {
+		// filter
+		String[] filters = KConfiguration.getInstance().getAPISolrFilter();
+		for (String filterKey : filters) {
+			if (jsonObj.containsKey(filterKey)) {
+				jsonObj.remove(filterKey);
+			}
+		}
+	}
+
+	public static void changeMasterPid(JSONObject jsonObj) {
+		if (jsonObj.containsKey("PID")) {
+			// pid contains '/' char
+			String pid = jsonObj.getString("PID");
+			if (pid.contains("/")) {
+				pid = pid.replace("/", "");
+				jsonObj.put("PID", pid);
+			}
+			
+		}
 	}
 
     @GET

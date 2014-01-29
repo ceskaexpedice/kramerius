@@ -14,13 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.k5.client;
+package cz.incad.kramerius.rest.api.k5.client.item.decorators;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
+import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -28,8 +30,15 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 
 
 public abstract class AbstractItemDecorator extends AbstractDecorator  {
-	
+
 	public static final Logger LOGGER = Logger.getLogger(AbstractItemDecorator.class.getName());
+	
+	public static final String ITEM_KEY="ITEM";
+
+	public static String key(String key) {
+		return AbstractDecorator.construct(ITEM_KEY, key);
+	}
+
 	
 	protected TokenizedPath itemContext(List<String> input) {
 

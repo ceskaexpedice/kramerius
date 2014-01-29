@@ -30,7 +30,7 @@ import com.google.inject.name.Named;
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
-import cz.incad.kramerius.rest.api.k5.client.AbstractItemDecorator;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -58,12 +58,14 @@ public class PDFDecorate extends AbstractDisplayDecorate {
 	@Override
 	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
 		try {
-			String pidFromJSON = getPidFromJSON(jsonObject);
-			if (!PIDSupport.isComposedPID(pidFromJSON) && this.fedoraAccess.isImageFULLAvailable(pidFromJSON)) {
-				String mimeTypeForStream = this.fedoraAccess.getMimeTypeForStream(pidFromJSON, FedoraUtils.IMG_FULL_STREAM);
-				ImageMimeType imType = ImageMimeType.loadFromMimeType(mimeTypeForStream);
-				if (imType != null && ImageMimeType.PDF.equals(imType)) {
-					jsonObject.put("pdf", options(pidFromJSON));
+			if (containsPidInJSON(jsonObject)) {
+				String pidFromJSON = getPidFromJSON(jsonObject);
+				if (!PIDSupport.isComposedPID(pidFromJSON) && this.fedoraAccess.isImageFULLAvailable(pidFromJSON)) {
+					String mimeTypeForStream = this.fedoraAccess.getMimeTypeForStream(pidFromJSON, FedoraUtils.IMG_FULL_STREAM);
+					ImageMimeType imType = ImageMimeType.loadFromMimeType(mimeTypeForStream);
+					if (imType != null && ImageMimeType.PDF.equals(imType)) {
+						jsonObject.put("pdf", options(pidFromJSON));
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -86,7 +88,4 @@ public class PDFDecorate extends AbstractDisplayDecorate {
 	}
 
 
-	public static void main(String[] args) {
-		System.out.println(PDFDecorate.KEY);
-	}
 }

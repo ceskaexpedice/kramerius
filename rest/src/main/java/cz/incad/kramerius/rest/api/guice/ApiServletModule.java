@@ -30,15 +30,19 @@ import cz.incad.kramerius.rest.api.k5.admin.users.UsersResource;
 import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootModelDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootPidDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrTitleDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.HandleDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootModelDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootPidDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrContextDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrDataNode;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrSiblingsDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrTitleDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrTitleDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.PDFDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.ZoomDecorate;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
@@ -96,24 +100,36 @@ public class ApiServletModule extends JerseyServletModule {
         //serve("/api/"+VERSION+"/*").with(GuiceContainer.class, parameters);
     }
 
+    
+
+    public static void decoratorsBindings(Multibinder<JSONDecorator> decs) {
+		//feeder
+		decs.addBinding().to(SolrISSNDecorate.class);
+		decs.addBinding().to(SolrDateDecorate.class);
+		decs.addBinding().to(SolrLanguageDecorate.class);
+		decs.addBinding().to(FeederSolrRootModelDecorate.class);
+		decs.addBinding().to(FeederSolrRootPidDecorate.class);
+		decs.addBinding().to(FeederSolrTitleDecorate.class);
+		
+		//item
+		decs.addBinding().to(HandleDecorate.class);
+		decs.addBinding().to(ItemSolrTitleDecorate.class);
+		decs.addBinding().to(ItemSolrRootModelDecorate.class);
+		decs.addBinding().to(ItemSolrRootPidDecorate.class);
+		decs.addBinding().to(SolrContextDecorate.class);
+		decs.addBinding().to(SolrDataNode.class);
+		
+		
+		// item, display
+		decs.addBinding().to(ZoomDecorate.class);
+		decs.addBinding().to(PDFDecorate.class);
+    }
+    
     private void decorators() {
 		Multibinder<JSONDecorator> decs
         = Multibinder.newSetBinder(binder(), JSONDecorator.class);
 
-		decs.addBinding().to(HandleDecorate.class);
-		decs.addBinding().to(SolrTitleDecorate.class);
-		decs.addBinding().to(SolrContextDecorate.class);
-
-		decs.addBinding().to(SolrDateDecorate.class);
-		decs.addBinding().to(SolrISSNDecorate.class);
-		decs.addBinding().to(SolrLanguageDecorate.class);
-		
-		decs.addBinding().to(SolrDataNode.class);
-		
-		decs.addBinding().to(ZoomDecorate.class);
-		decs.addBinding().to(PDFDecorate.class);
-		
-		//decs.addBinding().to(SolrSiblingsDecorate.class);
+		decoratorsBindings(decs);
     }
 
 

@@ -14,72 +14,72 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.k5.client.item.decorators;
+package cz.incad.kramerius.rest.api.k5.client.feeder.decorators;
+
+import static cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils.getSolrPidDocument;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sf.json.JSONObject;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
-import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
 /**
- * Dplni informaci o tom, zda se jedna o datanode
+ * Doplni root model z indexu
  * @author pavels
  */
-public class SolrDataNode extends AbstractItemDecorator {
+public class FeederSolrRootModelDecorate extends AbstractFeederDecorator {
 
-	public static final Logger LOGGER = Logger.getLogger(SolrDataNode.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(FeederSolrRootModelDecorate.class.getName());
 
-	public static final String KEY =  AbstractItemDecorator.key("DATA_NODE");//"DATA_NODE";
+    public static final String SOLR_ROOTMODEL_KEY = AbstractFeederDecorator.key("ROOTMODEL");
 
-	
     @Inject
     SolrAccess solrAccess;
-
-	
+    
 	@Override
 	public String getKey() {
-		return KEY;
+		return SOLR_ROOTMODEL_KEY;
 	}
 
 	@Override
-	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
-		try {
-			if (jsonObject.containsKey("pid")) {
-				String pid = jsonObject.getString("pid");
-				Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid, context, solrAccess);
+	public void decorate(JSONObject jsonObject,
+			Map<String, Object> runtimeContext) {
+		if (jsonObject.containsKey("pid")) {
+			String pid = jsonObject.getString("pid");
+	        try {
+				Document solrDoc = getSolrPidDocument(pid, context, solrAccess);
 				Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
 				if (result != null) {
-					Boolean value = SOLRUtils.value(result, "viewable", Boolean.class);
-					if (value != null) {
-						jsonObject.put("datanode", value);
-					} else {
-						jsonObject.put("datanode", false);
-					}
+				    Element doc = XMLUtils.findElement(result, "doc");
+				    if (doc != null) {
+
+				        String root_pid = SOLRUtils.value(doc, "root_model", String.class);
+				        if (root_pid != null) {
+				            jsonObject.put("root_pid", root_pid);
+				        }
+				    }
 				}
+			} catch (IOException e) {
+				LOGGER.log(Level.SEVERE,e.getMessage(),e);
 			}
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
 		}
 	}
-	
+
 	@Override
 	public boolean apply(JSONObject jsonObject, String context) {
-		TokenizedPath tpath = super.itemContext(tokenize(context));
+		TokenizedPath tpath = super.feederContext(tokenize(context));
 		return tpath.isParsed() ;
 	}
+	
 }

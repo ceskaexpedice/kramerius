@@ -116,7 +116,7 @@ public class ItemResource {
 	
 	@GET
 	@Path("{pid}/streams")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response streams(@PathParam("pid")String pid) {
 		try {
 			JSONObject jsonObject = new JSONObject();
@@ -151,7 +151,7 @@ public class ItemResource {
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response children(@PathParam("pid")String pid) {
 		try {
-			if (PIDSupport.isComposedPID(pid)) {
+			if (!PIDSupport.isComposedPID(pid)) {
 				JSONArray jsonArray = new JSONArray();
 				List<String> children = solrChildren(pid);
 
@@ -170,9 +170,6 @@ public class ItemResource {
 		}catch(IOException ex) {
 			LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
             return Response.ok().entity("{}").build();
-//		} catch (ProcessSubtreeException e) {
-//			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-//            return Response.ok().entity("{}").build();
 		}
     }
 
@@ -272,7 +269,7 @@ public class ItemResource {
 	
 	@GET
 	@Path("{pid}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response basic(@PathParam("pid")String pid) {
     	try {
         	if (pid != null) {

@@ -14,23 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.k5.client.feeder.decorators;
+package cz.incad.kramerius.rest.api.k5.client.search.decorators;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 
-public abstract class AbstractFeederDecorator extends AbstractDecorator {
+public abstract class AbstractSearchDecorator extends AbstractDecorator {
 
-	public static final String FEED_KEY="FEED";
+	public static final Logger LOGGER = Logger.getLogger(AbstractItemDecorator.class.getName());
+	
+	public static final String SEARCH_KEY="SEARCH";
 
 	public static String key(String key) {
-		return AbstractDecorator.construct(FEED_KEY, key);
+		return AbstractDecorator.construct(SEARCH_KEY, key);
 	}
 
 	
-	protected TokenizedPath feederContext(List<String> input) {
+	protected TokenizedPath searchContext(List<String> input) {
 
 		// basic path
 		TokenizedPath bcont = super.basicContext(input);
@@ -39,7 +43,7 @@ public abstract class AbstractFeederDecorator extends AbstractDecorator {
 		List<String> atoms = bcont.getRestPath();
 		List<String> retvals = new ArrayList<String>(atoms);
 		if (!retvals.isEmpty()) {
-			if (!retvals.get(0).equals("feed")) return new TokenizedPath(false, atoms);	
+			if (!retvals.get(0).equals("search")) return new TokenizedPath(false, atoms);	
 			retvals.remove(0);
 		} else return new TokenizedPath(false, atoms);
 
@@ -47,9 +51,4 @@ public abstract class AbstractFeederDecorator extends AbstractDecorator {
 		return new TokenizedPath(true, retvals);
 	}
 
-	protected boolean mostDesirableOrNewest(TokenizedPath fctx) {
-		return fctx.getRestPath().get(0).equals("mostdesirable") || fctx.getRestPath().get(0).equals("newest");
-	}
-
-	
 }

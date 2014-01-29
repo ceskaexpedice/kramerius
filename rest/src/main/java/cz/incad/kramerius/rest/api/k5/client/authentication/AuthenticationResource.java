@@ -29,6 +29,7 @@ import com.google.inject.Provider;
 
 import cz.incad.kramerius.security.User;
 
+//TODO: delete
 @Path("/auth")
 public class AuthenticationResource {
 

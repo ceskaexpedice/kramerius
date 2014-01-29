@@ -21,7 +21,6 @@ import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyRelsExt;
 import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyWithIMGFULL;
 import static cz.incad.kramerius.fedora.impl.DataPrepare.dataStreams;
 import static cz.incad.kramerius.solr.impl.SolrPrepare.solrDataDocument;
-
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
@@ -55,6 +54,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
+import cz.incad.kramerius.rest.api.guice.ApiServletModule;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
@@ -62,7 +62,7 @@ import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.HandleDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrContextDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrDataNode;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrTitleDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrTitleDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.PDFDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.ZoomDecorate;
 import cz.incad.kramerius.solr.impl.SolrPrepare;
@@ -72,6 +72,30 @@ import cz.incad.kramerius.utils.pid.LexerException;
 
 public class JSONDecoratorsAggregateTest {
 
+	@Test
+	public void duplicateCheck() throws IOException, ParserConfigurationException, SAXException, LexerException, SecurityException, NoSuchMethodException {
+        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+
+        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
+        .withConstructor(KConfiguration.getInstance(),aclog)
+        .createMock();
+        
+        
+        SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
+        		.createMock();
+        replay(fa,aclog, sa);
+
+		Injector injector = Guice.createInjector(new JSONDecTestModule(sa, fa, null, null));
+        JSONDecoratorsAggregate aggregate = injector.getInstance(JSONDecoratorsAggregate.class);
+        List<JSONDecorator> list = aggregate.getDecorators();
+        List<String> KEYS = new ArrayList<String>();
+        for (JSONDecorator jsonDecorator : list) {
+        	String key = jsonDecorator.getKey();
+        	Assert.assertFalse(KEYS.contains(key));
+        	KEYS.add(key);
+        }
+	}
+	
 	@Test
 	public void testApplyBasicPDF() throws IOException, ParserConfigurationException, SAXException, LexerException, SecurityException, NoSuchMethodException {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
@@ -111,7 +135,7 @@ public class JSONDecoratorsAggregateTest {
     		jsonObject.put("model",  "page");
         	if (jsonDec.apply(jsonObject, basicUrl)) { acceptedDecorators.add(jsonDec); }
         }
-        Assert.assertTrue(acceptedDecorators.size() == 6);
+        Assert.assertTrue(acceptedDecorators.size() == 7);
 
 	}
 	
@@ -153,7 +177,7 @@ public class JSONDecoratorsAggregateTest {
     		jsonObject.put("model", fa.getKrameriusModelName(pid));
         	if (jsonDec.apply(jsonObject, basicUrl)) { acceptedDecorators.add(jsonDec); }
         }
-        Assert.assertTrue(acceptedDecorators.size() == 6);
+        Assert.assertTrue(acceptedDecorators.size() == 7);
 	}
 
 
@@ -165,15 +189,7 @@ public class JSONDecoratorsAggregateTest {
 
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(),aclog)
-//        .addMockedMethod("getRelsExt")
-//        .addMockedMethod("isImageFULLAvailable")
-//        .addMockedMethod("getFedoraDataStreamsList")
         .createMock();
-        
-        //narodniListyRelsExt(fa);
-//        drobnustkyRelsExt(fa);
-//        drobnustkyWithIMGFULL(fa);        
-//        dataStreams(fa, DataPrepare.DROBNUSTKY_PIDS[0]);
         
         
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
@@ -313,19 +329,21 @@ public class JSONDecoratorsAggregateTest {
 		private void decorators() {
 			Multibinder<JSONDecorator> decs
 	        = Multibinder.newSetBinder(binder(), JSONDecorator.class);
-
-			decs.addBinding().to(HandleDecorate.class);
-			decs.addBinding().to(SolrTitleDecorate.class);
-			decs.addBinding().to(SolrContextDecorate.class);
-
-			decs.addBinding().to(SolrDateDecorate.class);
-			decs.addBinding().to(SolrISSNDecorate.class);
-			decs.addBinding().to(SolrLanguageDecorate.class);
 			
-			decs.addBinding().to(SolrDataNode.class);
+			ApiServletModule.decoratorsBindings(decs);
 			
-			decs.addBinding().to(ZoomDecorate.class);
-			decs.addBinding().to(PDFDecorate.class);
+//			decs.addBinding().to(HandleDecorate.class);
+//			decs.addBinding().to(ItemSolrTitleDecorate.class);
+//			decs.addBinding().to(SolrContextDecorate.class);
+//
+//			decs.addBinding().to(SolrDateDecorate.class);
+//			decs.addBinding().to(SolrISSNDecorate.class);
+//			decs.addBinding().to(SolrLanguageDecorate.class);
+//			
+//			decs.addBinding().to(SolrDataNode.class);
+//			
+//			decs.addBinding().to(ZoomDecorate.class);
+//			decs.addBinding().to(PDFDecorate.class);
 	    }
 		
 		@Provides

@@ -14,36 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.k5.client.item.decorators;
+package cz.incad.kramerius.rest.api.k5.client.feeder.decorators;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sf.json.JSONObject;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 
-import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.AbstractItemDecorator;
-import cz.incad.kramerius.rest.api.k5.client.AbstractSolrDecorator;
-import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
-import java.util.ArrayList;
+/**
+ * Doplni titulky z indexu
+ * @author pavels
+ */
+public class FeederSolrTitleDecorate extends AbstractFeederDecorator {
 
-import net.sf.json.JSONArray;
+    public static final Logger LOGGER = Logger.getLogger(FeederSolrTitleDecorate.class.getName());
 
-public class SolrTitleDecorate extends AbstractSolrDecorator {
-
-    public static final Logger LOGGER = Logger.getLogger(SolrTitleDecorate.class.getName());
-
-    public static final String SOLR_TITLE_KEY = AbstractSolrDecorator.key("TITLE");
+    public static final String SOLR_TITLE_KEY = AbstractFeederDecorator.key("TITLE");
 
     @Inject
     SolrAccess solrAccess;
@@ -56,8 +54,9 @@ public class SolrTitleDecorate extends AbstractSolrDecorator {
     @Override
     public void decorate(JSONObject jsonObject, Map<String, Object> context) {
         try {
+        	
         	String pid = jsonObject.getString("pid");
-            Document solrDoc = getSolrPidDocument(pid, context, solrAccess);
+            Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid, context, solrAccess);
             Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
             if (result != null) {
                 Element doc = XMLUtils.findElement(result, "doc");
@@ -70,23 +69,6 @@ public class SolrTitleDecorate extends AbstractSolrDecorator {
                     if (root_title != null) {
                         jsonObject.put("root_title", root_title);
                     }
-                    String root_model = SOLRUtils.value(doc, "root_model", String.class);
-                    if (root_model != null) {
-                        jsonObject.put("root_model", root_model);
-                    }
-                    String root_pid = SOLRUtils.value(doc, "root_pid", String.class);
-                    if (root_pid != null) {
-                        jsonObject.put("root_pid", root_pid);
-                    }
-                    // 
-
-                    /*
-                    List details = SOLRUtils.array(doc, "details", String.class);
-                    if(details != null){
-                        JSONArray ja = new JSONArray();
-                        ja.addAll(details);
-                        jsonObject.put("details", ja);
-                    }*/
                 }
             }
         } catch (IOException e) {
@@ -96,7 +78,8 @@ public class SolrTitleDecorate extends AbstractSolrDecorator {
 
     @Override
     public boolean apply(JSONObject jsonObject, String context) {
-        return true;
+		TokenizedPath tpath = super.feederContext(tokenize(context));
+		return tpath.isParsed() ;
     }
 
 }

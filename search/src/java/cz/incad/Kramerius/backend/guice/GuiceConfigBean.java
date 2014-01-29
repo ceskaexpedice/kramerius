@@ -57,7 +57,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 
     @Override
     protected Injector getInjector() {
-    	List<AbstractModule> modules = Arrays.asList(
+    	List<AbstractModule> modules = new ArrayList<AbstractModule>(Arrays.asList(
                 new BaseModule(), // base  module
                 
                 new ServicesModule(), // base services
@@ -82,7 +82,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 
                 new FormatterModule(), // statistics formatters
                 servletModule()
-		); 
+		)); 
     	
     	try {
 			// api extensions
@@ -121,7 +121,8 @@ public class GuiceConfigBean extends GuiceServletContextListener {
     
     public static List<AbstractModule> extensionModule() throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
     	List<AbstractModule> list = new ArrayList<AbstractModule>();
-    	Enumeration<URL> urlRes = GuiceConfigBean.class.getClassLoader().getResources("/res/guice.module");
+    	String resGuiceModule = "res/guice.module";
+		Enumeration<URL> urlRes = GuiceConfigBean.class.getClassLoader().getResources(resGuiceModule);
     	while(urlRes.hasMoreElements()) {
     		URL url = urlRes.nextElement();
     		InputStream istream = url.openConnection().getInputStream();

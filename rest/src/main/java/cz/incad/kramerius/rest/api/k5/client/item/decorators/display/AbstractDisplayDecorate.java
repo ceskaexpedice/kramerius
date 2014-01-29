@@ -16,7 +16,7 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.item.decorators.display;
 
-import cz.incad.kramerius.rest.api.k5.client.AbstractItemDecorator;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 
 
 public abstract class AbstractDisplayDecorate extends AbstractItemDecorator {
