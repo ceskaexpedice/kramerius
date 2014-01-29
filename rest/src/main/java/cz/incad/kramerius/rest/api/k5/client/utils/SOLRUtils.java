@@ -19,6 +19,7 @@ package cz.incad.kramerius.rest.api.k5.client.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import cz.incad.kramerius.utils.XMLUtils;
@@ -27,6 +28,9 @@ import java.util.ArrayList;
 
 public class SOLRUtils {
 	
+
+	
+	
 	public static <T> T  value(String val, Class<T> clz) {
 		if (clz.equals(String.class)) return (T) val;
 		else if (clz.equals(Boolean.class)) return (T) new Boolean(val);
@@ -34,6 +38,42 @@ public class SOLRUtils {
 		else throw new IllegalArgumentException("unsupported type "+clz+"");
 	}
 	
+	
+	public static Element value(Document doc, String val) {
+		return value(doc,null,val);
+	}
+
+	public static Element value(Document doc,String attname, String val) {
+		Element strElm = doc.createElement("str");
+		if (attname != null) strElm.setAttribute("name", attname);
+		strElm.setTextContent(val);
+		return strElm;
+	}
+
+	public static Element value(Document doc, Integer val) {
+		return value(doc,null,val);
+	}
+
+	public static Element value(Document doc,String attname, Integer val) {
+		Element strElm = doc.createElement("int");
+		if (attname != null) strElm.setAttribute("name", attname);
+		strElm.setTextContent(""+val);
+		return strElm;
+	}
+
+	public static Element arr(Document doc,String attname, List vals) {
+		Element arrElm = doc.createElement("arr");
+		if (attname != null) arrElm.setAttribute("name", attname);
+		for (Object obj : vals) {
+			if (obj instanceof String) {
+				arrElm.appendChild(value(doc, (String)obj));
+			} else if (obj instanceof Integer) {
+				arrElm.appendChild(value(doc, (Integer)obj));
+			} else throw new IllegalArgumentException("unsupported type "+obj.getClass().getName()+"");
+		}
+		return arrElm;
+	}
+
     public static <T> T value(final Element doc, final String attributeName, Class<T> clz) {
         List<Element> elms = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
 

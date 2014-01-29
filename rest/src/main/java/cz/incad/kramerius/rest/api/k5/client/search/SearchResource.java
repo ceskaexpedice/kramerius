@@ -19,11 +19,15 @@ package cz.incad.kramerius.rest.api.k5.client.search;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.GET;
@@ -35,17 +39,25 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.bouncycastle.jce.provider.JCEBlockCipher.DES;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
+import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import java.net.URLEncoder;
@@ -63,10 +75,52 @@ public class SearchResource {
 
     @Inject
     JSONDecoratorsAggregate jsonDecoratorAggregates;
-    
+
+    @GET
+    @Produces({MediaType.APPLICATION_XML + ";charset=utf-8"})
+    public Response selectXML(@Context UriInfo uriInfo) {
+        try {
+        	
+        	MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+            StringBuilder builder = new StringBuilder();
+            Set<String> keys = queryParameters.keySet();
+            for (String k : keys) {
+                for (String v : queryParameters.get(k)) {
+                	builder.append(k + "=" + URLEncoder.encode(v, "UTF-8"));
+                    builder.append("&");
+                }
+            }
+            InputStream istream = this.solrAccess.request(builder.toString(), "xml");
+            
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(istream, bos);
+            String rawString = new String(bos.toByteArray(),"UTF-8");
+
+            String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
+            Document domObject = changeXMLResult(rawString, uri);
+            
+            StringWriter strWriter = new StringWriter();
+            XMLUtils.print(domObject, strWriter);
+            
+            return Response.ok().entity(strWriter.toString()).build();
+        } catch (IOException e) {
+        	LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        	throw new GenericApplicationException(e.getMessage());
+        } catch (TransformerException e) {
+        	LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        	throw new GenericApplicationException(e.getMessage());
+		} catch (ParserConfigurationException e) {
+        	LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        	throw new GenericApplicationException(e.getMessage());
+		} catch (SAXException e) {
+        	LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        	throw new GenericApplicationException(e.getMessage());
+		}
+    }
+
     @GET
     @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
-    public Response select(@Context UriInfo uriInfo) {
+    public Response selectJSON(@Context UriInfo uriInfo) {
         try {
         	
         	MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
@@ -79,12 +133,13 @@ public class SearchResource {
                 }
             }
             InputStream istream = this.solrAccess.request(builder.toString(), "json");
+            
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
             String rawString = new String(bos.toByteArray(),"UTF-8");
 
             String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
-            JSONObject jsonObject = changeResult(rawString, uri);
+            JSONObject jsonObject = changeJSONResult(rawString, uri);
             
             return Response.ok().entity(jsonObject.toString()).build();
         } catch (IOException e) {
@@ -93,7 +148,95 @@ public class SearchResource {
     }
 
     
-	public JSONObject changeResult(String rawString, String context)
+    /**
+     * Change result in xml result
+     * @param rawString XML result
+     * @param context Calling context
+     * @return Changed result
+     * @throws ParserConfigurationException Parser error
+     * @throws SAXException Parse error 
+     * @throws IOException IO error
+     */
+    public static Document changeXMLResult(String rawString, String context) throws ParserConfigurationException, SAXException, IOException {
+    	Document doc = XMLUtils.parseDocument(new StringReader(rawString));
+		Element result = XMLUtils.findElement(doc.getDocumentElement(), "result");
+		List<Element> elms = XMLUtils.getElements(result, new XMLUtils.ElementsFilter() {
+			
+			@Override
+			public boolean acceptElement(Element element) {
+				return  (element.getNodeName().equals("doc"));
+			}
+		});
+		for (Element docE : elms) {
+			changeMasterPidInDOM(docE);
+
+			filterFieldsInDOM(docE);
+			
+			//no decorators for xml format
+			
+			replacePidsInDOM(docE);
+			
+		}
+		return doc;
+    }
+    
+	public static void replacePidsInDOM(Element docE) {
+		String[] apiReplace = KConfiguration.getInstance().getAPIPIDReplace();
+		for (String k : apiReplace) {
+			if (k.equals("PID")) continue; //already replaced
+			Element foundElm = findSolrElement(docE, k);
+			if (foundElm != null) {
+			
+				if (foundElm.getNodeName().equals("str")) {
+					String value = SOLRUtils.value(foundElm.getTextContent(), String.class);
+					if (value != null && (value.indexOf("/@") > 0)) {
+						value = value.replace("/@", "@");
+						foundElm.setTextContent(value);
+					}
+				} else if (foundElm.getNodeName().equals("arr")) {
+					List<String> array = SOLRUtils.array(docE,k, String.class);
+					List<String> newArray = new ArrayList<String>();
+					for (String value : array) {
+						value = value.replace("/@", "@");
+						newArray.add(value);
+					}
+					
+					docE.removeChild(foundElm);
+					Element newArrElm = SOLRUtils.arr(foundElm.getOwnerDocument(), k, newArray);
+					docE.appendChild(newArrElm);
+				} else {
+					LOGGER.warning("skipping object type '"+foundElm.getNodeName()+"'");
+				}
+
+			}
+		}
+		
+	}
+
+	public static void filterFieldsInDOM(Element docE) {
+		// filter
+		String[] filters = KConfiguration.getInstance().getAPISolrFilter();
+		for (final String name : filters) {
+			Element found = findSolrElement(docE, name);
+			if (found != null) {
+				docE.removeChild(found);
+			}
+		}
+		
+	}
+
+	public static Element findSolrElement(Element docE, final String name) {
+		Element found = XMLUtils.findElement(docE, new XMLUtils.ElementsFilter() {
+			@Override
+			public boolean acceptElement(Element element) {
+				return (element.hasAttribute("name") && element.getAttribute("name").equals(name));
+			}
+		});
+		return found;
+	}
+
+
+	public JSONObject changeJSONResult(String rawString, String context)
 			throws UnsupportedEncodingException {
 		
 		List<JSONDecorator> decs = this.jsonDecoratorAggregates.getDecorators();
@@ -105,21 +248,22 @@ public class SearchResource {
 		    for (Object obj : jsonArray) {
 				JSONObject docJSON = (JSONObject) obj;
 				// check master pid 
-				changeMasterPid(docJSON);
+				changeMasterPidInJSON(docJSON);
+
 				// fiter protected fields
-				filterFields(docJSON);
+				filterFieldsInJSON(docJSON);
 				
 				//decorators
 				decorators(context, decs,  docJSON);
 				
 				// replace pids
-				replacePids(docJSON);
+				replacePidsInJSON(docJSON);
 		    }
 		}
 		return resultJSONObject;
 	}
 
-
+	
 	public void decorators(String context, List<JSONDecorator> decs,
 			JSONObject docJSON) {
 		//decorators
@@ -133,7 +277,7 @@ public class SearchResource {
 		for (JSONDecorator d : decs) { d.after(); }
 	}
 
-	public static void replacePids(JSONObject jsonObj) {
+	public static void replacePidsInJSON(JSONObject jsonObj) {
 		// repair results
 		String[] apiReplace = KConfiguration.getInstance().getAPIPIDReplace();
 		for (String k : apiReplace) {
@@ -169,7 +313,7 @@ public class SearchResource {
 		}
 	}
 
-	public static void filterFields(JSONObject jsonObj) {
+	public static void filterFieldsInJSON(JSONObject jsonObj) {
 		// filter
 		String[] filters = KConfiguration.getInstance().getAPISolrFilter();
 		for (String filterKey : filters) {
@@ -179,7 +323,7 @@ public class SearchResource {
 		}
 	}
 
-	public static void changeMasterPid(JSONObject jsonObj) {
+	public static void changeMasterPidInJSON(JSONObject jsonObj) {
 		if (jsonObj.containsKey("PID")) {
 			// pid contains '/' char
 			String pid = jsonObj.getString("PID");
@@ -191,10 +335,76 @@ public class SearchResource {
 		}
 	}
 
+
+	public static void changeMasterPidInDOM(Element docElem) {
+		//<str name="PID">uuid:2ad31d65-50ca-11e1-916e-001b63bd97ba</str>
+		Element elm = XMLUtils.findElement(docElem, new XMLUtils.ElementsFilter() {
+			
+			@Override
+			public boolean acceptElement(Element element) {
+				if (element.getNodeName().equals("str")) {
+					if (element.hasAttribute("name") && (element.getAttribute("name").equals("PID"))) {
+						return true;
+					}
+				}
+				return false;
+			}
+		});
+		if (elm != null) {
+			String pid = elm.getTextContent();
+			if (pid.contains("/")) {
+				pid = pid.replace("/", "");
+				elm.setTextContent(pid);
+			}
+		}
+	}
+
+    @GET
+    @Path("terms")
+    @Produces({MediaType.APPLICATION_XML + ";charset=utf-8"})
+    public Response termsXML(@Context UriInfo uriInfo) {
+        try {
+            MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+            StringBuilder builder = new StringBuilder();
+            Set<String> keys = queryParameters.keySet();
+            for (String k : keys) {
+                for (String v : queryParameters.get(k)) {
+                    builder.append(k + "=" + URLEncoder.encode(v, "UTF-8"));
+                    builder.append("&");
+                }
+            }
+            InputStream istream = this.solrAccess.terms(builder.toString(), "xml");
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(istream, bos);
+
+            String rawString = new String(bos.toByteArray(),"UTF-8");
+            String uri = UriBuilder.fromResource(SearchResource.class).path("terms").build().toString();
+            Document domObject = changeXMLResult(rawString, uri);
+
+            StringWriter strWriter = new StringWriter();
+            XMLUtils.print(domObject, strWriter);
+            
+            return Response.ok().entity(strWriter.toString()).build();
+        } catch (IOException e) {
+        	LOGGER.log(Level.SEVERE,e.getMessage());
+            throw new GenericApplicationException(e.getMessage());
+        } catch (TransformerException e) {
+        	LOGGER.log(Level.SEVERE,e.getMessage());
+            throw new GenericApplicationException(e.getMessage());
+		} catch (ParserConfigurationException e) {
+        	LOGGER.log(Level.SEVERE,e.getMessage());
+            throw new GenericApplicationException(e.getMessage());
+		} catch (SAXException e) {
+        	LOGGER.log(Level.SEVERE,e.getMessage());
+            throw new GenericApplicationException(e.getMessage());
+		}
+
+    }	
+    
     @GET
     @Path("terms")
     @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
-    public Response terms(@Context UriInfo uriInfo) {
+    public Response termsJSON(@Context UriInfo uriInfo) {
         try {
             MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
             StringBuilder builder = new StringBuilder();
@@ -211,11 +421,12 @@ public class SearchResource {
 
             String rawString = new String(bos.toByteArray(),"UTF-8");
             String uri = UriBuilder.fromResource(SearchResource.class).path("terms").build().toString();
-            JSONObject jsonObject = changeResult(rawString, uri);
+            JSONObject jsonObject = changeJSONResult(rawString, uri);
 
             return Response.ok().entity(jsonObject.toString()).build();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+        	LOGGER.log(Level.SEVERE,e.getMessage());
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 

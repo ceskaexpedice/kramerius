@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -218,6 +219,15 @@ public class XMLUtils {
      * @throws TransformerException
      */
     public static void print(Document doc, OutputStream out) throws TransformerException {
+        TransformerFactory tFactory = TransformerFactory.newInstance();
+        Transformer transformer = tFactory.newTransformer();
+
+        DOMSource source = new DOMSource(doc);
+        StreamResult result = new StreamResult(out);
+        transformer.transform(source, result);
+    }
+
+    public static void print(Document doc, Writer out) throws TransformerException {
         TransformerFactory tFactory = TransformerFactory.newInstance();
         Transformer transformer = tFactory.newTransformer();
 
