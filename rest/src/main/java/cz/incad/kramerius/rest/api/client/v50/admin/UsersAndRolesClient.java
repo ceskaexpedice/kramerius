@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.client;
+package cz.incad.kramerius.rest.api.client.v50.admin;
 
 import java.util.Arrays;
 
@@ -27,7 +27,10 @@ import net.sf.json.JSONObject;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
-public class UsersClient {
+import cz.incad.kramerius.rest.api.client.BasicAuthenticationFilter;
+import cz.incad.kramerius.rest.api.client.v46.ProcessesClient;
+
+public class UsersAndRolesClient {
 
 	private static final String DEFAULT_NAME = "krameriusAdmin";
 	private static final String DEFAULT_PSWD = "krameriusAdmin";

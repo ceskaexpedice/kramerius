@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.client;
+package cz.incad.kramerius.rest.api.client.v50.client;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -26,6 +26,7 @@ import net.sf.json.JSONObject;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
+import cz.incad.kramerius.rest.api.client.BasicAuthenticationFilter;
 import cz.incad.kramerius.security.utils.PasswordDigest;
 
 public class ClientUsersClient {
@@ -33,14 +34,11 @@ public class ClientUsersClient {
 	private static final String DEFAULT_NAME = "krameriusAdmin";
 	private static final String DEFAULT_PSWD = "krameriusAdmin";
 
+	/** Save new password */
 	public static String savePassword() {
 		Client c = Client.create();
 
-		// http://localhost:8080/k5velocity-1.0-SNAPSHOT/api/user
-		// http://localhost:8080/search/api/v4.6/k5/user
-		// "http://localhost:8080/search/api/v4.6/k5/admin/users"
-		WebResource r = c
-				.resource("http://localhost:8080/search/api/v4.6/k5/user");
+		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user");
 		r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
 		JSONObject object = new JSONObject();
 		object.put("pswd", "krameriusAdmin");
@@ -51,15 +49,15 @@ public class ClientUsersClient {
 				.post(String.class);
 		return t;
 	}
-
+	
+	/**
+	 * Get user info
+	 * @return
+	 */
 	public static String getUser() {
 		Client c = Client.create();
 
-		// http://localhost:8080/k5velocity-1.0-SNAPSHOT/api/user
-		// http://localhost:8080/search/api/v4.6/k5/user
-		// "http://localhost:8080/search/api/v4.6/k5/admin/users"
-		WebResource r = c
-				.resource("http://localhost:8080/search/api/v4.6/k5/user");
+		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user");
 		r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
 		JSONObject object = new JSONObject();
 		object.put("pswd", "krameriusAdmin");
@@ -68,15 +66,39 @@ public class ClientUsersClient {
 				.type(MediaType.APPLICATION_JSON).get(String.class);
 		return t;
 	}
+	
+	/**
+	 * Get profile
+	 * @return
+	 */
+	public static String getProfile() {
+		Client c = Client.create();
+		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user/profile");
+		r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+		JSONObject object = new JSONObject();
+		object.put("pswd", "krameriusAdmin");
+		String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
+		return t;
+	}
 
+	public static void saveProfile(JSONObject profile) {
+		Client c = Client.create();
+		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user/profile");
+		r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+		JSONObject object = new JSONObject();
+		object.put("pswd", "krameriusAdmin");
+		String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(profile.toString()).post(String.class);
+	}
+	
 	public static void main(String[] args) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		String t = getUser();
 		System.out.println(t);
 		String st = savePassword();
 		System.out.println(st);
-
-//		String t = PasswordDigest.messageDigest( "krameriusAdmin");
-//		System.out.println(t);
-		
+		String profile = getProfile();
+		JSONObject jsonProfile = JSONObject.fromObject(profile);
+		System.out.println(jsonProfile);
+		jsonProfile.put("myproperty", "myvalue");
+		saveProfile(jsonProfile);
 	}
 }

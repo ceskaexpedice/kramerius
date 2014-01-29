@@ -14,12 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.client;
+package cz.incad.kramerius.rest.api.client.v46;
 
 import javax.ws.rs.core.MediaType;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+
+import cz.incad.kramerius.rest.api.client.BasicAuthenticationFilter;
 
 /**
  * Simple testing utility 

@@ -18,8 +18,10 @@ package cz.incad.kramerius.rest.api.k5.admin.vc;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,18 +80,28 @@ public class VirtualCollectionsResource {
 				String createdPID = VirtualCollectionsManager.create(fedoraAccess);
 				VirtualCollection vc = findVirtualCollection(this.fedoraAccess,createdPID);
 				if (vc != null) {
-					String label = jsonObj.getString("label");
-					boolean canLeaveFlag = jsonObj.getBoolean("canLeave");
+					String label = jsonObj.containsKey("label") ? jsonObj.getString("label"):"nolabel";
+					boolean canLeaveFlag = jsonObj.containsKey("canLeave") ? jsonObj.getBoolean("canLeave"):false;
 					VirtualCollectionsManager.modify(createdPID, label, canLeaveFlag, fedoraAccess);
 					VirtualCollection newVc = findVirtualCollection(this.fedoraAccess, createdPID);
+					if (newVc != null) {
+						if (jsonObj.has("descs")) {
+							Map<String, String> map = new HashMap<String, String>();
+							JSONObject descs = jsonObj.getJSONObject("descs");
+							Set keys = descs.keySet();
+							for (Object k : keys) {
+								map.put(k.toString(), descs.getString(k.toString()));
+							}
+							VirtualCollectionsManager.modifyTexts(newVc.getPid(), fedoraAccess, map);
+							// new lookup
+							newVc = findVirtualCollection(this.fedoraAccess, createdPID);
+						}
+					}
 					return Response.ok().entity(virtualCollectionTOJSON(newVc).toString()).build();
 				} else {
 					throw new ObjectNotFound("cannot find virtual collection '"+createdPID+"'");
 				}
 			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE,e.getMessage(),e);
-				throw new GenericApplicationException(e.getMessage());
-			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE,e.getMessage(),e);
 				throw new GenericApplicationException(e.getMessage());
 			}
@@ -108,15 +120,22 @@ public class VirtualCollectionsResource {
 					String label = jsonObj.getString("label");
 					boolean canLeaveFlag = jsonObj.getBoolean("canLeave");
 					VirtualCollectionsManager.modify(pid, label, canLeaveFlag, fedoraAccess);
+					if (jsonObj.has("descs")) {
+						Map<String, String> map = new HashMap<String, String>();
+						JSONObject descs = jsonObj.getJSONObject("descs");
+						Set keys = descs.keySet();
+						for (Object k : keys) {
+							map.put(k.toString(), descs.getString(k.toString()));
+						}
+						VirtualCollectionsManager.modifyTexts(pid, fedoraAccess, map);
+					}
+
 					JSONObject jsonObject = virtualCollectionTOJSON(findVirtualCollection(this.fedoraAccess,pid));
 					return Response.ok().entity(jsonObject.toString()).build();
 				} else {
 					throw new ObjectNotFound("cannot find virtual collection '"+pid+"'");
 				}
 			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE,e.getMessage(),e);
-				throw new GenericApplicationException(e.getMessage());
-			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE,e.getMessage(),e);
 				throw new GenericApplicationException(e.getMessage());
 			}
@@ -129,19 +148,19 @@ public class VirtualCollectionsResource {
 	@Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
 	public Response delete(@PathParam("pid")String pid) {
 		if (permit(this.userProvider.get())) {
-			try {
 				VirtualCollection vc = findVirtualCollection(this.fedoraAccess,pid);
 				if (vc != null) {
+					try {
+						VirtualCollectionsManager.deleteWOIndexer(pid, fedoraAccess);
+					} catch (Exception e) {
+						throw new GenericApplicationException(e.getMessage());
+					}
 					JSONObject jsonObj = virtualCollectionTOJSON(vc);
 					jsonObj.put("deleted", true);
 					return Response.ok().entity(jsonObj.toString()).build();
 				} else {
 					throw new ObjectNotFound("cannot find vc '"+pid+"'");
 				}
-			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,e.getMessage(),e);
-				throw new GenericApplicationException(e.getMessage());
-			}
 		} else throw new ActionNotAllowed("action is not allowed");
 	}	
 
@@ -197,17 +216,21 @@ public class VirtualCollectionsResource {
 		return jsonObj;
 	}
 
-	public static VirtualCollection findVirtualCollection(FedoraAccess fa, String pid)
-			throws Exception {
-		VirtualCollection vc = null;
-		List<VirtualCollection> vcs = VirtualCollectionsManager.getVirtualCollections(fa, new ArrayList<String>());
-		for (VirtualCollection v : vcs) {
-			if (v.getPid().equals(pid)) {
-				vc = v;
-				break;
+	public static VirtualCollection findVirtualCollection(FedoraAccess fa, String pid) {
+		try {
+			VirtualCollection vc = null;
+			List<VirtualCollection> vcs = VirtualCollectionsManager.getVirtualCollections(fa, new ArrayList<String>());
+			for (VirtualCollection v : vcs) {
+				if (v.getPid().equals(pid)) {
+					vc = v;
+					break;
+				}
 			}
+			return vc;
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
+			throw new GenericApplicationException(e.getMessage());
 		}
-		return vc;
 	}	
 
     boolean permit(User user) {

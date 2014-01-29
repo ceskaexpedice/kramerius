@@ -135,7 +135,7 @@ public class JSONDecoratorsAggregateTest {
     		jsonObject.put("model",  "page");
         	if (jsonDec.apply(jsonObject, basicUrl)) { acceptedDecorators.add(jsonDec); }
         }
-        Assert.assertTrue(acceptedDecorators.size() == 7);
+        Assert.assertTrue(acceptedDecorators.size() == 9);
 
 	}
 	
@@ -177,7 +177,7 @@ public class JSONDecoratorsAggregateTest {
     		jsonObject.put("model", fa.getKrameriusModelName(pid));
         	if (jsonDec.apply(jsonObject, basicUrl)) { acceptedDecorators.add(jsonDec); }
         }
-        Assert.assertTrue(acceptedDecorators.size() == 7);
+        Assert.assertTrue(acceptedDecorators.size() == 9);
 	}
 
 

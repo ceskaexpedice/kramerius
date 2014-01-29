@@ -357,6 +357,11 @@ public class VirtualCollectionsManager {
         return pid;
     }
 
+    public static void deleteWOIndexer(String pid, FedoraAccess fedoraAccess) throws Exception {
+        removeDocumentsFromCollection(pid, fedoraAccess);
+        fedoraAccess.getAPIM().purgeObject(pid, "Virtual collection deleted", true);
+    }
+
     public static void delete(String pid, FedoraAccess fedoraAccess) throws Exception {
         removeDocumentsFromCollection(pid, fedoraAccess);
         fedoraAccess.getAPIM().purgeObject(pid, "Virtual collection deleted", true);

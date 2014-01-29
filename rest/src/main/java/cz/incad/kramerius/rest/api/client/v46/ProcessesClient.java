@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.client;
+package cz.incad.kramerius.rest.api.client.v46;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +34,8 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.core.util.Base64;
 
+import cz.incad.kramerius.rest.api.client.BasicAuthenticationFilter;
+
 /**
  * Simple testing utility
  * @author pavels
@@ -41,7 +43,7 @@ import com.sun.jersey.core.util.Base64;
 public class ProcessesClient {
 
     private static final String DEFAULT_NAME = "krameriusAdmin";
-    private static final String DEFAULT_PSWD = "kram";
+    private static final String DEFAULT_PSWD = "krameriusAdmin";
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessesClient.class.getName());
 
@@ -180,10 +182,7 @@ public class ProcessesClient {
     }
 
     
-    /*
-    public static void main(String[] args) {
-		String desc = desc("abc");
-		System.out.println(desc);
-	}
-	*/
+    public static void main(String[] args) throws InterruptedException {
+    	planAndStop();
+    }
 }

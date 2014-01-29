@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.client;
+package cz.incad.kramerius.rest.api.client.v50.admin;
 
 import javax.ws.rs.core.MediaType;
 
@@ -22,6 +22,8 @@ import net.sf.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+
+import cz.incad.kramerius.rest.api.client.BasicAuthenticationFilter;
 
 public class RightsClient {
 	
@@ -96,7 +98,7 @@ public class RightsClient {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("action", "read");
 		jsonObj.put("pid", "uuid:1");
-		jsonObj.put("role", JSONObject.fromObject(UsersClient.role("3")));
+		jsonObj.put("role", JSONObject.fromObject(UsersAndRolesClient.role("3")));
 
     	Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v4.6/k5/admin/rights");
@@ -110,7 +112,7 @@ public class RightsClient {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("action", "read");
 		jsonObj.put("pid", "uuid:1");
-		jsonObj.put("role", JSONObject.fromObject(UsersClient.role("3")));
+		jsonObj.put("role", JSONObject.fromObject(UsersAndRolesClient.role("3")));
 		
 		JSONObject critJSON = new JSONObject();
 		critJSON.put("qname", critqname);
@@ -127,15 +129,5 @@ public class RightsClient {
 
 
     public static void main(String[] args) {
-//    	String l = params();
-//    	System.out.println(l);
-    	
-//    	String deleteRight = deleteRight("46");
-//    	System.out.println(deleteRight);
-//    	System.out.println("======>");
-//    	String created = createSampleRight2("cz.incad.kramerius.security.impl.criteria.Window", JSONObject.fromObject(param("1")));
-//    	System.out.println(created);
-//    	String deleted = deleteRight(JSONObject.fromObject(created).getString("id"));
-//    	System.out.println(deleted);
     }
 }
