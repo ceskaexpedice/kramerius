@@ -234,7 +234,9 @@ public class ItemResource {
 			if (PIDSupport.isComposedPID(pid)) {
 				String fpid = PIDSupport.first(pid);
 				String page = PIDSupport.rest(pid);
-				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+fpid+"&stream=IMG_FULL&action=TRANSCODE&page="+page;
+				int rpage = Integer.parseInt(page) - 1;
+				if (rpage <0) rpage = 0;
+				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+fpid+"&stream=IMG_FULL&action=TRANSCODE&page="+rpage;
 				URI uri = new URI(suri);
 				return Response.temporaryRedirect(uri).build();
 			} else {
@@ -255,7 +257,10 @@ public class ItemResource {
 			if (PIDSupport.isComposedPID(pid)) {
 				String fpid = PIDSupport.first(pid);
 				String page = PIDSupport.rest(pid);
-				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+fpid+"&stream=IMG_PREVIEW&action=TRANSCODE&page="+page;
+				int rpage = Integer.parseInt(page) - 1;
+				if (rpage <0) rpage = 0;
+
+				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+fpid+"&stream=IMG_PREVIEW&action=TRANSCODE&page="+rpage;
 				URI uri = new URI(suri);
 				return Response.temporaryRedirect(uri).build();
 			} else {
@@ -276,7 +281,10 @@ public class ItemResource {
 			if (PIDSupport.isComposedPID(pid)) {
 				String fpid = PIDSupport.first(pid);
 				String page = PIDSupport.rest(pid);
-				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+fpid+"&stream=IMG_THUMB&action=TRANSCODE&page="+page;
+				int rpage = Integer.parseInt(page) - 1;
+				if (rpage <0) rpage = 0;
+
+				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+fpid+"&stream=IMG_THUMB&action=TRANSCODE&page="+rpage;
 				URI uri = new URI(suri);
 				return Response.temporaryRedirect(uri).build();
 			} else {
