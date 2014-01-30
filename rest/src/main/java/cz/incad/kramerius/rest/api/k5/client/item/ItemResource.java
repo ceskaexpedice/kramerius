@@ -231,9 +231,17 @@ public class ItemResource {
 	@Path("{pid}/full")
 	public Response full(@PathParam("pid")String pid) {
 		try {
-			String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_FULL&action=GETRAW";
-			URI uri = new URI(suri);
-			return Response.temporaryRedirect(uri).build();
+			if (PIDSupport.isComposedPID(pid)) {
+				String fpid = PIDSupport.first(pid);
+				String page = PIDSupport.rest(pid);
+				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+fpid+"&stream=IMG_FULL&action=TRANSCODE&page="+page;
+				URI uri = new URI(suri);
+				return Response.temporaryRedirect(uri).build();
+			} else {
+				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_FULL&action=GETRAW";
+				URI uri = new URI(suri);
+				return Response.temporaryRedirect(uri).build();
+			}
 		} catch (URISyntaxException e) {
 			LOGGER.log(Level.SEVERE,e.getMessage(),e);
     		throw new PIDNotFound("pid not found '"+pid+"'");
@@ -244,9 +252,17 @@ public class ItemResource {
 	@Path("{pid}/preview")
     public Response preview(@PathParam("pid")String pid) {
 		try {
-			String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_PREVIEW&action=GETRAW";
-			URI uri = new URI(suri);
-			return Response.temporaryRedirect(uri).build();
+			if (PIDSupport.isComposedPID(pid)) {
+				String fpid = PIDSupport.first(pid);
+				String page = PIDSupport.rest(pid);
+				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+fpid+"&stream=IMG_PREVIEW&action=TRANSCODE&page="+page;
+				URI uri = new URI(suri);
+				return Response.temporaryRedirect(uri).build();
+			} else {
+				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_PREVIEW&action=GETRAW";
+				URI uri = new URI(suri);
+				return Response.temporaryRedirect(uri).build();
+			}
 		} catch (URISyntaxException e) {
 			LOGGER.log(Level.SEVERE,e.getMessage(),e);
     		throw new PIDNotFound("pid not found '"+pid+"'");
@@ -257,9 +273,17 @@ public class ItemResource {
 	@Path("{pid}/thumb")
     public Response thumb(@PathParam("pid")String pid) {
 		try {
-			String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_THUMB&action=GETRAW";
-			URI uri = new URI(suri);
-			return Response.temporaryRedirect(uri).build();
+			if (PIDSupport.isComposedPID(pid)) {
+				String fpid = PIDSupport.first(pid);
+				String page = PIDSupport.rest(pid);
+				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+fpid+"&stream=IMG_THUMB&action=TRANSCODE&page="+page;
+				URI uri = new URI(suri);
+				return Response.temporaryRedirect(uri).build();
+			} else {
+				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_THUMB&action=GETRAW";
+				URI uri = new URI(suri);
+				return Response.temporaryRedirect(uri).build();
+			}
 		} catch (URISyntaxException e) {
 			LOGGER.log(Level.SEVERE,e.getMessage(),e);
     		throw new PIDNotFound("pid not found '"+pid+"'");

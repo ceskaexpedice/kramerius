@@ -197,7 +197,7 @@ public class JSONDecoratorsAggregateTest {
         		.addMockedMethod("getSolrDataDocument")
         		.createMock();
         
-        solrDataDocument(sa, DataPrepare.DROBNUSTKY_PIDS[0]+"@2");
+        solrDataDocument(sa, DataPrepare.DROBNUSTKY_PIDS[0]+"/@2");
         
         
         HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
