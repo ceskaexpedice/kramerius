@@ -40,4 +40,22 @@ public class PIDSupport {
 		}
 	}
 
+	public static String convertToSOLRType(String k4pidType) {
+		String pid = k4pidType.replace("@", "/@");
+		return pid;
+	}
+	
+	public static String convertToK4Type(String solrPidType) {
+		String pid = solrPidType.replace("/@", "@");
+		return pid;
+	}
+	
+	public static void main(String[] args) {
+		String k4pid = convertToK4Type("uuid:045b1250-7e47-11e0-add1-000d606f5dc6/@2");
+		System.out.println(k4pid);
+
+		String solrpid = convertToSOLRType("uuid:045b1250-7e47-11e0-add1-000d606f5dc6@2");
+		System.out.println(solrpid);
+
+	}
 }
