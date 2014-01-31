@@ -364,7 +364,12 @@
             $(jq(id)+">span.folder").toggleClass('ui-icon-triangle-1-s');
         }
 
+        var autoLoaded = [];
         function loadTreeNode(id){
+            if(autoLoaded[id]){
+                return;
+            }
+            autoLoaded[id] = true;
             var pid = id.split('_')[1];
             
             var path = id.split('_')[0];
