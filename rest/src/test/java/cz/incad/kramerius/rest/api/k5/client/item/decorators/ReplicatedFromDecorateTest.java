@@ -34,10 +34,11 @@ import org.xml.sax.SAXException;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.XMLUtils;
 
-public class CollectionsDecoratorTest {
-	
+public class ReplicatedFromDecorateTest {
+
+
 	@Test
-	public void testFindCollections() throws IOException, ParserConfigurationException, SAXException {
+	public void testDecorate() throws ParserConfigurationException, SAXException, IOException {
 		URL res = CollectionsDecoratorTest.class.getResource("rels-ext.xml");
 		Document document = XMLUtils.parseDocument(res.openStream(), true);
 		
@@ -46,15 +47,15 @@ public class CollectionsDecoratorTest {
         
         EasyMock.replay(fa);
         
-        CollectionsDecorator coll = new CollectionsDecorator();
-        coll.fedoraAccess = fa;
+        ReplicatedFromDecorator rep = new ReplicatedFromDecorator();
+        rep.fedoraAccess = fa;
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("pid", "uuid:c32e0540-3e38-11e2-8227-5ef3fc9bb22f");
     	Map<String, Object> runtimeContext = new HashMap<String, Object>();	
-        coll.decorate(jsonObject, runtimeContext);
+    	rep.decorate(jsonObject, runtimeContext);
 
-        Assert.assertTrue(jsonObject.containsKey("collections"));
-        Assert.assertTrue(jsonObject.getJSONArray("collections").size() ==1);
+    	Assert.assertTrue(jsonObject.containsKey("replicatedFrom"));
+    	Assert.assertTrue(jsonObject.getJSONArray("replicatedFrom").size() == 2);
 	}
 }

@@ -14,9 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.k5.client.item.decorators;
+package cz.incad.kramerius.rest.api.k5.client.item.decorators.details;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,60 +25,75 @@ import java.util.logging.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import net.sf.json.JSONObject;
+
 import com.google.inject.Inject;
 
-import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootPidDecorate;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
-/**
- * Doplni root pid z indexu
- * @author pavels
- */
-public class ItemSolrRootPidDecorate extends  AbstractItemDecorator {
+public class PeriodicalVolumeDecorator extends  AbstractDetailDecorator {
 
 	
     public static final Logger LOGGER = Logger.getLogger(ItemSolrRootPidDecorate.class.getName());
 
-    public static final String SOLR_ROOTPID_KEY = AbstractItemDecorator.key("ROOTPID");
+    public static final String DETAILS_PERIODICAL_VOLUME = AbstractItemDecorator.key("DETAILS.PERIODICALVOLUME");
 
 	@Inject
 	SolrAccess solrAccess;
 
 	@Override
 	public String getKey() {
-		return SOLR_ROOTPID_KEY;
+		return DETAILS_PERIODICAL_VOLUME;
 	}
 
 	@Override
-	public void decorate(JSONObject jsonObject,
-			Map<String, Object> runtimeContext) {
+	public void decorate(JSONObject jsonObject, Map<String, Object> runtimeContext) {
+		//1929##1
 		if (jsonObject.containsKey("pid")) {
 			String pid = jsonObject.getString("pid");
 	        try {
-				Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid, context, solrAccess);
-				Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
-				if (result != null) {
-				    Element doc = XMLUtils.findElement(result, "doc");
-				    if (doc != null) {
-				        String root_pid = SOLRUtils.value(doc, "root_pid", String.class);
-				        if (root_pid != null) {
-				            jsonObject.put("root_pid", root_pid);
-				        }
-				    }
-				}
+	    		Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid, context, solrAccess);
+	            Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
+	            if (result != null) {
+	                Element doc = XMLUtils.findElement(result, "doc");
+	                if (doc != null) {
+	    	    		List<String> array = SOLRUtils.array(doc, "details", String.class);
+	    	    		if (!array.isEmpty()) {
+		    	    		String[] details = super.details(array.get(0));
+							JSONObject detailsJSONObject = new JSONObject();
+							if (details.length > 0) {
+								detailsJSONObject.put("year", details[0]);
+							}
+							if (details.length > 1) {
+								detailsJSONObject.put("volumeNumber", details[1]);
+							}
+							if (detailsJSONObject.keySet().size() > 0) {
+								jsonObject.put("details", detailsJSONObject);
+							}
+	    	    		}
+    	    		}
+	            }
 			} catch (IOException e) {
 				LOGGER.log(Level.SEVERE,e.getMessage(),e);
 			}
 		}
+
 	}
 
+	
+	
 	@Override
 	public boolean apply(JSONObject jsonObject, String context) {
+		String m = super.getModel(jsonObject);
 		TokenizedPath tpath = super.itemContext(tokenize(context));
-		return tpath.isParsed() ;
+		return tpath.isParsed()  && tpath.getRestPath().isEmpty() && m != null && m.equals("periodicalvolume");
 	}
+	
+
 }

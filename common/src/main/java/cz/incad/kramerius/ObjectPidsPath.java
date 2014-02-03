@@ -17,6 +17,8 @@
 package cz.incad.kramerius;
 
 
+import java.util.Arrays;
+
 import cz.incad.kramerius.security.SpecialObjects;
 
 /**
@@ -55,4 +57,43 @@ public class ObjectPidsPath extends AbstractObjectPath {
         } else return this;
 
     }
+
+    
+	@Override
+	public ObjectPidsPath replace(String src, String dest) {
+		String[] newpath = new String[this.pathFromRootToLeaf.length];
+		for (int i = 0; i < newpath.length; i++) {
+			String atom = this.pathFromRootToLeaf[i];
+			if (atom.equals(src)) { atom = dest;}
+			newpath[i]=atom;
+		}
+		return new ObjectPidsPath(newpath);
+	}
+
+	@Override
+	public ObjectPidsPath injectObjectBetween(String injectingObject, Between between) {
+    	if (between.getAfter() != null && between.getBefore() != null) {
+    		int bindex = Arrays.asList(this.pathFromRootToLeaf).indexOf(between.getBefore());
+    		int aindex = Arrays.asList(this.pathFromRootToLeaf).indexOf(between.getAfter());
+    		if (Math.abs(bindex - aindex) == 1) {
+				return new ObjectPidsPath(injectInternal(injectingObject, Math.min(bindex, aindex),Math.max(bindex, aindex)));
+    		} else throw new IllegalArgumentException("ambiguous  injecting");
+    	} else {
+    		// the end || the beginning 
+    		String object = between.getAfter() != null ? between.getAfter() : between.getBefore();
+    		if (this.pathFromRootToLeaf[0].equals(object)) {
+    			String[] newpath = new String[this.pathFromRootToLeaf.length +1];
+    			newpath[0]=injectingObject;
+    			System.arraycopy(this.pathFromRootToLeaf, 0, newpath, 1, this.pathFromRootToLeaf.length);
+				return new ObjectPidsPath(newpath);
+    		} else if (this.pathFromRootToLeaf[this.pathFromRootToLeaf.length - 1].equals(object)) {
+    			String[] newpath = new String[this.pathFromRootToLeaf.length +1];
+    			System.arraycopy(this.pathFromRootToLeaf, 0, newpath, 0, this.pathFromRootToLeaf.length);
+    			newpath[newpath.length-1]= injectingObject;
+				return new ObjectPidsPath(newpath);
+    		} else throw new IllegalArgumentException("ambiguous  injecting");
+    	}
+	}
+    
+    
 }

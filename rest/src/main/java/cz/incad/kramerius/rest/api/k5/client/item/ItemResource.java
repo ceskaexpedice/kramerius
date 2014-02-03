@@ -1,18 +1,12 @@
 package cz.incad.kramerius.rest.api.k5.client.item;
 
-import static cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils.link;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,9 +40,9 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
-import cz.incad.kramerius.rest.api.k5.client.utils.ChildrenNodeProcessor;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
+import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -60,79 +54,83 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 
 /**
  * Item endpoint
+ * 
  * @author pavels
- *
+ * 
  */
 @Path("/v5.0/item")
 public class ItemResource {
-	
-	public static final Logger LOGGER = Logger.getLogger(ItemResource.class.getName());
-	
-	
+
+	public static final Logger LOGGER = Logger.getLogger(ItemResource.class
+			.getName());
+
 	@Inject
 	@Named("securedFedoraAccess")
 	FedoraAccess fedoraAccess;
 
 	@Inject
 	SolrAccess solrAccess;
-	
+
 	@Inject
 	Provider<HttpServletRequest> requestProvider;
-	
-	
-	
+
 	@Inject
 	JSONDecoratorsAggregate decoratorsAggregate;
 
-
-
 	@GET
 	@Path("{pid}/streams/{dsid}")
-    public Response stream(@PathParam("pid")String pid, @PathParam("dsid")String dsid) {
+	public Response stream(@PathParam("pid") String pid,
+			@PathParam("dsid") String dsid) {
 		try {
 			if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
 				if (!PIDSupport.isComposedPID(pid)) {
-					String mimeTypeForStream = this.fedoraAccess.getMimeTypeForStream(pid, dsid);
-					final InputStream is = this.fedoraAccess.getDataStream(pid, dsid);
+					String mimeTypeForStream = this.fedoraAccess
+							.getMimeTypeForStream(pid, dsid);
+					final InputStream is = this.fedoraAccess.getDataStream(pid,
+							dsid);
 					StreamingOutput stream = new StreamingOutput() {
-				        public void write(OutputStream output) throws IOException, WebApplicationException {
-				            try {
-				            	IOUtils.copyStreams(is, output);
-				            } catch (Exception e) {
-				                throw new WebApplicationException(e);
-				            }
-				        }
-				    };
-					return Response.ok().entity(stream).type(mimeTypeForStream).build();
-				} else 	throw new PIDNotFound("cannot find stream "+dsid);
+						public void write(OutputStream output)
+								throws IOException, WebApplicationException {
+							try {
+								IOUtils.copyStreams(is, output);
+							} catch (Exception e) {
+								throw new WebApplicationException(e);
+							}
+						}
+					};
+					return Response.ok().entity(stream).type(mimeTypeForStream)
+							.build();
+				} else
+					throw new PIDNotFound("cannot find stream " + dsid);
 			} else {
-				throw new PIDNotFound("cannot find stream "+dsid);
+				throw new PIDNotFound("cannot find stream " + dsid);
 			}
 		} catch (IOException e) {
 			throw new PIDNotFound(e.getMessage());
 		}
 	}
 
-	
 	@GET
 	@Path("{pid}/streams")
-    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response streams(@PathParam("pid")String pid) {
+	@Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+	public Response streams(@PathParam("pid") String pid) {
 		try {
 			JSONObject jsonObject = new JSONObject();
 			if (!PIDSupport.isComposedPID(pid)) {
-				Document datastreams = this.fedoraAccess.getFedoraDataStreamsListAsDocument(pid);
+				Document datastreams = this.fedoraAccess
+						.getFedoraDataStreamsListAsDocument(pid);
 				Element documentElement = datastreams.getDocumentElement();
 				List<Element> elms = XMLUtils.getElements(documentElement);
 				for (Element e : elms) {
-					JSONObject streamObj  = new JSONObject(); 
+					JSONObject streamObj = new JSONObject();
 					String dsiId = e.getAttribute("dsid");
 
-					if (FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsiId)) continue;
-					
+					if (FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsiId))
+						continue;
+
 					String label = e.getAttribute("label");
 					streamObj.put("label", label);
-					
+
 					String mimeType = e.getAttribute("mimeType");
 					streamObj.put("mimeType", mimeType);
 
@@ -144,65 +142,78 @@ public class ItemResource {
 			throw new PIDNotFound(e.getMessage());
 		}
 	}
-	
 
 	@GET
 	@Path("{pid}/children")
-    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response children(@PathParam("pid")String pid) {
+	@Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+	public Response children(@PathParam("pid") String pid) {
 		try {
 			if (!PIDSupport.isComposedPID(pid)) {
 				JSONArray jsonArray = new JSONArray();
 				List<String> children = solrChildren(pid);
 
 				for (String p : children) {
-	    			String repPid = p.replace("/", "");
-	    			// vrchni ma odkaz sam na sebe
-	    			if (repPid.equals(pid)) continue;
-					String uri = UriBuilder.fromResource(ItemResource.class).path("{pid}/children").build(pid).toString();
-					JSONObject jsonObject = JSONUtils.pidAndModelDesc(repPid, fedoraAccess, uri.toString(), this.decoratorsAggregate, uri);
+					String repPid = p.replace("/", "");
+					// vrchni ma odkaz sam na sebe
+					if (repPid.equals(pid))
+						continue;
+					String uri = UriBuilder.fromResource(ItemResource.class)
+							.path("{pid}/children").build(pid).toString();
+					JSONObject jsonObject = JSONUtils.pidAndModelDesc(repPid,
+							fedoraAccess, uri.toString(),
+							this.decoratorsAggregate, uri);
 					jsonArray.add(jsonObject);
-	    		}
+				}
 				return Response.ok().entity(jsonArray.toString()).build();
 			} else {
 				return Response.ok().entity(new JSONArray().toString()).build();
 			}
-		}catch(IOException ex) {
-			LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
-            return Response.ok().entity("{}").build();
+		} catch (IOException ex) {
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			return Response.ok().entity("{}").build();
 		}
-    }
+	}
 
 	@GET
 	@Path("{pid}/siblings")
-    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response siblings(@PathParam("pid")String pid) {
+	@Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+	public Response siblings(@PathParam("pid") String pid) {
 		try {
-			ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+			ObjectPidsPath[] paths = null;
+			if (PIDSupport.isComposedPID(pid)) {
+				paths = this.solrAccess.getPath(PIDSupport
+						.convertToSOLRType(pid));
+			} else {
+				paths = this.solrAccess.getPath(pid);
+			}
+
 			JSONArray sibsList = new JSONArray();
 			for (ObjectPidsPath onePath : paths) {
-				// metadata decorator	
+				// metadata decorator
 				sibsList.add(siblings(pid, onePath));
 			}
 			return Response.ok().entity(sibsList.toString()).build();
-		}catch(IOException ex) {
-			LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+
+		} catch (IOException ex) {
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			return Response.ok().entity("{}").build();
 		} catch (ProcessSubtreeException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			return Response.ok().entity("{}").build();
 		}
-    }
+	}
 
 	private JSON siblings(String pid, ObjectPidsPath onePath)
 			throws ProcessSubtreeException, IOException {
 
+		String parentPid = null;
 		List<String> children = new ArrayList<String>();
 		if (onePath.getLength() >= 2) {
 			String[] pth = onePath.getPathFromRootToLeaf();
-			children = solrChildren(pth[pth.length-2]);
-//			fedoraAccess.processSubtree(pth[pth.length-2], ch);
-//			children = ch.getChildren();
+			parentPid = pth[pth.length - 2];
+			children = solrChildren(parentPid);
+			// fedoraAccess.processSubtree(pth[pth.length-2], ch);
+			// children = ch.getChildren();
 		} else {
 			children.add(pid);
 		}
@@ -210,14 +221,22 @@ public class ItemResource {
 		JSONArray pathArray = new JSONArray();
 		for (String p : onePath.getPathFromRootToLeaf()) {
 			String uriString = UriBuilder.fromResource(ItemResource.class).path("{pid}/siblings").build(pid).toString();
-			JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess, "siblings",this.decoratorsAggregate,uriString);
+			p = PIDSupport.convertToK4Type(p); 
+			JSONObject jsonObject = JSONUtils.pidAndModelDesc( p, fedoraAccess,
+					"siblings", this.decoratorsAggregate, uriString);
 			pathArray.add(jsonObject);
 		}
 		object.put("path", pathArray);
 		JSONArray jsonArray = new JSONArray();
 		for (String p : children) {
-			String uriString = UriBuilder.fromResource(ItemResource.class).path("{pid}/siblings").build(pid).toString();
-			JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess,"siblings",this.decoratorsAggregate, uriString);
+			if (parentPid != null && p.equals(parentPid))
+				continue;
+			String uriString = UriBuilder.fromResource(ItemResource.class)
+					.path("{pid}/siblings").build(pid).toString();
+			p = PIDSupport.convertToK4Type(p);
+			JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess,
+					"siblings", this.decoratorsAggregate, uriString);
+
 			jsonObject.put("selected", p.equals(pid));
 			jsonArray.add(jsonObject);
 		}
@@ -225,106 +244,129 @@ public class ItemResource {
 		return object;
 	}
 
-	
-	
 	@GET
 	@Path("{pid}/full")
-	public Response full(@PathParam("pid")String pid) {
+	public Response full(@PathParam("pid") String pid) {
 		try {
 			if (PIDSupport.isComposedPID(pid)) {
 				String fpid = PIDSupport.first(pid);
 				String page = PIDSupport.rest(pid);
 				int rpage = Integer.parseInt(page) - 1;
-				if (rpage <0) rpage = 0;
-				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+fpid+"&stream=IMG_FULL&action=TRANSCODE&page="+rpage;
+				if (rpage < 0)
+					rpage = 0;
+				String suri = ApplicationURL
+						.applicationURL(this.requestProvider.get())
+						+ "/img?pid="
+						+ fpid
+						+ "&stream=IMG_FULL&action=TRANSCODE&page=" + rpage;
 				URI uri = new URI(suri);
 				return Response.temporaryRedirect(uri).build();
 			} else {
-				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_FULL&action=GETRAW";
+				String suri = ApplicationURL
+						.applicationURL(this.requestProvider.get())
+						+ "/img?pid=" + pid + "&stream=IMG_FULL&action=GETRAW";
 				URI uri = new URI(suri);
 				return Response.temporaryRedirect(uri).build();
 			}
 		} catch (URISyntaxException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-    		throw new PIDNotFound("pid not found '"+pid+"'");
-		} 
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new PIDNotFound("pid not found '" + pid + "'");
+		}
 	}
 
 	@GET
 	@Path("{pid}/preview")
-    public Response preview(@PathParam("pid")String pid) {
+	public Response preview(@PathParam("pid") String pid) {
 		try {
 			if (PIDSupport.isComposedPID(pid)) {
 				String fpid = PIDSupport.first(pid);
 				String page = PIDSupport.rest(pid);
 				int rpage = Integer.parseInt(page) - 1;
-				if (rpage <0) rpage = 0;
+				if (rpage < 0)
+					rpage = 0;
 
-				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+fpid+"&stream=IMG_PREVIEW&action=TRANSCODE&page="+rpage;
+				String suri = ApplicationURL
+						.applicationURL(this.requestProvider.get())
+						+ "/img?pid="
+						+ fpid
+						+ "&stream=IMG_PREVIEW&action=TRANSCODE&page=" + rpage;
 				URI uri = new URI(suri);
 				return Response.temporaryRedirect(uri).build();
 			} else {
-				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_PREVIEW&action=GETRAW";
+				String suri = ApplicationURL
+						.applicationURL(this.requestProvider.get())
+						+ "/img?pid="
+						+ pid
+						+ "&stream=IMG_PREVIEW&action=GETRAW";
 				URI uri = new URI(suri);
 				return Response.temporaryRedirect(uri).build();
 			}
 		} catch (URISyntaxException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-    		throw new PIDNotFound("pid not found '"+pid+"'");
-		} 
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new PIDNotFound("pid not found '" + pid + "'");
+		}
 	}
 
 	@GET
 	@Path("{pid}/thumb")
-    public Response thumb(@PathParam("pid")String pid) {
+	public Response thumb(@PathParam("pid") String pid) {
 		try {
 			if (PIDSupport.isComposedPID(pid)) {
 				String fpid = PIDSupport.first(pid);
 				String page = PIDSupport.rest(pid);
 				int rpage = Integer.parseInt(page) - 1;
-				if (rpage <0) rpage = 0;
+				if (rpage < 0)
+					rpage = 0;
 
-				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+fpid+"&stream=IMG_THUMB&action=TRANSCODE&page="+rpage;
+				String suri = ApplicationURL
+						.applicationURL(this.requestProvider.get())
+						+ "/img?pid="
+						+ fpid
+						+ "&stream=IMG_THUMB&action=TRANSCODE&page=" + rpage;
 				URI uri = new URI(suri);
 				return Response.temporaryRedirect(uri).build();
 			} else {
-				String suri = ApplicationURL.applicationURL(this.requestProvider.get())+"/img?pid="+pid+"&stream=IMG_THUMB&action=GETRAW";
+				String suri = ApplicationURL
+						.applicationURL(this.requestProvider.get())
+						+ "/img?pid=" + pid + "&stream=IMG_THUMB&action=GETRAW";
 				URI uri = new URI(suri);
 				return Response.temporaryRedirect(uri).build();
 			}
 		} catch (URISyntaxException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-    		throw new PIDNotFound("pid not found '"+pid+"'");
-		} 
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new PIDNotFound("pid not found '" + pid + "'");
+		}
 	}
-	
-	
+
 	@GET
 	@Path("{pid}")
-    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response basic(@PathParam("pid")String pid) {
-    	try {
-        	if (pid != null) {
-        		if (PIDSupport.isComposedPID(pid)) {
-        			
-					JSONObject jsonObject = new JSONObject();	
+	@Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+	public Response basic(@PathParam("pid") String pid) {
+		try {
+			if (pid != null) {
+				if (PIDSupport.isComposedPID(pid)) {
+
+					JSONObject jsonObject = new JSONObject();
 					String uriString = basicURL(pid);
-					JSONUtils.pidAndModelDesc(pid, jsonObject, this.fedoraAccess, uriString, this.decoratorsAggregate, null);
+					JSONUtils.pidAndModelDesc(pid, jsonObject,
+							this.fedoraAccess, uriString,
+							this.decoratorsAggregate, null);
 
 					return Response.ok().entity(jsonObject.toString()).build();
-        			
-        		} else {
-        			try {
+				} else {
+					try {
 						PIDParser pidParser = new PIDParser(pid);
 						pidParser.objectPid();
-						
-						JSONObject jsonObject = new JSONObject();	
-						
-						String uriString = basicURL(pid);
-						JSONUtils.pidAndModelDesc(pid, jsonObject, this.fedoraAccess, uriString, this.decoratorsAggregate, null);
-						
 
-						return Response.ok().entity(jsonObject.toString()).build();
+						JSONObject jsonObject = new JSONObject();
+
+						String uriString = basicURL(pid);
+						JSONUtils.pidAndModelDesc(pid, jsonObject,
+								this.fedoraAccess, uriString,
+								this.decoratorsAggregate, null);
+
+						return Response.ok().entity(jsonObject.toString())
+								.build();
 					} catch (IllegalArgumentException e) {
 						throw new GenericApplicationException(e.getMessage());
 					} catch (UriBuilderException e) {
@@ -332,53 +374,55 @@ public class ItemResource {
 					} catch (LexerException e) {
 						throw new GenericApplicationException(e.getMessage());
 					}
-        			
-        		}
-        	} else {
-        		throw new PIDNotFound("pid not found '"+pid+"'");
-        	}
-    	} catch(IOException e) {
-    		throw new PIDNotFound("pid not found '"+pid+"'");
-		}
-    }
 
+				}
+			} else {
+				throw new PIDNotFound("pid not found '" + pid + "'");
+			}
+		} catch (IOException e) {
+			throw new PIDNotFound("pid not found '" + pid + "'");
+		}
+	}
 
 	/**
 	 * Basic URL
+	 * 
 	 * @param pid
 	 * @return
 	 */
 	public static String basicURL(String pid) {
-		String uriString = UriBuilder.fromResource(ItemResource.class).path("{pid}").build(pid).toString();
+		String uriString = UriBuilder.fromResource(ItemResource.class)
+				.path("{pid}").build(pid).toString();
 		return uriString;
 	}
 
-
-	
-	
 	private List<String> solrChildren(String pid) throws IOException {
 		List<String> ll = new ArrayList<String>();
 		int rows = 10000;
 		int size = 1; // 1 for the first iteration
 		int offset = 0;
-		while(offset < size)  {
+		while (offset < size) {
 			// request
-			Document resp = this.solrAccess.request("q=parent_pid:\""+pid+"\"&rows="+rows+"&start"+offset);
-			Element resultelm = XMLUtils.findElement(resp.getDocumentElement(), "result");
+			Document resp = this.solrAccess.request("q=parent_pid:\"" + pid
+					+ "\"&rows=" + rows + "&start" + offset);
+			Element resultelm = XMLUtils.findElement(resp.getDocumentElement(),
+					"result");
 			// define size
 			size = Integer.parseInt(resultelm.getAttribute("numFound"));
-			List<Element> elms = XMLUtils.getElements(resultelm, new XMLUtils.ElementsFilter() {
-				@Override
-				public boolean acceptElement(Element element) {
-					if (element.getNodeName().equals("doc")) {
-						return true;
-					} else return false;
-				}
-			});
+			List<Element> elms = XMLUtils.getElements(resultelm,
+					new XMLUtils.ElementsFilter() {
+						@Override
+						public boolean acceptElement(Element element) {
+							if (element.getNodeName().equals("doc")) {
+								return true;
+							} else
+								return false;
+						}
+					});
 			for (Element docelm : elms) {
-				ll.add(SOLRUtils.value(docelm, "PID",String.class));
+				ll.add(SOLRUtils.value(docelm, "PID", String.class));
 			}
-			offset = offset  + rows;
+			offset = offset + rows;
 		}
 		return ll;
 	}

@@ -65,12 +65,20 @@ public class SolrUtilsTest {
         return parsed;
     }
 
+
     public static Document solrDocument2() throws ParserConfigurationException, SAXException, IOException {
         InputStream is = SolrUtilsTest.class.getResourceAsStream("solr2.xml");
         Document parsed = XMLUtils.parseDocument(is);
         return parsed;
     }
 
+    public static Document solrPDFDocument() throws ParserConfigurationException, SAXException, IOException {
+        InputStream is = SolrUtilsTest.class.getResourceAsStream("solrpdf.xml");
+        Document parsed = XMLUtils.parseDocument(is);
+        return parsed;
+    }
+
+    
     @Test
     public void disectModels() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         Document parsed = solrDocument();

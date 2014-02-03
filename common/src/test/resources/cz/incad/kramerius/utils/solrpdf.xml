@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+<lst name="responseHeader"><int name="status">0</int><int name="QTime">3</int><lst name="params"><str name="q">parent_pid:"uuid:81c15d83-21bf-11e3-a6ac-001b63bd97ba"</str></lst></lst><result name="response" numFound="1" start="0"><doc><str name="PID">uuid:81c15d83-21bf-11e3-a6ac-001b63bd97ba/@1</str><date name="created_date">2013-09-20T08:40:15.066Z</date><date name="datum">1970-01-01T01:00:00Z</date><int name="datum_begin">1997</int><int name="datum_end">1997</int><str name="datum_str">1997</str><str name="dc.title">1</str><arr name="document_type"><str>page</str></arr><str name="dostupnost">public</str><str name="fedora.model">page</str><str name="handle"/><str name="img_full_mime">application/pdf</str><int name="level">2</int><arr name="model_path"><str>monograph/page/page</str></arr><date name="modified_date">2013-09-20T12:09:49.709Z</date><int name="pages_count">0</int><arr name="parent_pid"><str>uuid:81c15d83-21bf-11e3-a6ac-001b63bd97ba</str></arr><arr name="pid_path"><str>uuid:81c10f62-21bf-11e3-a6ac-001b63bd97ba/uuid:81c15d83-21bf-11e3-a6ac-001b63bd97ba/@1</str></arr><int name="rels_ext_index">0</int><int name="rok">1997</int><str name="root_pid">uuid:81c10f62-21bf-11e3-a6ac-001b63bd97ba</str><str name="root_title">Optimální rekonstrukce výtokového traktu pravé a levé komory u dětí s vrozenou srdeční vadou</str><str name="status">Active</str><arr name="text"><str>1</str><str>OBSAH 
+Úvod str. 1 
+Cfl str. 5 
+Materiál a metody str. 6 
+Výsledky str. 11 
+Souhrn str. 21 
+Literatura str. 25 
+Použité zkratky str.29 
+Přednášky a publikace str.30 
+Grafická příloha str.32 
+Obrazová příloha. str.69 
+Ekonomická část 
+Seznam příloh 
+</str></arr><bool name="viewable">true</bool><bool name="virtual">true</bool></doc></result>
+</response>

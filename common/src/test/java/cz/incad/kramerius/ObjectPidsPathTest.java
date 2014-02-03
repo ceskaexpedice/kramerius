@@ -21,12 +21,108 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.junit.Test;
 
+import cz.incad.kramerius.AbstractObjectPath.Between;
+
 
 public class ObjectPidsPathTest {
+
+    @Test
+    public void testInjectObjectsPaths() {
+        List<String> relsExtPath = new ArrayList<String>() {{
+            add("uuid:root");
+            add("uuid:monograph");
+            add("uuid:internalpart");
+            add("uuid:page");
+        }};
+        List<String> expecting = new ArrayList<String>() {{
+            add("uuid:root");
+            add("uuid:monograph");
+            add("uuid:internalpart");
+            add("uuid:article");
+            add("uuid:page");
+        }};
+
+        ObjectPidsPath path = new ObjectPidsPath(relsExtPath.toArray(new String[relsExtPath.size()]));
+        TestCase.assertEquals(relsExtPath, Arrays.asList(path.getPathFromRootToLeaf()));
+
+        ObjectPidsPath npath = path.injectObjectBetween("uuid:article", new AbstractObjectPath.Between("uuid:internalpart","uuid:page")); 
+        String[] pathFromRootToLeaf = npath.getPathFromRootToLeaf();
+        Assert.assertEquals(expecting, Arrays.asList(pathFromRootToLeaf));
+
+        npath = path.injectObjectBetween("uuid:article", new AbstractObjectPath.Between("uuid:page","uuid:internalpart")); 
+        pathFromRootToLeaf = npath.getPathFromRootToLeaf();
+        Assert.assertEquals(expecting, Arrays.asList(pathFromRootToLeaf));
+
+    }
+
+    
+    
+    @Test
+    public void testInjectObjectsPathsAtTheBeginning() {
+
+    	List<String> relsExtPath = new ArrayList<String>() {{
+            add("uuid:root");
+            add("uuid:monograph");
+            add("uuid:internalpart");
+            add("uuid:page");
+        }};
+
+    	List<String> expecting = new ArrayList<String>() {{
+            add("uuid:superroot");
+            add("uuid:root");
+            add("uuid:monograph");
+            add("uuid:internalpart");
+            add("uuid:page");
+        }};
+        
+        ObjectPidsPath path = new ObjectPidsPath(relsExtPath.toArray(new String[relsExtPath.size()]));
+        TestCase.assertEquals(relsExtPath, Arrays.asList(path.getPathFromRootToLeaf()));
+
+        ObjectPidsPath npath = path.injectObjectBetween("uuid:superroot", new AbstractObjectPath.Between(null,"uuid:root")); 
+        String[] pathFromRootToLeaf = npath.getPathFromRootToLeaf();
+        Assert.assertEquals(expecting, Arrays.asList(pathFromRootToLeaf));
+
+        npath = path.injectObjectBetween("uuid:superroot", new AbstractObjectPath.Between("uuid:root",null)); 
+        pathFromRootToLeaf = npath.getPathFromRootToLeaf();
+        Assert.assertEquals(expecting, Arrays.asList(pathFromRootToLeaf));
+
+    }
+
+    @Test
+    public void testInjectObjectsPathsInTheEnd() {
+
+    	List<String> relsExtPath = new ArrayList<String>() {{
+            add("uuid:root");
+            add("uuid:monograph");
+            add("uuid:internalpart");
+            add("uuid:page");
+        }};
+
+    	List<String> expecting = new ArrayList<String>() {{
+            add("uuid:root");
+            add("uuid:monograph");
+            add("uuid:internalpart");
+            add("uuid:page");
+            add("uuid:subpage");
+        }};
+        
+        ObjectPidsPath path = new ObjectPidsPath(relsExtPath.toArray(new String[relsExtPath.size()]));
+        TestCase.assertEquals(relsExtPath, Arrays.asList(path.getPathFromRootToLeaf()));
+
+        ObjectPidsPath npath = path.injectObjectBetween("uuid:subpage", new AbstractObjectPath.Between(null,"uuid:page")); 
+        String[] pathFromRootToLeaf = npath.getPathFromRootToLeaf();
+        Assert.assertEquals(expecting, Arrays.asList(pathFromRootToLeaf));
+
+        npath = path.injectObjectBetween("uuid:subpage", new AbstractObjectPath.Between("uuid:page",null)); 
+        pathFromRootToLeaf = npath.getPathFromRootToLeaf();
+        Assert.assertEquals(expecting, Arrays.asList(pathFromRootToLeaf));
+
+    }
 
     @Test
     public void testPidPaths() {

@@ -28,6 +28,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -45,7 +46,8 @@ public class SolrAccessImpl implements SolrAccess {
             PIDParser parser  = new PIDParser(pid);
             parser.objectPid();
             if (parser.isDatastreamPid() || parser.isPagePid()) {
-                return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+parser.getParentObjectPid()+"\"");
+                //return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+parser.getParentObjectPid()+"\"");
+                return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+pid+"\"");
             } else {
                 return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+pid+"\"");
             }
@@ -80,6 +82,7 @@ public class SolrAccessImpl implements SolrAccess {
     public ObjectPidsPath[] getPath(String datastreamName, Document solrData) throws IOException  {
         try {
             List<String> disected = SolrUtils.disectPidPaths(solrData);
+
             ObjectPidsPath[] paths = new ObjectPidsPath[disected.size()];
             for (int i = 0; i < paths.length; i++) {
                 String[] splitted = disected.get(i).split("/");
@@ -90,8 +93,17 @@ public class SolrAccessImpl implements SolrAccess {
                     }
                     splitted = splittedWithStreams;
                 }
-                paths[i] = new ObjectPidsPath(splitted);
+                
+                ObjectPidsPath path = new ObjectPidsPath(splitted);
+                // pdf in solr has special 
+                if (path.getLeaf().startsWith("@")) {
+                	String pageParent = path.cutTail(0).getLeaf();
+					//path = path.injectObjectBetween(pageParent, new AbstractObjectPath.Between(pageParent, path.getLeaf()));
+					path = path.replace(path.getLeaf(), pageParent+"/"+path.getLeaf());
+                }
+                paths[i] = path;
             }
+            
             return paths;
         } catch (XPathExpressionException e) {
             throw new IOException(e);

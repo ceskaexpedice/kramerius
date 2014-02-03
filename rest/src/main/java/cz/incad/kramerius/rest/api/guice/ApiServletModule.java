@@ -45,6 +45,10 @@ import cz.incad.kramerius.rest.api.k5.client.item.decorators.ReplicatedFromDecor
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrContextDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrDataNode;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrTitleDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.MonographUnitDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.PageDetailDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.PeriodicalItemDecorate;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.PeriodicalVolumeDecorator;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.PDFDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.ZoomDecorate;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
@@ -127,6 +131,12 @@ public class ApiServletModule extends JerseyServletModule {
 		// item, display
 		decs.addBinding().to(ZoomDecorate.class);
 		decs.addBinding().to(PDFDecorate.class);
+		
+		// item, details
+		decs.addBinding().to(MonographUnitDecorate.class);
+		decs.addBinding().to(PageDetailDecorate.class);
+		decs.addBinding().to(PeriodicalItemDecorate.class);
+		decs.addBinding().to(PeriodicalVolumeDecorator.class);
     }
     
     private void decorators() {
