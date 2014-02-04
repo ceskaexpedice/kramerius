@@ -54,7 +54,6 @@ public class PeriodicalVolumeDecorator extends  AbstractDetailDecorator {
 
 	@Override
 	public void decorate(JSONObject jsonObject, Map<String, Object> runtimeContext) {
-		//1929##1
 		if (jsonObject.containsKey("pid")) {
 			String pid = jsonObject.getString("pid");
 	        try {

@@ -67,11 +67,19 @@ public class PeriodicalItemDecorate extends  AbstractDetailDecorator {
 	    	    		if (!array.isEmpty()) {
 		    	    		String[] details = super.details(array.get(0));
 							JSONObject detailsJSONObject = new JSONObject();
-							if (details.length > 0) {
-								detailsJSONObject.put("issueNumber", details[0]);
-							}
+
+//							if (details.length > 0) {
+//								detailsJSONObject.put("rootTitle", details[0]);
+//							}
+
 							if (details.length > 1) {
-								detailsJSONObject.put("partNumber", details[1]);
+								detailsJSONObject.put("issueNumber", details[1]);
+							}
+							if (details.length > 2) {
+								detailsJSONObject.put("date", details[2]);
+							}
+							if (details.length > 3) {
+								detailsJSONObject.put("partNumber", details[3]);
 							}
 							if (detailsJSONObject.keySet().size() > 0) {
 								jsonObject.put("details", detailsJSONObject);
