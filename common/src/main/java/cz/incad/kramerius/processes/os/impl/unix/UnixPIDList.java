@@ -1,17 +1,11 @@
 package cz.incad.kramerius.processes.os.impl.unix;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.SystemUtils;
-
 import cz.incad.kramerius.processes.utils.PIDList;
 import cz.incad.kramerius.utils.IOUtils;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UnixPIDList extends PIDList {
 

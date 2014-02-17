@@ -16,45 +16,22 @@
  */
 package cz.incad.kramerius.security.impl.criteria;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.apache.commons.lang.NotImplementedException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.w3c.dom.Document;
+import org.w3c.dom.Text;
+
+import javax.xml.xpath.*;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.logging.Level;
 
 /**
  * 

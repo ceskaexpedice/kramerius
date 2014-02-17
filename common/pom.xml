@@ -185,6 +185,10 @@
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -220,12 +224,13 @@
                     <groupId>commons-digester</groupId>
                     <artifactId>commons-digester</artifactId>
                 </exclusion>
+
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.5</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.2.1</version>
         </dependency>
 
         <dependency>
