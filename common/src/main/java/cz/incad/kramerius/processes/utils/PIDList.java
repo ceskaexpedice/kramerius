@@ -1,13 +1,11 @@
 package cz.incad.kramerius.processes.utils;
 
+import cz.incad.kramerius.processes.os.impl.unix.UnixPIDList;
+import cz.incad.kramerius.processes.os.impl.windows.WindowsPIDList;
+import org.apache.commons.lang3.SystemUtils;
+
 import java.io.IOException;
 import java.util.List;
-
-import org.apache.commons.lang.SystemUtils;
-
-import cz.incad.kramerius.processes.os.impl.unix.UnixPIDList;
-import cz.incad.kramerius.processes.os.impl.windows.WindowsLRProcessImpl;
-import cz.incad.kramerius.processes.os.impl.windows.WindowsPIDList;
 
 /**
  * This helper class for getting list of pids
