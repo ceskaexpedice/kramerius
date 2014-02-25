@@ -49,18 +49,23 @@ public class VersionServiceImpl implements VersionService {
     
     @Override
     public String getVersion() throws SQLException {
-        boolean versionTable = DatabaseUtils.tableExists(this.connectionProvider.get(), "DBVERSIONS");
-        if (versionTable) {
-            List<String> ids = new JDBCQueryTemplate<String>(this.connectionProvider.get()) {
-                @Override
-                public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
-                    returnsList.add(rs.getString("ver"));
-                    return false;
-                }
-            }.executeQuery("select DBVER_ID, ver from DBVERSIONS v join MAX_VERSION_VIEW mv " +
-            		"on (v.DBVER_ID = mv.MAX_ID) ");
-            return ids != null && ids.size() > 0 ? ids.get(0).trim() : null;
-        } else return null;
+        Connection connection = this.connectionProvider.get();
+        try {
+            boolean versionTable = DatabaseUtils.tableExists(connection, "DBVERSIONS");
+            if (versionTable) {
+                List<String> ids = new JDBCQueryTemplate<String>(connection, false) {
+                    @Override
+                    public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                        returnsList.add(rs.getString("ver"));
+                        return false;
+                    }
+                }.executeQuery("select DBVER_ID, ver from DBVERSIONS v join MAX_VERSION_VIEW mv " +
+                		"on (v.DBVER_ID = mv.MAX_ID) ");
+                return ids != null && ids.size() > 0 ? ids.get(0).trim() : null;
+            } else return null;
+        } finally {
+                if (connection != null) DatabaseUtils.tryClose(connection);
+        }
         
     }
 
