@@ -1,2 +1,25 @@
-include 'security-core','fedora-api','common', 'import-jaxb','import-jaxb-periodical','import-jaxb-alto','import-jaxb-dc' 
-//, 'import-jaxb','import-jaxb-periodical'
+include 'security-core',
+	'fedora-api',
+	'common', 
+	// imports
+	'import',
+	'import-cmdtool',
+	'import-jaxb',
+	'import-jaxb-periodical',
+	'import-jaxb-alto',
+	'import-jaxb-mets',
+	'import-jaxb-mods',
+	'import-jaxb-dc',
+	'import-jaxb-mets',
+	'import-jaxb-srwdc',
+	'import-mets', 
+	
+	'indexer',
+	'static-export',
+	'rest',
+	'search', 
+	'editor',
+	'rightseditor'
+
+	
+

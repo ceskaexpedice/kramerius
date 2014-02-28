@@ -1,0 +1,13 @@
+
+dependencies {
+    compile project(':common') 
+    compile project(':security-core')
+
+    compile 'commons-codec:commons-codec:1.5'
+}
+
+
+
+
+
+

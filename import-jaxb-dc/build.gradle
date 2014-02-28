@@ -5,14 +5,14 @@ jaxbconf {
 }
 
 configurations {
-    endorsed
+    //endorsed
     xjc
-    compile.extendsFrom endorsed
+    //compile.extendsFrom endorsed
 }
 
 dependencies {
 	xjc 'com.sun.xml.bind:jaxb-xjc:2.2.7'
-	endorsed 'javax.xml.bind:jaxb-api:2.2.7'
+	//endorsed 'javax.xml.bind:jaxb-api:2.2.7'
 }
 
 /*
@@ -20,6 +20,7 @@ dependencies {
     endorsed group:'javax', name:'javaee-endorsed-api', version:'6.0'
 }
 */
+/*
 task stageEndorsed(type: Sync) {
 	from configurations.endorsed
     into temporaryDir
@@ -43,4 +44,4 @@ tasks.withType(Compile) {
     options.compilerArgs << "-Djava.endorsed.dirs=${stageEndorsed.destinationDir}"
     println " options ${options.compilerArgs}"
 }
-
+*/

@@ -32,9 +32,9 @@ class JAXBPlugin implements Plugin<ProjectInternal> {
 		// extensions object
 		project.extensions.create("jaxbconf", JAXBExtensions.class);		
 		
-		Configuration antlrConfiguration = project.getConfigurations().create(XJC_CONFIGURATION_NAME).setVisible(false)
+		Configuration jaxbConfiguration = project.getConfigurations().create(XJC_CONFIGURATION_NAME).setVisible(false)
 		.setTransitive(true).setDescription("Xjc deps");
-		project.getConfigurations().getByName(COMPILE_CONFIGURATION_NAME).extendsFrom(antlrConfiguration);
+		project.getConfigurations().getByName(COMPILE_CONFIGURATION_NAME).extendsFrom(jaxbConfiguration);
 		
 		project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().all(
 			new Action<SourceSet>() {

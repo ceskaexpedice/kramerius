@@ -1,0 +1,38 @@
+buildscript {
+    repositories {
+        
+	maven {
+            url 'https://github.com/steffenschaefer/gwt-gradle-plugin/raw/maven-repo/'
+        }
+	
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.3'
+    }
+}
+
+
+
+apply plugin: 'war'
+apply plugin: 'gwt'
+
+dependencies {
+	gwt('com.allen-sauer.gwt.dnd:gwt-dnd:3.1.2') {
+		exclude module:'gwt-user'
+	}
+	gwt 'com.google.gwt.inject:gin:1.0'
+	gwt 'net.customware.gwt.dispatch:gwt-dispatch:1.1.0'
+	
+	compile project(':common')
+	
+ 	testCompile "junit:junit:4.7"
+}
+
+
+gwt {
+	gwtVersion = '2.4.0'
+	modules 'cz.incad.kramerius.editor.Editor'
+}
+
+

@@ -1,0 +1,16 @@
+apply plugin: 'jaxb'
+
+
+jaxbconf {
+	packageName 'org.kramerius.srwdc'
+}
+
+configurations {
+    xjc
+}
+
+dependencies {
+	xjc 'com.sun.xml.bind:jaxb-xjc:2.2.7'
+}
+
+

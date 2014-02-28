@@ -1,0 +1,54 @@
+buildscript {
+    repositories {
+        
+	maven {
+            url 'https://github.com/steffenschaefer/gwt-gradle-plugin/raw/maven-repo/'
+        }
+	
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.3'
+    }
+}
+
+
+
+apply plugin: 'war'
+apply plugin: 'gwt'
+
+
+sourceSets {
+    main {
+	   java { 
+	    	srcDir 'src'
+	   }	
+           resources {
+                    srcDir 'src'
+            }
+    }
+}
+
+
+dependencies {
+
+	compile(project(':common')) {
+		exclude module:'gwt-servlet'
+	}
+	providedCompile project(':security-core')
+	compile 'javax.mail:mail:1.4.1'
+	compile 'postgresql:postgresql:8.4-702.jdbc4'
+	
+	gwt 'org.aplikator:aplikator:0.3-SNAPSHOT'	
+	gwt 'org.jboss.errai:errai-jaxrs-client:2.4.0.CR1'
+}
+
+
+gwt {
+	gwtVersion = '2.5.1'
+	modules 'cz.incad.kramerius.rights.Rightseditor'
+}
+
+
+
+

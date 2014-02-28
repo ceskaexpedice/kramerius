@@ -87,16 +87,16 @@ public class WSImportTask extends DefaultTask {
 	
 	@TaskAction
 	public void generate() {
-		LOGGER.log(Level.FINE, "executing jaxb");		
+		//LOGGER.log(Level.FINE, "executing jaxb");		
 		WSImportExtensions ext = getProject().getExtensions().getByType(WSImportExtensions.class);
 		if (ext != null) {
     	    	    configureExt(ext);
     	    	}
 
-    	    	LOGGER.log(Level.INFO, "task def");		
+    	    	//LOGGER.log(Level.INFO, "task def");		
     	    	ant.taskdef(name: 'wsimport', classname: 'com.sun.tools.ws.ant.WsImport', classpath: getXjcClasspath().asPath)
     	    
-    	    	LOGGER.log(Level.INFO, "running task");		
+    	    	//LOGGER.log(Level.INFO, "running task");		
     	    	for(File f:this.wsdls) {
     	    		ant.wsimport(wsdl: f.getAbsolutePath(), sourcedestdir: this.outputDirectory.getAbsolutePath(), package: this.packageName, xnocompile: true, xendorsed:false, target:'2.1')
     	    	}

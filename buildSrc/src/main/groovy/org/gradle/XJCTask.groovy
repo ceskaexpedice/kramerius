@@ -38,7 +38,7 @@ public class XJCTask extends DefaultTask {
 	private File outputDirectory;
 	private String packageName = DEFAULT_PACKAGE_NAME;
 	private List<File> xsds = new ArrayList<File>();
-	
+	private String catalog;
 		
 	
 	public String getPackageName() {
@@ -81,9 +81,17 @@ public class XJCTask extends DefaultTask {
 	public List<File> getXsds() {
 		return new ArrayList(this.xsds);
 	}
-	
+
+	public void setCatalog(String cat) {
+		this.catalog = cat;
+	} 	
+
+	public String getCatalog() {
+		return this.catalog;
+	}
 	private void configureExt(JAXBExtensions ext) {
 		setPackageName(ext.getPackageName());
+		setCatalog(ext.getCatalog());
 	}
     
 	@TaskAction
@@ -95,9 +103,11 @@ public class XJCTask extends DefaultTask {
 
     	    ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJC2Task', classpath: getXjcClasspath().asPath)
     	    for(File f:this.xsds) {
-    	    	    ant.xjc(schema: f.getAbsolutePath(), package: this.packageName, destdir: outputDirectory.getAbsolutePath(),removeOldOutput: true) {
-    	    	    	    //arg(line:'-Djava.endorsed.dirs=/home/pavels/nprojs/k4/kramerius/import-jaxb-dc/endorsed')
-    	    	    }
+		    if (catalog != null) {
+	    	    	    ant.xjc(schema: f.getAbsolutePath(), package: this.packageName, destdir: outputDirectory.getAbsolutePath(),removeOldOutput: true, catalog: this.catalog)
+		    } else {
+	    	    	    ant.xjc(schema: f.getAbsolutePath(), package: this.packageName, destdir: outputDirectory.getAbsolutePath(),removeOldOutput: true)
+		    }		
     	    }
 	    
 	    new File(this.outputDirectory,"JAXB."+getName()+".generated").createNewFile();
