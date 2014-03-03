@@ -1,25 +1,35 @@
-include 'security-core',
-	'fedora-api',
-	'common', 
-	// imports
-	'import',
-	'import-cmdtool',
-	'import-jaxb',
-	'import-jaxb-periodical',
-	'import-jaxb-alto',
-	'import-jaxb-mets',
-	'import-jaxb-mods',
-	'import-jaxb-dc',
-	'import-jaxb-mets',
-	'import-jaxb-srwdc',
-	'import-mets', 
+include 'security-core'
+include	'fedora-api'
+include	'common' 
 	
-	'indexer',
-	'static-export',
-	'rest',
-	'search', 
-	'editor',
-	'rightseditor'
+include	'import'
+include	'import-cmdtool'
+include	'import-jaxb'
+include	'import-jaxb-periodical'
+include	'import-jaxb-alto'
+include	'import-jaxb-mets'
+include	'import-jaxb-mods'
+include	'import-jaxb-dc'
+include	'import-jaxb-mets'
+include	'import-jaxb-srwdc'
+include	'import-mets' 
+	
+include	'indexer'
+include	'static-export'
+include	'rest'
+include	'search' 
+include	'editor'
+include	'rightseditor'
 
 	
+
+// filter property -DremoveProjs=projectA,projectB,..
+rootProject.children.removeAll { project ->
+	String filterProjs = System.getProperty("removeProjs");
+	if (filterProjs != null) {
+		String[] projs = filterProjs.split(",");
+		return Arrays.asList(projs).indexOf(project.name) >= 0;
+	} else return false;
+}	
+  
 
