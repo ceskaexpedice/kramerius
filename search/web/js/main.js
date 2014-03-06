@@ -21,9 +21,9 @@ function showHelp(language, part){
 
 //Toggle visibility advanced search option
 function toggleAdv(){
-    var y = $('#q').offset().top + $('#q').height() + 10;
-    var x = $('#q').offset().left;
-    $('#advSearch').css('left', x);
+    var y = $('#q').offset().top;
+    var x = $('#q').offset().left - 100;
+    //$('#advSearch').css('left', x);
     $('#advSearch').css('top', y);
     $('#advSearch').toggle();
 }

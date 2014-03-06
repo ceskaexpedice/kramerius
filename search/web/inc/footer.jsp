@@ -10,7 +10,60 @@
 
 <%@ page isELIgnored="false"%>
 
+<div class="nkp">
+    <div>
+        <h1><view:msg>common.contact</view:msg></h1>
+        <p>Národní knihovna ČR<br/>Klementinum 190<br/>110 00 Praha 1  </p>
+    </div>
+    <div>
+        <h1><view:msg>common.links</view:msg></h1>
+        
+    <div>      
+        <c:forEach items="${buttons.languageItems}" var="langitm">
+        <c:set var="escapedLink" >${fn:replace(langitm.link, quote, escapedquote)}</c:set>
+        <a href="${escapedLink}">${langitm.name}</a>
+    </c:forEach>
+        <!-- Registrace pouze pro neprihlasene -->
+        <scrd:notloggedusers>
+            <view:kconfig var="showthisbutton" key="search.mainbuttons.showregistrationbutton"></view:kconfig>
+            <c:if test="${showthisbutton == 'true'}">
+                <a id="registerHref" href="javascript:registerUser.register();"><view:msg>registeruser.menu.title</view:msg></a>
+            </c:if>
+        </scrd:notloggedusers>
 
+        <!--  show admin menu - only for logged users -->
+        <scrd:loggedusers>
+            <a id="adminHref" href="javascript:showAdminMenu();"><view:msg>administrator.menu</view:msg></a>
+        </scrd:loggedusers>
+        
+        <!-- login - only for notlogged -->
+        <scrd:notloggedusers>
+            <a href="redirect.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><view:msg>application.login</view:msg></a>
+        </scrd:notloggedusers>
+        
+        <!-- logout - only for logged -->
+        <scrd:loggedusers>
+            <c:choose>
+                <c:when test="${empty buttons.shibbLogout}">
+                            <a href="logout.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
+                </c:when>
+                <c:otherwise>
+                            <a href="${buttons.shibbLogout}"><view:msg>application.logout</view:msg></a>
+                </c:otherwise>
+            </c:choose>
+        </scrd:loggedusers>
+
+<a href="javascript:showHelp('<c:out value="${param.language}" />');"><view:msg>application.help</view:msg>
+</a>
+<c:if test="${rows != 0}" ><a href="."><view:msg>application.home</view:msg></a></c:if>
+</div>
+        
+    </div>
+</div>
+<div class="loga"></div>
+<div class="finance">
+Projekt je spolufinancován ze Strukturálních fondů EU (Evropského fondu pro regionální rozvoj) prostřednictvím IOP
+</div>
 <div id="socialbuttons_div" class="viewer socialbuttons" style="visibility: hidden; height: 0px;">
      <c:if test="${gplus.buttonEnabled || fb.buttonEnabled || tweet.buttonEnabled}">
       <script type="text/javascript">

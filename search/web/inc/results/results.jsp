@@ -32,7 +32,7 @@
     
     #split {
         height: 700px;
-        width: 1000px;
+        width: 1180px;
     }
     
     div.collections{
@@ -111,11 +111,14 @@ $(document).ready(function(){
             daScrollToMax();
         }
     });
-    
+    resizeAll();
+    /*
     var w;
     var w1 = $(window).height() -
             $("#header").height() - 
             $("#footer").outerHeight(true) - 2;
+    
+    w1 = Math.max(w1, 800);
     $("#split").css("height", w1);
     w = w1 - $("#docs>ul").outerHeight(true) - 35;
     $("#docs_content>div.content").css("height", w);
@@ -130,7 +133,7 @@ $(document).ready(function(){
         resizeDateAxisContent();
         setMaxResize($("#content-resizable").height());
     }
-        
+    */    
     sp = $("#split").layout({
         west:{
             size:300,
@@ -241,6 +244,8 @@ $(document).ready(function(){
         var w1 = $(window).height() -
                 $("#header").height() - 
                 $("#footer").outerHeight(true) - 2;
+        w1 = w1 +  $("#footer").outerHeight(true);
+        //w1 = Math.max(w1, 700);
         $("#split").css("height", w1);
         w = w1 - $("#docs>ul").outerHeight(true) - 35;
         $("#docs_content>div.content").css("height", w);

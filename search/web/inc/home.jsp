@@ -21,7 +21,7 @@
     }
     pageContext.setAttribute("dts", dts);
 %>
-<table style="width: 990px;"><tr><td valign="top">
+<table style="width: 1180px;"><tr><td valign="top">
 <div id="homedabox" style="float:left;width:239px;margin-left:4px;">
     <ul><li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li></ul>
     <div id="dadiv" style="padding:3px;">
@@ -30,8 +30,8 @@
         </p>
     </div>
 </div>
-</td><td style="width:745px;"> 
-<div style="float:left;width:740px;">
+</td><td style="width:935px;"> 
+<div style="float:left;width:930px;">
 <div id="dt_home">
     <c:url var="dtxslurl" value="inc/home/dt.xsl" />
     <c:import url="${dtxslurl}" var="facetxsl" charEncoding="UTF-8"  />
@@ -59,6 +59,7 @@
         
     });
     function resizeAll(){
+        return;
         var w = $("#intro>div.ui-tabs-panel:first").height() +
             $(window).height() -
             $("#main").height() - 

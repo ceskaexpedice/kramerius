@@ -17,7 +17,7 @@
         <c:set var="facetName">${fn:replace(facetName, "\"", "")}</c:set>
         <c:set var="facetValue"><c:out value="${fn:substringAfter(fqs2,':')}" escapeXml="false" /></c:set>
         <c:set var="facetValue">${fn:replace(facetValue, "", "")}</c:set>
-        <input type="hidden" name="fq" id="fq${status2.count}" value="<c:out value="${facetName}" />:<c:out value="${facetValue}" />" />
+        <input type="hidden" name="fq" id="fq${status2.count}" value="${facetName}:${facetValue}" />
     </c:forEach>
     <c:if test="${!empty param.da_od}" >
         <input type="hidden" id="da_od" name="da_od" value="${param.da_od}" />
@@ -30,34 +30,27 @@
     <c:otherwise>
         <c:set var="qclass" >searchQuery ui-corner-all searching</c:set>
     </c:otherwise>
-</c:choose>
+</c:choose><input title="Vyhledat" type="submit" value="" class="submit" />
     <input id="debug" name="debug" type="hidden" value="${param.debug}" /> 
     <input id="sort" name="sort" type="hidden" value="${param.sort}" /> 
     <input type="text"
-           alt="" name="q" id="q"
+           name="q" id="q"
            value="${param.q}" size="50"
-           class="${qclass}" type="text" onclick="checkSearchInput();"> &nbsp;
-    <input class="submit" title="Vyhledat" type="submit" value="" />
-    <span><a href="javascript:toggleAdv();"
-       title="<fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message>"><fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message></a>
-    </span><%@ include file="advancedSearch.jsp"%>
+           class="${qclass}" onclick="checkSearchInput();"><div class="advSearch" onclick="javascript:toggleAdv();"
+       title="<fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message>">
+        <span class="ui-icon ui-icon-triangle-1-s"></span></div><%@ include file="advancedSearch.jsp"%>
 </form>
 <script type="text/javascript">
 
     var inputSearchInitialized = false;
     function checkSearchInput(){
-        //var iniVal = '<fmt:message bundle="${lctx}">form.search</fmt:message>';
         var iniVal = '';
         var q = $('#q').val();
-        //alert(inputSearchInitialized);
-        //alert(iniVal);
-        //alert(q);
         if(!inputSearchInitialized && iniVal == q){
             inputSearchInitialized = true;
             $('#q').val('');
             $('#q').addClass('searching');
         }
-        //alert($('#q').hasClass('searching'));
     }
     function checkQuery(){
         return true;

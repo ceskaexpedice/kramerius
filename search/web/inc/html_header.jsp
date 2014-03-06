@@ -80,12 +80,12 @@
     }
     pageContext.setAttribute("theme", theme);
     %>
-    <link type="text/css" href="css/${theme}/jquery-ui.custom.css" rel="stylesheet" />
+    <link type="text/css" href="css/nkptheme/jquery-ui.custom.css" rel="stylesheet" />
 
     <link rel="stylesheet" href="css/dateAxisV.css" type="text/css"/>
-    <link rel="StyleSheet" href="css/styles.css" type="text/css" />
     <link rel="StyleSheet" href="css/autocomplete.css" type="text/css" />
     <link rel="StyleSheet" href="css/layout-default-latest.css" type="text/css" />
+    <link rel="StyleSheet" href="css/nkp.css" type="text/css" />
     
     <!--[if IE ]>
     <link rel="StyleSheet" href="css/ie.css" type="text/css" />

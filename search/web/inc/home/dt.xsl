@@ -30,7 +30,7 @@
             $('#dt_home>div>span:nth('+rollIndex+')').fadeOut(function(){
                 rollIndex++;
                 if(rollIndex>=$('#dt_home>div>span').length) rollIndex=0;
-                $('#dt_home>div>span:nth('+rollIndex+')').show();
+                $('#dt_home>div>span:nth('+rollIndex+')').css("display", "block");
                 setTimeout('rollTypes()', 4000);
             });
         }
