@@ -30,11 +30,15 @@
             //term = java.net.URLEncoder.encode(term, "UTF-8");
             pageContext.setAttribute("term", term);
             pageContext.setAttribute("including", including);
+            System.out.println(including);
 %>
 <c:choose>
     <c:when test="${param.field == 'browse_title'}">
+        <c:set var="q" value="${param.field}:[\"${term}*\" TO *]"/>
+        <c:if test="${including == 'true'}"><c:set var="q" value="${q} OR ${param.field}:${term}*"/></c:if>
+        
         <c:url var="url" value="${kconfig.solrHost}/select" >
-            <c:param name="q" value="${param.field}:[\"${term}*\" TO *]" />
+            <c:param name="q" value="${q}" />
             <c:param name="facet.field" value="${param.field}" />
             <c:param name="f.${param.field}.facet.sort" value="false" />
             <c:param name="facet.mincount" value="1" />
