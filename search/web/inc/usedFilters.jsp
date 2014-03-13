@@ -110,6 +110,7 @@
                 DDT: &#160;<c:out value="${param.ddc}"/></a>
                 </li>
             </c:if>
+                
             <c:if test="${!empty param.onlyPublic}">
                 <li>
                 <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeAdvFilter('onlyPublic', '<c:out value="${param.onlyPublic}" />');">

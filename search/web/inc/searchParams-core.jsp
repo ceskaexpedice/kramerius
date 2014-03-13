@@ -124,7 +124,7 @@
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
     <c:if test="${!empty param.onlyPublic}">
-        <c:param name="fq" value="dostupnost:${param.onlyPublic}" />
+        <c:param name="fq" value="dostupnost:\"public\"" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
