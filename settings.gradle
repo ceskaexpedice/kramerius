@@ -18,8 +18,8 @@ include	'indexer'
 include	'static-export'
 include	'rest'
 include	'search' 
-include	'editor'
-include	'rightseditor'
+//include	'editor'
+//include	'rightseditor'
 
 	
 
