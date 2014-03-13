@@ -30,7 +30,6 @@
             //term = java.net.URLEncoder.encode(term, "UTF-8");
             pageContext.setAttribute("term", term);
             pageContext.setAttribute("including", including);
-            System.out.println(including);
 %>
 <c:choose>
     <c:when test="${param.field == 'browse_title'}">
