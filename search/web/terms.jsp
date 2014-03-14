@@ -34,7 +34,7 @@
 <c:choose>
     <c:when test="${param.field == 'browse_title'}">
         <c:set var="q" value="${param.field}:[\"${term}*\" TO *]"/>
-        <c:if test="${including == 'true'}"><c:set var="q" value="${q} OR ${param.field}:${term}*"/></c:if>
+        <c:if test="${including == 'true'}"><c:set var="q" value="${q} OR (${param.field}:\"${term}*\") OR (${param.field}:${term}*)"/></c:if>
         
         <c:url var="url" value="${kconfig.solrHost}/select" >
             <c:param name="q" value="${q}" />
@@ -56,6 +56,7 @@
         </c:url>
     </c:otherwise>
 </c:choose>
+
 <c:import url="${url}" var="xml" charEncoding="UTF-8" />
 <c:url var="xslPage" value="inc/home/xsl/autocomplete.xsl" />
 <c:catch var="exceptions">
