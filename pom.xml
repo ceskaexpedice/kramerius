@@ -192,7 +192,7 @@
 		</activation>
 		<modules>
         		<module>common</module>
-        		<module>editor</module>
+        		<!--module>editor</module-->
         		<module>fedora-api</module>
         		<module>import</module>
         		<module>import-cmdtool</module>
@@ -208,7 +208,7 @@
         		<module>static-export</module>
         		<module>search</module>
         		<module>security-core</module>
-        		<module>rightseditor</module>
+        		<!--module>rightseditor</module-->
         		<module>rest</module>
     		</modules>
 
