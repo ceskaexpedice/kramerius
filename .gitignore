@@ -6,6 +6,7 @@
 
 # build
 target/
+generated-src
 
 # Eclipse
 .classpath
@@ -27,8 +28,8 @@ war/rightseditor
 
 .errai
 .idea
-/rightseditor/war/rightseditor/
-/editor/src/main/webapp/kramerius_editor/
+#/rightseditor/war/rightseditor/
+#/editor/src/main/webapp/kramerius_editor/
 
 #gradle
 *.gradle~
@@ -36,3 +37,5 @@ war/rightseditor
 build
 classes
 deploy
+gradle/wrapper
+gradlew*
