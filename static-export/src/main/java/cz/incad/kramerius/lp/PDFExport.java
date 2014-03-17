@@ -47,7 +47,7 @@ public class PDFExport {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(PDFExport.class.getName());
 	
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 	    LOGGER.info("starting static export ...");
 	    if (args.length >= 4) {
 			LOGGER.info("Parameters "+args[0]+", "+args[1]+", "+args[2]+", "+args[3]);
@@ -65,8 +65,8 @@ public class PDFExport {
 			}
 			
 			if (!i18nUrl.startsWith("http")) {
-                String applicationURL = KConfiguration.getInstance().getApplicationURL();
-                i18nUrl = applicationURL + (i18nUrl.startsWith("/") ? "" : "/") + i18nUrl;
+			    String applicationURL = KConfiguration.getInstance().getApplicationURL();
+			    i18nUrl = applicationURL + (i18nUrl.startsWith("/") ? "" : "/") + i18nUrl;
 			}
 
 			LOGGER.fine("imgurl = "+djvuUrl);
@@ -98,7 +98,7 @@ public class PDFExport {
 				titleFromDC = updateProcessName(pid, injector, medium);
 			} else {
 				FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
-                Document dc = fa.getDC(pid);
+				Document dc = fa.getDC(pid);
 				titleFromDC = DCUtils.titleFromDC(dc);
 			}
 

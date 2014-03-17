@@ -325,7 +325,9 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
         while (!konec) {
             if (!restOfDoc.getPages().isEmpty()) {
                 os = streams.newOutputStream();
-                restOfDoc = generateCustomPDF(restOfDoc, os, brk, new FontMap(this.fontsFolder()), djvuUrl, i18nUrl, ImageFetcher.PROCESS);
+                //ImageFetcher process = ImageFetcher.PROCESS;
+                ImageFetcher fetcher = ImageFetcher.WEB; // no security in the full export process
+		restOfDoc = generateCustomPDF(restOfDoc, os, brk, new FontMap(this.fontsFolder()), djvuUrl, i18nUrl, fetcher);
 
                 StringBuffer buffer = new StringBuffer();
                 restOfDoc.getOutlineItemRoot().debugInformations(buffer, 1);
