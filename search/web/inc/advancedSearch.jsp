@@ -36,7 +36,7 @@
             </tr>
             <tr>
                 <td><fmt:message bundle="${lctx}" key="Pouze veřejné dokumenty" /></td>
-                <td><input type="checkbox" value="on" name="onlyPublic"></td>
+                <td><input type="checkbox" value="on" name="onlyPublic" <c:if test="${!empty param.onlyPublic}">checked="checked"</c:if>></td>
             </tr>
             <tr>
                 <td colspan="2" align="right">

@@ -1,6 +1,6 @@
 ###Novinky
 
-*Uvolněna finální verze 4.8.2 pod označením Kramerius 4.8 CDK*
+*Uvolněna finální verze 4.8.4 pod označením Kramerius 4.8 CDK*  (http://sourceforge.net/projects/kramerius/files)
 
 (pro napojení na vývojové práce ČDK je vyžadována verze 4.8), 
 
@@ -46,19 +46,15 @@ V předchozích letech byl vývoj systému Kramerius průběžně financován z 
 
 
 ##Instalace
-Instalační balík je k dispozici v sekci Downloads.
+Instalační balík je k dispozici v úložišti SourceForge na adrese http://sourceforge.net/projects/kramerius/files . Starší verze Krameria 4 vydané před přesunutím vývoje na GitHub jsou stále k dispozici na původním umístění na Google Code (https://code.google.com/p/kramerius/downloads/list)
 
-Kompletní dokumentace k aktuální verzi je v sekci Wiki, archiv dokumentačních wiki stránek pro starší verze je uložen jako zip soubory v sekci Downloads, historie změn wiki je přístupná přes úložiště SVN (sekce Source).
+Kompletní dokumentace k aktuální verzi je v sekci Wiki.
 
 
 ##Komunikace
-Hlášení o chybách a požadavky na novou funkcionalitu zadávejte pomocí formuláře New Issue v sekci Issues. Pole Status nastavte na New, pole Owner nevyplňujte. Nastavte prioritu požadavku:
+Hlášení o chybách a požadavky na novou funkcionalitu zadávejte pomocí formuláře New Issue v sekci Issues. 
 
-* Critical - pro požadavky vyžadující okamžitou reakci a vytvoření záplaty pro aktuální verzi
-* Medium - pro požadavky vyžadující řešení v nejbližší plánované verzi
-* Low - pro požadavky, které snesou odklad do případné pozdější verze
-
-Při požadavku na přidání vlastní funkcionality do standardní distribuce systému Kramerius4 prosím kontaktujte administrátory projektu. Jednodušší změny v rámci existujících modulů bude možné řešit připravením patche pro Subversion, složitější úpravy bude třeba řešit individuálně.
+Při požadavku na přidání vlastní funkcionality do standardní distribuce systému Kramerius4 prosím kontaktujte administrátory projektu. Jednodušší změny v rámci existujících modulů bude možné řešit připravením pull requestu, složitější úpravy bude třeba řešit individuálně.
 
 
 Mailová konference pro administrátory systému Kramerius: kramerius@lib.cas.cz
