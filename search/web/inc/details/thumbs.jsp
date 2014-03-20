@@ -13,8 +13,9 @@
     }
     #tv_container{
         width: 99%;
-        height:160px;
-        overflow: auto;
+        height:155px;
+        overflow-x: auto;
+        overflow-y: hidden;
         position:relative;
         margin:5px;
     }

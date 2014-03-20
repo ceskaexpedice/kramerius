@@ -7,10 +7,11 @@
 <div class="clear" id="header"><div style="float:left;" class="logo"><%@ include file="logo.jsp" %></div>
 <%--    <div style="float:right;position:absolute;top:0px;right:2px;"><%@ include file="themes.jsp" %></div>  --%>
 <div id="main_menu" style="">
-    <div id="searchFormDiv" style="vertical-align:middle;float:right;white-space: nowrap;margin-right: 130px;position: relative;">
+    <div id="searchFormDiv">
         <%@ include file="searchForm.jsp" %>
     </div>
     <%@ include file="menu.jsp" %>
+<div style="float:right;font-size:2.5em;right: 30px;top:90px;color:white;position: absolute;">Kramerius</div>
 </div>
 </div>
 <c:if test="${cols.current != null}">

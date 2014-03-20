@@ -60,6 +60,7 @@
         
     </div>
 </div>
+<div style="width:100%;">
 <div class="loga"></div>
 <div class="finance">
 Projekt je spolufinancován ze Strukturálních fondů EU (Evropského fondu pro regionální rozvoj) prostřednictvím IOP
@@ -225,3 +226,4 @@ Projekt je spolufinancován ze Strukturálních fondů EU (Evropského fondu pro
 <!--  twitter -->
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 </c:if>
+</div>

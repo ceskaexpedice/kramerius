@@ -42,9 +42,9 @@
         
         ${itm.mostDesirableAccess}
         
-        <div id="main" class="shadow">
+        <div id="main">
             <%@ include file="inc/header.jsp" %>
-            <div style="display:block;">
+            <div style="display:block;" class="shadow">
                 <%@ include file="inc/details/item.jsp" %>
             </div>
             <div class="clear"></div>

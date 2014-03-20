@@ -17,7 +17,7 @@
 <style type="text/css">
     #split {
         height: 700px;
-        width: 1000px;
+        width: 1169px;
     }
     #preview {
         overflow: hidden;
@@ -36,6 +36,11 @@
         margin: 0;
         padding: 0;
         line-height: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    #rightPanel li *{
+        white-space: nowrap;
     }
     #rightPanel li.sel a.sel{
         font-weight: bolder;
@@ -74,11 +79,11 @@
     };
     var sp;
     $(document).ready(function(){
-        
+        //$("#header").css("height", 40);
         var w = $("#split").height() +
             $(window).height() -
-            $("#main").height() - 
-            $("#footer").outerHeight(true);
+            $("#main").height();
+            //- $("#footer").outerHeight(true); 
         $("#split").css("height", w);
         w = w -
             $("#thumbs").outerHeight(true) -
@@ -142,8 +147,9 @@
     function resizeAll(){
         var w = $("#split").height() +
             $(window).height() -
-            $("#main").height() - 
-            $("#footer").outerHeight(true);
+            $("#main").height();
+    //- 
+    //        $("#footer").outerHeight(true);
         $("#split").css("height", w);
         w = w - $("#centralContent>ul").outerHeight(true) - 8 - 5 - 6;
         if($("#thumbs").is(':visible')){

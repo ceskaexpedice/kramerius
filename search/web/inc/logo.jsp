@@ -5,5 +5,4 @@
 %>
 <a href="${logo_url}" >
     <img alt="<fmt:message bundle="${lctx}">application.title</fmt:message>" src="css/nkp/logo.png" border="0" />
-    <div style="display:inline-block;margin-top: 10px;position: absolute;margin-left: 8px;"><view:msg>nkp.logo</view:msg></div>
 </a>

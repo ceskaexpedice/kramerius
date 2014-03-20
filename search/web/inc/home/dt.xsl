@@ -5,7 +5,7 @@
     <xsl:param name="dts" select="dts" />
     <xsl:template match="/">
         <xsl:value-of select="dts"/>
-        <div><xsl:value-of select="$bundle/value[@key='home.document.type']"/>&#160;
+        <div style="display:inline-block;"><xsl:value-of select="$bundle/value[@key='home.document.type']"/>
         <xsl:for-each select="response/lst[@name='facet_counts']/lst[@name='facet_fields']/lst[@name='document_type']/int">
             <xsl:variable name="tm">[<xsl:value-of select="@name" />]</xsl:variable>
             <xsl:if test="contains($dts, $tm)"><span><b><a>
@@ -31,6 +31,7 @@
                 rollIndex++;
                 if(rollIndex>=$('#dt_home>div>span').length) rollIndex=0;
                 $('#dt_home>div>span:nth('+rollIndex+')').css("display", "block");
+                //$('#dt_home>div>span:nth('+rollIndex+')').show();
                 setTimeout('rollTypes()', 4000);
             });
         }

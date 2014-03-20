@@ -35,11 +35,11 @@
 <html>
     <%@ include file="inc/html_header.jsp" %>
     <body>
-        <div id="main" class="shadow">
+        <div id="main">
             <%@ include file="inc/header.jsp" %>
             <div class="clear"></div>
 
-            <div id="split" style="display:block;">
+            <div id="split" style="display:block;" class="shadow">
                 <%@ include file="inc/results/results.jsp" %>
             </div>
             <div class="clear"></div>

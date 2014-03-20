@@ -11,7 +11,7 @@
         display: none;
         position:absolute;
         right:0;
-        z-index:100;
+        z-index:120;
         width:380px;
         border: 1px solid gray;
     }
@@ -21,6 +21,13 @@
     }
     #adminMenuItems>div{
         padding:2px;
+        float: left;
+    }
+    #adminMenuItems>div.clear{
+        clear:both;
+    }
+    #adminMenuItems hr{
+        clear:both;
     }
     
     #adminMenuItems > span {
@@ -42,6 +49,8 @@
         text-align: right;
         width:100%;
         height:20px;
+        clear:both;
+        position:relative;
     }
      
          
@@ -55,6 +64,7 @@
             <c:if test="${part.renderable}">
                 <c:forEach var="item" items="${part.items}" >
                     <c:if test="${item.renderable}">
+                    <div class="clear"></div>
                     <span class="ui-icon ui-icon-triangle-1-e">item</span>
                         ${item.renderedItem}
                     </c:if>
@@ -143,7 +153,7 @@ function showConfirmDialog(t,f){
 }
 
 function showAdminMenu() {
-	$("#adminMenu").css("top",$("#header").offset().top + $("#header").height()+4);
+	$("#adminMenu").css("top",$("#main_menu_in").offset().top + $("#main_menu_in").height()+4);
 	$("#adminMenu").show();
 }
 

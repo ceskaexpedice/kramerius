@@ -30,10 +30,10 @@
 <html>
     <%@ include file="inc/html_header.jsp" %>
     <body>
-        <div id="main" class="shadow">
+        <div id="main">
             <%@ include file="inc/header.jsp" %>
             <div class="clear"></div>
-            <div style="display:block;">
+            <div style="display:block;" class="shadow">
                 <%@ include file="inc/home.jsp" %>
             </div>
             <div class="clear"></div>

@@ -15,8 +15,25 @@ body {
     font-family:TusarDeco, Verdana, Arial, Helvetica, Tahoma;
     font-size:12px;
     color:#0B0F0A;
-    background: url("nkp/bg.jpeg") no-repeat center 0 #FFFFFF;
+    background: #ececec;
     margin:0px;
+}
+
+#homecontent{
+}
+
+.shadow{
+    width: 1169px;
+    background: #f2f2f2;
+    -moz-box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
+    box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.shadow-bottom{
+    -moz-box-shadow:0 8px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow:0 8px 10px rgba(0, 0, 0, 0.5);
+    box-shadow:0 8px 10px rgba(0, 0, 0, 0.5);
 }
 
 form{
@@ -27,10 +44,11 @@ form{
     border: 1px solid #e66c00;
 }
 #header{
-    height:324px;
+    height:190px;
+    background: url("nkp/bg.jpeg") no-repeat center 76px;
 }
 #header .logo{
-    margin-top: 23px;
+    margin-top: 15px;
     margin-left:22px;
     color: white;
     width: 250px;
@@ -46,24 +64,36 @@ form{
     vertical-align:bottom;
     height:100%;
     position:relative;
-    top: 40px;
+    top: 5px;
 }
 #main_menu_in{
     float: right;
 }
 #main_menu_in a{
     float:right;
-    color: #a2a2a2;
+    color: #6a6a6a;
     font-size: 1.2em;
-    margin: 12px;
+    margin: 24px 10px;
 }
 #main_menu_in a:hover{
-    color: #fff;
+    color: #000000;
     text-decoration: underline;
+}
+#searchFormDiv{
+    top:18px;
+    vertical-align:middle;
+    float:right;
+    white-space: nowrap;
+    margin-right: 10px;
+    position: relative;
+    width:265px;
+    height:27px;
+    
+    background: url('nkp/q.png') no-repeat center 0 #e6e6e6;
 }
 #main{
     position:relative;
-    width:1300px !important;
+    width:1169px !important;
     margin:auto !important;
 }
 td {
@@ -90,23 +120,24 @@ table.advancedSearch{
     padding:5px;
 }
 #searchForm .searchQuery{
-    width:270px;
+    width:155px;
     height:28px;
-    background: #007783;
-    border-radius:14px 0 0 14px ;
+    border: none;
     padding: 0;
-    padding-left: 10px;
+    margin-left: 13px;
+    background: transparent;
+    outline: none;
 }
 
 div.advSearch{
     border-radius: 0 14px 14px 0;
-    background-color: #007783;
     height:28px;
     width:28px;
     overflow: hidden;
     display: inline-block;
     position:absolute;
     top: 0px;
+    right:0;
 }
 
 div.advSearch span{
@@ -125,8 +156,8 @@ input.checkbox {
 .submit {
     color:#ffffff;
     background: url('../img/empty.gif') no-repeat scroll 0 0 transparent;
-    width:0px;
-    height:0px;
+    width:75px;
+    height:23px;
     cursor:pointer;
     border:none;
 }
@@ -170,25 +201,26 @@ a.image:hover {
 /*footer*/
 #footer{
     position: relative;
-    width: 1300px !important;
+    width: 1169px !important;
     margin: auto !important;
 }
 
 #footer div.nkp{
-    background: url("nkp/foot.jpeg") no-repeat center 0 #FFFFFF;
+    background: url("nkp/foot.jpeg") no-repeat center 0 ;
     height: 205px;
     padding:10px;
 }
 
 #footer div.loga{
-    background: url("nkp/footloga.png") no-repeat 0 #FFFFFF;
+    background: url("nkp/footloga.png") no-repeat 0;
     height: 55px;
     margin: auto !important;
-    width: 1300px !important;
+    width: 1169px !important;
     
 }
 #footer div.finance{
     margin: 10px 0;
+    width:100%;
 }
 
 #footer div.nkp>div{
@@ -236,15 +268,15 @@ a.image:hover {
     font-size:18px;
     z-index: 100;
     position:absolute;
-    right: 215px;
-    top: 190px;
+    right: 30px;
+    top: 130px;
     color:white;
 }
 
 #dt_home span{
-    display: block;
+    /*display: block;*/
     text-align:right;
-    margin-top:12px
+    margin-top:8px
 }
 #dt_home a{
     font-size:24px;
@@ -268,7 +300,7 @@ a.image:hover {
     margin: 0;
     padding: 0;
     padding-left: 10px;
-    line-height: 16px;
+    line-height: 1.3em;
 }
 #facets>ul>li{
     padding-left: 0;
@@ -546,4 +578,12 @@ div.search_result *{
 
 .ui-layout-pane {
     background: transparent;
+}
+
+#tv_path span a{
+    color: #6a6a6a;
+}
+
+#tv_path span a:hover{
+    color: black;
 }

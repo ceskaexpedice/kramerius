@@ -30,15 +30,15 @@
     <c:otherwise>
         <c:set var="qclass" >searchQuery ui-corner-all searching</c:set>
     </c:otherwise>
-</c:choose><input title="Vyhledat" type="submit" value="" class="submit" />
+</c:choose>
     <input id="debug" name="debug" type="hidden" value="${param.debug}" /> 
     <input id="sort" name="sort" type="hidden" value="${param.sort}" /> 
     <input type="text"
            name="q" id="q"
            value="${param.q}" size="50"
-           class="${qclass}" onclick="checkSearchInput();"><div class="advSearch" onclick="javascript:toggleAdv();"
+           class="${qclass}" onclick="checkSearchInput();"><input title="Vyhledat" type="submit" value="" class="submit" /><div class="advSearch" onclick="javascript:toggleAdv();"
        title="<fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message>">
-        <span class="ui-icon ui-icon-triangle-1-s"></span></div><%@ include file="advancedSearch.jsp"%>
+        <span class=""></span></div><%@ include file="advancedSearch.jsp"%>
 </form>
 <script type="text/javascript">
 

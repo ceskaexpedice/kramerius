@@ -52,9 +52,9 @@
 <div id="selectDiv" class="da_select" style="display:none;" ></div>
 
 <div id="da-inputs">
-    <span style="float:left;"><fmt:message bundle="${lctx}">Od</fmt:message>:&nbsp;</span>
+    <span style="float:left;margin-top:5px;"><fmt:message bundle="${lctx}">Od</fmt:message>:&nbsp;</span>
     <input style="float:left;" class="da_input" id="f1" size="10" type="text" value="" onkeyup="checkDoFilter(event)" />
-    <span style="float:left;">&nbsp;<fmt:message bundle="${lctx}">Do</fmt:message>:&nbsp;</span>
+    <span style="float:left;margin-top:5px;">&nbsp;<fmt:message bundle="${lctx}">Do</fmt:message>:&nbsp;</span>
     <input style="float:left;" class="da_input" id="f2" size="10" type="text" value="" onkeyup="checkDoFilter(event)"  /> 
 <a href="javascript:doFilter();" style="float:right; width:16px;overflow:hidden;" ><span class="ui-icon ui-icon-search" title="<fmt:message bundle="${lctx}">dateaxis.use</fmt:message>" >a</span></a>
 </div>

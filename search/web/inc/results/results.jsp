@@ -32,7 +32,7 @@
     
     #split {
         height: 700px;
-        width: 1180px;
+        width: 1169px;
     }
     
     div.collections{
