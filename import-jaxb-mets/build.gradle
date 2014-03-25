@@ -1,5 +1,8 @@
 apply plugin: 'jaxb'
 
+description "Import JAXB stubs - METS metadata"
+
+
 jaxbconf {
 	packageName 'org.kramerius.mets'
 	catalog 'catalog.cat'

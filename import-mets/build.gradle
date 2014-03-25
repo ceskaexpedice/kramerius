@@ -1,3 +1,4 @@
+description "Import METS process"
 
 compileJava {
     // This only works when forking and passing 'javac' as an executable

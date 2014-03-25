@@ -1,5 +1,7 @@
 apply plugin: 'jaxb'
 
+description "Import JAXB stubs"
+
 jaxbconf {
 	packageName 'com.qbizm.kramerius.imp.jaxb'
 }

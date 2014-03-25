@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
-
+description "Security core library and JAAS login module"
 
 sourceSets {
 	main {

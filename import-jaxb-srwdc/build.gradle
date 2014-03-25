@@ -1,5 +1,7 @@
 apply plugin: 'jaxb'
 
+description "Import JAXB stubs - srwdc"
+
 
 jaxbconf {
 	packageName 'org.kramerius.srwdc'
