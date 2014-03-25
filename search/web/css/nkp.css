@@ -587,3 +587,11 @@ div.search_result *{
 #tv_path span a:hover{
     color: black;
 }
+
+#registerUser{
+    background: #dedede;
+}
+
+.ui-dialog{
+  background: #bebebe;
+}

@@ -67,7 +67,7 @@
         <div class="header">
             <table style="width:100%;">
                 <tr>
-            <td style="width:200px;text-align:left;padding-left:5px;">
+            <td style="text-align:left;padding-left:5px;">
                 <span><xsl:value-of select="$numDocs" />&#160;<xsl:value-of select="$numDocsStr" /></span>
             </td>
             <td align="center">

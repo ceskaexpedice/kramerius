@@ -249,6 +249,9 @@ $(document).ready(function(){
         $("#split").css("height", w1);
         w = w1 - $("#docs>ul").outerHeight(true) - 35;
         $("#docs_content>div.content").css("height", w);
+        if($("#K3tab").length>0){
+            $("#K3tab").css("height", w);
+        }
         w = w1 - $("#filters>ul").outerHeight(true) - 16;
         $("#facets").css("height", w);
 
