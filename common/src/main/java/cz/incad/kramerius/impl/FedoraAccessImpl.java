@@ -70,6 +70,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraIOException;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;
@@ -415,12 +416,12 @@ public class FedoraAccessImpl implements FedoraAccess {
         try {
             pid = makeSureObjectPid(pid);
             if (this.accessLog != null && this.accessLog.isReportingAccess(pid,IMG_FULL_STREAM)) {
-            	try {	
-            		this.accessLog.reportAccess(pid,IMG_FULL_STREAM);
-				} catch (Exception e) {
-					LOGGER.severe("cannot write statistic records");
-					LOGGER.log(Level.SEVERE, e.getMessage(),e);
-				}
+                try {	
+                        this.accessLog.reportAccess(pid,IMG_FULL_STREAM);
+                } catch (Exception e) {
+                        LOGGER.severe("cannot write statistic records");
+                        LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                }
             }
             HttpURLConnection con = (HttpURLConnection) openConnection(getFedoraStreamPath(configuration, makeSureObjectPid(pid), IMG_FULL_STREAM), configuration.getFedoraUser(), configuration.getFedoraPass());
             con.connect();
@@ -898,20 +899,40 @@ public class FedoraAccessImpl implements FedoraAccess {
             pid = makeSureObjectPid(pid);
             if (this.accessLog != null && this.accessLog.isReportingAccess(pid,datastreamName)) {
                 try {
-					this.accessLog.reportAccess(pid,datastreamName);
-				} catch (Exception e) {
-					LOGGER.severe("cannot write statistic records");
-					LOGGER.log(Level.SEVERE, e.getMessage(),e);
-				}
+                        this.accessLog.reportAccess(pid,datastreamName);
+                } catch (Exception e) {
+                    LOGGER.severe("cannot write statistic records");
+                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                }
             }
-            String datastream = configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
-            HttpURLConnection con = (HttpURLConnection) openConnection(datastream, configuration.getFedoraUser(), configuration.getFedoraPass());
+            
+            HttpURLConnection con = null;
+            Document datastreamProfile = this.getStreamProfile(pid, datastreamName);
+            Element elm = XMLUtils.findElement(datastreamProfile.getDocumentElement(), "dsControlGroup", FedoraNamespaces.FEDORA_MANAGEMENT_NAMESPACE_URI);
+            if (elm != null) {
+                // Referenced stream
+                if (elm.getTextContent().trim().equals("E")) {
+                    Element dsLocation = XMLUtils.findElement(datastreamProfile.getDocumentElement(), "dsLocation", FedoraNamespaces.FEDORA_MANAGEMENT_NAMESPACE_URI);
+                    if (dsLocation != null) {
+                        // no user, no pass
+                        con = (HttpURLConnection) openConnection(dsLocation.getTextContent().trim(), "", "");
+                    }
+                }
+            }
+            if (con == null) {
+                String streamLocation =  configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
+                con = (HttpURLConnection) openConnection(streamLocation, configuration.getFedoraUser(), configuration.getFedoraPass());
+            }
             con.connect();
             if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 InputStream thumbInputStream = con.getInputStream();
                 return thumbInputStream;
+            } else {
+                // returns concrete exception
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                IOUtils.copyStreams(con.getErrorStream(), bos);
+                throw new FedoraIOException(con.getResponseCode(), new String(bos.toByteArray()));
             }
-            throw new FileNotFoundException(datastream);
         } catch (LexerException e) {
             throw new IOException(e);
         }
@@ -986,7 +1007,10 @@ public class FedoraAccessImpl implements FedoraAccess {
             InputStream thumbInputStream = con.getInputStream();
             return thumbInputStream;
         } else {
-            throw new IOException("404");
+            // concrete exception
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(con.getErrorStream(), bos);
+            throw new FedoraIOException(con.getResponseCode(), new String(bos.toByteArray()));
         }
     }
 
@@ -1005,7 +1029,10 @@ public class FedoraAccessImpl implements FedoraAccess {
                 InputStream is = con.getInputStream();
                 return XMLUtils.parseDocument(is, true);
             } else {
-                throw new IOException("404");
+                // concrete exception
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                IOUtils.copyStreams(con.getErrorStream(), bos);
+                throw new FedoraIOException(con.getResponseCode(), new String(bos.toByteArray()));
             }
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -1025,7 +1052,10 @@ public class FedoraAccessImpl implements FedoraAccess {
                 InputStream is = con.getInputStream();
                 return XMLUtils.parseDocument(is, true);
             } else {
-                throw new IOException("404");
+                // concrete exception
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                IOUtils.copyStreams(con.getErrorStream(), bos);
+                throw new FedoraIOException(con.getResponseCode(), new String(bos.toByteArray()));
             }
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
