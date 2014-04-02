@@ -58,7 +58,7 @@ dependencies {
 }
 
 war {
-    from 'src/web' 
+    from 'web' 
 }
 
  

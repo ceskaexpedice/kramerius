@@ -34,14 +34,16 @@ public class MostDesirableDatabaseUtils {
      * @param con Database connection
      * @param uuid Uuid of requestiong object
      * @param date When
+     * @param Model model
      * @throws SQLException
      */
-    public static void saveAccess(Connection con, String uuid, Date date) throws SQLException {
+    public static void saveAccess(Connection con, String uuid, Date date, String model) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
-                "insert into DESIRABLE(UUID, ACCESS) values(?, ?)");
+                "insert into DESIRABLE(UUID, ACCESS, MODEL) values(?, ?, ?)");
         try {
             prepareStatement.setString(1, uuid);
             prepareStatement.setTimestamp(2, new Timestamp(date.getTime()));
+            prepareStatement.setString(3, model);
             prepareStatement.executeUpdate();
         } finally {
             DatabaseUtils.tryClose(prepareStatement);
