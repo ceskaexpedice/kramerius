@@ -43,7 +43,7 @@ import net.sf.json.JSONObject;
 @Path("/v5.0/feed")
 public class FeederResource {
 
-	private static final int ROWS = 18;
+	private static final int LIMIT = 18;
 
 	public static final Logger LOGGER = Logger.getLogger(FeederResource.class.getName());
 	
@@ -74,14 +74,26 @@ public class FeederResource {
 	@GET
 	@Path("newest")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response newest(@QueryParam("vc")@DefaultValue("")String virtualCollection) {
+    public Response newest(@QueryParam("vc")@DefaultValue("") String virtualCollection,
+                           @QueryParam("limit") Integer limit,
+                           @QueryParam("offset")  Integer offset,
+                           @QueryParam("type") String documentType) {
 		try {
+            if (limit == null) {
+                limit = LIMIT;
+            }
+            int start = (offset == null) ? 0 : offset * limit;
+
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put("rss", ApplicationURL.applicationURL(requestProvider.get())+"/inc/home/newest-rss.jsp");
+
+            StringBuilder req = new StringBuilder("q=level%3a0");
+            if (documentType != null) {
+                    req.append("&fq=document_type:" +  documentType);
+            }
+            req.append("&rows=").append(limit).append("&start=").append(start).append("&sort=level+asc%2c+created_date+desc");
 			
-			String req = "q=level%3a0&rows=" + ROWS + "&sort=level+asc%2c+created_date+desc";
-			
-			Document document = this.solrAccess.request(req);
+			Document document = this.solrAccess.request(req.toString());
 			Element result = XMLUtils.findElement(document.getDocumentElement(), "result");
 			JSONArray jsonArray = new JSONArray();
 			List<Element> docs = XMLUtils.getElements(result,new XMLUtils.ElementsFilter() {
@@ -118,7 +130,7 @@ public class FeederResource {
 		//"http://localhost:8080/search/inc/home/mostDesirables-rss.jsp"
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("rss", ApplicationURL.applicationURL(requestProvider.get())+"/inc/home/mostDesirables-rss.jsp");
-		List<String> mostDesirable = this.mostDesirable.getMostDesirable(ROWS);
+		List<String> mostDesirable = this.mostDesirable.getMostDesirable(LIMIT);
 		JSONArray jsonArray = new JSONArray();
 		for (String pid : mostDesirable) {
 			try {
