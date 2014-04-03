@@ -18,7 +18,7 @@
     }
     
     #intro_text a{
-        color:#e66c00;
+        color:#005784;
         font-size:1.1em;
         
     }

@@ -45,7 +45,7 @@
 }
 
 .da_bar{
-    /*background:#e66c00;*/
+    background: #005784;
     height: 5px;
     padding:0px;
     margin:0px;
@@ -66,7 +66,7 @@
 
 .da_bubble{
     position: absolute;
-    background:#ef6001;
+    background:#005784;
     color:white;
     border: 1px solid #333333;
     left:-100px;

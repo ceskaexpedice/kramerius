@@ -12,7 +12,7 @@ font-weight:bold;
 }
 
 body {
-    font-family:TusarDeco, Verdana, Arial, Helvetica, Tahoma;
+    font-family: Verdana, Arial, Helvetica, Tahoma;
     font-size:12px;
     color:#0B0F0A;
     background: #ececec;
@@ -41,7 +41,7 @@ form{
     padding:0px;
 }
 .border{
-    border: 1px solid #e66c00;
+    border: 1px solid #005784;
 }
 #header{
     height:190px;
@@ -214,13 +214,14 @@ a.image:hover {
 #footer div.loga{
     background: url("nkp/footloga.png") no-repeat 0;
     height: 55px;
-    margin: auto !important;
-    width: 1169px !important;
+    width: 800px;
+    float:left;
     
 }
 #footer div.finance{
     margin: 10px 0;
     width:100%;
+    clear:both;
 }
 
 #footer div.nkp>div{
@@ -276,7 +277,6 @@ a.image:hover {
 #dt_home span{
     /*display: block;*/
     text-align:right;
-    margin-top:8px
 }
 #dt_home a{
     font-size:24px;
@@ -485,11 +485,11 @@ div.search_result *{
 }
 
 #contextMenu>div.selected{
-    border: solid 1px #e66c00;
+    border: solid 1px #005784;
 }
 
 .alto_selection{
-    border: 1px solid #e66c00;
+    border: 1px solid #005784;
     padding: 0;
 }
 

@@ -10,11 +10,7 @@
 
 <%@ page isELIgnored="false"%>
 
-<div class="nkp">
-    <div>
-        <h1><view:msg>common.contact</view:msg></h1>
-        <p>Národní knihovna ČR<br/>Klementinum 190<br/>110 00 Praha 1  </p>
-    </div>
+<div class="nkp" style="display:none;">
     <div>
         <h1><view:msg>common.links</view:msg></h1>
         
@@ -60,8 +56,12 @@
         
     </div>
 </div>
-<div style="width:100%;">
+<div style="width:100%;margin-top:15px;">
 <div class="loga"></div>
+<div style="float:right;">
+    <span style="font-size:1.2em;font-weight: bold;"><view:msg>common.contact</view:msg></span><br/>
+    Národní knihovna ČR<br/>Klementinum 190<br/>110 00 Praha 1
+</div>
 <div class="finance">
 Projekt je spolufinancován ze Strukturálních fondů EU (Evropského fondu pro regionální rozvoj) prostřednictvím IOP
 </div>
@@ -171,7 +171,7 @@ Projekt je spolufinancován ze Strukturálních fondů EU (Evropského fondu pro
     <td>
     
 <div align="center" >
-    ©2008-2012.
+    ©2008-2014.
     Developed under GNU GPL by <a href="http://www.incad.cz/">Incad</a>, <a href="http://www.nkp.cz/">NKČR</a>, <a href="http://www.lib.cas.cz/">KNAV</a> and <a href="http://www.mzk.cz/">MZK</a> 
     (version: ${footerViewObject.version}, revision: ${footerViewObject.revision})
 </div>
