@@ -17,7 +17,7 @@
         <c:set var="facetName">${fn:replace(facetName, "\"", "")}</c:set>
         <c:set var="facetValue"><c:out value="${fn:substringAfter(fqs2,':')}" escapeXml="false" /></c:set>
         <c:set var="facetValue">${fn:replace(facetValue, "", "")}</c:set>
-        <input type="hidden" name="fq" id="fq${status2.count}" value="${facetName}:${facetValue}" />
+        <input type="hidden" name="fq" id="fq${status2.count}" value="<c:out value="${facetName}" />:<c:out value="${facetValue}" />" />
     </c:forEach>
     <c:if test="${!empty param.da_od}" >
         <input type="hidden" id="da_od" name="da_od" value="${param.da_od}" />
