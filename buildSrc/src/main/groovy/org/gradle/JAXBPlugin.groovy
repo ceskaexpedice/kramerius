@@ -1,23 +1,15 @@
 package org.gradle
+import org.gradle.api.Action
+import org.gradle.api.Plugin
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.internal.project.ProjectInternal
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.tasks.SourceSet
 
-import org.gradle.api.Action;
-import org.gradle.api.Plugin;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.internal.file.FileResolver;
-import org.gradle.api.internal.plugins.DslObject;
-import org.gradle.api.internal.project.ProjectInternal;
-import org.gradle.api.internal.tasks.DefaultSourceSet;
-import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.plugins.antlr.internal.AntlrSourceVirtualDirectoryImpl;
-import org.gradle.api.tasks.SourceSet;
+import java.util.concurrent.Callable
 
-import javax.inject.Inject;
-import java.io.File;
-import java.util.concurrent.Callable;
-
-import static org.gradle.api.plugins.JavaPlugin.COMPILE_CONFIGURATION_NAME;
-
+import static org.gradle.api.plugins.JavaPlugin.COMPILE_CONFIGURATION_NAME
 
 class JAXBPlugin implements Plugin<ProjectInternal> {
 	
@@ -61,7 +53,7 @@ class JAXBPlugin implements Plugin<ProjectInternal> {
 					});
 					
 					// Set up the output directory 
-					final String outputDirectoryName = String.format("%s/generated-src/jaxb/%s",project.getBuildDir(), sourceSet.getName());
+					final String outputDirectoryName = String.format("%s/generated-src/jaxb/%s",project.getProjectDir(), sourceSet.getName());
 					final File outputDirectory = new File(outputDirectoryName);
 					xjcTask.setOutputDirectory(outputDirectory);
 					sourceSet.getJava().srcDir(outputDirectory);

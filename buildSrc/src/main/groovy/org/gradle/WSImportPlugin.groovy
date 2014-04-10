@@ -1,24 +1,15 @@
 package org.gradle
+import org.gradle.api.Action
+import org.gradle.api.Plugin
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.internal.project.ProjectInternal
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.tasks.SourceSet
 
-import org.gradle.api.Action;
-import org.gradle.api.Plugin;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.internal.file.FileResolver;
-import org.gradle.api.internal.plugins.DslObject;
-import org.gradle.api.internal.project.ProjectInternal;
-import org.gradle.api.internal.tasks.DefaultSourceSet;
-import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.plugins.antlr.internal.AntlrSourceVirtualDirectoryImpl;
-import org.gradle.api.tasks.SourceSet;
+import java.util.concurrent.Callable
 
-import javax.inject.Inject;
-import java.io.File;
-import java.util.concurrent.Callable;
-
-import static org.gradle.api.plugins.JavaPlugin.COMPILE_CONFIGURATION_NAME;
-
-
+import static org.gradle.api.plugins.JavaPlugin.COMPILE_CONFIGURATION_NAME
 /**
  * Call wsimport ant task. Must be defined as taskdef('wsimport',... and ant.wsimport...
  */
@@ -69,7 +60,7 @@ class WSImportPlugin implements Plugin<ProjectInternal> {
 					
 					
 					// Set up the output directory 
-					final String outputDirectoryName = String.format("%s/generated-src/wsimport/%s",project.getBuildDir(), sourceSet.getName());
+					final String outputDirectoryName = String.format("%s/generated-src/wsimport/%s", project.getProjectDir(), sourceSet.getName());
 					final File outputDirectory = new File(outputDirectoryName);
 					wTask.setOutputDirectory(outputDirectory);
 					sourceSet.getJava().srcDir(outputDirectory);

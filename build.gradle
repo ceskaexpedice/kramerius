@@ -17,6 +17,56 @@
 
 println "Building K4; please read BUILD-README.txt"
 
+apply plugin: 'distribution' // -> generate distributions
+apply plugin: 'java' // -> generate javadoc
+
+
+configurations {
+        /**
+         * Contains external editors
+         */        
+        editors {
+		transitive = false
+	}
+}
+
+dependencies {
+        // editor dependency
+        editors group: "cz.incad.kramerius.editors", name: "editor", version: "5.0.0", ext: "war"
+        // rightseditor dependency
+        editors group: "cz.incad.kramerius.editors", name: "rightseditor", version: "5.0.0", ext: "war"
+}
+
+
+
+
+
+distributions {
+        // main distribution        
+        main {
+                contents {
+                        from {'search/build/libs'}
+                        from {'security-core/build/libs'}
+                        from configurations.editors
+                        from 'build/distributions/kramerius-javadoc.zip'
+                }
+        }
+
+        // patch distribution        
+        patch {
+                contents {
+                        from {'search/build/libs'}
+                        from {'security-core/build/libs'}
+                }
+        }
+}
+
+
+repositories {
+	mavenLocal()
+}
+
+
 /**
  * Inject to all subprojects 
  */
@@ -24,13 +74,15 @@ subprojects {
 
          apply plugin:'java'
          apply plugin: 'eclipse'
+	 apply plugin: 'maven'
+
 
          ext.guiceversion ='3.0'
          ext.postgresversion = '8.4-702.jdbc4'
          ext.slf4jversion='1.6.0'
          ext.jerseyversion = '1.12'
          
-         ext.generatedSources = "$buildDir/generated-sources"
+         ext.generatedSources = "generated-sources"
 
          
          group='cz.incad.kramerius'
@@ -40,31 +92,33 @@ subprojects {
          targetCompatibility= 1.6
          
          dependencies {
+
          	 // postgresql to all subprojects
-         	 compile "postgresql:postgresql:${ext.postgresversion}"
-         	 // guice to all subprojects
-         	 compile "com.google.inject:guice:${ext.guiceversion}"
-         	 compile "com.google.inject.extensions:guice-multibindings:${ext.guiceversion}"
-         	 compile "com.google.inject.extensions:guice-multibindings:${ext.guiceversion}"
-         	 compile "com.google.inject.extensions:guice-servlet:${ext.guiceversion}"
-         	 compile "com.google.inject.extensions:guice-assistedinject:${ext.guiceversion}"
+         	 compile "postgresql:postgresql:${postgresversion}"
+         	
+                 // guice to all subprojects
+         	 compile "com.google.inject:guice:${guiceversion}"
+         	 compile "com.google.inject.extensions:guice-multibindings:${guiceversion}"
+         	 compile "com.google.inject.extensions:guice-multibindings:${guiceversion}"
+         	 compile "com.google.inject.extensions:guice-servlet:${guiceversion}"
+         	 compile "com.google.inject.extensions:guice-assistedinject:${guiceversion}"
          	 compile "javax.inject:javax.inject:1"
          	 
          	 // logging
-         	 compile "org.slf4j:slf4j-api:${ext.slf4jversion}"
-         	 compile "org.slf4j:log4j-over-slf4j:${ext.slf4jversion}"
-         	 compile "org.slf4j:slf4j-jdk14:${ext.slf4jversion}"
-         	 compile "org.slf4j:jcl-over-slf4j:${ext.slf4jversion}"
-         	 
+         	 compile "org.slf4j:slf4j-api:${slf4jversion}"
+         	 compile "org.slf4j:log4j-over-slf4j:${slf4jversion}"
+         	 compile "org.slf4j:slf4j-jdk14:${slf4jversion}"
+         	 compile "org.slf4j:jcl-over-slf4j:${slf4jversion}"
          	 
          	 //junit to all subprojects
          	 testCompile "junit:junit:4.1"
          	 testCompile "org.easymock:easymock:3.0"
+                
          }
          
          repositories {
-         	 mavenCentral()
          	 mavenLocal()
+         	 mavenCentral()
          	 
          	 maven {
          	 	 url "http://download.java.net/maven/2/"
@@ -115,5 +169,24 @@ subprojects {
          	 }
          }
 }
+
+task zipAllJavadocs(type: Zip) {
+        //only from this project 
+        String[] _spr = ["common","fedora-api","security-core","rest","search"];
+        description "create javadocs for ${_spr} and zip it"
+        baseName "kramerius-javadoc"
+        for(String project in _spr) {
+                dependsOn(":${project}:javadoc")
+                into(project) {
+                        from(tasks.getByPath(":${project}:javadoc").destinationDir)
+                } 
+
+        }
+                
+}
+
+[distZip, distTar, installDist].each() { 
+  it.dependsOn('clean',':search:build', 'zipAllJavadocs')
+};
 
 
