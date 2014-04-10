@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.transform.TransformerException;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -63,10 +65,12 @@ public class SolrDataNode extends AbstractItemDecorator {
                 String pid = jsonObject.getString("pid");
                 Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid,
                         context, solrAccess);
+                
                 Element result = XMLUtils.findElement(
                         solrDoc.getDocumentElement(), "result");
-                if (result != null) {
-                    Boolean value = SOLRUtils.value(result, "viewable",
+                Element doc = XMLUtils.findElement(result, "doc");
+                if (doc != null) {
+                    Boolean value = SOLRUtils.value(doc, "viewable",
                             Boolean.class);
                     if (value != null) {
                         jsonObject.put("datanode", value);
