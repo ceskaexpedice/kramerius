@@ -54,7 +54,7 @@ public class RSSHomeViewObject {
 
     
     public List<String> getMostDesirables() {
-        return  this.mostDesirable.getMostDesirable(18);
+        return  this.mostDesirable.getMostDesirable(18, 0, null);
     }
     
     public String getApplicationURL() {

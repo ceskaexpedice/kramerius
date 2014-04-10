@@ -23,36 +23,50 @@ import com.sun.jersey.api.client.WebResource;
 
 /**
  * Ziskani nejnovejsich a neojblibenejsich
+ * 
  * @author pavels
- *
+ * 
  */
 public class FeederResourceClient {
-	
-	/**
-	 * Nejoblibenejsi
-	 * @return
-	 */
-	public static String mostdesirable() {
+
+    /**
+     * Nejoblibenejsi
+     * 
+     * @return
+     */
+    public static String mostdesirable(String type, String limit, String offset) {
         Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/feed/mostdesirable");
+        WebResource r = c
+                .resource("http://localhost:8080/search/api/v5.0/feed/mostdesirable");
+        r = params(type, limit, offset, r);
         String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
         return t;
-	}
+    }
 
-	/**
-	 * Nejnovejsi
-	 * @return
-	 */
-	public static String newest() {
+    /**
+     * Nejnovejsi
+     * 
+     * @return
+     */
+    public static String newest(String type, String limit, String offset) {
+        //newest?type=soundrecording&limit=3&offset=0
+        System.out.println("newest called ");
         Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/feed/newest");
+        WebResource r = c
+                .resource("http://localhost:8080/search/api/v5.0/feed/newest");
+        r = params(type, limit, offset, r);
+        System.out.println(r.getURI());
         String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
         return t;
-	}
-	
-	public static void main(String[] args) {
-		System.out.println(mostdesirable());
-		System.out.println(newest());
-	}
+    }
 
+    public static WebResource params(String type, String limit, String offset,
+            WebResource r) {
+        if (type != null) {
+            r = r.queryParam("type", type);
+        }
+        r = r.queryParam("limit", limit);
+        r = r.queryParam("offset", offset);
+        return r;
+    }
 }

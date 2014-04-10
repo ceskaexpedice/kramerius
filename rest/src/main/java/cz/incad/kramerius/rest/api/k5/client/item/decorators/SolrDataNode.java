@@ -38,48 +38,51 @@ import cz.incad.kramerius.utils.XMLUtils;
 
 /**
  * Dplni informaci o tom, zda se jedna o datanode
+ * 
  * @author pavels
  */
 public class SolrDataNode extends AbstractItemDecorator {
 
-	public static final Logger LOGGER = Logger.getLogger(SolrDataNode.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(SolrDataNode.class
+            .getName());
 
-	public static final String KEY =  AbstractItemDecorator.key("DATA_NODE");//"DATA_NODE";
+    public static final String KEY = AbstractItemDecorator.key("DATA_NODE");// "DATA_NODE";
 
-	
     @Inject
     SolrAccess solrAccess;
 
-	
-	@Override
-	public String getKey() {
-		return KEY;
-	}
+    @Override
+    public String getKey() {
+        return KEY;
+    }
 
-	@Override
-	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
-		try {
-			if (jsonObject.containsKey("pid")) {
-				String pid = jsonObject.getString("pid");
-				Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid, context, solrAccess);
-				Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
-				if (result != null) {
-					Boolean value = SOLRUtils.value(result, "viewable", Boolean.class);
-					if (value != null) {
-						jsonObject.put("datanode", value);
-					} else {
-						jsonObject.put("datanode", false);
-					}
-				}
-			}
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-		}
-	}
-	
-	@Override
-	public boolean apply(JSONObject jsonObject, String context) {
-		TokenizedPath tpath = super.itemContext(tokenize(context));
-		return tpath.isParsed() ;
-	}
+    @Override
+    public void decorate(JSONObject jsonObject, Map<String, Object> context) {
+        try {
+            if (jsonObject.containsKey("pid")) {
+                String pid = jsonObject.getString("pid");
+                Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid,
+                        context, solrAccess);
+                Element result = XMLUtils.findElement(
+                        solrDoc.getDocumentElement(), "result");
+                if (result != null) {
+                    Boolean value = SOLRUtils.value(result, "viewable",
+                            Boolean.class);
+                    if (value != null) {
+                        jsonObject.put("datanode", value);
+                    } else {
+                        jsonObject.put("datanode", false);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public boolean apply(JSONObject jsonObject, String context) {
+        TokenizedPath tpath = super.itemContext(tokenize(context));
+        return tpath.isParsed();
+    }
 }

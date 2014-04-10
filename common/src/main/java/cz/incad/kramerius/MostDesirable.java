@@ -20,7 +20,9 @@ public interface MostDesirable {
 	/**
 	 * Return most desirable objects
 	 * @param count How many objects do you want ?
+         * @param offset Offset 
+         * @param model Filtered model 
 	 * @return
 	 */
-	public List<String> getMostDesirable(int count);
+	public List<String> getMostDesirable(int count, int offset, String model);
 }
