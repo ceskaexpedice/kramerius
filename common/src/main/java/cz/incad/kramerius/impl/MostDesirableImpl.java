@@ -58,7 +58,7 @@ public class MostDesirableImpl implements MostDesirable {
                     returnsList.add(rs.getString("uuid"));
                     return super.handleRow(rs, returnsList);
                 }
-            }.executeQuery("SELECT count(*) as count , uuid, model FROM desirable  group by uuid, model order by count DESC  LIMIT ? OFFSET ?", count, offset);
+            }.executeQuery("SELECT count(*) as count , uuid FROM desirable  group by uuid order by count DESC  LIMIT ? OFFSET ?", count, offset);
         }
     }
 

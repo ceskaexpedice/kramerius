@@ -36,7 +36,6 @@ import cz.incad.kramerius.utils.IOUtils;
  */
 public class ProcessDatabaseInitializator {
 
-    
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessDatabaseInitializator.class.getName());
     
     public static void initDatabase(Connection connection, VersionService versionService) {

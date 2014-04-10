@@ -16,6 +16,10 @@
  */
 package cz.incad.kramerius.security.guice;
 
+import java.io.FileNotFoundException;
+
+import javax.script.ScriptException;
+
 import org.easymock.EasyMock;
 
 import com.google.inject.AbstractModule;
@@ -33,6 +37,7 @@ import cz.incad.kramerius.security.impl.DatabaseUserManager;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
 import cz.incad.kramerius.security.impl.RightCriteriumWrapperFactoryImpl;
 import cz.incad.kramerius.security.impl.ScriptCriteriumLoaderImpl;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class MockGuiceSecurityModule extends AbstractModule {
 
@@ -46,7 +51,11 @@ public class MockGuiceSecurityModule extends AbstractModule {
         
         Multibinder<RightCriteriumLoader> criteriumLoders = Multibinder.newSetBinder(binder(), RightCriteriumLoader.class);
         criteriumLoders.addBinding().to(ClassRightCriteriumLoaderImpl.class).asEagerSingleton();
-        criteriumLoders.addBinding().to(ScriptCriteriumLoaderImpl.class).asEagerSingleton();
+//        try {
+//            criteriumLoders.addBinding().toInstance( new ScriptCriteriumLoaderImpl(KConfiguration.getInstance()));
+//        } catch (FileNotFoundException | NoSuchMethodException | ScriptException e) {
+//            e.printStackTrace();
+//        }
 
         bind(RightCriteriumWrapperFactory.class).to(RightCriteriumWrapperFactoryImpl.class);
         

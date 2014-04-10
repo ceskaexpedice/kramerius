@@ -35,7 +35,6 @@ import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStreamImpl;
 import javax.imageio.stream.ImageOutputStreamImpl;
 
-import sun.util.LocaleServiceProviderPool.LocalizedObjectGetter;
 
 import cz.incad.kramerius.imaging.paths.FilePath;
 import cz.incad.kramerius.imaging.paths.Path;

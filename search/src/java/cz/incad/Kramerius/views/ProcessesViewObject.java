@@ -38,11 +38,12 @@ public class ProcessesViewObject implements Initializable {
 
     private static final int LARGE_SET_OF_DIRECT_PAGES = 25;
 
-	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessesViewObject.class.getName());
+    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+            .getLogger(ProcessesViewObject.class.getName());
 
     @Inject
     protected LRProcessManager processManager;
-    
+
     @Inject
     protected DefinitionManager definitionManager;
 
@@ -51,20 +52,20 @@ public class ProcessesViewObject implements Initializable {
 
     @Inject
     protected Provider<Locale> localesProvider;
-    
+
     @Inject
     protected Provider<HttpServletRequest> requestProvider;
 
     @Inject
     protected OutputTemplateFactory outputTemplateFactory;
-    
+
     private LRProcessOrdering ordering;
-    //private LRProcessOffset offset;
+    // private LRProcessOffset offset;
     private TypeOfOrdering typeOfOrdering;
-    
+
     private String page;
     private String pageSize;
-    
+
     private String lrUrl;
 
     private SQLFilter filter;
@@ -76,7 +77,7 @@ public class ProcessesViewObject implements Initializable {
     public ProcessesViewObject() throws RecognitionException {
         super();
     }
-    
+
     public void init() {
         try {
 
@@ -86,34 +87,32 @@ public class ProcessesViewObject implements Initializable {
             }
             this.typeOfOrdering = TypeOfOrdering.valueOf(type);
 
-            String ordering = this.requestProvider.get().getParameter("ordering");
+            String ordering = this.requestProvider.get().getParameter(
+                    "ordering");
             if ((ordering == null) || (ordering.trim().equals(""))) {
                 ordering = LRProcessOrdering.PLANNED.name();
             }
             this.ordering = LRProcessOrdering.valueOf(ordering);
 
-            
-        	this.filterParam = this.requestProvider.get().getParameter("filter");
+            this.filterParam = this.requestProvider.get()
+                    .getParameter("filter");
             this.filter = this.createProcessFilter();
 
-        	String size = this.requestProvider.get().getParameter("size");
+            String size = this.requestProvider.get().getParameter("size");
             if ((size == null) || (size.trim().equals(""))) {
                 size = "5";
             }
             this.pageSize = size;
 
-        	
             String page = this.requestProvider.get().getParameter("page");
-        	if (page != null) {
-        		this.page = page;
-        	} else {
-        		this.page = ""+getFirstPage();
-        	}
+            if (page != null) {
+                this.page = page;
+            } else {
+                this.page = "" + getFirstPage();
+            }
 
-
-            
         } catch (RecognitionException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
@@ -121,26 +120,41 @@ public class ProcessesViewObject implements Initializable {
     public SQLFilter getFilter() {
         return filter;
     }
-    
-    public List<ProcessViewObject> getProcesses() {
-    	int pageSize = getPageSize();
-    	if (this.isCurrentFirstPage()) {
-    		pageSize = pageSize + (getNumberOfRunningProcess() % getPageSize());
-    	}
 
-    	Offset offset = new Offset(""+getOffset(getPage()), ""+getPageSize());
-    	
-    	List<LRProcess> lrProcesses = this.processManager.getLongRunningProcessesAsGrouped(this.ordering, this.typeOfOrdering, offset, this.filter);
+    public List<ProcessViewObject> getProcesses() {
+        int pageSize = getDefaultPageSize();
+        if (this.isCurrentFirstPage()) {
+            pageSize = pageSize + (getNumberOfRunningProcess() % getDefaultPageSize());
+        }
+
+        Offset offset = new Offset("" + getOffset(getPage()), "" + getDefaultPageSize());
+        System.out.println("OFFSET :"+offset);
+        List<LRProcess> lrProcesses = this.processManager
+                .getLongRunningProcessesAsGrouped(this.ordering,
+                        this.typeOfOrdering, offset, this.filter);
         List<ProcessViewObject> objects = new ArrayList<ProcessViewObject>();
         for (LRProcess lrProcess : lrProcesses) {
-            LRProcessDefinition def = this.definitionManager.getLongRunningProcessDefinition(lrProcess.getDefinitionId());
-            ProcessViewObject pw = new ProcessViewObject(lrProcess, def, this.ordering, offset, this.typeOfOrdering, this.bundleService, this.localesProvider.get(), this.outputTemplateFactory, this.page);
+            LRProcessDefinition def = this.definitionManager
+                    .getLongRunningProcessDefinition(lrProcess
+                            .getDefinitionId());
+            ProcessViewObject pw = new ProcessViewObject(lrProcess, def,
+                    this.ordering, offset, this.typeOfOrdering,
+                    this.bundleService, this.localesProvider.get(),
+                    this.outputTemplateFactory, this.page);
             if (lrProcess.isMasterProcess()) {
-                List<LRProcess> childSubprecesses = this.processManager.getLongRunningProcessesByGroupToken(lrProcess.getGroupToken());
+                List<LRProcess> childSubprecesses = this.processManager
+                        .getLongRunningProcessesByGroupToken(lrProcess
+                                .getGroupToken());
                 for (LRProcess child : childSubprecesses) {
                     if (!child.getUUID().equals(lrProcess.getUUID())) {
-                        LRProcessDefinition childDef = this.definitionManager.getLongRunningProcessDefinition(child.getDefinitionId());
-                        ProcessViewObject childPW = new ProcessViewObject(child, childDef, this.ordering, offset, this.typeOfOrdering, this.bundleService, this.localesProvider.get(), this.outputTemplateFactory, this.page);
+                        LRProcessDefinition childDef = this.definitionManager
+                                .getLongRunningProcessDefinition(child
+                                        .getDefinitionId());
+                        ProcessViewObject childPW = new ProcessViewObject(
+                                child, childDef, this.ordering, offset,
+                                this.typeOfOrdering, this.bundleService,
+                                this.localesProvider.get(),
+                                this.outputTemplateFactory, this.page);
                         pw.addChildProcess(childPW);
                     }
                 }
@@ -151,20 +165,23 @@ public class ProcessesViewObject implements Initializable {
     }
 
     private int getOffset(int page) {
-    	// max page - min offset
-    	int offsetPage = Math.max(getNumberOfPages() -1 - page,0);
-    	if (offsetPage >= 1) {
-    		return offsetPage*getPageSize() + (getNumberOfRunningProcess() % getPageSize());
-    	} else {
-    		return offsetPage*getPageSize();
-    	}
-	}
+        // max page - min offset
+        int offsetPage = Math.max(getNumberOfPages() - 1 - page, 0);
+        if (offsetPage >= 1) {
+            // more then one -> must have bigger offset
+            return offsetPage * getDefaultPageSize()
+                    + (getNumberOfRunningProcess() % getDefaultPageSize());
+        } else {
+            return offsetPage * getDefaultPageSize();
+        }
+    }
 
-	private SQLFilter createProcessFilter() throws RecognitionException {
+    private SQLFilter createProcessFilter() throws RecognitionException {
         if (this.filterParam == null)
             return null;
         try {
-            ParamsParser paramsParser = new ParamsParser(new ParamsLexer(new StringReader(this.filterParam)));
+            ParamsParser paramsParser = new ParamsParser(new ParamsLexer(
+                    new StringReader(this.filterParam)));
             List params = paramsParser.params();
             List<SQLFilter.Tripple> tripples = new ArrayList<SQLFilter.Tripple>();
             for (Object object : params) {
@@ -174,19 +191,17 @@ public class ProcessesViewObject implements Initializable {
                     tripples.add(tripple);
                 }
             }
-            
+
             TypesMapping types = new TypesMapping();
             types.map("status", new SQLFilter.IntegerConverter());
             types.map("batch_status", new SQLFilter.IntegerConverter());
             types.map("planned", new SQLFilter.DateConvereter());
             types.map("started", new SQLFilter.DateConvereter());
             types.map("finished", new SQLFilter.DateConvereter());
-    
-            
-            
+
             SQLFilter filter = SQLFilter.createFilter(types, tripples);
             // TODO: do it better
-            if (filter!= null) {
+            if (filter != null) {
 
                 Tripple statusTripple = filter.findTripple("status");
                 if (statusTripple != null) {
@@ -223,59 +238,58 @@ public class ProcessesViewObject implements Initializable {
     }
 
     public boolean getHasPrevious() {
-    	int page = getPage();
-    	int numberOfPages = getNumberOfPages();
-    	return page < (numberOfPages-1);
+        int page = getPage();
+        int numberOfPages = getNumberOfPages();
+        return page < (numberOfPages - 1);
     }
-    
+
     public boolean getHasNext() {
-    	return getPage() >0 ;
+        return getPage() > 0;
     }
 
     public int getNumberOfRunningProcess() {
         if (this.numberOfRunningProcesses == -1) {
-            this.numberOfRunningProcesses = this.processManager.getNumberOfLongRunningProcesses(this.filter);
+            this.numberOfRunningProcesses = this.processManager
+                    .getNumberOfLongRunningProcesses(this.filter);
         }
         return this.numberOfRunningProcesses;
     }
 
-
+    public int getDefaultPageSize() {
+        return Integer.parseInt(this.pageSize);
+    }
     public int getPageSize() {
-    	return Integer.parseInt(this.pageSize);
-    }
-    
-    public int getNumberOfPages() {
-    	return getNumberOfRunningProcess() / getPageSize();
+        return Integer.parseInt(this.pageSize);
     }
 
-    
-    
-    public int getPage() {
-    	return Integer.parseInt(this.page);
+    public int getNumberOfPages() {
+        return getNumberOfRunningProcess() / getDefaultPageSize();
     }
-    
+
+    public int getPage() {
+        return Integer.parseInt(this.page);
+    }
+
     public String getPageLabel() {
-    	return page;
+        return page;
     }
 
     public int getPrevPageValue() {
-    	return (getPage() < getNumberOfPages()) ? getPage() + 1 : 0; 
+        return (getPage() < getNumberOfPages()) ? getPage() + 1 : 0;
     }
 
     public int getNextPageValue() {
-    	return (getPage() >0) ? getPage() -1 : getNumberOfPages();
+        return (getPage() > 0) ? getPage() - 1 : getNumberOfPages();
     }
 
-    
     public int getFirstPage() {
-    	return Math.max(getNumberOfPages() - 1,0);
+        return Math.max(getNumberOfPages() - 1, 0);
     }
-    
+
     public int getLastPage() {
-    	return 0;
+        return 0;
     }
-    
-    
+
     public String getOrdering() {
         return this.ordering.toString();
     }
@@ -285,52 +299,86 @@ public class ProcessesViewObject implements Initializable {
     }
 
     public boolean isNecessaryDisplayMorePages() {
-    	return this.getNumberOfPages() > SMALL_SET_OF_DIRECT_PAGES;
+        return this.getNumberOfPages() > SMALL_SET_OF_DIRECT_PAGES;
     }
 
-    
     public List<String> getLargeSetOfDirectPates() {
-    	List<String> hrefs = new ArrayList<String>();
-        int pages  = getNumberOfPages();
+        List<String> hrefs = new ArrayList<String>();
+        int pages = getNumberOfPages();
         int page = getPage();
-        for (int i = pages-1; i >= 0  ; i--) {
-        	String href = "<a id=\"process_page_"+i+"\" href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + i + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + i + "</a>";
+        for (int i = pages - 1; i >= 0; i--) {
+            String href = "<a id=\"process_page_"
+                    + i
+                    + "\" href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('"
+                    + this.ordering + "','" + i + "','" + this.pageSize + "','"
+                    + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + i
+                    + "</a>";
             hrefs.add(href);
         }
         return hrefs;
-    	
+
     }
-    
+
     public List<String> getSmallSetOfDirectPages() {
-    	List<String> hrefs = new ArrayList<String>();
-    	int pageFrom = Math.min(Math.max(getPage(), SMALL_SET_OF_DIRECT_PAGES), getNumberOfPages()-1);
-    	int pageTo = Math.max(pageFrom - SMALL_SET_OF_DIRECT_PAGES, 0);
-    	for (int i = pageFrom; i>= pageTo ; i--) {
-        	String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + i + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + i + "</a>";
+        List<String> hrefs = new ArrayList<String>();
+        int pageFrom = Math.min(Math.max(getPage(), SMALL_SET_OF_DIRECT_PAGES),
+                getNumberOfPages() - 1);
+        int pageTo = Math.max(pageFrom - SMALL_SET_OF_DIRECT_PAGES, 0);
+        for (int i = pageFrom; i >= pageTo; i--) {
+            String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('"
+                    + this.ordering
+                    + "','"
+                    + i
+                    + "','"
+                    + this.pageSize
+                    + "','"
+                    + this.typeOfOrdering.getTypeOfOrdering()
+                    + "');\"> "
+                    + i
+                    + "</a>";
             hrefs.add(href);
         }
-        
+
         return hrefs;
-    	
+
     }
-    
+
     public List<String> getDirectPages() {
         List<String> hrefs = new ArrayList<String>();
-        int pages  = getNumberOfPages();
-        for (int i = pages-1; i >= 0; i--) {
-        	String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + i + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + i + "</a>";
+        int pages = getNumberOfPages();
+        for (int i = pages - 1; i >= 0; i--) {
+            String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('"
+                    + this.ordering
+                    + "','"
+                    + i
+                    + "','"
+                    + this.pageSize
+                    + "','"
+                    + this.typeOfOrdering.getTypeOfOrdering()
+                    + "');\"> "
+                    + i
+                    + "</a>";
             hrefs.add(href);
         }
         return hrefs;
     }
-    
-    
-    
-    
+
     public String getNextPageAHREF() {
         try {
-            String nextString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.next");
-            return "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + getNextPageValue() + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> " + nextString + " <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
+            String nextString = bundleService.getResourceBundle("labels",
+                    this.localesProvider.get()).getString(
+                    "administrator.processes.next");
+            return "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('"
+                    + this.ordering
+                    + "','"
+                    + getNextPageValue()
+                    + "','"
+                    + this.pageSize
+                    + "','"
+                    + this.typeOfOrdering.getTypeOfOrdering()
+                    + "');\"> "
+                    + nextString
+                    + " <img  border=\"0\" src=\"img/next_arr.png\"/> </a>";
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return "<img border=\"0\" src=\"img/next_arr.png\" alt=\"next\" />";
@@ -339,33 +387,49 @@ public class ProcessesViewObject implements Initializable {
 
     public String getPrevPageAHREF() {
         try {
-            String prevString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.prev");
-            return "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + this.ordering + "','" + this.getPrevPageValue() + "','" + this.pageSize + "','" + this.typeOfOrdering.getTypeOfOrdering() + "');\"> <img border=\"0\" src=\"img/prev_arr.png\"/> " + prevString + " </a>";
+            String prevString = bundleService.getResourceBundle("labels",
+                    this.localesProvider.get()).getString(
+                    "administrator.processes.prev");
+            return "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('"
+                    + this.ordering
+                    + "','"
+                    + this.getPrevPageValue()
+                    + "','"
+                    + this.pageSize
+                    + "','"
+                    + this.typeOfOrdering.getTypeOfOrdering()
+                    + "');\"> <img border=\"0\" src=\"img/prev_arr.png\"/> "
+                    + prevString + " </a>";
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return "<img border=\"0\" src=\"img/prev_arr.png\" alt=\"prev\" /> ";
         }
     }
 
-    
     private TypeOfOrdering switchOrdering() {
-        return this.typeOfOrdering.equals(TypeOfOrdering.ASC) ? TypeOfOrdering.DESC : TypeOfOrdering.ASC;
+        return this.typeOfOrdering.equals(TypeOfOrdering.ASC) ? TypeOfOrdering.DESC
+                : TypeOfOrdering.ASC;
     }
 
     public String getOrderingIcon() {
-        return this.typeOfOrdering.equals(TypeOfOrdering.ASC)  ? "<span class='ui-icon ui-icon-triangle-1-s'></span>" : "<span class='ui-icon ui-icon-triangle-1-n'></span>";
+        return this.typeOfOrdering.equals(TypeOfOrdering.ASC) ? "<span class='ui-icon ui-icon-triangle-1-s'></span>"
+                : "<span class='ui-icon ui-icon-triangle-1-n'></span>";
     }
-    
+
     public boolean isNameOrdered() {
         return this.ordering.equals(LRProcessOrdering.NAME);
     }
-    
+
     public String getNameOrdering() {
         try {
-            String nameString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.name");
+            String nameString = bundleService.getResourceBundle("labels",
+                    this.localesProvider.get()).getString(
+                    "administrator.processes.name");
             LRProcessOrdering nOrdering = LRProcessOrdering.NAME;
             boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
-            return newOrderingURL(nOrdering, nameString, changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+            return newOrderingURL(nOrdering, nameString,
+                    changeTypeOfOrdering ? switchOrdering()
+                            : TypeOfOrdering.ASC);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return e.getMessage();
@@ -378,10 +442,14 @@ public class ProcessesViewObject implements Initializable {
 
     public String getDateOrdering() {
         try {
-            String startedString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.started");
+            String startedString = bundleService.getResourceBundle("labels",
+                    this.localesProvider.get()).getString(
+                    "administrator.processes.started");
             LRProcessOrdering nOrdering = LRProcessOrdering.STARTED;
             boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
-            return newOrderingURL(nOrdering, startedString, changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+            return newOrderingURL(nOrdering, startedString,
+                    changeTypeOfOrdering ? switchOrdering()
+                            : TypeOfOrdering.ASC);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return e.getMessage();
@@ -394,10 +462,14 @@ public class ProcessesViewObject implements Initializable {
 
     public String getPlannedDateOrdering() {
         try {
-            String startedString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.planned");
+            String startedString = bundleService.getResourceBundle("labels",
+                    this.localesProvider.get()).getString(
+                    "administrator.processes.planned");
             LRProcessOrdering nOrdering = LRProcessOrdering.PLANNED;
             boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
-            return newOrderingURL(nOrdering, startedString, changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+            return newOrderingURL(nOrdering, startedString,
+                    changeTypeOfOrdering ? switchOrdering()
+                            : TypeOfOrdering.ASC);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return e.getMessage();
@@ -410,10 +482,14 @@ public class ProcessesViewObject implements Initializable {
 
     public String getFinishedDateOrdering() {
         try {
-            String startedString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.finished");
+            String startedString = bundleService.getResourceBundle("labels",
+                    this.localesProvider.get()).getString(
+                    "administrator.processes.finished");
             LRProcessOrdering nOrdering = LRProcessOrdering.FINISHED;
             boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
-            return newOrderingURL(nOrdering, startedString, changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+            return newOrderingURL(nOrdering, startedString,
+                    changeTypeOfOrdering ? switchOrdering()
+                            : TypeOfOrdering.ASC);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return e.getMessage();
@@ -424,27 +500,32 @@ public class ProcessesViewObject implements Initializable {
         return this.ordering.equals(LRProcessOrdering.LOGINNAME);
     }
 
-    
-
     public String getUserOrdering() {
         try {
-            String pidString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.user");
+            String pidString = bundleService.getResourceBundle("labels",
+                    this.localesProvider.get()).getString(
+                    "administrator.processes.user");
             LRProcessOrdering nOrdering = LRProcessOrdering.LOGINNAME;
             boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
-            return newOrderingURL(nOrdering, pidString, changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+            return newOrderingURL(nOrdering, pidString,
+                    changeTypeOfOrdering ? switchOrdering()
+                            : TypeOfOrdering.ASC);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return e.getMessage();
         }
     }
 
-    
     public String getPidOrdering() {
         try {
-            String pidString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.pid");
+            String pidString = bundleService.getResourceBundle("labels",
+                    this.localesProvider.get()).getString(
+                    "administrator.processes.pid");
             LRProcessOrdering nOrdering = LRProcessOrdering.ID;
             boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
-            return newOrderingURL(nOrdering, pidString, changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+            return newOrderingURL(nOrdering, pidString,
+                    changeTypeOfOrdering ? switchOrdering()
+                            : TypeOfOrdering.ASC);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return e.getMessage();
@@ -457,36 +538,50 @@ public class ProcessesViewObject implements Initializable {
 
     public String getStateOrdering() {
         try {
-            String stateString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.state");
+            String stateString = bundleService.getResourceBundle("labels",
+                    this.localesProvider.get()).getString(
+                    "administrator.processes.state");
             LRProcessOrdering nOrdering = LRProcessOrdering.STATE;
             boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
-            return newOrderingURL(nOrdering, stateString, changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+            return newOrderingURL(nOrdering, stateString,
+                    changeTypeOfOrdering ? switchOrdering()
+                            : TypeOfOrdering.ASC);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return e.getMessage();
         }
     }
 
-    
-    
     public boolean isBatchStateOrdered() {
         return this.ordering.equals(LRProcessOrdering.BATCHSTATE);
     }
 
     public String getBatchStateOrdering() {
         try {
-            String stateString = bundleService.getResourceBundle("labels", this.localesProvider.get()).getString("administrator.processes.batch");
+            String stateString = bundleService.getResourceBundle("labels",
+                    this.localesProvider.get()).getString(
+                    "administrator.processes.batch");
             LRProcessOrdering nOrdering = LRProcessOrdering.BATCHSTATE;
             boolean changeTypeOfOrdering = this.ordering.equals(nOrdering);
-            return newOrderingURL(nOrdering, stateString, changeTypeOfOrdering ? switchOrdering() : TypeOfOrdering.ASC);
+            return newOrderingURL(nOrdering, stateString,
+                    changeTypeOfOrdering ? switchOrdering()
+                            : TypeOfOrdering.ASC);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return e.getMessage();
         }
     }
-    
-    private String newOrderingURL(LRProcessOrdering nOrdering, String name, TypeOfOrdering ntypeOfOrdering) {
-        String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('" + nOrdering + "','" + this.page + "','" + this.pageSize + "','" + ntypeOfOrdering.getTypeOfOrdering() + "');\"";
+
+    private String newOrderingURL(LRProcessOrdering nOrdering, String name,
+            TypeOfOrdering ntypeOfOrdering) {
+        String href = "<a href=\"javascript:_wait();processes.modifyProcessDialogDataByPage('"
+                + nOrdering
+                + "','"
+                + this.page
+                + "','"
+                + this.pageSize
+                + "','"
+                + ntypeOfOrdering.getTypeOfOrdering() + "');\"";
         if (this.ordering.equals(nOrdering)) {
             // href += orderingImg(nOrdering);
             if (typeOfOrdering.equals(TypeOfOrdering.DESC)) {
@@ -503,11 +598,12 @@ public class ProcessesViewObject implements Initializable {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("planned") && tripple.getOp().equals(SQLFilter.Op.GT)) {
+                if (tripple.getName().equals("planned")
+                        && tripple.getOp().equals(SQLFilter.Op.GT)) {
                     return this.filter.getFormattedValue(tripple);
                 }
             }
-        } 
+        }
         return "";
     }
 
@@ -515,25 +611,26 @@ public class ProcessesViewObject implements Initializable {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("planned") && tripple.getOp().equals(SQLFilter.Op.LT)) {
-                	
-                	return this.filter.getFormattedValue(tripple);
+                if (tripple.getName().equals("planned")
+                        && tripple.getOp().equals(SQLFilter.Op.LT)) {
+
+                    return this.filter.getFormattedValue(tripple);
                 }
             }
-        } 
+        }
         return "";
     }
-
 
     public String getStartedAfter() {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("started") && tripple.getOp().equals(SQLFilter.Op.GT)) {
-                	return this.filter.getFormattedValue(tripple);
+                if (tripple.getName().equals("started")
+                        && tripple.getOp().equals(SQLFilter.Op.GT)) {
+                    return this.filter.getFormattedValue(tripple);
                 }
             }
-        } 
+        }
         return "";
     }
 
@@ -541,24 +638,25 @@ public class ProcessesViewObject implements Initializable {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("started") && tripple.getOp().equals(SQLFilter.Op.LT)) {
+                if (tripple.getName().equals("started")
+                        && tripple.getOp().equals(SQLFilter.Op.LT)) {
                     return this.filter.getFormattedValue(tripple);
                 }
             }
-        } 
+        }
         return "";
     }
-
 
     public String getFinishedAfter() {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("finished") && tripple.getOp().equals(SQLFilter.Op.GT)) {
+                if (tripple.getName().equals("finished")
+                        && tripple.getOp().equals(SQLFilter.Op.GT)) {
                     return this.filter.getFormattedValue(tripple);
                 }
             }
-        } 
+        }
         return "";
     }
 
@@ -566,34 +664,35 @@ public class ProcessesViewObject implements Initializable {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("finished") && tripple.getOp().equals(SQLFilter.Op.LT)) {
+                if (tripple.getName().equals("finished")
+                        && tripple.getOp().equals(SQLFilter.Op.LT)) {
                     return this.filter.getFormattedValue(tripple);
                 }
             }
-        } 
+        }
         return "";
     }
 
-    
     public String getNameLike() {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
             for (Tripple tripple : tripples) {
-                if (tripple.getName().equals("name") && tripple.getOp().equals(SQLFilter.Op.LIKE)) {
+                if (tripple.getName().equals("name")
+                        && tripple.getOp().equals(SQLFilter.Op.LIKE)) {
                     return this.filter.getFormattedValue(tripple);
                 }
             }
-        }    
+        }
         return "";
     }
 
-
     public List<BatchProcessStateWrapper> getBatchStatesForFilter() {
-        List<BatchProcessStateWrapper> wrap = BatchProcessStateWrapper.wrap(true, BatchStates.values());
+        List<BatchProcessStateWrapper> wrap = BatchProcessStateWrapper.wrap(
+                true, BatchStates.values());
         if (this.filter != null) {
             Tripple tripple = this.filter.findTripple("batch_status");
             if (tripple != null) {
-                Integer intg = (Integer)tripple.getVal();
+                Integer intg = (Integer) tripple.getVal();
                 if (intg.intValue() >= 0) {
                     for (BatchProcessStateWrapper wrapper : wrap) {
                         if (wrapper.getVal() == intg.intValue()) {
@@ -606,13 +705,13 @@ public class ProcessesViewObject implements Initializable {
         return wrap;
     }
 
-    
     public List<ProcessStateWrapper> getStatesForFilter() {
-        List<ProcessStateWrapper> wrap = ProcessStateWrapper.wrap(true, States.values());
+        List<ProcessStateWrapper> wrap = ProcessStateWrapper.wrap(true,
+                States.values());
         if (this.filter != null) {
             Tripple tripple = this.filter.findTripple("status");
             if (tripple != null) {
-                Integer intg = (Integer)tripple.getVal();
+                Integer intg = (Integer) tripple.getVal();
                 if (intg.intValue() >= 0) {
                     for (ProcessStateWrapper wrapper : wrap) {
                         if (wrapper.getVal() == intg.intValue()) {
@@ -636,56 +735,52 @@ public class ProcessesViewObject implements Initializable {
             return "";
     }
 
-	public LRProcessManager getProcessManager() {
-		return processManager;
-	}
+    public LRProcessManager getProcessManager() {
+        return processManager;
+    }
 
-	public void setProcessManager(LRProcessManager processManager) {
-		this.processManager = processManager;
-	}
+    public void setProcessManager(LRProcessManager processManager) {
+        this.processManager = processManager;
+    }
 
-	public DefinitionManager getDefinitionManager() {
-		return definitionManager;
-	}
+    public DefinitionManager getDefinitionManager() {
+        return definitionManager;
+    }
 
-	public void setDefinitionManager(DefinitionManager definitionManager) {
-		this.definitionManager = definitionManager;
-	}
+    public void setDefinitionManager(DefinitionManager definitionManager) {
+        this.definitionManager = definitionManager;
+    }
 
-	public ResourceBundleService getBundleService() {
-		return bundleService;
-	}
+    public ResourceBundleService getBundleService() {
+        return bundleService;
+    }
 
-	public void setBundleService(ResourceBundleService bundleService) {
-		this.bundleService = bundleService;
-	}
+    public void setBundleService(ResourceBundleService bundleService) {
+        this.bundleService = bundleService;
+    }
 
-	public Provider<Locale> getLocalesProvider() {
-		return localesProvider;
-	}
+    public Provider<Locale> getLocalesProvider() {
+        return localesProvider;
+    }
 
-	public void setLocalesProvider(Provider<Locale> localesProvider) {
-		this.localesProvider = localesProvider;
-	}
+    public void setLocalesProvider(Provider<Locale> localesProvider) {
+        this.localesProvider = localesProvider;
+    }
 
-	public Provider<HttpServletRequest> getRequestProvider() {
-		return requestProvider;
-	}
+    public Provider<HttpServletRequest> getRequestProvider() {
+        return requestProvider;
+    }
 
-	public void setRequestProvider(Provider<HttpServletRequest> requestProvider) {
-		this.requestProvider = requestProvider;
-	}
+    public void setRequestProvider(Provider<HttpServletRequest> requestProvider) {
+        this.requestProvider = requestProvider;
+    }
 
-	public boolean isCurrentFirstPage() {
-		return getPage() == getNumberOfPages();
-	}
+    public boolean isCurrentFirstPage() {
+        return getPage() == getNumberOfPages();
+    }
 
-	public boolean isCurrentLastPage() {
-		return getPage() == 0;
-	}
-	
-	
-	
-	
-	
+    public boolean isCurrentLastPage() {
+        return getPage() == 0;
+    }
+
 }

@@ -53,7 +53,7 @@ public class DeepZoomServletTest {
         tileUrl.setAttribute("url", dataStreamUrl);
         tileUrl.setAttribute("level", "10");
         tileUrl.setAttribute("tile", "10");
-        System.out.println(tileUrl);
+        //System.out.println(tileUrl);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class DeepZoomServletTest {
         if (dataStreamUrl.endsWith("/")) dataStreamUrl = dataStreamUrl.substring(0, dataStreamUrl.length()-1);
         dziUrl.setAttribute("url", dataStreamUrl);
 
-        System.out.println(dziUrl);
+        //System.out.println(dziUrl);
     }
 
 }
