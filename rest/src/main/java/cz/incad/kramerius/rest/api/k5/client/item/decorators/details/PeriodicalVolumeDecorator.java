@@ -37,62 +37,65 @@ import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
-public class PeriodicalVolumeDecorator extends  AbstractDetailDecorator {
+public class PeriodicalVolumeDecorator extends AbstractDetailDecorator {
 
-	
-    public static final Logger LOGGER = Logger.getLogger(ItemSolrRootPidDecorate.class.getName());
+    public static final Logger LOGGER = Logger
+            .getLogger(ItemSolrRootPidDecorate.class.getName());
 
-    public static final String DETAILS_PERIODICAL_VOLUME = AbstractItemDecorator.key("DETAILS.PERIODICALVOLUME");
+    public static final String DETAILS_PERIODICAL_VOLUME = AbstractItemDecorator
+            .key("DETAILS.PERIODICALVOLUME");
 
-	@Inject
-	SolrAccess solrAccess;
+    @Inject
+    SolrAccess solrAccess;
 
-	@Override
-	public String getKey() {
-		return DETAILS_PERIODICAL_VOLUME;
-	}
+    @Override
+    public String getKey() {
+        return DETAILS_PERIODICAL_VOLUME;
+    }
 
-	@Override
-	public void decorate(JSONObject jsonObject, Map<String, Object> runtimeContext) {
-		if (jsonObject.containsKey("pid")) {
-			String pid = jsonObject.getString("pid");
-	        try {
-	    		Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid, context, solrAccess);
-	            Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
-	            if (result != null) {
-	                Element doc = XMLUtils.findElement(result, "doc");
-	                if (doc != null) {
-	    	    		List<String> array = SOLRUtils.array(doc, "details", String.class);
-	    	    		if (!array.isEmpty()) {
-		    	    		String[] details = super.details(array.get(0));
-							JSONObject detailsJSONObject = new JSONObject();
-							if (details.length > 0) {
-								detailsJSONObject.put("year", details[0]);
-							}
-							if (details.length > 1) {
-								detailsJSONObject.put("volumeNumber", details[1]);
-							}
-							if (detailsJSONObject.keySet().size() > 0) {
-								jsonObject.put("details", detailsJSONObject);
-							}
-	    	    		}
-    	    		}
-	            }
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE,e.getMessage(),e);
-			}
-		}
+    @Override
+    public void decorate(JSONObject jsonObject,
+            Map<String, Object> runtimeContext) {
+        if (jsonObject.containsKey("pid")) {
+            String pid = jsonObject.getString("pid");
+            try {
+                Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid,
+                        context, solrAccess);
+                Element result = XMLUtils.findElement(
+                        solrDoc.getDocumentElement(), "result");
+                if (result != null) {
+                    Element doc = XMLUtils.findElement(result, "doc");
+                    if (doc != null) {
+                        List<String> array = SOLRUtils.array(doc, "details",
+                                String.class);
+                        if (!array.isEmpty()) {
+                            String[] details = super.details(array.get(0));
+                            JSONObject detailsJSONObject = new JSONObject();
+                            if (details.length > 0) {
+                                detailsJSONObject.put("year", details[0]);
+                            }
+                            if (details.length > 1) {
+                                detailsJSONObject.put("volumeNumber",
+                                        details[1]);
+                            }
+                            if (detailsJSONObject.keySet().size() > 0) {
+                                jsonObject.put("details", detailsJSONObject);
+                            }
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
 
-	}
+    }
 
-	
-	
-	@Override
-	public boolean apply(JSONObject jsonObject, String context) {
-		String m = super.getModel(jsonObject);
-		TokenizedPath tpath = super.itemContext(tokenize(context));
-		return tpath.isParsed()  && tpath.getRestPath().isEmpty() && m != null && m.equals("periodicalvolume");
-	}
-	
+    @Override
+    public boolean apply(JSONObject jsonObject, String context) {
+        String m = super.getModel(jsonObject);
+        TokenizedPath tpath = super.itemContext(tokenize(context));
+        return tpath.isParsed() && m != null && m.equals("periodicalvolume");
+    }
 
 }

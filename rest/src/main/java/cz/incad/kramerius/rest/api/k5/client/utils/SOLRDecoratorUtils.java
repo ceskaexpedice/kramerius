@@ -25,19 +25,19 @@ import cz.incad.kramerius.SolrAccess;
 
 public class SOLRDecoratorUtils {
 
-	public static final String SOLR_PID_DOCUMENT_KEY ="solr_pid_document";
+    public static final String SOLR_PID_DOCUMENT_KEY = "solr_pid_document";
 
-	public static Document getSolrPidDocument(String pid, Map<String, Object> context, SolrAccess solrAccess) throws IOException {
-		String key = SOLR_PID_DOCUMENT_KEY+"_"+pid;
-		if (!context.containsKey(key)) {
-			if (PIDSupport.isComposedPID(pid)) {
-				pid = PIDSupport.convertToSOLRType(pid);
-			}
-			context.put(key, solrAccess.getSolrDataDocument(pid));
-		}
-		return (Document) context.get(key);
-	}
+    public static Document getSolrPidDocument(String pid,
+            Map<String, Object> context, SolrAccess solrAccess)
+            throws IOException {
+        String key = SOLR_PID_DOCUMENT_KEY + "_" + pid;
+        if (!context.containsKey(key)) {
+            if (PIDSupport.isComposedPID(pid)) {
+                pid = PIDSupport.convertToSOLRType(pid);
+            }
+            context.put(key, solrAccess.getSolrDataDocument(pid));
+        }
+        return (Document) context.get(key);
+    }
 
-	
-	
 }
