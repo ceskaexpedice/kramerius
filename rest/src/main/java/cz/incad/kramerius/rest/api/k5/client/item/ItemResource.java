@@ -229,7 +229,7 @@ public class ItemResource {
                     .path("{pid}/siblings").build(pid).toString();
             p = PIDSupport.convertToK4Type(p);
             JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess,
-                    "siblings", this.decoratorsAggregate, uriString);
+                    uriString, this.decoratorsAggregate, uriString);
             pathArray.add(jsonObject);
         }
         object.put("path", pathArray);
@@ -241,7 +241,7 @@ public class ItemResource {
                     .path("{pid}/siblings").build(pid).toString();
             p = PIDSupport.convertToK4Type(p);
             JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess,
-                    "siblings", this.decoratorsAggregate, uriString);
+                    uriString, this.decoratorsAggregate, uriString);
 
             jsonObject.put("selected", p.equals(pid));
             jsonArray.add(jsonObject);
