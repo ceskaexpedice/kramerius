@@ -59,7 +59,7 @@ public class RelsExtRightsFlag extends AbstractItemDecorator {
     @Override
     public boolean apply(JSONObject jsonObject, String context) {
         TokenizedPath tpath = super.itemContext(tokenize(context));
-        return (tpath.isParsed() && tpath.getRestPath().isEmpty());
+        return (tpath.isParsed());
     }
 
 }
