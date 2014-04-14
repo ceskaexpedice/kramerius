@@ -38,7 +38,7 @@ public class WSImportTask extends DefaultTask {
 	private FileCollection clp;
 	private File outputDirectory;
 	private String packageName = DEFAULT_PACKAGE_NAME;
-	private List<File> wsdls =new ArrayList<File>();
+	private Map<File, String> wsdls =new HashMap<File, String>();
 	
 	
 	
@@ -72,11 +72,11 @@ public class WSImportTask extends DefaultTask {
 
     	
     	
-	public void addWsdl(File wsdl) {
-		this.wsdls.add(wsdl);
+	public void addWsdl(File wsdl, String relative) {
+		this.wsdls.put(wsdl,relative);
 	}
 	
-	public void removeWsdl(File w) {
+	public void removeWsdl(File wsdl) {
 		this.wsdls.remove(wsdl);
 	}
     
@@ -95,10 +95,12 @@ public class WSImportTask extends DefaultTask {
 
     	    	//LOGGER.log(Level.INFO, "task def");		
     	    	ant.taskdef(name: 'wsimport', classname: 'com.sun.tools.ws.ant.WsImport', classpath: getXjcClasspath().asPath)
-    	    
+                
+                Set<File> keyset = this.wsdls.keySet();    	    
+
     	    	//LOGGER.log(Level.INFO, "running task");		
-    	    	for(File f:this.wsdls) {
-    	    		ant.wsimport(wsdl: f.getAbsolutePath(), sourcedestdir: this.outputDirectory.getAbsolutePath(), package: this.packageName, xnocompile: true, xendorsed:false, target:'2.1')
+    	    	for(File f:keyset) {
+    	    		ant.wsimport(wsdl:f.absolutePath ,wsdlLocation: this.wsdls.get(f), sourcedestdir: this.outputDirectory.getAbsolutePath(), package: this.packageName, xnocompile: true, xendorsed:false, target:'2.1')
     	    	}
     	    
     	    	new File(this.outputDirectory,"API."+getName()+".generated").createNewFile();
