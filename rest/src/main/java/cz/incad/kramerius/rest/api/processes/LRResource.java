@@ -109,6 +109,7 @@ public class LRResource {
     
 	public static TypesMapping TYPES = new TypesMapping(); static {
 		TYPES.map("status", new SQLFilter.IntegerConverter());
+                TYPES.map("pid", new SQLFilter.IntegerConverter());
 		TYPES.map("batch_status", new SQLFilter.IntegerConverter());
 		TYPES.map("planned", new SQLFilter.DateConvereter());
 		TYPES.map("started", new SQLFilter.DateConvereter());
