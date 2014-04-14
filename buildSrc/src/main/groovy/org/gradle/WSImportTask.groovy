@@ -100,7 +100,7 @@ public class WSImportTask extends DefaultTask {
 
     	    	//LOGGER.log(Level.INFO, "running task");		
     	    	for(File f:keyset) {
-    	    		ant.wsimport(wsdl:f.absolutePath ,wsdlLocation: this.wsdls.get(f), sourcedestdir: this.outputDirectory.getAbsolutePath(), package: this.packageName, xnocompile: true, xendorsed:false, target:'2.1')
+    	    		ant.wsimport(wsdl:f.absolutePath ,wsdlLocation: "/"+this.wsdls.get(f), sourcedestdir: this.outputDirectory.getAbsolutePath(), package: this.packageName, xnocompile: true, xendorsed:false, target:'2.1')
     	    	}
     	    
     	    	new File(this.outputDirectory,"API."+getName()+".generated").createNewFile();
