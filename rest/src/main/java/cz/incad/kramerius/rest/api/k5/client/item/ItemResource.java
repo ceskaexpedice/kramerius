@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
+import javax.xml.transform.TransformerException;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
@@ -413,7 +414,7 @@ public class ItemResource {
         while (offset < size) {
             // request
             Document resp = this.solrAccess.request("q=parent_pid:\"" + parentPid
-                    + "\"&rows=" + rows + "&start" + offset);
+                    + "\"&rows=" + rows + "&start=" + offset);
             Element resultelm = XMLUtils.findElement(resp.getDocumentElement(),
                     "result");
             // define size
@@ -464,8 +465,9 @@ public class ItemResource {
      * @param docelm
      * @return
      */
-    private String relsExtIndex(String parentPid, Element docelm) {
+    public static String relsExtIndex(String parentPid, Element docelm) {
         List<Integer> docindexes =  SOLRUtils.array(docelm, "rels_ext_index", Integer.class);
+        if (docindexes.isEmpty()) return "0";
         List<String> parentPids = SOLRUtils.array(docelm, "parent_pid", String.class);
         int index = 0;
         for (int i = 0, length = parentPids.size(); i < length; i++) {
