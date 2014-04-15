@@ -127,8 +127,7 @@ public class ProcessesViewObject implements Initializable {
             pageSize = pageSize + (getNumberOfRunningProcess() % getDefaultPageSize());
         }
 
-        Offset offset = new Offset("" + getOffset(getPage()), "" + getDefaultPageSize());
-        System.out.println("OFFSET :"+offset);
+        Offset offset = new Offset("" + getOffset(getPage()), "" + pageSize);
         List<LRProcess> lrProcesses = this.processManager
                 .getLongRunningProcessesAsGrouped(this.ordering,
                         this.typeOfOrdering, offset, this.filter);
@@ -776,7 +775,7 @@ public class ProcessesViewObject implements Initializable {
     }
 
     public boolean isCurrentFirstPage() {
-        return getPage() == getNumberOfPages();
+        return getPage() == getNumberOfPages()-1;
     }
 
     public boolean isCurrentLastPage() {
