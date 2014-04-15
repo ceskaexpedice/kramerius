@@ -141,7 +141,6 @@
                     if (tab=="contextMenu"){
                         $('#item_tree input:checked').each(function(){
                             var id = $(this).parent().parent().attr("id");
-                            //var escapedId = id.substring(4).replace(/\//g,'-');
                             t += '<li id="cm_' + id + '">';
                             t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
                             t += '<label>'+$(jq(id)+">div>a>label").html()+'</label></li>';
@@ -493,12 +492,12 @@
                     if(fq!=""){
                         fq += " OR ";
                     }
-                    fq += "pid_path:" + getPidPath(id).replace(":", "\\:") + "*";
+                    fq += "pid_path:" + getPidPath(id).replace(/:/g, "\\:") + "*";
                 });
                 fq = "&fq=" + fq;
             }else{
                 var fqval = $('#item_tree>li>ul>li:first').attr("id").split('_')[1];
-                fq = "&fq=pid_path:" + fqval.replace(":", "\\:") + "*";
+                fq = "&fq=pid_path:" + fqval.replace(/:/g, "\\:") + "*";
             }
             //var url = "searchXSL.jsp?q="+q+"&offset="+offset+"&xsl=insearch.xsl&collapsed=false&facet=false&fq=pid_path:"+pid+"*";
             var url = "inc/details/searchInside.jsp?q="+q+"&offset="+offset+"&xsl=insearch.xsl&collapsed=false&facet=false" + fq;
