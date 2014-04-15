@@ -63,6 +63,4 @@ public class ConditionsInterpretHelperTest {
         Assert.assertTrue(ConditionsInterpretHelper.versionCondition(left, ">=", right));
         Assert.assertTrue(ConditionsInterpretHelper.versionCondition(left, "=", right));
     }
-
-
 }

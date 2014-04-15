@@ -30,30 +30,30 @@ import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 
-public class HandleDecorate  extends AbstractItemDecorator {
+public class HandleDecorate extends AbstractItemDecorator {
 
-	private static final String KEY = "HREF";
+    private static final String KEY = "HREF";
 
-	
-	@Inject
-	Provider<HttpServletRequest> requestProvider;
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
 
-	
-	@Override
-	public String getKey() {
-		return KEY;
-	}
+    @Override
+    public String getKey() {
+        return KEY;
+    }
 
-	@Override
-	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
-		if (containsPidInJSON(jsonObject)) {
-			String str = ApplicationURL.applicationURL(this.requestProvider.get()).toString()+"/handle/"+getPidFromJSON(jsonObject);
-			JSONUtils.link(jsonObject, "handle", str);
-		}
-	}
+    @Override
+    public void decorate(JSONObject jsonObject, Map<String, Object> context) {
+        if (containsPidInJSON(jsonObject)) {
+            String str = ApplicationURL.applicationURL(
+                    this.requestProvider.get()).toString()
+                    + "/handle/" + getPidFromJSON(jsonObject);
+            JSONUtils.link(jsonObject, "handle", str);
+        }
+    }
 
-	@Override
-	public boolean apply(JSONObject jsonObject, String context) {
-		return false;
-	}
+    @Override
+    public boolean apply(JSONObject jsonObject, String context) {
+        return false;
+    }
 }

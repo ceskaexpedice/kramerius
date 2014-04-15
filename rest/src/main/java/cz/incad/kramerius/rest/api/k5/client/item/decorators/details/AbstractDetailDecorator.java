@@ -19,15 +19,15 @@ package cz.incad.kramerius.rest.api.k5.client.item.decorators.details;
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 
-public abstract class AbstractDetailDecorator extends  AbstractItemDecorator {
+public abstract class AbstractDetailDecorator extends AbstractItemDecorator {
 
-	public static final String DETAILS_KEY="details";
-	
-	public String[] details(String details) {
-		return details.split("##");
-	}
-	
-	public String getModel(JSONObject jsonObj) {
-		return jsonObj.containsKey("model") ? jsonObj.getString("model") : null;
-	}
+    public static final String DETAILS_KEY = "details";
+
+    public String[] details(String details) {
+        return details.split("##");
+    }
+
+    public String getModel(JSONObject jsonObj) {
+        return jsonObj.containsKey("model") ? jsonObj.getString("model") : null;
+    }
 }

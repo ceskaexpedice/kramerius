@@ -1,3 +1,4 @@
+description "Remote API"
 
 dependencies {
     compile project(':common') 

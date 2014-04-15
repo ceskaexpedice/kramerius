@@ -42,6 +42,7 @@ import cz.incad.Kramerius.AbstractImageServlet.OutputFormats;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.imaging.utils.FileNameUtils;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraIOException;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -111,7 +112,9 @@ public class ImageStreamsServlet extends AbstractImageServlet {
         if (pid != null && stream != null) {
             // TODO: Change it !!
             pid = cutHREF(pid);
-            pid = fedoraAccess.findFirstViewablePid(pid);
+            if (!fedoraAccess.isStreamAvailable(pid, stream)) {
+                pid = fedoraAccess.findFirstViewablePid(pid);
+            }
             if (pid != null) {
                 Actions actionToDo = Actions.TRANSCODE;
                 String actionNameParam = req.getParameter(ACTION_NAME);
@@ -120,6 +123,11 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                 }
                 try {
                     actionToDo.doPerform(this, this.fedoraAccess, pid, stream, page, req, resp);
+                } catch (FedoraIOException e1) {
+                    // fedora exception
+                    LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    resp.setStatus(e1.getContentResponseCode());
+                    resp.getWriter().write(e1.getContentResponseBody());
                 } catch (FileNotFoundException e1) {
                     LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -223,7 +231,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                 if (stream.equals(FedoraUtils.IMG_THUMB_STREAM)) {
                     // small thumb -> no rights
                     is = fedoraAccess.getSmallThumbnail(pid);
-                } else {
+                } else { 
                     is = fedoraAccess.getDataStream(pid, stream);
                 }
 

@@ -26,14 +26,15 @@ import cz.incad.kramerius.SolrAccess;
 
 public class RELSEXTDecoratorUtils {
 
-	public static final String RELSEXT_PID_DOCUMENT_KEY ="relsext_pid_document";
+    public static final String RELSEXT_PID_DOCUMENT_KEY = "relsext_pid_document";
 
-	public static Document getRELSEXTPidDocument(String pid, Map<String, Object> context, FedoraAccess fedoraAccess) throws IOException {
-		String key = RELSEXT_PID_DOCUMENT_KEY+"_"+pid;
-		if (!context.containsKey(key)) {
-			context.put(key, fedoraAccess.getRelsExt(pid));
-		}
-		return (Document) context.get(key);
-	}
-
+    public static Document getRELSEXTPidDocument(String pid,
+            Map<String, Object> context, FedoraAccess fedoraAccess)
+            throws IOException {
+        String key = RELSEXT_PID_DOCUMENT_KEY + "_" + pid;
+        if (!context.containsKey(key)) {
+            context.put(key, fedoraAccess.getRelsExt(pid));
+        }
+        return (Document) context.get(key);
+    }
 }

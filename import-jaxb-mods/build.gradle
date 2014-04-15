@@ -1,5 +1,7 @@
 apply plugin: 'jaxb'
 
+description "Import JAXB stubs - MODS metadata"
+
 jaxbconf {
 	packageName 'org.kramerius.mods'
 	catalog 'catalog.cat'

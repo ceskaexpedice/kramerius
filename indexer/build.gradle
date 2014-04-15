@@ -1,4 +1,4 @@
-
+description "Indexer process"
 
 sourceSets {
     main {

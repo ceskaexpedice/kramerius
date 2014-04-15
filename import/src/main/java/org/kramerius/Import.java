@@ -219,6 +219,7 @@ public class Import {
                 dobj = (DigitalObject) obj;
             } catch (Exception e) {
                 log.info("Skipping file " + importFile.getName() + " - not an FOXML object.");
+                log.log(Level.INFO, "Underlying error was:", e);
                 return;
             }
             ingest(importFile, dobj.getPID(), sortRelations, roots);
@@ -269,6 +270,7 @@ public class Import {
                 pid = ((DigitalObject) obj).getPID();
             } catch (Exception e) {
                 log.info("Skipping file " + file.getName() + " - not an FOXML object.");
+                log.log(Level.INFO, "Underlying error was:", e);
                 return;
             }
         }

@@ -31,7 +31,7 @@
 
         FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
 
-	List<String> uuids = (List<String>)ctxInj.getInstance(MostDesirable.class).getMostDesirable(18);
+	List<String> uuids = (List<String>)ctxInj.getInstance(MostDesirable.class).getMostDesirable(18, 0, null);
         Iterator it = uuids.iterator();
         
         String itemUrl;

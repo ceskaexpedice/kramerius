@@ -553,17 +553,17 @@ public class SolrOperations {
     }
 
     private void deletePid(String pid) throws Exception {
-        StringBuilder sb = new StringBuilder("<delete><query>PID:" + pid.replace(":", "\\:") + "</query></delete>");
+        StringBuilder sb = new StringBuilder("<delete><query>PID:" + pid.replaceAll(":", "\\:") + "</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         deleteTotal++;
     }
 
     private void deleteDocument(String pid_path) throws Exception {
-        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replace(":", "\\:") + "*</query></delete>");
+        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll(":", "\\:") + "*</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
-        sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replace(":", "\\:") + "</query></delete>");
+        sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll(":", "\\:") + "</query></delete>");
         postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
         commit();
         deleteTotal++;
@@ -744,7 +744,7 @@ public class SolrOperations {
         }
         int numHits = 200;
         String PID;
-        String urlStr = config.getString("solrHost") + "/select/?q=pid_path:" + pid_path.replace(":", "\\:")
+        String urlStr = config.getString("solrHost") + "/select/?q=pid_path:" + pid_path.replaceAll(":", "\\:")
                 + "*&fl=PID&start=" + offset + "&rows=" + numHits;
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();

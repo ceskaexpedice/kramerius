@@ -50,7 +50,7 @@ public class GuiceSecurityModule extends AbstractModule {
         // bind criterium loaders
         Multibinder<RightCriteriumLoader> criteriumLoders = Multibinder.newSetBinder(binder(), RightCriteriumLoader.class);
         criteriumLoders.addBinding().to(ClassRightCriteriumLoaderImpl.class).asEagerSingleton();
-        criteriumLoders.addBinding().to(ScriptCriteriumLoaderImpl.class).asEagerSingleton();
+        //criteriumLoders.addBinding().to(ScriptCriteriumLoaderImpl.class).asEagerSingleton();
         
         // wrapper factory
         bind(RightCriteriumWrapperFactory.class).to(RightCriteriumWrapperFactoryImpl.class);
