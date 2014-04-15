@@ -48,7 +48,12 @@ public class RelsExtRightsFlag extends AbstractItemDecorator {
                 Element publicElm = XMLUtils.findElement(topElm, "policy",
                         FedoraNamespaces.KRAMERIUS_URI);
                 if (publicElm != null) {
-                    jsonObject.put("policy", publicElm.getTextContent());
+                    String policyContent = publicElm.getTextContent();
+                    if (policyContent.contains(":")) {
+                        jsonObject.put("policy", policyContent.split(":")[1]);
+                    } else {
+                        jsonObject.put("policy", policyContent);
+                    }
                 }
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -59,7 +64,7 @@ public class RelsExtRightsFlag extends AbstractItemDecorator {
     @Override
     public boolean apply(JSONObject jsonObject, String context) {
         TokenizedPath tpath = super.itemContext(tokenize(context));
-        return (tpath.isParsed() && tpath.getRestPath().isEmpty());
+        return (tpath.isParsed());
     }
 
 }

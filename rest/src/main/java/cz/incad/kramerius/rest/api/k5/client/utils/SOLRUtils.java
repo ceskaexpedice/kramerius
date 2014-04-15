@@ -39,6 +39,7 @@ public class SOLRUtils {
     }
 
     public static <T> T value(String val, Class<T> clz) {
+        val = val.trim();
         if (clz.equals(String.class))
             return (T) val;
         else if (clz.equals(Boolean.class))
