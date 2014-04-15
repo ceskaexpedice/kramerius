@@ -108,7 +108,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                 }else{
                     log.warn("Unsupported DC element: " + elementValue.getClass());
                 }
-                
+
                 if (dcMap.put(id, dc) != null) {
                     log.warn("Duplicate DC record: " + id);
                 } else {
@@ -125,9 +125,9 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                     + dcCounter + ") records count.");
         }
     }
-    
+
     private OaiDcType morphSRWDCtoOAIDC(SrwDcType srwdc){
-        
+
         org.kramerius.dc.ObjectFactory of = new  org.kramerius.dc.ObjectFactory ();
         OaiDcType dc = of.createOaiDcType();
         for (JAXBElement<org.kramerius.srwdc.ElementType> srwdcelem:srwdc.getTitleOrCreatorOrSubject()){
@@ -162,6 +162,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             if ("PHYSICAL".equalsIgnoreCase(sm.getTYPE())) {
                 processPages(sm);
             } else if ("LOGICAL".equalsIgnoreCase(sm.getTYPE())) {
+                singleVolumeMonograph = false;
                 processDiv(null, sm.getDiv());
             } else {
                 log.warn("Unsupported StructMap type: " + sm.getTYPE()
@@ -216,22 +217,22 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             page.getRe().addRelation(RelsExt.POLICY, policyID, true);
 
             for (Fptr fptr : pageDiv.getFptr()) {
-                    FileType fileId = (FileType) fptr.getFILEID();
-                    FileDescriptor fileDesc = fileMap.get(fileId.getID());
-                    if (fileDesc == null){
-                        throw new ServiceException("Invalid file pointer:"+fileId.getID());
+                FileType fileId = (FileType) fptr.getFILEID();
+                FileDescriptor fileDesc = fileMap.get(fileId.getID());
+                if (fileDesc == null){
+                    throw new ServiceException("Invalid file pointer:"+fileId.getID());
+                }
+                if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.userCopy", true)){
+                    if (StreamFileType.MASTER_IMAGE.equals(fileDesc.getFileType())){
+                        continue;
                     }
-                    if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.userCopy", true)){
-                        if (StreamFileType.MASTER_IMAGE.equals(fileDesc.getFileType())){
-                            continue;
-                        }
-                    }else{
-                        if (StreamFileType.USER_IMAGE.equals(fileDesc.getFileType())){
-                            continue;
-                        }
+                }else{
+                    if (StreamFileType.USER_IMAGE.equals(fileDesc.getFileType())){
+                        continue;
                     }
-                    page.addFiles(fileDesc);
-                    filePageMap.put(fileId.getID(),page.getPid());//map file ID to page uuid - for collecting alto references from struct map in method collectAlto
+                }
+                page.addFiles(fileDesc);
+                filePageMap.put(fileId.getID(),page.getPid());//map file ID to page uuid - for collecting alto references from struct map in method collectAlto
             }
 
             String pageId = pageDiv.getID();
@@ -251,7 +252,10 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         boolean containsTypeElement = false;//check if DC already contains some type element
         for (JAXBElement<ElementType> el:dclist){
             if ("type".equalsIgnoreCase(el.getName().getLocalPart())){
-                containsTypeElement=true;
+                if (el.getValue().getValue().startsWith("model:")){
+                    el.getValue().setValue(model);
+                    containsTypeElement=true;
+                }
             }
         }
         if (!containsTypeElement){
@@ -260,11 +264,13 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         dclist.add(dcObjectFactory.createRights(createDcElementType(policy)));
     }
 
-
+    private boolean singleVolumeMonograph = false;
     private Foxml processDiv(Foxml parent, DivType div) {
         String divType = div.getTYPE();
+        MdSecType modsIdObj = (MdSecType) firstItem(div.getDMDID());
         //if ("PICTURE".equalsIgnoreCase(divType)) return null;//divs for PICTURE are not supported in K4
-        if ("MONOGRAPH".equalsIgnoreCase(divType)){//special hack to ignore extra div for monograph
+        if ("MONOGRAPH".equalsIgnoreCase(divType)&&modsIdObj==null){//special hack to ignore extra div for single volume monograph
+            singleVolumeMonograph = true;
             List<DivType> volumeDivs = div.getDiv();
             if (volumeDivs == null) return null;
             if (volumeDivs.size()==1){//process volume as top level
@@ -280,7 +286,6 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             return null;
         }
 
-        MdSecType modsIdObj = (MdSecType) firstItem(div.getDMDID());
         if (modsIdObj == null) {
             collectAlto(parent, div);
             return null;//we consider only div with associated metadata (DMDID)
@@ -348,9 +353,15 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         }else if ("PICTURE".equalsIgnoreCase(divType)){
             return MODEL_PICTURE;
         }else if ("VOLUME".equalsIgnoreCase(divType)){
-            return MODEL_MONOGRAPH;
+            if (singleVolumeMonograph) {
+                return MODEL_MONOGRAPH;
+            }else{
+                return MODEL_MONOGRAPH_UNIT;
+            }
         }else if ("CHAPTER".equalsIgnoreCase(divType)){
             return MODEL_INTERNAL_PART;
+        }else if ("MONOGRAPH".equalsIgnoreCase(divType)){
+            return MODEL_MONOGRAPH;
         }
         throw new ServiceException("Unsupported div type in logical structure: "+divType);
     }
@@ -368,6 +379,8 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             return RelsExt.HAS_INT_COMP_PART;
         }else if (MODEL_INTERNAL_PART.equalsIgnoreCase(model)){
             return RelsExt.HAS_INT_COMP_PART;
+        }else if (MODEL_MONOGRAPH_UNIT.equalsIgnoreCase(model)){
+            return RelsExt.HAS_UNIT;
         }
         throw new ServiceException("Unsupported model mapping in logical structure: "+model);
     }
