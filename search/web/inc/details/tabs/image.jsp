@@ -86,14 +86,15 @@ function onLoadPlainImage() {
     
     <div id="ol-container" style="display:none; position: relative; top: 3px;">
     
+    
      <div id="ol-wrapper-buttons" class="buttons" style="z-index: 1002;position:relative; top:7px; left:10px;">
-       <a id="zoomifyMaximize" onclick="javascript:showFullZoomify();" style="z-index: 1002"><span class=" ui-icon ui-icon-arrow-4-diag" >maximize</span></a>
-       <a id="zoomifyPlusButton" onclick="javascript:zoomInit.plus();" style="z-index: 1002"><span class="ui-icon ui-icon-plus" >+</span></a>
-       <a id="zoomifyMinusButton" onclick="javascript:zoomInit.minus();" style="z-index: 1002"><span class="ui-icon ui-icon-minus" >-</span></a>
-       <a id="zoomifyButtonPrev" onclick="javascript:previousImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-w" >prev</span></a>
-       <a id="zoomifyButtonNext" onclick="javascript:nextImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-e" >next</span></a>
+       <a id="zoomifyMaximize"  title="<view:msg>deep.zoom.Tooltips.FullPage</view:msg>" onclick="javascript:showFullZoomify();" style="z-index: 1002"><span class=" ui-icon ui-icon-arrow-4-diag" >maximize</span></a>
+       <a id="zoomifyPlusButton"  title="<view:msg>deep.zoom.Tooltips.ZoomIn</view:msg>" onclick="javascript:zoomInit.plus();" style="z-index: 1002"><span class="ui-icon ui-icon-plus" >+</span></a>
+       <a id="zoomifyMinusButton" title="<view:msg>deep.zoom.Tooltips.ZoomOut</view:msg>" onclick="javascript:zoomInit.minus();" style="z-index: 1002"><span class="ui-icon ui-icon-minus" >-</span></a>
+       <a id="zoomifyButtonPrev" title="<view:msg>deep.zoom.Tooltips.Prev</view:msg>" onclick="javascript:previousImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-w" >prev</span></a>
+       <a id="zoomifyButtonNext"  title="<view:msg>deep.zoom.Tooltips.Next</view:msg>" onclick="javascript:nextImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-e" >next</span></a>
        <c:if test="${rotation == 'true'}">
-       <a id="zoomifyRotateButton" onclick="javascript:zoomInit.rotateImg();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowrefresh-1-s" >rotate</span></a>
+       <a id="zoomifyRotateButton" title="<view:msg>deep.zoom.Tooltips.Rotate</view:msg>" onclick="javascript:zoomInit.rotateImg();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowrefresh-1-s" >rotate</span></a>
 	   </c:if>
       </div>
    

@@ -25,18 +25,19 @@
          
 </style>
 
+
 <div class="header">
     <div class="title"></div>
     <div class="buttons">
-	
-       <a id="fullZoomifyPlusButton" onclick="javascript:fullZoomInit.plus();" style="z-index: 1002"><span class="ui-icon ui-icon-plus" >+</span></a>
-       <a id="fullZoomifyMinusButton" onclick="javascript:fullZoomInit.minus();" style="z-index: 1002"><span class="ui-icon ui-icon-minus" >-</span></a>
-       <a id="fullZoomifyButtonPrev" onclick="javascript:previousImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-w" >prev</span></a>
-       <a id="fullZoomifyButtonNext" onclick="javascript:nextImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-e" >next</span></a>
+            	
+       <a id="fullZoomifyPlusButton" title="<view:msg>deep.zoom.Tooltips.ZoomIn</view:msg>" onclick="javascript:fullZoomInit.plus();" style="z-index: 1002"><span class="ui-icon ui-icon-plus" >+</span></a>
+       <a id="fullZoomifyMinusButton" title="<view:msg>deep.zoom.Tooltips.ZoomOut</view:msg>"  onclick="javascript:fullZoomInit.minus();" style="z-index: 1002"><span class="ui-icon ui-icon-minus" >-</span></a>
+       <a id="fullZoomifyButtonPrev" title="<view:msg>deep.zoom.Tooltips.Prev</view:msg>"  onclick="javascript:previousImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-w" >prev</span></a>
+       <a id="fullZoomifyButtonNext" title="<view:msg>deep.zoom.Tooltips.Next</view:msg>" onclick="javascript:nextImage();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowthick-1-e" >next</span></a>
        <c:if test="${rotation == 'true'}">
-        <a id="fullZoomifyRotateButton" onclick="javascript:fullZoomInit.rotateImg();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowrefresh-1-s" >rotate</span></a>
+        <a id="fullZoomifyRotateButton" title="<view:msg>deep.zoom.Tooltips.Rotate</view:msg>" onclick="javascript:fullZoomInit.rotateImg();" style="z-index: 1002"><span class="ui-icon ui-icon-arrowrefresh-1-s" >rotate</span></a>
        </c:if>
-	   <a href="javascript:hideFullZoomify();"><span class="ui-icon ui-icon-closethick">close</span></a>
+	   <a href="javascript:hideFullZoomify();" title="<view:msg>common.close</view:msg>"><span class="ui-icon ui-icon-closethick">close</span></a>
     </div>
 </div>
 
