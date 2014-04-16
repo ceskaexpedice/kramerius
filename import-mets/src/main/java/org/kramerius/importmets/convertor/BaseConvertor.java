@@ -774,7 +774,9 @@ public abstract class BaseConvertor {
                 TitleInfoDefinition ti = (TitleInfoDefinition)mg;
                 for (JAXBElement<XsString> el:ti.getTitleOrSubTitleOrPartNumber()){
                     XsString val = el.getValue();
-                    title.append(" ").append(val.getValue());
+                    if (val != null) {
+                        title.append(" ").append(val.getValue());
+                    }
                 }
             }
         }
