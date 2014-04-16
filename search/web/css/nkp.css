@@ -261,6 +261,9 @@ a.image:hover {
     padding: 3px;
 }
 
+#intro input{
+    border: 1px solid #2f2f2f;
+}
 
 #dt_home>div>span{
     display:none;
