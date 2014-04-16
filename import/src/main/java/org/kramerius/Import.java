@@ -218,8 +218,8 @@ public class Import {
                 Object obj = unmarshaller.unmarshal(importFile);
                 dobj = (DigitalObject) obj;
             } catch (Exception e) {
-                log.info("Skipping file " + importFile.getName() + " - not an FOXML object.");
-                log.log(Level.INFO, "Underlying error was:", e);
+                log.info("Skipping file " + importFile.getName() + " - not an FOXML object. ("+e+")");
+                log.log(Level.FINE, "Underlying error was:", e);
                 return;
             }
             ingest(importFile, dobj.getPID(), sortRelations, roots);
