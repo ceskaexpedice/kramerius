@@ -324,7 +324,7 @@ div.search_result *{
     /*width:370px;*/
     max-height: 300px;
     _height: expression(this.scrollHeight > 300? "300px" : "auto" );
-    overflow: visible;
+    overflow: auto;
     z-index:100;
     width:100%;
     text-align: left;
