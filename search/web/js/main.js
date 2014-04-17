@@ -235,7 +235,7 @@ PDF.prototype.renderPDF = function() {
 			this.waitDialog.dialog("close");
 			var obj = eval('(' + data + ')');
 			if ("errorType" in obj) {
-				window.location.href = obj.redirect+"?redirectURL="+obj.returnUrl;
+				window.location.href = obj.redirect+"?redirectURL="+encodeURIComponent(obj.returnUrl);
 			} else {
 				window.location.href = 'pdf?action=FILE&pdfhandle='+obj.pdfhandle;
 			}
