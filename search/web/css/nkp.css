@@ -106,7 +106,8 @@ input {
     font-size:.9px;
     color:#aaaaaa;*/
     vertical-align:middle;
-    border: none;
+    border: 1px solid #2f2f2f;
+        
 }
 
 input[type="checkbox"]{
@@ -437,10 +438,12 @@ div.search_result *{
     /*width:370px;*/
     max-height: 300px;
     _height: expression(this.scrollHeight > 300? "300px" : "auto" );
-    overflow: visible;
+    overflow: auto;
     z-index:100;
     width:100%;
     text-align: left;
+    background-color: white;
+    
 }
 .uncollapsed div{
     margin: 3px;
@@ -597,4 +600,9 @@ div.search_result *{
 
 .ui-dialog{
   background: #bebebe;
+}
+
+.ui-datepicker{
+    background-color: white;
+    border: solid 1px #2f2f2f;
 }
