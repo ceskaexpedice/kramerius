@@ -100,6 +100,7 @@
             </xsl:call-template>
         </div>
 
+        <xsl:if test="../@numFound &gt; 1">
         <div class="collapse_label" style="text-align:right;">&#160;
         <xsl:call-template name="collapse">
             <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
@@ -112,6 +113,7 @@
                 <xsl:attribute name="id">uncollapsed_<xsl:value-of select="./str[@name='root_pid']"/></xsl:attribute>
             </div>
         </div>
+        </xsl:if>
         <xsl:call-template name="collections" />
         </div>
     </xsl:for-each>
