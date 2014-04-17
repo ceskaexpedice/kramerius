@@ -1,84 +1,21 @@
 package cz.incad.kramerius.pdf.impl;
 
-import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.readImage;
-import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.writeImageToStream;
-
-import java.awt.FontFormatException;
-import java.awt.GraphicsEnvironment;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.logging.Level;
-
-import javax.imageio.ImageIO;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.xml.sax.SAXException;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-import com.lowagie.text.BadElementException;
-import com.lowagie.text.Chunk;
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
+import com.lowagie.text.*;
 import com.lowagie.text.Font;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.BaseFont;
-import com.lowagie.text.pdf.PdfAction;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfDestination;
-import com.lowagie.text.pdf.PdfOutline;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfWriter;
-import com.lowagie.text.pdf.draw.LineSeparator;
-import com.lowagie.text.pdf.draw.VerticalPositionMark;
-
-import cz.incad.kramerius.Constants;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.SolrAccess;
+import com.lowagie.text.pdf.*;
+import cz.incad.kramerius.*;
 import cz.incad.kramerius.document.DocumentService;
-import cz.incad.kramerius.document.model.AbstractPage;
-import cz.incad.kramerius.document.model.AbstractRenderedDocument;
-import cz.incad.kramerius.document.model.ImagePage;
-import cz.incad.kramerius.document.model.OutlineItem;
-import cz.incad.kramerius.document.model.TextPage;
+import cz.incad.kramerius.document.model.*;
 import cz.incad.kramerius.imaging.ImageStreams;
-import cz.incad.kramerius.impl.fedora.FedoraStreamUtils;
 import cz.incad.kramerius.pdf.Break;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.PDFContext;
 import cz.incad.kramerius.pdf.commands.ITextCommands;
 import cz.incad.kramerius.pdf.commands.render.RenderPDF;
 import cz.incad.kramerius.pdf.utils.pdf.DocumentUtils;
-import cz.incad.kramerius.pdf.utils.pdf.FontDirectoryProvider;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
@@ -87,9 +24,30 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
-import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
-import cz.knav.pdf.ImageAndAlto;
 import cz.knav.pdf.PdfTextUnderImage;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPathExpressionException;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Level;
+
+import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.writeImageToStream;
+
+import java.util.List;
 
 public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements GeneratePDFService {
 
@@ -212,18 +170,25 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
 
         } catch (DocumentException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         } catch (TransformerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         } catch (InstantiationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         } catch (IllegalAccessException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         } catch (SAXException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         }
         return rdoc;
     }
@@ -270,18 +235,25 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
 
         } catch (DocumentException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         } catch (TransformerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         } catch (InstantiationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         } catch (IllegalAccessException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         } catch (SAXException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getMessage());
         }
 
     }
