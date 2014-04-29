@@ -70,4 +70,19 @@
             loadInitNodes();
         });
     }
+    function getExtInfo(){
+        $(".extInfo:hidden").each(function(){
+            var info = $(this);
+            //$(info).removeClass("extInfo");
+            var pid_path = $(info).text();
+            if(pid_path.indexOf("/")>0){
+                var url =  "inc/results/extendedInfo.jsp?pid_path=" + pid_path;
+                $.get(url, function(data) {
+                    $(info).html(data);
+                    $(info).show();
+                    checkRowHeightByElement(info);
+                });
+            }
+        });
+    }
 </script>

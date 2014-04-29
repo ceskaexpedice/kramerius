@@ -69,6 +69,12 @@
         margin: 2px;
         padding-left: 8px;
     }
+    #searchInsideResults .extInfo .ui-tabs-panel{
+        padding: 2px !important;
+    }
+    #searchInsideResults .extInfo .ui-tabs-panel a{
+        font-weight: bold;
+    }
 
 </style>
 <div id="kkk"></div>
@@ -503,6 +509,7 @@
             var url = "inc/details/searchInside.jsp?q="+q+"&offset="+offset+"&xsl=insearch.xsl&collapsed=false&facet=false" + fq;
             $.get(url, function(data){
                 $('#searchInsideResults').html(data);
+                getExtInfo();
             });
         }
 
