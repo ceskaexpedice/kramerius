@@ -36,11 +36,11 @@
         margin: 0;
         padding: 0;
         line-height: 16px;
-        white-space: nowrap;
+        /*white-space: nowrap;*/
         overflow: hidden;
     }
     #rightPanel li *{
-        white-space: nowrap;
+        /*white-space: nowrap;*/
     }
     #rightPanel li.sel a.sel{
         font-weight: bolder;
