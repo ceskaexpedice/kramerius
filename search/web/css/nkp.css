@@ -426,7 +426,7 @@ div.search_result{
 
 div.search_result *{
     word-wrap: break-word;
-    word-break: break-all;
+    /*word-break: break-all;*/
 }
 
 

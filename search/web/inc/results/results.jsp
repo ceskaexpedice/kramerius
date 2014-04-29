@@ -11,7 +11,7 @@
         padding-bottom:1px;
     }
     #docs_content>div.header{
-        height:17px;
+        height:20px;
         border-bottom:1px solid #E66C00; 
         margin-bottom:2px;
     }
@@ -190,15 +190,15 @@ $(document).ready(function(){
         });
         setScope('scope_multiple');
         $('#scope_single').hide();
-        var s = '<div style="float:right;margin-right:10px;" id="selection_options">'+
+        var s = '<td><div style="float:right" id="selection_options">'+
             '<input type="checkbox" /><span style="float:right;" class="ui-icon ui-icon-triangle-1-s  ">item</span>'+
-            '</div>';
-        var s1 = '<div style="display:none;position:absolute;top:55px;clear:both;right:2px;padding:10px;text-align:right;" class="ui-widget-content shadow" id="selection_options_dlg">'+
+            '</div></td>';
+        var s1 = '<div style="display:none;position:absolute;width:200px;top:75px;clear:both;right:2px;padding:10px;text-align:right;" class="ui-widget-content shadow" id="selection_options_dlg">'+
             '<div><a style="padding:5px;text-align:right;font-size:1.2em;" href="javascript:selectAll();">'+dictionary['search.results.select.all']+'</a></div>'+
             '<div><a style="padding:5px;text-align:right;font-size:1.2em;" href="javascript:selectNone();">'+dictionary['search.results.select.none']+'</a></div>'+
             '<div><a style="padding:5px;text-align:right;font-size:1.2em;" href="javascript:selectInvert();">'+dictionary['search.results.select.invert']+'</a></div>'+
             '</div>';
-        $('#docs_content>div.header').prepend(s);
+        $('#docs_content>div.header>table>tbody>tr').append(s);
         $('#docs_content').append(s1);
         $('#selection_options>span').click(function(){
             $('#selection_options_dlg').toggle();
@@ -276,27 +276,30 @@ $(document).ready(function(){
     }
     
     function refreshResSelection(){
-        $('.search_result>input').each(function(){
+        $('.search_result input').each(function(){
             changeResSelection(this);
         });
     }
     
     function selectAll(){
-        $('.search_result>input').attr('checked', true);
+        $('.search_result input').attr('checked', true);
         refreshResSelection();
+        $('#selection_options_dlg').hide();
     }
     
     function selectNone(){
-        $('.search_result>input').attr('checked', false);
+        $('.search_result input').attr('checked', false);
         refreshResSelection();
+        $('#selection_options_dlg').hide();
     }
     
     function selectInvert(){
-        $('.search_result>input').each(function(){
+        $('.search_result input').each(function(){
              $(this).attr('checked', !$(this).is(':checked'));
         });
        
         refreshResSelection();
+        $('#selection_options_dlg').hide();
     }
 
 

@@ -65,7 +65,7 @@
             </xsl:if>
         </xsl:variable>
         <div class="header">
-            <table style="width:100%;">
+            <table style="width:100%;margin-bottom:3px;">
                 <tr>
             <td style="text-align:left;padding-left:5px;">
                 <span><xsl:value-of select="$numDocs" />&#160;<xsl:value-of select="$numDocsStr" /></span>
