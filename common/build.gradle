@@ -45,6 +45,10 @@ dependencies {
     compile "com.foxtrottechnologies:djvuframe:0.8.09"
     compile "commons-configuration:commons-configuration:1.6"
     compile "org.apache.commons:commons-lang3:3.2.1"
+
+    compile "com.yourmediashelf.fedora.client:fedora-client-core:0.7"
+    compile "com.yourmediashelf.fedora.client:fedora-client-messaging:0.7"
+
     /*
     compile "org.slf4j:slf4j-api:${ext.slf4jversion}"
     compile "org.slf4j:log4j-over-slf4j:${ext.slf4jversion}"
