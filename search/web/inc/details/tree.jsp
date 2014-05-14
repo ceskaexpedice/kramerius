@@ -113,7 +113,7 @@
         <fmt:message bundle="${lctx}">administrator.menu.selected.scope</fmt:message>:
         <ul id="searchInsideScope"></ul>
         <div>
-            <input type="text"  id="insideQuery" size="25" class="searchQuery" onkeypress="checkEnter();" onclick="checkInsideInput();" value="${param.q}" />
+            <input type="text" id="insideQuery" size="25" class="searchQuery" onclick="checkInsideInput();" value="${param.q}" />
             <a href="javascript:searchInside();"><img border="0" align="top" alt="<fmt:message bundle="${lctx}">administrator.menu.searchinside</fmt:message>" src="img/lupa_orange.png" /></a>
         </div>
         <div id="searchInsideResults"></div>
@@ -140,6 +140,9 @@
                 nodeOpen(id);
                 event.stopPropagation();
             });
+            $("#insideQuery").keypress(function(event){
+                checkEnter(event);
+            })
             $('#rightMenuBox').tabs({
                 show: function(event, ui){
                     var tab = ui.tab.toString().split('#')[1];
@@ -524,9 +527,9 @@
         }
         
         function checkEnter(evn){
-            if (window.event && window.event.keyCode == 13) {
+            if (window.event && window.event.keyCode === 13) {
                 searchInside(0);
-              } else if (evn && evn.keyCode == 13) {
+              } else if (evn && evn.keyCode === 13) {
                 searchInside(0);
               }
         }

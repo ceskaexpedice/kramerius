@@ -146,6 +146,7 @@
     <jsp:useBean id="rows" type="java.lang.String" scope="request" />
 
     <c:if test="${param.facet != 'false'}">
+        <c:param name="facet.field" value="model_path" />
         <c:param name="facet.field" value="document_type" />
         <c:param name="facet.field" value="language" />
         <c:param name="facet.field" value="rok" />

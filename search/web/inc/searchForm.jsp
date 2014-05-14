@@ -35,7 +35,7 @@
     <input id="sort" name="sort" type="hidden" value="${param.sort}" /> 
     <input type="text"
            name="q" id="q"
-           value="${param.q}" size="50"
+           value="<c:out value="${param.q}"/>" size="50"
            class="${qclass}" onclick="checkSearchInput();"><input title="Vyhledat" type="submit" value="" class="submit" /><div class="advSearch" onclick="javascript:toggleAdv();"
        title="<fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message>">
         <span class=""></span></div><%@ include file="advancedSearch.jsp"%>

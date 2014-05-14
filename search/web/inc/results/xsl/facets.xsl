@@ -9,6 +9,7 @@
     <xsl:param name="bundle" select="document($bundle_url)/bundle" />
     <xsl:param name="numOpenedRows" select="numOpenedRows" />
     <xsl:param name="policyPublic" select="policyPublic"/>
+    <xsl:key name="rootModel" match="lst[@name='model_path']/int/@name" use="substring-before(., '/')" />
     <xsl:variable name="generic" select="exts:new()" />
     <xsl:variable name="fqVal"><xsl:value-of select="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='fq']/text()" /></xsl:variable>
     <xsl:template match="/">
@@ -26,9 +27,18 @@
                 <xsl:value-of select="./@name"/>
             </xsl:variable>
             <xsl:if test="count(./int) > 1 and not($navName = 'rok')">
-                <xsl:call-template name="facet">
-                    <xsl:with-param name="facetname"><xsl:value-of select="./@name" /></xsl:with-param>
-                </xsl:call-template>
+                <xsl:choose>
+                    <xsl:when test="./@name = 'model_path'">
+                        <xsl:call-template name="model_path">
+                            <xsl:with-param name="facetname"><xsl:value-of select="./@name" /></xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="facet">
+                            <xsl:with-param name="facetname"><xsl:value-of select="./@name" /></xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:if>
         </xsl:for-each>
         <script type="text/javascript">
@@ -62,11 +72,11 @@
             </xsl:if>
             <xsl:choose>
                 <xsl:when test="count(./int) &gt; $numOpenedRows">
-                    <span class="ui-icon ui-icon-triangle-1-e folder" ><xsl:value-of select="$bundle/value[@key=$facetname_bundle]" /></span>
-                    <a href="#"><xsl:value-of select="$bundle/value[@key=$facetname_bundle]" /></a>
+                    <span class="ui-icon ui-icon-triangle-1-e folder" >&#160;<xsl:value-of select="$bundle/value[@key=$facetname_bundle]" /></span>
+                    <a href="#">&#160;<xsl:value-of select="$bundle/value[@key=$facetname_bundle]" /></a>
                 </xsl:when>
                 <xsl:otherwise>
-                    <b><xsl:value-of select="$bundle/value[@key=$facetname_bundle]" /></b>
+                    <b>&#160;<xsl:value-of select="$bundle/value[@key=$facetname_bundle]" /></b>
                 </xsl:otherwise>
             </xsl:choose>
             
@@ -102,6 +112,30 @@
                 </xsl:if>
             </xsl:for-each>
             </ul>
+        </li>
+    </xsl:template>
+    <xsl:template name="model_path">
+        <xsl:param name="facetname" />
+        <xsl:variable name="facetname_bundle">facet.<xsl:value-of select="$facetname" /></xsl:variable>
+        
+        <li>
+            <xsl:attribute name="id">facet_<xsl:value-of select="$facetname"/></xsl:attribute>
+            <xsl:if test="position() = last()">
+                <xsl:attribute name="style">border-bottom:none;</xsl:attribute>
+            </xsl:if>
+            
+            <b>&#160;<xsl:value-of select="$bundle/value[@key=$facetname_bundle]" /></b>
+            
+            <ul><xsl:for-each select="./int/@name[generate-id(.) = generate-id(key('rootModel', substring-before(., '/'))[1])]">
+                <xsl:variable name="u"><xsl:value-of select="substring-before(., '/')" /></xsl:variable>
+                <xsl:variable name="f"><xsl:value-of select="concat('fedora.model.', $u)" /></xsl:variable>
+                <li><a>
+                    <xsl:attribute name="href">javascript:addTypeFilter('<xsl:value-of select="$u" />')</xsl:attribute>
+                    <xsl:value-of select="$bundle/value[@key=$f]" />
+                </a>
+                </li>
+            </xsl:for-each></ul>
+            
         </li>
     </xsl:template>
 </xsl:stylesheet>
