@@ -48,27 +48,31 @@
         resizeAll();
     });
     $(document).ready(function(){
-        setTimeout(resizeAll, 5000);
+        setTimeout(resizeAll, 1000);
         $.get("inc/da.jsp", function(data){
             $("#dadiv").html(data);
             initDateAxis();
             $("#content-resizable").css("height", (containerHeight+7) + "px");
             daScrollToMax();
-            setTimeout(resizeAll, 2000);
+            if($("#content-resizable").length>0){
+                resizeDateAxisContent();
+            }
+            //setTimeout(resizeAll, 2000);
         });
         
     });
     function resizeAll(){
-        return;
-        var w = $("#intro>div.ui-tabs-panel:first").height() +
-            $(window).height() -
+        //return;
+        var w = $(window).height() -
             $("#main").height() - 
             $("#footer").outerHeight(true);
+    //w = w + $("#intro>div.ui-tabs-panel:first").height();
+    w = w + $("#homecontent").height();
         $("#intro>div.ui-tabs-panel").css("height", w);
         if($("#content-resizable").length>0){
             w = w -35;
-            $("#content-resizable").css("height", w);
-            resizeDateAxisContent();
+            //$("#content-resizable").css("height", w);
+            //resizeDateAxisContent();
         }
     }
 </script>
