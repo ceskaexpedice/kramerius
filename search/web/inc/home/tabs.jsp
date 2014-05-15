@@ -61,7 +61,7 @@
     $(document).ready(function(){
         $('.term').live('click', function(){
             var field = $(this).parent().attr('id');
-            var value = $(this).children("span").html();
+            var value = $(this).children("span").text();
             if(field.indexOf('browse_title')>-1){
                 window.location = "r.jsp?suggest=true&browse_title=" + value + "&forProfile=search";
             } else{
