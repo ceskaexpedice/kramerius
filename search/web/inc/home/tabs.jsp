@@ -54,6 +54,7 @@
     $('#intro').tabs({
         select: function (event, ui) {
             window.location.hash = ui.tab.hash;
+            setTimeout(resizeAll, 500);
         }
     });
     $('#homedabox').tabs();

@@ -68,8 +68,13 @@
             $("#footer").outerHeight(true);
         //w = w + $("#intro>div.ui-tabs-panel:first").height();
         w = $(window).height() - $("#header").outerHeight(true) - $("#intro>ul.ui-tabs-nav").outerHeight(true) -20;
-        console.log("window: " + $(window).height() + ". d: " + $(document).height() + ". w: " + w);
+        
         $("#intro>div.ui-tabs-panel").css("height", w);
+        var wmax = w;
+        $("#intro>div.ui-tabs-panel>div").each(function(){
+            wmax = Math.max(wmax, $(this).height());
+        });
+        $("#intro>div.ui-tabs-panel").css("height", wmax);
         if($("#content-resizable").length>0){
             w = w -35;
             //$("#content-resizable").css("height", w);

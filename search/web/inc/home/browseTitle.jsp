@@ -16,7 +16,7 @@
     pageContext.setAttribute("lctx", lctx);
 %>
 
-        <div class="ui-tabs-panel ui-corner-bottom">
+        <div class="ui-corner-bottom">
             <table width="100%">
                 <tr>
                     <td valign="top" colspan="2">

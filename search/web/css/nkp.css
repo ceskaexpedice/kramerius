@@ -608,14 +608,15 @@ div.search_result *{
 }
 
 #intro>div{
-    height: 510px; 
+    /*height: 510px; */
     overflow:auto;
 }
 
-#intro>#intro6{
+#intro>#intro6, #intro>#intro7{
     overflow:visible !important;
+    background: #ffffff !important;
 }
 
-#intro>#intro7{
-    overflow:visible !important;
+#intro>#intro6>div, #intro>#intro7>div{
+    background: #ffffff !important;
 }
