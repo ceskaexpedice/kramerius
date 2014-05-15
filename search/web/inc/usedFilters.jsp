@@ -42,7 +42,7 @@
                 <c:set var="facetName">${fn:replace(facetName, "\"", "")}</c:set>
                 <c:set var="facetValue"><c:out value="${fn:substringAfter(fqs,':')}" escapeXml="false" /></c:set>
                 <c:set var="facetValue">${fn:replace(facetValue, "\"", "")}</c:set>
-                <c:set var="facetValueDisp"><c:out value="${facetValue}" /></c:set>
+                <c:set var="facetValueDisp"><c:out value="${facetValue}" escapeXml="false" /></c:set>
                 <c:if test="${facetName == 'fedora.model' || facetName == 'document_type'}">
                     <c:set var="facetValueDisp"><fmt:message bundle="${lctx}" >fedora.model.${facetValueDisp}</fmt:message></c:set>
                     <c:if test="${fn:startsWith(facetValueDisp, '???')}"><c:set var="facetValueDisp">${facetValue}</c:set></c:if>
