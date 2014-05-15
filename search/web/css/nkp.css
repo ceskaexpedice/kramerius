@@ -606,3 +606,16 @@ div.search_result *{
     background-color: white;
     border: solid 1px #2f2f2f;
 }
+
+#intro>div{
+    height: 510px; 
+    overflow:auto;
+}
+
+#intro>#intro6{
+    overflow:visible !important;
+}
+
+#intro>#intro7{
+    overflow:visible !important;
+}

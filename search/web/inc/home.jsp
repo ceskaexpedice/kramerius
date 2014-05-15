@@ -66,13 +66,14 @@
         var w = $(window).height() -
             $("#main").height() - 
             $("#footer").outerHeight(true);
-    //w = w + $("#intro>div.ui-tabs-panel:first").height();
-    w = w + $("#homecontent").height();
+        //w = w + $("#intro>div.ui-tabs-panel:first").height();
+        w = $(window).height() - $("#header").outerHeight(true) - $("#intro>ul.ui-tabs-nav").outerHeight(true) -20;
+        console.log("window: " + $(window).height() + ". d: " + $(document).height() + ". w: " + w);
         $("#intro>div.ui-tabs-panel").css("height", w);
         if($("#content-resizable").length>0){
             w = w -35;
             //$("#content-resizable").css("height", w);
-            //resizeDateAxisContent();
+            resizeDateAxisContent();
         }
     }
 </script>

@@ -37,7 +37,7 @@
     </ul>
 
     <c:forEach varStatus="status" var="tab" items="${cols.homeTabs}">
-        <div id="intro${status.count}" style="height: 510px; overflow:auto;"></div>
+        <div id="intro${status.count}"></div>
         <script type="text/javascript">
             $.get('inc/home/${tab}.jsp', function(data){
                $('#intro${status.count}').html(data) ;
