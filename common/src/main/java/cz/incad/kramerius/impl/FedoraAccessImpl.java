@@ -16,66 +16,8 @@
  */
 package cz.incad.kramerius.impl;
 
-import static cz.incad.kramerius.utils.FedoraUtils.IMG_FULL_STREAM;
-import static cz.incad.kramerius.utils.FedoraUtils.getFedoraDatastreamsList;
-import static cz.incad.kramerius.utils.FedoraUtils.getFedoraStreamPath;
-import static cz.incad.kramerius.utils.FedoraUtils.getThumbnailFromFedora;
-import static cz.incad.kramerius.utils.RESTHelper.openConnection;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.logging.Level;
-
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.ws.BindingProvider;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.StringTemplateGroup;
-import org.antlr.stringtemplate.language.DefaultTemplateLexer;
-import org.fedora.api.FedoraAPIA;
-import org.fedora.api.FedoraAPIAService;
-import org.fedora.api.FedoraAPIM;
-import org.fedora.api.FedoraAPIMService;
-import org.fedora.api.ObjectFactory;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-import org.xml.sax.SAXException;
-
 import com.google.inject.Inject;
-import com.google.inject.Provider;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraIOException;
-import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.TreeNodeProcessStackAware;
-import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.*;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -84,6 +26,26 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
+import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.fedora.api.*;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+
+import javax.annotation.Nullable;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.ws.BindingProvider;
+import javax.xml.xpath.*;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.logging.Level;
+
+import static cz.incad.kramerius.utils.FedoraUtils.*;
+import static cz.incad.kramerius.utils.RESTHelper.openConnection;
 
 /**
  * Default implementation of fedoraAccess
@@ -1103,4 +1065,6 @@ public class FedoraAccessImpl implements FedoraAccess {
         Node oneNode = (Node) expr.evaluate(parseDocument, XPathConstants.NODE);
         return (oneNode != null && oneNode.getNodeType() == Node.TEXT_NODE) ? ((Text) oneNode).getData() : "";
     }
+
+
 }

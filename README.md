@@ -1,8 +1,8 @@
 ###Novinky
 
-*Uvolněna finální verze 4.8.4 pod označením Kramerius 4.8 CDK*  (http://sourceforge.net/projects/kramerius/files)
+*Uvolněna finální verze 4.8.5  (http://sourceforge.net/projects/kramerius/files)
 
-(pro napojení na vývojové práce ČDK je vyžadována verze 4.8), 
+(pro napojení na vývojové práce ČDK je vyžadována verze 4.8 a vyšší),
 
 ----
 

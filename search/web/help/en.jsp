@@ -90,8 +90,7 @@ The recommended display resolution is 1024x768 or more pixels.
 The main screen is used for searching the documents in the digital library. <p>
 <b>Page header</b><p>
 The large input field in the middle of the page header can be used to perform full text search in the digital library documents:
-type in the desired word and click on the magnifying glass symbol. You can use the full syntax of <a href="http://lucene.apache.org/java/3_4_0/queryparsersyntax.html" target="_blank">Lucene</a> search engine in the queries.
-Most often you will use the wildcard character * representing any part of the word or ? representing single letter.
+type in the desired word and click on the magnifying glass symbol. You can use the wildcard character * representing any part of the word or ? representing single letter.
 You may use the logical operators AND, OR and NOT as well. To search for exact sentence enclose the required words with double quotes.<p>
 
 The Advanced search link opens the form for searching in the documents metadata (MODS).
