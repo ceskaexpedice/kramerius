@@ -609,7 +609,7 @@ div.search_result *{
 
 #intro>div{
     /*height: 510px; */
-    overflow:auto;
+    overflow:visible;
 }
 
 #intro>#intro6, #intro>#intro7{

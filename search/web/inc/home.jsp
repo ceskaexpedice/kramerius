@@ -56,6 +56,7 @@
             daScrollToMax();
             if($("#content-resizable").length>0){
                 resizeDateAxisContent();
+                $("#intro>div.ui-tabs-panel").css("height", $("#dadiv").height());
             }
             //setTimeout(resizeAll, 2000);
         });
@@ -71,15 +72,19 @@
         
         $("#intro>div.ui-tabs-panel").css("height", w);
         var wmax = w;
+        wmax = Math.max(wmax, $(this).height());
         $("#intro>div.ui-tabs-panel>div").each(function(){
             wmax = Math.max(wmax, $(this).height());
         });
+        //wmax = Math.max(wmax, $("#homecontent>tbody>tr>td").height() - $("#intro>ul.ui-tabs-nav").outerHeight(true));
         $("#intro>div.ui-tabs-panel").css("height", wmax);
         if($("#content-resizable").length>0){
             w = w -35;
             //$("#content-resizable").css("height", w);
             resizeDateAxisContent();
         }
+        wmax = Math.max(wmax, $("#dadiv").height());
+        $("#intro>div.ui-tabs-panel").css("height", $("#dadiv").height());
     }
 </script>
 
