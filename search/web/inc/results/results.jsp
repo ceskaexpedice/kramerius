@@ -481,7 +481,7 @@ $(document).ready(function(){
         page.setValue("offset", "0");
         page.setValue("forProfile", "facet");
                 
-        var f = "fq=" + field + ":\"" + value + "\"";
+        var f = "fq=" + field + ":\"" + encodeURIComponent(value) + "\"";
         if(window.location.search.indexOf(f)==-1){
             window.location = "r.jsp?" +
             page.toString() + "&" + f;
