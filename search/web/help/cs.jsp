@@ -88,8 +88,7 @@ Doporučené rozlišení Vašeho monitoru je 1024x768 bodů a více. Při menš�
 Úvodní obrazovka slouží především k vyhledávání dokumentů v digitální knihovně. <p>
 <b>Záhlaví stránky</b><p>
 Velké pole uprostřed záhlaví stránky umožňuje vyhledávat v plném textu dokumentů v digitální knihovně - zapište hledané slovo a klikněte na symbol lupy.
-Pro hledání je možné použít syntaxi dotazů <a href="http://lucene.apache.org/java/3_4_0/queryparsersyntax.html" target="_blank">Lucene</a>,
-nejčastěji využijete zástupný znak * nahrazující libovolnou část slova, případně znak ? nahrazující jedno písmeno. Dále jsou k dispozici logické operátory AND, OR a NOT.
+Pro hledání je možné použít zástupný znak * nahrazující libovolnou část slova, případně znak ? nahrazující jedno písmeno. Dále jsou k dispozici logické operátory AND, OR a NOT.
 Pokud chcete vyhledat přesný tvar slovního spojení, uzavřete požadovaná slova do uvozovek.<p>
 Odkaz Pokročilé vyhledávání otevře dialogové okno s formulářem pro vyhledávání v metadatech (MODS) dokumentů
  - můžete hledat podle ISBN/ISSN, autora, názvu, roku vydání a třídění MDT/DDT a můžete také omezit výběr na pouze veřejné dokumenty. Vyhledávání spustíte kliknutím na tlačítko OK.
@@ -108,9 +107,9 @@ Nerozlišují se malá a velká písmena, je ale potřeba dodržovat diakritiku.
 Záložka Navigace obshauje rámečky, které umožňují omezit vyhledávání pouze na určité typy dokumentů.
 Kliknutím na některou položku v rámečku jsou vyhledány pouze dokumenty splňující příslušné kritérium.
 Čísla v závorce za jednotlivými položkami udávají počet odpovídajících dokumentů v digitální knihovně.<p>
-<b>Záložky Vlastní, Nejnovější a Nejžádanější</b><p>
+<b>Záložky Vybrané, Nejnovější a Nejžádanější</b><p>
 Pod záložkou Nejnovější jsou ikony s miniaturami prvních stránek dokumentů nejnověji přidaných do digitální knihovny. Kliknutím na ikonu příslušný dokument zobrazíte.
-Podobně záložka Nejžádanější obsahuje ikony nejčastěji zobrazovaných dokumentů. Záložka Vlastní obsahuje ikony zajímavých dokumentů vybrané administrátorem aplikace<p>
+Podobně záložka Nejžádanější obsahuje ikony nejčastěji zobrazovaných dokumentů. Záložka Vybrané obsahuje ikony zajímavých dokumentů vybrané administrátorem aplikace<p>
 <br><br>
 <br><div align="right"><a href="#top" name="a" class="mainServ">TOP</a></div>
 <strong>Výsledky vyhledávání</strong> <br><br>
