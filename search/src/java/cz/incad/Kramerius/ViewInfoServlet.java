@@ -193,11 +193,11 @@ public class ViewInfoServlet extends GuiceServlet {
 
                 
                 map.put("mimeType", mimeType);
-                map.put("hasAlto", ""+hasAlto);
                 map.put("donator", ""+donator);
 
                 if (hasAlto) {
-                    altoObject(pid,map, req);
+                    boolean flag = altoObject(pid,map, req);
+                    map.put("hasAlto", ""+flag);
                 }
                 
                 resp.setContentType("text/plain");
@@ -221,12 +221,18 @@ public class ViewInfoServlet extends GuiceServlet {
     
 
 
-    private void altoObject(String imagePid,HashMap map, HttpServletRequest req) throws IOException, ParserConfigurationException, SAXException {
-        if (req.getParameterMap().containsKey("q")) {
-            String par = req.getParameter("q");
-            Document parsed = getAltoDocument(imagePid);
-            Map<String, Map<String, Double>> disected = ALTOUtils.disectAlto(par, parsed);
-            map.put("alto", disected);
+    private boolean altoObject(String imagePid,HashMap map, HttpServletRequest req) throws IOException, ParserConfigurationException, SAXException {
+        try {
+            if (req.getParameterMap().containsKey("q")) {
+                String par = req.getParameter("q");
+                Document parsed = getAltoDocument(imagePid);
+                Map<String, Map<String, Double>> disected = ALTOUtils.disectAlto(par, parsed);
+                map.put("alto", disected);
+                return true;
+            } else return false;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return false;
         }
     }
 

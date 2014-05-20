@@ -55,8 +55,8 @@ public class ALTOUtils {
         Element pageElm = XMLUtils.findElement(dom.getDocumentElement(), "Page");
         if (pageElm != null) {
             //<Page ID="Page0" PHYSICAL_IMG_NR="0" HEIGHT="3232" WIDTH="2515">
-            String imageHeight = pageElm.getAttribute("HEIGHT");
-            String imageWidth = pageElm.getAttribute("WIDTH");
+            String imageHeight = pageElm.hasAttribute("HEIGHT")?  pageElm.getAttribute("HEIGHT") : null;
+            String imageWidth = pageElm.hasAttribute("WIDTH") ? pageElm.getAttribute("WIDTH") : null;
             if ( (!StringUtils.isAnyString(imageHeight)) &&   (!StringUtils.isAnyString(imageWidth)) ){
                 pageElm = XMLUtils.findElement(dom.getDocumentElement(), "PrintSpace");
                 if (pageElm != null) {
@@ -65,8 +65,12 @@ public class ALTOUtils {
                 }
             }
             Map<String, Double> image = new HashMap<String, Double>();
-            image.put("HEIGHT", Double.parseDouble(imageHeight));
-            image.put("WIDTH", Double.parseDouble(imageWidth));
+            if (imageHeight != null) {
+                image.put("HEIGHT", Double.parseDouble(imageHeight));
+            }
+            if (imageWidth != null) {
+                image.put("WIDTH", Double.parseDouble(imageWidth));
+            }
             map.put("image", image);
         }
         
@@ -74,11 +78,11 @@ public class ALTOUtils {
             
             @Override
             public boolean acceptElement(Element element) {
-            	if (element.getNodeName().equals("String")) {
-            		String content = element.getAttribute("CONTENT");
-            		if (matchContent(content, parameter)) {
-            			return true;
-            		}
+                if (element.getNodeName().equals("String")) {
+                    String content = element.getAttribute("CONTENT");
+                    if (matchContent(content, parameter)) {
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -91,11 +95,19 @@ public class ALTOUtils {
             String width = foundElement.getAttribute("WIDTH");
             String hpos = foundElement.getAttribute("HPOS");
             String vpos = foundElement.getAttribute("VPOS");
-            
-            box.put("HEIGHT", Double.parseDouble(height));
-            box.put("WIDTH", Double.parseDouble(width));
-            box.put("HPOS", Double.parseDouble(hpos));
-            box.put("VPOS", Double.parseDouble(vpos));
+            if (height != null) {
+                box.put("HEIGHT", Double.parseDouble(height));
+            }
+
+            if (width != null) {
+                box.put("WIDTH", Double.parseDouble(width));
+            }
+            if (hpos != null) {
+                box.put("HPOS", Double.parseDouble(hpos));
+            }
+            if (vpos != null) {
+                box.put("VPOS", Double.parseDouble(vpos));
+            }
             
             map.put("box", box);
             
