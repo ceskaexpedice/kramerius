@@ -198,6 +198,8 @@ public class ViewInfoServlet extends GuiceServlet {
                 if (hasAlto) {
                     boolean flag = altoObject(pid,map, req);
                     map.put("hasAlto", ""+flag);
+                } else {
+                    map.put("hasAlto", "false");
                 }
                 
                 resp.setContentType("text/plain");
