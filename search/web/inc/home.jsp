@@ -82,9 +82,9 @@
             w = w -35;
             //$("#content-resizable").css("height", w);
             resizeDateAxisContent();
+            wmax = Math.max(wmax, $("#dadiv").height());
+            $("#intro>div.ui-tabs-panel").css("height", $("#dadiv").height());
         }
-        wmax = Math.max(wmax, $("#dadiv").height());
-        $("#intro>div.ui-tabs-panel").css("height", $("#dadiv").height());
     }
 </script>
 

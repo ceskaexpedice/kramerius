@@ -608,7 +608,7 @@ div.search_result *{
 }
 
 #intro>div{
-    /*height: 510px; */
+    height: 510px; 
     overflow:visible;
 }
 

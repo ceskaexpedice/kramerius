@@ -64,9 +64,9 @@
             var field = $(this).parent().attr('id');
             var value = $(this).children("span").text();
             if(field.indexOf('browse_title')>-1){
-                window.location = "r.jsp?suggest=true&browse_title=" + value + "&forProfile=search";
+                window.location = "r.jsp?suggest=true&browse_title=" + encodeURIComponent(value) + "&forProfile=search";
             } else{
-                window.location = "r.jsp?author=\"" + value + "\"&forProfile=search";
+                window.location = "r.jsp?author=\"" + encodeURIComponent(value) + "\"&forProfile=search";
             }
         });
 
