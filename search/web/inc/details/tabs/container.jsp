@@ -35,6 +35,7 @@
                 $(document).ready(function(){
                     //updateCustomTab('${tab}', '${pid_path}');
                     $('#itemtab_${xsl}.viewer').bind('viewReady', function(event, viewerOptions){
+                        console.log("on view ready ...");
                         var pid_path = getPidPath(viewerOptions.fullid);
                 		<c:choose>
                     	<c:when test="${tab =='VIRTUAL.audioPlayer'}">
@@ -53,7 +54,19 @@
     </c:forEach>
 </div>
 <script type="text/javascript">
-                
+    
+    function updateZoomify() {
+        var tilesPrepared = viewerOptions.deepZoomGenerated || viewerOptions.imageServerConfigured;
+        var deepZoomDisplay = ((viewerOptions.deepZoomCofigurationEnabled) && (tilesPrepared));
+         if (deepZoomDisplay) {
+            // only ol
+            if (zoomInit.map) {
+                zoomInit.map.updateSize()
+                zoomInit.map.zoomToMaxExtent()
+            }
+         }
+    }
+    
     function updateCustomTab(tab, pid_path){
 		$("#"+tab.split(".")[1]+"_li").show();
     
@@ -91,10 +104,13 @@
 
     $(document).ready(function() {
         $("#centralContent").tabs({
-            
+            select: function(event,ui) {
+                setTimeout(updateZoomify, 300);
+            }
         });//.addClass('ui-tabs-vertical ui-helper-clearfix');
         //$("#centralContent li").removeClass('ui-corner-top').addClass('ui-corner-left');
         //$("#centralContent").css('position', 'static');
+
     });
 
 </script>
