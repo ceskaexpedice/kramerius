@@ -338,6 +338,28 @@
         });
     }
 
+    function printLocal(){
+        var pids = getAffectedPids();
+        var structs = map(function(pid) {
+            var divided = pid.split("_");
+            var structure = {
+                models:divided[0],
+                pid:divided[1]
+            };
+            return structure;
+
+        }, pids);
+
+        var pStr = reduce(function(memo, value, status) {
+                memo = memo + encodeURIComponent(value.pid);
+                memo = memo + (status.last ? "": ",");
+                return memo;
+            }, "",structs);
+
+        var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
+        window.open("inc/_iprint.jsp?pids="+pStr+"&transcode="+transcode, "_blank");        
+    }
+
     var _persistentURLDialog;
     function persistentURL(){
 
