@@ -111,7 +111,7 @@ table.advancedSearch{
     width:250px;
     height:28px;
     border: none;
-    padding: 0;
+    padding-left: 10px;
     /*
     margin-left: 13px;
     background: transparent;
@@ -376,6 +376,10 @@ a.image:hover {
     /*
     float:left;
     width:760px;*/
+}
+
+#docs>div{
+    background-color: white;
 }
 
 #docs_content>div.header span{
