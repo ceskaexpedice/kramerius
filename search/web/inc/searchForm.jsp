@@ -53,6 +53,14 @@
         }
     }
     function checkQuery(){
+        //check year
+        var rok = $("#rok").val();
+        if( rok!="" && isNaN(parseInt(rok, 10))){
+            alert("Rok nevalidni");
+            return false;
+        }else{
+            $("#rok").val(parseInt(rok, 10));
+        }    
         return true;
     }
 </script>
