@@ -36,9 +36,11 @@
     <input type="text"
            name="q" id="q"
            value="<c:out value="${param.q}"/>" size="50"
-           class="${qclass}" onclick="checkSearchInput();"><input title="Vyhledat" type="submit" value="" class="submit" /><div class="advSearch" onclick="javascript:toggleAdv();"
-           title="<fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message>">
-        <span class=""></span></div><%@ include file="advancedSearch.jsp"%>
+           class="${qclass}" onclick="checkSearchInput();">
+    <input title="Vyhledat" type="submit" value="" class="submit" />
+    <div class="advSearch" title="<fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message>">
+        <a href="javascript:toggleAdv();"><fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message></a>
+    </div><%@ include file="advancedSearch.jsp"%>
 </form>
 <script type="text/javascript">
 

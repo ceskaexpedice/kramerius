@@ -4,15 +4,15 @@
 <!-- search form object -->
 <view:object name="searchFormViewObject" clz="cz.incad.Kramerius.views.SearchFormViewObject"></view:object>
 
-<div class="clear" id="header"><div style="float:left;" class="logo"><%@ include file="logo.jsp" %></div>
-<%--    <div style="float:right;position:absolute;top:0px;right:2px;"><%@ include file="themes.jsp" %></div>  --%>
-<div id="main_menu" style="">
-    <div id="searchFormDiv">
+<div class="clear" id="header">
+    <div style="float:left;" class="logo"><%@ include file="logo.jsp" %></div>
+    <div id="main_menu" style="">
+        <%@ include file="menu.jsp" %>
+        <div style="float:right;font-size:2.5em;right: 30px;top:10px;color:white;position: absolute;">Kramerius</div>
+    </div>
+    <div class="clear" id="searchFormDiv">
         <%@ include file="searchForm.jsp" %>
     </div>
-    <%@ include file="menu.jsp" %>
-<div style="float:right;font-size:2.5em;right: 30px;top:90px;color:white;position: absolute;">Kramerius</div>
-</div>
 </div>
 <c:if test="${cols.current != null}">
 <div id="current_vc">
@@ -26,7 +26,7 @@
 </c:if>
 <script type="text/javascript">
     //$('#main_menu_in a').button();
-    $('#searchFormDiv a').button();
+    //$('#searchFormDiv a').button();
     $('#leave_vc').button();
     function leaveVirtualCollection(){
     

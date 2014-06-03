@@ -52,7 +52,7 @@
         $.get("inc/da.jsp", function(data){
             $("#dadiv").html(data);
             initDateAxis();
-            $("#content-resizable").css("height", (containerHeight+7) + "px");
+            //$("#content-resizable").css("height", "200px");
             daScrollToMax();
             if($("#content-resizable").length>0){
                 resizeDateAxisContent();
@@ -68,7 +68,7 @@
             $("#main").height() - 
             $("#footer").outerHeight(true);
         //w = w + $("#intro>div.ui-tabs-panel:first").height();
-        w = $(window).height() - $("#header").outerHeight(true) - $("#intro>ul.ui-tabs-nav").outerHeight(true) -20;
+        w = $(window).height() - $("#header").outerHeight(true) - $("#intro>ul.ui-tabs-nav").outerHeight(true);
         
         $("#intro>div.ui-tabs-panel").css("height", w);
         var wmax = w;
@@ -79,7 +79,7 @@
         //wmax = Math.max(wmax, $("#homecontent>tbody>tr>td").height() - $("#intro>ul.ui-tabs-nav").outerHeight(true));
         $("#intro>div.ui-tabs-panel").css("height", wmax);
         if($("#content-resizable").length>0){
-            w = w -35;
+            //w = w -35;
             //$("#content-resizable").css("height", w);
             resizeDateAxisContent();
             wmax = Math.max(wmax, $("#dadiv").height());

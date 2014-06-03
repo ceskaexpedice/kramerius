@@ -1,16 +1,3 @@
-@font-face
-{
-font-family: TusarDeco;
-src: url(TusarDeco.ttf);
-}
-
-@font-face
-{
-font-family: TusarDeco;
-src: url(TusarDecoBold.ttf);
-font-weight:bold;
-}
-
 body {
     font-family: Verdana, Arial, Helvetica, Tahoma;
     font-size:12px;
@@ -23,7 +10,7 @@ body {
 }
 
 .shadow{
-    width: 1169px;
+    /*width: 1169px;*/
     background: #f2f2f2;
     -moz-box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
     -webkit-box-shadow:0 4px 10px rgba(0, 0, 0, 0.5);
@@ -44,8 +31,8 @@ form{
     border: 1px solid #005784;
 }
 #header{
-    height:190px;
-    background: url("nkp/bg.jpeg") no-repeat center 76px;
+    height:110px;
+    background: url("nkp/bg.jpeg") no-repeat center 0;
 }
 #header .logo{
     margin-top: 15px;
@@ -62,34 +49,34 @@ form{
 }
 #main_menu{
     vertical-align:bottom;
-    height:100%;
     position:relative;
     top: 5px;
 }
 #main_menu_in{
-    float: right;
+    float: left;
 }
 #main_menu_in a{
     float:right;
-    color: #6a6a6a;
+    color: white;
     font-size: 1.2em;
-    margin: 24px 10px;
+    margin: 14px 10px;
 }
 #main_menu_in a:hover{
-    color: #000000;
+    
     text-decoration: underline;
 }
 #searchFormDiv{
-    top:18px;
+    left:282px;
     vertical-align:middle;
+    /*
     float:right;
+    background: url('nkp/q.png') no-repeat center 0 transparent;
+    */
     white-space: nowrap;
-    margin-right: 10px;
     position: relative;
     width:265px;
     height:27px;
     
-    background: url('nkp/q.png') no-repeat center 0 #e6e6e6;
 }
 #main{
     position:relative;
@@ -121,28 +108,38 @@ table.advancedSearch{
     padding:5px;
 }
 #searchForm .searchQuery{
-    width:155px;
+    width:250px;
     height:28px;
     border: none;
     padding: 0;
+    /*
     margin-left: 13px;
     background: transparent;
+    */
     outline: none;
 }
 
 div.advSearch{
+    font-size: 1.2em;
+    color: white;
+    display: inline-block;
+    /*
     border-radius: 0 14px 14px 0;
     height:28px;
     width:28px;
     overflow: hidden;
-    display: inline-block;
     position:absolute;
     top: 0px;
     right:0;
+    */
 }
 
-div.advSearch span{
-    margin-top: 6px;
+div.advSearch a{
+    color: inherit;
+}
+
+div.advSearch a:hover{
+    text-decoration: underline;
 }
 
 input.checkbox {
@@ -156,11 +153,12 @@ input.checkbox {
 
 .submit {
     color:#ffffff;
-    background: url('../img/empty.gif') no-repeat scroll 0 0 transparent;
-    width:75px;
-    height:23px;
+    background: url('../img/lupa.png') no-repeat scroll 0 0 transparent;
+    width:25px;
+    height:26px;
     cursor:pointer;
     border:none;
+    margin-left: 10px;
 }
 
 
@@ -274,7 +272,7 @@ a.image:hover {
     z-index: 100;
     position:absolute;
     right: 30px;
-    top: 130px;
+    top: 50px;
     color:white;
 }
 

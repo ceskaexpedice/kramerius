@@ -24,7 +24,7 @@ function toggleAdv(){
     var y = $('#q').offset().top;
     var x = $('#q').offset().left - 100;
     //$('#advSearch').css('left', x);
-    $('#advSearch').css('top', y);
+    //$('#advSearch').css('top', y);
     $('#advSearch').toggle();
 }
 
