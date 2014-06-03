@@ -159,7 +159,7 @@
     <c:if test="${rows!='0'}">
         <c:param name="facet.field" value="facet_autor" />
         <c:param name="facet.field" value="dostupnost" />
-        <c:param name="f.facet_autor.facet.sort" value="false" />
+        <c:param name="f.facet_autor.facet.sort" value="true" />
     </c:if>
 
     <%-- Hit highlight --%>

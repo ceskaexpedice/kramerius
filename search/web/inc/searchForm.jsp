@@ -4,7 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <form name="searchForm" id="searchForm" method="GET" action="r.jsp" onsubmit="return checkQuery()">
-<%@ page isELIgnored="false"%>
+    <%@ page isELIgnored="false"%>
 
     <input type="hidden" name="forProfile" id="forProfile" value="search" />
     <input type="hidden" name="forProfile_sorting_dir" id="forProfile_sorting_dir" value="" />
@@ -23,44 +23,46 @@
         <input type="hidden" id="da_od" name="da_od" value="${param.da_od}" />
         <input type="hidden" id="da_do" name="da_do" value="${param.da_do}" />
     </c:if>
-<c:choose>
-    <c:when test="${empty param.q && !searching && !fieldedSearch}" >
-        <c:set var="qclass" >searchQuery ui-corner-all</c:set>
-    </c:when>
-    <c:otherwise>
-        <c:set var="qclass" >searchQuery ui-corner-all searching</c:set>
-    </c:otherwise>
-</c:choose>
+    <c:choose>
+        <c:when test="${empty param.q && !searching && !fieldedSearch}" >
+            <c:set var="qclass" >searchQuery ui-corner-all</c:set>
+        </c:when>
+        <c:otherwise>
+            <c:set var="qclass" >searchQuery ui-corner-all searching</c:set>
+        </c:otherwise>
+    </c:choose>
     <input id="debug" name="debug" type="hidden" value="${param.debug}" /> 
     <input id="sort" name="sort" type="hidden" value="${param.sort}" /> 
     <input type="text"
            name="q" id="q"
            value="<c:out value="${param.q}"/>" size="50"
            class="${qclass}" onclick="checkSearchInput();"><input title="Vyhledat" type="submit" value="" class="submit" /><div class="advSearch" onclick="javascript:toggleAdv();"
-       title="<fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message>">
+           title="<fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message>">
         <span class=""></span></div><%@ include file="advancedSearch.jsp"%>
 </form>
 <script type="text/javascript">
 
     var inputSearchInitialized = false;
-    function checkSearchInput(){
+    function checkSearchInput() {
         var iniVal = '';
         var q = $('#q').val();
-        if(!inputSearchInitialized && iniVal == q){
+        if (!inputSearchInitialized && iniVal == q) {
             inputSearchInitialized = true;
             $('#q').val('');
             $('#q').addClass('searching');
         }
     }
-    function checkQuery(){
+    function checkQuery() {
         //check year
         var rok = $("#rok").val();
-        if( rok!="" && isNaN(parseInt(rok, 10))){
-            alert("Rok nevalidni");
-            return false;
-        }else{
-            $("#rok").val(parseInt(rok, 10));
-        }    
+        if (rok !== "") {
+            if (isNaN(parseInt(rok, 10))) {
+                alert("Rok nevalidni");
+                return false;
+            } else {
+                $("#rok").val(parseInt(rok, 10));
+            }
+        }
         return true;
     }
 </script>
