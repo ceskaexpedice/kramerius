@@ -347,55 +347,6 @@
             $(document.body).append('<div id="selectPart">'+
                 '</div>');
 
-            $.get("inc/_iprint_select_part.jsp",function(data) {
-                    $('#selectPart').html(data);
-                    
-                    var simg = new Image();
-
-
-                    simg.onload = function() {
-                        var w = simg.width;
-                        var h = simg.height;
-                        var pomer = h/w;
-                        
-                        
-                        var cw = $('#imagepart').width();
-                        var ch = $('#imagepart').height();
-
-                        var jqimg = $("<img/>",{'src':simg.src});
-                        jqimg.css('height', ch);
-                        jqimg.css('width', (ch/pomer));
-                        
-                        $('#imagepart').append(jqimg);
-
-                        var l = $('#imagepart img').position().left;
-                        var t = $('#imagepart img').position().top;
-
-                        $('#overlay').show();
-                        
-                        $('#overlay').css('left',l);
-                        $('#overlay').css('left',t);
-                        $('#overlay').css('width',cw);
-                        $('#overlay').css('height',ch);
-
-                        $("#overlay").css({top: t, left: l, position:'absolute'});
-                        
-                        $.getScript( "js/selects/selects.js" )
-                        .done(function( script, textStatus ) {
-                            window.selObjects = new SelectObject();
-                        }).fail(function( jqxhr, settings, exception ) {
-                            alert("funkce neni k dispozici !");
-                        });
-                    };
-                    
-                    var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
-                    var url = "img?pid="+encodeURIComponent(viewerOptions.uuid)+"&stream=IMG_FULL&action=";
-                    var action = (transcode ? "TRANSCODE":"GETRAW");
-                    url = url+action;
-
-                    simg.src = url;
-            });
-            
 
             _printPartDialog = $('#selectPart').dialog({
                 width:800,
@@ -443,6 +394,68 @@
                 ]
             });
         }
+        
+        
+        $.get("inc/_iprint_select_part.jsp",function(data) {
+                $('#selectPart').html(data);
+                
+                var simg = new Image();
+
+
+                simg.onload = function() {
+                    var w = simg.width;
+                    var h = simg.height;
+                    var pomer = h/w;
+                        
+                        
+                    var cw = $('#imagepart').width();
+                    var ch = $('#imagepart').height();
+
+                    var jqimg = $("<img/>",{'src':simg.src});
+                    jqimg.css('height', ch);
+                    jqimg.css('width', (ch/pomer));
+                        
+                    $('#imagepart').append(jqimg);
+
+                    var l = $('#imagepart img').position().left;
+                    var t = $('#imagepart img').position().top;
+
+                    $('#overlay').show();
+                        
+                    $('#overlay').css('left',l);
+                    $('#overlay').css('left',t);
+                    $('#overlay').css('width',cw);
+                    $('#overlay').css('height',ch);
+
+                    $("#overlay").css({top: t, left: l, position:'absolute'});
+                        
+                    $.getScript( "js/selects/selects.js" )
+                    .done(function( script, textStatus ) {
+                        window.selObjects = new SelectObject();
+                        window.selObjects.center();
+                    }).fail(function( jqxhr, settings, exception ) {
+                        alert("funkce neni k dispozici !");
+                    });
+                };
+
+                var pids = getAffectedPids();
+                var structs = map(function(pid) {
+                    var divided = pid.split("_");
+                    var structure = {
+                        models:divided[0],
+                        pid:divided[1]
+                    };
+                    return structure;
+                }, pids);
+                    
+                var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
+                var url = "img?pid="+encodeURIComponent(structs[0].pid)+"&stream=IMG_FULL&action=";
+                var action = (transcode ? "TRANSCODE":"GETRAW");
+                url = url+action;
+
+                simg.src = url;
+            });
+        
     }
 
     function printLocal(){

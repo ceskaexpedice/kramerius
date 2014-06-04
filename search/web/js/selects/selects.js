@@ -17,11 +17,15 @@ SelectObject.prototype = {
         $('#overlay').css('top',rs[0]);
         $('#overlay').css('left',rs[1]);
 
+        var imw = $('#imagepart img').width();
+        var imh = $('#imagepart img').height();
 
-        var x1 = ($("#overlay").width() - this.width) / 2;   
-        var y1 = ($("#overlay").height() - this.height) / 2;   
-        var x2 = x1 + this.width;
-        var y2 = y1 + this.height;
+        
+
+        var x1 = imw *0.1;   
+        var y1 = imh *0.1;   
+        var x2 = imw-(0.1*imw);
+        var y2 = imh -(0.1*imh);
 
         this._setSelectBoxPosition(x1,y1,x2,y2);
         this._recalculateSelectionDiv();        
