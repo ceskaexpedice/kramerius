@@ -338,6 +338,113 @@
         });
     }
 
+
+    var _printPartDialog;
+    function printPartLocal() {
+        if (_printPartDialog) {
+            _printPartDialog.dialog('open');
+        } else {
+            $(document.body).append('<div id="selectPart">'+
+                '</div>');
+
+            $.get("inc/_iprint_select_part.jsp",function(data) {
+                    $('#selectPart').html(data);
+                    
+                    var simg = new Image();
+
+
+                    simg.onload = function() {
+                        var w = simg.width;
+                        var h = simg.height;
+                        var pomer = h/w;
+                        
+                        
+                        var cw = $('#imagepart').width();
+                        var ch = $('#imagepart').height();
+
+                        var jqimg = $("<img/>",{'src':simg.src});
+                        jqimg.css('height', ch);
+                        jqimg.css('width', (ch/pomer));
+                        
+                        $('#imagepart').append(jqimg);
+
+                        var l = $('#imagepart img').position().left;
+                        var t = $('#imagepart img').position().top;
+
+                        $('#overlay').show();
+                        
+                        $('#overlay').css('left',l);
+                        $('#overlay').css('left',t);
+                        $('#overlay').css('width',cw);
+                        $('#overlay').css('height',ch);
+
+                        $("#overlay").css({top: t, left: l, position:'absolute'});
+                        
+                        $.getScript( "js/selects/selects.js" )
+                        .done(function( script, textStatus ) {
+                            window.selObjects = new SelectObject();
+                        }).fail(function( jqxhr, settings, exception ) {
+                            alert("funkce neni k dispozici !");
+                        });
+                    };
+                    
+                    var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
+                    var url = "img?pid="+encodeURIComponent(viewerOptions.uuid)+"&stream=IMG_FULL&action=";
+                    var action = (transcode ? "TRANSCODE":"GETRAW");
+                    url = url+action;
+
+                    simg.src = url;
+            });
+            
+
+            _printPartDialog = $('#selectPart').dialog({
+                width:800,
+                height:640,
+                modal:true,
+                title:dictionary["administrator.menu.selectandprintlocal"],
+                buttons:  [
+                    {
+                        text: dictionary['common.ok'],
+                        click: function() {
+
+                            var pids = getAffectedPids();
+                            var structs = map(function(pid) {
+                                var divided = pid.split("_");
+                                var structure = {
+                                    models:divided[0],
+                                    pid:divided[1]
+                                };
+                                return structure;
+                
+                            }, pids);
+
+                            var pStr = reduce(function(memo, value, status) {
+                                    memo = memo + encodeURIComponent(value.pid);
+                                    memo = memo + (status.last ? "": ",");
+                                    return memo;
+                            }, "",structs);
+
+                            var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
+                            var positions = window.selObjects.relativePositions();
+                            
+                            var positionsString = "xpos="+positions[0]+"&ypos="+positions[1]+"&width="+(positions[2]-positions[0])+"&height="+(positions[3]-positions[1]);
+                            window.open("inc/_iprint_select_part_done.jsp?pid="+pStr+"&transcode="+transcode+"&"+positionsString, "_blank");        
+
+                            $(this).dialog("close");
+                        }
+                    },
+
+                    {
+                        text: dictionary['common.close'],
+                        click: function() {
+                            $(this).dialog("close");
+                        }
+                    }
+                ]
+            });
+        }
+    }
+
     function printLocal(){
         var pids = getAffectedPids();
         var structs = map(function(pid) {

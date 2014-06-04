@@ -111,6 +111,11 @@
         <servlet-name>print</servlet-name>
         <servlet-class>cz.incad.Kramerius.PrintQueue</servlet-class>
     </servlet>
+
+    <servlet>
+        <servlet-name>imgcut</servlet-name>
+        <servlet-class>cz.incad.Kramerius.imaging.ImageCutServlet</servlet-class>
+    </servlet>
     
     <!-- lr processes -->
     <servlet>
@@ -303,6 +308,11 @@
     <servlet-mapping>
         <servlet-name>print</servlet-name>
         <url-pattern>/print</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>imgcut</servlet-name>
+        <url-pattern>/imgcut</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

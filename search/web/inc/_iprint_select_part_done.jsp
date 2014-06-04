@@ -49,7 +49,6 @@ body
     }
 
     .image img {
-        height:275mm;
         margin:auto;
     }
 
@@ -66,27 +65,30 @@ body
 
 <script language="JavaScript" type="text/javascript">
     var transcode = ${param['transcode']};
-    var pidsString = "${param['pids']}";
-    var pids = pidsString.split(',');
-
+    var pid = "${param['pid']}";
+    //xpos=0.3&ypos=0.3&width=0.3&height=0.2
+    var width = ${param['width']};
+    var height = ${param['height']};
+    var xpos = ${param['xpos']};
+    var ypos = ${param['ypos']};
+    
     if(transcode == null) {
         transcode = false;
     }
 
     $(document).ready(function(){
-        $.each(pids, function( index, value ) {
-            var divelm = $("<div/>");
-            divelm.addClass("image");
 
-            var url = "../img?pid="+encodeURIComponent(value)+"&stream=IMG_FULL&action=";
-            var action = (transcode ? "TRANSCODE":"GETRAW");
-            url = url+action;
+        var divelm = $("<div/>");
+        divelm.addClass("image");
+
+        var url = "../imgcut?pid="+encodeURIComponent(pid)+"&xpos="+xpos+"&ypos="+ypos+"&width="+width+"&height="+height;
             
-            var imgelm = $("<img/>",{"src":url});
+        var imgelm = $("<img/>",{"src":url});
+        imgelm.css("height",(height*100)+"%");
 
-            divelm.append(imgelm);
-            $("body").append(divelm);
-        });
+        divelm.append(imgelm);
+        $("body").append(divelm);
+
         window.print();
     });
 </script>

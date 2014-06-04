@@ -50,6 +50,7 @@ import cz.incad.Kramerius.exts.menu.context.impl.pub.items.FeedBack;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.GeneratePDF;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.PersistentURL;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.PrintLocal;
+import cz.incad.Kramerius.exts.menu.context.impl.pub.items.SelectPartAndPrintLocal;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.ServerPrint;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.ShowMetadata;
 
@@ -75,6 +76,7 @@ public class ContextMenuConfiguration extends AbstractModule {
         publicItems.addBinding().to(FeedBack.class);
         publicItems.addBinding().to(ModifyFavorites.class);
         publicItems.addBinding().to(PrintLocal.class);
+        publicItems.addBinding().to(SelectPartAndPrintLocal.class);
         
         
         
