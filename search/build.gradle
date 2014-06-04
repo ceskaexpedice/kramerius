@@ -1,4 +1,15 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.gradle.api.plugins:gradle-cargo-plugin:1.5'
+    }
+}
+
 apply plugin: 'war'
+apply plugin: 'cargo-base'
 
 description "Admin web application"
 
@@ -20,6 +31,46 @@ sourceSets {
 	resources {
 	    srcDir 'src/test'
 	}
+    }
+}
+
+
+
+
+
+class RemoteContainer {
+    String name
+    String hostname
+    Integer port
+    String username
+    String password
+}
+
+def remoteContainers = [
+                        new RemoteContainer(name: 'local', hostname: 'localhost',
+                                            port: 8080, username: 'tomcat', password: 'tomcat')
+
+]
+
+
+
+remoteContainers.each { config ->
+    task "deploy${config.name.capitalize()}"(type: org.gradle.api.plugins.cargo.tasks.remote.CargoDeployRemote) {
+        description = "Deploys WAR to remote Tomcat '${config.name}'."
+        containerId = 'tomcat7x'
+        hostname = config.hostname
+        port = config.port
+        username = config.username
+        password = config.password
+    }
+
+    task "undeploy${config.name.capitalize()}"(type: org.gradle.api.plugins.cargo.tasks.remote.CargoUndeployRemote) {
+        description = "UnDeploys WAR to remote Tomcat '${config.name}'."
+        containerId = 'tomcat7x'
+        hostname = config.hostname
+        port = config.port
+        username = config.username
+        password = config.password
     }
 }
 
@@ -57,8 +108,39 @@ dependencies {
     compile 'net.sf.json-lib:json-lib:2.4:jdk15'
 }
 
+
+task gitcall(type:Exec) {
+   commandLine "git","rev-parse","HEAD"
+   standardOutput = new ByteArrayOutputStream()
+   doLast{
+        byte[] bytes = standardOutput.toByteArray()
+        ext.hash =new String(bytes).trim(); 
+   }     
+}
+
+
+task infofile(dependsOn: gitcall) << {
+    def parentFolder = new File("$buildDir/resources/main")
+    parentFolder.mkdirs()
+       
+    def buildInfoFile = new File("$buildDir/resources/main/build.properties")
+    Properties props = new Properties()
+    props.setProperty('version', project.version.toString())
+    props.setProperty('hash', gitcall.hash)
+
+    props.store(buildInfoFile.newWriter(), null)
+    println "Created build file ${buildInfoFile.absolutePath}"
+    
+}
+
+processResources.dependsOn infofile
+
+
+
 war {
+    baseName='search'
+    archiveName ='search.war'
     from 'web' 
 }
 
- 
+

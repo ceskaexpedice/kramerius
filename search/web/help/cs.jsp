@@ -29,7 +29,7 @@
 <tr><td> <img src="../img/logo.png" border="0" /></td>
 <td width="500px"> </td> 
 <td>verze:${helpViewObject.version}</td>
-<td>revize:${helpViewObject.revision}</td></tr>
+<td>revize:<a href="https://github.com/ceskaexpedice/kramerius/commit/${helpViewObject.revision}">  ${fn:substring(helpViewObject.revision, 1, 4)}...</a></td></tr>
 </table>
 
 <table cellpadding="0" cellspacing="0" border="0" height="100%">
