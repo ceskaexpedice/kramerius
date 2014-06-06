@@ -24,7 +24,7 @@
 <table style="width: 990px;"><tr><td valign="top">
 <div id="homedabox" style="float:left;width:239px;margin-left:4px;">
     <ul><li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li></ul>
-    <div id="dadiv" style="padding:3px;">
+    <div id="dadiv" style="overflow:hidden; width:100%; height:300px;position: relative;padding:0;">
         <p style="text-align: center;">
             <img src="img/loading.gif" alt="loading date axis" /><br/>Time line loading...
         </p>
@@ -48,14 +48,19 @@
         resizeAll();
     });
     $(document).ready(function(){
-        setTimeout(resizeAll, 5000);
-        $.get("inc/da.jsp", function(data){
+        //resizeAll();
+        setTimeout(resizeAll, 1000);
+        $.get("inc/dac.jsp", function(data){
             $("#dadiv").html(data);
-            initDateAxis();
-            $("#content-resizable").css("height", (containerHeight+7) + "px");
-            daScrollToMax();
-            setTimeout(resizeAll, 2000);
+            //initDateAxis();
+            //$("#content-resizable").css("height", (containerHeight+7) + "px");
+            //daScrollToMax();
+            //resizeAll();
+            
         });
+        $("#dadiv").bind("yearChanged", function(event, params){
+            daYearClicked(params);
+        })
         
     });
     function resizeAll(){
@@ -64,11 +69,34 @@
             $("#main").height() - 
             $("#footer").outerHeight(true);
         $("#intro>div.ui-tabs-panel").css("height", w);
-        if($("#content-resizable").length>0){
-            w = w -35;
-            $("#content-resizable").css("height", w);
-            resizeDateAxisContent();
+        $("#homedabox>div.ui-tabs-panel").css("height", w);
+        //if($("#content-resizable").length>0){
+        //    w = w -35;
+        //    $("#content-resizable").css("height", w);
+        //    resizeDateAxisContent();
+        //}
+    }
+    function daYearClicked(params){
+        var rok = params.year;
+        $("#" + fromField).val("01.01."+rok);
+        $("#" + toField).val("31.12."+rok);
+        if(!isValidDate($("#" + fromField).val()) || !isValidDate($("#" + toField).val())){
+            alert(dictionary['filter.invalid.date'] );
+            return;
         }
+
+        var page = new PageQuery(window.location.search);
+        page.setValue("offset", "0");
+        page.setValue("forProfile", "dateaxis");
+        //page.setValue(fromField, decodeDate($("#" + fromField).val()));
+        //page.setValue(toField, decodeDate($("#" + toField).val()));
+
+        page.setValue("da_od", decodeDate($("#" + fromField).val()));
+        page.setValue("da_do", decodeDate($("#" + toField).val()));
+        var newurl = "r.jsp?" + page.toString() + dateAxisAdditionalParams;
+
+        document.location.href = newurl;
+
     }
 </script>
 

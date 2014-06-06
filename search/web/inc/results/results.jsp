@@ -65,7 +65,7 @@
     <%@ include file="../usedFilters.jsp" %>
     <%@ include file="../facets.jsp" %>
     </div>
-    <div id="dadiv" style="padding:3px;"
+    <div id="dadiv" style="overflow:hidden; width:98%; height:300px;position: relative;padding:3px;">
         <p style="text-align: center;">
             <img src="img/loading.gif" alt="loading date axis" /><br/>Time line loading...
         </p>
@@ -91,8 +91,8 @@
         show: function(event, ui){
             var tab = ui.tab.toString().split('#')[1];
             if (tab=='dadiv'){
-                 positionCurtains();
-                 setBarsPositions();
+                 //positionCurtains();
+                 //setBarsPositions();
 
             }
         }
@@ -100,15 +100,15 @@
 $(document).ready(function(){
     
     
-    $.get("inc/da.jsp", function(data){
+    $.get("inc/dac.jsp", function(data){
         $("#dadiv").html(data);
-        if($("#dadiv").length==0){
+        if($("#dadiv").length===0){
             $("#dali").remove();
         }else{
             resizeAll();
-            initDateAxis();
-            $("#content-resizable").css("height", (containerHeight+7) + "px");
-            daScrollToMax();
+            //initDateAxis();
+            //$("#content-resizable").css("height", (containerHeight+7) + "px");
+            //daScrollToMax();
         }
     });
     
@@ -246,7 +246,7 @@ $(document).ready(function(){
         $("#docs_content>div.content").css("height", w);
         w = w1 - $("#filters>ul").outerHeight(true) - 16;
         $("#facets").css("height", w);
-
+        $("#dadiv").css("height", w);
         if($("#content-resizable").length>0){
             w = w -42;
             $("#content-resizable").css("height", w);
