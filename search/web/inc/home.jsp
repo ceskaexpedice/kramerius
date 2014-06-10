@@ -85,6 +85,18 @@
             wmax = Math.max(wmax, $("#dadiv").height());
             $("#intro>div.ui-tabs-panel").css("height", $("#dadiv").height());
         }
+        $("#facets ul.facet").css("height", "38%");
+    }
+    function addTypeFilter(value){
+        var page = new PageQuery(window.location.search);
+        page.setValue("offset", "0");
+        page.setValue("forProfile", "facet");
+                
+        var f = "fq=model_path:" + value + "*";
+        if(window.location.search.indexOf(f)==-1){
+            window.location = "r.jsp?" +
+            page.toString() + "&" + f;
+        }
     }
 </script>
 

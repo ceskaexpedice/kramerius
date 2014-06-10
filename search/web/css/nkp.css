@@ -299,7 +299,7 @@ a.image:hover {
 }
 #facets ul.facet{
     overflow:auto;
-    height: 35%;
+    height: 100px;
 }
 #facets li{
     list-style-type: none;
