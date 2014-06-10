@@ -21,4 +21,9 @@ dependencies {
 
 }
 
+jar {
+        archiveName ='security-core.jar'
+	baseName='security-core'
+}
+
 

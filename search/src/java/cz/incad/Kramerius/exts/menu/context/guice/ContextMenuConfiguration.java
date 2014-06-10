@@ -16,6 +16,8 @@
  */
 package cz.incad.Kramerius.exts.menu.context.guice;
 
+import javax.print.attribute.standard.PrinterLocation;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
@@ -47,6 +49,8 @@ import cz.incad.Kramerius.exts.menu.context.impl.pub.items.DownloadOriginals;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.FeedBack;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.GeneratePDF;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.PersistentURL;
+import cz.incad.Kramerius.exts.menu.context.impl.pub.items.PrintLocal;
+import cz.incad.Kramerius.exts.menu.context.impl.pub.items.SelectPartAndPrintLocal;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.ServerPrint;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.items.ShowMetadata;
 
@@ -71,6 +75,10 @@ public class ContextMenuConfiguration extends AbstractModule {
         publicItems.addBinding().to(DownloadOriginals.class);
         publicItems.addBinding().to(FeedBack.class);
         publicItems.addBinding().to(ModifyFavorites.class);
+        publicItems.addBinding().to(PrintLocal.class);
+        publicItems.addBinding().to(SelectPartAndPrintLocal.class);
+        
+        
         
         // admin  menu items
         Multibinder<AdminContextMenuItem> adminMenuItems

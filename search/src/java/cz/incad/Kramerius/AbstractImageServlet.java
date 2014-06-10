@@ -44,6 +44,7 @@ import com.sun.net.httpserver.HttpServer;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.imaging.utils.ImageUtils;
 import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
 import cz.incad.kramerius.security.SecurityException;
@@ -167,8 +168,8 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     private Date lastModified(String pid, String stream) throws IOException {
         Date date = null;
         Document streamProfile = fedoraAccess.getStreamProfile(pid, stream);
-        
-        Element elm = XMLUtils.findElement(streamProfile.getDocumentElement(), "dsCreateDate", null);
+
+        Element elm = XMLUtils.findElement(streamProfile.getDocumentElement(), "dsCreateDate", FedoraNamespaces.FEDORA_MANAGEMENT_NAMESPACE_URI);
         if (elm != null) {
             String textContent = elm.getTextContent();
             for(DateFormat df:XSD_DATE_FORMATS) {
@@ -185,7 +186,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         }
         return date;
     }
-    
+
     
     protected void setResponseCode(String pid, String streamName, HttpServletRequest request, HttpServletResponse response) throws IOException {
         long dateHeader = request.getDateHeader("If-Modified-Since");
