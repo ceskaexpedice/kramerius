@@ -297,6 +297,10 @@ a.image:hover {
     margin: 6px 2px 10px;
     padding-left: 2px;
 }
+#facets ul.facet{
+    overflow:auto;
+    height: 35%;
+}
 #facets li{
     list-style-type: none;
     margin: 0;
