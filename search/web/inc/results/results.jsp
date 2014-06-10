@@ -65,7 +65,7 @@
     <%@ include file="../usedFilters.jsp" %>
     <%@ include file="../facets.jsp" %>
     </div>
-    <div id="dadiv" style="overflow:hidden; width:98%; height:300px;position: relative;padding:3px;">
+    <div id="dadiv" style="overflow:hidden; width:100%; height:300px;position: relative;padding:0;">
         <p style="text-align: center;">
             <img src="img/loading.gif" alt="loading date axis" /><br/>Time line loading...
         </p>
@@ -87,21 +87,11 @@
     </div>
 <script type="text/javascript">
     $("#docs").tabs();
-    $("#filters").tabs({
-        show: function(event, ui){
-            var tab = ui.tab.toString().split('#')[1];
-            if (tab=='dadiv'){
-                 //positionCurtains();
-                 //setBarsPositions();
-
-            }
-        }
-    });
-$(document).ready(function(){
-    
-    
-    $.get("inc/dac.jsp", function(data){
+    $.get("inc/dac.jsp" + window.location.search, function(data){
+        
         $("#dadiv").html(data);
+        $("#filters").tabs();
+        
         if($("#dadiv").length===0){
             $("#dali").remove();
         }else{
@@ -111,6 +101,8 @@ $(document).ready(function(){
             //daScrollToMax();
         }
     });
+$(document).ready(function(){
+    
     
     var w;
     var w1 = $(window).height() -
@@ -218,6 +210,10 @@ $(document).ready(function(){
     $(window).resize(function(event, viewerOptions){
         resizeAll();
     });
+    
+    resizeAll();
+    
+    
 });
 
     function translateCollections(){
@@ -247,6 +243,7 @@ $(document).ready(function(){
         w = w1 - $("#filters>ul").outerHeight(true) - 16;
         $("#facets").css("height", w);
         $("#dadiv").css("height", w);
+        $("#dadiv").css("width", $("#filters").width());
         if($("#content-resizable").length>0){
             w = w -42;
             $("#content-resizable").css("height", w);

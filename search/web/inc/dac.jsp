@@ -29,12 +29,14 @@
 <script src="js/canvasDa.js" type="text/javascript" ></script>
 <script type="text/javascript">
     var ja = ${xml};
+    var da;
     $(document).ready(function(){ 
-        var da = new Da('#canvasda', ja.facet_counts.facet_fields.rok, null);
+        da = new Da('#canvasda', ja.facet_counts.facet_fields.rok, null);
         $(window).resize(function() {
         });
         da.render();
         da.setDatePicker();
+        da.scrollToMax();
     });
 </script>
 <style>
@@ -77,6 +79,6 @@
 <div style="overflow:hidden; width:100%; height:100%;position: relative;left:0px;top:0px;padding:0px;">
 <div id="canvasda" class="years" style="overflow:auto; width:100%; height:100%; position: relative;top:0; left:0;">
 <div class="info"></div><div class="yearLabel"></div><div class="bar"><div class="sel"></div></div>
-<canvas width="1000" height="130" style="position: relative;"></canvas>
+<canvas width="100" height="130" style="position: relative;"></canvas>
 </div>
 </div>

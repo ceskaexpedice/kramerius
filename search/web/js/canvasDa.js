@@ -80,7 +80,7 @@ var Da = function(elem, jarray, th, options) {
         var year = params.year;
         var count = 0;
         if(da.years[year]){
-            count = da.years[year].count
+            count = da.years[year].count;
         }
         var cy = parseInt(year);
         
@@ -159,7 +159,7 @@ Da.prototype = {
             }
             this.addBar(i);
         }
-        this.scrollTo(this.indexWithMax * (this.barMargin + this.barWidth));
+        
         var show = window.location.hash;
         if(show.length > 1){
             show = parseInt(show.substring(1));
@@ -267,9 +267,12 @@ Da.prototype = {
         var finalPos = this.$div.scrollLeft() + this.panelWidth * 0.5 * dx;
         this.scrollTo(finalPos);
     },
+    scrollToMax: function(){
+        this.scrollTo(this.indexWithMax * (this.barMargin + this.barWidth) + this.$div.height()/2);
+    },
     scrollTo: function(to){
         var speed = 500;
-        this.$div.animate({scrollLeft:to}, speed);
+        this.$div.animate({scrollTop:to}, speed);
         if(to <=0){
             //this.leftArrow.hide();
         }else{
@@ -307,7 +310,7 @@ Da.prototype = {
             //    $("#ui-datepicker-div").css("z-index", 100);
             //},
             onSelect: function( selectedDate ) {
-                var option = this.id == "f1" ? "minDate" : "maxDate",
+                var option = this.id === "f1" ? "minDate" : "maxDate",
                     instance = $( this ).data( "datepicker" ),
                     date = $.datepicker.parseDate(
                         instance.settings.dateFormat ||
