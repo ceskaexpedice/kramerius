@@ -91,6 +91,13 @@
                              <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
                         </xsl:choose> (<xsl:value-of select="." />)
                     </xsl:when>
+                    <xsl:when test="$facetname='language'">
+                        <xsl:variable name="f"><xsl:value-of select="concat('language.', @name)" /></xsl:variable>
+                        <xsl:choose>
+                             <xsl:when test="$bundle/value[@key=$f]!=''"><xsl:value-of select="$bundle/value[@key=$f]" /></xsl:when>
+                             <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
+                        </xsl:choose> (<xsl:value-of select="." />)
+                    </xsl:when>
                     <xsl:when test="$facetname='dostupnost'">
                         <xsl:variable name="f"><xsl:value-of select="concat('dostupnost.', @name)" /></xsl:variable>
                         <xsl:if test="$policyPublic='false' or @name='public'" >
