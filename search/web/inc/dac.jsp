@@ -39,36 +39,6 @@
         da.scrollToMax();
     });
 </script>
-<style>
-    #canvasda{
-        width:100%; 
-        height:100%;
-        background-color: #f3f3f3;
-    }
-    #canvasda .info{
-        font: 12px Verdana;
-        font-family: 'Verdana', sans-serif;
-        font-weight: 500;
-        color: #ffff00;
-        background-color: rgba(23,45,89,1.0);
-    }
-    #canvasda .yearLabel{
-        font: 12px Verdana;
-        font-family: 'Verdana', sans-serif;
-        font-weight: 500;
-        color: rgba(23,45,89,0.8);
-        background-color: rgba(23,45,89,0.3);
-    }
-    #canvasda .bar{
-        background-color: #cccccc;
-        height: 4px;
-        left:-1000px;
-        position:absolute;
-    }
-    #canvasda .bar .sel{
-        background-color: #234589;
-    }
-</style>
 <div id="da-inputs">
     <span style="float:left;"><fmt:message bundle="${lctx}">Od</fmt:message>:&nbsp;</span>
     <input style="float:left;" class="da_input" id="f1" size="10" type="text" value="" onkeyup="checkDoFilter(event)" />
