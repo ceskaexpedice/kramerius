@@ -9,6 +9,7 @@
 <%@page import="com.google.inject.Injector"%>
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
+<%@page import="java.util.Map,java.util.HashMap"%>
 <%
             Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
             LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
@@ -22,7 +23,14 @@
     try {
         String xsl = "mods.xsl";
         if (xs.isAvailable(xsl)) {
-            String text = xs.transform(xml, xsl, lctx.getLocale());
+            Map<String, String> params = new HashMap<String, String>();
+            if(request.getParameter("pid")!=null){
+                params.put("pid", request.getParameter("pid"));
+            }
+            if(request.getParameter("model")!=null){
+                params.put("model", request.getParameter("model"));
+            }
+            String text = xs.transform(xml, xsl, lctx.getLocale(), params);
             out.println(text);
             return;
         }

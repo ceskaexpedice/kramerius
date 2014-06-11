@@ -65,7 +65,7 @@
     <%@ include file="../usedFilters.jsp" %>
     <%@ include file="../facets.jsp" %>
     </div>
-    <div id="dadiv" style="padding:3px;"
+    <div id="dadiv" style="overflow:hidden; width:100%; height:300px;position: relative;padding:0;">
         <p style="text-align: center;">
             <img src="img/loading.gif" alt="loading date axis" /><br/>Time line loading...
         </p>
@@ -87,30 +87,22 @@
     </div>
 <script type="text/javascript">
     $("#docs").tabs();
-    $("#filters").tabs({
-        show: function(event, ui){
-            var tab = ui.tab.toString().split('#')[1];
-            if (tab=='dadiv'){
-                 positionCurtains();
-                 setBarsPositions();
-
-            }
+    $.get("inc/dac.jsp" + window.location.search, function(data){
+        
+        $("#dadiv").html(data);
+        $("#filters").tabs();
+        
+        if($("#dadiv").length===0){
+            $("#dali").remove();
+        }else{
+            resizeAll();
+            //initDateAxis();
+            //$("#content-resizable").css("height", (containerHeight+7) + "px");
+            //daScrollToMax();
         }
     });
 $(document).ready(function(){
     
-    
-    $.get("inc/da.jsp", function(data){
-        $("#dadiv").html(data);
-        if($("#dadiv").length==0){
-            $("#dali").remove();
-        }else{
-            resizeAll();
-            initDateAxis();
-            $("#content-resizable").css("height", (containerHeight+7) + "px");
-            daScrollToMax();
-        }
-    });
     
     var w;
     var w1 = $(window).height() -
@@ -218,6 +210,10 @@ $(document).ready(function(){
     $(window).resize(function(event, viewerOptions){
         resizeAll();
     });
+    
+    resizeAll();
+    
+    
 });
 
     function translateCollections(){
@@ -246,7 +242,8 @@ $(document).ready(function(){
         $("#docs_content>div.content").css("height", w);
         w = w1 - $("#filters>ul").outerHeight(true) - 16;
         $("#facets").css("height", w);
-
+        $("#dadiv").css("height", w);
+        $("#dadiv").css("width", $("#filters").width());
         if($("#content-resizable").length>0){
             w = w -42;
             $("#content-resizable").css("height", w);

@@ -89,7 +89,7 @@
                     </xsl:when>
                     <xsl:otherwise><xsl:value-of select="@name" /> (<xsl:value-of select="." />)</xsl:otherwise>
                 </xsl:choose></xsl:variable>
-                <xsl:if test="not (contains($fqVal, $fqId))">
+                <xsl:if test="(not (contains($fqVal, $fqId))) and (normalize-space($displayName)!='') ">
                     <xsl:if test="position() = $numOpenedRows+1"><li class="more_facets" >
                         <a><xsl:attribute name="href">javascript:toggleFacet('facet_<xsl:value-of select="$facetname" />')</xsl:attribute>...</a>
                     </li></xsl:if>
