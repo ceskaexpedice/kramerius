@@ -36,6 +36,7 @@
         <c:param name="fq" value="collection:\"${cols.current.pid}\"" />
     </c:if>
     <c:param name="rows" value="0" />
+    <c:param name="facet.field" value="model_path" />
     <c:param name="facet.field" value="document_type" />
     <c:param name="facet.field" value="keywords" />
     <c:param name="f.keywords.facet.limit" value="30" />

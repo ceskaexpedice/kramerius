@@ -490,6 +490,18 @@
         }
     }
 
+    function addTypeFilter(value){
+        var page = new PageQuery(window.location.search);
+        page.setValue("offset", "0");
+        page.setValue("forProfile", "facet");
+                
+        var f = "fq=model_path:" + value + "*";
+        if(window.location.search.indexOf(f)==-1){
+            window.location = "r.jsp?" +
+            page.toString() + "&" + f;
+        }
+    }
+
     function toggleCollapsed(root_pid, pid, offset){
         $(jq("res_"+root_pid)+" div.uncollapsed").toggle();
         $(jq('uimg_' + root_pid) ).toggleClass('uncollapseIcon');
