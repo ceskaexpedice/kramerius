@@ -306,9 +306,6 @@ Da.prototype = {
             dateFormat: "dd.mm.yy",
             minDate: tod,
             maxDate: tdo,
-            //beforeShow: function(input, inst) {
-            //    $("#ui-datepicker-div").css("z-index", 100);
-            //},
             onSelect: function( selectedDate ) {
                 var option = this.id === "f1" ? "minDate" : "maxDate",
                     instance = $( this ).data( "datepicker" ),
@@ -319,6 +316,7 @@ Da.prototype = {
                 dates.not( this ).datepicker( "option", option, date );
             }
         });
+        $("#ui-datepicker-div").css("z-index", 100);
         $('#ui-datepicker-div').hide();
     }
 };

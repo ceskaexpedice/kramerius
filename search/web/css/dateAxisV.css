@@ -80,20 +80,7 @@
     
 }
 
-#da-inputs{
-  width:100%;
-  text-align:left;
-  padding:4px 0px;
-  z-index:3;
-  font-size: 0.9em;
-  height:25px;
-}
-#da-inputs input{
-  border: 1px solid #333333;
-  z-index:3 !important;
-  position:relative;
-  width: 70px;
-}
+
 
 .clear{
     float:none;

@@ -466,6 +466,8 @@ div.search_result *{
     top:7px;
 }
 
+/* Casova osa */
+
 #canvasda{
     width:100%; 
     height:100%;
@@ -493,4 +495,19 @@ div.search_result *{
 }
 #canvasda .bar .sel{
     background-color: #234589;
+}
+
+#da-inputs{
+  width:100%;
+  text-align:left;
+  padding:4px 0px;
+  z-index:3;
+  font-size: 0.9em;
+  height:25px;
+}
+#da-inputs input{
+  border: 1px solid #333333;
+  z-index:23 !important;
+  position:relative;
+  width: 70px;
 }
