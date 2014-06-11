@@ -17,12 +17,11 @@
  */
 
 
-var Da = function(elem, jarray, th, options) {
+var Da = function(elem, data, options) {
     this.div = elem;
     this.$div = $(elem);
     this.canvas = elem + ">canvas";
     this.$canvas = $(elem + ">canvas");
-    this.thumbs = th;
     if (options) {
         this.options = options;
     }
@@ -35,10 +34,23 @@ var Da = function(elem, jarray, th, options) {
     var val;
     var year;
     var accumulated = 0;
-    this.jarray = [];
-    for (var i = 0; i < jarray.length; i++) {
-        year = parseInt(jarray[i]);
-        val = parseInt(jarray[++i]);
+    if(options.isXml){
+        var jarray = [];
+        var xmlDoc = $.parseXML( data );
+        $xml = $( xmlDoc );
+        $xml.find( 'lst[name="rok"]' ).find('int').each(function(){
+            
+            jarray.push($(this).attr("name"));
+            jarray.push($(this).text());
+          });
+        this.jarray = jarray;
+    }else{
+        this.jarray = data;
+    }
+    
+    for (var i = 0; i < this.jarray.length; i++) {
+        year = parseInt(this.jarray[i]);
+        val = parseInt(this.jarray[++i]);
         if (year > 1000 && year<2015) {
             this.years[year] = {"count": val, "accumulated": accumulated};
             accumulated += val;
@@ -64,17 +76,6 @@ var Da = function(elem, jarray, th, options) {
     this.period = this.maxYear - this.minYear;
     var da = this;
     this.init();
-    $(this.canvas).click(function(event) {
-        da.onClick(event, da);
-    });
-    $(this.canvas).mousemove(function(event) {
-        da.onMouseMove(event, da);
-    });
-    $(this.canvas).mouseout(function(event) {
-        da.toggleBar(-1);
-        da.selBar = -1;
-
-    });
     
     $(this.canvas).bind("yearWanted", function(event, params) {
         var year = params.year;
@@ -150,7 +151,24 @@ Da.prototype = {
         $(this.infoCanvas).css("width", $(this.canvas).width());
         $(this.infoCanvas).attr("width", $(this.canvas).width());
         this.$div.append(this.infoCanvas);
+        $(this.canvas).click(function(event) {
+            da.onClick(event, da);
+        });
+        $(this.canvas).mousemove(function(event) {
+            da.onMouseMove(event, da);
+        });
+        $(this.canvas).mouseout(function(event) {
+            da.toggleBar(-1);
+            da.selBar = -1;
+
+        });
       
+    },
+    resize: function(){
+        this.$canvas.clearCanvas();
+        $(this.infoCanvas).remove();
+        this.init();
+        this.render();
     },
     render: function() {
         for (var i = 0; i <= this.period; i++) {

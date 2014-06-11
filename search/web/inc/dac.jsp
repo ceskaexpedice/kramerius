@@ -12,28 +12,24 @@
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 <%@page import="cz.incad.Kramerius.I18NServlet"%>
 <%@page import="cz.incad.kramerius.service.*"%>
-<%
-	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
-        KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
-        pageContext.setAttribute("kconfig", kconfig);
-            LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
-            pageContext.setAttribute("lctx", lctx);
-            String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
-            pageContext.setAttribute("i18nServlet", i18nServlet);
-%>
-<c:set var="wt" scope="request">json</c:set>
-<%@ include file="searchParams-html.jsp" %>
+
+<c:set var="wt" scope="request">xml</c:set>
+    <% pageContext.setAttribute("carriageReturn", "\r"); %> 
+<% pageContext.setAttribute("newLine", "\n"); %> 
+<c:set var="singleQuotes">'</c:set>
+<c:set var="singleQuotesReplace">\'</c:set>
+<c:set var="doubleQuotes">"</c:set>
+<c:set var="doubleQuotesReplace">\"</c:set>
+    
 <script src="js/underscore-min.js" type="text/javascript" ></script>
 <script src="js/utils.js" type="text/javascript" ></script>
 <script src="js/jcanvas.js" type="text/javascript" ></script>
 <script src="js/canvasDa.js" type="text/javascript" ></script>
 <script type="text/javascript">
-    var ja = ${xml};
+    var data = '<c:out escapeXml="false" value="${fn:replace(fn:replace(fn:replace(fn:replace(xml,carriageReturn,' '),newLine,' '), singleQuotes, singleQuotesReplace),doubleQuotes,doubleQuotesReplace)}" />';
     var da;
     $(document).ready(function(){ 
-        da = new Da('#canvasda', ja.facet_counts.facet_fields.rok, null);
-        $(window).resize(function() {
-        });
+        da = new Da('#canvasda', data, {isXml: true});
         da.render();
         da.setDatePicker();
         da.scrollToMax();

@@ -66,10 +66,7 @@
     <%@ include file="../facets.jsp" %>
     </div>
     <div id="dadiv" style="overflow:hidden; width:100%; height:300px;position: relative;padding:0;">
-        <p style="text-align: center;">
-            <img src="img/loading.gif" alt="loading date axis" /><br/>Time line loading...
-        </p>
-        <%--@ include file="../da.jsp" --%>
+        <%@ include file="../dac.jsp" %>
     </div>
     <scrd:loggedusers>
     <div id="contextMenu"><%@include file="../details/contextMenu.jsp" %></div>
@@ -87,22 +84,13 @@
     </div>
 <script type="text/javascript">
     $("#docs").tabs();
-    $.get("inc/dac.jsp" + window.location.search, function(data){
+    //$.get("inc/dac.jsp" + window.location.search, function(data){
         
-        $("#dadiv").html(data);
-        $("#filters").tabs();
-        
-        if($("#dadiv").length===0){
-            $("#dali").remove();
-        }else{
-            resizeAll();
-            //initDateAxis();
-            //$("#content-resizable").css("height", (containerHeight+7) + "px");
-            //daScrollToMax();
-        }
-    });
-$(document).ready(function(){
+        //$("#dadiv").html(data);
+    //});
+    $(document).ready(function(){
     
+        
     
     var w;
     var w1 = $(window).height() -
@@ -150,6 +138,23 @@ $(document).ready(function(){
         }
         
     });
+    $("#filters").tabs({
+        activate: function(event, ui){
+            da.resize();
+        },
+        show: function(event, ui){
+            if(ui.panel.id == "dadiv"){
+                da.resize();
+            }
+        }
+    });
+        
+    if($("#dadiv").length===0){
+        $("#dali").remove();
+    }else{
+        resizeAll();
+        
+    }
     translateCollections();
     getExtInfo();
     getCollapsedPolicy();

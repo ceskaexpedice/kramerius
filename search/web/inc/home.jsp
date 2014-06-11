@@ -25,9 +25,7 @@
 <div id="homedabox" style="float:left;width:239px;margin-left:4px;">
     <ul><li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li></ul>
     <div id="dadiv" style="overflow:hidden; width:100%; height:300px;position: relative;padding:0;">
-        <p style="text-align: center;">
-            <img src="img/loading.gif" alt="loading date axis" /><br/>Time line loading...
-        </p>
+        <%@ include file="dac.jsp" %>
     </div>
 </div>
 </td><td style="width:745px;"> 
@@ -50,14 +48,9 @@
     $(document).ready(function(){
         //resizeAll();
         setTimeout(resizeAll, 1000);
-        $.get("inc/dac.jsp", function(data){
-            $("#dadiv").html(data);
-            //initDateAxis();
-            //$("#content-resizable").css("height", (containerHeight+7) + "px");
-            //daScrollToMax();
-            //resizeAll();
-            
-        });
+        //$.get("inc/dac.jsp", function(data){
+            //$("#dadiv").html(data);
+        //});
         $("#dadiv").bind("yearChanged", function(event, params){
             daYearClicked(params);
         })
