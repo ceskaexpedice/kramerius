@@ -313,6 +313,8 @@ Da.prototype = {
         //window.location.hash = year.toString();
     },
     setDatePicker: function(){
+        var minY = this.minYear;
+        var maxY = this.maxYear;
         var tod = "01.01."+this.minYear;
         var tdo = "31.12."+this.maxYear;
         $( "#f1" ).val(tod);
@@ -324,6 +326,8 @@ Da.prototype = {
             dateFormat: "dd.mm.yy",
             minDate: tod,
             maxDate: tdo,
+            constrainInput: true,
+            yearRange: minY + ":" + maxY,
             onSelect: function( selectedDate ) {
                 var option = this.id === "f1" ? "minDate" : "maxDate",
                     instance = $( this ).data( "datepicker" ),
@@ -332,6 +336,11 @@ Da.prototype = {
                         $.datepicker._defaults.dateFormat,
                         selectedDate, instance.settings );
                 dates.not( this ).datepicker( "option", option, date );
+            },
+            onChangeMonthYear:function(year,month,instance){
+                console.log(year);
+                $(instance).datepicker("refresh"); 
+                //$(inst)._selectDate(a,$(inst)._formatDate(f,f.currentDay,f.currentMonth,f.currentYear));
             }
         });
         $("#ui-datepicker-div").css("z-index", 100);

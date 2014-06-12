@@ -34,12 +34,26 @@
         da.setDatePicker();
         da.scrollToMax();
     });
+    function checkValid(event, obj){
+        var minDate = $("#f1").datepicker('option', 'getDate');
+        var maxDate = $("#f2").datepicker('option', 'getDate');
+        var value = $(obj).val().replace(/\./g, "-");
+        var dateValue = Date.parse(value);
+        if(isNaN(dateValue) || dateValue > maxDate || dateValue < minDate){
+            //return false;
+        }
+        $(obj).datepicker('option', 'setDate', value);
+        if( event.keyCode !== 13){
+            //return false;
+        }
+        return true;
+    }
 </script>
-<div id="da-inputs">
+<div id="da-inputs" class="blockMsg">
     <span style="float:left;"><fmt:message bundle="${lctx}">Od</fmt:message>:&nbsp;</span>
-    <input style="float:left;" class="da_input" id="f1" size="10" type="text" value="" onkeyup="checkDoFilter(event)" />
+    <input style="float:left;" class="da_input" id="f1" size="10" type="text" value="" onchange="checkValid(event, this)"  />
     <span style="float:left;">&nbsp;<fmt:message bundle="${lctx}">Do</fmt:message>:&nbsp;</span>
-    <input style="float:left;" class="da_input" id="f2" size="10" type="text" value="" onkeyup="checkDoFilter(event)"  /> 
+    <input style="float:left;" class="da_input" id="f2" size="10" type="text" value="" onchange="checkValid(event, this)"  /> 
 <a href="javascript:doFilter();" style="float:right; width:16px;overflow:hidden;" ><span class="ui-icon ui-icon-search" title="<fmt:message bundle="${lctx}">dateaxis.use</fmt:message>" >a</span></a>
 </div>
 <div style="overflow:hidden; width:100%; height:100%;position: relative;left:0px;top:0px;padding:0px;">
