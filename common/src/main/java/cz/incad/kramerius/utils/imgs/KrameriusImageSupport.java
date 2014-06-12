@@ -58,8 +58,7 @@ public class KrameriusImageSupport {
 
     public static BufferedImage readImage(URL url, ImageMimeType type, int page) throws IOException {
         LOGGER.fine("type is "+type);
-        if (type == null) return null;
-        if (type.javaNativeSupport()) {
+        if (type == null || type.javaNativeSupport() ) {
             InputStream stream = url.openStream();
             try{
                 ImageIO.setUseCache(useCache());
@@ -131,8 +130,10 @@ public class KrameriusImageSupport {
         IOUtils.copyStreams(new ByteArrayInputStream(bos.toByteArray()), os);
     }
 
+    
+    
     public static Dimension readDimension(URL url, ImageMimeType type) throws IOException {
-        if (type.javaNativeSupport()) {
+        if (type == null || type.javaNativeSupport() ) {
             Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(type.getDefaultFileExtension());
             if (readers.hasNext()) {
                 ImageReader reader = readers.next();

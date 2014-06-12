@@ -54,7 +54,7 @@
             $('#q').addClass('searching');
         }
     }
-    function checkQuery() {
+    function checkQuery(){
         //check year
         var rok = $("#rok").val();
         if (rok !== "") {
@@ -64,7 +64,7 @@
             } else {
                 $("#rok").val(parseInt(rok, 10));
             }
-        }
+        }  
         return true;
     }
 </script>
