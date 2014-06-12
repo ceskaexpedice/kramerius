@@ -286,7 +286,13 @@ Da.prototype = {
         this.scrollTo(finalPos);
     },
     scrollToMax: function(){
-        this.scrollTo(this.indexWithMax * (this.barMargin + this.barWidth) + this.$div.height()/2);
+        var to = this.indexWithMax * (this.barMargin + this.barWidth);
+        if(to > this.$div.height()/2){
+            to = to + this.$div.height()/2;
+        }else{
+            to = to - this.$div.height()/2;
+        }
+        this.scrollTo(to);
     },
     scrollTo: function(to){
         var speed = 500;

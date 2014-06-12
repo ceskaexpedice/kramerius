@@ -633,7 +633,7 @@ div.search_result *{
 
 #canvasda{
     width:100%; 
-    height:calc(100% - 27px);
+    height:calc(100% - 33px);
     background-color: #f3f3f3;
     left:0px;top:0px;padding:0px;
 }
