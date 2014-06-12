@@ -152,6 +152,9 @@ a.image:hover {
 
 /* home */
 
+#intro{
+    padding: 0;
+}
 #intro>div.ui-tabs-panel{
     padding: 3px;
 }
@@ -469,7 +472,7 @@ div.search_result *{
 
 #canvasda{
     width:100%; 
-    height:100%;
+    height: calc(100% - 33px);
     background-color: #f3f3f3;
 }
 #canvasda .info{

@@ -22,7 +22,7 @@
     pageContext.setAttribute("dts", dts);
 %>
 <table style="width: 990px;"><tr><td valign="top">
-<div id="homedabox" style="float:left;width:239px;margin-left:4px;">
+<div id="homedabox" style="float:left;width:239px;margin-left:4px;padding:3px;">
     <ul><li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li></ul>
     <div id="dadiv" style="overflow:hidden; width:100%; height:300px;position: relative;padding:0;">
         <%@ include file="dac.jsp" %>

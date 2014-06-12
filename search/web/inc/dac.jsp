@@ -49,7 +49,7 @@
         return true;
     }
 </script>
-<div id="da-inputs" class="blockMsg">
+<div id="da-inputs" >
     <span style="float:left;"><fmt:message bundle="${lctx}">Od</fmt:message>:&nbsp;</span>
     <input style="float:left;" class="da_input" id="f1" size="10" type="text" value="" onchange="checkValid(event, this)"  />
     <span style="float:left;">&nbsp;<fmt:message bundle="${lctx}">Do</fmt:message>:&nbsp;</span>
@@ -57,7 +57,7 @@
 <a href="javascript:doFilter();" style="float:right; width:16px;overflow:hidden;" ><span class="ui-icon ui-icon-search" title="<fmt:message bundle="${lctx}">dateaxis.use</fmt:message>" >a</span></a>
 </div>
 <div style="overflow:hidden; width:100%; height:100%;position: relative;left:0px;top:0px;padding:0px;">
-<div id="canvasda" class="years" style="overflow:auto; width:100%; height:100%; position: relative;top:0; left:0;">
+<div id="canvasda" class="years" style="overflow:auto; position: relative;">
 <div class="info"></div><div class="yearLabel"></div><div class="bar"><div class="sel"></div></div>
 <canvas width="100" height="130" style="position: relative;"></canvas>
 </div>
