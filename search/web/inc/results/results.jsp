@@ -244,7 +244,7 @@
         var w;
         var w1 = $(window).height() -
                 $("#header").height() - 
-                $("#footer").outerHeight(true) - 2;
+                $("#footer").outerHeight(true) - 12;
         w1 = w1 +  $("#footer").outerHeight(true);
         //w1 = Math.max(w1, 700);
         $("#split").css("height", w1);
