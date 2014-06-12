@@ -30,7 +30,7 @@
 <td width="500px"> </td> 
 
 <td>version:${helpViewObject.version}</td>
-<td>revision:${helpViewObject.revision}</td>
+<td>revision:<a href="https://github.com/ceskaexpedice/kramerius/commit/${helpViewObject.revision}"> ${fn:substring(helpViewObject.revision, 0, 4)}...</a></td></tr>
 
 </tr>
 </table>

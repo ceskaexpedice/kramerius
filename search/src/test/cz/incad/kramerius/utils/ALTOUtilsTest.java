@@ -45,4 +45,12 @@ public class ALTOUtilsTest {
         Assert.assertNotNull(ALTOUtils.disectAlto("cena", parsed));
         Assert.assertNotNull(ALTOUtils.disectAlto("ročník", parsed));
     }
+
+    @Test
+    public void testBadAlto() throws ParserConfigurationException, SAXException, IOException {
+        Document parsed = XMLUtils.parseDocument(ALTOUtilsTest.class.getResourceAsStream("res/bad_alto.xml"));
+        Map<String, Map<String, Double>> mapp = ALTOUtils.disectAlto("cena", parsed);
+        // ok -> no exception
+    }
+
 }

@@ -173,7 +173,7 @@ Projekt je spolufinancován ze Strukturálních fondů EU (Evropského fondu pro
 <div align="center" >
     ©2008-2014.
     Developed under GNU GPL by <a href="http://www.incad.cz/">Incad</a>, <a href="http://www.nkp.cz/">NKČR</a>, <a href="http://www.lib.cas.cz/">KNAV</a> and <a href="http://www.mzk.cz/">MZK</a> 
-    (version: ${footerViewObject.version}, revision: ${footerViewObject.revision})
+    (version: ${footerViewObject.version}, revision:<a href="https://github.com/ceskaexpedice/kramerius/commit/${footerViewObject.revision}">  ${fn:substring(footerViewObject.revision, 0, 4)}..</a>)
 </div>
     </td>
     

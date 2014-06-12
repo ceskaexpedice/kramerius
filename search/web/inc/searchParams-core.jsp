@@ -23,7 +23,13 @@
     <c:set var="filterByType" value="false" scope="request" />
     <c:set var="rowsdefault" value="${searchParams.searchResultsRows}" scope="request" />
     <c:set var="rows" value="${rowsdefault}" scope="request" />
+    
+    <c:if test="${empty wt}">
+        <c:set var="wt" scope="request">xml</c:set>
+    </c:if>
+    
 <c:url var="url" value="${kconfig.solrHost}/select" >
+    <c:param name="wt" value="${wt}" />
     <c:choose>
         <c:when test="${empty param.q}" >
             <c:param name="q" value="*:*" />
@@ -38,6 +44,7 @@
                 </c:when>
                 <c:otherwise><c:param name="q" value="${searchParams.escapedQuery}" /></c:otherwise>
             </c:choose>
+            
             
             <c:set var="rows" value="${rowsdefault}" scope="request" />
         </c:when>
@@ -205,31 +212,33 @@
     </c:choose>
     <c:param name="defType" value="edismax" />
 </c:url>
-
     <c:import url="${url}" var="xml" charEncoding="UTF-8" />
+    <c:if test="${wt == 'xml'}">
     <x:parse var="doc" xml="${xml}"  />
+    </c:if>
 </c:catch>
 <c:choose>
     <c:when test="${searchException!=null}">
         ${searchException}
         <%--<c:import url="empty.xml" var="xml" charEncoding="UTF-8" />--%>
         <c:set var="xml">
-        <?xml version="1.0" encoding="UTF-8"?>
-        <response>
-            <lst name="responseHeader">
-                <int name="status">1</int>
-                <str name="error"><fmt:message bundle="${lctx}" key="search.error" /></str>
-                <lst name="params">
-                    <str name="q"></str>
+            <?xml version="1.0" encoding="UTF-8"?>
+            <response>
+                <lst name="responseHeader">
+                    <int name="status">1</int>
+                    <str name="error"><fmt:message bundle="${lctx}" key="search.error" /></str>
+                    <lst name="params">
+                        <str name="q"></str>
+                    </lst>
                 </lst>
-            </lst>
-            <result name="response" numFound="0" start="0"/>
-        </response>
-    </c:set>
+                <result name="response" numFound="0" start="0"/>
+            </response>
+        </c:set>
         <x:parse var="doc" xml="${xml}"  />
     </c:when>
 </c:choose>
 <jsp:useBean id="xml" type="java.lang.String" />
+<c:if test="${wt == 'xml'}">
 <c:choose>
     <c:when test="${isCollapsed}"><c:set var="numDocs" scope="request" ><x:out select="$doc//response/lst[@name='grouped']/lst/int" /></c:set></c:when>
     <c:otherwise><c:set var="numDocs" scope="request" ><x:out select="$doc/response/result/@numFound" /></c:set></c:otherwise>
@@ -247,3 +256,4 @@
     </c:choose>
     (<c:out value="${numDocsCollapsed}" />)
 </c:set>
+</c:if>

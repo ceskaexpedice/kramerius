@@ -49,7 +49,7 @@ public class FooterViewObject implements Initializable{
     }
 
     private InputStream getInputStream() throws IOException {
-        InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("revision.properties");
+        InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("build.properties");
         if (revisions != null) {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(revisions,true, bos, false);
@@ -59,7 +59,7 @@ public class FooterViewObject implements Initializable{
     
     public String getRevision() {
         if (this.properties != null) {
-            return this.properties.getProperty("revision");
+            return this.properties.getProperty("hash");
         } else return "";
     }
 
@@ -74,7 +74,7 @@ public class FooterViewObject implements Initializable{
             if (is != null) {
                 this.properties = new Properties();
                 this.properties.load(is);
-            } else LOGGER.severe("cannot load revision properties ");
+            } else LOGGER.severe("cannot load build properties ");
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } finally {

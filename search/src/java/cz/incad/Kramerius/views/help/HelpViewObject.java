@@ -86,7 +86,7 @@ public class HelpViewObject {
     }
 
     public InputStream getInputStream() throws IOException {
-        InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("revision.properties");
+        InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("build.properties");
         if (revisions != null) {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(revisions,true, bos, false);
@@ -100,7 +100,7 @@ public class HelpViewObject {
 			if (revisions != null) {
 				Properties props = new Properties();
 				props.load(revisions);
-				return props.getProperty("revision");
+				return props.getProperty("hash");
 			} else return "";
 		} catch (IOException e) {
 			LOGGER.severe(e.getMessage());

@@ -24,10 +24,8 @@
 <table id="homecontent"><tr><td valign="top">
 <div id="homedabox" style="float:left;width:239px;margin-left:4px;">
     <ul><li><a href="#dadiv"><fmt:message bundle="${lctx}" key="Časová osa" /></a></li></ul>
-    <div id="dadiv" style="padding:3px;">
-        <p style="text-align: center;">
-            <img src="img/loading.gif" alt="loading date axis" /><br/>Time line loading...
-        </p>
+    <div id="dadiv" style="overflow:hidden; width:100%; height:300px;position: relative;padding:0;">
+        <%@ include file="dac.jsp" %>
     </div>
 </div>
 </td><td style="width:913px;" valign="top"> 
@@ -49,17 +47,6 @@
     });
     $(document).ready(function(){
         setTimeout(resizeAll, 1000);
-        $.get("inc/da.jsp", function(data){
-            $("#dadiv").html(data);
-            initDateAxis();
-            //$("#content-resizable").css("height", "200px");
-            daScrollToMax();
-            if($("#content-resizable").length>0){
-                resizeDateAxisContent();
-                $("#intro>div.ui-tabs-panel").css("height", $("#dadiv").height());
-            }
-            //setTimeout(resizeAll, 2000);
-        });
         
     });
     function resizeAll(){
@@ -67,25 +54,24 @@
         var w = $(window).height() -
             $("#main").height() - 
             $("#footer").outerHeight(true);
-        //w = w + $("#intro>div.ui-tabs-panel:first").height();
-        w = $(window).height() - $("#header").outerHeight(true) - $("#intro>ul.ui-tabs-nav").outerHeight(true);
+        
+        w = $(window).height() 
+                - $("#header").outerHeight(true) 
+                - $("#footer").outerHeight(true) 
+                - $("#intro>ul.ui-tabs-nav").outerHeight(true) - 30;
         
         $("#intro>div.ui-tabs-panel").css("height", w);
+        $("#homedabox>div.ui-tabs-panel").css("height", w);
         var wmax = w;
-        wmax = Math.max(wmax, $(this).height());
-        $("#intro>div.ui-tabs-panel>div").each(function(){
+        $("#facets ul.facet").css("height", "100px");
+        $("div.ui-tabs-panel>div").each(function(){
             wmax = Math.max(wmax, $(this).height());
         });
-        //wmax = Math.max(wmax, $("#homecontent>tbody>tr>td").height() - $("#intro>ul.ui-tabs-nav").outerHeight(true));
-        $("#intro>div.ui-tabs-panel").css("height", wmax);
-        if($("#content-resizable").length>0){
-            //w = w -35;
-            //$("#content-resizable").css("height", w);
-            resizeDateAxisContent();
-            wmax = Math.max(wmax, $("#dadiv").height());
-            $("#intro>div.ui-tabs-panel").css("height", $("#dadiv").height());
-        }
+        //$("div.ui-tabs-panel").css("height", wmax);
+        
+        
         $("#facets ul.facet").css("height", "38%");
+        da.resize();
     }
     function addTypeFilter(value){
         var page = new PageQuery(window.location.search);
@@ -97,6 +83,19 @@
             window.location = "r.jsp?" +
             page.toString() + "&" + f;
         }
+
+        var page = new PageQuery(window.location.search);
+        page.setValue("offset", "0");
+        page.setValue("forProfile", "dateaxis");
+        //page.setValue(fromField, decodeDate($("#" + fromField).val()));
+        //page.setValue(toField, decodeDate($("#" + toField).val()));
+
+        page.setValue("da_od", decodeDate($("#" + fromField).val()));
+        page.setValue("da_do", decodeDate($("#" + toField).val()));
+        var newurl = "r.jsp?" + page.toString() + dateAxisAdditionalParams;
+
+        document.location.href = newurl;
+
     }
 </script>
 

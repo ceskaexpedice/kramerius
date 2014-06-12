@@ -626,3 +626,52 @@ div.search_result *{
 #intro>#intro6>div, #intro>#intro7>div{
     background: #ffffff !important;
 }
+
+
+
+/* Casova osa */
+
+#canvasda{
+    width:100%; 
+    height:calc(100% - 27px);
+    background-color: #f3f3f3;
+    left:0px;top:0px;padding:0px;
+}
+#canvasda .info{
+    font: 12px Verdana;
+    font-family: 'Verdana', sans-serif;
+    font-weight: 500;
+    color: #ffffff;
+    background-color: #ef6001;
+}
+#canvasda .yearLabel{
+    font: 12px Verdana;
+    font-family: 'Verdana', sans-serif;
+    font-weight: 500;
+    color: rgba(23,45,89,0.8);
+    background-color: rgba(23,45,89,0.3);
+}
+#canvasda .bar{
+    background-color: #cccccc;
+    height: 4px;
+    left:-1000px;
+    position:absolute;
+}
+#canvasda .bar .sel{
+    background-color: #234589;
+}
+
+#da-inputs{
+  width:100%;
+  text-align:left;
+  padding:4px 0px;
+  z-index:3;
+  font-size: 0.9em;
+  height:25px;
+}
+#da-inputs input{
+  border: 1px solid #333333;
+  z-index:23 !important;
+  position:relative;
+  width: 70px;
+}
