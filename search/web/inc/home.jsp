@@ -70,14 +70,14 @@
         $("#intro>div.ui-tabs-panel").css("height", w);
         $("#homedabox>div.ui-tabs-panel").css("height", w);
         var wmax = w;
-        //$("#facets ul.facet").css("height", "100px");
+        $("#facets ul.facet").parent().css("height", "120px");
         $("div.ui-tabs-panel>div").each(function(){
             wmax = Math.max(wmax, $(this).height());
         });
         $("div.ui-tabs-panel").css("height", wmax);
         
         
-        $("#facets ul.facet").parent().css("height", "42%");
+        $("#facets ul.facet").parent().css("height", wmax/2 - 32);
         da.resize();
     }
     function addTypeFilter(value){
