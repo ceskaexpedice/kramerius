@@ -70,14 +70,14 @@
         $("#intro>div.ui-tabs-panel").css("height", w);
         $("#homedabox>div.ui-tabs-panel").css("height", w);
         var wmax = w;
-        $("#facets ul.facet").css("height", "100px");
+        //$("#facets ul.facet").css("height", "100px");
         $("div.ui-tabs-panel>div").each(function(){
             wmax = Math.max(wmax, $(this).height());
         });
-        //$("div.ui-tabs-panel").css("height", wmax);
+        $("div.ui-tabs-panel").css("height", wmax);
         
         
-        $("#facets ul.facet").css("height", "38%");
+        $("#facets ul.facet").parent().css("height", "42%");
         da.resize();
     }
     function addTypeFilter(value){
@@ -89,6 +89,28 @@
         if(window.location.search.indexOf(f)==-1){
             window.location = "r.jsp?" +
             page.toString() + "&" + f;
+        }
+
+        var page = new PageQuery(window.location.search);
+        page.setValue("offset", "0");
+        page.setValue("forProfile", "dateaxis");
+        //page.setValue(fromField, decodeDate($("#" + fromField).val()));
+        //page.setValue(toField, decodeDate($("#" + toField).val()));
+
+        page.setValue("da_od", decodeDate($("#" + fromField).val()));
+        page.setValue("da_do", decodeDate($("#" + toField).val()));
+        var newurl = "r.jsp?" + page.toString() + dateAxisAdditionalParams;
+
+        document.location.href = newurl;
+
+    }
+    function daYearClicked(params){
+        var rok = params.year;
+        $("#" + fromField).val("01.01."+rok);
+        $("#" + toField).val("31.12."+rok);
+        if(!isValidDate($("#" + fromField).val()) || !isValidDate($("#" + toField).val())){
+            alert(dictionary['filter.invalid.date'] );
+            return;
         }
 
         var page = new PageQuery(window.location.search);

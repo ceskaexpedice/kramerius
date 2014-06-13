@@ -299,7 +299,7 @@ a.image:hover {
 }
 #facets ul.facet{
     overflow:auto;
-    height: 100px;
+    height: calc(100% - 24px);
 }
 #facets li{
     list-style-type: none;
@@ -627,6 +627,10 @@ div.search_result *{
     background: #ffffff !important;
 }
 
+#intro>div.ui-tabs-panel{
+  overflow: auto;
+}
+
 
 
 /* Casova osa */
@@ -673,5 +677,10 @@ div.search_result *{
   border: 1px solid #333333;
   z-index:23 !important;
   position:relative;
-  width: 70px;
+  width: 65px;
+  font-size: 0.9em;
+}
+#da-inputs input, #da-inputs label{
+  display: inline-block;
+  float:left;
 }
