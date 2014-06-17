@@ -71,6 +71,7 @@ var Da = function(elem, data, options) {
     while(pred%10 !== 0){
         pred--;
     }
+    this.minYearWithCount = this.minYear;
     this.minYear = pred;
     
     this.period = this.maxYear - this.minYear;
@@ -118,6 +119,11 @@ Da.prototype = {
     infoPadding: 10,
     infoArrowW: 10,
     init: function() {
+        
+        if(this.jarray.length < 4){
+            return;
+        }
+
         var infocss = $(this.div).find("div.info");
         this.infoFont = $(infocss).css("font");
         this.lineWidth = parseInt($(infocss).css("fontWeight")) / 1000.0;
@@ -140,14 +146,14 @@ Da.prototype = {
         $(this.canvas).css("width", this.barsPanelWidth);
         var totalHeight = this.period * (this.barMargin + this.barWidth);
         this.barsPanelHeight = totalHeight;
-        $(this.canvas).css("height", totalHeight);
-        $(this.canvas).attr("height", totalHeight);
+        $(this.canvas).css("height", Math.max(totalHeight, this.$div.height()));
+        $(this.canvas).attr("height", Math.max(totalHeight, this.$div.height()));
         this.scale = (1.0 * this.barsPanelWidth - this.barsLeftOffset) / this.maxCount;
         
         this.infoCanvas = $('<canvas/>');
         $(this.infoCanvas).css({left: 0, top: 0, "z-index": 20, "position": "absolute"});
-        $(this.infoCanvas).css("height", totalHeight);
-        $(this.infoCanvas).attr("height", totalHeight);
+        $(this.infoCanvas).css("height", Math.max(totalHeight, this.$div.height()));
+        $(this.infoCanvas).attr("height", Math.max(totalHeight, this.$div.height()));
         $(this.infoCanvas).css("width", $(this.canvas).width());
         $(this.infoCanvas).attr("width", $(this.canvas).width());
         this.$div.append(this.infoCanvas);
@@ -171,6 +177,10 @@ Da.prototype = {
         this.render();
     },
     render: function() {
+        
+        if(this.jarray.length < 4){
+            return;
+        }
         for (var i = 0; i <= this.period; i++) {
             if((i + this.minYear) % 10 === 0){
                 this.drawYearLabel(i);
@@ -321,7 +331,7 @@ Da.prototype = {
     setDatePicker: function(){
         var minY = this.minYear;
         var maxY = this.maxYear;
-        var tod = "01.01."+this.minYear;
+        var tod = "01.01."+this.minYearWithCount;
         var tdo = "31.12."+this.maxYear;
         $( "#f1" ).val(tod);
         $( "#f2" ).val(tdo);
@@ -342,14 +352,9 @@ Da.prototype = {
                         $.datepicker._defaults.dateFormat,
                         selectedDate, instance.settings );
                 dates.not( this ).datepicker( "option", option, date );
-            },
-            onChangeMonthYear:function(year,month,instance){
-                console.log(year);
-                $(instance).datepicker("refresh"); 
-                //$(inst)._selectDate(a,$(inst)._formatDate(f,f.currentDay,f.currentMonth,f.currentYear));
-
             }
         });
+        this.dates = dates;
         $("#ui-datepicker-div").css("z-index", 100);
         $('#ui-datepicker-div').hide();
     }

@@ -14,7 +14,10 @@
 <%@page import="cz.incad.kramerius.service.*"%>
 
 <c:set var="wt" scope="request">xml</c:set>
-    <% pageContext.setAttribute("carriageReturn", "\r"); %> 
+<view:kconfig var="daInputEnabled" key="search.dateAxis.inputEnabled" defaultValue="false" />
+<c:set var="readonly"></c:set>
+<c:if test="${!daInputEnabled}"><c:set var="readonly">readonly</c:set></c:if>
+<% pageContext.setAttribute("carriageReturn", "\r"); %> 
 <% pageContext.setAttribute("newLine", "\n"); %> 
 <c:set var="singleQuotes">'</c:set>
 <c:set var="singleQuotesReplace">\'</c:set>
@@ -36,25 +39,26 @@
     });
     
     function checkValid(event, obj){
-        var minDate = $("#f1").datepicker('option', 'getDate');
-        var maxDate = $("#f2").datepicker('option', 'getDate');
-        var value = $(obj).val().replace(/\./g, "-");
-        var dateValue = Date.parse(value);
+        var id = $(obj).attr("id");
+        var minDate = $("#f1").datepicker('getDate');
+        var maxDate = $("#f2").datepicker('getDate');
+        var calDate = $(obj).datepicker('getDate');
+        var value = $(obj).val();
+        var dateValue = Date.parse(value.replace(/\./g, "-"));
         if(isNaN(dateValue) || dateValue > maxDate || dateValue < minDate){
             //return false;
         }
-        $(obj).datepicker('option', 'setDate', value);
         if( event.keyCode !== 13){
             //return false;
         }
-        return true;
+        return;
     }
 </script>
 <div id="da-inputs" >
     <label for="f1"><fmt:message bundle="${lctx}">Od</fmt:message>:&nbsp;</label>
-    <input class="da_input" id="f1" size="10" type="text" value="" onchange="checkValid(event, this)"  />
+    <input class="da_input" id="f1" size="10" type="text" value="" ${readonly} />
     <label for="f2">&nbsp;<fmt:message bundle="${lctx}">Do</fmt:message>:&nbsp;</label>
-    <input class="da_input" id="f2" size="10" type="text" value="" onchange="checkValid(event, this)"  /> 
+    <input class="da_input" id="f2" size="10" type="text" value="" ${readonly} /> 
 
 <a href="javascript:doFilter();" style="float:right; width:16px;overflow:hidden;" ><span class="ui-icon ui-icon-search" title="<fmt:message bundle="${lctx}">dateaxis.use</fmt:message>" >a</span></a>
 </div>

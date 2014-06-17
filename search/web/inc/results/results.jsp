@@ -89,7 +89,9 @@
         //$("#dadiv").html(data);
     //});
     $(document).ready(function(){
-    
+        $("#dadiv").bind("yearChanged", function(event, params){
+            daYearClicked(params);
+        })
     
     resizeAll();
     /*
