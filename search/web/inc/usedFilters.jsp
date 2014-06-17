@@ -47,6 +47,10 @@
                     <c:set var="facetValueDisp"><fmt:message bundle="${lctx}" >fedora.model.${facetValueDisp}</fmt:message></c:set>
                     <c:if test="${fn:startsWith(facetValueDisp, '???')}"><c:set var="facetValueDisp">${facetValue}</c:set></c:if>
                 </c:if>
+                <c:if test="${facetName == 'model_path'}">
+                    <c:set var="facetValueDisp"><fmt:message bundle="${lctx}" >fedora.model.${fn:substringBefore(facetValueDisp, '*')}</fmt:message></c:set>
+                    <c:if test="${fn:startsWith(facetValueDisp, '???')}"><c:set var="facetValueDisp">${facetValue}</c:set></c:if>
+                </c:if>
                 <c:if test="${facetName == 'dostupnost'}">
                     <c:set var="facetValueDisp"><fmt:message bundle="${lctx}" >dostupnost.${facetValueDisp}</fmt:message></c:set>
                     <c:if test="${fn:startsWith(facetValueDisp, '???')}"><c:set var="facetValueDisp">${facetValue}</c:set></c:if>

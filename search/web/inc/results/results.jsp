@@ -65,11 +65,8 @@
     <%@ include file="../usedFilters.jsp" %>
     <%@ include file="../facets.jsp" %>
     </div>
-    <div id="dadiv" style="padding:3px;"
-        <p style="text-align: center;">
-            <img src="img/loading.gif" alt="loading date axis" /><br/>Time line loading...
-        </p>
-        <%--@ include file="../da.jsp" --%>
+    <div id="dadiv" style="overflow:hidden; width:100%; height:300px;position: relative;padding:0;">
+        <%@ include file="../dac.jsp" %>
     </div>
     <scrd:loggedusers>
     <div id="contextMenu"><%@include file="../details/contextMenu.jsp" %></div>
@@ -87,30 +84,13 @@
     </div>
 <script type="text/javascript">
     $("#docs").tabs();
-    $("#filters").tabs({
-        show: function(event, ui){
-            var tab = ui.tab.toString().split('#')[1];
-            if (tab=='dadiv'){
-                 positionCurtains();
-                 setBarsPositions();
-
-            }
-        }
-    });
-$(document).ready(function(){
+    //$.get("inc/dac.jsp" + window.location.search, function(data){
+        
+        //$("#dadiv").html(data);
+    //});
+    $(document).ready(function(){
     
-    
-    $.get("inc/da.jsp", function(data){
-        $("#dadiv").html(data);
-        if($("#dadiv").length==0){
-            $("#dali").remove();
-        }else{
-            resizeAll();
-            initDateAxis();
-            $("#content-resizable").css("height", (containerHeight+7) + "px");
-            daScrollToMax();
-        }
-    });
+        
     
     var w;
     var w1 = $(window).height() -
@@ -158,6 +138,23 @@ $(document).ready(function(){
         }
         
     });
+    $("#filters").tabs({
+        activate: function(event, ui){
+            da.resize();
+        },
+        show: function(event, ui){
+            if(ui.panel.id == "dadiv"){
+                da.resize();
+            }
+        }
+    });
+        
+    if($("#dadiv").length===0){
+        $("#dali").remove();
+    }else{
+        resizeAll();
+        
+    }
     translateCollections();
     getExtInfo();
     getCollapsedPolicy();
@@ -218,6 +215,10 @@ $(document).ready(function(){
     $(window).resize(function(event, viewerOptions){
         resizeAll();
     });
+    
+    resizeAll();
+    
+    
 });
 
     function translateCollections(){
@@ -246,7 +247,8 @@ $(document).ready(function(){
         $("#docs_content>div.content").css("height", w);
         w = w1 - $("#filters>ul").outerHeight(true) - 16;
         $("#facets").css("height", w);
-
+        $("#dadiv").css("height", w);
+        $("#dadiv").css("width", $("#filters").width());
         if($("#content-resizable").length>0){
             w = w -42;
             $("#content-resizable").css("height", w);
@@ -481,7 +483,19 @@ $(document).ready(function(){
         page.setValue("offset", "0");
         page.setValue("forProfile", "facet");
                 
-        var f = "fq=" + field + ":\"" + value + "\"";
+        var f = "fq=" + field + ":\"" + encodeURIComponent(value) + "\"";
+        if(window.location.search.indexOf(f)==-1){
+            window.location = "r.jsp?" +
+            page.toString() + "&" + f;
+        }
+    }
+
+    function addTypeFilter(value){
+        var page = new PageQuery(window.location.search);
+        page.setValue("offset", "0");
+        page.setValue("forProfile", "facet");
+                
+        var f = "fq=model_path:" + value + "*";
         if(window.location.search.indexOf(f)==-1){
             window.location = "r.jsp?" +
             page.toString() + "&" + f;

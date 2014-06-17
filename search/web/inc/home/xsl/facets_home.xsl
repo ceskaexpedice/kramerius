@@ -11,6 +11,7 @@
     <xsl:param name="policyPublic" select="policyPublic"/>
     <xsl:variable name="generic" select="exts:new()" />
     <xsl:variable name="fqVal"><xsl:value-of select="/response/lst[@name='responseHeader']/lst[@name='params']/str[@name='fq']/text()" /></xsl:variable>
+    <xsl:key name="rootModel" match="lst[@name='model_path']/int/@name" use="substring-before(., '/')" />
     <xsl:template match="/">
         <div id="facets" style="font-size:1.2em;">
         <ul>
@@ -46,6 +47,18 @@
         }
     }
 
+    function addTypeFilter(value){
+        var page = new PageQuery(window.location.search);
+        page.setValue("offset", "0");
+        page.setValue("forProfile", "facet");
+                
+        var f = "fq=model_path:" + value + "*";
+        if(window.location.search.indexOf(f)==-1){
+            window.location = "r.jsp?" +
+            page.toString() + "&" + f;
+        }
+    }
+
         ]]></xsl:comment>
         </script>
     </xsl:template>
@@ -59,13 +72,43 @@
                 <xsl:value-of select="./@name"/>
             </xsl:variable>
             <xsl:if test="count(./int) > 1 and not($navName = 'rok')">
-                <xsl:call-template name="facet">
-                    <xsl:with-param name="facetname"><xsl:value-of select="./@name" /></xsl:with-param>
-                </xsl:call-template>
+                <xsl:choose>
+                    <xsl:when test="./@name = 'model_path'">
+                        <xsl:call-template name="model_path">
+                            <xsl:with-param name="facetname"><xsl:value-of select="./@name" /></xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="facet">
+                            <xsl:with-param name="facetname"><xsl:value-of select="./@name" /></xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:if>
         </xsl:for-each>
     </xsl:template>
 
+    <xsl:template name="model_path">
+        <xsl:param name="facetname" />
+        <xsl:variable name="facetname_bundle">facet.<xsl:value-of select="$facetname" /></xsl:variable>
+
+        <li style="float:left; border:1px solid silver;margin:5px;padding:5px;width:30%;">
+            <xsl:attribute name="id">facet_<xsl:value-of select="$facetname"/></xsl:attribute>
+            <span class="ui-icon ui-icon-triangle-1-e folder" ></span>
+            <a href="#"><xsl:value-of select="$bundle/value[@key=$facetname_bundle]" /></a>
+
+            <ul class="facet"><xsl:for-each select="./int/@name[generate-id(.) = generate-id(key('rootModel', substring-before(., '/'))[1])]">
+                <xsl:variable name="u"><xsl:value-of select="substring-before(., '/')" /></xsl:variable>
+                <xsl:variable name="f"><xsl:value-of select="concat('fedora.model.', $u)" /></xsl:variable>
+                <li><a>
+                    <xsl:attribute name="href">javascript:addTypeFilter('<xsl:value-of select="$u" />')</xsl:attribute>
+                    <xsl:value-of select="$bundle/value[@key=$f]" />
+                </a>
+                </li>
+            </xsl:for-each></ul>
+
+        </li>
+    </xsl:template>
     <xsl:template name="facet">
         <xsl:param name="facetname" />
         <xsl:variable name="facetname_bundle">facet.<xsl:value-of select="$facetname" /></xsl:variable>
@@ -89,6 +132,13 @@
                         <xsl:if test="$policyPublic='false' or @name='public'" >
                             <xsl:value-of select="$bundle/value[@key=$f]" /> (<xsl:value-of select="." />)
                         </xsl:if>
+                    </xsl:when>
+                    <xsl:when test="$facetname='language'">
+                        <xsl:variable name="f"><xsl:value-of select="concat('language.', @name)" /></xsl:variable>
+                        <xsl:choose>
+                             <xsl:when test="$bundle/value[@key=$f]!=''"><xsl:value-of select="$bundle/value[@key=$f]" /></xsl:when>
+                             <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
+                        </xsl:choose> (<xsl:value-of select="." />)
                     </xsl:when>
                     <xsl:otherwise><xsl:value-of select="@name" /> (<xsl:value-of select="." />)</xsl:otherwise>
                 </xsl:choose></xsl:variable>
