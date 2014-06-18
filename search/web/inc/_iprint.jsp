@@ -49,7 +49,7 @@ body
     }
 
     .image img {
-        height:275mm;
+        height:100%;
         margin:auto;
     }
 

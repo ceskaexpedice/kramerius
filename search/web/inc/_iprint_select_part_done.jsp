@@ -84,7 +84,7 @@ body
         var url = "../imgcut?pid="+encodeURIComponent(pid)+"&xpos="+xpos+"&ypos="+ypos+"&width="+width+"&height="+height;
             
         var imgelm = $("<img/>",{"src":url});
-        imgelm.css("height",(height*100)+"%");
+        imgelm.css("height","100%");
 
         divelm.append(imgelm);
         $("body").append(divelm);
