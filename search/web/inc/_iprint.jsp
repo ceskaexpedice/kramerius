@@ -26,71 +26,83 @@
     <script src="../js/jquery-1.5.1.min.js" type="text/javascript" ></script>
     <script src="../js/jquery-ui-1.8.11.custom.min.js" language="javascript" type="text/javascript"></script>
 
-    <script src="../js/jquery.mousewheel.js" type="text/javascript" ></script>
-    <script src="../js/jquery.splitter.js" type="text/javascript" ></script>
-
-<style>
-
-@page {
-    size: auto;   
-    margin: 0mm;  
-}
-
-body 
-    {
-        background-color:#FFFFFF; 
-        margin: 0px;  /* the margin on the content before printing */
-}
-
-@media print
-{
-    .image {
-        text-align:center;
-    }
-
-    .image img {
-        height:100%;
-        margin:auto;
-    }
-
-}
-
-@media screen
-  {
-    .image img{
-        margin:auto;
-    }
-}
-</style>
+    <link rel="stylesheet" href="../css/localprint/print.css" type="text/css" media="print"/>
 
 
-<script language="JavaScript" type="text/javascript">
-    var transcode = ${param['transcode']};
-    var pidsString = "${param['pids']}";
-    var pids = pidsString.split(',');
+    <script language="JavaScript" type="text/javascript">
+        var size = {
+                        'a4':{
+                                'portrait':{'widthstyle':'210mm','width':210, 'heightstyle':'297mm','height':297},
+                                'landscape':{'widthstyle':'297mm', 'width':297,'heightstyle':'210mm','height':210}
+                             },
+                        'a3':{
+                                'portrait':{'widthstyle':'297mm','width':297,'heightstyle':'420mm',height:420},
+                                'landscape':{'widthstyle':'420mm','width':420,'heightstyle':'297mm',height:297}
+                             }
+        };
+        
+        var transcode = ${param['transcode']};
+        var pidsString = "${param['pids']}";
+        var pids = pidsString.split(',');
 
-    if(transcode == null) {
-        transcode = false;
-    }
+        var page = "${param['page']}"
+        var layout = "${param['layout']}"
 
-    $(document).ready(function(){
-        $.each(pids, function( index, value ) {
-            var divelm = $("<div/>");
-            divelm.addClass("image");
+        if(transcode == null) {
+            transcode = false;
+        }
+        
+    
+        $(document).ready(function(){
 
-            var url = "../img?pid="+encodeURIComponent(value)+"&stream=IMG_FULL&action=";
-            var action = (transcode ? "TRANSCODE":"GETRAW");
-            url = url+action;
-            
-            var imgelm = $("<img/>",{"src":url});
+            var cssPagedMedia = (function () {
+                var style = document.createElement('style');
+                document.head.appendChild(style);
+                    return function (rule) {
+                    style.innerHTML = rule;
+                };
+            }());
 
-            divelm.append(imgelm);
-            $("body").append(divelm);
+
+            cssPagedMedia.size = function (size) {
+                cssPagedMedia('@page {size: ' + size + '; margin: 0mm;}');
+            };
+            var selected = size[page][layout];
+            cssPagedMedia.size(selected.widthstyle + ' '+ selected.heightstyle);
+    
+            $.each(pids, function( index, value ) {
+                var divelm = $("<div/>");
+                divelm.addClass("image");
+    
+                var url = "../img?pid="+encodeURIComponent(value)+"&stream=IMG_FULL&action=";
+                var action = (transcode ? "TRANSCODE":"GETRAW");
+                url = url+action;
+    
+                var imgelm = $("<img/>",{"src":url,'data-pid':encodeURIComponent(value)});
+                imgelm.load(function() {
+                    var ident = encodeURIComponent(value);
+                    var h = this.naturalHeight;
+                    var w = this.naturalWidth;
+                    
+                    var pomer = h/w;
+                    var nwidth = selected.width * 0.9;
+
+                    var nheight = pomer * nwidth;
+                    if (nheight > selected.height) {
+                        nheight = selected.height * 0.9;
+                        nwidth = nwidth / pomer;
+                    }
+                 
+                    $(this).css('width',nwidth+"mm");
+                    $(this).css('height',nheight+"mm");
+                });
+    
+                divelm.append(imgelm);
+                $("body").append(divelm);
+            });
+            window.print();
         });
-        window.print();
-    });
-</script>
-
+    </script>
 </head>
     <body>
     </body>

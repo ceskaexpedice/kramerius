@@ -28,42 +28,23 @@
 
     <script src="../js/jquery.mousewheel.js" type="text/javascript" ></script>
     <script src="../js/jquery.splitter.js" type="text/javascript" ></script>
+    <link rel="stylesheet" href="../css/localprint/print.css" type="text/css" media="print"/>
 
-<style>
-
-@page {
-    size: auto;   
-    margin: 0mm;  
-}
-
-body 
-    {
-        background-color:#FFFFFF; 
-        margin: 0px;  /* the margin on the content before printing */
-}
-
-@media print
-{
-    .image {
-        text-align:center;
-    }
-
-    .image img {
-        margin:auto;
-    }
-
-}
-
-@media screen
-  {
-    .image img{
-        margin:auto;
-    }
-}
-</style>
 
 
 <script language="JavaScript" type="text/javascript">
+
+    var size = {
+                    'a4':{
+                            'portrait':{'widthstyle':'210mm','width':210, 'heightstyle':'297mm','height':297},
+                            'landscape':{'widthstyle':'297mm', 'width':297,'heightstyle':'210mm','height':210}
+                         },
+                    'a3':{
+                            'portrait':{'widthstyle':'297mm','width':297,'heightstyle':'420mm',height:420},
+                            'landscape':{'widthstyle':'420mm','width':420,'heightstyle':'297mm',height:297}
+                         }
+    };
+
     var transcode = ${param['transcode']};
     var pid = "${param['pid']}";
     //xpos=0.3&ypos=0.3&width=0.3&height=0.2
@@ -71,6 +52,10 @@ body
     var height = ${param['height']};
     var xpos = ${param['xpos']};
     var ypos = ${param['ypos']};
+
+    var page = "${param['page']}";
+    var layout = "${param['layout']}";
+
     
     if(transcode == null) {
         transcode = false;
@@ -84,7 +69,42 @@ body
         var url = "../imgcut?pid="+encodeURIComponent(pid)+"&xpos="+xpos+"&ypos="+ypos+"&width="+width+"&height="+height;
             
         var imgelm = $("<img/>",{"src":url});
-        imgelm.css("height","100%");
+        imgelm.load(function() {
+            
+            var cssPagedMedia = (function () {
+                var style = document.createElement('style');
+                document.head.appendChild(style);
+                    return function (rule) {
+                    style.innerHTML = rule;
+                };
+            }());
+
+
+            cssPagedMedia.size = function (size) {
+                cssPagedMedia('@page {size: ' + size + '; margin: 0mm;}');
+            };
+            var selected = size[page][layout];
+            cssPagedMedia.size(selected.widthstyle + ' '+ selected.heightstyle);
+            
+
+            var h = this.naturalHeight;
+            var w = this.naturalWidth;
+
+            var pomer = h/w;
+            
+            console.log("selected width =="+selected.width);
+            console.log("selected height =="+selected.height);
+            
+            var nwidth = selected.width*0.9;
+            var nheight = pomer * nwidth;
+            if (nheight > selected.height) {
+                nheight = selected.height*0.9;
+                nwidth = nheight / pomer;
+            }
+
+            $(this).css('width',nwidth+"mm");
+            $(this).css('height',nheight+"mm");
+        });
 
         divelm.append(imgelm);
         $("body").append(divelm);

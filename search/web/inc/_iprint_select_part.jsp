@@ -1,3 +1,14 @@
+<%@ page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
+
+<%@ page isELIgnored="false"%>
+
 
 <style>
 #overlay {
@@ -100,18 +111,38 @@
 </style>
 
 
-<div id="imagepart" style="width:100%; height:100%; position:relative">
-    
+<table style="width:100%; height:100%"> 
 
+<tr>
 
-<div id="overlay" style="display:none">
-    <div id="selectbox"></div>
-    <div id="left-top" class="point"></div>
-    <div id="right-top" class="point"></div>
-    <div id="left-bottom" class="point"></div>
-    <div id="right-bottom" class="point">
+<td style="width:80%">
+
+    <div id="imagepart" style="width:100%; height:100%; position:relative; background-color:gray;">
+        <div id="overlay" style="display:none">
+            <div id="selectbox"></div>
+            <div id="left-top" class="point"></div>
+            <div id="right-top" class="point"></div>
+            <div id="left-bottom" class="point"></div>
+            <div id="right-bottom" class="point"></div>
+        </div>
     </div>
-</div>
+
+</td>
+
+<td style="width:20%;  height:100%; vertical-align: top;  text-align:center">
+
+<div>
+<h4><view:msg>print.settings.label</view:msg></h4>
+
+<select id="page">
+  <option value="a4"><view:msg>print.settings.a4</view:msg></option>
+  <option value="a3"><view:msg>print.settings.a3</view:msg></option>
+</select>
 
 </div>
+ </td>
+</tr>
+</table>
+
+
  
