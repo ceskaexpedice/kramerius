@@ -10,6 +10,7 @@
 <%@ page isELIgnored="false"%>
 
 
+
 <style>
 #overlay {
     position: absolute;
@@ -110,39 +111,17 @@
 
 </style>
 
-
-<table style="width:100%; height:100%"> 
-
-<tr>
-
-<td style="width:80%">
-
-    <div id="imagepart" style="width:100%; height:100%; position:relative; background-color:gray;">
-        <div id="overlay" style="display:none">
-            <div id="selectbox"></div>
-            <div id="left-top" class="point"></div>
-            <div id="right-top" class="point"></div>
-            <div id="left-bottom" class="point"></div>
-            <div id="right-bottom" class="point"></div>
-        </div>
+<div id="imagepart" style="width:100%; height:100%; position:relative; background-color:gray;">
+    <div id="overlay" style="display:none">
+        <div id="selectbox"></div>
+        <div id="left-top" class="point"></div>
+        <div id="right-top" class="point"></div>
+        <div id="left-bottom" class="point"></div>
+        <div id="right-bottom" class="point"></div>
     </div>
-
-</td>
-
-<td style="width:20%;  height:100%; vertical-align: top;  text-align:center">
-
-<div>
-<h4><view:msg>print.settings.label</view:msg></h4>
-
-<select id="page">
-  <option value="a4"><view:msg>print.settings.a4</view:msg></option>
-  <option value="a3"><view:msg>print.settings.a3</view:msg></option>
-</select>
-
 </div>
- </td>
-</tr>
-</table>
+
+
 
 
  

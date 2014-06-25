@@ -5,6 +5,10 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
+
 <%@ page isELIgnored="false"%>
 
 
@@ -19,6 +23,9 @@
 
 
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+
+<view:kconfig var="a4ratio" key="search.print.pageratio" defaultValue="1.414" />
+
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -30,23 +37,10 @@
 
 
     <script language="JavaScript" type="text/javascript">
-        var size = {
-                        'a4':{
-                                'portrait':{'widthstyle':'210mm','width':210, 'heightstyle':'297mm','height':297},
-                                'landscape':{'widthstyle':'297mm', 'width':297,'heightstyle':'210mm','height':210}
-                             },
-                        'a3':{
-                                'portrait':{'widthstyle':'297mm','width':297,'heightstyle':'420mm',height:420},
-                                'landscape':{'widthstyle':'420mm','width':420,'heightstyle':'297mm',height:297}
-                             }
-        };
-        
         var transcode = ${param['transcode']};
         var pidsString = "${param['pids']}";
         var pids = pidsString.split(',');
 
-        var page = "${param['page']}"
-        var layout = "${param['layout']}"
 
         if(transcode == null) {
             transcode = false;
@@ -55,21 +49,6 @@
     
         $(document).ready(function(){
 
-            var cssPagedMedia = (function () {
-                var style = document.createElement('style');
-                document.head.appendChild(style);
-                    return function (rule) {
-                    style.innerHTML = rule;
-                };
-            }());
-
-
-            cssPagedMedia.size = function (size) {
-                cssPagedMedia('@page {size: ' + size + '; margin: 0mm;}');
-            };
-            var selected = size[page][layout];
-            cssPagedMedia.size(selected.widthstyle + ' '+ selected.heightstyle);
-    
             $.each(pids, function( index, value ) {
                 var divelm = $("<div/>");
                 divelm.addClass("image");
@@ -83,20 +62,19 @@
                     var ident = encodeURIComponent(value);
                     var h = this.naturalHeight;
                     var w = this.naturalWidth;
-                    
-                    var pomer = h/w;
-                    var nwidth = selected.width * 0.9;
 
-                    var nheight = pomer * nwidth;
-                    if (nheight > selected.height) {
-                        nheight = selected.height * 0.9;
-                        nwidth = nwidth / pomer;
+                    var ratio = h/w;
+                    var a4ratio = ${a4ratio};
+
+                    if (ratio < a4ratio) {
+                        // na sirsku
+                        $(this).css('width',"100%");
+                    } else {
+                        // na vysku
+                        $(this).css('height',"100%");
                     }
-                 
-                    $(this).css('width',nwidth+"mm");
-                    $(this).css('height',nheight+"mm");
                 });
-    
+
                 divelm.append(imgelm);
                 $("body").append(divelm);
             });

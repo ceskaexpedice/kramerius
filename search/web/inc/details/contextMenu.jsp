@@ -377,10 +377,7 @@
                             var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
                             var positions = window.selObjects.relativePositions();
 
-                            var page = $( "#page option:selected" ).val();
-                            
-
-                            var positionsString = "xpos="+positions[0]+"&ypos="+positions[1]+"&width="+(positions[2]-positions[0])+"&height="+(positions[3]-positions[1])+"&page="+page+"&layout=portrait";
+                            var positionsString = "xpos="+positions[0]+"&ypos="+positions[1]+"&width="+(positions[2]-positions[0])+"&height="+(positions[3]-positions[1]);
                             window.open("inc/_iprint_select_part_done.jsp?pid="+pStr+"&transcode="+transcode+"&"+positionsString, "_blank");
 
                             $(this).dialog("close");
@@ -459,7 +456,6 @@
         
     }
 
-    var _printPageOriantationDialog=null;
     function printLocal(){
         /** construct url for print */
         function printURL() {
@@ -485,43 +481,13 @@
             var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
             window.open("inc/_iprint.jsp?pids="+pStr+"&transcode="+transcode+"&page="+page+"&layout="+layout, "_blank");        
         }
+        printURL();
 
-        if (_printPageOriantationDialog) {
-            _printPageOriantationDialog.dialog('open');
-        } else {
-            $.get("inc/_iprint_setup.jsp",function(data) {
-                    $(document.body).append('<div id="_print_setup" style="display:none"></div>');
-                    $("#_print_setup").html(data);
-
-                    _printPageOriantationDialog = $('#_print_setup').dialog({
-                        width:440,
-                        modal:true,
-                        title:dictionary["print.settings.label"],
-                        buttons:  [
-                        {
-                            text: dictionary['common.ok'],
-                            click: function() {
-                                        printURL();
-                                        $(this).dialog("close");
-                            }
-                        },
-                        {
-                            text: dictionary['common.close'],
-                            click: function() {
-                                $(this).dialog("close");
-                            }
-                        }
-                    ]
-                });
-            });
-        }
     }
 
     var _persistentURLDialog;
     function persistentURL(){
-
         var textFieldID = 'persistentURLTextField';
-
         if (_persistentURLDialog) {
             _persistentURLDialog.dialog('open');
         } else {

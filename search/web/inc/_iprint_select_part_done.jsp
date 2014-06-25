@@ -8,6 +8,10 @@
 <%@ page isELIgnored="false"%>
 
 
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
+
+
 <%@page import="java.io.InputStream"%>
 <%@page import="java.io.InputStreamReader"%>
 <%@page import="cz.incad.kramerius.utils.RESTHelper"%>
@@ -16,6 +20,7 @@
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.kramerius.processes.LRProcessManager"%>
 <%@page import="cz.incad.kramerius.processes.DefinitionManager"%>
+
 
 
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
@@ -32,18 +37,10 @@
 
 
 
+<view:kconfig var="a4ratio" key="search.print.pageratio" defaultValue="1.414" />
+
 <script language="JavaScript" type="text/javascript">
 
-    var size = {
-                    'a4':{
-                            'portrait':{'widthstyle':'210mm','width':210, 'heightstyle':'297mm','height':297},
-                            'landscape':{'widthstyle':'297mm', 'width':297,'heightstyle':'210mm','height':210}
-                         },
-                    'a3':{
-                            'portrait':{'widthstyle':'297mm','width':297,'heightstyle':'420mm',height:420},
-                            'landscape':{'widthstyle':'420mm','width':420,'heightstyle':'297mm',height:297}
-                         }
-    };
 
     var transcode = ${param['transcode']};
     var pid = "${param['pid']}";
@@ -53,8 +50,7 @@
     var xpos = ${param['xpos']};
     var ypos = ${param['ypos']};
 
-    var page = "${param['page']}";
-    var layout = "${param['layout']}";
+
 
     
     if(transcode == null) {
@@ -70,40 +66,19 @@
             
         var imgelm = $("<img/>",{"src":url});
         imgelm.load(function() {
-            
-            var cssPagedMedia = (function () {
-                var style = document.createElement('style');
-                document.head.appendChild(style);
-                    return function (rule) {
-                    style.innerHTML = rule;
-                };
-            }());
-
-
-            cssPagedMedia.size = function (size) {
-                cssPagedMedia('@page {size: ' + size + '; margin: 0mm;}');
-            };
-            var selected = size[page][layout];
-            cssPagedMedia.size(selected.widthstyle + ' '+ selected.heightstyle);
-            
 
             var h = this.naturalHeight;
             var w = this.naturalWidth;
 
-            var pomer = h/w;
-            
-            console.log("selected width =="+selected.width);
-            console.log("selected height =="+selected.height);
-            
-            var nwidth = selected.width*0.9;
-            var nheight = pomer * nwidth;
-            if (nheight > selected.height) {
-                nheight = selected.height*0.9;
-                nwidth = nheight / pomer;
+            var ratio = h/w;
+            var a4ratio = ${a4ratio};
+            if (ratio < a4ratio) {
+                // na sirku
+                $(this).css('width',"100%");
+            } else {
+                // na vysku
+                $(this).css('height',"100%");
             }
-
-            $(this).css('width',nwidth+"mm");
-            $(this).css('height',nheight+"mm");
         });
 
         divelm.append(imgelm);
