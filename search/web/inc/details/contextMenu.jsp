@@ -347,7 +347,6 @@
             $(document.body).append('<div id="selectPart">'+
                 '</div>');
 
-
             _printPartDialog = $('#selectPart').dialog({
                 width:800,
                 height:640,
@@ -377,9 +376,9 @@
 
                             var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
                             var positions = window.selObjects.relativePositions();
-                            
+
                             var positionsString = "xpos="+positions[0]+"&ypos="+positions[1]+"&width="+(positions[2]-positions[0])+"&height="+(positions[3]-positions[1]);
-                            window.open("inc/_iprint_select_part_done.jsp?pid="+pStr+"&transcode="+transcode+"&"+positionsString, "_blank");        
+                            window.open("inc/_iprint_select_part_done.jsp?pid="+pStr+"&transcode="+transcode+"&"+positionsString, "_blank");
 
                             $(this).dialog("close");
                         }
@@ -407,7 +406,6 @@
                     var h = simg.height;
                     var pomer = h/w;
                         
-                        
                     var cw = $('#imagepart').width();
                     var ch = $('#imagepart').height();
 
@@ -423,7 +421,7 @@
                     $('#overlay').show();
                         
                     $('#overlay').css('left',l);
-                    $('#overlay').css('left',t);
+                    $('#overlay').css('top',t);
                     $('#overlay').css('width',cw);
                     $('#overlay').css('height',ch);
 
@@ -459,32 +457,37 @@
     }
 
     function printLocal(){
-        var pids = getAffectedPids();
-        var structs = map(function(pid) {
-            var divided = pid.split("_");
-            var structure = {
-                models:divided[0],
-                pid:divided[1]
-            };
-            return structure;
+        /** construct url for print */
+        function printURL() {
+            var layout = 'portrait'; 
+            var page = $( "#page option:selected" ).val();
 
-        }, pids);
+            var pids = getAffectedPids();
+            var structs = map(function(pid) {
+                var divided = pid.split("_");
+                var structure = {
+                    models:divided[0],
+                    pid:divided[1]
+                };
+                return structure;
+            }, pids);
 
-        var pStr = reduce(function(memo, value, status) {
-                memo = memo + encodeURIComponent(value.pid);
-                memo = memo + (status.last ? "": ",");
-                return memo;
-            }, "",structs);
+            var pStr = reduce(function(memo, value, status) {
+                    memo = memo + encodeURIComponent(value.pid);
+                    memo = memo + (status.last ? "": ",");
+                    return memo;
+                }, "",structs);
 
-        var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
-        window.open("inc/_iprint.jsp?pids="+pStr+"&transcode="+transcode, "_blank");        
+            var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
+            window.open("inc/_iprint.jsp?pids="+pStr+"&transcode="+transcode+"&page="+page+"&layout="+layout, "_blank");        
+        }
+        printURL();
+
     }
 
     var _persistentURLDialog;
     function persistentURL(){
-
         var textFieldID = 'persistentURLTextField';
-
         if (_persistentURLDialog) {
             _persistentURLDialog.dialog('open');
         } else {

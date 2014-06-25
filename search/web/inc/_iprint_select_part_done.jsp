@@ -8,6 +8,10 @@
 <%@ page isELIgnored="false"%>
 
 
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
+
+
 <%@page import="java.io.InputStream"%>
 <%@page import="java.io.InputStreamReader"%>
 <%@page import="cz.incad.kramerius.utils.RESTHelper"%>
@@ -16,6 +20,7 @@
 <%@page import="com.google.inject.Injector"%>
 <%@page import="cz.incad.kramerius.processes.LRProcessManager"%>
 <%@page import="cz.incad.kramerius.processes.DefinitionManager"%>
+
 
 
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
@@ -28,42 +33,15 @@
 
     <script src="../js/jquery.mousewheel.js" type="text/javascript" ></script>
     <script src="../js/jquery.splitter.js" type="text/javascript" ></script>
+    <link rel="stylesheet" href="../css/localprint/print.css" type="text/css" media="print"/>
 
-<style>
 
-@page {
-    size: auto;   
-    margin: 0mm;  
-}
 
-body 
-    {
-        background-color:#FFFFFF; 
-        margin: 0px;  /* the margin on the content before printing */
-}
-
-@media print
-{
-    .image {
-        text-align:center;
-    }
-
-    .image img {
-        margin:auto;
-    }
-
-}
-
-@media screen
-  {
-    .image img{
-        margin:auto;
-    }
-}
-</style>
-
+<view:kconfig var="a4ratio" key="search.print.pageratio" defaultValue="1.414" />
 
 <script language="JavaScript" type="text/javascript">
+
+
     var transcode = ${param['transcode']};
     var pid = "${param['pid']}";
     //xpos=0.3&ypos=0.3&width=0.3&height=0.2
@@ -71,6 +49,9 @@ body
     var height = ${param['height']};
     var xpos = ${param['xpos']};
     var ypos = ${param['ypos']};
+
+
+
     
     if(transcode == null) {
         transcode = false;
@@ -84,7 +65,21 @@ body
         var url = "../imgcut?pid="+encodeURIComponent(pid)+"&xpos="+xpos+"&ypos="+ypos+"&width="+width+"&height="+height;
             
         var imgelm = $("<img/>",{"src":url});
-        imgelm.css("height","100%");
+        imgelm.load(function() {
+
+            var h = this.naturalHeight;
+            var w = this.naturalWidth;
+
+            var ratio = h/w;
+            var a4ratio = ${a4ratio};
+            if (ratio < a4ratio) {
+                // na sirku
+                $(this).css('width',"100%");
+            } else {
+                // na vysku
+                $(this).css('height',"100%");
+            }
+        });
 
         divelm.append(imgelm);
         $("body").append(divelm);

@@ -5,6 +5,10 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
+<%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
+
 <%@ page isELIgnored="false"%>
 
 
@@ -19,6 +23,9 @@
 
 
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
+
+<view:kconfig var="a4ratio" key="search.print.pageratio" defaultValue="1.414" />
+
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -26,71 +33,54 @@
     <script src="../js/jquery-1.5.1.min.js" type="text/javascript" ></script>
     <script src="../js/jquery-ui-1.8.11.custom.min.js" language="javascript" type="text/javascript"></script>
 
-    <script src="../js/jquery.mousewheel.js" type="text/javascript" ></script>
-    <script src="../js/jquery.splitter.js" type="text/javascript" ></script>
-
-<style>
-
-@page {
-    size: auto;   
-    margin: 0mm;  
-}
-
-body 
-    {
-        background-color:#FFFFFF; 
-        margin: 0px;  /* the margin on the content before printing */
-}
-
-@media print
-{
-    .image {
-        text-align:center;
-    }
-
-    .image img {
-        height:100%;
-        margin:auto;
-    }
-
-}
-
-@media screen
-  {
-    .image img{
-        margin:auto;
-    }
-}
-</style>
+    <link rel="stylesheet" href="../css/localprint/print.css" type="text/css" media="print"/>
 
 
-<script language="JavaScript" type="text/javascript">
-    var transcode = ${param['transcode']};
-    var pidsString = "${param['pids']}";
-    var pids = pidsString.split(',');
+    <script language="JavaScript" type="text/javascript">
+        var transcode = ${param['transcode']};
+        var pidsString = "${param['pids']}";
+        var pids = pidsString.split(',');
 
-    if(transcode == null) {
-        transcode = false;
-    }
 
-    $(document).ready(function(){
-        $.each(pids, function( index, value ) {
-            var divelm = $("<div/>");
-            divelm.addClass("image");
+        if(transcode == null) {
+            transcode = false;
+        }
+        
+    
+        $(document).ready(function(){
 
-            var url = "../img?pid="+encodeURIComponent(value)+"&stream=IMG_FULL&action=";
-            var action = (transcode ? "TRANSCODE":"GETRAW");
-            url = url+action;
-            
-            var imgelm = $("<img/>",{"src":url});
+            $.each(pids, function( index, value ) {
+                var divelm = $("<div/>");
+                divelm.addClass("image");
+    
+                var url = "../img?pid="+encodeURIComponent(value)+"&stream=IMG_FULL&action=";
+                var action = (transcode ? "TRANSCODE":"GETRAW");
+                url = url+action;
+    
+                var imgelm = $("<img/>",{"src":url,'data-pid':encodeURIComponent(value)});
+                imgelm.load(function() {
+                    var ident = encodeURIComponent(value);
+                    var h = this.naturalHeight;
+                    var w = this.naturalWidth;
 
-            divelm.append(imgelm);
-            $("body").append(divelm);
+                    var ratio = h/w;
+                    var a4ratio = ${a4ratio};
+
+                    if (ratio < a4ratio) {
+                        // na sirsku
+                        $(this).css('width',"100%");
+                    } else {
+                        // na vysku
+                        $(this).css('height',"100%");
+                    }
+                });
+
+                divelm.append(imgelm);
+                $("body").append(divelm);
+            });
+            window.print();
         });
-        window.print();
-    });
-</script>
-
+    </script>
 </head>
     <body>
     </body>
