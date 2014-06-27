@@ -24,7 +24,8 @@
 
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 
-<view:kconfig var="a4ratio" key="search.print.pageratio" defaultValue="1.414" />
+<view:object name="picture" clz="cz.incad.Kramerius.views.localprint.PicturePrepareViewObject"></view:object>
+
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
 <head>
@@ -32,56 +33,51 @@
 
     <script src="../js/jquery-1.5.1.min.js" type="text/javascript" ></script>
     <script src="../js/jquery-ui-1.8.11.custom.min.js" language="javascript" type="text/javascript"></script>
+    
+<style type="text/css">
 
-    <link rel="stylesheet" href="../css/localprint/print.css" type="text/css" media="print"/>
+body 
+    {
+        background-color:#FFFFFF; 
+        margin: 0px;  /* the margin on the content before printing */
+}
 
+@media print
+{
+    .image {
+        text-align:center;
+    }
+
+    .image img {
+        margin:auto;
+    }
+
+
+    @page {margin: 0mm;}
+
+    <c:forEach items="${picture.styles}" var="style" varStatus="status">
+            <c:out value="${style}"></c:out>
+    </c:forEach>    
+}
+@media screen
+{
+    <c:forEach items="${picture.styles}" var="style" varStatus="status">
+            <c:out value="${style}"></c:out>
+    </c:forEach>    
+}
+</style>
 
     <script language="JavaScript" type="text/javascript">
-        var transcode = ${param['transcode']};
-        var pidsString = "${param['pids']}";
-        var pids = pidsString.split(',');
-
-
-        if(transcode == null) {
-            transcode = false;
-        }
-        
-    
         $(document).ready(function(){
-
-            $.each(pids, function( index, value ) {
-                var divelm = $("<div/>");
-                divelm.addClass("image");
-    
-                var url = "../img?pid="+encodeURIComponent(value)+"&stream=IMG_FULL&action=";
-                var action = (transcode ? "TRANSCODE":"GETRAW");
-                url = url+action;
-    
-                var imgelm = $("<img/>",{"src":url,'data-pid':encodeURIComponent(value)});
-                imgelm.load(function() {
-                    var ident = encodeURIComponent(value);
-                    var h = this.naturalHeight;
-                    var w = this.naturalWidth;
-
-                    var ratio = h/w;
-                    var a4ratio = ${a4ratio};
-
-                    if (ratio < a4ratio) {
-                        // na sirsku
-                        $(this).css('width',"100%");
-                    } else {
-                        // na vysku
-                        $(this).css('height',"100%");
-                    }
-                });
-
-                divelm.append(imgelm);
-                $("body").append(divelm);
-            });
             window.print();
         });
     </script>
 </head>
     <body>
+    <c:forEach items="${picture.imgelements}" var="imgelm" varStatus="status">
+            <div class="image">
+                ${imgelm}
+            </div>
+    </c:forEach>    
     </body>
 </html>
