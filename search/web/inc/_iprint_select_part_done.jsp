@@ -11,6 +11,8 @@
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 
+<%@ page isELIgnored="false"%>
+
 
 <%@page import="java.io.InputStream"%>
 <%@page import="java.io.InputStreamReader"%>
@@ -21,6 +23,8 @@
 <%@page import="cz.incad.kramerius.processes.LRProcessManager"%>
 <%@page import="cz.incad.kramerius.processes.DefinitionManager"%>
 
+
+<view:object name="disPicture" clz="cz.incad.Kramerius.views.localprint.DisectionPrepareViewObject"></view:object>
 
 
 <%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
@@ -33,62 +37,51 @@
 
     <script src="../js/jquery.mousewheel.js" type="text/javascript" ></script>
     <script src="../js/jquery.splitter.js" type="text/javascript" ></script>
-    <link rel="stylesheet" href="../css/localprint/print.css" type="text/css" media="print"/>
+<style type="text/css">
 
+body 
+    {
+        background-color:#FFFFFF; 
+        margin: 0px;  /* the margin on the content before printing */
+}
 
-
-<view:kconfig var="a4ratio" key="search.print.pageratio" defaultValue="1.414" />
-
-<script language="JavaScript" type="text/javascript">
-
-
-    var transcode = ${param['transcode']};
-    var pid = "${param['pid']}";
-    //xpos=0.3&ypos=0.3&width=0.3&height=0.2
-    var width = ${param['width']};
-    var height = ${param['height']};
-    var xpos = ${param['xpos']};
-    var ypos = ${param['ypos']};
-
-
-
-    
-    if(transcode == null) {
-        transcode = false;
+@media print
+{
+    .image {
+        text-align:center;
     }
 
+    .image img {
+        margin:auto;
+    }
+
+
+    @page {margin: 0mm;}
+
+    <c:forEach items="${disPicture.styles}" var="style" varStatus="status">
+            <c:out value="${style}"></c:out>
+    </c:forEach>    
+}
+@media screen
+{
+    <c:forEach items="${disPicture.styles}" var="style" varStatus="status">
+            <c:out value="${style}"></c:out>
+    </c:forEach>    
+}
+</style>
+
+<script language="JavaScript" type="text/javascript">
     $(document).ready(function(){
-
-        var divelm = $("<div/>");
-        divelm.addClass("image");
-
-        var url = "../imgcut?pid="+encodeURIComponent(pid)+"&xpos="+xpos+"&ypos="+ypos+"&width="+width+"&height="+height;
-            
-        var imgelm = $("<img/>",{"src":url});
-        imgelm.load(function() {
-
-            var h = this.naturalHeight;
-            var w = this.naturalWidth;
-
-            var ratio = h/w;
-            var a4ratio = ${a4ratio};
-            if (ratio < a4ratio) {
-                // na sirku
-                $(this).css('width',"100%");
-            } else {
-                // na vysku
-                $(this).css('height',"100%");
-            }
-        });
-
-        divelm.append(imgelm);
-        $("body").append(divelm);
-
         window.print();
     });
 </script>
 
 </head>
     <body>
+        <c:forEach items="${disPicture.imgelements}" var="imgelm" varStatus="status">
+            <div class="image">
+                ${imgelm}
+            </div>
+        </c:forEach>
     </body>
 </html>
