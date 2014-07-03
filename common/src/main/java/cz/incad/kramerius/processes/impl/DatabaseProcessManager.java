@@ -168,6 +168,10 @@ public class DatabaseProcessManager implements LRProcessManager {
             if (connection == null)
                 throw new NotReadyException("connection not ready");
 
+            if (longRunningProcess.getProcessState().equals(States.RUNNING)) {
+                throw new ProcessManagerException("cannot delete process with state '"+longRunningProcess.getProcessState()+"'");
+            }
+            
             List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
             
             final String token = longRunningProcess.getGroupToken();
@@ -245,6 +249,7 @@ public class DatabaseProcessManager implements LRProcessManager {
             new JDBCTransactionTemplate(connection,true).updateWithTransaction(callbacks, (JDBCCommand[]) commands.toArray(new JDBCCommand[commands.size()]));
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            throw new ProcessManagerException(e);
         } finally {
             try {
                 if (connection != null && (!connection.isClosed())) {
@@ -252,6 +257,7 @@ public class DatabaseProcessManager implements LRProcessManager {
                 }
             } catch (SQLException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                throw new ProcessManagerException(e);
             }
         }
     }
@@ -264,6 +270,10 @@ public class DatabaseProcessManager implements LRProcessManager {
             if (connection == null)
                 throw new NotReadyException("connection not ready");
 
+            if (lrProcess.getProcessState().equals(States.RUNNING)) {
+                throw new ProcessManagerException("cannot delete process with state '"+lrProcess.getProcessState()+"'");
+            }
+            
             final int id = ProcessDatabaseUtils.getProcessId(lrProcess, connection);
             final String uuid = lrProcess.getUUID();
             JDBCCommand deleteTokensMapping = new JDBCCommand() {
@@ -308,6 +318,7 @@ public class DatabaseProcessManager implements LRProcessManager {
             // hornici
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new ProcessManagerException(e);
         } finally {
             DatabaseUtils.tryClose(connection);
         }
