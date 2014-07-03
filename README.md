@@ -1,6 +1,6 @@
 ###Novinky
 
-*Uvolněna finální verze 4.8.5  (http://sourceforge.net/projects/kramerius/files)
+*Uvolněna finální verze 4.8.6  (http://sourceforge.net/projects/kramerius/files)
 
 (pro napojení na vývojové práce ČDK je vyžadována verze 4.8 a vyšší),
 
