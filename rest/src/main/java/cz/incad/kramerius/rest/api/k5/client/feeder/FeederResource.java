@@ -120,6 +120,10 @@ public class FeederResource {
                         jsonArray.add(mdis);
                     } catch (IOException ex) {
                         LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                        JSONObject error = new JSONObject();
+                        error.put("pid", pid);
+                        error.put("exception", ex.getMessage());
+                        jsonArray.add(error);
                     }
                 }
             }
@@ -162,6 +166,10 @@ public class FeederResource {
                 jsonArray.add(mdis);
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                JSONObject error = new JSONObject();
+                error.put("pid", pid);
+                error.put("exception", e.getMessage());
+                jsonArray.add(error);
             }
         }
         jsonObject.put("data", jsonArray);
