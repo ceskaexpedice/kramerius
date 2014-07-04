@@ -32,9 +32,9 @@ configurations {
 
 dependencies {
         // editor dependency
-        editors group: "cz.incad.kramerius.editors", name: "editor", version: "5.0.0", ext: "war"
+        editors group: "cz.incad.kramerius", name: "editor", version: "5.0.0-SNAPSHOT", ext: "war"
         // rightseditor dependency
-        editors group: "cz.incad.kramerius.editors", name: "rightseditor", version: "5.0.0", ext: "war"
+        editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.0.0-SNAPSHOT", ext: "war"
 }
 
 
