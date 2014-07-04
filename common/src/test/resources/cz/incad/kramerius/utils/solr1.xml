@@ -9,6 +9,7 @@
         </lst>
     </lst>
     <result name="response" numFound="1" start="0">
+        
         <doc>
             <str name="PID">uuid:28286e70-64a6-11dd-981a-000d606f5dc6
             </str>
@@ -63,6 +64,8 @@
             <date name="timestamp">2011-08-03T09:01:38.035Z</date>
             <bool name="viewable">true</bool>
         </doc>
+        
+        
     </result>
 
 </response>

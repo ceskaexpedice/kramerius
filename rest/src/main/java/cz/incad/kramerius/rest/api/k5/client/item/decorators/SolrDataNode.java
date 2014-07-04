@@ -33,6 +33,7 @@ import com.google.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
@@ -52,7 +53,10 @@ public class SolrDataNode extends AbstractItemDecorator {
 
     @Inject
     SolrAccess solrAccess;
-
+    
+    @Inject
+    SolrMemoization memo;
+    
     @Override
     public String getKey() {
         return KEY;
@@ -63,12 +67,10 @@ public class SolrDataNode extends AbstractItemDecorator {
         try {
             if (jsonObject.containsKey("pid")) {
                 String pid = jsonObject.getString("pid");
-                Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid,
-                        context, solrAccess);
                 
-                Element result = XMLUtils.findElement(
-                        solrDoc.getDocumentElement(), "result");
-                Element doc = XMLUtils.findElement(result, "doc");
+                    
+                Element doc = this.memo.getRememberedIndexedDoc(pid);
+                if (doc == null) doc = this.memo.askForIndexDocument(pid);
                 if (doc != null) {
                     Boolean value = SOLRUtils.value(doc, "viewable",
                             Boolean.class);

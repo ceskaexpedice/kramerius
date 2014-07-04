@@ -37,10 +37,11 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 
 public class PDFDecorate extends AbstractDisplayDecorate {
-	
-	public static final Logger LOGGER = Logger.getLogger(ZoomDecorate.class.getName());
 
-	public static final String KEY = AbstractDisplayDecorate.key("PDF");
+    public static final Logger LOGGER = Logger.getLogger(ZoomDecorate.class
+            .getName());
+
+    public static final String KEY = AbstractDisplayDecorate.key("PDF");
 
     @Inject
     @Named("securedFedoraAccess")
@@ -49,43 +50,49 @@ public class PDFDecorate extends AbstractDisplayDecorate {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-	
-	@Override
-	public String getKey() {
-		return KEY;
-	}
+    @Override
+    public String getKey() {
+        return KEY;
+    }
 
-	@Override
-	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
-		try {
-			if (containsPidInJSON(jsonObject)) {
-				String pidFromJSON = getPidFromJSON(jsonObject);
-				if (!PIDSupport.isComposedPID(pidFromJSON) && this.fedoraAccess.isImageFULLAvailable(pidFromJSON)) {
-					String mimeTypeForStream = this.fedoraAccess.getMimeTypeForStream(pidFromJSON, FedoraUtils.IMG_FULL_STREAM);
-					ImageMimeType imType = ImageMimeType.loadFromMimeType(mimeTypeForStream);
-					if (imType != null && ImageMimeType.PDF.equals(imType)) {
-						jsonObject.put("pdf", options(pidFromJSON));
-					}
-				}
-			}
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(),e);
-		}
-	}
+    @Override
+    public void decorate(JSONObject jsonObject, Map<String, Object> context) {
+        try {
+            if (containsPidInJSON(jsonObject)) {
+                String pidFromJSON = getPidFromJSON(jsonObject);
+                if (!PIDSupport.isComposedPID(pidFromJSON)
+                        && this.fedoraAccess.isImageFULLAvailable(pidFromJSON)) {
+                    String mimeTypeForStream = this.fedoraAccess
+                            .getMimeTypeForStream(pidFromJSON,
+                                    FedoraUtils.IMG_FULL_STREAM);
+                    ImageMimeType imType = ImageMimeType
+                            .loadFromMimeType(mimeTypeForStream);
+                    if (imType != null && ImageMimeType.PDF.equals(imType)) {
+                        jsonObject.put("pdf", options(pidFromJSON));
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
 
-	
-	private Object options(String pid) {
-		JSONObject options = new JSONObject();
-		String url = ApplicationURL.applicationURL(this.requestProvider.get()).toString()+"/img?pid="+pid+"&stream="+FedoraUtils.IMG_FULL_STREAM+"&action=GETRAW";
-		options.put("url", url);
-		return options;
-	}
+    private Object options(String pid) {
+        JSONObject options = new JSONObject();
+        String url = ApplicationURL.applicationURL(this.requestProvider.get())
+                .toString()
+                + "/img?pid="
+                + pid
+                + "&stream="
+                + FedoraUtils.IMG_FULL_STREAM + "&action=GETRAW";
+        options.put("url", url);
+        return options;
+    }
 
-	@Override
-	public boolean apply(JSONObject jsonObject, String context) {
-		TokenizedPath tpath = super.itemContext(tokenize(context));
-		return (tpath.isParsed() && tpath.getRestPath().isEmpty());
-	}
-
+    @Override
+    public boolean apply(JSONObject jsonObject, String context) {
+        TokenizedPath tpath = super.itemContext(tokenize(context));
+        return (tpath.isParsed() && tpath.getRestPath().isEmpty());
+    }
 
 }

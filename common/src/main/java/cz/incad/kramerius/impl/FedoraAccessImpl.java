@@ -307,7 +307,6 @@ public class FedoraAccessImpl implements FedoraAccess {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         }
-
     }
 
     @Override

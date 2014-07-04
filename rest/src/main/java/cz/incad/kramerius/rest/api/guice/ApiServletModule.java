@@ -29,6 +29,7 @@ import cz.incad.kramerius.rest.api.k5.admin.users.RolesResource;
 import cz.incad.kramerius.rest.api.k5.admin.users.UsersResource;
 import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootModelDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootPidDecorate;
@@ -36,6 +37,7 @@ import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrTitleDe
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
+import cz.incad.kramerius.rest.api.k5.client.impl.SolrMemoizationImpl;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.CollectionsDecorator;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.RelsExtRightsFlag;
@@ -93,6 +95,8 @@ public class ApiServletModule extends JerseyServletModule {
         bind(VirtualCollectionsResource.class);
         
         bind(StatisticsResource.class);
+        
+        bind(SolrMemoization.class).to(SolrMemoizationImpl.class).asEagerSingleton();
         
         //decorators
         decorators();

@@ -43,6 +43,16 @@ public class RelsExtHelper {
         else return null;
     }
 
+    public static String getRelsExtTilesUrl(Document reslExtDoc, FedoraAccess fedoraAccess) throws IOException, XPathExpressionException {
+        XPathFactory xpfactory = XPathFactory.newInstance();
+        XPath xpath = xpfactory.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        XPathExpression expr = xpath.compile("//kramerius:tiles-url/text()");
+        Object tiles = expr.evaluate(reslExtDoc, XPathConstants.NODE);
+        if (tiles != null) return ((Text) tiles).getData();
+        else return null;
+    }
+
     public static final String CACHE_RELS_EXT_LITERAL = "kramerius4://deepZoomCache";
     
     

@@ -24,6 +24,8 @@ import java.util.Map;
 import org.apache.commons.collections.map.HashedMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import cz.incad.kramerius.utils.XMLUtils;
 
@@ -129,4 +131,32 @@ public class SOLRUtils {
         return ret;
     }
 
+    
+    //TODO: CDK Bugfix !! change basic array method !
+    public static <T> List<T> narray(final Element doc,
+            final String attributeName, Class<T> clz) {
+        List<T> ret = new ArrayList<T>();
+        List<Element> elms = XMLUtils.getElements(doc,
+                new XMLUtils.ElementsFilter() {
+
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        return (element.getNodeName().equals("arr")
+                                && element.hasAttribute("name") && element
+                                .getAttribute("name").equals(attributeName));
+                    }
+                });
+     
+        if (elms.size() >= 1) {
+            Element parentE = elms.get(0);
+            NodeList chnds = parentE.getChildNodes();
+            for (int i = 0,ll=chnds.getLength() ; i < ll; i++) {
+                Node n = chnds.item(i);
+                if (n.getNodeType() == Node.ELEMENT_NODE) {
+                    ret.add(value(n.getTextContent(), clz));
+                }
+            }
+        }
+        return ret;
+    }
 }

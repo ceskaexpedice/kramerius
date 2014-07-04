@@ -181,20 +181,7 @@ public class ProcessesClient {
         return t;
     }
     
-    public static String getProcesses() {
-        Client c = Client.create();
-        WebResource r = c.resource("http://cdk-test.lib.cas.cz:9080/search/api/v4.6/processes/" );
-        r.addFilter(new BasicAuthenticationFilter("krameriusAdmin", "kramet"));
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
-    }
 
     
     
-    public static void main(String[] args) throws InterruptedException {
-    	//planAndStop();
-        
-        String procs = getProcesses();
-        System.out.println(procs);
-    }
 }

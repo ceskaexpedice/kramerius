@@ -31,9 +31,6 @@ public class JSONUtils {
 
 	public static final Logger LOGGER = Logger.getLogger(JSONUtils.class.getName());
 	
-//	public static enum Operations {
-//		read, edit, create, delete
-//	}
 	
 	public static JSONObject link(JSONObject obj, String key, String link ) {
 		JSONObject json = new JSONObject();
@@ -44,17 +41,20 @@ public class JSONUtils {
 	
 	public static JSONObject pidAndModelDesc(String pid, JSONObject jsonObject, FedoraAccess fedoraAccess,String callContext, JSONDecoratorsAggregate decoratorsAggregate, String baseLink)
 			throws IOException {
-		jsonObject.put("pid", pid);
+
+	    
+	        Map<String, Object> m = new HashMap<String, Object>();
+	        jsonObject.put("pid", pid);
 		if (PIDSupport.isComposedPID(pid)) {
 			// page model
 			jsonObject.put("model", "page");
 		} else {
-			jsonObject.put("model", fedoraAccess.getKrameriusModelName(pid));
+		    Document relsExtDoc = RELSEXTDecoratorUtils.getRELSEXTPidDocument(pid, m, fedoraAccess);
+		    jsonObject.put("model", fedoraAccess.getKrameriusModelName(relsExtDoc));
 		}
 
 		// apply decorator
 		if (callContext != null && decoratorsAggregate != null) {
-			Map<String, Object> m = new HashMap<String, Object>();
 			List<JSONDecorator> ldecs = decoratorsAggregate.getDecorators();
 			for (JSONDecorator d : ldecs) { d.before(m); }
 			for (JSONDecorator d : ldecs) {

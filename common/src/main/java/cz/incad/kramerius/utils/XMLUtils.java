@@ -245,6 +245,7 @@ public class XMLUtils {
         transformer.transform(source, result);
     }
 
+    
     /**
      * Elements filter 
      * @author pavels

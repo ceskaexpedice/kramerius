@@ -117,13 +117,4 @@ public class FirstPhase extends AbstractPhase  {
         }
     }
     
-    public static void main(String[] args) {
-        String surl = K4ReplicationProcess.prepareURL("http://vmkramerius:8080/search/handle/uuid:1a43499e-c953-11df-84b1-001b63bd97ba");
-        
-        Client c = Client.create();
-        WebResource r = c.resource(surl);
-        r.addFilter(new BasicAuthenticationClientFilter("krameriusAdmin", "kramet"));
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        System.out.println(t);
-    }
 }

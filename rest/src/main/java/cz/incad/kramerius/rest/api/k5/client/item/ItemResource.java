@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +45,10 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
+import cz.incad.kramerius.rest.api.k5.client.SolrResultsAware;
 import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
@@ -83,6 +87,10 @@ public class ItemResource {
     @Inject
     JSONDecoratorsAggregate decoratorsAggregate;
 
+    
+    @Inject
+    SolrMemoization solrMemoization;
+    
     @GET
     @Path("{pid}/streams/{dsid}")
     public Response stream(@PathParam("pid") String pid,
@@ -156,8 +164,21 @@ public class ItemResource {
         try {
             if (!PIDSupport.isComposedPID(pid)) {
                 JSONArray jsonArray = new JSONArray();
-                List<String> children = solrChildren(pid);
+                
+                this.solrMemoization.clearMemo();
+                
+                List<String> fieldList = new ArrayList<String>();
 
+                List<JSONDecorator> decs = this.decoratorsAggregate.getDecorators();
+                for (JSONDecorator jsonDec : decs) {
+                    if (jsonDec instanceof SolrResultsAware) {
+                        SolrResultsAware saware = (SolrResultsAware) jsonDec;
+                        List<String> fList = saware.getFieldList();
+                        fieldList.addAll(fList);
+                    }
+                }
+
+                List<String> children = solrChildren(pid, fieldList);
                 for (String p : children) {
                     String repPid = p.replace("/", "");
                     // vrchni ma odkaz sam na sebe
@@ -217,12 +238,11 @@ public class ItemResource {
         if (onePath.getLength() >= 2) {
             String[] pth = onePath.getPathFromRootToLeaf();
             parentPid = pth[pth.length - 2];
-            children = solrChildren(parentPid);
-            // fedoraAccess.processSubtree(pth[pth.length-2], ch);
-            // children = ch.getChildren();
+            children = solrChildren(parentPid, new ArrayList<String>());
         } else {
             children.add(pid);
         }
+
         JSONObject object = new JSONObject();
         JSONArray pathArray = new JSONArray();
         for (String p : onePath.getPathFromRootToLeaf()) {
@@ -381,7 +401,6 @@ public class ItemResource {
                     } catch (LexerException e) {
                         throw new GenericApplicationException(e.getMessage());
                     }
-
                 }
             } else {
                 throw new PIDNotFound("pid not found '" + pid + "'");
@@ -404,19 +423,29 @@ public class ItemResource {
     }
 
     
-    private List<String> solrChildren(String parentPid) throws IOException {
-        //Collections.sort(list, c);
-        
+    private List<String> solrChildren(String parentPid, List<String> fList) throws IOException {
+        LOGGER.info("\t children");
+        List<Document> docs = new  ArrayList<Document>();
         List<Map<String, String>> ll = new ArrayList<Map<String, String>>();
         int rows = 10000;
         int size = 1; // 1 for the first iteration
         int offset = 0;
         while (offset < size) {
             // request
-            Document resp = this.solrAccess.request("q=parent_pid:\"" + parentPid
-                    + "\"&rows=" + rows + "&start=" + offset);
-            Element resultelm = XMLUtils.findElement(resp.getDocumentElement(),
-                    "result");
+            String request = "q=parent_pid:\"" + parentPid
+                    + "\"&rows=" + rows + "&start=" + offset;
+            if (!fList.isEmpty()) {
+                request+="&fl=";
+                for (int i = 0,bl=fList.size(); i < bl; i++) {
+                    if (i >= 0) request += ",";
+                    request += fList.get(i);
+                }
+            }
+            
+            Document resp = this.solrAccess.request(request);
+            docs.add(resp);
+
+            Element resultelm = XMLUtils.findElement(resp.getDocumentElement(), "result");
             // define size
             size = Integer.parseInt(resultelm.getAttribute("numFound"));
             List<Element> elms = XMLUtils.getElements(resultelm,
@@ -436,13 +465,16 @@ public class ItemResource {
                 Map<String, String> m = new HashMap<String, String>();
                 m.put("pid", docpid);
                 m.put("index", relsExtIndex(parentPid, docelm));
+                this.solrMemoization.rememberIndexedDoc(docpid, docelm);
+
                 ll.add(m);
+                
                 //ll.add(SOLRUtils.value(docelm, "PID", String.class));
             }
             offset = offset + rows;
         }
-        
-        
+
+
         Collections.sort(ll, new Comparator<Map<String, String>>() {
 
             @Override
@@ -455,7 +487,8 @@ public class ItemResource {
         });
         
         List<String> values = new ArrayList<String>();
-        for (Map<String, String> m : ll) { values.add(m.get("pid"));}
+        for (Map<String, String> m : ll) {        LOGGER.info("index =="+m.get("index"));
+            values.add(m.get("pid"));}
         return values;
     }
 
@@ -466,9 +499,10 @@ public class ItemResource {
      * @return
      */
     public static String relsExtIndex(String parentPid, Element docelm) {
-        List<Integer> docindexes =  SOLRUtils.array(docelm, "rels_ext_index", Integer.class);
+        List<Integer> docindexes =  SOLRUtils.narray(docelm, "rels_ext_index", Integer.class);
+        
         if (docindexes.isEmpty()) return "0";
-        List<String> parentPids = SOLRUtils.array(docelm, "parent_pid", String.class);
+        List<String> parentPids = SOLRUtils.narray(docelm, "parent_pid", String.class);
         int index = 0;
         for (int i = 0, length = parentPids.size(); i < length; i++) {
             if (parentPids.get(i).endsWith(parentPid)) {

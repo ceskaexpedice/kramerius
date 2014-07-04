@@ -23,9 +23,11 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.easymock.EasyMock;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -33,28 +35,68 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class SolrPrepare {
 
-	
-	public static void solrDataDocument(SolrAccess solrAccess, String pid) throws IOException, ParserConfigurationException, SAXException, LexerException {
-		if (PIDSupport.isComposedPID(pid)) {
-			String first = PIDSupport.first(pid);
+    public static void solrMemoPrepare(SolrMemoization memo, String pid) throws LexerException, ParserConfigurationException, SAXException, IOException {
+        if (PIDSupport.isComposedPID(pid)) {
+            String first = PIDSupport.first(pid);
 
-			PIDParser pidParser = new PIDParser(first);
-	        pidParser.objectPid();
-	        String objectId = pidParser.getObjectId();
+            PIDParser pidParser = new PIDParser(first);
+            pidParser.objectPid();
+            String objectId = pidParser.getObjectId();
 
-			String path = "/solr/res/"+objectId+"@"+PIDSupport.rest(pid)+".xml";
-			URL urlREs = SolrPrepare.class.getResource(path);
-			Document parsedDoc = XMLUtils.parseDocument(urlREs.openStream());
-			EasyMock.expect(solrAccess.getSolrDataDocument(pid)).andReturn(parsedDoc).anyTimes();
+            String path = "/solr/res/" + objectId + "@" + PIDSupport.rest(pid)
+                    + ".xml";
+            URL urlREs = SolrPrepare.class.getResource(path);
+            Document parsedDoc = XMLUtils.parseDocument(urlREs.openStream());
 
-		} else {
-			PIDParser pidParser = new PIDParser(pid);
-	        pidParser.objectPid();
-	        String objectId = pidParser.getObjectId();
+            Element docElm = XMLUtils.findElement(parsedDoc.getDocumentElement(), "doc");
+            
+            EasyMock.expect(memo.getRememberedIndexedDoc(pid))
+                    .andReturn(docElm).anyTimes();
 
-			URL urlREs = SolrPrepare.class.getResource("/solr/res/"+objectId+".xml");
-			Document parsedDoc = XMLUtils.parseDocument(urlREs.openStream());
-			EasyMock.expect(solrAccess.getSolrDataDocument(pid)).andReturn(parsedDoc).anyTimes();
-		}
-	}
+        } else {
+            PIDParser pidParser = new PIDParser(pid);
+            pidParser.objectPid();
+            String objectId = pidParser.getObjectId();
+
+            URL urlREs = SolrPrepare.class.getResource("/solr/res/" + objectId
+                    + ".xml");
+            Document parsedDoc = XMLUtils.parseDocument(urlREs.openStream());
+
+            Element docElm = XMLUtils.findElement(parsedDoc.getDocumentElement(), "doc");
+            
+            EasyMock.expect(memo.getRememberedIndexedDoc(pid))
+                    .andReturn(docElm).anyTimes();
+        }
+        
+    }
+    
+    public static void solrDataDocument(SolrAccess solrAccess, String pid)
+            throws IOException, ParserConfigurationException, SAXException,
+            LexerException {
+        if (PIDSupport.isComposedPID(pid)) {
+            String first = PIDSupport.first(pid);
+
+            PIDParser pidParser = new PIDParser(first);
+            pidParser.objectPid();
+            String objectId = pidParser.getObjectId();
+
+            String path = "/solr/res/" + objectId + "@" + PIDSupport.rest(pid)
+                    + ".xml";
+            URL urlREs = SolrPrepare.class.getResource(path);
+            Document parsedDoc = XMLUtils.parseDocument(urlREs.openStream());
+            EasyMock.expect(solrAccess.getSolrDataDocument(pid))
+                    .andReturn(parsedDoc).anyTimes();
+
+        } else {
+            PIDParser pidParser = new PIDParser(pid);
+            pidParser.objectPid();
+            String objectId = pidParser.getObjectId();
+
+            URL urlREs = SolrPrepare.class.getResource("/solr/res/" + objectId
+                    + ".xml");
+            Document parsedDoc = XMLUtils.parseDocument(urlREs.openStream());
+            EasyMock.expect(solrAccess.getSolrDataDocument(pid))
+                    .andReturn(parsedDoc).anyTimes();
+        }
+    }
 }

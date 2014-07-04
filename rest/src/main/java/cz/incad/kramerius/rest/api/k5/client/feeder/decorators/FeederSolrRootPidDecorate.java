@@ -29,56 +29,59 @@ import org.w3c.dom.Element;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
 /**
  * Doplni root pid z indexu
+ * 
  * @author pavels
  */
-public class FeederSolrRootPidDecorate extends  AbstractFeederDecorator {
+public class FeederSolrRootPidDecorate extends AbstractFeederDecorator {
 
-	
-    public static final Logger LOGGER = Logger.getLogger(FeederSolrRootPidDecorate.class.getName());
+    public static final Logger LOGGER = Logger
+            .getLogger(FeederSolrRootPidDecorate.class.getName());
 
-    public static final String SOLR_ROOTPID_KEY = AbstractFeederDecorator.key("ROOTPID");
+    public static final String SOLR_ROOTPID_KEY = AbstractFeederDecorator
+            .key("ROOTPID");
 
-	@Inject
-	SolrAccess solrAccess;
+    @Inject
+    SolrAccess solrAccess;
+    @Inject
+    SolrMemoization memo;
 
-	@Override
-	public String getKey() {
-		return SOLR_ROOTPID_KEY;
-	}
+    @Override
+    public String getKey() {
+        return SOLR_ROOTPID_KEY;
+    }
 
-	@Override
-	public void decorate(JSONObject jsonObject,
-			Map<String, Object> runtimeContext) {
-		if (jsonObject.containsKey("pid")) {
-			String pid = jsonObject.getString("pid");
-	        try {
-				Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid, context, solrAccess);
-				Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
-				if (result != null) {
-				    Element doc = XMLUtils.findElement(result, "doc");
-				    if (doc != null) {
+    @Override
+    public void decorate(JSONObject jsonObject,
+            Map<String, Object> runtimeContext) {
+        if (jsonObject.containsKey("pid")) {
+            String pid = jsonObject.getString("pid");
+            try {
 
-				        String root_pid = SOLRUtils.value(doc, "root_pid", String.class);
-				        if (root_pid != null) {
-				            jsonObject.put("root_pid", root_pid);
-				        }
-				    }
-				}
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE,e.getMessage(),e);
-			}
-		}
-	}
+                Element doc = this.memo.getRememberedIndexedDoc(pid);
+                if (doc == null) doc = this.memo.askForIndexDocument(pid);
+                if (doc != null) {
+                    String root_pid = SOLRUtils.value(doc, "root_pid",
+                            String.class);
+                    if (root_pid != null) {
+                        jsonObject.put("root_pid", root_pid);
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
+    }
 
-	@Override
-	public boolean apply(JSONObject jsonObject, String context) {
-		TokenizedPath tpath = super.feederContext(tokenize(context));
-		return tpath.isParsed() ;
-	}
+    @Override
+    public boolean apply(JSONObject jsonObject, String context) {
+        TokenizedPath tpath = super.feederContext(tokenize(context));
+        return tpath.isParsed();
+    }
 }

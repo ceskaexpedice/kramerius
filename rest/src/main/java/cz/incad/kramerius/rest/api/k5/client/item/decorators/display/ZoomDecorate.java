@@ -24,6 +24,8 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.Document;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -34,6 +36,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
+import cz.incad.kramerius.rest.api.k5.client.utils.RELSEXTDecoratorUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -72,10 +75,11 @@ public class ZoomDecorate extends AbstractDisplayDecorate {
 			if (containsPidInJSON(jsonObject)) {
 				String pid = getPidFromJSON(jsonObject);
 				if (!PIDSupport.isComposedPID(pid)) {
-					String url = RelsExtHelper.getRelsExtTilesUrl(pid, fedoraAccess);
-					if (url != null) {
-						jsonObject.put("zoom", zoom(pid));
-					}
+				    Document relsExt = RELSEXTDecoratorUtils.getRELSEXTPidDocument(pid, context, this.fedoraAccess);
+				    String url = RelsExtHelper.getRelsExtTilesUrl(relsExt, fedoraAccess);
+				    if (url != null) {
+					jsonObject.put("zoom", zoom(pid));
+				    }
 				}
 			}
 		} catch (XPathExpressionException e) {

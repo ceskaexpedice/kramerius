@@ -86,7 +86,6 @@ public class ApplicationURL {
      * @param url Processing url
      * @return
      */
-
     public static String applicationContextPath(URL url) {
         String path = url.getPath();
         String application = path;

@@ -147,14 +147,14 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         return KrameriusImageSupport.readImage(uuid, stream, this.fedoraAccess, page);
     }
 	
-	protected void writeImage(HttpServletRequest req, HttpServletResponse resp, BufferedImage image, OutputFormats format) throws IOException {
-		if ((format.equals(OutputFormats.JPEG)) || 
-			(format.equals(OutputFormats.PNG))) {
-			resp.setContentType(format.getMimeType());
-			OutputStream os = resp.getOutputStream();
-			KrameriusImageSupport.writeImageToStream(image, format.getJavaFormat(), os);
-		} else throw new IllegalArgumentException("unsupported mimetype '"+format+"'");
-	}
+    protected void writeImage(HttpServletRequest req, HttpServletResponse resp, BufferedImage image, OutputFormats format) throws IOException {
+        if ((format.equals(OutputFormats.JPEG)) || 
+                    (format.equals(OutputFormats.PNG))) {
+                resp.setContentType(format.getMimeType());
+                OutputStream os = resp.getOutputStream();
+                KrameriusImageSupport.writeImageToStream(image, format.getJavaFormat(), os);
+	} else throw new IllegalArgumentException("unsupported mimetype '"+format+"'");
+    }
 
     protected void setDateHaders(String pid, String streamName, HttpServletResponse resp) throws IOException {
         Date lastModifiedDate = lastModified(pid, streamName);

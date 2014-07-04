@@ -289,18 +289,5 @@ public class SecondPhase extends AbstractPhase  {
         
     }
     
-    public static void main(String[] args) throws LexerException {
-//        Client c = Client.create();
-//        WebResource r = c.resource(K4ReplicationProcess.foxmlURL("http://vmkramerius:8080/search/handle/uuid:1a43499e-c953-11df-84b1-001b63bd97ba", "uuid:1a43499e-c953-11df-84b1-001b63bd97ba"));
-//        r.addFilter(new BasicAuthenticationClientFilter("krameriusAdmin", "kramet"));
-//        String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
-//        System.out.println(t);
-        
-        PIDParser pidParser = new PIDParser("uuid:6b767ab8-c1a7-11df-b7b5-001b63bd97ba");
-        pidParser.objectPid();
-        String objectId = pidParser.getObjectId();
-        System.out.println(objectId);
-        
-    }
 
 }

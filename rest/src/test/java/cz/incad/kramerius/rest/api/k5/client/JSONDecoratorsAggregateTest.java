@@ -20,7 +20,7 @@ import static cz.incad.kramerius.fedora.impl.DataPrepare.narodniListyRelsExt;
 import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyRelsExt;
 import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyWithIMGFULL;
 import static cz.incad.kramerius.fedora.impl.DataPrepare.dataStreams;
-import static cz.incad.kramerius.solr.impl.SolrPrepare.solrDataDocument;
+import static cz.incad.kramerius.solr.impl.SolrPrepare.*;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
@@ -84,9 +84,14 @@ public class JSONDecoratorsAggregateTest {
                 .createMock();
 
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class).createMock();
-        replay(fa, aclog, sa);
+        
+        SolrMemoization memo = EasyMock.createMock(SolrMemoization.class);
+        EasyMock.expect(memo.getRememberedIndexedDoc(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn(null);
+        EasyMock.expect(memo.askForIndexDocument(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn(null);
 
-        Injector injector = Guice.createInjector(new JSONDecTestModule(sa, fa,
+        replay(fa, aclog, sa, memo);
+
+        Injector injector = Guice.createInjector(new JSONDecTestModule(sa, memo, fa,
                 null, null));
         JSONDecoratorsAggregate aggregate = injector
                 .getInstance(JSONDecoratorsAggregate.class);
@@ -118,14 +123,19 @@ public class JSONDecoratorsAggregateTest {
                         SolrAccess.class.getMethod("request", String.class,
                                 String.class)).createMock();
 
+        SolrMemoization memo = EasyMock.createMock(SolrMemoization.class);
+        EasyMock.expect(memo.getRememberedIndexedDoc(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn(null);
+        EasyMock.expect(memo.askForIndexDocument(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn(null);
+
+        
         HttpServletRequest request = EasyMock
                 .createMock(HttpServletRequest.class);
         HttpServletResponse response = EasyMock
                 .createMock(HttpServletResponse.class);
 
-        replay(fa, aclog, sa, request, response);
+        replay(fa, aclog, sa, memo, request, response);
 
-        Injector injector = Guice.createInjector(new JSONDecTestModule(sa, fa,
+        Injector injector = Guice.createInjector(new JSONDecTestModule(sa, memo, fa,
                 request, response));
         JSONDecoratorsAggregate aggregate = injector
                 .getInstance(JSONDecoratorsAggregate.class);
@@ -168,14 +178,19 @@ public class JSONDecoratorsAggregateTest {
                         SolrAccess.class.getMethod("request", String.class,
                                 String.class)).createMock();
 
+        SolrMemoization memo = EasyMock.createMock(SolrMemoization.class);
+        EasyMock.expect(memo.getRememberedIndexedDoc(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn(null);
+        EasyMock.expect(memo.askForIndexDocument(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn(null);
+
+        
         HttpServletRequest request = EasyMock
                 .createMock(HttpServletRequest.class);
         HttpServletResponse response = EasyMock
                 .createMock(HttpServletResponse.class);
 
-        replay(fa, aclog, sa, request, response);
+        replay(fa, aclog, sa, memo, request, response);
 
-        Injector injector = Guice.createInjector(new JSONDecTestModule(sa, fa,
+        Injector injector = Guice.createInjector(new JSONDecTestModule(sa, memo, fa,
                 request, response));
         JSONDecoratorsAggregate aggregate = injector
                 .getInstance(JSONDecoratorsAggregate.class);
@@ -217,6 +232,10 @@ public class JSONDecoratorsAggregateTest {
 
         solrDataDocument(sa, DataPrepare.DROBNUSTKY_PIDS[0] + "/@2");
 
+        SolrMemoization memo = EasyMock.createMock(SolrMemoization.class);
+        solrMemoPrepare(memo, DataPrepare.DROBNUSTKY_PIDS[0] + "@2");
+
+        
         HttpServletRequest request = EasyMock
                 .createMock(HttpServletRequest.class);
         EasyMock.expect(request.getRequestURL())
@@ -231,9 +250,9 @@ public class JSONDecoratorsAggregateTest {
         HttpServletResponse response = EasyMock
                 .createMock(HttpServletResponse.class);
 
-        replay(fa, aclog, sa, request, response);
+        replay(fa, aclog, sa, memo, request, response);
 
-        Injector injector = Guice.createInjector(new JSONDecTestModule(sa, fa,
+        Injector injector = Guice.createInjector(new JSONDecTestModule(sa, memo, fa,
                 request, response));
         JSONDecoratorsAggregate aggregate = injector
                 .getInstance(JSONDecoratorsAggregate.class);
@@ -291,6 +310,11 @@ public class JSONDecoratorsAggregateTest {
 
         solrDataDocument(sa, DataPrepare.DROBNUSTKY_PIDS[0]);
 
+        SolrMemoization memo = EasyMock.createMock(SolrMemoization.class);
+        solrMemoPrepare(memo, DataPrepare.DROBNUSTKY_PIDS[0]);
+        
+
+        
         HttpServletRequest request = EasyMock
                 .createMock(HttpServletRequest.class);
         EasyMock.expect(request.getRequestURL())
@@ -305,9 +329,11 @@ public class JSONDecoratorsAggregateTest {
         HttpServletResponse response = EasyMock
                 .createMock(HttpServletResponse.class);
 
-        replay(fa, aclog, sa, request, response);
+        
+        
+        replay(fa, aclog, sa, memo, request, response);
 
-        Injector injector = Guice.createInjector(new JSONDecTestModule(sa, fa,
+        Injector injector = Guice.createInjector(new JSONDecTestModule(sa, memo, fa,
                 request, response));
         JSONDecoratorsAggregate aggregate = injector
                 .getInstance(JSONDecoratorsAggregate.class);
@@ -341,15 +367,18 @@ public class JSONDecoratorsAggregateTest {
     public static class JSONDecTestModule extends AbstractModule {
 
         private SolrAccess solrAccess;
+        private SolrMemoization solrMemo;
         private FedoraAccess fedoraAccess;
         private HttpServletRequest request;
         private HttpServletResponse response;
 
-        public JSONDecTestModule(SolrAccess solrAccess,
+
+        public JSONDecTestModule(SolrAccess solrAccess, SolrMemoization memo,
                 FedoraAccess fedoraAccess, HttpServletRequest request,
                 HttpServletResponse response) {
             super();
             this.solrAccess = solrAccess;
+            this.solrMemo = memo;
             this.fedoraAccess = fedoraAccess;
             this.request = request;
             this.response = response;
@@ -362,6 +391,8 @@ public class JSONDecoratorsAggregateTest {
             bind(FedoraAccess.class).annotatedWith(
                     Names.named("securedFedoraAccess")).toInstance(
                     this.fedoraAccess);
+            bind(SolrMemoization.class).toInstance(this.solrMemo);
+
             decorators();
         }
 
