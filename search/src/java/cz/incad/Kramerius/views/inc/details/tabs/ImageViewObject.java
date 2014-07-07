@@ -16,22 +16,23 @@
  */
 package cz.incad.Kramerius.views.inc.details.tabs;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.logging.Level;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Level;
 
 /**
  * View object for images
@@ -44,6 +45,7 @@ public class ImageViewObject {
     private static final String PID = "pid";
 
     private static final String RIGHT_MSG = "rightMsg";
+    private static final String RIGHT_MSG_ALLOWED = "rightMsgAllowed";
 
     @Inject
     TextsService textsService;
@@ -60,11 +62,22 @@ public class ImageViewObject {
     
     @Inject
     KConfiguration configuration;
+
+    @Inject
+    IsActionAllowed isActionAllowed;
+
+    @Inject
+    SolrAccess solrAccess;
     
     public String getNotAllowedMessageText() throws IOException {
         Locale locale = this.localeProvider.get();
-        if (textsService.isAvailable(RIGHT_MSG, locale)) {
-            return textsService.getText(RIGHT_MSG, locale);
+        String pid = requestProvider.get().getParameter(PID);
+        if(pid != null
+                && isActionAllowed.isActionAllowed(SecuredActions.SHOW_ALTERNATIVE_INFO_TEXT.getFormalName(), pid, null, solrAccess.getPath(pid)[0])
+                && textsService.isAvailable(RIGHT_MSG_ALLOWED,locale)){
+            return replaceUuidInMessage(textsService.getText(RIGHT_MSG_ALLOWED, locale), pid);
+        } else if (textsService.isAvailable(RIGHT_MSG, locale)) {
+            return replaceUuidInMessage(textsService.getText(RIGHT_MSG, locale), pid);
         } else return this.resourceBundleService.getResourceBundle("labels", locale).getString(RIGHT_MSG);
     }
     
@@ -117,6 +130,14 @@ public class ImageViewObject {
 
     public String getDivContainer() {
         return getZoomingViewer().getDivContainer();
+    }
+
+    private String replaceUuidInMessage(String message, String pid){
+        if(message.contains("${uuid}")) {
+            pid = (pid == null ? "" : pid);
+            message = message.replace("${uuid}",pid);
+        }
+        return message;
     }
     
     static enum ZoomViewer {
