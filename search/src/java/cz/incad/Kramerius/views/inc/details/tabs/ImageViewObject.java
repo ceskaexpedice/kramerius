@@ -45,7 +45,7 @@ public class ImageViewObject {
     private static final String PID = "pid";
 
     private static final String RIGHT_MSG = "rightMsg";
-    private static final String RIGHT_MSG_ALLOWED = "rightMsgAllowed";
+    private static final String RIGHT_MSG_ALTERNATIVE = "rightMsgAlternative";
 
     @Inject
     TextsService textsService;
@@ -74,8 +74,8 @@ public class ImageViewObject {
         String pid = requestProvider.get().getParameter(PID);
         if(pid != null
                 && isActionAllowed.isActionAllowed(SecuredActions.SHOW_ALTERNATIVE_INFO_TEXT.getFormalName(), pid, null, solrAccess.getPath(pid)[0])
-                && textsService.isAvailable(RIGHT_MSG_ALLOWED,locale)){
-            return replaceUuidInMessage(textsService.getText(RIGHT_MSG_ALLOWED, locale), pid);
+                && textsService.isAvailable(RIGHT_MSG_ALTERNATIVE,locale)){
+            return replaceUuidInMessage(textsService.getText(RIGHT_MSG_ALTERNATIVE, locale), pid);
         } else if (textsService.isAvailable(RIGHT_MSG, locale)) {
             return replaceUuidInMessage(textsService.getText(RIGHT_MSG, locale), pid);
         } else return this.resourceBundleService.getResourceBundle("labels", locale).getString(RIGHT_MSG);
