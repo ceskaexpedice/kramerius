@@ -187,7 +187,7 @@ public class ItemResource {
                     String uri = UriBuilder.fromResource(ItemResource.class)
                             .path("{pid}/children").build(pid).toString();
                     JSONObject jsonObject = JSONUtils.pidAndModelDesc(repPid,
-                            fedoraAccess, uri.toString(),
+                            uri.toString(),this.solrMemoization,
                             this.decoratorsAggregate, uri);
                     jsonArray.add(jsonObject);
                 }
@@ -249,8 +249,8 @@ public class ItemResource {
             String uriString = UriBuilder.fromResource(ItemResource.class)
                     .path("{pid}/siblings").build(pid).toString();
             p = PIDSupport.convertToK4Type(p);
-            JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess,
-                    uriString, this.decoratorsAggregate, uriString);
+            JSONObject jsonObject = JSONUtils.pidAndModelDesc(p,
+                    uriString,this.solrMemoization, this.decoratorsAggregate, uriString);
             pathArray.add(jsonObject);
         }
         object.put("path", pathArray);
@@ -261,8 +261,7 @@ public class ItemResource {
             String uriString = UriBuilder.fromResource(ItemResource.class)
                     .path("{pid}/siblings").build(pid).toString();
             p = PIDSupport.convertToK4Type(p);
-            JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, fedoraAccess,
-                    uriString, this.decoratorsAggregate, uriString);
+            JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, uriString, this.solrMemoization, this.decoratorsAggregate, uriString);
 
             jsonObject.put("selected", p.equals(pid));
             jsonArray.add(jsonObject);
@@ -375,8 +374,7 @@ public class ItemResource {
 
                     JSONObject jsonObject = new JSONObject();
                     String uriString = basicURL(pid);
-                    JSONUtils.pidAndModelDesc(pid, jsonObject,
-                            this.fedoraAccess, uriString,
+                    JSONUtils.pidAndModelDesc(pid, jsonObject,uriString, this.solrMemoization,
                             this.decoratorsAggregate, null);
 
                     return Response.ok().entity(jsonObject.toString()).build();
@@ -389,7 +387,7 @@ public class ItemResource {
 
                         String uriString = basicURL(pid);
                         JSONUtils.pidAndModelDesc(pid, jsonObject,
-                                this.fedoraAccess, uriString,
+                                uriString, this.solrMemoization,
                                 this.decoratorsAggregate, null);
 
                         return Response.ok().entity(jsonObject.toString())
@@ -424,7 +422,6 @@ public class ItemResource {
 
     
     private List<String> solrChildren(String parentPid, List<String> fList) throws IOException {
-        LOGGER.info("\t children");
         List<Document> docs = new  ArrayList<Document>();
         List<Map<String, String>> ll = new ArrayList<Map<String, String>>();
         int rows = 10000;
@@ -487,8 +484,9 @@ public class ItemResource {
         });
         
         List<String> values = new ArrayList<String>();
-        for (Map<String, String> m : ll) {        LOGGER.info("index =="+m.get("index"));
-            values.add(m.get("pid"));}
+        for (Map<String, String> m : ll) {
+            values.add(m.get("pid"));
+        }
         return values;
     }
 

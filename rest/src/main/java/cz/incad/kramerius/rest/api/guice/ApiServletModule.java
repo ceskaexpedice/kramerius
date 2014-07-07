@@ -40,7 +40,7 @@ import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecor
 import cz.incad.kramerius.rest.api.k5.client.impl.SolrMemoizationImpl;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.CollectionsDecorator;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.RelsExtRightsFlag;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrRightsFlag;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.HandleDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootModelDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootPidDecorate;
@@ -131,7 +131,7 @@ public class ApiServletModule extends JerseyServletModule {
 		decs.addBinding().to(SolrDataNode.class);
 		decs.addBinding().to(CollectionsDecorator.class);
 		decs.addBinding().to(ReplicatedFromDecorator.class);
-                decs.addBinding().to(RelsExtRightsFlag.class);
+                decs.addBinding().to(SolrRightsFlag.class);
 		
 		
 		// item, display

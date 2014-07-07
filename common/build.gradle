@@ -63,23 +63,17 @@ dependencies {
     compile "commons-dbcp:commons-dbcp:1.4"
     compile "net.sf.json-lib:json-lib:2.3:jdk15"
 
-    /*	    
-    compile "com.sun.jersey.contribs:jersey-guice:${ext.jerseyversion}"
-    compile "com.sun.jersey:jersey-client:${ext.jerseyversion}"
-    compile "com.sun.jersey.contribs:jersey-apache-client:${ext.jerseyversion}"
-    compile "com.sun.jersey:jersey-json:${ext.jerseyversion}"
-    */
     
     compile 'javax.ws.rs:jsr311-api:1.1.1'
+    
+    compile "com.sun.jersey:jersey-server:${jerseyversion}"
+    compile "com.sun.jersey:jersey-servlet:${jerseyversion}"
+    compile "com.sun.jersey:jersey-client:${jerseyversion}"
+
+    compile "com.sun.jersey.contribs:jersey-apache-client:${jerseyversion}"
+    compile "com.sun.jersey.contribs:jersey-guice:${jerseyversion}"
+ 
     // dependencies in maven profile
-    compile module("com.sun.jersey:jersey-server:1.12") {
-        dependency("com.sun.jersey:jersey-core:1.12")
-        dependency("com.sun.jersey:jersey-servlet:1.12")
-        dependency("com.sun.jersey:jersey-client:1.12")
-        dependency("com.sun.jersey.contribs:jersey-apache-client:1.12")
-        dependency("com.sun.jersey:jersey-json:1.12")
-    	dependency("com.sun.jersey.contribs:jersey-guice:1.12")
-    }
     
     testCompile "xmlunit:xmlunit:1.3"
    

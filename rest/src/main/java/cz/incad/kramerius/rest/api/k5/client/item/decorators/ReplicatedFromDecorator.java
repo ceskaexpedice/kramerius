@@ -44,69 +44,80 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class ReplicatedFromDecorator extends AbstractItemDecorator {
 
-    public static final Logger LOGGER = Logger.getLogger(ReplicatedFromDecorator.class.getName());
+    public static final Logger LOGGER = Logger
+            .getLogger(ReplicatedFromDecorator.class.getName());
 
-    public static final String REPLICATIONS_DECORATOR_KEY = AbstractItemDecorator.key("REPLICATIONS");
+    public static final String REPLICATIONS_DECORATOR_KEY = AbstractItemDecorator
+            .key("REPLICATIONS");
 
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
-    
-	@Override
-	public String getKey() {
-		return REPLICATIONS_DECORATOR_KEY;
-	}
 
-	public static List<Element> findReplicatedFrom(Document doc) {
-		List<Element> retval = new ArrayList<Element>();
-		Element rdfElm = XMLUtils.findElement(doc.getDocumentElement(), "RDF",FedoraNamespaces.RDF_NAMESPACE_URI);
-		if (rdfElm != null) {
-			Element description  = XMLUtils.findElement(rdfElm, "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
-			if (description != null) {
-				List<Element> elements = XMLUtils.getElements(description, new XMLUtils.ElementsFilter() {
+    @Override
+    public String getKey() {
+        return REPLICATIONS_DECORATOR_KEY;
+    }
 
-					@Override
-					public boolean acceptElement(Element element) {
-						return (element.getLocalName().equals("replicatedFrom") && element.getNamespaceURI().equals(FedoraNamespaces.KRAMERIUS_URI));
-					}
-				});
-				for (Element el : elements) { retval.add(el); }
-			}
-		}
-		return retval;
-	}
+    public static List<Element> findReplicatedFrom(Document doc) {
+        List<Element> retval = new ArrayList<Element>();
+        Element rdfElm = XMLUtils.findElement(doc.getDocumentElement(), "RDF",
+                FedoraNamespaces.RDF_NAMESPACE_URI);
+        if (rdfElm != null) {
+            Element description = XMLUtils.findElement(rdfElm, "Description",
+                    FedoraNamespaces.RDF_NAMESPACE_URI);
+            if (description != null) {
+                List<Element> elements = XMLUtils.getElements(description,
+                        new XMLUtils.ElementsFilter() {
 
+                            @Override
+                            public boolean acceptElement(Element element) {
+                                return (element.getLocalName().equals(
+                                        "replicatedFrom") && element
+                                        .getNamespaceURI().equals(
+                                                FedoraNamespaces.KRAMERIUS_URI));
+                            }
+                        });
+                for (Element el : elements) {
+                    retval.add(el);
+                }
+            }
+        }
+        return retval;
+    }
 
-	@Override
-	public void decorate(JSONObject jsonObject,
-			Map<String, Object> runtimeContext) {
+    @Override
+    public void decorate(JSONObject jsonObject,
+            Map<String, Object> runtimeContext) {
 
-		try {
-			if (jsonObject.containsKey("pid")) {
-				String pid = jsonObject.getString("pid");
-				if (!PIDSupport.isComposedPID(pid)) {
-					Document relsExtDoc = RELSEXTDecoratorUtils.getRELSEXTPidDocument(pid, context, this.fedoraAccess);
-					List<Element> replicated = findReplicatedFrom(relsExtDoc);
-					if (!replicated.isEmpty()) {
-						JSONArray replicatedJSON = new JSONArray();
-						for (Element colElm : replicated) {
-							String rep = colElm.getTextContent();
-							replicatedJSON.add(rep);
-						}
-						jsonObject.put("replicatedFrom", replicatedJSON);
-					}
-				}
-			}
-		} catch (DOMException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-		}
-	}
+        try {
+            if (jsonObject.containsKey("pid")) {
+                String pid = jsonObject.getString("pid");
+                if (!PIDSupport.isComposedPID(pid)) {
+                    Document relsExtDoc = RELSEXTDecoratorUtils
+                            .getRELSEXTPidDocument(pid, context,
+                                    this.fedoraAccess);
+                    List<Element> replicated = findReplicatedFrom(relsExtDoc);
+                    if (!replicated.isEmpty()) {
+                        JSONArray replicatedJSON = new JSONArray();
+                        for (Element colElm : replicated) {
+                            String rep = colElm.getTextContent();
+                            replicatedJSON.add(rep);
+                        }
+                        jsonObject.put("replicatedFrom", replicatedJSON);
+                    }
+                }
+            }
+        } catch (DOMException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
 
-	@Override
-	public boolean apply(JSONObject jsonObject, String context) {
-		TokenizedPath tpath = super.itemContext(tokenize(context));
-		return tpath.isParsed() && tpath.getRestPath().isEmpty();
-	}
+    @Override
+    public boolean apply(JSONObject jsonObject, String context) {
+        TokenizedPath tpath = super.itemContext(tokenize(context));
+        return tpath.isParsed() && tpath.getRestPath().isEmpty();
+    }
 }

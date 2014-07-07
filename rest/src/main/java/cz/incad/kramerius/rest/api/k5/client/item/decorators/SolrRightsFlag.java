@@ -15,20 +15,31 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.utils.RELSEXTDecoratorUtils;
+import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
-public class RelsExtRightsFlag extends AbstractItemDecorator {
+public class SolrRightsFlag extends AbstractItemDecorator {
 
     public static final Logger LOGGER = Logger.getLogger(SolrDataNode.class
             .getName());
 
     public static final String KEY = AbstractItemDecorator.key("DC_RIGHT");// "DC_RIGHT";
 
+
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
+    @Inject
+    SolrAccess saccess;
+    
+    @Inject
+    SolrMemoization solrMemo;
+    
+    
     @Override
     public String getKey() {
         return KEY;
@@ -40,21 +51,17 @@ public class RelsExtRightsFlag extends AbstractItemDecorator {
         if (jsonObject.containsKey("pid")) {
             String pid = jsonObject.getString("pid");
             try {
-                Document relsExt = RELSEXTDecoratorUtils.getRELSEXTPidDocument(
-                        pid, runtimeContext, this.fedoraAccess);
-                Element topElm = XMLUtils.findElement(
-                        relsExt.getDocumentElement(), "Description",
-                        FedoraNamespaces.RDF_NAMESPACE_URI);
-                Element publicElm = XMLUtils.findElement(topElm, "policy",
-                        FedoraNamespaces.KRAMERIUS_URI);
-                if (publicElm != null) {
-                    String policyContent = publicElm.getTextContent();
-                    if (policyContent.contains(":")) {
-                        jsonObject.put("policy", policyContent.split(":")[1]);
-                    } else {
-                        jsonObject.put("policy", policyContent);
-                    }
+                
+                Element indexDoc = this.solrMemo.getRememberedIndexedDoc(pid);
+                if (indexDoc == null) {
+                    indexDoc = this.solrMemo.askForIndexDocument(pid);
                 }
+                
+                String dostupnost = SOLRUtils.value(indexDoc, "dostupnost", String.class);
+                if (dostupnost != null) {
+                    jsonObject.put("policy", dostupnost);
+                }
+                
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
