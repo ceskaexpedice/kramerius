@@ -1,5 +1,5 @@
 function SelectObject() {
-        this.height
+        //this.height
 }
 
 SelectObject.prototype = {
@@ -20,7 +20,6 @@ SelectObject.prototype = {
         var imw = $('#imagepart img').width();
         var imh = $('#imagepart img').height();
 
-        
 
         var x1 = imw *0.1;   
         var y1 = imh *0.1;   

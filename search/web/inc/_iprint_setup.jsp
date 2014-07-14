@@ -14,8 +14,8 @@
 <h4><view:msg>print.settings.label</view:msg></h4>
 
 <select id="page">
-  <option value="a4"><view:msg>print.settings.a4</view:msg></option>
-  <option value="a3"><view:msg>print.settings.a3</view:msg></option>
+  <option value="A4"><view:msg>print.settings.a4</view:msg></option>
+  <option value="A3"><view:msg>print.settings.a3</view:msg></option>
 </select>
 
 </div>
