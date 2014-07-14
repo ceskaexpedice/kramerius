@@ -39,6 +39,7 @@ public class DisectionPrepareViewObject extends AbstractPrepareViewObject implem
             HttpServletRequest request = this.servletRequestProvider.get();
             
             String pidsString = request.getParameter("pid");
+            pidsString = this.fedoraAccess.findFirstViewablePid(pidsString);
             String transcode = request.getParameter("transcode");
             String width = request.getParameter("width");
             String height = request.getParameter("height");

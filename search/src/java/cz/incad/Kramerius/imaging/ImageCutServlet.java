@@ -34,12 +34,11 @@ public class ImageCutServlet extends AbstractImageServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-
         try {
             String pid = req.getParameter("pid");
             if (pid != null) {
+                pid = this.fedoraAccess.findFirstViewablePid(pid);
                 simpleSubImage(req, resp, pid);
-                
             } else {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             }
@@ -48,14 +47,12 @@ public class ImageCutServlet extends AbstractImageServlet {
         } catch (XPathExpressionException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-
     }
 
-
-    
     private void simpleSubImage(HttpServletRequest req,
             HttpServletResponse resp, String pid) throws MalformedURLException, IOException, JSONException, XPathExpressionException {
 
+        
         BufferedImage bufferedImage = super.rawFullImage(pid,req,0);
         
         String xperct = req.getParameter("xpos");

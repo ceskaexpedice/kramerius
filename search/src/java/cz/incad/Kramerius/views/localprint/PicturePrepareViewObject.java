@@ -47,6 +47,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
 
             for (int i = 0; i < pids.length; i++) {
                 String p = pids[i];
+                p = this.fedoraAccess.findFirstViewablePid(p);
                 String ident = createIdent(i,bits); 
                 this.pids.add(URLDecoder.decode(p, "UTF-8"));
 
