@@ -1,0 +1,25 @@
+/**
+ * Copy js and jsp files to live instance - debug tasks
+ */
+task updateFirst <<{
+        println  "update path $System.env.CATALINA_HOME/webapps/search"       
+}
+
+task updateWebappJSP(dependsOn: 'updateFirst', type: Copy) {
+    description = "Copy jsp files to live app  '$System.env.CATALINA_HOME/webapps/search'."
+    group = "debug"    
+    from 'web'
+    include '**/*.jsp'    
+    into "$System.env.CATALINA_HOME/webapps/search"
+}
+
+task updateWebappJS(dependsOn: 'updateFirst',type: Copy) {
+    description = "Copy javascript files to live app  '$System.env.CATALINA_HOME/webapps/search'."
+    group = "debug"    
+    from 'web/js'
+    include '**/*.js'    
+    into "$System.env.CATALINA_HOME/webapps/search/js"
+}
+
+
+
