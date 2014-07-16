@@ -105,7 +105,6 @@
                 function (index, item) {
                     if (item == contentToShow) {
                         $(item).show();
-                        if (console) console.log("showing '" + item + "'");
                     } else {
                         $(item).hide();
                     }
