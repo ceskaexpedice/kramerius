@@ -242,7 +242,6 @@
                         } 
                     }
                 }
-                //alert(id);
                 loadingInitNodes= false;
                 if(id){
                     showNode(id);
@@ -277,8 +276,6 @@
         }
 
         function nodeClick(id){
-            
-            //alert(id+" -> " + $(jq(id)).hasClass('viewable'));
             initView = false;
             if($(jq(id)).hasClass('viewable')){
                 selectNodeView(id);
@@ -286,7 +283,6 @@
                 if(window.location.hash != id){
                     window.location.hash = id;
                 }
-                $(".viewer").trigger('viewChanged', [id]);
             }else{
                 nodeOpen(id);
             }
@@ -342,12 +338,12 @@
         function checkHashChanged(e){
             var id =  k4Settings.activePidPath;
             var newid =  window.location.hash.toString().substring(1);
-            //alert(newid + " \n" + id);
             if(id != newid){
                 if(newid.length==0){
                     loadInitNodes();
                 }
                 nodeClick(newid);
+                $(".viewer").trigger('viewChanged', [newid]);
             }
         }
 
