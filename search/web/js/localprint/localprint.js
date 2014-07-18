@@ -1,18 +1,18 @@
-function LocalPrint(output) {
+function LocalPrint() {
         //this.height
-        this.output = 'html';
+        this.settings = {output:'html',page:'A4'};
         this.printPartDialog = null;
         this.printSetupDialog = null;
 }
 
 LocalPrint.prototype = {
+    setup:function(set) {
+        this.settings = set;
+    },
 
-
-    printFull:function(out) {        
-        this.output = out;
-        function printURL(output) {
+    printFull:function() {        
+        function printURL(settings) {
             var layout = 'portrait'; 
-            var page = $( "#page option:selected" ).val();
             var pids = getAffectedPids();
             var structs = map(function(pid) {
                 var divided = pid.split("_");
@@ -29,51 +29,45 @@ LocalPrint.prototype = {
                     return memo;
                 }, "",structs);
 
-            if (output === 'html') {
+            if (settings.output === 'html') {
                 var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
-                window.open("inc/_iprint.jsp?pids="+pStr+"&transcode="+transcode+"&page="+page+"&layout="+layout, "_blank");        
+                window.open("inc/_iprint.jsp?pids="+pStr+"&transcode="+transcode+"&page="+settings.page+"&layout="+layout, "_blank");        
             } else {
-                window.open("localPrintPDF?pids="+pStr+"&pagesize="+page+"&imgop=FULL", "_blank");        
+                window.open("localPrintPDF?pids="+pStr+"&pagesize="+settings.page+"&imgop=FULL", "_blank");        
             }
         }
-        
-        if (this.output === 'html') {
-            printURL(this.output);
-        } else {
-                if (this.printSetupDialog) {
-                    this.printSetupDialog.dialog('open');
-                } else {
-                    $(document.body).append('<div id="printSetup"></div>');
-                    this.printSetupDialog = $('#printSetup').dialog({
-                                width:350,
-                                height:250,
-                                modal:true,
-                                title:dictionary["administrator.menu.printlocalsetup"],
-                                buttons:  [ 
-                                {
-                                        text: dictionary['common.ok'],
-                                        click: function() {
-                                            printURL(this.output);
-                                            $(this).dialog("close");
-                                        }
-                                },
-                                {
-                                        text: dictionary['common.close'],
-                                        click: function() {
-                                            $(this).dialog("close");
-                                        }
-                                }]
-                    });
-                    $.get("inc/_iprint_setup.jsp",function(data) {
-                        $('#printSetup').html(data);
-                    });
-                }
-        }       
 
+        if (this.printSetupDialog) {
+            this.printSetupDialog.dialog('open');
+        } else {
+            $(document.body).append('<div id="printSetup"></div>');
+            this.printSetupDialog = $('#printSetup').dialog({
+                        width:350,
+                        height:250,
+                        modal:true,
+                        title:dictionary["administrator.menu.printlocalsetup"],
+                        buttons:  [ 
+                        {
+                                text: dictionary['common.ok'],
+                                click: bind(function() {
+                                            printURL(this.settings);
+                                            this.printSetupDialog.dialog("close");
+                                        }, this)
+                        },
+                        {
+                                text: dictionary['common.close'],
+                                click: function() {
+                                    $(this).dialog("close");
+                                }
+                        }]
+            });
+            $.get("inc/_iprint_setup.jsp",function(data) {
+                $('#printSetup').html(data);
+            });
+        }
     },
 
-    printPart:function(out) {
-        this.output = out;
+    printPart:function() {
         if (this.printPartDialog) {
             this.printPartDialog.dialog('open');
         } else {
@@ -105,15 +99,14 @@ LocalPrint.prototype = {
                                             return memo;
                                     }, "",structs);
 
-                                    var page = $( "#pagepart option:selected" ).val();
                                     var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
                                     var positions = window.selObjects.relativePositions();
 
                                     var positionsString = "xpos="+positions[0]+"&ypos="+positions[1]+"&width="+(positions[2]-positions[0])+"&height="+(positions[3]-positions[1]);
-                                    if (this.output === 'html') {
+                                    if (this.settings.output === 'html') {
                                             window.open("inc/_iprint_select_part_done.jsp?pid="+pStr+"&transcode="+transcode+"&"+positionsString, "_blank");
                                     } else {
-                                            window.open("localPrintPDF?pids="+pStr+"&pagesize="+page+"&imgop=CUT"+"&"+positionsString, "_blank");        
+                                            window.open("localPrintPDF?pids="+pStr+"&pagesize="+this.settings.page+"&imgop=CUT"+"&"+positionsString, "_blank");        
                                     }
                                     this.printPartDialog.dialog("close");
                                 },this)},
@@ -127,7 +120,7 @@ LocalPrint.prototype = {
             });
         }
         
-        $.get("inc/_iprint_select_part.jsp?output="+this.output,function(data) {
+        $.get("inc/_iprint_select_part.jsp?output="+this.settings.output,function(data) {
                 $('#selectPart').html(data);
                 
                 var simg = new Image();

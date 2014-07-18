@@ -9,14 +9,48 @@
 
 <%@ page isELIgnored="false"%>
 
+<script type="text/javascript">
+
+    function __pageselected() {
+        var output = $("#localprintoutput input:checked" ).val();
+        var pagesize = $("#localprintpapersize select option:selected" ).val();
+        localprint.setup({"output":output, "page":pagesize});
+        if (output === 'html') {
+            $("#localprintpapersize").hide();
+        } else {
+            $("#localprintpapersize").show();
+        }
+    }
+
+    $(document).ready(function(){
+        __pageselected();
+        $("#localprintoutput input").change(function() {
+            __pageselected();
+        });
+        $("#localprintpapersize select").change(function() {
+            __pageselected();
+        });
+    });
+</script>
+
+
 <div id="printsetup">
 
-<h4><view:msg>print.settings.label</view:msg></h4>
 
+<div id="localprintoutput">
+    <h4><view:msg>print.settings.label</view:msg></h4>
+    <input type="radio" name="output" value="pdf">PDF</input>
+    <input type="radio" name="output" value="html" checked="true">HTML</input> 
+</div>
+
+
+<div id="localprintpapersize">
+<h4><view:msg>print.settings.papersize</view:msg></h4>
 <select id="page">
   <option value="A4"><view:msg>print.settings.a4</view:msg></option>
   <option value="A3"><view:msg>print.settings.a3</view:msg></option>
 </select>
+</div>
 
 </div>
  
