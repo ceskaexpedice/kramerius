@@ -1,6 +1,10 @@
 package cz.incad.Kramerius.imaging;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -13,6 +17,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.json.JSONException;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.lowagie.text.BadElementException;
 import com.lowagie.text.Document;
@@ -24,10 +29,16 @@ import com.lowagie.text.pdf.PdfWriter;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
 public class PrintPDFServlet extends GuiceServlet {
 
@@ -53,72 +64,50 @@ public class PrintPDFServlet extends GuiceServlet {
     public static enum ImageOP {
         CUT {
             @Override
-            protected String imageURL(FedoraAccess fa,String pid, HttpServletRequest req) throws IOException{
-                return cutIMGFULL(pid,req);
+            protected void imageData(FedoraAccess fa,String pid, HttpServletRequest req, OutputStream os) throws IOException{
+                try {
+                    pid = fa.findFirstViewablePid(pid);
+                    BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), fa, 0);
+                    BufferedImage subImage = ImageCutServlet.simpleSubImage(bufferedImage, req,  pid);
+                    KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), os);
+                } catch (XPathExpressionException e) {
+                    LOGGER.severe(e.getMessage());
+                } catch (JSONException e) {
+                    LOGGER.severe(e.getMessage());
+                }
             }
         },
         
-
         FULL {
             @Override
-            protected String imageURL(FedoraAccess fa,String pid, HttpServletRequest req) throws IOException {
-                    String mimeTypeForStream = fa.getMimeTypeForStream(pid, ImageStreams.IMG_FULL.getStreamName());
-                    ImageMimeType mimeType = ImageMimeType.loadFromMimeType(mimeTypeForStream);
-                    boolean translate = false;
-                    switch(mimeType) {
-                        case JPEG: 
-                        case PNG: 
-                            translate = false;
-                            break;
-                        default:
-                            translate = true;
-                            break;
+            protected void imageData(FedoraAccess fa,String pid, HttpServletRequest req, OutputStream os) throws IOException {
+                    try {
+                        pid = fa.findFirstViewablePid(pid);
+                        BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), fa, 0);
+                        KrameriusImageSupport.writeImageToStream(bufferedImage, ImageMimeType.PNG.getDefaultFileExtension(), os);
+                    } catch (XPathExpressionException e) {
+                        LOGGER.severe(e.getMessage());
                     }
-                    return translate ? translateIMGFULL(pid, req) : rawIMGFULL(pid, req);
             }
         };
-        protected abstract String imageURL(FedoraAccess fa, String pid, HttpServletRequest req) throws IOException ;
 
-        private static String imgServlet(HttpServletRequest req) {
-            String imgServletUrl = ApplicationURL.applicationURL(req)+"/img";
-            return imgServletUrl;
-        }
-        private static String imgCutServlet(HttpServletRequest req) {
-            String imgServletUrl = ApplicationURL.applicationURL(req)+"/imgcut";
-            return imgServletUrl;
-        }
-        
-        private static String rawIMGFULL(String objectId, HttpServletRequest req) {
-            String imgUrl = imgServlet(req) + "?uuid=" + objectId
-                    + "&action=GETRAW&stream="
-                    + ImageStreams.IMG_FULL.getStreamName();
-            return imgUrl;
-        }
-
-        private static String translateIMGFULL(String objectId, HttpServletRequest req) {
-            String imgUrl = imgServlet(req) + "?uuid=" + objectId
-                    + "&action=TRANSCODE&stream="
-                    + ImageStreams.IMG_FULL.getStreamName();
-            return imgUrl;
-        }
-
-        
-        
-        private static String cutIMGFULL(String objectId, HttpServletRequest req) {
-            String xperct = req.getParameter("xpos");
-            String yperct = req.getParameter("ypos");
-            String heightperct = req.getParameter("height");
-            String widthperct = req.getParameter("width");        
-            String url = imgCutServlet(req)+"?pid="+objectId+"&xpos="+xperct+"&ypos="+yperct+"&height="+heightperct+"&width="+widthperct;
-            return url;
-        }
+        protected abstract void imageData(FedoraAccess fa, String pid,HttpServletRequest req,  OutputStream os) throws IOException ;
 
     }
-    
+
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
+
+    @Inject
+    SolrAccess solrAccess;
     
+    @Inject
+    IsActionAllowed actionAllowed;
+
+    @Inject
+    Provider<User> userProvider;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -130,6 +119,7 @@ public class PrintPDFServlet extends GuiceServlet {
             String pids = req.getParameter("pids");
             String pageSize = req.getParameter("pagesize");
             String imgop = req.getParameter("imgop");
+
             
             Document document = new Document(Page.valueOf(pageSize).getRect());
             ServletOutputStream sos = resp.getOutputStream();
@@ -137,27 +127,53 @@ public class PrintPDFServlet extends GuiceServlet {
             document.open();
 
             if (StringUtils.isAnyString(pid)) {
-                Image image = Image.getInstance(ImageOP.valueOf(imgop).imageURL(this.fedoraAccess, pid, req));
+                if (canBeRead(pid)) {
+                    
+                    File nfile = File.createTempFile("local", "print");
+                    nfile.deleteOnExit();
+                    FileOutputStream fos = new FileOutputStream(nfile);
+                    ImageOP.valueOf(imgop).imageData(this.fedoraAccess, pid, req, fos);
+                    
+                    Image image = Image.getInstance(nfile.toURI().toURL());
 
-                image.scaleToFit(
-                        document.getPageSize().getWidth() - document.leftMargin()
-                                - document.rightMargin(),
-                        document.getPageSize().getHeight() - document.topMargin()
-                                - document.bottomMargin());
-                document.add(image);
-            } else {
-                String[] pds = pids.split(",");
-                for (int i = 0; i < pds.length; i++) {
-                    Image image = Image.getInstance(ImageOP.valueOf(imgop).imageURL(this.fedoraAccess, pds[i], req));
                     image.scaleToFit(
                             document.getPageSize().getWidth() - document.leftMargin()
                                     - document.rightMargin(),
                             document.getPageSize().getHeight() - document.topMargin()
                                     - document.bottomMargin());
-                    document.add(image);        
-                    if (i < pds.length-1) {
-                        document.newPage();
+                    document.add(image);
+                    
+                } else {
+                    resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+                }
+            } else {
+                String[] pds = pids.split(",");
+                boolean canBeRendered = false;
+                for (int i = 0; i < pds.length; i++) {
+                    if (!canBeRendered) canBeRendered = canBeRead(pds[i]);
+                }
+                if (canBeRendered) {
+                    for (int i = 0; i < pds.length; i++) {
+                        File nfile = File.createTempFile("local", "print");
+                        nfile.deleteOnExit();
+                        FileOutputStream fos = new FileOutputStream(nfile);
+                        
+                        ImageOP.valueOf(imgop).imageData(this.fedoraAccess, pid, req, fos);
+                        
+                        Image image = Image.getInstance(nfile.toURI().toURL());
+
+                        image.scaleToFit(
+                                document.getPageSize().getWidth() - document.leftMargin()
+                                        - document.rightMargin(),
+                                document.getPageSize().getHeight() - document.topMargin()
+                                        - document.bottomMargin());
+                        document.add(image);        
+                        if (i < pds.length-1) {
+                            document.newPage();
+                        }
                     }
+                } else {
+                    resp.sendError(HttpServletResponse.SC_FORBIDDEN);
                 }
             }
             document.close();
@@ -168,4 +184,15 @@ public class PrintPDFServlet extends GuiceServlet {
         }
     }
 
+    private boolean canBeRead(String pid) throws IOException {
+        ObjectPidsPath[] paths = solrAccess.getPath(pid);
+        for (ObjectPidsPath pth : paths) {
+            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    
 }

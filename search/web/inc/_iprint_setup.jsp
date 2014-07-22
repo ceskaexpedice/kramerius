@@ -7,7 +7,10 @@
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 
+
 <%@ page isELIgnored="false"%>
+
+<scrd:securedContent action="read" sendForbidden="true" pid="${param.pid}">
 
 <script type="text/javascript">
 
@@ -53,4 +56,6 @@
 </div>
 
 </div>
+ 
+</scrd:securedContent>
  
