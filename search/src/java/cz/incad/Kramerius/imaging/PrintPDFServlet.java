@@ -158,7 +158,7 @@ public class PrintPDFServlet extends GuiceServlet {
                         nfile.deleteOnExit();
                         FileOutputStream fos = new FileOutputStream(nfile);
                         
-                        ImageOP.valueOf(imgop).imageData(this.fedoraAccess, pid, req, fos);
+                        ImageOP.valueOf(imgop).imageData(this.fedoraAccess, pds[i], req, fos);
                         
                         Image image = Image.getInstance(nfile.toURI().toURL());
 

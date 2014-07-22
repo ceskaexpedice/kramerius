@@ -60,6 +60,7 @@ LocalPrint.prototype = {
 
             if (settings.output === 'html') {
                 var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
+                transcode = (!transcode) ?  viewerOptions.mimeType.indexOf('jp2')> 0 : transcode; 
                 window.open("inc/_iprint.jsp?pids="+pStr+"&transcode="+transcode+"&page="+settings.page+"&layout="+layout, "_blank");        
             } else {
                 window.open("localPrintPDF?pids="+pStr+"&pagesize="+settings.page+"&imgop=FULL", "_blank");        
@@ -82,7 +83,7 @@ LocalPrint.prototype = {
                                         {
                                                 text: dictionary['common.ok'],
                                                 click: bind(function() {
-                                                            printURL(this.settings);
+                                                            bind(printURL,this)(this.settings);
                                                             this.printSetupDialog.dialog("close");
                                                 }, this)
                                         },
@@ -93,11 +94,10 @@ LocalPrint.prototype = {
                                                 }
                                         }]
                                 });
-
-                                $.get("inc/_iprint_setup.jsp?pid="+this.structs[0].pid,function(data) {
-                                        $('#printSetup').html(data);
-                                });
                         }
+                        $.get("inc/_iprint_setup.jsp?pid="+this.structs[0].pid,function(data) {
+                                $('#printSetup').html(data);
+                        });
                 } else {
                         this.accessDeniedDialog();
                 }
@@ -134,6 +134,7 @@ LocalPrint.prototype = {
                                                     }, "",this.structs);
         
                                                     var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
+                                                    transcode = (!transcode) ?  viewerOptions.mimeType.indexOf('jp2')> 0 : transcode; 
                                                     var positions = window.selObjects.relativePositions();
 
                                                     var positionsString = "xpos="+positions[0]+"&ypos="+positions[1]+"&width="+(positions[2]-positions[0])+"&height="+(positions[3]-positions[1]);
@@ -205,6 +206,7 @@ LocalPrint.prototype = {
                                 }, pids);
                                     
                                 var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
+                                transcode = (!transcode) ?  viewerOptions.mimeType.indexOf('jp2')> 0 : transcode; 
                                 var url = "img?pid="+encodeURIComponent(structs[0].pid)+"&stream=IMG_FULL&action=";
                                 var action = (transcode ? "TRANSCODE":"GETRAW");
                                 url = url+action;
