@@ -1,10 +1,15 @@
 package cz.incad.kramerius.rest.api.utils;
 
+import java.io.StringWriter;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import cz.incad.kramerius.utils.XMLUtils;
 
 
 public class ExceptionXMLObjectUtils {
@@ -19,7 +24,7 @@ public class ExceptionXMLObjectUtils {
      * @return
      * @throws ParserConfigurationException 
      */
-    public static Document fromMessage(String mess, int statuscode) throws ParserConfigurationException {
+    public static Document fromMessageDOM(String mess, int statuscode) throws ParserConfigurationException {
     	DocumentBuilderFactory docBuilder = DocumentBuilderFactory.newInstance();
     	Document document = docBuilder.newDocumentBuilder().newDocument();
     	Element rootElm = document.createElement("message");
@@ -37,4 +42,10 @@ public class ExceptionXMLObjectUtils {
     	return document;
     }
 
+    public static String fromMessageString(String mess, int statuscode) throws ParserConfigurationException, TransformerException {
+        StringWriter strWriter = new StringWriter();
+        XMLUtils.print(fromMessageDOM(mess, statuscode), strWriter);
+        return strWriter.toString();
+    }
+    
 }

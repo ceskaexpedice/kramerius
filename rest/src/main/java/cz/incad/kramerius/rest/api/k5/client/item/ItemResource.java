@@ -1,5 +1,6 @@
 package cz.incad.kramerius.rest.api.k5.client.item;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,6 +45,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowedXML;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
@@ -54,6 +56,12 @@ import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.service.ReplicateException;
+import cz.incad.kramerius.service.ReplicationService;
+import cz.incad.kramerius.service.replication.FormatType;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -90,6 +98,47 @@ public class ItemResource {
     
     @Inject
     SolrMemoization solrMemoization;
+
+    @Inject
+    IsActionAllowed isActionAllowed;
+
+    @Inject
+    ReplicationService replicationService;
+    
+    @GET
+    @Path("{pid}/foxml")
+    @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
+    public Response foxml(@PathParam("pid") String pid) {
+        boolean access = false;
+        try {
+            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            for (ObjectPidsPath path : paths) {
+                if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, path)) {
+                    access = true;
+                    break;
+                }
+            }
+            if (access) {
+                byte[] bytes = replicationService.getExportedFOXML(pid, FormatType.IDENTITY);
+                final ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+                StreamingOutput stream = new StreamingOutput() {
+                    public void write(OutputStream output)
+                            throws IOException, WebApplicationException {
+                        try {
+                            IOUtils.copyStreams(is, output);
+                        } catch (Exception e) {
+                            throw new WebApplicationException(e);
+                        }
+                    }
+                };
+                return Response.ok().entity(stream).build();
+            } else throw new ActionNotAllowedXML("access denied");
+        } catch (IOException e) {
+            throw new PIDNotFound("cannot foxml for  " + pid);
+        } catch (ReplicateException e) {
+            throw new PIDNotFound("cannot foxml for  " + pid);
+        }
+    }
     
     @GET
     @Path("{pid}/streams/{dsid}")
@@ -151,7 +200,7 @@ public class ItemResource {
                     jsonObject.put(dsiId, streamObj);
                 }
             }
-            return Response.ok().entity(jsonObject).build();
+            return Response.ok().entity(jsonObject.toString()).build();
         } catch (IOException e) {
             throw new PIDNotFound(e.getMessage());
         }
