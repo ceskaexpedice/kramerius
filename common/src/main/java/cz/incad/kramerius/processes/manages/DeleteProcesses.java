@@ -60,10 +60,10 @@ public class DeleteProcesses {
     static final SimpleDateFormat INPUT_DIALOG_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
     
 
-    public static List<JSONObject> list(Client client, BasicAuthenticationFilter authFilter, Date from, Date to, String state, String batchState) throws ParseException {
+    public static List<JSONObject> list(String baseURL , Client client, BasicAuthenticationFilter authFilter, Date from, Date to, String state, String batchState) throws ParseException {
         List<JSONObject> l = new ArrayList<JSONObject>();
         
-        String baseURL = getHostURL()+"?offset=";
+        //String baseURL = getHostURL()+"?offset=";
 
         boolean process = true;
         int offset = 0;
@@ -174,22 +174,40 @@ public class DeleteProcesses {
         LOGGER.info("state :"+state);
         LOGGER.info("batchState :"+batchState);
         Client c = Client.create();
-        List<JSONObject> processesToDelete = list(c,null, from != null ? INPUT_DIALOG_FORMAT.parse(from) : null, to != null ? INPUT_DIALOG_FORMAT.parse(to) : null, state, batchState);
-        LOGGER.info("processes to delete :"+processesToDelete.size());
+        String baseURL = getHostURL()+"?offset=";
+        List<JSONObject> processesToDelete = list(baseURL, c,null, from != null ? INPUT_DIALOG_FORMAT.parse(from) : null, to != null ? INPUT_DIALOG_FORMAT.parse(to) : null, state, batchState);
+        LOGGER.info("found process  :"+processesToDelete.size());
         for (JSONObject jsonObject : processesToDelete) {
-    
             if (jsonObject.containsKey("uuid")) {
                 String jsonState = jsonObject.getString("state");
-                if (!States.valueOf(jsonState).equals(States.RUNNING) || (!States.valueOf(jsonState).equals(States.PLANNED))) {
+                if (!States.valueOf(jsonState).equals(States.RUNNING) && (!States.valueOf(jsonState).equals(States.PLANNED))) {
                     WebResource r = c.resource(getHostURL()+"/" + jsonObject.getString("uuid"));
-                    LOGGER.info("deleting process "+jsonObject.getString("uuid"));
+                    LOGGER.info("deleting process '"+jsonObject.getString("uuid")+"'");
                     String deleted = r.header("auth-token", authToken()).header("token", groupToken()).delete(String.class);
-                    LOGGER.info("\t process deleted "+deleted);
+                    LOGGER.info("\t deleted "+deleted);
+                } else {
+                    LOGGER.info("\t skipped process  '"+jsonObject.getString("uuid")+"'");
                 }
             }
         }
     }
 
+    public static void main(String[] args) throws ParseException {
+        //09/07/2014
+        BasicAuthenticationFilter bf = new BasicAuthenticationFilter("krameriusAdmin", "krameriusAdmin");
+        String from = null;
+        String to = null;
+        String state = "FINISHED";
+        String batchState = null;
+        Client c = Client.create();
+        List<JSONObject> processesToDelete = list("http://vmkramerius:8080/search/api/v4.6/processes?offset=",c,bf, from != null ? INPUT_DIALOG_FORMAT.parse(from) : null, to != null ? INPUT_DIALOG_FORMAT.parse(to) : null, state, batchState);
+        int ll = processesToDelete.size();
+        for (JSONObject jsonObject : processesToDelete) {
+            String uuid = jsonObject.getString("uuid");
+            System.out.println(uuid);
+        }
+    }
+    
     static String authToken() {
         return System.getProperty(ProcessStarter.AUTH_TOKEN_KEY);
     }

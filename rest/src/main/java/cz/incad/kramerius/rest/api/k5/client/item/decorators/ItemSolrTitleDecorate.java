@@ -30,6 +30,7 @@ import com.google.inject.Inject;
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
@@ -52,6 +53,9 @@ public class ItemSolrTitleDecorate extends AbstractItemDecorator {
     @Inject
     SolrAccess solrAccess;
 
+    @Inject
+    SolrMemoization memo;
+    
     @Override
     public String getKey() {
         return SOLR_TITLE_KEY;
@@ -60,21 +64,18 @@ public class ItemSolrTitleDecorate extends AbstractItemDecorator {
     @Override
     public void decorate(JSONObject jsonObject, Map<String, Object> context) {
         try {
-        	
-        	String pid = jsonObject.getString("pid");
-            Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid, context, solrAccess);
-            Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
-            if (result != null) {
-                Element doc = XMLUtils.findElement(result, "doc");
-                if (doc != null) {
-                    String title = SOLRUtils.value(doc, "dc.title", String.class);
-                    if (title != null) {
-                        jsonObject.put("title", title);
-                    }
-                    String root_title = SOLRUtils.value(doc, "root_title", String.class);
-                    if (root_title != null) {
-                        jsonObject.put("root_title", root_title);
-                    }
+            String pid = jsonObject.getString("pid");
+            Element doc = this.memo.getRememberedIndexedDoc(pid);
+            if (doc == null) doc = this.memo.askForIndexDocument(pid);
+            
+            if (doc != null) {
+                String title = SOLRUtils.value(doc, "dc.title", String.class);
+                if (title != null) {
+                    jsonObject.put("title", title);
+                }
+                String root_title = SOLRUtils.value(doc, "root_title", String.class);
+                if (root_title != null) {
+                    jsonObject.put("root_title", root_title);
                 }
             }
         } catch (IOException e) {

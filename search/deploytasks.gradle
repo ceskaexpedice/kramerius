@@ -1,0 +1,63 @@
+/**
+ * Deploy tasks
+ */
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.gradle.api.plugins:gradle-cargo-plugin:1.5'
+    }
+}
+
+import org.gradle.api.plugins.cargo.tasks.remote.*;
+
+
+
+/**
+ * Deploy descriptor
+ */
+class RemoteContainer {
+    String name
+    String hostname
+    Integer port
+    String username
+    String password
+    String tomcatId
+}
+
+
+/** Remote containers */
+def remoteContainers = [
+
+                        new RemoteContainer(name: 'local', hostname: 'localhost',
+                                            port: 8080, username: 'tomcat', password: 'tomcat', tomcatId:'tomcat6x'),
+]
+
+if (hasProperty('vmkrameriusAdm') && hasProperty('vmkrameriusPass') && hasProperty('vmkrameriusTomcatId')) {
+        remoteContainers.add(new RemoteContainer(name: 'vmkram', hostname: 'vmkramerius',
+            port: 8080, username: getProperty('vmkrameriusAdm'), password: getProperty('vmkrameriusPass'), tomcatId:getProperty('vmkrameriusTomcatId')));
+}
+
+
+remoteContainers.each { config ->
+    task "deploy${config.name.capitalize()}"(type: org.gradle.api.plugins.cargo.tasks.remote.CargoDeployRemote) {
+        description = "Deploys WAR to remote Tomcat '${config.name}'."
+        containerId = config.tomcatId
+        hostname = config.hostname
+        port = config.port
+        username = config.username
+        password = config.password
+    }
+
+    task "undeploy${config.name.capitalize()}"(type: org.gradle.api.plugins.cargo.tasks.remote.CargoUndeployRemote) {
+        description = "UnDeploys WAR to remote Tomcat '${config.name}'."
+        containerId = config.tomcatId
+        hostname = config.hostname
+        port = config.port
+        username = config.username
+        password = config.password
+    }
+}
+

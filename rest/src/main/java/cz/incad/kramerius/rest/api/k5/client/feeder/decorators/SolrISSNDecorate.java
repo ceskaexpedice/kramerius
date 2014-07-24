@@ -16,8 +16,6 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.feeder.decorators;
 
-import static cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils.getSolrPidDocument;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
@@ -31,50 +29,55 @@ import org.w3c.dom.Element;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
-public class SolrISSNDecorate extends AbstractFeederDecorator  {
+public class SolrISSNDecorate extends AbstractFeederDecorator {
 
-	public static Logger LOGGER = Logger.getLogger(SolrISSNDecorate.class.getName());
-	
-	@Inject
-	SolrAccess solrAccess;
+    public static Logger LOGGER = Logger.getLogger(SolrISSNDecorate.class
+            .getName());
 
-	public static final String KEY = AbstractFeederDecorator.key("SOLRISSN");
+    @Inject
+    SolrAccess solrAccess;
 
-	
-	@Override
-	public String getKey() {
-		return KEY;
-	}
+    @Inject
+    SolrMemoization memo;
 
-	@Override
-	public void decorate(JSONObject jsonObject, Map<String, Object> context) {
-		try {
-			String pid = jsonObject.getString("pid");
-			Document solrDoc = getSolrPidDocument(pid, context, solrAccess);	
-			Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
-			if (result != null) {
-				Element doc = XMLUtils.findElement(result, "doc");
-				if (doc != null) {
-					String date = SOLRUtils.value(doc, "issn", String.class);
-					if (date != null) {
-						jsonObject.put("issn", date);
-					}
-				}
-			}
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(),e);
-		}
-	}
+    public static final String KEY = AbstractFeederDecorator.key("SOLRISSN");
 
-	@Override
-	public boolean apply(JSONObject jsonObject, String context) {
-		TokenizedPath fctx = super.feederContext(tokenize(context));
-		if (fctx.isParsed()) {
-			return ( (!fctx.getRestPath().isEmpty()) && mostDesirableOrNewest(fctx));
-		} else return false;
-	}
+    @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
+    public void decorate(JSONObject jsonObject, Map<String, Object> context) {
+        try {
+            String pid = jsonObject.getString("pid");
+
+            Element doc = this.memo.getRememberedIndexedDoc(pid);
+            if (doc == null)
+                doc = this.memo.askForIndexDocument(pid);
+ 
+            if (doc != null) {
+                String date = SOLRUtils.value(doc, "issn", String.class);
+                if (date != null) {
+                    jsonObject.put("issn", date);
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public boolean apply(JSONObject jsonObject, String context) {
+        TokenizedPath fctx = super.feederContext(tokenize(context));
+        if (fctx.isParsed()) {
+            return ((!fctx.getRestPath().isEmpty()) && mostDesirableOrNewest(fctx));
+        } else
+            return false;
+    }
 
 }

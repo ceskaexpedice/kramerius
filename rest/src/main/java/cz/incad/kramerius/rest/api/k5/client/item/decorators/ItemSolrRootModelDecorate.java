@@ -30,6 +30,7 @@ import com.google.inject.Inject;
 
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
@@ -37,50 +38,55 @@ import cz.incad.kramerius.utils.XMLUtils;
 
 /**
  * Doplni root model z indexu
+ * 
  * @author pavels
  */
 public class ItemSolrRootModelDecorate extends AbstractItemDecorator {
 
-    public static final Logger LOGGER = Logger.getLogger(ItemSolrRootModelDecorate.class.getName());
+    public static final Logger LOGGER = Logger
+            .getLogger(ItemSolrRootModelDecorate.class.getName());
 
-    public static final String SOLR_ROOTMODEL_KEY = AbstractItemDecorator.key("ROOTMODEL");
+    public static final String SOLR_ROOTMODEL_KEY = AbstractItemDecorator
+            .key("ROOTMODEL");
 
     @Inject
     SolrAccess solrAccess;
-    
-	@Override
-	public String getKey() {
-		return SOLR_ROOTMODEL_KEY;
-	}
 
-	@Override
-	public void decorate(JSONObject jsonObject,
-			Map<String, Object> runtimeContext) {
-		if (jsonObject.containsKey("pid")) {
-			String pid = jsonObject.getString("pid");
-	        try {
-				Document solrDoc = getSolrPidDocument(pid, context, solrAccess);
-				Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
-				if (result != null) {
-				    Element doc = XMLUtils.findElement(result, "doc");
-				    if (doc != null) {
+    @Inject
+    SolrMemoization memo;
 
-				        String root_pid = SOLRUtils.value(doc, "root_model", String.class);
-				        if (root_pid != null) {
-				            jsonObject.put("root_pid", root_pid);
-				        }
-				    }
-				}
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE,e.getMessage(),e);
-			}
-		}
-	}
+    @Override
+    public String getKey() {
+        return SOLR_ROOTMODEL_KEY;
+    }
 
-	@Override
-	public boolean apply(JSONObject jsonObject, String context) {
-		TokenizedPath tpath = super.itemContext(tokenize(context));
-		return tpath.isParsed() ;
-	}
-	
+    @Override
+    public void decorate(JSONObject jsonObject,
+            Map<String, Object> runtimeContext) {
+        if (jsonObject.containsKey("pid")) {
+            String pid = jsonObject.getString("pid");
+            try {
+
+                Element doc = this.memo.getRememberedIndexedDoc(pid);
+                if (doc == null) doc = this.memo.askForIndexDocument(pid);
+                if (doc != null) {
+                    String root_pid = SOLRUtils.value(doc, "root_pid",
+                            String.class);
+                    if (root_pid != null) {
+                        jsonObject.put("root_pid", root_pid);
+                    }
+                }
+
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
+    }
+
+    @Override
+    public boolean apply(JSONObject jsonObject, String context) {
+        TokenizedPath tpath = super.itemContext(tokenize(context));
+        return tpath.isParsed();
+    }
+
 }

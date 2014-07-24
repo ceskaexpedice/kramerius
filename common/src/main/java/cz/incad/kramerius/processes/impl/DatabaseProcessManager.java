@@ -161,14 +161,24 @@ public class DatabaseProcessManager implements LRProcessManager {
     
     @Override
     public void deleteBatchLongRunningProcess(LRProcess longRunningProcess) {
+
+        Connection connection = null;
         try {
+            connection = connectionProvider.get();
+            if (connection == null)
+                throw new NotReadyException("connection not ready");
+
+            if (longRunningProcess.getProcessState().equals(States.RUNNING)) {
+                throw new ProcessManagerException("cannot delete process with state '"+longRunningProcess.getProcessState()+"'");
+            }
+            
             List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
             
             final String token = longRunningProcess.getGroupToken();
             final List<LRProcess> childSubprecesses = getLongRunningProcessesByGroupToken(token);
 
  
-            final int id = ProcessDatabaseUtils.getProcessId(longRunningProcess, connectionProvider.get());
+            final int id = ProcessDatabaseUtils.getProcessId(longRunningProcess, connection);
             commands.add(new JDBCCommand() {
                 
                 @Override
@@ -193,7 +203,17 @@ public class DatabaseProcessManager implements LRProcessManager {
                     
                 }
             }
-            
+
+            commands.add(new JDBCCommand() {
+                
+                @Override
+                public Object executeJDBCCommand(Connection con) throws SQLException {
+                    PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESS_2_TOKEN where auth_token = ?");
+                    prepareStatement.setString(1, token);
+                    return prepareStatement.executeUpdate();
+                }
+            });
+
 
             commands.add(new JDBCCommand() {
                 
@@ -226,9 +246,19 @@ public class DatabaseProcessManager implements LRProcessManager {
                 }
             };
             
-            new JDBCTransactionTemplate(connectionProvider.get(),true).updateWithTransaction(callbacks, (JDBCCommand[]) commands.toArray(new JDBCCommand[commands.size()]));
+            new JDBCTransactionTemplate(connection,true).updateWithTransaction(callbacks, (JDBCCommand[]) commands.toArray(new JDBCCommand[commands.size()]));
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            throw new ProcessManagerException(e);
+        } finally {
+            try {
+                if (connection != null && (!connection.isClosed())) {
+                    DatabaseUtils.tryClose(connection);
+                }
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                throw new ProcessManagerException(e);
+            }
         }
     }
 
@@ -240,6 +270,10 @@ public class DatabaseProcessManager implements LRProcessManager {
             if (connection == null)
                 throw new NotReadyException("connection not ready");
 
+            if (lrProcess.getProcessState().equals(States.RUNNING)) {
+                throw new ProcessManagerException("cannot delete process with state '"+lrProcess.getProcessState()+"'");
+            }
+            
             final int id = ProcessDatabaseUtils.getProcessId(lrProcess, connection);
             final String uuid = lrProcess.getUUID();
             JDBCCommand deleteTokensMapping = new JDBCCommand() {
@@ -284,6 +318,7 @@ public class DatabaseProcessManager implements LRProcessManager {
             // hornici
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new ProcessManagerException(e);
         } finally {
             DatabaseUtils.tryClose(connection);
         }

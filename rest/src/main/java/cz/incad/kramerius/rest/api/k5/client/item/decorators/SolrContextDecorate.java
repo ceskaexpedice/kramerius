@@ -30,6 +30,7 @@ import com.google.inject.Inject;
 import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
@@ -50,6 +51,9 @@ public class SolrContextDecorate extends AbstractItemDecorator {
     @Inject
     SolrAccess solrAccess;
 
+    @Inject
+    SolrMemoization memo;
+    
     @Override
     public String getKey() {
         return SOLR_CONTEXT_KEY;
@@ -59,16 +63,14 @@ public class SolrContextDecorate extends AbstractItemDecorator {
     public void decorate(JSONObject jsonObject, Map<String, Object> context) {
         try {
             String pid = jsonObject.getString("pid");
-            Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid,
-                    context, solrAccess);
-            Element result = XMLUtils.findElement(solrDoc.getDocumentElement(),
-                    "result");
-            if (result != null) {
-                Element doc = XMLUtils.findElement(result, "doc");
-                if (doc != null) {
-                    List<String> pidPaths = SOLRUtils.array(doc, "pid_path",
+                
+            Element doc = this.memo.getRememberedIndexedDoc(pid);
+            if (doc == null) doc = this.memo.askForIndexDocument(pid);
+
+            if (doc != null) {
+                    List<String> pidPaths = SOLRUtils.narray(doc, "pid_path",
                             String.class);
-                    List<String> modelPaths = SOLRUtils.array(doc,
+                    List<String> modelPaths = SOLRUtils.narray(doc,
                             "model_path", String.class);
                     if (pidPaths != null && modelPaths != null) {
                         JSONArray jaContext = new JSONArray();
@@ -88,7 +90,6 @@ public class SolrContextDecorate extends AbstractItemDecorator {
                     }
 
                 }
-            }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }

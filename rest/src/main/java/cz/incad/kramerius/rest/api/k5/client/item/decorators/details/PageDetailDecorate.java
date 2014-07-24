@@ -30,6 +30,7 @@ import org.w3c.dom.Element;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootPidDecorate;
@@ -48,6 +49,9 @@ public class PageDetailDecorate extends AbstractDetailDecorator {
     @Inject
     SolrAccess solrAccess;
 
+    @Inject
+    SolrMemoization memo;
+    
     @Override
     public String getKey() {
         return DISPLAY_PERIODICAL;
@@ -59,13 +63,13 @@ public class PageDetailDecorate extends AbstractDetailDecorator {
         if (jsonObject.containsKey("pid")) {
             String pid = jsonObject.getString("pid");
             try {
-                Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid,
-                        context, solrAccess);
-                Element result = XMLUtils.findElement(
-                        solrDoc.getDocumentElement(), "result");
-                if (result != null) {
-                    Element doc = XMLUtils.findElement(result, "doc");
+
+                    Element doc = this.memo.getRememberedIndexedDoc(pid);
+                    if (doc == null)
+                        doc = this.memo.askForIndexDocument(pid);
+                    
                     if (doc != null) {
+                        
                         List<String> array = SOLRUtils.array(doc, "details",
                                 String.class);
                         if (!array.isEmpty()) {
@@ -81,7 +85,6 @@ public class PageDetailDecorate extends AbstractDetailDecorator {
                                 jsonObject.put("details", detailsJSONObject);
                             }
                         }
-                    }
                 }
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);

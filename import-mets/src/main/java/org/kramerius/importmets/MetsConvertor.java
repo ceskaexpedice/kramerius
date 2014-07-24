@@ -1,9 +1,11 @@
 package org.kramerius.importmets;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
+
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.log4j.Logger;
 import org.kramerius.Import;
@@ -21,6 +23,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import javax.xml.bind.*;
 import javax.xml.transform.sax.SAXSource;
+
 import java.io.*;
 
 
@@ -99,7 +102,7 @@ public class MetsConvertor {
         }
         File exportFolderFile = IOUtils.checkDirectory(exportRoot);
 
-        File infoFile = new File(importFolder, "info.xml");
+        File infoFile = findInfoFile(importFolder);
         if (!infoFile.exists()) {
             for(File child: importFolder.listFiles()){
                 if (child.isDirectory()){
@@ -116,6 +119,22 @@ public class MetsConvertor {
 
     }
 
+    private static File findInfoFile(File importFolder) {
+        File infoFile = null;
+        File[] lfiles = importFolder.listFiles(new FileFilter() {
+            
+            @Override
+            public boolean accept(File p) {
+                String fname = p.getName().toLowerCase();
+                if (fname.startsWith("info") && fname.endsWith(".xml")) {
+                    return true;
+                } else return false;
+            }
+        });
+        infoFile = (lfiles !=null && lfiles.length >0) ? lfiles[0] : new File(importFolder, "info.xml");
+        return infoFile;
+    }
+
 
     private static String convert(String importRoot, String exportRoot, boolean defaultVisibility) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         System.setProperty("java.awt.headless", "true");
@@ -125,9 +144,7 @@ public class MetsConvertor {
 
         File importFolder = new File(importRoot);
 
-        File infoFile = new File(importFolder, "info.xml");
-
-
+        File infoFile = findInfoFile(importFolder);
 
         String packageid = getPackageid(infoFile);
 
@@ -177,8 +194,7 @@ public class MetsConvertor {
         File[] fileList = importFolder.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
-                return pathname.isFile() && pathname.getName().toLowerCase().endsWith(".xml") && !(pathname.getName().equalsIgnoreCase("info.xml"));
-
+                return pathname.isFile() && pathname.getName().toLowerCase().endsWith(".xml") && pathname.getName().toLowerCase().startsWith("mets");
             }
         });
         if (fileList.length!=1){

@@ -17,6 +17,7 @@
 package cz.incad.kramerius.impl;
 
 import com.google.inject.Inject;
+
 import cz.incad.kramerius.*;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -26,6 +27,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -37,9 +39,11 @@ import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
 import javax.xml.xpath.*;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.logging.Level;
@@ -307,7 +311,6 @@ public class FedoraAccessImpl implements FedoraAccess {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         }
-
     }
 
     @Override
@@ -877,7 +880,10 @@ public class FedoraAccessImpl implements FedoraAccess {
                     Element dsLocation = XMLUtils.findElement(datastreamProfile.getDocumentElement(), "dsLocation", FedoraNamespaces.FEDORA_MANAGEMENT_NAMESPACE_URI);
                     if (dsLocation != null) {
                         // no user, no pass
-                        con = (HttpURLConnection) openConnection(dsLocation.getTextContent().trim(), "", "");
+                        URLConnection directConnection = openConnection(dsLocation.getTextContent().trim(), "", "");
+                        if (directConnection instanceof HttpURLConnection) {
+                            con = (HttpURLConnection) directConnection;
+                        } 
                     }
                 }
             }

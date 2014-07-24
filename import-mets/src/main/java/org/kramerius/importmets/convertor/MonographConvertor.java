@@ -13,36 +13,33 @@ import java.util.regex.Pattern;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.kramerius.importmets.valueobj.ConvertorConfig;
 import org.kramerius.importmets.valueobj.DublinCore;
-import org.kramerius.importmets.valueobj.ImageMetaData;
 import org.kramerius.importmets.valueobj.FileDescriptor;
 import org.kramerius.importmets.valueobj.RelsExt;
 import org.kramerius.importmets.valueobj.ServiceException;
 
-import com.qbizm.kramerius.imp.jaxb.Contributor;
-import com.qbizm.kramerius.imp.jaxb.ContributorName;
-import com.qbizm.kramerius.imp.jaxb.Creator;
-import com.qbizm.kramerius.imp.jaxb.CreatorName;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.Language;
-import com.qbizm.kramerius.imp.jaxb.Monograph;
-import com.qbizm.kramerius.imp.jaxb.MonographBibliographicRecord;
-import com.qbizm.kramerius.imp.jaxb.MonographComponentPart;
-import com.qbizm.kramerius.imp.jaxb.MonographComponentPartRepresentation;
-import com.qbizm.kramerius.imp.jaxb.MonographPage;
-import com.qbizm.kramerius.imp.jaxb.MonographUnit;
-import com.qbizm.kramerius.imp.jaxb.MonographUnitRepresentation;
-import com.qbizm.kramerius.imp.jaxb.PageIndex;
-import com.qbizm.kramerius.imp.jaxb.PageRepresentation;
-import com.qbizm.kramerius.imp.jaxb.PartInImage;
-import com.qbizm.kramerius.imp.jaxb.PartInText;
-import com.qbizm.kramerius.imp.jaxb.Publisher;
-import com.qbizm.kramerius.imp.jaxb.Subject;
-import com.qbizm.kramerius.imp.jaxb.TechnicalDescription;
-import com.qbizm.kramerius.imp.jaxb.UniqueIdentifier;
-import com.qbizm.kramerius.imp.jaxb.UniqueIdentifierURNType;
+import com.qbizm.kramerius.imp.jaxb.monograph.Contributor;
+import com.qbizm.kramerius.imp.jaxb.monograph.ContributorName;
+import com.qbizm.kramerius.imp.jaxb.monograph.Creator;
+import com.qbizm.kramerius.imp.jaxb.monograph.CreatorName;
+import com.qbizm.kramerius.imp.jaxb.monograph.Language;
+import com.qbizm.kramerius.imp.jaxb.monograph.Monograph;
+import com.qbizm.kramerius.imp.jaxb.monograph.MonographBibliographicRecord;
+import com.qbizm.kramerius.imp.jaxb.monograph.MonographComponentPart;
+import com.qbizm.kramerius.imp.jaxb.monograph.MonographComponentPartRepresentation;
+import com.qbizm.kramerius.imp.jaxb.monograph.MonographPage;
+import com.qbizm.kramerius.imp.jaxb.monograph.MonographUnit;
+import com.qbizm.kramerius.imp.jaxb.monograph.MonographUnitRepresentation;
+import com.qbizm.kramerius.imp.jaxb.monograph.PageIndex;
+import com.qbizm.kramerius.imp.jaxb.monograph.PageRepresentation;
+import com.qbizm.kramerius.imp.jaxb.monograph.PartInImage;
+import com.qbizm.kramerius.imp.jaxb.monograph.PartInText;
+import com.qbizm.kramerius.imp.jaxb.monograph.Publisher;
+import com.qbizm.kramerius.imp.jaxb.monograph.Subject;
+import com.qbizm.kramerius.imp.jaxb.monograph.TechnicalDescription;
+import com.qbizm.kramerius.imp.jaxb.monograph.UniqueIdentifier;
+import com.qbizm.kramerius.imp.jaxb.monograph.UniqueIdentifierURNType;
 
 /**
  * Konvertor monografii do foxml

@@ -54,64 +54,67 @@ import cz.incad.kramerius.utils.database.Offset;
 @Path("/v5.0/admin/statistics")
 public class StatisticsResource {
 
-	@Inject
-	StatisticsAccessLog statisticsAccessLog;
+    @Inject
+    StatisticsAccessLog statisticsAccessLog;
 
-	@Inject
-	IsActionAllowed actionAllowed;
+    @Inject
+    IsActionAllowed actionAllowed;
 
-	@Inject
-	Provider<User> userProvider;
+    @Inject
+    Provider<User> userProvider;
 
-	@GET
-	@Path("{report}")
-    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-	public Response getReportPage(
-			@PathParam("report") String rip, 
-			@QueryParam("action") String raction, 
-			@QueryParam("value") String val, 
-			@QueryParam("offset") String filterOffset,
-            @QueryParam("resultSize") String filterResultSize
-			) {
-		if (permit(userProvider.get())) {
-			try {
-				StatisticReport report = statisticsAccessLog.getReportById(rip);
-				Offset offset = new Offset("0","25");
-				if (StringUtils.isAnyString(filterOffset) && StringUtils.isAnyString(filterResultSize)) {
-					offset = new Offset(filterOffset, filterResultSize);
-				}
+    @GET
+    @Path("{report}")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response getReportPage(@PathParam("report") String rip,
+            @QueryParam("action") String raction,
+            @QueryParam("value") String val,
+            @QueryParam("offset") String filterOffset,
+            @QueryParam("resultSize") String filterResultSize) {
+        if (permit(userProvider.get())) {
+            try {
+                StatisticReport report = statisticsAccessLog.getReportById(rip);
+                Offset offset = new Offset("0", "25");
+                if (StringUtils.isAnyString(filterOffset)
+                        && StringUtils.isAnyString(filterResultSize)) {
+                    offset = new Offset(filterOffset, filterResultSize);
+                }
 
-				List<Map<String, Object>> repPage = report.getReportPage(raction != null ? ReportedAction.valueOf(raction):null, offset, val);
+                List<Map<String, Object>> repPage = report.getReportPage(
+                        raction != null ? ReportedAction.valueOf(raction)
+                                : null, offset, val);
 
-				JSONArray jsonArr = new JSONArray();
-				for (Map<String, Object> map : repPage) {
-					JSONObject json = createJSON(map);
-					jsonArr.add(json);
-				}
-				return Response.ok().entity(jsonArr.toString()).build();
-			} catch (StatisticsReportException e) {
-				throw new GenericApplicationException(e.getMessage());
-			}
-		} else {
-    		throw new ActionNotAllowed("not allowed");
-    	}
-	}
-	
-	
+                JSONArray jsonArr = new JSONArray();
+                for (Map<String, Object> map : repPage) {
+                    JSONObject json = createJSON(map);
+                    jsonArr.add(json);
+                }
+                return Response.ok().entity(jsonArr.toString()).build();
+            } catch (StatisticsReportException e) {
+                throw new GenericApplicationException(e.getMessage());
+            }
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
+    }
+
     private JSONObject createJSON(Map<String, Object> map) {
-    	JSONObject json = new JSONObject();
-    	Set<String> keys = map.keySet();
-    	for (String k : keys) {
-			json.put(k, map.get(k));
-		}
-    	return json;
-	}
+        JSONObject json = new JSONObject();
+        Set<String> keys = map.keySet();
+        for (String k : keys) {
+            json.put(k, map.get(k));
+        }
+        return json;
+    }
 
-	boolean permit(User user) {
-    	if (user != null)
-    		return  this.actionAllowed.isActionAllowed(user,SecuredActions.SHOW_STATISTICS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH);
-    	else 
-    		return false;
+    boolean permit(User user) {
+        if (user != null)
+            return this.actionAllowed.isActionAllowed(user,
+                    SecuredActions.SHOW_STATISTICS.getFormalName(),
+                    SpecialObjects.REPOSITORY.getPid(), null,
+                    ObjectPidsPath.REPOSITORY_PATH);
+        else
+            return false;
     }
 
 }

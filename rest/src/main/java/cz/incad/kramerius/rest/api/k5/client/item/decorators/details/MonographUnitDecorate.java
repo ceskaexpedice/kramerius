@@ -30,6 +30,7 @@ import org.w3c.dom.Element;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootPidDecorate;
@@ -48,6 +49,9 @@ public class MonographUnitDecorate extends AbstractDetailDecorator {
     @Inject
     SolrAccess solrAccess;
 
+    @Inject
+    SolrMemoization memo;
+
     @Override
     public String getKey() {
         return MONOGRAPH_UNIT;
@@ -60,30 +64,27 @@ public class MonographUnitDecorate extends AbstractDetailDecorator {
         if (jsonObject.containsKey("pid")) {
             String pid = jsonObject.getString("pid");
             try {
-                Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid,
-                        context, solrAccess);
-                Element result = XMLUtils.findElement(
-                        solrDoc.getDocumentElement(), "result");
-                if (result != null) {
-                    Element doc = XMLUtils.findElement(result, "doc");
-                    if (doc != null) {
-                        List<String> array = SOLRUtils.array(doc, "details",
-                                String.class);
-                        if (!array.isEmpty()) {
-                            String[] details = super.details(array.get(0));
-                            JSONObject detailsJSONObject = new JSONObject();
-                            if (details.length > 0) {
-                                detailsJSONObject.put("partNumber", details[1]);
-                            }
-                            if (details.length > 1) {
-                                detailsJSONObject.put("title", details[1]);
-                            }
-                            if (details.length > 2) {
-                                detailsJSONObject.put("number", details[2]);
-                            }
-                            if (detailsJSONObject.keySet().size() > 0) {
-                                jsonObject.put("details", detailsJSONObject);
-                            }
+                Element doc = this.memo.getRememberedIndexedDoc(pid);
+                if (doc == null)
+                    doc = this.memo.askForIndexDocument(pid);
+
+                if (doc != null) {
+                    List<String> array = SOLRUtils.array(doc, "details",
+                            String.class);
+                    if (!array.isEmpty()) {
+                        String[] details = super.details(array.get(0));
+                        JSONObject detailsJSONObject = new JSONObject();
+                        if (details.length > 0) {
+                            detailsJSONObject.put("partNumber", details[1]);
+                        }
+                        if (details.length > 1) {
+                            detailsJSONObject.put("title", details[1]);
+                        }
+                        if (details.length > 2) {
+                            detailsJSONObject.put("number", details[2]);
+                        }
+                        if (detailsJSONObject.keySet().size() > 0) {
+                            jsonObject.put("details", detailsJSONObject);
                         }
                     }
                 }

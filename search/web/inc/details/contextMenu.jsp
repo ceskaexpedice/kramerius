@@ -140,9 +140,9 @@
         </div>
         <div id="vc_dialog" style="display:none;"><div class="content"></div></div>
 </scrd:loggedusers>
+
+<script  src="js/localprint/localprint.js" language="javascript" type="text/javascript"></script>
 <script type="text/javascript">
-    
-    
     
     var policyPublic = ${policyPublic};
 
@@ -165,6 +165,7 @@
         });
 
     });
+
 
     function setInitActive(){
         var initialPid = model_path_str.replaceAll('/', '-') + "_" + pid_path[pid_path.length - 1];
@@ -198,6 +199,7 @@
             $('#scope_single').show();
         }
     }
+
 
     function getLabel(pid){
         return $(jq("cm_" + uuids[i])+">label").html();
@@ -339,151 +341,6 @@
     }
 
 
-    var _printPartDialog;
-    function printPartLocal() {
-        if (_printPartDialog) {
-            _printPartDialog.dialog('open');
-        } else {
-            $(document.body).append('<div id="selectPart">'+
-                '</div>');
-
-            _printPartDialog = $('#selectPart').dialog({
-                width:800,
-                height:640,
-                modal:true,
-                title:dictionary["administrator.menu.selectandprintlocal"],
-                buttons:  [
-                    {
-                        text: dictionary['common.ok'],
-                        click: function() {
-
-                            var pids = getAffectedPids();
-                            var structs = map(function(pid) {
-                                var divided = pid.split("_");
-                                var structure = {
-                                    models:divided[0],
-                                    pid:divided[1]
-                                };
-                                return structure;
-                
-                            }, pids);
-
-                            var pStr = reduce(function(memo, value, status) {
-                                    memo = memo + encodeURIComponent(value.pid);
-                                    memo = memo + (status.last ? "": ",");
-                                    return memo;
-                            }, "",structs);
-
-                            var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
-                            var positions = window.selObjects.relativePositions();
-
-                            var positionsString = "xpos="+positions[0]+"&ypos="+positions[1]+"&width="+(positions[2]-positions[0])+"&height="+(positions[3]-positions[1]);
-                            window.open("inc/_iprint_select_part_done.jsp?pid="+pStr+"&transcode="+transcode+"&"+positionsString, "_blank");
-
-                            $(this).dialog("close");
-                        }
-                    },
-
-                    {
-                        text: dictionary['common.close'],
-                        click: function() {
-                            $(this).dialog("close");
-                        }
-                    }
-                ]
-            });
-        }
-        
-        
-        $.get("inc/_iprint_select_part.jsp",function(data) {
-                $('#selectPart').html(data);
-                
-                var simg = new Image();
-
-
-                simg.onload = function() {
-                    var w = simg.width;
-                    var h = simg.height;
-                    var pomer = h/w;
-                        
-                    var cw = $('#imagepart').width();
-                    var ch = $('#imagepart').height();
-
-                    var jqimg = $("<img/>",{'src':simg.src});
-                    jqimg.css('height', ch);
-                    jqimg.css('width', (ch/pomer));
-                        
-                    $('#imagepart').append(jqimg);
-
-                    var l = $('#imagepart img').position().left;
-                    var t = $('#imagepart img').position().top;
-
-                    $('#overlay').show();
-                        
-                    $('#overlay').css('left',l);
-                    $('#overlay').css('top',t);
-                    $('#overlay').css('width',cw);
-                    $('#overlay').css('height',ch);
-
-                    $("#overlay").css({top: t, left: l, position:'absolute'});
-                        
-                    $.getScript( "js/selects/selects.js" )
-                    .done(function( script, textStatus ) {
-                        window.selObjects = new SelectObject();
-                        window.selObjects.center();
-                    }).fail(function( jqxhr, settings, exception ) {
-                        alert("funkce neni k dispozici !");
-                    });
-                };
-
-                var pids = getAffectedPids();
-                var structs = map(function(pid) {
-                    var divided = pid.split("_");
-                    var structure = {
-                        models:divided[0],
-                        pid:divided[1]
-                    };
-                    return structure;
-                }, pids);
-                    
-                var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
-                var url = "img?pid="+encodeURIComponent(structs[0].pid)+"&stream=IMG_FULL&action=";
-                var action = (transcode ? "TRANSCODE":"GETRAW");
-                url = url+action;
-
-                simg.src = url;
-            });
-        
-    }
-
-    function printLocal(){
-        /** construct url for print */
-        function printURL() {
-            var layout = 'portrait'; 
-            var page = $( "#page option:selected" ).val();
-
-            var pids = getAffectedPids();
-            var structs = map(function(pid) {
-                var divided = pid.split("_");
-                var structure = {
-                    models:divided[0],
-                    pid:divided[1]
-                };
-                return structure;
-            }, pids);
-
-            var pStr = reduce(function(memo, value, status) {
-                    memo = memo + encodeURIComponent(value.pid);
-                    memo = memo + (status.last ? "": ",");
-                    return memo;
-                }, "",structs);
-
-            var transcode = viewerOptions.isContentDJVU() || viewerOptions.isContentPDF();
-            window.open("inc/_iprint.jsp?pids="+pStr+"&transcode="+transcode+"&page="+page+"&layout="+layout, "_blank");        
-        }
-        printURL();
-
-    }
 
     var _persistentURLDialog;
     function persistentURL(){

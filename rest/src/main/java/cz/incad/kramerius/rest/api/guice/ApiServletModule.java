@@ -29,6 +29,7 @@ import cz.incad.kramerius.rest.api.k5.admin.users.RolesResource;
 import cz.incad.kramerius.rest.api.k5.admin.users.UsersResource;
 import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootModelDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootPidDecorate;
@@ -36,9 +37,10 @@ import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrTitleDe
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
+import cz.incad.kramerius.rest.api.k5.client.impl.SolrMemoizationImpl;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.CollectionsDecorator;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.RelsExtRightsFlag;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrRightsFlag;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.HandleDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootModelDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootPidDecorate;
@@ -94,6 +96,8 @@ public class ApiServletModule extends JerseyServletModule {
         
         bind(StatisticsResource.class);
         
+        bind(SolrMemoization.class).to(SolrMemoizationImpl.class).asEagerSingleton();
+        
         //decorators
         decorators();
         
@@ -127,7 +131,7 @@ public class ApiServletModule extends JerseyServletModule {
 		decs.addBinding().to(SolrDataNode.class);
 		decs.addBinding().to(CollectionsDecorator.class);
 		decs.addBinding().to(ReplicatedFromDecorator.class);
-                decs.addBinding().to(RelsExtRightsFlag.class);
+                decs.addBinding().to(SolrRightsFlag.class);
 		
 		
 		// item, display

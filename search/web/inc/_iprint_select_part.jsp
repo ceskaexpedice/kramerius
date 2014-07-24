@@ -7,8 +7,34 @@
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 
-<%@ page isELIgnored="false"%>
 
+<script type="text/javascript">
+
+    function __pageselected() {
+        var output = $("#localprintpartoutput input:checked" ).val();
+        var pagesize = $("#localprintpartpapersize select option:selected" ).val();
+        localprint.setup({"output":output, "page":pagesize});
+        if (output === 'html') {
+            $("#localprintpartpapersize").hide();
+        } else {
+            $("#localprintpartpapersize").show();
+        }
+    }
+
+    $(document).ready(function(){
+        __pageselected();
+        $("#localprintpartoutput input").change(function() {
+            __pageselected();
+        });
+        $("#localprintpartpapersize select").change(function() {
+            __pageselected();
+        });
+    });
+</script>
+
+
+
+<%@ page isELIgnored="false"%>
 
 
 <style>
@@ -111,17 +137,51 @@
 
 </style>
 
-<div id="imagepart" style="width:100%; height:100%; position:relative; background-color:gray;">
-    <div id="overlay" style="display:none">
-        <div id="selectbox"></div>
-        <div id="left-top" class="point"></div>
-        <div id="right-top" class="point"></div>
-        <div id="left-bottom" class="point"></div>
-        <div id="right-bottom" class="point"></div>
+
+<table style="width:100%; height:100%"> 
+
+<tr>
+
+<td style="width:80%">
+
+    <div id="imagepart" style="width:100%; height:100%; position:relative; background-color:gray;">
+        <div id="overlay" style="display:none">
+            <div id="selectbox"></div>
+            <div id="left-top" class="point"></div>
+            <div id="right-top" class="point"></div>
+            <div id="left-bottom" class="point"></div>
+            <div id="right-bottom" class="point"></div>
+        </div>
     </div>
+
+</td>
+
+<td style="width:20%;  height:100%; vertical-align: top;  text-align:left">
+
+
+<div id="output">
+
+<div id="localprintpartoutput">
+    <h4><view:msg>print.settings.label</view:msg></h4>
+    <input type="radio" name="output" value="pdf">PDF</input>
+    <input type="radio" name="output" value="html" checked="true">HTML</input> 
 </div>
 
 
+
+<div id="localprintpartpapersize">
+    <h4><view:msg>print.settings.papersize</view:msg></h4>
+    <select id="pagepart">
+        <option value="A4"><view:msg>print.settings.a4</view:msg></option>
+        <option value="A3"><view:msg>print.settings.a3</view:msg></option>
+    </select>
+</div>
+
+</div>
+
+ </td>
+</tr>
+</table>
 
 
  

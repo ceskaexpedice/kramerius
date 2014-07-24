@@ -107,9 +107,11 @@ public enum SecuredActions {
     SORT("sort"),
 
     /** print  */
-    SHOW_PRINT_MENU("show_print_menu");
-    
-    
+    SHOW_PRINT_MENU("show_print_menu"),
+
+    /** page info */
+    SHOW_ALTERNATIVE_INFO_TEXT("show_alternative_info_text");
+
     private String formalName;
   
     private SecuredActions(String formalName) {

@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuItem;
+import cz.incad.Kramerius.tags.KConfigTag;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class SelectPartAndPrintLocal extends AbstractContextMenuItem implements PublicContextMenuItem {
 
@@ -14,6 +16,7 @@ public class SelectPartAndPrintLocal extends AbstractContextMenuItem implements 
 
     @Override
     public String getRenderedItem() throws IOException {
-        return super.renderContextMenuItem("javascript:printPartLocal();", "administrator.menu.selectandprintlocal");
+        String output = KConfiguration.getInstance().getConfiguration().getString("localprint.output", "html");
+        return super.renderContextMenuItem("javascript:localprint.printPart('"+output+"');", "administrator.menu.selectandprintlocal");
     }
 }

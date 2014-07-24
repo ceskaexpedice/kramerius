@@ -25,223 +25,64 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class JSONUtils {
 
-	public static final Logger LOGGER = Logger.getLogger(JSONUtils.class.getName());
-	
-//	public static enum Operations {
-//		read, edit, create, delete
-//	}
-	
-	public static JSONObject link(JSONObject obj, String key, String link ) {
-		JSONObject json = new JSONObject();
-		json.put("href", link);
-		obj.put(key, json);
-		return obj;
-	}
-	
-	public static JSONObject pidAndModelDesc(String pid, JSONObject jsonObject, FedoraAccess fedoraAccess,String callContext, JSONDecoratorsAggregate decoratorsAggregate, String baseLink)
-			throws IOException {
-		jsonObject.put("pid", pid);
-		if (PIDSupport.isComposedPID(pid)) {
-			// page model
-			jsonObject.put("model", "page");
-		} else {
-			jsonObject.put("model", fedoraAccess.getKrameriusModelName(pid));
-		}
+    public static final Logger LOGGER = Logger.getLogger(JSONUtils.class
+            .getName());
 
-		// apply decorator
-		if (callContext != null && decoratorsAggregate != null) {
-			Map<String, Object> m = new HashMap<String, Object>();
-			List<JSONDecorator> ldecs = decoratorsAggregate.getDecorators();
-			for (JSONDecorator d : ldecs) { d.before(m); }
-			for (JSONDecorator d : ldecs) {
-				if (d.apply(jsonObject, callContext)) {
-					d.decorate(jsonObject, m);
-				} 
-			}
-			for (JSONDecorator d : ldecs) { d.after(); }
-		}
-		return jsonObject;
-	}
+    public static JSONObject link(JSONObject obj, String key, String link) {
+        JSONObject json = new JSONObject();
+        json.put("href", link);
+        obj.put(key, json);
+        return obj;
+    }
 
-	public static JSONObject pidAndModelDesc(String pid, FedoraAccess fedoraAccess, String callContext, JSONDecoratorsAggregate decoratorsAggregate, String baseUrl)
-			throws IOException {
-		return pidAndModelDesc(pid, new JSONObject(),fedoraAccess, callContext, decoratorsAggregate, baseUrl);
-	}
-	
-	public static JSONObject miniature(String pid, FedoraAccess fedoraAccess, JSONObject jsonObject) {
-		throw new UnsupportedOperationException();
-	}
-	
-	
-	
-	
-	public static JSONArray children(final String pid, FedoraAccess fedoraAccess, SolrAccess solrAccess) {
-		try {
-			
-			JSONArray jsonArray = new JSONArray();
-			
+    public static JSONObject pidAndModelDesc(String pid, JSONObject jsonObject,
+            String callContext,SolrMemoization soMemo,
+            JSONDecoratorsAggregate decoratorsAggregate, String baseLink)
+            throws IOException {
 
-			final List<String> children = new ArrayList<String>();
-			fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
+        Map<String, Object> m = new HashMap<String, Object>();
+        jsonObject.put("pid", pid);
+        if (PIDSupport.isComposedPID(pid)) {
+            // page model
+            jsonObject.put("model", "page");
+        } else {
+            Element indexDoc = soMemo.getRememberedIndexedDoc(pid);
+            if (indexDoc ==  null) {
+                indexDoc = soMemo.askForIndexDocument(pid);
+            }
+            String fedoraModel = SOLRUtils.value(indexDoc, "fedora.model", String.class);
+            jsonObject.put("model",fedoraModel);
+        }
 
-				
-				@Override
-				public boolean skipBranch(String p, int level) {
-					return level > 1;
-				}
-				
-				@Override
-				public void process(String p, int level) throws ProcessSubtreeException {
-					if (level == 1) {
-						children.add(p);
-					}
-				}
-				
-				@Override
-				public boolean breakProcessing(String p, int level) {
-					return false;
-				}
-			});
-			for (String chpid : children) {
-				jsonArray.add(chpid);
-			}
-			return jsonArray;
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return new JSONArray();
-		} catch (ProcessSubtreeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return new JSONArray();
-		}
-		
-	}
-	
+        // apply decorator
+        if (callContext != null && decoratorsAggregate != null) {
+            List<JSONDecorator> ldecs = decoratorsAggregate.getDecorators();
+            for (JSONDecorator d : ldecs) {
+                d.before(m);
+            }
+            for (JSONDecorator d : ldecs) {
+                if (d.apply(jsonObject, callContext)) {
+                    d.decorate(jsonObject, m);
+                }
+            }
+            for (JSONDecorator d : ldecs) {
+                d.after();
+            }
+        }
+        return jsonObject;
+    }
 
-	private static ObjectPidsPath selectPath(ObjectPidsPath[] paths) {
-		return paths.length > 0 ? paths[0] : null;
-	}
+    public static JSONObject pidAndModelDesc(String pid,String callContext,SolrMemoization solrMemoization,
+            JSONDecoratorsAggregate decoratorsAggregate, String baseUrl)
+            throws IOException {
+        return pidAndModelDesc(pid, new JSONObject(),
+                callContext, solrMemoization, decoratorsAggregate, baseUrl);
+    }
 
-	
-//	public static JSONArray context(String pid, SolrAccess solrAccess, FedoraAccess fedoraAccess) throws IOException {
-//		JSONArray pathsArr = new JSONArray();
-//		ObjectPidsPath[] path = solrAccess.getPath(pid);
-//		for (ObjectPidsPath objectPidsPath : path) {
-//			JSONArray onePathArray = new JSONArray();
-//			String[] pathFromRootToLeaf = objectPidsPath.getPathFromRootToLeaf();
-//			for (String ppid : pathFromRootToLeaf) {
-//				onePathArray.add(pidAndModelDesc(ppid, fedoraAccess));
-//			}
-//			pathsArr.add(onePathArray);
-//		}
-//		return pathsArr;
-//	}
-
-	
-	
-	public static JSONElementTree elementTree(Document doc) {
-		Map<Element, JSONElementTree> trees = new HashMap<Element, JSONElementTree>();
-		Stack<Element> stack = new Stack<Element>();
-		stack.push(doc.getDocumentElement());
-		while(!stack.isEmpty()) {
-			Element topElement = stack.pop();
-			JSONElementTree theTree = trees.get(topElement);
-			if (theTree  == null) {
-				if (topElement.getParentNode() != null && topElement.getParentNode().getNodeType() == Node.ELEMENT_NODE) {
-					theTree = new JSONElementTree(trees.get(topElement.getParentNode()), topElement);
-					trees.get(topElement.getParentNode()).addChild(theTree);
-				} else {
-					theTree = new JSONElementTree(null, topElement);
-				}
-			}
-			
-			trees.put(topElement, theTree);
-			
-			List<Element> elms = XMLUtils.getElements(topElement);
-			for (Element le : elms) { stack.push(le); }
-		}
-		return trees.get(doc.getDocumentElement());
-	}
-	
-	
-	public static class JSONElementTree {
-
-		private Element element;
-		private JSONElementTree parent;
-		private List<JSONElementTree> children = new ArrayList<JSONUtils.JSONElementTree>();
-		
-		public JSONElementTree(JSONElementTree parent, Element elm) {
-			this.parent = parent;
-			this.element = elm;
-		}
-		
-		public Element getElement() {
-			return element;
-		}
-		
-		public JSONElementTree getParent() {
-			return parent;
-		}
-		
-		public List<JSONElementTree> getChildren() {
-			return children;
-		}
-		
-		public void addChild(JSONElementTree ch) {
-			this.children.add(ch);
-		}
-		
-		public void removeChild(JSONElementTree ch) {
-			this.children.remove(ch);
-		}
-		
-		public String getKey() {
-			return this.element.getLocalName();
-		}
-		
-		public JSONObject toJSON(JSONObject parent) {
-			JSONObject jsonObj = new JSONObject();
-			if (XMLUtils.getElements(this.element).isEmpty()) {
-				jsonObj.put("textcontent", this.element.getTextContent());
-			}
-			JSONObject attributes = new JSONObject();
-			NamedNodeMap nmp = this.element.getAttributes();
-			for (int i = 0,ll=nmp.getLength(); i < ll; i++) {
-				Node node = nmp.item(i);
-				if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
-					Attr attr = (Attr) node;
-					attributes.put(attr.getName(), attr.getValue());
-				}
-			}
-			if (nmp.getLength() > 0) {
-				jsonObj.put("attributes", attributes);
-			}
-			
-			for (JSONElementTree theTree : this.children) {
-				JSONObject child = theTree.toJSON(jsonObj);
-				if (!jsonObj.containsKey(theTree.getKey())) {
-					jsonObj.put(theTree.getKey(), child);
-				} else {
-					JSON json = (JSON) jsonObj.get(theTree.getKey());
-					if (json.isArray()) {
-						((JSONArray)json).add(child);
-					} else {
-						JSONArray jsonArray = new JSONArray();
-						jsonArray.add(json);
-						jsonArray.add(child);
-						jsonObj.put(theTree.getKey(), jsonArray);
-					}
-				}
-			}
-			return jsonObj;
-		}
-		
-	}
 
 }

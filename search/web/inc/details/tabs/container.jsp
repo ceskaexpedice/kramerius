@@ -35,7 +35,6 @@
                 $(document).ready(function(){
                     //updateCustomTab('${tab}', '${pid_path}');
                     $('#itemtab_${xsl}.viewer').bind('viewReady', function(event, viewerOptions){
-                        console.log("on view ready ...");
                         var pid_path = getPidPath(viewerOptions.fullid);
                 		<c:choose>
                     	<c:when test="${tab =='VIRTUAL.audioPlayer'}">

@@ -29,22 +29,29 @@ import org.w3c.dom.Element;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
 /**
  * Doplni titulky z indexu
+ * 
  * @author pavels
  */
 public class FeederSolrTitleDecorate extends AbstractFeederDecorator {
 
-    public static final Logger LOGGER = Logger.getLogger(FeederSolrTitleDecorate.class.getName());
+    public static final Logger LOGGER = Logger
+            .getLogger(FeederSolrTitleDecorate.class.getName());
 
-    public static final String SOLR_TITLE_KEY = AbstractFeederDecorator.key("TITLE");
+    public static final String SOLR_TITLE_KEY = AbstractFeederDecorator
+            .key("TITLE");
 
     @Inject
     SolrAccess solrAccess;
+
+    @Inject
+    SolrMemoization memo;
 
     @Override
     public String getKey() {
@@ -54,21 +61,22 @@ public class FeederSolrTitleDecorate extends AbstractFeederDecorator {
     @Override
     public void decorate(JSONObject jsonObject, Map<String, Object> context) {
         try {
-        	
-        	String pid = jsonObject.getString("pid");
-            Document solrDoc = SOLRDecoratorUtils.getSolrPidDocument(pid, context, solrAccess);
-            Element result = XMLUtils.findElement(solrDoc.getDocumentElement(), "result");
-            if (result != null) {
-                Element doc = XMLUtils.findElement(result, "doc");
-                if (doc != null) {
-                    String title = SOLRUtils.value(doc, "dc.title", String.class);
-                    if (title != null) {
-                        jsonObject.put("title", title);
-                    }
-                    String root_title = SOLRUtils.value(doc, "root_title", String.class);
-                    if (root_title != null) {
-                        jsonObject.put("root_title", root_title);
-                    }
+
+            String pid = jsonObject.getString("pid");
+
+            Element doc = this.memo.getRememberedIndexedDoc(pid);
+            if (doc == null)
+                doc = this.memo.askForIndexDocument(pid);
+
+            if (doc != null) {
+                String title = SOLRUtils.value(doc, "dc.title", String.class);
+                if (title != null) {
+                    jsonObject.put("title", title);
+                }
+                String root_title = SOLRUtils.value(doc, "root_title",
+                        String.class);
+                if (root_title != null) {
+                    jsonObject.put("root_title", root_title);
                 }
             }
         } catch (IOException e) {
@@ -78,8 +86,8 @@ public class FeederSolrTitleDecorate extends AbstractFeederDecorator {
 
     @Override
     public boolean apply(JSONObject jsonObject, String context) {
-		TokenizedPath tpath = super.feederContext(tokenize(context));
-		return tpath.isParsed() ;
+        TokenizedPath tpath = super.feederContext(tokenize(context));
+        return tpath.isParsed();
     }
 
 }

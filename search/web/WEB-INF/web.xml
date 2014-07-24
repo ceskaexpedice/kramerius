@@ -269,6 +269,11 @@
         <servlet-class>cz.incad.Kramerius.audio.servlet.AudioTracksServlet</servlet-class>
     </servlet>
       
+    <!-- Local PDF print --> 
+    <servlet>
+        <servlet-name>localPrintPDF</servlet-name>
+        <servlet-class> cz.incad.Kramerius.imaging.PrintPDFServlet</servlet-class>
+    </servlet>
 
 
     <!--  Mapovani servletů -->
@@ -445,6 +450,11 @@
     <servlet-mapping>
         <servlet-name>statisticExport</servlet-name>
         <url-pattern>/stats</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>localPrintPDF</servlet-name>
+        <url-pattern>/localPrintPDF</url-pattern>
     </servlet-mapping>
 
 	

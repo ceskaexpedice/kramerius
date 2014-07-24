@@ -1,6 +1,8 @@
 package com.qbizm.kramerius.imptool.poc.convertor;
 
 import com.qbizm.kramerius.imp.jaxb.*;
+import com.qbizm.kramerius.imp.jaxb.monograph.*;
+
 import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.valueobj.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;

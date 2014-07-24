@@ -49,7 +49,8 @@ import javax.ws.rs.PathParam;
 @Path("/v5.0/vc")
 public class ClientVirtualCollections {
 
-    public static final Logger LOGGER = Logger.getLogger(ClientVirtualCollections.class.getName());
+    public static final Logger LOGGER = Logger
+            .getLogger(ClientVirtualCollections.class.getName());
 
     @Inject
     VirtualCollectionsManager manager;
@@ -58,42 +59,47 @@ public class ClientVirtualCollections {
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
-
-	@GET
-	@Path("{pid}")
+    @GET
+    @Path("{pid}")
     @Consumes
-	@Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
-	public Response oneVirtualCollection(@PathParam("pid")String pid) {
-		try {
-			VirtualCollection vc = VirtualCollectionsResource.findVirtualCollection(this.fedoraAccess, pid);
-			if (vc != null) {
-				return Response.ok().entity(VirtualCollectionsResource.virtualCollectionTOJSON(vc)).build();
-			} else {
-				throw new ObjectNotFound("cannot find vc '"+pid+"'");
-			}	
-		} catch (ObjectNotFound e) {
-			throw e;
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(),e);
-			throw new GenericApplicationException(e.getMessage());
-		}
-	}
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response oneVirtualCollection(@PathParam("pid") String pid) {
+        try {
+            VirtualCollection vc = VirtualCollectionsResource
+                    .findVirtualCollection(this.fedoraAccess, pid);
+            if (vc != null) {
+                return Response
+                        .ok()
+                        .entity(VirtualCollectionsResource
+                                .virtualCollectionTOJSON(vc)).build();
+            } else {
+                throw new ObjectNotFound("cannot find vc '" + pid + "'");
+            }
+        } catch (ObjectNotFound e) {
+            throw e;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
 
-	
-	@GET
-    @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
-	public Response get() {
-			try {
-				List<VirtualCollection> vcs = VirtualCollectionsManager.getVirtualCollections(fedoraAccess, new ArrayList<String>());
-				JSONArray jsonArr = new JSONArray();
-				for (VirtualCollection vc : vcs) {
-					jsonArr.add(VirtualCollectionsResource.virtualCollectionTOJSON(vc));
-				}
-				return Response.ok().entity(jsonArr.toString()).build();
-			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,e.getMessage(),e);
-				throw new GenericApplicationException(e.getMessage());
-			}
-	}
-	
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response get() {
+        try {
+            List<VirtualCollection> vcs = VirtualCollectionsManager
+                    .getVirtualCollections(fedoraAccess,
+                            new ArrayList<String>());
+            JSONArray jsonArr = new JSONArray();
+            for (VirtualCollection vc : vcs) {
+                jsonArr.add(VirtualCollectionsResource
+                        .virtualCollectionTOJSON(vc));
+            }
+            return Response.ok().entity(jsonArr.toString()).build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
+
 }

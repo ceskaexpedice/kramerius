@@ -1,14 +1,16 @@
 package com.qbizm.kramerius.imptool.poc;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.Monograph;
+import com.qbizm.kramerius.imp.jaxb.monograph.Monograph;
 import com.qbizm.kramerius.imp.jaxb.periodical.Periodical;
 import com.qbizm.kramerius.imptool.poc.convertor.MonographConvertor;
 import com.qbizm.kramerius.imptool.poc.convertor.PeriodicalConvertor;
 import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
+
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -20,6 +22,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import javax.xml.bind.*;
 import javax.xml.transform.sax.SAXSource;
+
 import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -206,7 +209,7 @@ public class Main {
 			}
 		});
         SAXSource saxSource = new SAXSource( reader, new InputSource( new FileInputStream(importFile) ) );
-		Object source = unmarshaller.unmarshal(saxSource);
+        Object source = unmarshaller.unmarshal(saxSource);
 
 		long after = getFreeMem();
         if (log.isInfoEnabled()) {

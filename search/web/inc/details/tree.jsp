@@ -77,7 +77,7 @@
     }
 
 </style>
-<div id="kkk"></div>
+
 <c:set var="class_viewable"><c:if test="${viewable=='true' && root_pid==param.pid}">viewable</c:if></c:set>
 <c:url var="url" value="${kconfig.applicationURL}/inc/details/treeNodeInfo.jsp" >
     <c:param name="pid" value="${root_pid}" />
@@ -101,7 +101,7 @@
         <ul id="item_tree" class="viewer">
             <li id="${root_model}"><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>
                 <a href="#" class="model"><fmt:message bundle="${lctx}">fedora.model.${root_model}</fmt:message></a>
-                <ul><li id="${root_model}_${root_pid}" class="${class_viewable}"><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>
+                <ul><li id="${root_model}_${root_pid}" class="${class_viewable} ${dostupnost}"><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>
                         <div style="float:left;"><input type="checkbox"  /></div>
                 <div style="float:left;"><a href="#" class="label">${infoa}</a></div></li></ul>
             </li>
@@ -251,7 +251,6 @@
                         } 
                     }
                 }
-                //alert(id);
                 loadingInitNodes= false;
                 if(id){
                     showNode(id);
@@ -286,8 +285,6 @@
         }
 
         function nodeClick(id){
-            
-            //alert(id+" -> " + $(jq(id)).hasClass('viewable'));
             initView = false;
             if($(jq(id)).hasClass('viewable')){
                 selectNodeView(id);
@@ -295,7 +292,6 @@
                 if(window.location.hash != id){
                     window.location.hash = id;
                 }
-                $(".viewer").trigger('viewChanged', [id]);
             }else{
                 nodeOpen(id);
             }
@@ -351,12 +347,12 @@
         function checkHashChanged(e){
             var id =  k4Settings.activePidPath;
             var newid =  window.location.hash.toString().substring(1);
-            //alert(newid + " \n" + id);
             if(id != newid){
                 if(newid.length==0){
                     loadInitNodes();
                 }
                 nodeClick(newid);
+                $(".viewer").trigger('viewChanged', [newid]);
             }
         }
 

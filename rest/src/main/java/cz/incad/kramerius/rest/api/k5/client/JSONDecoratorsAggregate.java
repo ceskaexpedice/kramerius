@@ -26,30 +26,29 @@ import java.util.Set;
 
 import com.google.inject.Inject;
 
-
 public class JSONDecoratorsAggregate {
 
-	Map<String, JSONDecorator> decoratorsMap = new HashMap<String, JSONDecorator>();
-	List<String> keys = new ArrayList<String>();
-	
+    Map<String, JSONDecorator> decoratorsMap = new HashMap<String, JSONDecorator>();
+    List<String> keys = new ArrayList<String>();
+
     @Inject
     public JSONDecoratorsAggregate(Set<JSONDecorator> decs) {
         super();
         for (JSONDecorator p : decs) {
-        	String k = p.getKey();
-        	if (keys.contains(k)) {
-        		keys.remove(k);
-        	}
-    		keys.add(k);
-        	this.decoratorsMap.put(k, p);
+            String k = p.getKey();
+            if (keys.contains(k)) {
+                keys.remove(k);
+            }
+            keys.add(k);
+            this.decoratorsMap.put(k, p);
         }
     }
 
     public List<JSONDecorator> getDecorators() {
-    	List<JSONDecorator> decorators = new ArrayList<JSONDecorator>();
-    	for (String	k: this.keys) {
-    		decorators.add(this.decoratorsMap.get(k));
-		}
-    	return decorators;
+        List<JSONDecorator> decorators = new ArrayList<JSONDecorator>();
+        for (String k : this.keys) {
+            decorators.add(this.decoratorsMap.get(k));
+        }
+        return decorators;
     }
 }

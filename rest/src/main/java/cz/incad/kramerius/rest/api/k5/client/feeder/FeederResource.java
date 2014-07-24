@@ -29,6 +29,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.security.User;
@@ -63,6 +64,9 @@ public class FeederResource {
     @Inject
     SolrAccess solrAccess;
 
+    @Inject
+    SolrMemoization solrMemo;
+    
     @Inject
     Provider<User> userProvider;
 
@@ -115,11 +119,15 @@ public class FeederResource {
                                 .fromResource(FeederResource.class)
                                 .path("newest").build(pid).toString();
                         JSONObject mdis = JSONUtils.pidAndModelDesc(pid,
-                                fedoraAccess, uriString,
+                                uriString, this.solrMemo,
                                 this.decoratorsAggregate, uriString);
                         jsonArray.add(mdis);
                     } catch (IOException ex) {
                         LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                        JSONObject error = new JSONObject();
+                        error.put("pid", pid);
+                        error.put("exception", ex.getMessage());
+                        jsonArray.add(error);
                     }
                 }
             }
@@ -157,11 +165,15 @@ public class FeederResource {
                 String uriString = UriBuilder
                         .fromResource(FeederResource.class)
                         .path("mostdesirable").build(pid).toString();
-                JSONObject mdis = JSONUtils.pidAndModelDesc(pid, fedoraAccess,
-                        uriString, this.decoratorsAggregate, uriString);
+                JSONObject mdis = JSONUtils.pidAndModelDesc(pid, 
+                        uriString, this.solrMemo, this.decoratorsAggregate, uriString);
                 jsonArray.add(mdis);
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                JSONObject error = new JSONObject();
+                error.put("pid", pid);
+                error.put("exception", e.getMessage());
+                jsonArray.add(error);
             }
         }
         jsonObject.put("data", jsonArray);

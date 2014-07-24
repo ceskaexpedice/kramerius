@@ -17,6 +17,7 @@ dependencies {
     compile project(':import')     
     compile project(':import-jaxb')     
     compile project(':import-jaxb-periodical')
+    compile project(':import-jaxb-monograph')
     compile project(':import-jaxb-srwdc')
     compile project(':import-jaxb-alto')
     compile project(':import-jaxb-mets')
