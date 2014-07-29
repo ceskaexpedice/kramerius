@@ -424,7 +424,7 @@ public class SolrOperations {
                         && childnode.hasAttributes()
                         && childnode.getAttributes().getNamedItem("rdf:resource") != null) {
                     String p = childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1];
-                    if(pids.contains(p)){
+                    if(pid.equals(p)){
                         logger.log(Level.WARNING, "Cyclic reference on {0}", p);
                     }else{
                         pids.add(p);
