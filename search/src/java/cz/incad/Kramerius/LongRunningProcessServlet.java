@@ -296,6 +296,21 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         String uuid = req.getParameter("uuid");
                         String realPath = context.getRealPath("WEB-INF/lib");
                         LRProcess oProcess = stopOldProcess(realPath, uuid, defManager, lrProcessManager);
+                        
+                        // update parent process
+                        List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(oProcess.getGroupToken());
+                        if (processes.size() > 1) {
+                            LOGGER.fine("calculating new master state");
+                            List<States> childStates = new ArrayList<States>();
+                            for (int i = 0, ll = processes.size(); i < ll; i++) {
+                                childStates.add(processes.get(i).getProcessState());
+                            }
+                            processes.get(0).setBatchState(BatchStates.calculateBatchState(childStates));
+                            LOGGER.fine("calculated state '"+processes.get(0)+"'");
+                            lrProcessManager.updateLongRunninngProcessBatchState(processes.get(0));
+                        }
+
+
                         StringBuffer buffer = new StringBuffer();
                         buffer.append("<html><body>");
                         buffer.append("<ul>");

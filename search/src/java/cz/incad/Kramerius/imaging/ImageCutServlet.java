@@ -38,7 +38,9 @@ public class ImageCutServlet extends AbstractImageServlet {
             String pid = req.getParameter("pid");
             if (pid != null) {
                 pid = this.fedoraAccess.findFirstViewablePid(pid);
-                simpleSubImage(req, resp, pid);
+                BufferedImage bufferedImage = super.rawFullImage(pid,req,0);
+                BufferedImage subImage = simpleSubImage(bufferedImage, req,  pid);
+                KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), resp.getOutputStream());
             } else {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             }
@@ -49,11 +51,10 @@ public class ImageCutServlet extends AbstractImageServlet {
         }
     }
 
-    private void simpleSubImage(HttpServletRequest req,
-            HttpServletResponse resp, String pid) throws MalformedURLException, IOException, JSONException, XPathExpressionException {
-
+    public static BufferedImage simpleSubImage(BufferedImage bufferedImage, HttpServletRequest req,
+            String pid) throws MalformedURLException, IOException, JSONException, XPathExpressionException {
         
-        BufferedImage bufferedImage = super.rawFullImage(pid,req,0);
+        //BufferedImage bufferedImage = super.rawFullImage(pid,req,0);
         
         String xperct = req.getParameter("xpos");
         String yperct = req.getParameter("ypos");
@@ -71,7 +72,7 @@ public class ImageCutServlet extends AbstractImageServlet {
         
         
         BufferedImage subImage = bufferedImage.getSubimage(Math.max(xoffset,0), Math.max(yoffset,0), Math.min(cwidth, width - xoffset) , Math.min(cheight, height - yoffset));
-        KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), resp.getOutputStream());
+        return subImage;
     }
     
 
