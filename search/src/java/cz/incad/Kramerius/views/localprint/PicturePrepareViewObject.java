@@ -7,6 +7,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
@@ -29,6 +30,8 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
 public class PicturePrepareViewObject extends AbstractPrepareViewObject  implements Initializable{
 
+    public static final Logger LOGGER = Logger.getLogger(PicturePrepareViewObject.class.getName());
+    
     @Inject
     Provider<HttpServletRequest> servletRequestProvider;
     
@@ -70,6 +73,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
                     this.imgelements.add(imageElement);
                     
                     Dimension readDim = KrameriusImageSupport.readDimension(p, "IMG_FULL", fedoraAccess, 0);
+                    LOGGER.fine("Dimension is :"+readDim);
                     createStyle(ratio, ident, readDim);
                 }
             }
