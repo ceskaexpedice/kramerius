@@ -212,7 +212,13 @@ public class FedoraOperations {
             if (rindex == null) {
                 rindex = ResourceIndexService.getResourceIndexImpl();
             }
-            return rindex.getParentsPids(pid);
+            ArrayList<String> ret =  rindex.getParentsPids(pid);
+            
+            if(ret.contains(pid)){
+                logger.log(Level.WARNING, "Cyclic reference on {0}", pid);
+                ret.remove(pid);
+            }
+            return ret;
 
         } catch (Exception ex) {
             logger.log(Level.WARNING, ex.toString());
