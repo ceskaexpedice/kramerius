@@ -119,6 +119,7 @@ public class ItemResource {
                 }
             }
             if (access) {
+                checkPid(pid);
                 byte[] bytes = replicationService.getExportedFOXML(pid, FormatType.IDENTITY);
                 final ByteArrayInputStream is = new ByteArrayInputStream(bytes);
                 StreamingOutput stream = new StreamingOutput() {
@@ -145,6 +146,7 @@ public class ItemResource {
     public Response stream(@PathParam("pid") String pid,
             @PathParam("dsid") String dsid) {
         try {
+            checkPid(pid);
             if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
                 if (!PIDSupport.isComposedPID(pid)) {
                     String mimeTypeForStream = this.fedoraAccess
@@ -178,6 +180,7 @@ public class ItemResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response streams(@PathParam("pid") String pid) {
         try {
+            checkPid(pid);
             JSONObject jsonObject = new JSONObject();
             if (!PIDSupport.isComposedPID(pid)) {
                 Document datastreams = this.fedoraAccess
@@ -211,6 +214,7 @@ public class ItemResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response children(@PathParam("pid") String pid) {
         try {
+            checkPid(pid);
             if (!PIDSupport.isComposedPID(pid)) {
                 JSONArray jsonArray = new JSONArray();
                 
@@ -255,6 +259,7 @@ public class ItemResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response siblings(@PathParam("pid") String pid) {
         try {
+            checkPid(pid);
             ObjectPidsPath[] paths = null;
             if (PIDSupport.isComposedPID(pid)) {
                 paths = this.solrAccess.getPath(PIDSupport
@@ -323,6 +328,7 @@ public class ItemResource {
     @Path("{pid}/full")
     public Response full(@PathParam("pid") String pid) {
         try {
+            checkPid(pid);
             if (PIDSupport.isComposedPID(pid)) {
                 String fpid = PIDSupport.first(pid);
                 String page = PIDSupport.rest(pid);
@@ -353,6 +359,7 @@ public class ItemResource {
     @Path("{pid}/preview")
     public Response preview(@PathParam("pid") String pid) {
         try {
+            checkPid(pid);
             if (PIDSupport.isComposedPID(pid)) {
                 String fpid = PIDSupport.first(pid);
                 String page = PIDSupport.rest(pid);
@@ -386,6 +393,7 @@ public class ItemResource {
     @Path("{pid}/thumb")
     public Response thumb(@PathParam("pid") String pid) {
         try {
+            checkPid(pid);
             if (PIDSupport.isComposedPID(pid)) {
                 String fpid = PIDSupport.first(pid);
                 String page = PIDSupport.rest(pid);
@@ -413,12 +421,26 @@ public class ItemResource {
         }
     }
 
+    private void checkPid(String pid) throws PIDNotFound {
+        try {
+            if (PIDSupport.isComposedPID(pid)) {
+                String p = PIDSupport.first(pid);
+                this.fedoraAccess.getRelsExt(p);
+            } else {
+                this.fedoraAccess.getRelsExt(pid);
+            }
+        } catch (IOException e) {
+            throw new PIDNotFound("pid not found");
+        }
+    }
+    
     @GET
     @Path("{pid}")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response basic(@PathParam("pid") String pid) {
         try {
             if (pid != null) {
+                checkPid(pid);
                 if (PIDSupport.isComposedPID(pid)) {
 
                     JSONObject jsonObject = new JSONObject();
@@ -514,8 +536,6 @@ public class ItemResource {
                 this.solrMemoization.rememberIndexedDoc(docpid, docelm);
 
                 ll.add(m);
-                
-                //ll.add(SOLRUtils.value(docelm, "PID", String.class));
             }
             offset = offset + rows;
         }

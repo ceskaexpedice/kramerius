@@ -87,7 +87,7 @@ public class PrintPDFServlet extends GuiceServlet {
                         pid = fa.findFirstViewablePid(pid);
                         String mimeTypeForStream = fa.getMimeTypeForStream(pid, ImageStreams.IMG_FULL.getStreamName());
                         ImageMimeType mimeType = ImageMimeType.loadFromMimeType(mimeTypeForStream);
-                        if ((!mimeType.equals(ImageMimeType.DJVU)) && (!mimeType.equals(ImageMimeType.PDF))) {
+                        if ((!mimeType.equals(ImageMimeType.DJVU)) && (!mimeType.equals(ImageMimeType.XDJVU))&& (!mimeType.equals(ImageMimeType.VNDDJVU)) && (!mimeType.equals(ImageMimeType.PDF))) {
                             IOUtils.copyStreams(fa.getImageFULL(pid), os);
                         } else {
                             BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), fa, 0);

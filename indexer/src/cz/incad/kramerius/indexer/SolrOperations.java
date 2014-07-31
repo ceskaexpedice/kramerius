@@ -423,9 +423,14 @@ public class SolrOperations {
                         && !nodeName.contains("isMemberOfCollection")
                         && childnode.hasAttributes()
                         && childnode.getAttributes().getNamedItem("rdf:resource") != null) {
-                    pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
-                    //models.add(KrameriusModels.toString(RDFModels.convertRDFToModel(nodeName)));
-                    models.add(nodeName);
+                    String p = childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1];
+                    if(pid.equals(p)){
+                        logger.log(Level.WARNING, "Cyclic reference on {0}", p);
+                    }else{
+                        pids.add(p);
+                        //models.add(KrameriusModels.toString(RDFModels.convertRDFToModel(nodeName)));
+                        models.add(nodeName);
+                    }
                 } else {
                 }
             }
