@@ -11,14 +11,9 @@
 <script type="text/javascript">
 
     function __pageselected() {
-        var output = $("#localprintpartoutput input:checked" ).val();
+        var output = 'pdf';//$("#localprintpartoutput input:checked" ).val();
         var pagesize = $("#localprintpartpapersize select option:selected" ).val();
         localprint.setup({"output":output, "page":pagesize});
-        if (output === 'html') {
-            $("#localprintpartpapersize").hide();
-        } else {
-            $("#localprintpartpapersize").show();
-        }
     }
 
     $(document).ready(function(){
@@ -161,7 +156,7 @@
 
 <div id="output">
 
-<div id="localprintpartoutput">
+<div id="localprintpartoutput" style="display:none">
     <h4><view:msg>print.settings.label</view:msg></h4>
     <input type="radio" name="output" value="pdf">PDF</input>
     <input type="radio" name="output" value="html" checked="true">HTML</input> 
