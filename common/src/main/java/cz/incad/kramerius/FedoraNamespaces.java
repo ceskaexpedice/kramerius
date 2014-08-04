@@ -19,6 +19,12 @@ public interface FedoraNamespaces {
      * Dublin core namespace
      */
     public static final String DC_NAMESPACE_URI = "http://purl.org/dc/elements/1.1/";
+    
+    /**
+     * OAI Dublin core namespace
+     */
+    public static final String OAI_DC_NAMESPACE_URI = "http://www.openarchives.org/OAI/2.0/oai_dc/";
+    
 
     /**
      * Fedora models namespace

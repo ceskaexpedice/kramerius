@@ -40,21 +40,21 @@ import java.util.logging.Logger;
 public class MPTStoreService implements IResourceIndex {
 
     private static final Logger logger = Logger.getLogger(MPTStoreService.class.getName());
-    static final String PROP_DDL =
-            "driver.fedora.mpt.db.ddlGenerator";
+    static final String PROP_DDL
+            = "driver.fedora.mpt.db.ddlGenerator";
     static final String PROP_URL = "driver.fedora.mpt.jdbc.url";
-    static final String PROP_USERNAME =
-            "driver.fedora.mpt.jdbc.user";
-    static final String PROP_PASSWD =
-            "driver.fedora.mpt.jdbc.password";
-    static final String PROP_PREDICATE_MAP =
-            "driver.fedora.mpt.db.map";
-    static final String PROP_MAP_PREFIX =
-            "driver.fedora.mpt.db.prefix";
-    static final String PROP_DB_DRIVER =
-            "driver.fedora.mpt.db.driverClassName";
-    static final String PROP_BACKSLASH_ESCAPE =
-            "driver.fedora.mpt.db.backslashIsEscape";
+    static final String PROP_USERNAME
+            = "driver.fedora.mpt.jdbc.user";
+    static final String PROP_PASSWD
+            = "driver.fedora.mpt.jdbc.password";
+    static final String PROP_PREDICATE_MAP
+            = "driver.fedora.mpt.db.map";
+    static final String PROP_MAP_PREFIX
+            = "driver.fedora.mpt.db.prefix";
+    static final String PROP_DB_DRIVER
+            = "driver.fedora.mpt.db.driverClassName";
+    static final String PROP_BACKSLASH_ESCAPE
+            = "driver.fedora.mpt.db.backslashIsEscape";
     private TableManager adaptor;
     private DataSource dataSource;
     KConfiguration config;
@@ -68,6 +68,7 @@ public class MPTStoreService implements IResourceIndex {
     String table_dcTitle;
     String table_model;
     String table_dcType;
+    String table_collection;
 
     private void loadTableNames() {
         try {
@@ -76,6 +77,7 @@ public class MPTStoreService implements IResourceIndex {
                 table_lastModifiedDate = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_lastModifiedDate));
                 table_model = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_model));
                 table_dcType = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_dcType));
+                table_collection = adaptor.getTableFor(NTriplesUtil.parsePredicate(PRED_collection));
             }
         } catch (ParseException ex) {
             logger.log(Level.SEVERE, null, ex);
@@ -104,8 +106,8 @@ public class MPTStoreService implements IResourceIndex {
         try {
             logger.log(Level.FINE, "USING DRIVER {0}", config.getProperty(PROP_DB_DRIVER));
             Class.forName(config.getProperty(PROP_DB_DRIVER));
-            source =
-                    (BasicDataSource) BasicDataSourceFactory.createDataSource(dbParams);
+            source
+                    = (BasicDataSource) BasicDataSourceFactory.createDataSource(dbParams);
         } catch (Exception e) {
             throw new RuntimeException("Could not establish database connection",
                     e);
@@ -166,8 +168,9 @@ public class MPTStoreService implements IResourceIndex {
     }
     static final String PRED_lastModifiedDate = "<info:fedora/fedora-system:def/view#lastModifiedDate>";
     static final String PRED_dcTitle = "<http://purl.org/dc/elements/1.1/title>";
-    static final String PRED_dcType= "<http://purl.org/dc/elements/1.1/type>";
+    static final String PRED_dcType = "<http://purl.org/dc/elements/1.1/type>";
     static final String PRED_model = "<info:fedora/fedora-system:def/model#hasModel>";
+    static final String PRED_collection = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#isMemberOfCollection>";
     static final String SPARQL_NS = "http://www.w3.org/2001/sw/DataAccess/rf1/result";
     static final String OUTPUT_DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
     static final String INPUT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
@@ -252,17 +255,15 @@ public class MPTStoreService implements IResourceIndex {
         return xmldoc;
 
     }
-    
-    
 
     @Override
     public Document getVirtualCollections() throws Exception {
         /*
          * iTQL query
          * select $object $title $canLeave from <#ri>
-        where  $object <fedora-model:hasModel> <info:fedora/model:collection" >
-        and  $object <dc:title> $title
-        and  $object <dc:type> $canLeave
+         where  $object <fedora-model:hasModel> <info:fedora/model:collection" >
+         and  $object <dc:title> $title
+         and  $object <dc:type> $canLeave
          */
 
         logger.fine("getFedoraObjectsFromModelExt");
@@ -282,9 +283,9 @@ public class MPTStoreService implements IResourceIndex {
             Element results = xmldoc.createElementNS(SPARQL_NS, "results");
             xmldoc.appendChild(root);
             root.appendChild(results);
-            if (checkTableMappings()){
-                String sql = "select " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_dcType + ".o from " +
-                        table_dcTitle + "," + table_dcType + "," + table_model;
+            if (checkTableMappings()) {
+                String sql = "select " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_dcType + ".o from "
+                        + table_dcTitle + "," + table_dcType + "," + table_model;
 
                 sql += " where " + table_model + ".o='<info:fedora/model:collection>' and " + table_dcTitle + ".s=" + table_dcType + ".s and " + table_dcTitle + ".s=" + table_model + ".s ";
 
@@ -297,18 +298,18 @@ public class MPTStoreService implements IResourceIndex {
                 /*
                  *
                  * <sparql xmlns="http://www.w3.org/2001/sw/DataAccess/rf1/result">
-                <head>
-                <variable name="object"/>
-                <variable name="title"/>
-                <variable name="date"/>
-                </head>
-                <results>
-                <result>
-                <object uri="info:fedora/uuid:9c1ad6d4-e645-11de-a504-001143e3f55c"/>
+                 <head>
+                 <variable name="object"/>
+                 <variable name="title"/>
+                 <variable name="date"/>
+                 </head>
+                 <results>
+                 <result>
+                 <object uri="info:fedora/uuid:9c1ad6d4-e645-11de-a504-001143e3f55c"/>
 
-                <title>Spisy Masarykovy Akademie Prace 1921</title>
-                <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2010-05-03T08:24:40.776Z</date>
-                </result>
+                 <title>Spisy Masarykovy Akademie Prace 1921</title>
+                 <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2010-05-03T08:24:40.776Z</date>
+                 </result>
 
                  */
                 Element e, e2;
@@ -356,13 +357,21 @@ public class MPTStoreService implements IResourceIndex {
     }
 
     /**
-     * Check the existence of table mappings necessary for getVortualCollections MPTstore sql query
+     * Check the existence of table mappings necessary for getVortualCollections
+     * MPTstore sql query
+     *
      * @return true if all necessary table mappings are defined
      */
-    private boolean checkTableMappings(){
-        if (table_dcType == null || "".equals(table_dcType)||"null".equalsIgnoreCase(table_dcType)) return false;
-        if (table_dcTitle == null || "".equals(table_dcTitle)||"null".equalsIgnoreCase(table_dcTitle)) return false;
-        if (table_model == null || "".equals(table_model)||"null".equalsIgnoreCase(table_model)) return false;
+    private boolean checkTableMappings() {
+        if (table_dcType == null || "".equals(table_dcType) || "null".equalsIgnoreCase(table_dcType)) {
+            return false;
+        }
+        if (table_dcTitle == null || "".equals(table_dcTitle) || "null".equalsIgnoreCase(table_dcTitle)) {
+            return false;
+        }
+        if (table_model == null || "".equals(table_model) || "null".equalsIgnoreCase(table_model)) {
+            return false;
+        }
         return true;
     }
 
@@ -371,12 +380,12 @@ public class MPTStoreService implements IResourceIndex {
         /*
          * iTQL query
          * select $object $title $date from <#ri>
-        where  $object <fedora-model:hasModel> <info:fedora/model:<c:out value="${selModel}" />>
-        and  $object <dc:title> $title
-        and  $object <fedora-view:lastModifiedDate> $date
-        order by $<c:out value="${order}" /> <c:out value="${order_dir}" />
-        limit <c:out value="${rows}" />
-        offset <c:out value="${param.offset}" />
+         where  $object <fedora-model:hasModel> <info:fedora/model:<c:out value="${selModel}" />>
+         and  $object <dc:title> $title
+         and  $object <fedora-view:lastModifiedDate> $date
+         order by $<c:out value="${order}" /> <c:out value="${order_dir}" />
+         limit <c:out value="${rows}" />
+         offset <c:out value="${param.offset}" />
          */
 
         logger.fine("getFedoraObjectsFromModelExt");
@@ -400,7 +409,7 @@ public class MPTStoreService implements IResourceIndex {
             Element results = xmldoc.createElementNS(SPARQL_NS, "results");
             xmldoc.appendChild(root);
             root.appendChild(results);
-            
+
             String sql = "select " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_lastModifiedDate + ".o from ";
             if ("title".equals(orderby)) {
                 sql += table_dcTitle + "," + table_lastModifiedDate + "," + table_model;
@@ -408,10 +417,10 @@ public class MPTStoreService implements IResourceIndex {
                 sql += table_lastModifiedDate + "," + table_dcTitle + "," + table_model;
             }
             sql += " where " + table_model + ".o='<info:fedora/model:" + model + ">' and " + table_dcTitle + ".s=" + table_lastModifiedDate + ".s and " + table_dcTitle + ".s=" + table_model + ".s ";
-            if (orderby!=null){
+            if (orderby != null) {
                 sql += " order by " + torder + " " + orderDir;
             }
-            
+
             sql += " limit " + limit + " offset " + offset;
 
             s = c.prepareStatement(sql,
@@ -423,18 +432,18 @@ public class MPTStoreService implements IResourceIndex {
             /*
              *
              * <sparql xmlns="http://www.w3.org/2001/sw/DataAccess/rf1/result">
-            <head>
-            <variable name="object"/>
-            <variable name="title"/>
-            <variable name="date"/>
-            </head>
-            <results>
-            <result>
-            <object uri="info:fedora/uuid:9c1ad6d4-e645-11de-a504-001143e3f55c"/>
+             <head>
+             <variable name="object"/>
+             <variable name="title"/>
+             <variable name="date"/>
+             </head>
+             <results>
+             <result>
+             <object uri="info:fedora/uuid:9c1ad6d4-e645-11de-a504-001143e3f55c"/>
             
-            <title>Spisy Masarykovy Akademie Prace 1921</title>
-            <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2010-05-03T08:24:40.776Z</date>
-            </result>
+             <title>Spisy Masarykovy Akademie Prace 1921</title>
+             <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2010-05-03T08:24:40.776Z</date>
+             </result>
             
              */
             Element e, e2;
@@ -490,12 +499,12 @@ public class MPTStoreService implements IResourceIndex {
         /*
          * iTQL query
          * select $object $title $date from <#ri>
-        where  $object <fedora-model:hasModel> <info:fedora/model:<c:out value="${selModel}" />>
-        and  $object <dc:title> $title
-        and  $object <fedora-view:lastModifiedDate> $date
-        order by $<c:out value="${order}" /> <c:out value="${order_dir}" />
-        limit <c:out value="${rows}" />
-        offset <c:out value="${param.offset}" />
+         where  $object <fedora-model:hasModel> <info:fedora/model:<c:out value="${selModel}" />>
+         and  $object <dc:title> $title
+         and  $object <fedora-view:lastModifiedDate> $date
+         order by $<c:out value="${order}" /> <c:out value="${order_dir}" />
+         limit <c:out value="${rows}" />
+         offset <c:out value="${param.offset}" />
          */
 
         logger.fine("getting latest record date");
@@ -505,7 +514,7 @@ public class MPTStoreService implements IResourceIndex {
         ResultSet r = null;
         ArrayList<String> resList = new ArrayList<String>();
         try {
-            
+
             this.adaptor = getTableManager();
             loadTableNames();
             c = dataSource.getConnection();
@@ -516,8 +525,9 @@ public class MPTStoreService implements IResourceIndex {
             xmldoc.appendChild(root);
             root.appendChild(results);
             String sql = "select " + table_model + ".s"
+                    + " from " + table_model
                     + " where " + table_model + ".o='<info:fedora/model:" + model + ">' "
-                    + " order by " + table_model + ".s"
+                    //+ " order by " + table_model + ".s"
                     + " limit " + limit + " offset " + offset;
 
             s = c.prepareStatement(sql,
@@ -530,7 +540,6 @@ public class MPTStoreService implements IResourceIndex {
                 uuid = r.getString(1).split("info:fedora/")[1];
                 uuid = uuid.substring(0, uuid.length() - 1);
                 resList.add(uuid);
-
 
             }
         } catch (Exception e) {
@@ -571,9 +580,9 @@ public class MPTStoreService implements IResourceIndex {
     private String getModel(String uuid) throws Exception {
         /*
          * iTQL query
-        select $object $model from <#ri>
-        where  $object <dc:identifier>  'uuid'
-        and  $object <fedora-model:hasModel> $model
+         select $object $model from <#ri>
+         where  $object <dc:identifier>  'uuid'
+         and  $object <fedora-model:hasModel> $model
          */
 
         String model = "";
@@ -588,10 +597,10 @@ public class MPTStoreService implements IResourceIndex {
                     + " and o <> '<info:fedora/fedora-system:FedoraObject-3.0>' ";
             c = dataSource.getConnection();
             try {
-                PreparedStatement s =
-                        c.prepareStatement(sql,
-                        ResultSet.FETCH_FORWARD,
-                        ResultSet.CONCUR_READ_ONLY);
+                PreparedStatement s
+                        = c.prepareStatement(sql,
+                                ResultSet.FETCH_FORWARD,
+                                ResultSet.CONCUR_READ_ONLY);
                 try {
                     ResultSet r = s.executeQuery();
                     try {
@@ -619,7 +628,6 @@ public class MPTStoreService implements IResourceIndex {
     public ArrayList<String> getParentsPids(String uuid) throws Exception {
 
         //Can use risearch with SPO language
-
         String query = "$object * <info:fedora/" + uuid + ">  ";
         ArrayList<String> resList = new ArrayList<String>();
         String urlStr = config.getConfiguration().getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off"
@@ -682,6 +690,51 @@ public class MPTStoreService implements IResourceIndex {
 
     @Override
     public ArrayList<String> getObjectsInCollection(String collection, int limit, int offset) throws Exception {
+        ArrayList<String> resList = new ArrayList<String>();
+        Connection c = null;
+        PreparedStatement s = null;
+        ResultSet r = null;
+        try {
+
+            Configuration config = KConfiguration.getInstance().getConfiguration();
+            this.adaptor = getTableManager();
+            loadTableNames();
+
+            //select * from t58 where o = '<info:fedora/vc:534b8b98-82d8-49c7-a751-33e88aaeeea9>'
+            String sql = "select s"
+                    + " from " + table_collection
+                    + " where o='<info:fedora/" + collection + ">' "
+                    + " limit " + limit + " offset " + offset;
+            c = dataSource.getConnection();
+            s = c.prepareStatement(sql,
+                    ResultSet.FETCH_FORWARD,
+                    ResultSet.CONCUR_READ_ONLY);
+            r = s.executeQuery();
+
+            while (r.next()) {
+                
+                String pid = r.getString(1).split("info:fedora/")[1];
+                pid = pid.substring(0, pid.length() - 1);
+                resList.add(pid);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (r != null) {
+                DatabaseUtils.tryClose(r);
+            }
+            if (s != null) {
+                DatabaseUtils.tryClose(s);
+            }
+            if (c != null) {
+                DatabaseUtils.tryClose(c);
+            }
+        }
+
+        return resList;
+    }
+
+    public ArrayList<String> getObjectsInCollectionOld(String collection, int limit, int offset) throws Exception {
         Configuration config = KConfiguration.getInstance().getConfiguration();
         String query = "* <rdf:isMemberOfCollection>  <info:fedora/" + collection + ">  ";
 

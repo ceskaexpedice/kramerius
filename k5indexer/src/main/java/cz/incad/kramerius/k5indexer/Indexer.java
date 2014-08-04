@@ -10,7 +10,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.HttpURLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,8 +34,6 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public class Indexer {
 
@@ -91,8 +88,8 @@ public class Indexer {
             actionToDo.doPerform(this);
 
             long timeInMiliseconds = System.currentTimeMillis() - startTime;
-            showResults();
-            logger.info(formatElapsedTime(timeInMiliseconds));
+            showResults(timeInMiliseconds);
+            
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Run failed", ex);
             throw new Exception(ex);
@@ -101,6 +98,7 @@ public class Indexer {
 
     enum Actions {
 
+        //Index all documents in collection
         INDEXCOLLECTION {
                     @Override
                     void doPerform(Indexer indexer) throws Exception {
@@ -123,11 +121,12 @@ public class Indexer {
                                     kdoc.indexOne(pid);
                                 }
                                 offset += rows;
-                                pids = indexer.rindex.getFedoraPidsFromModel(collection, rows, offset);
+                                pids = indexer.rindex.getObjectsInCollection(collection, rows, offset);
                             }
                         }
                     }
                 },
+        //Index all documents in collection if newer
         UPDATECOLLECTION {
                     @Override
                     void doPerform(Indexer indexer) throws Exception {
@@ -150,7 +149,7 @@ public class Indexer {
                                     kdoc.updateOne(pid);
                                 }
                                 offset += rows;
-                                pids = indexer.rindex.getFedoraPidsFromModel(collection, rows, offset);
+                                pids = indexer.rindex.getObjectsInCollection(collection, rows, offset);
                             }
                         }
                     }
@@ -160,6 +159,7 @@ public class Indexer {
                     void doPerform(Indexer indexer) throws Exception {
                     }
                 },
+        //Index all documents in model, recursive down
         INDEXMODEL {
                     @Override
                     void doPerform(Indexer indexer) throws Exception {
@@ -179,10 +179,9 @@ public class Indexer {
                                 pids = indexer.rindex.getFedoraPidsFromModel(model, rows, offset);
                             }
                         }
-                        logger.log(Level.INFO, "{0} total docs processed. {1} success, {2} warnings, {3} errors",
-                                new Object[]{Indexer.total, Indexer.success, Indexer.warnings, Indexer.errors});
                     }
                 },
+        //Index document recursive down
         INDEXDOC {
                     @Override
                     void doPerform(Indexer indexer) throws Exception {
@@ -191,10 +190,9 @@ public class Indexer {
                         for (String pid : indexer.arguments.value.split(pidSeparator)) {
                             kdoc.indexDown(pid);
                         }
-                        logger.log(Level.INFO, "{0} total docs processed. {1} success, {2} warnings, {3} errors",
-                                new Object[]{Indexer.total, Indexer.success, Indexer.warnings, Indexer.errors});
                     }
                 },
+        //Index document recursive down if newer.
         UPDATEDOC {
                     @Override
                     void doPerform(Indexer indexer) throws Exception {
@@ -203,25 +201,24 @@ public class Indexer {
                         for (String pid : indexer.arguments.value.split(pidSeparator)) {
                             kdoc.updateDown(pid);
                         }
-                        logger.log(Level.INFO, "{0} total docs processed. {1} success, {2} warnings, {3} errors",
-                                new Object[]{Indexer.total, Indexer.success, Indexer.warnings, Indexer.errors});
                     }
                 },
+        //Delete document recursive down
         DELETEDOC {
                     @Override
                     void doPerform(Indexer indexer) throws Exception {
                         String pidSeparator = indexer.config.getString("k5indexer.pidSeparator", ";");
                         for (String pid_path : indexer.arguments.value.split(pidSeparator)) {
-                            Commiter commiter = new Commiter();
+                            Commiter commiter = Commiter.getInstance();
                             //String q = "pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "\\\\") + "*";
                             String q = "pid_path:" + ClientUtils.escapeQueryChars(pid_path) + "*";
                             commiter.deleteByQuery(q);
                             commiter.commit();
                         }
-                        logger.log(Level.INFO, "{0} total docs processed. {1} success, {2} warnings, {3} errors",
-                                new Object[]{Indexer.total, Indexer.success, Indexer.warnings, Indexer.errors});
+                        
                     }
                 },
+        
         FIX_ROOT_TITLE {
                     void fix(Indexer indexer, String pid, String title) throws Exception {
                         String query = "root_pid:\"" + pid + "\" AND -PID:\"" + pid + "\"";
@@ -248,7 +245,6 @@ public class Indexer {
                         }
                         logger.log(Level.FINE, ja.toString());
                         indexer.commiter.postJson(ja.toString());
-                        logger.log(Level.INFO, "{0} total processed", Indexer.total);
                     }
 
                     @Override
@@ -264,7 +260,6 @@ public class Indexer {
                             fix(indexer, pid, root_title);
                         }
                         indexer.commiter.commit();
-                        logger.log(Level.INFO, "{0} total processed", Indexer.total);
                     }
                 },
         CONVERT {
@@ -349,6 +344,9 @@ public class Indexer {
         return hours + " hour(s) " + minutes + " minute(s) " + seconds + " second(s)";
     }
 
-    private void showResults() {
+    private void showResults(long timeInMiliseconds) {
+        logger.log(Level.INFO, "{0} total docs processed. {1} success, {2} warnings, {3} errors",
+                                new Object[]{Indexer.total, Indexer.success, Indexer.warnings, Indexer.errors});
+        logger.info(formatElapsedTime(timeInMiliseconds));
     }
 }
