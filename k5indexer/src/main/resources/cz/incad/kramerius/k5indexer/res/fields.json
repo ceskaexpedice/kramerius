@@ -1,4 +1,12 @@
 {
+    "mappings_k4": {
+        "title":"dc.title",
+        "fedora_model":"fedora.model",
+        "autor": "dc.creator",
+        "dc_description:":"dc.description"
+    },
+    "mappings": {
+    },
     "datastreams": {
         "DC": {
             "prefix": "oai_dc:dc/",
