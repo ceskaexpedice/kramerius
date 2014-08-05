@@ -56,7 +56,7 @@ public class KrameriusDocument {
 
     private static final Logger logger = Logger.getLogger(KrameriusDocument.class.getName());
     private final Configuration config;
-    private final JSONObject fieldsConfig;
+    private final FieldsConfig fieldsConfig;
     
     FedoraAccess fa;
     Commiter commiter;
@@ -81,14 +81,7 @@ public class KrameriusDocument {
         fa = new FedoraAccessImpl(KConfiguration.getInstance(), null);
 
         predicates = Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.treePredicates"));
-
-        String path = Constants.WORKING_DIR + File.separator + "k5indexer" + File.separator + "fields.json";
-        File f = new File(path);
-        if (!f.exists() || !f.canRead()) {
-            f = FileUtils.toFile(KrameriusDocument.class.getResource("/cz/incad/kramerius/k5indexer/res/fields.json"));
-        }
-        String json = FileUtils.readFileToString(f, "UTF-8");
-        fieldsConfig = new JSONObject(json);
+        fieldsConfig = FieldsConfig.getInstance();
         commiter = Commiter.getInstance();
 
         factory = XPathFactory.newInstance();
@@ -366,9 +359,9 @@ public class KrameriusDocument {
         doc.addField("PID", pid);
         
         String title = DCUtils.titleFromDC(dc);
-        doc.addField("title", title);
+        doc.addField(fieldsConfig.getMappedField("title"), title);
         String model = fa.getKrameriusModelName(pid);
-        doc.addField("fedora_model", model);
+        doc.addField(fieldsConfig.getMappedField("fedora_model"), model);
         
         expr = xpath.compile("rdf:RDF/rdf:Description/kramerius:handle");
         doc.addField("handle", expr.evaluate(rels, XPathConstants.STRING));
@@ -396,10 +389,10 @@ public class KrameriusDocument {
         setContextFields(doc, pid);
 
         //Set fields in fields.json configuration file
-        Iterator it = fieldsConfig.getJSONObject("datastreams").keys();
+        Iterator it = fieldsConfig.dataStreams();
         while (it.hasNext()) {
             String dsname = (String) it.next();
-            addDataStreamFields(dsname, doc, pid, fieldsConfig.getJSONObject("datastreams").getJSONObject(dsname));
+            addDataStreamFields(dsname, doc, pid, fieldsConfig.getDataStream(dsname));
         }
 
         if(isPDF){
@@ -427,6 +420,7 @@ public class KrameriusDocument {
                     }
                     pageDoc.addField("text_ocr", pdf.getPage(i));
                     commiter.add(pageDoc);
+                    Indexer.pdfpages++;
                 }
             }
             pdf.closeDocument();
@@ -520,6 +514,7 @@ public class KrameriusDocument {
                         if (!fedoraDate.after(indexDate)) {
                             logger.log(Level.INFO, "Document {0} is up to date. Date in fedora: {1}, index date: {2} Skipping", 
                                     new Object[]{rpid, fedoraDate, indexDate});
+                            Indexer.skipped++;
                             return;
                         }
 
@@ -537,10 +532,10 @@ public class KrameriusDocument {
     private void indexDown(String rpid, boolean onlyUpdate) throws Exception {
         if (Indexer.indexed_cache.contains(rpid)) {
             logger.log(Level.INFO, "Pid {0} already processed", rpid);
+            
             return;
         }
         Indexer.indexed_cache.add(rpid);
-        logger.log(Level.INFO, "{0}. indexing {1}", new Object[]{++Indexer.total, rpid});
         ds_cache = new HashMap<String, Document>();
         
         
