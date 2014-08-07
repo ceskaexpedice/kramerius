@@ -130,6 +130,26 @@ public class XMLUtils {
         return retVals;
     }
     
+    public static List<Element> getElementsRecursive(Element topElm, ElementsFilter filter) {
+        List<Element> elms = new ArrayList<Element>();
+        Stack<Element> stack = new Stack<Element>();
+        stack.push(topElm);
+        while (!stack.isEmpty()) {
+            Element curElm = stack.pop();
+            if (filter.acceptElement(curElm)) {
+                elms.add(curElm);
+            }
+            NodeList childNodes = curElm.getChildNodes();
+            for (int i = 0, ll = childNodes.getLength(); i < ll; i++) {
+                Node item = childNodes.item(i);
+                if (item.getNodeType() == Node.ELEMENT_NODE) {
+                    stack.push((Element) item);
+                }
+            }
+        }
+        return elms;
+    }
+    
     
     private static boolean namespacesAreSame(String fNamespace, String sNamespace) {
         if ((fNamespace == null) && (sNamespace == null)) {
