@@ -1,8 +1,6 @@
 
 package cz.incad.utils;
 
-import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
-import cz.incad.kramerius.document.impl.DocumentServiceImpl;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.UTFSort;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -11,16 +9,15 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -64,7 +61,7 @@ public class XSLFunctions {
             org.apache.commons.io.IOUtils.copy(inputStream, sw, "UTF-8");
             JSONArray vc = new JSONArray(sw.toString());
             
-            colsDoc = new DocumentImpl();
+            colsDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             Element cols = colsDoc.createElement("collections");
             colsDoc.appendChild(cols);
             for (int i = 0; i < vc.length(); i++) {

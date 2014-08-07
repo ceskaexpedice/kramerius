@@ -49,6 +49,8 @@ public class Indexer {
     private final Transformer transformer;
     public static int total;
     public static int success;
+    public static int skipped;
+    public static int pdfpages;
     public static int errors;
     public static int warnings;
 
@@ -345,8 +347,9 @@ public class Indexer {
     }
 
     private void showResults(long timeInMiliseconds) {
-        logger.log(Level.INFO, "{0} total docs processed. {1} success, {2} warnings, {3} errors",
-                                new Object[]{Indexer.total, Indexer.success, Indexer.warnings, Indexer.errors});
-        logger.info(formatElapsedTime(timeInMiliseconds));
+        logger.log(Level.INFO, "{0} total docs processed. {1} success, {2} skipped, {3} pdf pages, {4} warnings, {5} errors\n {6}",
+                                new Object[]{Indexer.total, Indexer.success, 
+                                    Indexer.skipped, Indexer.pdfpages, Indexer.warnings, Indexer.errors,
+                                formatElapsedTime(timeInMiliseconds)});
     }
 }
