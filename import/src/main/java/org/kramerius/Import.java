@@ -90,6 +90,11 @@ public class Import {
             log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
             return;
         }
+
+        boolean updateExisting = Boolean.valueOf (System.getProperties().containsKey("ingest.updateExisting") ? System.getProperty("ingest.updateExisting") : KConfiguration.getInstance().getConfiguration().getString("ingest.updateExisting", "false"));
+        log.info("INGEST updateExisting: "+updateExisting);
+
+
         long start = System.currentTimeMillis();
 
         File importFile = new File(importRoot);
@@ -104,7 +109,7 @@ public class Import {
         Set<TitlePidTuple> roots = new HashSet<TitlePidTuple>();
         Set<String> sortRelations = new HashSet<String>();
         if (importFile.isDirectory()) {
-            visitAllDirsAndFiles(importFile, roots, sortRelations);
+            visitAllDirsAndFiles(importFile, roots, sortRelations, updateExisting);
         } else {
             BufferedReader reader = null;
             try {
@@ -128,7 +133,7 @@ public class Import {
                         continue;
                     }
                     log.info("Importing " + importItem.getAbsolutePath());
-                    visitAllDirsAndFiles(importItem, roots, sortRelations);
+                    visitAllDirsAndFiles(importItem, roots, sortRelations, updateExisting);
                 }
                 reader.close();
             } catch (IOException e) {
@@ -196,7 +201,7 @@ public class Import {
         of = new ObjectFactory();
     }
 
-    private static void visitAllDirsAndFiles(File importFile, Set<TitlePidTuple> roots, Set<String> sortRelations) {
+    private static void visitAllDirsAndFiles(File importFile, Set<TitlePidTuple> roots, Set<String> sortRelations, boolean updateExisting) {
         if (importFile == null) {
             return;
         }
@@ -207,7 +212,7 @@ public class Import {
                 Arrays.sort(children);
             }
             for (int i = 0; i < children.length; i++) {
-                visitAllDirsAndFiles(children[i], roots, sortRelations);
+                visitAllDirsAndFiles(children[i], roots, sortRelations, updateExisting);
             }
         } else {
             DigitalObject dobj = null;
@@ -222,12 +227,12 @@ public class Import {
                 log.log(Level.FINE, "Underlying error was:", e);
                 return;
             }
-            ingest(importFile, dobj.getPID(), sortRelations, roots);
+            ingest(importFile, dobj.getPID(), sortRelations, roots, updateExisting);
             checkRoot(dobj, roots);
         }
     }
 
-    public static void ingest(InputStream is, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots) throws IOException {
+    public static void ingest(InputStream is, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException {
         
         long start = System.currentTimeMillis();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -239,16 +244,39 @@ public class Import {
 
             //if (sfex.getMessage().contains("ObjectExistsException")) {
             if (objectExists(pid)) {
-                log.info("Merging with existing object " + pid);
-                if (merge(bytes)){
-                    if (sortRelations != null) {
-                        sortRelations.add(pid);
-                        log.info("Added merged object for sorting relations:"+pid);
+                if (updateExisting){
+                    log.info("Replacing existing object " + pid);
+                    try{
+                        port.purgeObject(pid, "", false);
+                        log.info("purged old object "+pid);
+                    }catch(Exception ex){
+                        log.severe("Cannot purge object "+pid+", skipping: "+ex);
+                        throw new RuntimeException(ex);
                     }
-                    if(roots!= null ){
+                    try {
+                        port.ingest(bytes, "info:fedora/fedora-system:FOXML-1.1", "Initial ingest");
+                        log.info("Ingested new object "+pid);
+                    } catch (SOAPFaultException rsfex) {
+                        log.severe("Replace ingest SOAP fault:" + rsfex);
+                        throw new RuntimeException(rsfex);
+                    }
+                    if (roots != null) {
                         TitlePidTuple npt = new TitlePidTuple("", pid);
                         roots.add(npt);
-                        log.info("Added merged object for indexing:"+pid);
+                        log.info("Added replaced object for indexing:" + pid);
+                    }
+                }else {
+                    log.info("Merging with existing object " + pid);
+                    if (merge(bytes)) {
+                        if (sortRelations != null) {
+                            sortRelations.add(pid);
+                            log.info("Added merged object for sorting relations:" + pid);
+                        }
+                        if (roots != null) {
+                            TitlePidTuple npt = new TitlePidTuple("", pid);
+                            roots.add(npt);
+                            log.info("Added merged object for indexing:" + pid);
+                        }
                     }
                 }
             } else {
@@ -263,7 +291,7 @@ public class Import {
         log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
 
-    public static void ingest(File file, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots) {
+    public static void ingest(File file, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) {
         if (pid == null) {
             try {
                 Object obj = unmarshaller.unmarshal(file);
@@ -277,7 +305,7 @@ public class Import {
 
         try {
             FileInputStream is = new FileInputStream(file);
-            ingest(is, pid, sortRelations, roots);
+            ingest(is, pid, sortRelations, roots, updateExisting);
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Ingestion error ", ex);
             throw new RuntimeException(ex);

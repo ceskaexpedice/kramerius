@@ -16,36 +16,24 @@
  */
 package org.kramerius.imports.input;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.Set;
-
-import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.StringTemplateGroup;
-import org.antlr.stringtemplate.language.DefaultTemplateLexer;
-import org.kramerius.processes.filetree.TreeItem;
-import org.kramerius.processes.filetree.TreeModelFilter;
-import org.kramerius.processes.utils.BasicStringTemplateGroup;
-import org.kramerius.processes.utils.TreeModelUtils;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.template.ProcessInputTemplate;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.stemplates.ResourceBundleUtils;
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
+import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.kramerius.processes.filetree.TreeItem;
+import org.kramerius.processes.filetree.TreeModelFilter;
+import org.kramerius.processes.utils.TreeModelUtils;
+
+import java.io.*;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.ResourceBundle;
 
 public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
 
@@ -88,7 +76,11 @@ public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
         
         Boolean startIndexer = configuration.getConfiguration().getBoolean("ingest.startIndexer");
         template.setAttribute("startIndexer",startIndexer);
-        
+
+        Boolean updateExisting = configuration.getConfiguration().getBoolean("ingest.updateExisting");
+        template.setAttribute("updateExisting",updateExisting);
+
+
         writer.write(template.toString());
     }
     
