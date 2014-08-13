@@ -126,12 +126,12 @@ public class PDFGenerateViewObjectTest  {
         
         RadioItem periodical = items.get(1);
         Assert.assertTrue(periodical.isMaster());
-        Assert.assertEquals("Periodika:Dějiny a současnost", periodical.getName());
+        Assert.assertEquals("Periodikum:Dějiny a současnost", periodical.getName());
         Assert.assertTrue(periodical.getPids().size() == 1);
 
         RadioItem intpart = items.get(2);
         Assert.assertTrue(intpart.isMaster());
-        Assert.assertEquals("Interní součást:„Lidé si budou vypravovat o jejich moudrosti\" | Výtisk:3 | Ročník:33 | Periodika:Dějiny a současnost", intpart.getName());
+        Assert.assertEquals("Interní součást:„Lidé si budou vypravovat o jejich moudrosti\" | Výtisk:3 | Ročník:33 | Periodikum:Dějiny a současnost", intpart.getName());
         Assert.assertTrue(intpart.getPids().size() == 1);
     }
     
@@ -157,7 +157,7 @@ public class PDFGenerateViewObjectTest  {
         
         String[] details = item.getDetailedItemNames();
         Assert.assertTrue(details.length == 2);
-        Assert.assertEquals("Stránka:4 | Výtisk:3 | Ročník:33 | Periodika:Dějiny a současnost", details[0]);
+        Assert.assertEquals("Stránka:4 | Výtisk:3 | Ročník:33 | Periodikum:Dějiny a současnost", details[0].trim());
         Assert.assertEquals("Stránka:6 | Monografie:Verspätete Erwägungen", details[1]);
         
     }
