@@ -29,10 +29,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.io.*;
 import java.net.Authenticator;
@@ -50,14 +57,20 @@ public class Import {
     static int counter = 0;
     private static final Logger log = Logger.getLogger(Import.class.getName());
     private static Unmarshaller unmarshaller = null;
+    private static Marshaller datastreamMarshaller = null;
     private static List<String> rootModels = null;
     private static SortingService sortingService;
+    private static Map<String, List<String>> updateMap = new HashMap<String, List<String>>();
 
     static {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(DigitalObject.class);
 
             unmarshaller = jaxbContext.createUnmarshaller();
+
+
+            JAXBContext jaxbdatastreamContext = JAXBContext.newInstance(DatastreamType.class);
+            datastreamMarshaller = jaxbdatastreamContext.createMarshaller();
 
 
         } catch (Exception e) {
@@ -208,6 +221,14 @@ public class Import {
         if (importFile.isDirectory()) {
 
             File[] children = importFile.listFiles();
+
+            for (File f : children){
+                if ("update.list".equalsIgnoreCase(f.getName())){
+                    log.info("File update.list detected in folder "+importFile);
+                    parseUpdateList(f);
+                }
+            }
+
             if (children.length > 1 && children[0].isDirectory()) {//Issue 36
                 Arrays.sort(children);
             }
@@ -227,8 +248,77 @@ public class Import {
                 log.log(Level.FINE, "Underlying error was:", e);
                 return;
             }
-            ingest(importFile, dobj.getPID(), sortRelations, roots, updateExisting);
-            checkRoot(dobj, roots);
+            if (updateMap.containsKey(dobj.getPID())){
+                log.info("Updating datastreams "+updateMap.get(dobj.getPID())+" in object "+dobj.getPID());
+                List<DatastreamType> importedDatastreams = dobj.getDatastream();
+                List<String> datastreamsToUpdate = updateMap.get(dobj.getPID());
+                for (String dsName:datastreamsToUpdate){
+                    for (DatastreamType ds:importedDatastreams){
+                        if(dsName.equalsIgnoreCase(ds.getID())){
+                            log.info("Updating datastream "+ds.getID());
+                            DatastreamVersionType dsversion = ds.getDatastreamVersion().get(0);
+                            if (dsversion.getXmlContent()!= null){
+                                Element element = dsversion.getXmlContent().getAny().get(0);
+                                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                                Source xmlSource = new DOMSource(element);
+                                Result outputTarget = new StreamResult(outputStream);
+                                try {
+                                    TransformerFactory.newInstance().newTransformer().transform(xmlSource, outputTarget);
+                                } catch (TransformerException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                port.modifyDatastreamByValue(dobj.getPID(), ds.getID(), null, null, null, null, outputStream.toByteArray(), null, null, "Datastream updated by import process", false);
+
+                            }else if(dsversion.getBinaryContent()!= null){
+                                throw new RuntimeException("Update of managed binary datastream content is not supported.");
+                            }else if(dsversion.getContentLocation()!= null){
+                                port.purgeDatastream(dobj.getPID(), ds.getID(),null,null,"Datastream updated by import process", false);
+                                port.addDatastream(dobj.getPID(), ds.getID(), null, null, false,dsversion.getMIMETYPE(), null, dsversion.getContentLocation().getREF(), ds.getCONTROLGROUP(), ds.getSTATE().value(), "DISABLED", null, "Datastream updated by import process");
+                            }
+                        }
+                    }
+                }
+                if (roots != null) {
+                    TitlePidTuple npt = new TitlePidTuple("", dobj.getPID());
+                    roots.add(npt);
+                    log.info("Added updated object for indexing:" + dobj.getPID());
+                }
+            }else {
+                ingest(importFile, dobj.getPID(), sortRelations, roots, updateExisting);
+                checkRoot(dobj, roots);
+            }
+        }
+    }
+
+    private static void parseUpdateList(File listFile){
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(listFile));
+        } catch (FileNotFoundException e) {
+            log.severe("update.list file " + listFile + " not found: " + e);
+            throw new RuntimeException(e);
+        }
+        try {
+            for (String line; (line = reader.readLine()) != null;) {
+                if ("".equals(line.trim())) {
+                    continue;
+                }
+                String[] lineItems = line.split(" ");
+                if (lineItems.length<2){
+                    continue;
+                }
+                List<String> streams = new ArrayList<String>(lineItems.length-1);
+                for (int i=0;i<lineItems.length-1;i++){
+                    if (!"".equals(lineItems[i+1])) {
+                        streams.add(lineItems[i + 1]);
+                    }
+                }
+                updateMap.put(lineItems[0], streams);
+            }
+            reader.close();
+        } catch (IOException e) {
+            log.severe("Exception reading update.list file: " + e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -250,7 +340,7 @@ public class Import {
                         port.purgeObject(pid, "", false);
                         log.info("purged old object "+pid);
                     }catch(Exception ex){
-                        log.severe("Cannot purge object "+pid+", skipping: "+ex);
+                        log.severe("Cannot purge object " + pid + ", skipping: " + ex);
                         throw new RuntimeException(ex);
                     }
                     try {
