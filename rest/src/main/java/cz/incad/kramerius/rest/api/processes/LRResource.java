@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -249,7 +250,12 @@ public class LRResource {
     }
 
     public String groupToken() {
-        String gtoken = requestProvider.get().getHeader(TOKEN_ATTRIBUTE_KEY);
+        HttpServletRequest request = requestProvider.get();
+        Enumeration hNames = request.getHeaderNames();
+        while(hNames.hasMoreElements()) {
+            LOGGER.info("HEader name "+hNames.nextElement());
+        }
+        String gtoken = request.getHeader(TOKEN_ATTRIBUTE_KEY);
         return gtoken;
     }
 

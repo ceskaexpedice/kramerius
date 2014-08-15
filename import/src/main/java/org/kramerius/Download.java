@@ -2,11 +2,13 @@ package org.kramerius;
 
 import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
+
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import javax.net.ssl.*;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -174,8 +176,9 @@ public class Download {
      * Start indexing of the document through the LRprocesses rest api
      * @param title
      * @param processedPath
+     * @throws UnsupportedEncodingException 
      */
-    public static void startIndexing(String title, String processedPath){
+    public static void startIndexing(String title, String processedPath) throws UnsupportedEncodingException{
         if (processedPath == null)
             return;
         int uuidStart = processedPath.indexOf("\tpid=")+5;

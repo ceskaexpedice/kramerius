@@ -1,6 +1,7 @@
 package org.kramerius;
 
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 
 import javax.xml.bind.JAXBException;
 
@@ -15,8 +16,9 @@ public class Convert {
 
     /**
      * @param args[0] visibility (true, false)
+     * @throws UnsupportedEncodingException 
      */
-    public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+    public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException, UnsupportedEncodingException {
         String convertTargetDirectory = System.getProperties().containsKey("convert.target.directory") ? System.getProperty("convert.target.directory") : KConfiguration.getInstance().getProperty("convert.target.directory") ;
         String defaultRights = System.getProperties().containsKey("convert.defaultRights") ?  System.getProperty("convert.defaultRights") : KConfiguration.getInstance().getProperty("convert.defaultRights","false") ;
         String convertDirectory =  System.getProperties().containsKey("convert.directory") ? System.getProperty("convert.directory") : KConfiguration.getInstance().getProperty("convert.directory");

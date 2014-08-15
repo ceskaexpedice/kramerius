@@ -27,8 +27,8 @@ import net.sf.json.JSONObject;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.rest.api.client.BasicAuthenticationFilter;
 import cz.incad.kramerius.rest.api.client.v46.ProcessesClient;
+import cz.incad.kramerius.utils.BasicAuthenticationFilter;
 
 /**
  * Administrace uzivatelu a roli

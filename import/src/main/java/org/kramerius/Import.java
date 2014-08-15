@@ -9,6 +9,7 @@ import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.XmlContentType;
+
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
@@ -21,6 +22,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.ObjectFactory;
@@ -41,6 +43,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.soap.SOAPFaultException;
+
 import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -86,13 +89,15 @@ public class Import {
 
     /**
      * @param args
+     * @throws UnsupportedEncodingException 
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedEncodingException {
         String importDirectory = System.getProperties().containsKey("import.directory") ? System.getProperty("import.directory") : KConfiguration.getInstance().getProperty("import.directory");
         Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
     }
+    
 
-    public static void ingest(final String url, final String user, final String pwd, String importRoot) {
+    public static void ingest(final String url, final String user, final String pwd, String importRoot) throws UnsupportedEncodingException {
         log.finest("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
         Injector injector = Guice.createInjector(new ImportModule());
         sortingService = injector.getInstance(SortingService.class);

@@ -19,10 +19,12 @@ package org.kramerius.imports;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
+
 import org.kramerius.Import;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 
 /**
@@ -39,7 +41,7 @@ public class ParametrizedImport {
     @Process
     public static void process( @ParameterName("importDirectory") File importDirectory, 
             @ParameterName("startIndexer")Boolean startIndexer,
-            @ParameterName("updateExisting")Boolean updateExisting) {
+            @ParameterName("updateExisting")Boolean updateExisting) throws UnsupportedEncodingException {
 
         System.setProperty("import.directory", importDirectory.getAbsolutePath());
         System.setProperty("ingest.startIndexer", startIndexer.toString());
