@@ -55,7 +55,6 @@ class JAXBPlugin implements Plugin<ProjectInternal> {
 					// Set up the output directory 
 					final String outputDirectoryName = String.format("%s/generated-src/jaxb/%s",project.getProjectDir(), sourceSet.getName());
 
-                                        
 					final File outputDirectory = new File(outputDirectoryName);
 					xjcTask.setOutputDirectory(outputDirectory);
 					sourceSet.getJava().srcDir(outputDirectory);
