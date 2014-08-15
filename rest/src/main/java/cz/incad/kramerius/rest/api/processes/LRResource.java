@@ -251,10 +251,6 @@ public class LRResource {
 
     public String groupToken() {
         HttpServletRequest request = requestProvider.get();
-        Enumeration hNames = request.getHeaderNames();
-        while(hNames.hasMoreElements()) {
-            LOGGER.info("HEader name "+hNames.nextElement());
-        }
         String gtoken = request.getHeader(TOKEN_ATTRIBUTE_KEY);
         return gtoken;
     }
