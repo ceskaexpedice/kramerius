@@ -17,48 +17,49 @@
 /**
  * 
  */
-package cz.incad.Kramerius.utils;
-
-import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.XMLUtils.ElementsFilter;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+package cz.incad.kramerius.utils;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-/**
- * @author pavels
- *
- */
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import cz.incad.kramerius.utils.XMLUtils.ElementsFilter;
+
 public class ALTOUtils {
 
-    /**
-     * @param parameter
-     * @throws IOException 
-     */
-    public static  Map<String, Map<String, Double>> disectAlto(final String parameter, Document dom) throws IOException {
-        Map<String, Map<String, Double>> map = new HashMap<String, Map<String,Double>>(); 
+    public static Map<String, Map<String, Double>> disectAlto(
+            final String parameter, Document dom) throws IOException {
+        Map<String, Map<String, Double>> map = new HashMap<String, Map<String, Double>>();
 
-        Element measure = XMLUtils.findElement(dom.getDocumentElement(), "MeasurementUnit");
+        Element measure = XMLUtils.findElement(dom.getDocumentElement(),
+                "MeasurementUnit");
         if (measure != null) {
             String measureContentText = measure.getTextContent();
             if (measureContentText != null) {
                 measureContentText = measureContentText.trim();
-                if (!measureContentText.equals("pixel")) throw new IOException("cannot process measure '"+measureContentText+"'");
+                if (!measureContentText.equals("pixel"))
+                    throw new IOException("cannot process measure '"
+                            + measureContentText + "'");
             }
         }
 
-        Element pageElm = XMLUtils.findElement(dom.getDocumentElement(), "Page");
+        Element pageElm = XMLUtils
+                .findElement(dom.getDocumentElement(), "Page");
         if (pageElm != null) {
-            //<Page ID="Page0" PHYSICAL_IMG_NR="0" HEIGHT="3232" WIDTH="2515">
-            String imageHeight = pageElm.hasAttribute("HEIGHT")?  pageElm.getAttribute("HEIGHT") : null;
-            String imageWidth = pageElm.hasAttribute("WIDTH") ? pageElm.getAttribute("WIDTH") : null;
-            if ( (!StringUtils.isAnyString(imageHeight)) &&   (!StringUtils.isAnyString(imageWidth)) ){
-                pageElm = XMLUtils.findElement(dom.getDocumentElement(), "PrintSpace");
+            // <Page ID="Page0" PHYSICAL_IMG_NR="0" HEIGHT="3232" WIDTH="2515">
+            String imageHeight = pageElm.hasAttribute("HEIGHT") ? pageElm
+                    .getAttribute("HEIGHT") : null;
+            String imageWidth = pageElm.hasAttribute("WIDTH") ? pageElm
+                    .getAttribute("WIDTH") : null;
+            if ((!StringUtils.isAnyString(imageHeight))
+                    && (!StringUtils.isAnyString(imageWidth))) {
+                pageElm = XMLUtils.findElement(dom.getDocumentElement(),
+                        "PrintSpace");
                 if (pageElm != null) {
                     imageHeight = pageElm.getAttribute("HEIGHT");
                     imageWidth = pageElm.getAttribute("WIDTH");
@@ -73,24 +74,25 @@ public class ALTOUtils {
             }
             map.put("image", image);
         }
-        
-        Element foundElement = XMLUtils.findElement(dom.getDocumentElement(), new ElementsFilter() {
-            
-            @Override
-            public boolean acceptElement(Element element) {
-                if (element.getNodeName().equals("String")) {
-                    String content = element.getAttribute("CONTENT");
-                    if (matchContent(content, parameter)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
 
-        });
+        Element foundElement = XMLUtils.findElement(dom.getDocumentElement(),
+                new ElementsFilter() {
+
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        if (element.getNodeName().equals("String")) {
+                            String content = element.getAttribute("CONTENT");
+                            if (matchContent(content, parameter)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+
+                });
         if (foundElement != null) {
             Map<String, Double> box = new HashMap<String, Double>();
-            
+
             String height = foundElement.getAttribute("HEIGHT");
             String width = foundElement.getAttribute("WIDTH");
             String hpos = foundElement.getAttribute("HPOS");
@@ -98,7 +100,6 @@ public class ALTOUtils {
             if (height != null) {
                 box.put("HEIGHT", Double.parseDouble(height));
             }
-
             if (width != null) {
                 box.put("WIDTH", Double.parseDouble(width));
             }
@@ -108,20 +109,19 @@ public class ALTOUtils {
             if (vpos != null) {
                 box.put("VPOS", Double.parseDouble(vpos));
             }
-            
             map.put("box", box);
-            
-        } 
-        
+        }
         return map;
     }
 
-	protected static boolean matchContent(String content, String parameter) {
-		if (content != null && parameter != null) {
-			String smallContent = content.toLowerCase();
-			String smallParam = parameter.toLowerCase();
-			return smallContent.equals(smallParam);
-		} else return content == parameter;
-	}
-
+    protected static boolean matchContent(String content, String parameter) {
+        if (content != null && parameter != null) {
+            //TODO: configuration 
+            Pattern pattern = Pattern.compile("\\b"+parameter+"\\b");
+            Matcher matcher =  pattern.matcher(content);
+            return  (matcher.find());
+        } else
+            return content == parameter;
+    }
+    
 }

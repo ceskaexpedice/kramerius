@@ -90,8 +90,6 @@ public class SearchResultTest {
     }
 
     
-    
-    
     @Test
     public void testPrasedXML() throws ParserConfigurationException,
         SAXException, IOException, TransformerException, XPathExpressionException {
@@ -143,10 +141,6 @@ public class SearchResultTest {
         }
         
     }
-    
-    
-    
-    
     
     @Test
     public void testChangeFieldsXML() throws ParserConfigurationException,

@@ -1,0 +1,5989 @@
+<response>
+<lst name="responseHeader">
+<int name="status">0</int>
+<int name="QTime">1</int>
+<lst name="params">
+<str name="start">0</str>
+<str name="q">
+parent_pid:"uuid:0174f891-62d3-11e1-8115-0050569d679d"
+</str>
+<str name="rows">10000</str>
+</lst>
+</lst>
+<result name="response" numFound="95" start="0">
+<doc>
+<str name="PID">uuid:0654d5bb-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">10</str>
+<arr name="text">
+<str>10</str>
+<str/>
+<str>10##NormalPage</str>
+<str>10</str>
+<str/>
+<str>10##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">10</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:48.421Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:59.622Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>10##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0654d5bb-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0654d5bb-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>9</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892297518874624</long>
+</doc>
+<doc>
+<str name="PID">uuid:28b816d3-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">30</str>
+<arr name="text">
+<str>30</str>
+<str/>
+<str>30##NormalPage</str>
+<str>30</str>
+<str/>
+<str>30##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">30</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:46.117Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:59.756Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>30##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:28b816d3-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:28b816d3-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>81</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892298048405504</long>
+</doc>
+<doc>
+<str name="PID">uuid:23325cb7-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">18</str>
+<arr name="text">
+<str>18</str>
+<str/>
+<str>18##NormalPage</str>
+<str>18</str>
+<str/>
+<str>18##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">18</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:36.85Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:59.882Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>18##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:23325cb7-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:23325cb7-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>69</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892298559062016</long>
+</doc>
+<doc>
+<str name="PID">uuid:1298a2e3-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">34</str>
+<arr name="text">
+<str>34</str>
+<str/>
+<str>34##NormalPage</str>
+<str>34</str>
+<str/>
+<str>34##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">34</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:08.999Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:00.03Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>34##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1298a2e3-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:1298a2e3-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>33</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892299099078656</long>
+</doc>
+<doc>
+<str name="PID">uuid:29a228b5-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">32</str>
+<arr name="text">
+<str>32</str>
+<str/>
+<str>32##NormalPage</str>
+<str>32</str>
+<str/>
+<str>32##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">32</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:47.644Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:00.206Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>32##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:29a228b5-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:29a228b5-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>83</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892299727175680</long>
+</doc>
+<doc>
+<str name="PID">uuid:1c4aa198-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">[3]</str>
+<arr name="text">
+<str>[3]</str>
+<str/>
+<str>[3]##NormalPage</str>
+<str>[3]</str>
+<str/>
+<str>[3]##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">3</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:25.287Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:00.419Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>[3]##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1c4aa198-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:1c4aa198-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>54</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892300251463680</long>
+</doc>
+<doc>
+<str name="PID">uuid:02faae35-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">4</str>
+<arr name="text">
+<str>4</str>
+<str/>
+<str>4##NormalPage</str>
+<str>4</str>
+<str/>
+<str>4##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">4</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:42.801Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:00.694Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>4##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:02faae35-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:02faae35-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>3</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892300836569088</long>
+</doc>
+<doc>
+<str name="PID">uuid:13f5c1e6-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">37</str>
+<arr name="text">
+<str>37</str>
+<str/>
+<str>37##NormalPage</str>
+<str>37</str>
+<str/>
+<str>37##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">37</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:11.286Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:00.867Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>37##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:13f5c1e6-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:13f5c1e6-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>36</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892301418528768</long>
+</doc>
+<doc>
+<str name="PID">uuid:2a886a07-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">34</str>
+<arr name="text">
+<str>34</str>
+<str/>
+<str>34##NormalPage</str>
+<str>34</str>
+<str/>
+<str>34##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">34</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:49.15Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:00.987Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>34##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2a886a07-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:2a886a07-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>85</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892302017265664</long>
+</doc>
+<doc>
+<str name="PID">uuid:1109c580-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">31</str>
+<arr name="text">
+<str>31</str>
+<str/>
+<str>31##NormalPage</str>
+<str>31</str>
+<str/>
+<str>31##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">31</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:06.389Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:01.29Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>31##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1109c580-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:1109c580-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>30</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892302554136576</long>
+</doc>
+<doc>
+<str name="PID">uuid:183603af-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">46</str>
+<arr name="text">
+<str>46</str>
+<str/>
+<str>46##NormalPage</str>
+<str>46</str>
+<str/>
+<str>46##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">46</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:18.413Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:01.406Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>46##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:183603af-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:183603af-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>45</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892303043821568</long>
+</doc>
+<doc>
+<str name="PID">uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">12. březen 1893</str>
+<arr name="text">
+<str>12. březen 1893</str>
+<str/>
+<str>
+Article##12. březen 1893##(Veřejná schůze lidu v Brně. - Ustavující schůze klubu lidové strany.)##[1]-52 pp.
+</str>
+<str>12. březen 1893</str>
+<str/>
+<str>
+Article##12. březen 1893##(Veřejná schůze lidu v Brně. - Ustavující schůze klubu lidové strany.)##[1]-52 pp.
+</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">internalpart</str>
+<str name="handle"/>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">12 BR|EZEN 1893</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:54.422Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:01.531Z</date>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>
+Article##12. březen 1893##(Veřejná schůze lidu v Brně. - Ustavující schůze klubu lidové strany.)##[1]-52 pp.
+</str>
+</arr>
+<arr name="document_type">
+<str>internalpart</str>
+</arr>
+<arr name="language">
+<str>cze</str>
+</arr>
+<arr name="model_path">
+<str>monograph/internalpart</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892303338471424</long>
+</doc>
+<doc>
+<str name="PID">uuid:20688e51-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">12</str>
+<arr name="text">
+<str>12</str>
+<str/>
+<str>12##NormalPage</str>
+<str>12</str>
+<str/>
+<str>12##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">12</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:32.182Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:01.615Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>12##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:20688e51-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:20688e51-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>63</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892303833399296</long>
+</doc>
+<doc>
+<str name="PID">uuid:01f76f03-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">[2]</str>
+<arr name="text">
+<str>[2]</str>
+<str/>
+<str>[2]##Blank</str>
+<str>[2]</str>
+<str/>
+<str>[2]##Blank</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">2</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:41.1Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:01.702Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>[2]##Blank</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:01f76f03-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>1</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892304331472896</long>
+</doc>
+<doc>
+<str name="PID">uuid:22b58b96-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">17</str>
+<arr name="text">
+<str>17</str>
+<str/>
+<str>17##NormalPage</str>
+<str>17</str>
+<str/>
+<str>17##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">17</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:36.046Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:01.773Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>17##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:22b58b96-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:22b58b96-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>68</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892305028775936</long>
+</doc>
+<doc>
+<str name="PID">uuid:1e1c7b6c-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">7</str>
+<arr name="text">
+<str>7</str>
+<str/>
+<str>7##NormalPage</str>
+<str>7</str>
+<str/>
+<str>7##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">7</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:28.324Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:01.852Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>7##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1e1c7b6c-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:1e1c7b6c-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>58</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892305565646848</long>
+</doc>
+<doc>
+<str name="PID">uuid:0d7924a9-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">24</str>
+<arr name="text">
+<str>24</str>
+<str/>
+<str>24##NormalPage</str>
+<str>24</str>
+<str/>
+<str>24##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">24</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:00.399Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:01.941Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>24##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0d7924a9-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0d7924a9-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>23</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892306067914752</long>
+</doc>
+<doc>
+<str name="PID">uuid:051a59e9-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">8</str>
+<arr name="text">
+<str>8</str>
+<str/>
+<str>8##NormalPage</str>
+<str>8</str>
+<str/>
+<str>8##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">8</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:46.354Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.068Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>8##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:051a59e9-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:051a59e9-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>7</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892306592202752</long>
+</doc>
+<doc>
+<str name="PID">uuid:15e1da7a-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">41</str>
+<arr name="text">
+<str>41</str>
+<str/>
+<str>41##NormalPage</str>
+<str>41</str>
+<str/>
+<str>41##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">41</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:14.505Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.135Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>41##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:15e1da7a-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:15e1da7a-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>40</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892307215056896</long>
+</doc>
+<doc>
+<str name="PID">uuid:2a15ab06-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">33</str>
+<arr name="text">
+<str>33</str>
+<str/>
+<str>33##NormalPage</str>
+<str>33</str>
+<str/>
+<str>33##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">33</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:48.399Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.199Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>33##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2a15ab06-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:2a15ab06-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>84</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892307781287936</long>
+</doc>
+<doc>
+<str name="PID">uuid:27ce04f1-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">28</str>
+<arr name="text">
+<str>28</str>
+<str/>
+<str>28##NormalPage</str>
+<str>28</str>
+<str/>
+<str>28##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">28</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:44.586Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.264Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>28##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:27ce04f1-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:27ce04f1-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>79</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892308301381632</long>
+</doc>
+<doc>
+<str name="PID">uuid:25ed5e0d-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">24</str>
+<arr name="text">
+<str>24</str>
+<str/>
+<str>24##NormalPage</str>
+<str>24</str>
+<str/>
+<str>24##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">24</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:41.445Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.331Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>24##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:25ed5e0d-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:25ed5e0d-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>75</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892308820426752</long>
+</doc>
+<doc>
+<str name="PID">uuid:174b558d-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">44</str>
+<arr name="text">
+<str>44</str>
+<str/>
+<str>44##NormalPage</str>
+<str>44</str>
+<str/>
+<str>44##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">44</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:16.876Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.398Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>44##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:174b558d-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:174b558d-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>43</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892309358346240</long>
+</doc>
+<doc>
+<str name="PID">uuid:1bd8f407-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">[2]</str>
+<arr name="text">
+<str>[2]</str>
+<str/>
+<str>[2]##Blank</str>
+<str>[2]</str>
+<str/>
+<str>[2]##Blank</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">2</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:24.529Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.483Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>[2]##Blank</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1bd8f407-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:1bd8f407-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>53</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892309861662720</long>
+</doc>
+<doc>
+<str name="PID">uuid:0b0cb884-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">19</str>
+<arr name="text">
+<str>19</str>
+<str/>
+<str>19##NormalPage</str>
+<str>19</str>
+<str/>
+<str>19##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">19</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:56.34Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.568Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>19##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0b0cb884-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0b0cb884-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>18</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892310438379520</long>
+</doc>
+<doc>
+<str name="PID">uuid:292dbc04-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">31</str>
+<arr name="text">
+<str>31</str>
+<str/>
+<str>31##NormalPage</str>
+<str>31</str>
+<str/>
+<str>31##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">31</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:46.878Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.645Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>31##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:292dbc04-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:292dbc04-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>82</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892311022436352</long>
+</doc>
+<doc>
+<str name="PID">uuid:2756b210-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">27</str>
+<arr name="text">
+<str>27</str>
+<str/>
+<str>27##NormalPage</str>
+<str>27</str>
+<str/>
+<str>27##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">27</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:43.806Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.729Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>27##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2756b210-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:2756b210-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>78</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892311555112960</long>
+</doc>
+<doc>
+<str name="PID">uuid:074bb8dd-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">12</str>
+<arr name="text">
+<str>12</str>
+<str/>
+<str>12##NormalPage</str>
+<str>12</str>
+<str/>
+<str>12##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">12</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:50.036Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.811Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>12##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:074bb8dd-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:074bb8dd-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>11</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892312116101120</long>
+</doc>
+<doc>
+<str name="PID">uuid:2b6dc0f9-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">36</str>
+<arr name="text">
+<str>36</str>
+<str/>
+<str>36##NormalPage</str>
+<str>36</str>
+<str/>
+<str>36##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">36</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:50.652Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.899Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>36##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2b6dc0f9-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:2b6dc0f9-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>87</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892312656117760</long>
+</doc>
+<doc>
+<str name="PID">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">12. březen 1893</str>
+<arr name="text">
+<str>12. březen 1893</str>
+<str/>
+<str/>
+<str>12. březen 1893</str>
+<str/>
+<str/>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">monograph</str>
+<str name="handle"/>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">12 BR|EZEN 1893</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">0</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:54.935Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:02.987Z</date>
+<bool name="virtual">false</bool>
+<arr name="dc.creator">
+<str/>
+</arr>
+<arr name="facet_autor">
+<str/>
+<str/>
+</arr>
+<arr name="document_type">
+<str>monograph</str>
+</arr>
+<arr name="language">
+<str>cze</str>
+</arr>
+<arr name="model_path">
+<str>monograph</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="rels_ext_index">
+<int>0</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892312918261760</long>
+</doc>
+<doc>
+<str name="PID">uuid:08363fef-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">14</str>
+<arr name="text">
+<str>14</str>
+<str/>
+<str>14##NormalPage</str>
+<str>14</str>
+<str/>
+<str>14##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">14</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:51.572Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:55.885Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>14##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:08363fef-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:08363fef-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>13</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892273345003520</long>
+</doc>
+<doc>
+<str name="PID">uuid:06c809ec-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">11</str>
+<arr name="text">
+<str>11</str>
+<str/>
+<str>11##NormalPage</str>
+<str>11</str>
+<str/>
+<str>11##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">11</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:49.17Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:56.027Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>11##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:06c809ec-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:06c809ec-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>10</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892273979392000</long>
+</doc>
+<doc>
+<str name="PID">uuid:2491507a-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">21</str>
+<arr name="text">
+<str>21</str>
+<str/>
+<str>21##NormalPage</str>
+<str>21</str>
+<str/>
+<str>21##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">21</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:39.16Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:56.141Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>21##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2491507a-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:2491507a-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>72</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892274539331584</long>
+</doc>
+<doc>
+<str name="PID">uuid:1daa58ab-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">6</str>
+<arr name="text">
+<str>6</str>
+<str/>
+<str>6##NormalPage</str>
+<str>6</str>
+<str/>
+<str>6##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">6</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:27.57Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:56.278Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>6##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1daa58ab-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:1daa58ab-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>57</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892275063619584</long>
+</doc>
+<doc>
+<str name="PID">uuid:16d4ed0c-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">43</str>
+<arr name="text">
+<str>43</str>
+<str/>
+<str>43##NormalPage</str>
+<str>43</str>
+<str/>
+<str>43##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">43</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:16.105Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:56.414Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>43##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:16d4ed0c-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:16d4ed0c-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>42</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892275640336384</long>
+</doc>
+<doc>
+<str name="PID">uuid:20dcfb02-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">13</str>
+<arr name="text">
+<str>13</str>
+<str/>
+<str>13##NormalPage</str>
+<str>13</str>
+<str/>
+<str>13##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">13</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:32.945Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:56.504Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>13##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:20dcfb02-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:20dcfb02-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>64</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892276155187200</long>
+</doc>
+<doc>
+<str name="PID">uuid:2cc820dc-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">39</str>
+<arr name="text">
+<str>39</str>
+<str/>
+<str>39##NormalPage</str>
+<str>39</str>
+<str/>
+<str>39##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">39</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:52.925Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:56.568Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>39##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2cc820dc-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:2cc820dc-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>90</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892276709883904</long>
+</doc>
+<doc>
+<str name="PID">uuid:106918af-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">30</str>
+<arr name="text">
+<str>30</str>
+<str/>
+<str>30##NormalPage</str>
+<str>30</str>
+<str/>
+<str>30##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">30</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:05.327Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:56.658Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>30##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:106918af-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:106918af-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>29</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892277266677760</long>
+</doc>
+<doc>
+<str name="PID">uuid:1b64fc86-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">[1]</str>
+<arr name="text">
+<str>[1]</str>
+<str/>
+<str>[1]##TitlePage</str>
+<str>[1]</str>
+<str/>
+<str>[1]##TitlePage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">1</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:23.757Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:56.726Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>[1]##TitlePage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1b64fc86-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:1b64fc86-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>52</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892277781528576</long>
+</doc>
+<doc>
+<str name="PID">uuid:0b9d86d5-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">20</str>
+<arr name="text">
+<str>20</str>
+<str/>
+<str>20##NormalPage</str>
+<str>20</str>
+<str/>
+<str>20##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">20</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:57.28Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:56.805Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>20##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0b9d86d5-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0b9d86d5-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>19</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892278287990784</long>
+</doc>
+<doc>
+<str name="PID">uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">České státní právo</str>
+<arr name="text">
+<str>České státní právo</str>
+<str/>
+<str>Rašín Alois</str>
+<str>Article##České státní právo####[1]-40 pp.</str>
+<str>České státní právo</str>
+<str>Rašín Alois</str>
+<str/>
+<str>Article##České státní právo####[1]-40 pp.</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">internalpart</str>
+<str name="handle"/>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">C|ESKE STATNI PRAVO</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:54.678Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:56.888Z</date>
+<bool name="virtual">false</bool>
+<arr name="dc.creator">
+<str>Rašín Alois</str>
+</arr>
+<arr name="facet_autor">
+<str>Rašín Alois</str>
+<str>Rašín Alois</str>
+</arr>
+<arr name="details">
+<str>Article##České státní právo####[1]-40 pp.</str>
+</arr>
+<arr name="document_type">
+<str>internalpart</str>
+</arr>
+<arr name="language">
+<str>cze</str>
+</arr>
+<arr name="model_path">
+<str>monograph/internalpart</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892278584737792</long>
+</doc>
+<doc>
+<str name="PID">uuid:2665261e-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">25</str>
+<arr name="text">
+<str>25</str>
+<str/>
+<str>25##NormalPage</str>
+<str>25</str>
+<str/>
+<str>25##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">25</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:42.234Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:56.984Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>25##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2665261e-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:2665261e-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>76</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892279127900160</long>
+</doc>
+<doc>
+<str name="PID">uuid:036e3086-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">5</str>
+<arr name="text">
+<str>5</str>
+<str/>
+<str>5##NormalPage</str>
+<str>5</str>
+<str/>
+<str>5##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">5</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:43.557Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:57.074Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>5##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:036e3086-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:036e3086-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>4</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892279778017280</long>
+</doc>
+<doc>
+<str name="PID">uuid:1cbe7209-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">4</str>
+<arr name="text">
+<str>4</str>
+<str/>
+<str>4##NormalPage</str>
+<str>4</str>
+<str/>
+<str>4##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">4</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:26.044Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:57.181Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>4##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1cbe7209-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:1cbe7209-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>55</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892280459591680</long>
+</doc>
+<doc>
+<str name="PID">uuid:02838264-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">[3]</str>
+<arr name="text">
+<str>[3]</str>
+<str/>
+<str>[3]##NormalPage</str>
+<str>[3]</str>
+<str/>
+<str>[3]##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">3</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:42.013Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:57.273Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>[3]##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:02838264-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:02838264-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>2</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892281088737280</long>
+</doc>
+<doc>
+<str name="PID">uuid:138266a5-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">36</str>
+<arr name="text">
+<str>36</str>
+<str/>
+<str>36##NormalPage</str>
+<str>36</str>
+<str/>
+<str>36##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">36</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:10.532Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:57.353Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>36##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:138266a5-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:138266a5-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>35</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892281659162624</long>
+</doc>
+<doc>
+<str name="PID">uuid:223d4e55-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">16</str>
+<arr name="text">
+<str>16</str>
+<str/>
+<str>16##NormalPage</str>
+<str>16</str>
+<str/>
+<str>16##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">16</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:35.255Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:57.422Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>16##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:223d4e55-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:223d4e55-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>67</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892282275725312</long>
+</doc>
+<doc>
+<str name="PID">uuid:03e905d7-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">6</str>
+<arr name="text">
+<str>6</str>
+<str/>
+<str>6##NormalPage</str>
+<str>6</str>
+<str/>
+<str>6##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">6</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:44.353Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:57.501Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>6##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:03e905d7-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:03e905d7-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>5</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892282824130560</long>
+</doc>
+<doc>
+<str name="PID">uuid:18a5dc80-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">47</str>
+<arr name="text">
+<str>47</str>
+<str/>
+<str>47##NormalPage</str>
+<str>47</str>
+<str/>
+<str>47##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">47</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:19.152Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:57.591Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>47##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:18a5dc80-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:18a5dc80-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>46</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892283324301312</long>
+</doc>
+<doc>
+<str name="PID">uuid:198fc752-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">49</str>
+<arr name="text">
+<str>49</str>
+<str/>
+<str>49##NormalPage</str>
+<str>49</str>
+<str/>
+<str>49##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">49</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:20.682Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:57.697Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>49##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:198fc752-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:198fc752-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>48</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892283829714944</long>
+</doc>
+<doc>
+<str name="PID">uuid:241b8439-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">20</str>
+<arr name="text">
+<str>20</str>
+<str/>
+<str>20##NormalPage</str>
+<str>20</str>
+<str/>
+<str>20##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">20</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:38.386Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:57.77Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>20##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:241b8439-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:241b8439-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>71</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892284345614336</long>
+</doc>
+<doc>
+<str name="PID">uuid:08a92600-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">15</str>
+<arr name="text">
+<str>15</str>
+<str/>
+<str>15##NormalPage</str>
+<str>15</str>
+<str/>
+<str>15##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">15</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:52.325Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:57.848Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>15##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:08a92600-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:08a92600-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>14</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892284905553920</long>
+</doc>
+<doc>
+<str name="PID">uuid:09632731-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">16</str>
+<arr name="text">
+<str>16</str>
+<str/>
+<str>16##NormalPage</str>
+<str>16</str>
+<str/>
+<str>16##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">16</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:53.543Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:57.916Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>16##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:09632731-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:09632731-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>15</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892285464444928</long>
+</doc>
+<doc>
+<str name="PID">uuid:165fe41b-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">42</str>
+<arr name="text">
+<str>42</str>
+<str/>
+<str>42##NormalPage</str>
+<str>42</str>
+<str/>
+<str>42##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">42</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:15.331Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:58.001Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>42##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:165fe41b-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:165fe41b-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>41</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892285996072960</long>
+</doc>
+<doc>
+<str name="PID">uuid:25076adb-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">22</str>
+<arr name="text">
+<str>22</str>
+<str/>
+<str>22##NormalPage</str>
+<str>22</str>
+<str/>
+<str>22##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">22</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:39.926Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:58.071Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>22##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:25076adb-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:25076adb-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>73</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892286503583744</long>
+</doc>
+<doc>
+<str name="PID">uuid:2c53db3b-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">38</str>
+<arr name="text">
+<str>38</str>
+<str/>
+<str>38##NormalPage</str>
+<str>38</str>
+<str/>
+<str>38##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">38</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:52.167Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:58.139Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>38##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2c53db3b-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:2c53db3b-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>89</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892287083446272</long>
+</doc>
+<doc>
+<str name="PID">uuid:21c4ea04-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">15</str>
+<arr name="text">
+<str>15</str>
+<str/>
+<str>15##NormalPage</str>
+<str>15</str>
+<str/>
+<str>15##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">15</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:34.466Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:58.338Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>15##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:21c4ea04-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:21c4ea04-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>66</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892287586762752</long>
+</doc>
+<doc>
+<str name="PID">uuid:0fe828de-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">29</str>
+<arr name="text">
+<str>29</str>
+<str/>
+<str>29##NormalPage</str>
+<str>29</str>
+<str/>
+<str>29##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">29</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:04.481Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:58.466Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>29##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0fe828de-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0fe828de-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>28</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892288119439360</long>
+</doc>
+<doc>
+<str name="PID">uuid:156f1b79-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">40</str>
+<arr name="text">
+<str>40</str>
+<str/>
+<str>40##NormalPage</str>
+<str>40</str>
+<str/>
+<str>40##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">40</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:13.75Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:58.599Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>40##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:156f1b79-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:156f1b79-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>39</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892288598638592</long>
+</doc>
+<doc>
+<str name="PID">uuid:1a7a7574-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">[51]</str>
+<arr name="text">
+<str>[51]</str>
+<str/>
+<str>[51]##NormalPage</str>
+<str>[51]</str>
+<str/>
+<str>[51]##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">51</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:22.219Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:52.854Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>[51]##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1a7a7574-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:1a7a7574-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>50</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892257797767168</long>
+</doc>
+<doc>
+<str name="PID">uuid:130b3ad4-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">35</str>
+<arr name="text">
+<str>35</str>
+<str/>
+<str>35##NormalPage</str>
+<str>35</str>
+<str/>
+<str>35##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">35</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:09.746Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:52.999Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>35##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:130b3ad4-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:130b3ad4-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>34</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892258917646336</long>
+</doc>
+<doc>
+<str name="PID">uuid:1919fb11-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">48</str>
+<arr name="text">
+<str>48</str>
+<str/>
+<str>48##NormalPage</str>
+<str>48</str>
+<str/>
+<str>48##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">48</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:19.913Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:53.121Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>48##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1919fb11-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:1919fb11-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>47</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892259559374848</long>
+</doc>
+<doc>
+<str name="PID">uuid:1aed8295-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">52</str>
+<arr name="text">
+<str>52</str>
+<str/>
+<str>52##NormalPage</str>
+<str>52</str>
+<str/>
+<str>52##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">52</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:22.978Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:53.295Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>52##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1aed8295-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:1aed8295-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>51</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892260279746560</long>
+</doc>
+<doc>
+<str name="PID">uuid:1f0331ee-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">9</str>
+<arr name="text">
+<str>9</str>
+<str/>
+<str>9##NormalPage</str>
+<str>9</str>
+<str/>
+<str>9##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">9</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:29.833Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:53.45Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>9##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1f0331ee-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:1f0331ee-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>60</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892260866949120</long>
+</doc>
+<doc>
+<str name="PID">uuid:28424a92-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">29</str>
+<arr name="text">
+<str>29</str>
+<str/>
+<str>29##NormalPage</str>
+<str>29</str>
+<str/>
+<str>29##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">29</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:45.351Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:53.512Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>29##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:28424a92-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:28424a92-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>80</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892261453103104</long>
+</doc>
+<doc>
+<str name="PID">uuid:1180ca41-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">32</str>
+<arr name="text">
+<str>32</str>
+<str/>
+<str>32##NormalPage</str>
+<str>32</str>
+<str/>
+<str>32##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">32</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:07.166Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:53.604Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>32##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1180ca41-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:1180ca41-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>31</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892262144114688</long>
+</doc>
+<doc>
+<str name="PID">uuid:0f4a894d-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">28</str>
+<arr name="text">
+<str>28</str>
+<str/>
+<str>28##NormalPage</str>
+<str>28</str>
+<str/>
+<str>28##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">28</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:03.451Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:53.745Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>28##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0f4a894d-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0f4a894d-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>27</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892263008141312</long>
+</doc>
+<doc>
+<str name="PID">uuid:0c933177-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">22</str>
+<arr name="text">
+<str>22</str>
+<str/>
+<str>22##NormalPage</str>
+<str>22</str>
+<str/>
+<str>22##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">22</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:58.891Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:53.874Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>22##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0c933177-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0c933177-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>21</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892263610023936</long>
+</doc>
+<doc>
+<str name="PID">uuid:23a36e08-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">19</str>
+<arr name="text">
+<str>19</str>
+<str/>
+<str>19##NormalPage</str>
+<str>19</str>
+<str/>
+<str>19##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">19</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:37.601Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:54.003Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>19##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:23a36e08-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:23a36e08-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>70</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892264153186304</long>
+</doc>
+<doc>
+<str name="PID">uuid:1a0370b3-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">50</str>
+<arr name="text">
+<str>50</str>
+<str/>
+<str>50##NormalPage</str>
+<str>50</str>
+<str/>
+<str>50##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">50</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:21.436Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:54.144Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>50##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1a0370b3-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:1a0370b3-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>49</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892264708931584</long>
+</doc>
+<doc>
+<str name="PID">uuid:05b1b7ea-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">9</str>
+<arr name="text">
+<str>9</str>
+<str/>
+<str>9##NormalPage</str>
+<str>9</str>
+<str/>
+<str>9##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">9</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:47.346Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:54.261Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>9##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:05b1b7ea-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:05b1b7ea-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>8</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892265299279872</long>
+</doc>
+<doc>
+<str name="PID">uuid:0175bbe2-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">[1]</str>
+<arr name="text">
+<str>[1]</str>
+<str/>
+<str>[1]##TitlePage</str>
+<str>[1]</str>
+<str/>
+<str>[1]##TitlePage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">1</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:40.259Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:54.39Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>[1]##TitlePage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0175bbe2-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>0</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892265867608064</long>
+</doc>
+<doc>
+<str name="PID">uuid:0de9e7da-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">25</str>
+<arr name="text">
+<str>25</str>
+<str/>
+<str>25##NormalPage</str>
+<str>25</str>
+<str/>
+<str>25##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">25</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:01.139Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:54.54Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>25##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0de9e7da-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0de9e7da-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>24</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892266439081984</long>
+</doc>
+<doc>
+<str name="PID">uuid:1d36612a-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">5</str>
+<arr name="text">
+<str>5</str>
+<str/>
+<str>5##NormalPage</str>
+<str>5</str>
+<str/>
+<str>5##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">5</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:26.816Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:54.656Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>5##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1d36612a-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:1d36612a-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>56</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892266988535808</long>
+</doc>
+<doc>
+<str name="PID">uuid:1fef1890-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">11</str>
+<arr name="text">
+<str>11</str>
+<str/>
+<str>11##NormalPage</str>
+<str>11</str>
+<str/>
+<str>11##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">11</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:31.392Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:54.782Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>11##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1fef1890-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:1fef1890-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>62</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892267498143744</long>
+</doc>
+<doc>
+<str name="PID">uuid:049bb408-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">7</str>
+<arr name="text">
+<str>7</str>
+<str/>
+<str>7##NormalPage</str>
+<str>7</str>
+<str/>
+<str>7##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">7</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:45.531Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:54.868Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>7##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:049bb408-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:049bb408-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>6</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892268096880640</long>
+</doc>
+<doc>
+<str name="PID">uuid:17bf741e-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">45</str>
+<arr name="text">
+<str>45</str>
+<str/>
+<str>45##NormalPage</str>
+<str>45</str>
+<str/>
+<str>45##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">45</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:17.64Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:54.977Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>45##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:17bf741e-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:17bf741e-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>44</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892268694568960</long>
+</doc>
+<doc>
+<str name="PID">uuid:0a9824c3-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">18</str>
+<arr name="text">
+<str>18</str>
+<str/>
+<str>18##NormalPage</str>
+<str>18</str>
+<str/>
+<str>18##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">18</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:55.573Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:55.131Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>18##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0a9824c3-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0a9824c3-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>17</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892269277577216</long>
+</doc>
+<doc>
+<str name="PID">uuid:2afa65b8-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">35</str>
+<arr name="text">
+<str>35</str>
+<str/>
+<str>35##NormalPage</str>
+<str>35</str>
+<str/>
+<str>35##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">35</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:49.897Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:55.239Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>35##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2afa65b8-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:2afa65b8-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>86</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892269828079616</long>
+</doc>
+<doc>
+<str name="PID">uuid:1e91ab6d-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">8</str>
+<arr name="text">
+<str>8</str>
+<str/>
+<str>8##NormalPage</str>
+<str>8</str>
+<str/>
+<str>8##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">8</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:29.088Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:55.368Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>8##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1e91ab6d-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:1e91ab6d-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>59</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892270426816512</long>
+</doc>
+<doc>
+<str name="PID">uuid:2be07ffa-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">37</str>
+<arr name="text">
+<str>37</str>
+<str/>
+<str>37##NormalPage</str>
+<str>37</str>
+<str/>
+<str>37##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">37</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:51.404Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:55.497Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>37##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2be07ffa-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:2be07ffa-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>88</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892270979416064</long>
+</doc>
+<doc>
+<str name="PID">uuid:121b5c92-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">33</str>
+<arr name="text">
+<str>33</str>
+<str/>
+<str>33##NormalPage</str>
+<str>33</str>
+<str/>
+<str>33##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">33</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:08.169Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:55.597Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>33##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:121b5c92-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:121b5c92-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>32</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892271610658816</long>
+</doc>
+<doc>
+<str name="PID">uuid:0ed0774c-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">27</str>
+<arr name="text">
+<str>27</str>
+<str/>
+<str>27##NormalPage</str>
+<str>27</str>
+<str/>
+<str>27##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">27</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:02.649Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:55.657Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>27##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0ed0774c-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0ed0774c-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>26</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892272223027200</long>
+</doc>
+<doc>
+<str name="PID">uuid:07bec5fe-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">13</str>
+<arr name="text">
+<str>13</str>
+<str/>
+<str>13##NormalPage</str>
+<str>13</str>
+<str/>
+<str>13##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">13</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:50.787Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:55.736Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>13##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:07bec5fe-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:07bec5fe-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>12</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892272786112512</long>
+</doc>
+<doc>
+<str name="PID">uuid:26df863f-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">26</str>
+<arr name="text">
+<str>26</str>
+<str/>
+<str>26##NormalPage</str>
+<str>26</str>
+<str/>
+<str>26##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">26</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:43.023Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:03.094Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>26##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:26df863f-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:26df863f-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>77</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892313448841216</long>
+</doc>
+<doc>
+<str name="PID">uuid:257bd78c-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">23</str>
+<arr name="text">
+<str>23</str>
+<str/>
+<str>23##NormalPage</str>
+<str>23</str>
+<str/>
+<str>23##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">23</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:40.685Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:03.207Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>23##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:257bd78c-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:257bd78c-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>74</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892314032898048</long>
+</doc>
+<doc>
+<str name="PID">uuid:21511993-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">14</str>
+<arr name="text">
+<str>14</str>
+<str/>
+<str>14##NormalPage</str>
+<str>14</str>
+<str/>
+<str>14##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">14</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:33.696Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:03.271Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>14##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:21511993-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:21511993-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>65</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892314585497600</long>
+</doc>
+<doc>
+<str name="PID">uuid:1f794c4f-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">10</str>
+<arr name="text">
+<str>10</str>
+<str/>
+<str>10##NormalPage</str>
+<str>10</str>
+<str/>
+<str>10##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">10</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:30.615Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:03.361Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>10##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1f794c4f-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:1f794c4f-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>61</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892315138097152</long>
+</doc>
+<doc>
+<str name="PID">uuid:0d04df08-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">23</str>
+<arr name="text">
+<str>23</str>
+<str/>
+<str>23##NormalPage</str>
+<str>23</str>
+<str/>
+<str>23##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">23</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:59.639Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:49:03.434Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>23##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0d04df08-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0d04df08-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>22</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892315698036736</long>
+</doc>
+<doc>
+<str name="PID">uuid:0a2369f2-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">17</str>
+<arr name="text">
+<str>17</str>
+<str/>
+<str>17##NormalPage</str>
+<str>17</str>
+<str/>
+<str>17##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">17</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:54.802Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:58.958Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>17##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0a2369f2-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0a2369f2-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>16</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892289666088960</long>
+</doc>
+<doc>
+<str name="PID">uuid:0e5fdb2b-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">26</str>
+<arr name="text">
+<str>26</str>
+<str/>
+<str>26##NormalPage</str>
+<str>26</str>
+<str/>
+<str>26##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">26</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:01.911Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:59.057Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>26##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0e5fdb2b-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0e5fdb2b-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>25</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892290130608128</long>
+</doc>
+<doc>
+<str name="PID">uuid:14fb9928-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">39</str>
+<arr name="text">
+<str>39</str>
+<str/>
+<str>39##NormalPage</str>
+<str>39</str>
+<str/>
+<str>39##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">39</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:12.997Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:59.232Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>39##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:14fb9928-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:14fb9928-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>38</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892290632876032</long>
+</doc>
+<doc>
+<str name="PID">uuid:1487a1a7-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">38</str>
+<arr name="text">
+<str>38</str>
+<str/>
+<str>38##NormalPage</str>
+<str>38</str>
+<str/>
+<str>38##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">38</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:12.239Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:59.432Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>38##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:1487a1a7-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:1487a1a7-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>37</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892291124658176</long>
+</doc>
+<doc>
+<str name="PID">uuid:0c1e2886-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">21</str>
+<arr name="text">
+<str>21</str>
+<str/>
+<str>21##NormalPage</str>
+<str>21</str>
+<str/>
+<str>21##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">21</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:43:58.128Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:59.509Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>21##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dad029e-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:0c1e2886-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dad029e-62d3-11e1-8115-0050569d679d/uuid:0c1e2886-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>20</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892291708715008</long>
+</doc>
+<doc>
+<str name="PID">uuid:2d39a75d-62d3-11e1-8115-0050569d679d</str>
+<str name="datum_str">1893</str>
+<str name="dc.title">40</str>
+<arr name="text">
+<str>40</str>
+<str/>
+<str>40##NormalPage</str>
+<str>40</str>
+<str/>
+<str>40##NormalPage</str>
+</arr>
+<str name="ddt"/>
+<str name="dostupnost">public</str>
+<str name="fedora.model">page</str>
+<str name="handle"/>
+<str name="img_full_mime">image/jpeg</str>
+<str name="issn"/>
+<str name="mdt"/>
+<str name="root_pid">uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str name="root_title">12. březen 1893</str>
+<str name="status">Active</str>
+<str name="title_sort">40</str>
+<int name="datum_begin">1893</int>
+<int name="datum_end">1893</int>
+<int name="level">1</int>
+<int name="pages_count">0</int>
+<int name="rok">1893</int>
+<date name="created_date">2012-02-29T13:44:53.671Z</date>
+<date name="datum">1970-01-01T12:00:00Z</date>
+<date name="modified_date">2012-03-06T14:48:58.765Z</date>
+<bool name="viewable">true</bool>
+<bool name="virtual">false</bool>
+<arr name="details">
+<str>40##NormalPage</str>
+</arr>
+<arr name="document_type">
+<str>page</str>
+</arr>
+<arr name="model_path">
+<str>monograph/page</str>
+<str>monograph/internalpart/page</str>
+</arr>
+<arr name="parent_pid">
+<str>uuid:0174f891-62d3-11e1-8115-0050569d679d</str>
+<str>uuid:2dd39d6f-62d3-11e1-8115-0050569d679d</str>
+</arr>
+<arr name="pid_path">
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2d39a75d-62d3-11e1-8115-0050569d679d
+</str>
+<str>
+uuid:0174f891-62d3-11e1-8115-0050569d679d/uuid:2dd39d6f-62d3-11e1-8115-0050569d679d/uuid:2d39a75d-62d3-11e1-8115-0050569d679d
+</str>
+</arr>
+<arr name="rels_ext_index">
+<int>91</int>
+</arr>
+<arr name="collection">
+<str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+</arr>
+<long name="_version_">1449892289106149376</long>
+</doc>
+</result>
+</response>
