@@ -34,7 +34,6 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.Kramerius.utils.ALTOUtils;
 import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -49,6 +48,7 @@ import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
+import cz.incad.kramerius.utils.ALTOUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RelsExtHelper;

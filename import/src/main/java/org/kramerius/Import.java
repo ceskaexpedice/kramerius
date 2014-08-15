@@ -9,6 +9,7 @@ import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.XmlContentType;
+
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
@@ -21,6 +22,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.ObjectFactory;
@@ -29,11 +31,19 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.soap.SOAPFaultException;
+
 import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -50,14 +60,20 @@ public class Import {
     static int counter = 0;
     private static final Logger log = Logger.getLogger(Import.class.getName());
     private static Unmarshaller unmarshaller = null;
+    private static Marshaller datastreamMarshaller = null;
     private static List<String> rootModels = null;
     private static SortingService sortingService;
+    private static Map<String, List<String>> updateMap = new HashMap<String, List<String>>();
 
     static {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(DigitalObject.class);
 
             unmarshaller = jaxbContext.createUnmarshaller();
+
+
+            JAXBContext jaxbdatastreamContext = JAXBContext.newInstance(DatastreamType.class);
+            datastreamMarshaller = jaxbdatastreamContext.createMarshaller();
 
 
         } catch (Exception e) {
@@ -73,13 +89,15 @@ public class Import {
 
     /**
      * @param args
+     * @throws UnsupportedEncodingException 
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedEncodingException {
         String importDirectory = System.getProperties().containsKey("import.directory") ? System.getProperty("import.directory") : KConfiguration.getInstance().getProperty("import.directory");
         Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
     }
+    
 
-    public static void ingest(final String url, final String user, final String pwd, String importRoot) {
+    public static void ingest(final String url, final String user, final String pwd, String importRoot) throws UnsupportedEncodingException {
         log.finest("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
         Injector injector = Guice.createInjector(new ImportModule());
         sortingService = injector.getInstance(SortingService.class);
@@ -90,6 +108,11 @@ public class Import {
             log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
             return;
         }
+
+        boolean updateExisting = Boolean.valueOf (System.getProperties().containsKey("ingest.updateExisting") ? System.getProperty("ingest.updateExisting") : KConfiguration.getInstance().getConfiguration().getString("ingest.updateExisting", "false"));
+        log.info("INGEST updateExisting: "+updateExisting);
+
+
         long start = System.currentTimeMillis();
 
         File importFile = new File(importRoot);
@@ -104,7 +127,7 @@ public class Import {
         Set<TitlePidTuple> roots = new HashSet<TitlePidTuple>();
         Set<String> sortRelations = new HashSet<String>();
         if (importFile.isDirectory()) {
-            visitAllDirsAndFiles(importFile, roots, sortRelations);
+            visitAllDirsAndFiles(importFile, roots, sortRelations, updateExisting);
         } else {
             BufferedReader reader = null;
             try {
@@ -128,7 +151,7 @@ public class Import {
                         continue;
                     }
                     log.info("Importing " + importItem.getAbsolutePath());
-                    visitAllDirsAndFiles(importItem, roots, sortRelations);
+                    visitAllDirsAndFiles(importItem, roots, sortRelations, updateExisting);
                 }
                 reader.close();
             } catch (IOException e) {
@@ -196,18 +219,26 @@ public class Import {
         of = new ObjectFactory();
     }
 
-    private static void visitAllDirsAndFiles(File importFile, Set<TitlePidTuple> roots, Set<String> sortRelations) {
+    private static void visitAllDirsAndFiles(File importFile, Set<TitlePidTuple> roots, Set<String> sortRelations, boolean updateExisting) {
         if (importFile == null) {
             return;
         }
         if (importFile.isDirectory()) {
 
             File[] children = importFile.listFiles();
+
+            for (File f : children){
+                if ("update.list".equalsIgnoreCase(f.getName())){
+                    log.info("File update.list detected in folder "+importFile);
+                    parseUpdateList(f);
+                }
+            }
+
             if (children.length > 1 && children[0].isDirectory()) {//Issue 36
                 Arrays.sort(children);
             }
             for (int i = 0; i < children.length; i++) {
-                visitAllDirsAndFiles(children[i], roots, sortRelations);
+                visitAllDirsAndFiles(children[i], roots, sortRelations, updateExisting);
             }
         } else {
             DigitalObject dobj = null;
@@ -222,12 +253,81 @@ public class Import {
                 log.log(Level.FINE, "Underlying error was:", e);
                 return;
             }
-            ingest(importFile, dobj.getPID(), sortRelations, roots);
-            checkRoot(dobj, roots);
+            if (updateMap.containsKey(dobj.getPID())){
+                log.info("Updating datastreams "+updateMap.get(dobj.getPID())+" in object "+dobj.getPID());
+                List<DatastreamType> importedDatastreams = dobj.getDatastream();
+                List<String> datastreamsToUpdate = updateMap.get(dobj.getPID());
+                for (String dsName:datastreamsToUpdate){
+                    for (DatastreamType ds:importedDatastreams){
+                        if(dsName.equalsIgnoreCase(ds.getID())){
+                            log.info("Updating datastream "+ds.getID());
+                            DatastreamVersionType dsversion = ds.getDatastreamVersion().get(0);
+                            if (dsversion.getXmlContent()!= null){
+                                Element element = dsversion.getXmlContent().getAny().get(0);
+                                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                                Source xmlSource = new DOMSource(element);
+                                Result outputTarget = new StreamResult(outputStream);
+                                try {
+                                    TransformerFactory.newInstance().newTransformer().transform(xmlSource, outputTarget);
+                                } catch (TransformerException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                port.modifyDatastreamByValue(dobj.getPID(), ds.getID(), null, null, null, null, outputStream.toByteArray(), null, null, "Datastream updated by import process", false);
+
+                            }else if(dsversion.getBinaryContent()!= null){
+                                throw new RuntimeException("Update of managed binary datastream content is not supported.");
+                            }else if(dsversion.getContentLocation()!= null){
+                                port.purgeDatastream(dobj.getPID(), ds.getID(),null,null,"Datastream updated by import process", false);
+                                port.addDatastream(dobj.getPID(), ds.getID(), null, null, false,dsversion.getMIMETYPE(), null, dsversion.getContentLocation().getREF(), ds.getCONTROLGROUP(), ds.getSTATE().value(), "DISABLED", null, "Datastream updated by import process");
+                            }
+                        }
+                    }
+                }
+                if (roots != null) {
+                    TitlePidTuple npt = new TitlePidTuple("", dobj.getPID());
+                    roots.add(npt);
+                    log.info("Added updated object for indexing:" + dobj.getPID());
+                }
+            }else {
+                ingest(importFile, dobj.getPID(), sortRelations, roots, updateExisting);
+                checkRoot(dobj, roots);
+            }
         }
     }
 
-    public static void ingest(InputStream is, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots) throws IOException {
+    private static void parseUpdateList(File listFile){
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(listFile));
+        } catch (FileNotFoundException e) {
+            log.severe("update.list file " + listFile + " not found: " + e);
+            throw new RuntimeException(e);
+        }
+        try {
+            for (String line; (line = reader.readLine()) != null;) {
+                if ("".equals(line.trim())) {
+                    continue;
+                }
+                String[] lineItems = line.split(" ");
+                if (lineItems.length<2){
+                    continue;
+                }
+                List<String> streams = new ArrayList<String>(lineItems.length-1);
+                for (int i=0;i<lineItems.length-1;i++){
+                    if (!"".equals(lineItems[i+1])) {
+                        streams.add(lineItems[i + 1]);
+                    }
+                }
+                updateMap.put(lineItems[0], streams);
+            }
+            reader.close();
+        } catch (IOException e) {
+            log.severe("Exception reading update.list file: " + e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void ingest(InputStream is, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException {
         
         long start = System.currentTimeMillis();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -239,16 +339,39 @@ public class Import {
 
             //if (sfex.getMessage().contains("ObjectExistsException")) {
             if (objectExists(pid)) {
-                log.info("Merging with existing object " + pid);
-                if (merge(bytes)){
-                    if (sortRelations != null) {
-                        sortRelations.add(pid);
-                        log.info("Added merged object for sorting relations:"+pid);
+                if (updateExisting){
+                    log.info("Replacing existing object " + pid);
+                    try{
+                        port.purgeObject(pid, "", false);
+                        log.info("purged old object "+pid);
+                    }catch(Exception ex){
+                        log.severe("Cannot purge object " + pid + ", skipping: " + ex);
+                        throw new RuntimeException(ex);
                     }
-                    if(roots!= null ){
+                    try {
+                        port.ingest(bytes, "info:fedora/fedora-system:FOXML-1.1", "Initial ingest");
+                        log.info("Ingested new object "+pid);
+                    } catch (SOAPFaultException rsfex) {
+                        log.severe("Replace ingest SOAP fault:" + rsfex);
+                        throw new RuntimeException(rsfex);
+                    }
+                    if (roots != null) {
                         TitlePidTuple npt = new TitlePidTuple("", pid);
                         roots.add(npt);
-                        log.info("Added merged object for indexing:"+pid);
+                        log.info("Added replaced object for indexing:" + pid);
+                    }
+                }else {
+                    log.info("Merging with existing object " + pid);
+                    if (merge(bytes)) {
+                        if (sortRelations != null) {
+                            sortRelations.add(pid);
+                            log.info("Added merged object for sorting relations:" + pid);
+                        }
+                        if (roots != null) {
+                            TitlePidTuple npt = new TitlePidTuple("", pid);
+                            roots.add(npt);
+                            log.info("Added merged object for indexing:" + pid);
+                        }
                     }
                 }
             } else {
@@ -263,7 +386,7 @@ public class Import {
         log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
 
-    public static void ingest(File file, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots) {
+    public static void ingest(File file, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) {
         if (pid == null) {
             try {
                 Object obj = unmarshaller.unmarshal(file);
@@ -277,7 +400,7 @@ public class Import {
 
         try {
             FileInputStream is = new FileInputStream(file);
-            ingest(is, pid, sortRelations, roots);
+            ingest(is, pid, sortRelations, roots, updateExisting);
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Ingestion error ", ex);
             throw new RuntimeException(ex);

@@ -40,7 +40,7 @@ public class MetsConvertor {
     private static Unmarshaller unmarshaller = null;
     private static boolean foundvalidPSP = false;
 
-    public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+    public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException,UnsupportedEncodingException {
 
         if (args.length  != 3) {
             System.out.println("ANL METS to FOXML conversion tool.\n");

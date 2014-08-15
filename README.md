@@ -12,7 +12,7 @@ je softwarové řešení pro zpřístupnění digitálních dokumentů. Primárn
 
 Aktuální verze 4 je vyvíjena a průběžně publikována od roku 2009. Navazuje funkčností na předchozí verzi systému Kramerius končící označením 3.3.1. Nově je jako jádro systému použit open source repozitář [Fedora](http://www.fedora-commons.org). Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
 
-Uživatelské rozhraní je přístupné ve většině moderních webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v prohlížečích Internet Explorer 8, 9 a 10.
+Uživatelské rozhraní je přístupné ve většině moderních webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer.
 
 
 ##Vývojový tým

@@ -16,27 +16,111 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.search;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class SearchResultTest {
 
+    @Test
+    public void testParsedJSON() throws IOException {
+        URL urlRes = SearchResultTest.class.getResource("search_group.json");
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        IOUtils.copyStreams(urlRes.openStream(), bos);
+        String str = new String(bos.toByteArray(), "UTF-8");
+        JSONObject changed = SearchResource.changeJSONResult(str, "", new ArrayList<JSONDecorator>());
+        Stack<JSONObject> stack = new Stack<JSONObject>();
+        stack.push(changed);
+        while(!stack.isEmpty()) {
+            JSONObject popped = stack.pop();
+            Set keys = popped.keySet();
+            for (Object kobj : keys) {
+                String key = (String) kobj;
+                Object obj = popped.get(key);
+                Assert.assertFalse(obj.equals("text"));
+                Assert.assertFalse(obj.equals("text_ocr"));
+                
+                if (obj instanceof JSONObject) {
+                    stack.push((JSONObject) obj);
+                }
+                if (obj instanceof JSONArray) {
+                    JSONArray arr = (JSONArray) obj;
+                    for (Object arrObj : arr) {
+                        if (arrObj instanceof JSONObject) {
+                            stack.push((JSONObject) arrObj);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    
+    @Test
+    public void testPrasedXML() throws ParserConfigurationException,
+        SAXException, IOException, TransformerException, XPathExpressionException {
+        URL urlRes = SearchResultTest.class.getResource("search_group.xml");
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        IOUtils.copyStreams(urlRes.openStream(), bos);
+
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+        
+        String[] paths = new String[] {
+                "//*[@name='text_ocr']",
+                "//*[@name='text']"
+        };
+        for (String path : paths) {
+            XPathExpression expr = xpath.compile(path);
+
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document parsedBefore = builder.parse(new ByteArrayInputStream(bos.toByteArray()));
+
+            NodeList nlist = (NodeList) expr.evaluate(parsedBefore, XPathConstants.NODESET);
+            Assert.assertTrue(nlist.getLength() > 0);
+            
+            Document changed = SearchResource.changeXMLResult(new String(bos.toByteArray(), "UTF-8"), "");
+
+            nlist = (NodeList) expr.evaluate(changed, XPathConstants.NODESET);
+            Assert.assertTrue(nlist.getLength() == 0);
+        }
+    }
+    
+    
     @Test
     public void testChangeViewableXML() throws ParserConfigurationException,
         SAXException, IOException, TransformerException {

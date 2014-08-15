@@ -53,7 +53,8 @@ class JAXBPlugin implements Plugin<ProjectInternal> {
 					});
 					
 					// Set up the output directory 
-					final String outputDirectoryName = String.format("%s/build/generated-src/jaxb/%s",project.getProjectDir(), sourceSet.getName());
+					final String outputDirectoryName = String.format("%s/generated-src/jaxb/%s",project.getProjectDir(), sourceSet.getName());
+
 					final File outputDirectory = new File(outputDirectoryName);
 					xjcTask.setOutputDirectory(outputDirectory);
 					sourceSet.getJava().srcDir(outputDirectory);
@@ -67,6 +68,10 @@ class JAXBPlugin implements Plugin<ProjectInternal> {
 					
 					// make sure that task is part of build 
 					project.getTasks().getByName(sourceSet.getCompileJavaTaskName()).dependsOn(taskName);
+
+                                        // delete generated sources
+					final String toDelete = String.format("%s/generated-src",project.getProjectDir());
+                                        project.getTasks().getByName('clean').delete(toDelete);                                       
 					
 				}
 		});

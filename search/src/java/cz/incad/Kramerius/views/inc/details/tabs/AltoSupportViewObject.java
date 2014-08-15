@@ -37,8 +37,8 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.Initializable;
-import cz.incad.Kramerius.utils.ALTOUtils;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.utils.ALTOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
 /**

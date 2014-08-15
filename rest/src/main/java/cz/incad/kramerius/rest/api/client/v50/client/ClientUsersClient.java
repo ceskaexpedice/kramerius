@@ -26,8 +26,8 @@ import net.sf.json.JSONObject;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.rest.api.client.BasicAuthenticationFilter;
 import cz.incad.kramerius.security.utils.PasswordDigest;
+import cz.incad.kramerius.utils.BasicAuthenticationFilter;
 
 /**
  * Informace o uzivateli

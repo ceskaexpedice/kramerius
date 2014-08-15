@@ -29,7 +29,7 @@ tree(root) ::=<<
 
 
 
-form(importDirectory,importRootDirectory,  startIndexer, bundle) ::=<<
+form(importDirectory,importRootDirectory,  startIndexer, updateExisting, bundle) ::=<<
 
 <div style="width:100%">
     <script language="JavaScript" type="text/javascript"> 
@@ -37,9 +37,10 @@ form(importDirectory,importRootDirectory,  startIndexer, bundle) ::=<<
         // send parameters to server
         window.onProcessFormSend = function() {
             var startIndexer = \$('#startIndexer').attr('checked');
+            var updateExisting = \$('#updateExisting').attr('checked');
             var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
             var vals = 'importDirectory='+\$('#importDirectory').val().escapeChars(charsThatMustBeEscaped)
-                +';startIndexer='+startIndexer
+                +';startIndexer='+startIndexer+';updateExisting='+updateExisting
                 ;
             
             var url = "lr?action=form_post&def=parametrizedimport&paramsMapping={"+vals+"}&out=text";
@@ -104,19 +105,23 @@ form(importDirectory,importRootDirectory,  startIndexer, bundle) ::=<<
 </fieldset>
 
 <!-- spustit indexer  -->
-$if(startIndexer)$
 <fieldset style="margin-top:10px;border: 1px solid gray;">
     <legend style="border:none">$bundle.("k3replication.othersettings.fields")$</legend>
-    <input type="checkbox" id="startIndexer" name="startIndexer" value="startIndexer" checked>$bundle.("import.indexerstart")$</input>
+    $if(startIndexer)$
+        <input type="checkbox" id="startIndexer" name="startIndexer" value="startIndexer" checked>$bundle.("import.indexerstart")$</input>
+    $else$
+        <input type="checkbox" id="startIndexer" name="startIndexer" value="startIndexer">$bundle.("import.indexerstart")$</input>
+    $endif$
+    <br>
+    $if(updateExisting)$
+        <input type="checkbox" id="updateExisting" name="updateExisting" value="updateExisting" checked>$bundle.("import.updateExisting")$</input>
+    $else$
+        <input type="checkbox" id="updateExisting" name="updateExisting" value="updateExisting">$bundle.("import.updateExisting")$</input>
+    $endif$
 </fieldset>
-$else$
-<fieldset style="margin-top:10px;border: 1px solid gray;">
-    <legend style="border:none">$bundle.("k3replication.othersettings.fields")$</legend>
-    <input type="checkbox" id="startIndexer" name="startIndexer" value="startIndexer">$bundle.("import.indexerstart")$</input>
-</fieldset>
-$endif$
 
-    
+
+
     <div id="_selectImportFolderDialog" style="display:none">
         <h3>  $bundle.("import.selection.dialog")$</h3>
         <div id="_selectImportFolderTree">
