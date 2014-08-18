@@ -184,6 +184,8 @@ public class ZoomifyServlet extends AbstractImageServlet {
         
         //<IMAGE_PROPERTIES WIDTH="8949" HEIGHT="6684" NUMTILES="945" NUMIMAGES="1" VERSION="1.8" TILESIZE="256" />
         
+        resp.setContentType("application/xml");
+        
         try {
             Document document = XMLUtils.parseDocument(inputStream);
             Element docelement = document.getDocumentElement();
@@ -191,10 +193,37 @@ public class ZoomifyServlet extends AbstractImageServlet {
             Element sizeElement = XMLUtils.findElement(docelement, "Size");
             String width = sizeElement.getAttribute("Width");
             String height = sizeElement.getAttribute("Height");
+
+            int iWidth = Integer.parseInt(width);
+            int iHeight = Integer.parseInt(height);
+            int iTileSize = Integer.parseInt(tileSize);
+            
+            double nTilesX = iWidth / iTileSize;
+            int iNTilesX = 0;
+            
+            if (Math.floor(nTilesX) < nTilesX) {
+                iNTilesX = (int) (Math.floor(nTilesX)+1);
+            } else {
+                iNTilesX =  (int) Math.floor(nTilesX);
+            }
+            
+            double nTilesY = iHeight / iTileSize;
+            int iNTilesY = 0;
+            if (Math.floor(nTilesY) < iNTilesY) {
+                iNTilesY = (int) (Math.floor(nTilesY)+1);
+            } else {
+                iNTilesY =  (int) Math.floor(nTilesY);
+            }
+            
+            
+            
             StringBuffer buffer = new StringBuffer();
             buffer.append("<IMAGE_PROPERTIES WIDTH=\"").append(width).append('"').append(" HEIGHT=\"").append(height).append('"');
+            buffer.append("  NUMIMAGES='1' ");
+            buffer.append("  NUMTILES='").append(iNTilesX*iNTilesY).append("'");
             buffer.append("  VERSION='1.8' TILESIZE=\"").append(tileSize).append("\" />");
             IOUtils.copyStreams(new ByteArrayInputStream(buffer.toString().getBytes("UTF-8")), resp.getOutputStream());
+            
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (SAXException e) {
