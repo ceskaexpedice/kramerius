@@ -1,6 +1,6 @@
 ###Novinky
 
-*Uvolněna finální verze 4.8.6  (http://sourceforge.net/projects/kramerius/files)
+Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub ( https://github.com/ceskaexpedice/kramerius/releases/latest )
 
 (pro napojení na vývojové práce ČDK je vyžadována verze 4.8 a vyšší),
 
