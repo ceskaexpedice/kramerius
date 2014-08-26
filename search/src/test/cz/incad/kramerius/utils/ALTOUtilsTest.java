@@ -30,13 +30,13 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import cz.incad.kramerius.utils.ALTOUtils.AltoDisected;
+
 /**
  * @author pavels
  *
  */
 public class ALTOUtilsTest {
-
-    
 
     @Test
     public void testAlto() throws ParserConfigurationException, SAXException, IOException {
@@ -48,16 +48,21 @@ public class ALTOUtilsTest {
     @Test
     public void testBadAlto() throws ParserConfigurationException, SAXException, IOException {
         Document parsed = XMLUtils.parseDocument(ALTOUtilsTest.class.getResourceAsStream("res/bad_alto.xml"));
-        Map<String, Map<String, Double>> mapp = ALTOUtils.disectAlto("cena", parsed);
+        AltoDisected disected = ALTOUtils.disectAlto("cena", parsed);
+        Assert.assertNull(disected.getAltoImageDimension());
+        Assert.assertTrue(disected.getBoxes().isEmpty());
         // ok -> no exception
+        
     }
 
     @Test
     public void testAlto2() throws ParserConfigurationException, SAXException, IOException {
         Document parsed = XMLUtils.parseDocument(ALTOUtilsTest.class.getResourceAsStream("res/nalto.xml"));
-        Map<String, Map<String, Double>> mapp = ALTOUtils.disectAlto("prosa", parsed);
+        AltoDisected disected = ALTOUtils.disectAlto("prosa", parsed);
+        Assert.assertNotNull(disected.getAltoImageDimension());
+        Assert.assertTrue(disected.getBoxes().size() > 0);
+        System.out.println(disected.toJSON());
         
-        System.out.println(mapp);
     }
     
 }

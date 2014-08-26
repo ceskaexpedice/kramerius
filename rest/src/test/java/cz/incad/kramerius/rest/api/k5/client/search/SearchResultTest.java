@@ -47,6 +47,7 @@ import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -245,4 +246,24 @@ public class SearchResultTest {
         }
     }
 
+    @Test
+    public void testRelsExtIndex() throws ParserConfigurationException, SAXException, IOException {
+        URL urlRes = SearchResultTest.class.getResource("relsext_index.xml");
+        Document document = XMLUtils.parseDocument(urlRes.openStream());
+        Element result = XMLUtils.findElement(document.getDocumentElement(),
+                "result");
+        List<Element> elms = XMLUtils.getElements(result,
+                new XMLUtils.ElementsFilter() {
+
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        return (element.getNodeName().equals("doc"));
+                    }
+                });
+        for (Element docE : elms) {
+            System.out.println(docE);
+            ItemResource.relsExtIndex("uuid:dfc78a5c-2542-44cf-8722-ee8a0924a855", docE);
+        }
+        
+    }
 }

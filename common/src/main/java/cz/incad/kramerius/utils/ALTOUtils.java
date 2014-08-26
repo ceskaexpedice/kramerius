@@ -19,11 +19,18 @@
  */
 package cz.incad.kramerius.utils;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -32,9 +39,123 @@ import cz.incad.kramerius.utils.XMLUtils.ElementsFilter;
 
 public class ALTOUtils {
 
-    public static Map<String, Map<String, Double>> disectAlto(
-            final String parameter, Document dom) throws IOException {
-        Map<String, Map<String, Double>> map = new HashMap<String, Map<String, Double>>();
+    
+    public static class AltoImageDimension {
+        
+        private Dimension dimension;
+
+        public AltoImageDimension(Dimension dimension) {
+            super();
+            this.dimension = dimension;
+        }
+        
+        public Dimension getDimension() {
+            return dimension;
+        }
+
+        @Override
+        public String toString() {
+            return "AltoImageDimension [dimension=" + dimension + "]";
+        }
+        
+        public JSONObject toJSON() {
+            JSONObject jsonOBJ = new JSONObject();
+            jsonOBJ.put("width", this.dimension.width);
+            jsonOBJ.put("height", this.dimension.height);
+            return jsonOBJ;
+        }
+    }
+
+    
+    public static class AltoSelectedBox {
+
+        private String selectedKey;
+        private Dimension dimension;
+        private Point point;
+        
+        public AltoSelectedBox(String selectedKey, Dimension dimension,
+                Point point) {
+            super();
+            this.selectedKey = selectedKey;
+            this.dimension = dimension;
+            this.point = point;
+        }
+        
+        
+        public String getSelectedKey() {
+            return selectedKey;
+        }
+        
+        public Dimension getDimension() {
+            return dimension;
+        }
+
+        public Point getPoint() {
+            return point;
+        }
+
+
+        @Override
+        public String toString() {
+            return "AltoSelectedBox [selectedKey=" + selectedKey
+                    + ", dimension=" + dimension + ", point=" + point + "]";
+        }
+
+        public JSONObject toJSON() {
+            JSONObject jsonOBJ = new JSONObject();
+            jsonOBJ.put("term", this.selectedKey);
+            jsonOBJ.put("width", this.dimension.width);
+            jsonOBJ.put("height", this.dimension.height);
+            jsonOBJ.put("xpos", this.point.x);
+            jsonOBJ.put("ypos", this.point.y);
+            return jsonOBJ;
+        }
+
+        
+    }
+    
+    public static class AltoDisected {
+        
+        private AltoImageDimension altoImageDimension;
+        private List<AltoSelectedBox> boxes;
+
+        public AltoDisected(AltoImageDimension altoImageDimension,
+                List<AltoSelectedBox> boxes) {
+            super();
+            this.altoImageDimension = altoImageDimension;
+            this.boxes = boxes;
+        }
+
+        public AltoImageDimension getAltoImageDimension() {
+            return altoImageDimension;
+        }
+        
+        public List<AltoSelectedBox> getBoxes() {
+            return boxes;
+        }
+
+        @Override
+        public String toString() {
+            return "AltoDisected [altoImageDimension=" + altoImageDimension
+                    + ", boxes=" + boxes + "]";
+        }
+
+        public JSONObject toJSON() {
+            JSONObject jsonObject = new JSONObject();
+            if (this.altoImageDimension != null) {
+                jsonObject.put("image", this.altoImageDimension.toJSON());
+            }
+            JSONArray jsonArr = new JSONArray();
+            for (AltoSelectedBox asBox : this.boxes) {
+                jsonArr.add(asBox.toJSON());
+            }
+            jsonObject.put("boxes", jsonArr);
+            return jsonObject;
+        }        
+        
+    }
+    
+    public static AltoDisected disectAlto(final String parameter, Document dom) throws IOException {
 
         Element measure = XMLUtils.findElement(dom.getDocumentElement(),
                 "MeasurementUnit");
@@ -47,6 +168,8 @@ public class ALTOUtils {
                             + measureContentText + "'");
             }
         }
+        
+        AltoImageDimension altoImageDimension = null;
 
         Element pageElm = XMLUtils
                 .findElement(dom.getDocumentElement(), "Page");
@@ -65,19 +188,16 @@ public class ALTOUtils {
                     imageWidth = pageElm.getAttribute("WIDTH");
                 }
             }
-            Map<String, Double> image = new HashMap<String, Double>();
-            if (imageHeight != null) {
-                image.put("HEIGHT", Double.parseDouble(imageHeight));
+            
+            if ((imageHeight != null) && (imageWidth != null)) {
+                altoImageDimension = new AltoImageDimension(new Dimension(Integer.parseInt(imageWidth), Integer.parseInt(imageHeight)));
             }
-            if (imageWidth != null) {
-                image.put("WIDTH", Double.parseDouble(imageWidth));
-            }
-            map.put("image", image);
         }
 
-        Element foundElement = XMLUtils.findElement(dom.getDocumentElement(),
-                new ElementsFilter() {
+        
 
+        List<Element> fElements = XMLUtils.getElementsRecursive(dom.getDocumentElement(),
+                new ElementsFilter() {
                     @Override
                     public boolean acceptElement(Element element) {
                         if (element.getNodeName().equals("String")) {
@@ -87,33 +207,24 @@ public class ALTOUtils {
                             }
                         }
                         return false;
-                    }
+                }
+        });
 
-                });
-        if (foundElement != null) {
-            Map<String, Double> box = new HashMap<String, Double>();
+        List<AltoSelectedBox> boxes = new ArrayList<ALTOUtils.AltoSelectedBox>();
+        for (Element sElm : fElements) {
+            String contentAttr = sElm.getAttribute("CONTENT");
+            String height = sElm.getAttribute("HEIGHT");
+            String width = sElm.getAttribute("WIDTH");
+            String hpos = sElm.getAttribute("HPOS");
+            String vpos = sElm.getAttribute("VPOS");
 
-            String height = foundElement.getAttribute("HEIGHT");
-            String width = foundElement.getAttribute("WIDTH");
-            String hpos = foundElement.getAttribute("HPOS");
-            String vpos = foundElement.getAttribute("VPOS");
-            if (height != null) {
-                box.put("HEIGHT", Double.parseDouble(height));
-            }
-            if (width != null) {
-                box.put("WIDTH", Double.parseDouble(width));
-            }
-            if (hpos != null) {
-                box.put("HPOS", Double.parseDouble(hpos));
-            }
-            if (vpos != null) {
-                box.put("VPOS", Double.parseDouble(vpos));
-            }
-            map.put("box", box);
+            AltoSelectedBox altoBox = new AltoSelectedBox(contentAttr, new Dimension(Integer.parseInt(width), Integer.parseInt(height)), new Point(Integer.parseInt(hpos), Integer.parseInt(vpos)));
+            boxes.add(altoBox);
+            
         }
-        return map;
+        return new AltoDisected(altoImageDimension, boxes);
     }
-
+ 
     protected static boolean matchContent(String content, String parameter) {
         if (content != null && parameter != null) {
             //TODO: configuration 
