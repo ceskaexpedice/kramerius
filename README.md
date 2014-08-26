@@ -1,6 +1,6 @@
 ###Novinky
 
-*Uvolněna finální verze 4.8.6  (http://sourceforge.net/projects/kramerius/files)
+Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub ( https://github.com/ceskaexpedice/kramerius/releases/latest )
 
 (pro napojení na vývojové práce ČDK je vyžadována verze 4.8 a vyšší),
 
@@ -46,7 +46,7 @@ V předchozích letech byl vývoj systému Kramerius průběžně financován z 
 
 
 ##Instalace
-Instalační balík je k dispozici v úložišti SourceForge na adrese http://sourceforge.net/projects/kramerius/files . Starší verze Krameria 4 vydané před přesunutím vývoje na GitHub jsou stále k dispozici na původním umístění na Google Code (https://code.google.com/p/kramerius/downloads/list)
+Instalační balík je k dispozici v sekci Releases na adrese https://github.com/ceskaexpedice/kramerius/releases/latest . Starší verze Krameria 4 vydané před přesunutím vývoje na GitHub jsou stále k dispozici na původním umístění na Google Code (https://code.google.com/p/kramerius/downloads/list)
 
 Kompletní dokumentace k aktuální verzi je v sekci Wiki.
 

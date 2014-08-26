@@ -9,7 +9,6 @@ import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.XmlContentType;
-
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
@@ -22,7 +21,6 @@ import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.ObjectFactory;
@@ -43,7 +41,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.soap.SOAPFaultException;
-
 import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -121,7 +118,6 @@ public class Import {
             throw new RuntimeException("Import root folder or control file doesn't exist: " + importFile.getAbsolutePath());
         }
 
-
         initialize(user, pwd);
 
         Set<TitlePidTuple> roots = new HashSet<TitlePidTuple>();
@@ -196,6 +192,7 @@ public class Import {
         } else {
             log.info("AUTO INDEXING DISABLED.");
         }
+
     }
 
     public static void initialize(final String user, final String pwd) {
@@ -305,7 +302,7 @@ public class Import {
         }
         try {
             for (String line; (line = reader.readLine()) != null;) {
-                if ("".equals(line.trim())) {
+                if ("".equals(line.trim()) || line.trim().startsWith("#")) {
                     continue;
                 }
                 String[] lineItems = line.split(" ");

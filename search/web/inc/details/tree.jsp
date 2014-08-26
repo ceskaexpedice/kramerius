@@ -278,7 +278,6 @@
         function nodeClick(id){
             initView = false;
             if($(jq(id)).hasClass('viewable')){
-                selectNodeView(id);
                 nodeOpen(id);
                 if(window.location.hash != id){
                     window.location.hash = id;
@@ -342,7 +341,8 @@
                 if(newid.length==0){
                     loadInitNodes();
                 }
-                nodeClick(newid);
+                selectNodeView(id);
+                //nodeClick(newid);
                 $(".viewer").trigger('viewChanged', [newid]);
             }
         }
