@@ -250,44 +250,49 @@ public class Import {
                 log.log(Level.FINE, "Underlying error was:", e);
                 return;
             }
-            if (updateMap.containsKey(dobj.getPID())){
-                log.info("Updating datastreams "+updateMap.get(dobj.getPID())+" in object "+dobj.getPID());
-                List<DatastreamType> importedDatastreams = dobj.getDatastream();
-                List<String> datastreamsToUpdate = updateMap.get(dobj.getPID());
-                for (String dsName:datastreamsToUpdate){
-                    for (DatastreamType ds:importedDatastreams){
-                        if(dsName.equalsIgnoreCase(ds.getID())){
-                            log.info("Updating datastream "+ds.getID());
-                            DatastreamVersionType dsversion = ds.getDatastreamVersion().get(0);
-                            if (dsversion.getXmlContent()!= null){
-                                Element element = dsversion.getXmlContent().getAny().get(0);
-                                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                                Source xmlSource = new DOMSource(element);
-                                Result outputTarget = new StreamResult(outputStream);
-                                try {
-                                    TransformerFactory.newInstance().newTransformer().transform(xmlSource, outputTarget);
-                                } catch (TransformerException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                port.modifyDatastreamByValue(dobj.getPID(), ds.getID(), null, null, null, null, outputStream.toByteArray(), null, null, "Datastream updated by import process", false);
+            try {
+                if (updateMap.containsKey(dobj.getPID())) {
+                    log.info("Updating datastreams " + updateMap.get(dobj.getPID()) + " in object " + dobj.getPID());
+                    List<DatastreamType> importedDatastreams = dobj.getDatastream();
+                    List<String> datastreamsToUpdate = updateMap.get(dobj.getPID());
+                    for (String dsName : datastreamsToUpdate) {
+                        for (DatastreamType ds : importedDatastreams) {
+                            if (dsName.equalsIgnoreCase(ds.getID())) {
+                                log.info("Updating datastream " + ds.getID());
+                                DatastreamVersionType dsversion = ds.getDatastreamVersion().get(0);
+                                if (dsversion.getXmlContent() != null) {
+                                    Element element = dsversion.getXmlContent().getAny().get(0);
+                                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                                    Source xmlSource = new DOMSource(element);
+                                    Result outputTarget = new StreamResult(outputStream);
+                                    try {
+                                        TransformerFactory.newInstance().newTransformer().transform(xmlSource, outputTarget);
+                                    } catch (TransformerException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    port.modifyDatastreamByValue(dobj.getPID(), ds.getID(), null, null, null, null, outputStream.toByteArray(), null, null, "Datastream updated by import process", false);
 
-                            }else if(dsversion.getBinaryContent()!= null){
-                                throw new RuntimeException("Update of managed binary datastream content is not supported.");
-                            }else if(dsversion.getContentLocation()!= null){
-                                port.purgeDatastream(dobj.getPID(), ds.getID(),null,null,"Datastream updated by import process", false);
-                                port.addDatastream(dobj.getPID(), ds.getID(), null, null, false,dsversion.getMIMETYPE(), null, dsversion.getContentLocation().getREF(), ds.getCONTROLGROUP(), ds.getSTATE().value(), "DISABLED", null, "Datastream updated by import process");
+                                } else if (dsversion.getBinaryContent() != null) {
+                                    throw new RuntimeException("Update of managed binary datastream content is not supported.");
+                                } else if (dsversion.getContentLocation() != null) {
+                                    port.purgeDatastream(dobj.getPID(), ds.getID(), null, null, "Datastream updated by import process", false);
+                                    port.addDatastream(dobj.getPID(), ds.getID(), null, null, false, dsversion.getMIMETYPE(), null, dsversion.getContentLocation().getREF(), ds.getCONTROLGROUP(), ds.getSTATE().value(), "DISABLED", null, "Datastream updated by import process");
+                                }
                             }
                         }
                     }
+                    if (roots != null) {
+                        TitlePidTuple npt = new TitlePidTuple("", dobj.getPID());
+                        roots.add(npt);
+                        log.info("Added updated object for indexing:" + dobj.getPID());
+                    }
+                } else {
+                    ingest(importFile, dobj.getPID(), sortRelations, roots, updateExisting);
+                    checkRoot(dobj, roots);
                 }
-                if (roots != null) {
-                    TitlePidTuple npt = new TitlePidTuple("", dobj.getPID());
-                    roots.add(npt);
-                    log.info("Added updated object for indexing:" + dobj.getPID());
-                }
-            }else {
-                ingest(importFile, dobj.getPID(), sortRelations, roots, updateExisting);
-                checkRoot(dobj, roots);
+            }catch (Throwable t){
+                log.severe("Error when ingesting PID: "+dobj.getPID()+", "+ t.getMessage());
+                throw new RuntimeException(t);
             }
         }
     }
