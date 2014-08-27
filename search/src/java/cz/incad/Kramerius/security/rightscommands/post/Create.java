@@ -18,29 +18,16 @@ package cz.incad.Kramerius.security.rightscommands.post;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.NotImplementedException;
-
-import sun.security.krb5.internal.SeqNumber;
-
-import cz.incad.Kramerius.security.RightsServlet;
-import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
-import cz.incad.Kramerius.security.strenderers.CriteriumParamsWrapper;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
-import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.impl.RightImpl;

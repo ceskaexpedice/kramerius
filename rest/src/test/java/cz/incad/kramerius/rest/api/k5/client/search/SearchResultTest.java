@@ -247,7 +247,7 @@ public class SearchResultTest {
     }
 
     @Test
-    public void testRelsExtIndex() throws ParserConfigurationException, SAXException, IOException {
+    public void testBadRelsExtIndex() throws ParserConfigurationException, SAXException, IOException {
         URL urlRes = SearchResultTest.class.getResource("relsext_index.xml");
         Document document = XMLUtils.parseDocument(urlRes.openStream());
         Element result = XMLUtils.findElement(document.getDocumentElement(),
@@ -260,10 +260,10 @@ public class SearchResultTest {
                         return (element.getNodeName().equals("doc"));
                     }
                 });
-        for (Element docE : elms) {
-            System.out.println(docE);
-            ItemResource.relsExtIndex("uuid:dfc78a5c-2542-44cf-8722-ee8a0924a855", docE);
-        }
         
+        Assert.assertTrue(elms.size() == 1);
+        String index = ItemResource.relsExtIndex("uuid:dfc78a5c-2542-44cf-8722-ee8a0924a855", elms.get(0));
+        //cannot find actual index, always returs 0
+        Assert.assertEquals("0", index);
     }
 }

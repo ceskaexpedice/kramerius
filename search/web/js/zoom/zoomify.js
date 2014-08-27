@@ -39,14 +39,19 @@ ZoomifyViewerInitObject.prototype.init = function(d) {
 /** display alto */
 ZoomifyViewerInitObject.prototype.highlightAlto=function(altoObject) {
     //{"image":{"HEIGHT":3232,"WIDTH":2515},"box":{"VPOS":292,"HEIGHT":27,"HPOS":2070,"WIDTH":108}}
-    var pointList = [];        
-    pointList.push(new OpenLayers.Geometry.Point(altoObject.box.HPOS, altoObject.image.HEIGHT - altoObject.box.VPOS));   
-    pointList.push(new OpenLayers.Geometry.Point(altoObject.box.HPOS + altoObject.box.WIDTH, altoObject.image.HEIGHT - altoObject.box.VPOS));
-    pointList.push(new OpenLayers.Geometry.Point(altoObject.box.HPOS + altoObject.box.WIDTH, altoObject.image.HEIGHT - altoObject.box.HEIGHT - altoObject.box.VPOS));     
-    pointList.push(new OpenLayers.Geometry.Point(altoObject.box.HPOS, altoObject.image.HEIGHT - altoObject.box.HEIGHT - altoObject.box.VPOS));
-    var linearRing = new OpenLayers.Geometry.LinearRing(pointList);
-    var polygonFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([linearRing]));
-    this.vectorLayer.addFeatures([polygonFeature]);  
+    //{"image":{"width":1390,"height":2130},"boxes":[{"term":"prosa,","width":115,"height":28,"xpos":906,"ypos":649}]}
+    var boxes = altoObject.boxes;        
+    if (boxes.length > 0) {
+            var pointList = [];        
+            pointList.push(new OpenLayers.Geometry.Point(boxes[0].xpos, altoObject.image.height - boxes[0].ypos));   
+            pointList.push(new OpenLayers.Geometry.Point(boxes[0].xpos + boxes[0].width, altoObject.image.height - boxes[0].ypos));
+            pointList.push(new OpenLayers.Geometry.Point(boxes[0].xpos + boxes[0].width, altoObject.image.height - boxes[0].height - boxes[0].ypos));     
+            pointList.push(new OpenLayers.Geometry.Point(boxes[0].xpos, altoObject.image.height - boxes[0].height - boxes[0].ypos));
+            var linearRing = new OpenLayers.Geometry.LinearRing(pointList);
+            var polygonFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([linearRing]));
+            this.vectorLayer.addFeatures([polygonFeature]);  
+    }    
+
 }
 
 /** clear alto */
@@ -128,7 +133,7 @@ ZoomifyViewerInitObject.prototype.open = function(pid,altoObject) {
         this.map.zoomToMaxExtent();
         
         if (!(typeof altoObject === 'undefined')) {
-            if (altoObject.box && altoObject.image) {
+            if (altoObject.boxes) {
                 this.highlightAlto(altoObject);
             }
         }
