@@ -169,15 +169,11 @@ subprojects {
          	 }
          }
 
+        build.finalizedBy 'install'
 }
 
 
 
-[project(':common'), project(':rest')].each() {
-        configure(it) {
-                build.finalizedBy 'install'
-        }        
-}
 
 task zipAllJavadocs(type: Zip) {
         //only from this project 
