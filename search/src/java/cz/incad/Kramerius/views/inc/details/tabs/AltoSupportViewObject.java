@@ -37,8 +37,9 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.Initializable;
-import cz.incad.Kramerius.utils.ALTOUtils;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.utils.ALTOUtils;
+import cz.incad.kramerius.utils.ALTOUtils.AltoDisected;
 import cz.incad.kramerius.utils.XMLUtils;
 
 /**
@@ -105,9 +106,9 @@ public class AltoSupportViewObject implements Initializable {
             String par = request.getParameter("q");
             if (getAltoStreamAvailabilityFlag()) {
                 Document parsed = getAltoDocument();
-                Map<String, Map<String, Double>> disected = ALTOUtils.disectAlto(par, parsed);
+                AltoDisected disected = ALTOUtils.disectAlto(par, parsed);
                 JSONObject jsonObj = new JSONObject();
-                jsonObj.put("alto", disected);
+                jsonObj.put("alto", disected.toJSON());
                 return jsonObj.toString();
             }
         }

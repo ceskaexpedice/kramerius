@@ -1,0 +1,48 @@
+{
+    "mappings_k4": {
+        "title":"dc.title",
+        "fedora_model":"fedora.model",
+        "autor": "dc.creator",
+        "dc_description:":"dc.description"
+    },
+    "mappings": {
+    },
+    "datastreams": {
+        "DC": {
+            "prefix": "oai_dc:dc/",
+            "fields": {
+                "document_type": "dc:type",
+                "autor": "dc:creator"
+            }
+        },
+        "BIBLIO_MODS": {
+            "prefix": "mods:modsCollection/mods:mods/",
+            "fields": {
+                "keywords": "mods:subject/mods:topic",
+                "mods_identifier": "mods:identifier",
+                "language": "mods:language/mods:languageTerm",
+                "issn": [
+                    "mods:identifier[@type='isbn']",
+                    "mods:identifier[@type='issn']"
+                ],
+                "mdt": "mods:classification[@authority='udc']",
+                "ddt": "mods:classification[@authority='ddc']",
+                "mods_titleInfo_title": "mods:titleInfo/mods:title",
+                "mods_titleInfo_subTitle": "mods:titleInfo/mods:subTitle",
+                "mods_titleInfo_partNumber": "mods:titleInfo/mods:partNumber",
+                "mods_titleInfo_partName": "mods:titleInfo/mods:partName",
+                "mods_part": "mods:part",
+                "mods_part_Xtype": "mods:part/@type",
+                "mods_part_date": "mods:part/mods:date",
+                "mods_part_extent_list": "mods:part/mods:extent/mods:list",
+                "mods_part_detail_title": "mods:part/mods:detail/mods:title",
+                "mods_part_detailXissue_number": "mods:part/mods:detail[@type = 'issue']/mods:number",
+                "mods_part_detail_number": "mods:part/mods:detail/mods:number",
+                "mods_part_detailXpageIndex_number": "mods:part/mods:detail[@type='pageIndex']/mods:number",
+                "mods_part_detailXvolume_number": "mods:part/mods:detail[@type = 'volume']/mods:number",
+                "mods_originInfoXpublisher_dateIssued": "mods:originInfo[@transliteration='publisher']/mods:dateIssued",
+                "mods_originInfo_dateIssued": "mods:originInfo/mods:dateIssued"
+            }
+        }
+    }
+}

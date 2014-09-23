@@ -38,7 +38,7 @@ _map(m) ::=<<
 >>
 
 alto(altoData) ::=<<
-{"image":$_map(m=altoData.image)$,"box":$_map(m=altoData.box)$}
+$altoData$
 >>
             
 

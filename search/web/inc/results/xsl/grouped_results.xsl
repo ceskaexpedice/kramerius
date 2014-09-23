@@ -205,7 +205,7 @@
     <xsl:template name="teaser">
         <xsl:param name="pid" />
         <div class="teaser">
-        <xsl:for-each select="../../lst[@name='highlighting']/lst">
+        <xsl:for-each select="/response/lst[@name='highlighting']/lst">
             <xsl:if test="@name = $pid">
                 <xsl:for-each select="./arr[@name='text_ocr']/str">
                 (... <xsl:value-of select="." disable-output-escaping="yes" /> ...)<br/>

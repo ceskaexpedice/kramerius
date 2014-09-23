@@ -154,6 +154,13 @@
             <artifactId>indexer</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        
+        <!-- dlouhotrvajici new k5indexer -->
+        <dependency>
+            <groupId>cz.incad.kramerius</groupId>
+            <artifactId>k5indexer</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- dlouhotrvajici import dat -->
         <dependency>
@@ -203,7 +210,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.1</version>
+            <version>4.3.2</version>
         </dependency>
         
         <dependency>

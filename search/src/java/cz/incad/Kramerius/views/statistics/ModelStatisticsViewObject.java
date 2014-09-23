@@ -21,23 +21,13 @@ package cz.incad.Kramerius.views.statistics;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.sun.corba.se.pept.transport.ContactInfo;
-
-import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
 
 /**

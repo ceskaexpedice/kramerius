@@ -148,16 +148,7 @@
                     var tab = ui.tab.toString().split('#')[1];
                     var t = "";
                     if (tab=="contextMenu"){
-                        $('#item_tree input:checked').each(function(){
-                            var id = $(this).parent().parent().attr("id");
-                            t += '<li id="cm_' + id + '">';
-                            t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
-                            t += '<label>'+$(jq(id)+">div>a>label").html()+'</label></li>';
-                            //t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(id)+">a").html()+'</li>';
-                        });
-                        $('#context_items_selection').html(t);
-                        //t = '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(k4Settings.activeUuid)+">a").html()+'</li>';
-                        //$('#context_items_active').html(t);
+                        renderSelection();
                     }else{
                         if($('#item_tree input:checked').length>0){
                             $('#item_tree input:checked').each(function(){
@@ -200,6 +191,18 @@
         });
         var cur = 1;
         var initView = true;
+        
+        function renderSelection(){
+            var t="";
+            $('#item_tree input:checked').each(function(){
+                var id = $(this).parent().parent().attr("id");
+                t += '<li id="cm_' + id + '">';
+                t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
+                t += '<label>'+$(jq(id)+">div>a>label").html()+'</label></li>';
+                //t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(id)+">a").html()+'</li>';
+            });
+            $('#context_items_selection').html(t);
+        }
 
         function loadInitNodes(){
             var id;
@@ -287,7 +290,6 @@
         function nodeClick(id){
             initView = false;
             if($(jq(id)).hasClass('viewable')){
-                selectNodeView(id);
                 nodeOpen(id);
                 if(window.location.hash != id){
                     window.location.hash = id;
@@ -351,7 +353,8 @@
                 if(newid.length==0){
                     loadInitNodes();
                 }
-                nodeClick(newid);
+                selectNodeView(id);
+                //nodeClick(newid);
                 $(".viewer").trigger('viewChanged', [newid]);
             }
         }
@@ -371,27 +374,32 @@
         var autoLoaded = [];
         function loadTreeNode(id){
             if(autoLoaded[id]){
+                renderNode(id, autoLoaded[id]);
                 return;
             }
-            autoLoaded[id] = true;
             var pid = id.split('_')[1];
             
             var path = id.split('_')[0];
             var url = 'inc/details/treeNode.jsp?pid=' + pid + '&model_path=' + path;
             $.get(url, function(data){
                 var d = trim10(data);
-                if(d.length>0){
-                    $(jq(id)).append(d);
-                    if($(jq(id)+">ul").html()==null || $(jq(id)+">ul").html().trim().length==0){
-                        $(jq(id)+">ul").hide();
-                    }
-                }else{
-                    $(jq(id)+">span.folder").removeClass();
-                }
-                if(loadingInitNodes){
-                    loadInitNodes();
-                }
+                autoLoaded[id] = d;
+                renderNode(id, d);
             });
+        }
+        
+        function renderNode(id, d){
+            if(d.length>0){
+                $(jq(id)).append(d);
+                if($(jq(id)+">ul").html()==null || $(jq(id)+">ul").html().trim().length==0){
+                    $(jq(id)+">ul").hide();
+                }
+            }else{
+                $(jq(id)+">span.folder").removeClass();
+            }
+            if(loadingInitNodes){
+                loadInitNodes();
+            }
         }
 
         function setActiveUuids(id){

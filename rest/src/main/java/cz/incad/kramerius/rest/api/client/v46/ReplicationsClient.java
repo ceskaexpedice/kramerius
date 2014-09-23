@@ -21,7 +21,7 @@ import javax.ws.rs.core.MediaType;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.rest.api.client.BasicAuthenticationFilter;
+import cz.incad.kramerius.utils.BasicAuthenticationFilter;
 
 /**
  * Simple testing utility 

@@ -40,6 +40,16 @@ public class ProcessUtils {
     /** Lr servlet name.  This coresponds with web.xml  */
     public static final String LR_SERVLET_NAME="lr";
     
+    public static String getApiPoint() {
+        
+        String applicationURL = KConfiguration.getInstance().getApplicationURL();
+        if (!applicationURL.endsWith("/")) {
+            applicationURL += '/';
+        }
+        String api = applicationURL +  "api/v4.6/processes";
+        return api;
+    }
+    
     /**
      * Returns URL to LR servlet
      * @return

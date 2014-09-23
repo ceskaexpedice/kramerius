@@ -1,6 +1,6 @@
 ###Novinky
 
-*Uvolněna finální verze 4.8.6  (http://sourceforge.net/projects/kramerius/files)
+Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub ( https://github.com/ceskaexpedice/kramerius/releases/latest )
 
 (pro napojení na vývojové práce ČDK je vyžadována verze 4.8 a vyšší),
 
@@ -12,7 +12,7 @@ je softwarové řešení pro zpřístupnění digitálních dokumentů. Primárn
 
 Aktuální verze 4 je vyvíjena a průběžně publikována od roku 2009. Navazuje funkčností na předchozí verzi systému Kramerius končící označením 3.3.1. Nově je jako jádro systému použit open source repozitář [Fedora](http://www.fedora-commons.org). Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
 
-Uživatelské rozhraní je přístupné ve většině moderních webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v prohlížečích Internet Explorer 8, 9 a 10.
+Uživatelské rozhraní je přístupné ve většině moderních webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer.
 
 
 ##Vývojový tým
@@ -46,7 +46,7 @@ V předchozích letech byl vývoj systému Kramerius průběžně financován z 
 
 
 ##Instalace
-Instalační balík je k dispozici v úložišti SourceForge na adrese http://sourceforge.net/projects/kramerius/files . Starší verze Krameria 4 vydané před přesunutím vývoje na GitHub jsou stále k dispozici na původním umístění na Google Code (https://code.google.com/p/kramerius/downloads/list)
+Instalační balík je k dispozici v sekci Releases na adrese https://github.com/ceskaexpedice/kramerius/releases/latest . Starší verze Krameria 4 vydané před přesunutím vývoje na GitHub jsou stále k dispozici na původním umístění na Google Code (https://code.google.com/p/kramerius/downloads/list)
 
 Kompletní dokumentace k aktuální verzi je v sekci Wiki.
 

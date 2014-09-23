@@ -1,11 +1,9 @@
 package org.kramerius.importmets;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.log4j.Logger;
 import org.kramerius.Import;
@@ -23,7 +21,6 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import javax.xml.bind.*;
 import javax.xml.transform.sax.SAXSource;
-
 import java.io.*;
 
 
@@ -40,7 +37,7 @@ public class MetsConvertor {
     private static Unmarshaller unmarshaller = null;
     private static boolean foundvalidPSP = false;
 
-    public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+    public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException,UnsupportedEncodingException {
 
         if (args.length  != 3) {
             System.out.println("ANL METS to FOXML conversion tool.\n");
@@ -101,6 +98,10 @@ public class MetsConvertor {
             throw new RuntimeException("Import root folder doesn't exist: " + importFolder.getAbsolutePath());
         }
         File exportFolderFile = IOUtils.checkDirectory(exportRoot);
+        if (!useContractSubfolders()){
+            IOUtils.cleanDirectory(exportFolderFile);
+        }
+
 
         File infoFile = findInfoFile(importFolder);
         if (!infoFile.exists()) {
@@ -111,9 +112,6 @@ public class MetsConvertor {
                 }
             }
         }else{
-            if (!useContractSubfolders()){
-                IOUtils.cleanDirectory(exportFolderFile);
-            }
             convert(importRoot, exportRoot, defaultVisibility);
         }
 

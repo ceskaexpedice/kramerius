@@ -4,10 +4,12 @@ import com.lizardtech.djvu.DjVuInfo;
 import com.lizardtech.djvu.DjVuOptions;
 import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuImage;
+
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.fedora.Handler;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 
@@ -15,7 +17,9 @@ import javax.imageio.*;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStreamImpl;
 import javax.swing.*;
+import javax.swing.text.StyledEditorKit.ForegroundAction;
 import javax.xml.xpath.XPathExpressionException;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -46,16 +50,21 @@ public class KrameriusImageSupport {
     }
 
     public static Dimension readDimension(String pid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
+        return readDimension(pid, stream,fedoraAccess,page,false);
+    }
+
+    public static Dimension readDimension(String pid, String stream, FedoraAccess fedoraAccess, int page, boolean forceread) throws XPathExpressionException, IOException {
         String mimetype = fedoraAccess.getMimeTypeForStream(pid, stream);
         ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
         URL url = new URL("fedora", "", 0, pid + "/" + stream, new Handler(fedoraAccess));
-        return readDimension(url, loadFromMimeType);
+        return readDimension(url, loadFromMimeType, forceread);
     }
 
     public static boolean useCache(){
         return KConfiguration.getInstance().getConfiguration().getBoolean("convert.useCache", true);
     }
 
+    
     public static BufferedImage readImage(URL url, ImageMimeType type, int page) throws IOException {
         LOGGER.fine("type is "+type);
         if (type == null || type.javaNativeSupport() ) {
@@ -131,13 +140,13 @@ public class KrameriusImageSupport {
     }
 
     
-    
-    public static Dimension readDimension(URL url, ImageMimeType type) throws IOException {
+
+    public static Dimension readDimension(InputStream is, ImageMimeType type) throws IOException {
         if (type == null || type.javaNativeSupport() ) {
             Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(type.getDefaultFileExtension());
             if (readers.hasNext()) {
                 ImageReader reader = readers.next();
-                ImageInputStream istream = ImageIO.createImageInputStream(url.openStream());
+                ImageInputStream istream = ImageIO.createImageInputStream(is);
                 reader.setInput(istream);
                 int height = reader.getHeight(0);
                 int width = reader.getWidth(0);
@@ -145,13 +154,49 @@ public class KrameriusImageSupport {
             } else
                 return null;
         } else {
-            com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(url);
-            doc.setAsync(false);
-            DjVuPage page = doc.getPage(0, 1, true);
-            DjVuInfo info = page.getInfoWait();
-            DjVuImage djvuImage = new DjVuImage(new DjVuPage[]{page}, true);
+            throw new UnsupportedOperationException("this method is unsupported for type "+type);
+        }
+    }
 
-            return new Dimension(info.width, info.height);
+    public static Dimension readDimension(URL url, ImageMimeType type) throws IOException {
+        return readDimension(url, type, false);
+    }
+    
+    public static Dimension readDimension(URL url, ImageMimeType type,boolean forceread) throws IOException {
+        InputStream is = null;
+        try {
+            if (type == null || type.javaNativeSupport() ) {
+                Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(type.getDefaultFileExtension());
+                if (readers.hasNext()) {
+                    ImageReader reader = readers.next();
+                    is = url.openStream();
+                    ImageInputStream istream = ImageIO.createImageInputStream(is);
+                    reader.setInput(istream);
+                    if (forceread) {
+                        int index = reader.getMinIndex();
+                        BufferedImage bufImage = reader.read(index);
+                        return new Dimension(bufImage.getWidth(), bufImage.getHeight());
+                    } else {
+                        int height = reader.getHeight(0);
+                        int width = reader.getWidth(0);
+                        return new Dimension(width, height);
+                    }
+                } else
+                    return null;
+            } else {
+                com.lizardtech.djvu.Document doc = new com.lizardtech.djvu.Document(url);
+                doc.setAsync(false);
+                DjVuPage page = doc.getPage(0, 1, true);
+                DjVuInfo info = page.getInfoWait();
+                DjVuImage djvuImage = new DjVuImage(new DjVuPage[]{page}, true);
+
+                return new Dimension(info.width, info.height);
+            }
+        } finally {
+            if (is != null) {
+                LOGGER.fine("closing opened stream");
+                IOUtils.tryClose(is);
+            }
         }
     }
 

@@ -48,6 +48,7 @@ dependencies {
     compile project(':common')
     compile project(':static-export')
     compile project(':indexer')
+    compile project(':k5indexer')
     compile project(':import')
     compile project(':import-mets')
     compile project(':security-core')
@@ -67,7 +68,7 @@ dependencies {
     compile "org.slf4j:slf4j-jdk14:${slf4jversion}"
 
     compile 'net.sf.ehcache:ehcache:2.6.0'
-    compile 'org.apache.httpcomponents:httpclient:4.1'
+    compile 'org.apache.httpcomponents:httpclient:4.3.2'
     compile 'net.sf.json-lib:json-lib:2.4:jdk15'
 }
 

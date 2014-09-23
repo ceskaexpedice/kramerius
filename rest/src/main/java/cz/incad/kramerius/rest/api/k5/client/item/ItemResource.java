@@ -577,7 +577,12 @@ public class ItemResource {
                 break;
             }
         }
-        return ""+docindexes.get(index);
+        if (docindexes.size() > index) {
+            return ""+docindexes.get(index);
+        } else {
+            LOGGER.warning("bad solr document for parent_pid:"+parentPid);
+            return "0";
+        }
     }
 
 }

@@ -72,18 +72,20 @@ public class MulgaraImpl implements IResourceIndex {
             Configuration config = KConfiguration.getInstance().getConfiguration();
             String query = "select $object from <#ri> " +
                     "where $object <fedora-model:hasModel> <info:fedora/model:" + model + ">  " + 
-                    " order by $object" +
+                    //" order by $object" +
                     " limit  " + limit +
                     " offset  " + offset;
             ArrayList<String> resList = new ArrayList<String>();
-            String urlStr = config.getString("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=Sparql&distinct=off&stream=off" +
+            String urlStr = config.getString("FedoraResourceIndex") + "?type=tuples&flush=true&lang=itql&format=CSV&distinct=off&stream=off" +
                     "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
             java.net.URL url = new java.net.URL(urlStr);
 
             java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
-                resList.add(inputLine.split("/")[1]);
+                if(inputLine.indexOf("/")>0){
+                    resList.add(inputLine.split("/")[1]);
+                }
             }
             in.close();
             return resList;

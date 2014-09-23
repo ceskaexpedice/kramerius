@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,6 +46,7 @@ import javax.xml.transform.TransformerException;
 import org.bouncycastle.jce.provider.JCEBlockCipher.DES;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
@@ -146,8 +148,8 @@ public class SearchResource {
 
             String uri = UriBuilder.fromResource(SearchResource.class).path("")
                     .build().toString();
-            JSONObject jsonObject = changeJSONResult(rawString, uri);
-
+            JSONObject jsonObject = changeJSONResult(rawString, uri, this.jsonDecoratorAggregates.getDecorators());
+            
             return Response.ok().entity(jsonObject.toString()).build();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -172,25 +174,16 @@ public class SearchResource {
     public static Document changeXMLResult(String rawString, String context)
             throws ParserConfigurationException, SAXException, IOException {
         Document doc = XMLUtils.parseDocument(new StringReader(rawString));
-        Element result = XMLUtils.findElement(doc.getDocumentElement(),
-                "result");
-        List<Element> elms = XMLUtils.getElements(result,
-                new XMLUtils.ElementsFilter() {
-
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        return (element.getNodeName().equals("doc"));
-                    }
-                });
+        List<Element> elms = XMLUtils.getElementsRecursive(doc.getDocumentElement(),new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    return (element.getNodeName().equals("doc"));
+                }
+        });
         for (Element docE : elms) {
             changeMasterPidInDOM(docE);
-
             filterFieldsInDOM(docE);
-
-            // no decorators for xml format
-
             replacePidsInDOM(docE);
-
         }
         return doc;
     }
@@ -238,10 +231,10 @@ public class SearchResource {
         for (final String name : filters) {
             Element found = findSolrElement(docE, name);
             if (found != null) {
-                docE.removeChild(found);
+                Node parentNode = found.getParentNode();
+                Node removed = parentNode.removeChild(found);
             }
         }
-
     }
 
     public static Element findSolrElement(Element docE, final String name) {
@@ -256,16 +249,41 @@ public class SearchResource {
         return found;
     }
 
-    public JSONObject changeJSONResult(String rawString, String context)
+    public static JSONObject changeJSONResult(String rawString, String context, List<JSONDecorator> decs)
             throws UnsupportedEncodingException {
 
-        List<JSONDecorator> decs = this.jsonDecoratorAggregates.getDecorators();
-
+        //List<JSONDecorator> decs = this.jsonDecoratorAggregates.getDecorators();
+        List<JSONArray> docsArrays = new ArrayList<JSONArray>();
+        
         JSONObject resultJSONObject = JSONObject.fromObject(rawString);
-        JSONObject responsObject = resultJSONObject.getJSONObject("response");
-        if (responsObject.containsKey("docs")) {
-            JSONArray jsonArray = responsObject.getJSONArray("docs");
-            for (Object obj : jsonArray) {
+        Stack<JSONObject> prcStack = new Stack<JSONObject>();
+        prcStack.push(resultJSONObject);
+        while(!prcStack.isEmpty()) {
+            JSONObject popped = prcStack.pop();
+            Set keys = popped.keySet();
+            for (Object kobj : keys) {
+                String key = (String) kobj;
+                Object obj = popped.get(key);
+                boolean docsKey = key.equals("docs");
+                if (docsKey && (obj instanceof JSONArray)) {
+                    docsArrays.add((JSONArray) obj);
+                }
+                if (obj instanceof JSONObject) {
+                    prcStack.push((JSONObject) obj);
+                }
+                if (obj instanceof JSONArray) {
+                    JSONArray arr = (JSONArray) obj;
+                    for (Object arrObj : arr) {
+                        if (arrObj instanceof JSONObject) {
+                            prcStack.push((JSONObject) arrObj);
+                        }
+                    }
+                }
+            }
+        }
+
+        for (JSONArray docs : docsArrays) {
+            for (Object obj : docs) {
                 JSONObject docJSON = (JSONObject) obj;
                 // check master pid
                 changeMasterPidInJSON(docJSON);
@@ -283,7 +301,7 @@ public class SearchResource {
         return resultJSONObject;
     }
 
-    public void decorators(String context, List<JSONDecorator> decs,
+    public static void decorators(String context, List<JSONDecorator> decs,
             JSONObject docJSON) {
         // decorators
         Map<String, Object> runtimeCtx = new HashMap<String, Object>();

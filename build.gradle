@@ -86,7 +86,7 @@ subprojects {
 
          
          group='cz.incad.kramerius'
-         version='5.0.0-SNAPSHOT'
+         version='5.0.0'
          
          sourceCompatibility = 1.6
          targetCompatibility= 1.6
@@ -168,7 +168,12 @@ subprojects {
          	 	 url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
          	 }
          }
+
+        build.finalizedBy 'install'
 }
+
+
+
 
 task zipAllJavadocs(type: Zip) {
         //only from this project 
