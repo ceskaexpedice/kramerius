@@ -139,16 +139,7 @@
                     var tab = ui.tab.toString().split('#')[1];
                     var t = "";
                     if (tab=="contextMenu"){
-                        $('#item_tree input:checked').each(function(){
-                            var id = $(this).parent().parent().attr("id");
-                            t += '<li id="cm_' + id + '">';
-                            t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
-                            t += '<label>'+$(jq(id)+">div>a>label").html()+'</label></li>';
-                            //t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(id)+">a").html()+'</li>';
-                        });
-                        $('#context_items_selection').html(t);
-                        //t = '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(k4Settings.activeUuid)+">a").html()+'</li>';
-                        //$('#context_items_active').html(t);
+                        renderSelection();
                     }else{
                         if($('#item_tree input:checked').length>0){
                             $('#item_tree input:checked').each(function(){
@@ -191,6 +182,18 @@
         });
         var cur = 1;
         var initView = true;
+        
+        function renderSelection(){
+            var t="";
+            $('#item_tree input:checked').each(function(){
+                var id = $(this).parent().parent().attr("id");
+                t += '<li id="cm_' + id + '">';
+                t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
+                t += '<label>'+$(jq(id)+">div>a>label").html()+'</label></li>';
+                //t += '<li><span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>'+$(jq(id)+">a").html()+'</li>';
+            });
+            $('#context_items_selection').html(t);
+        }
 
         function loadInitNodes(){
             var id;

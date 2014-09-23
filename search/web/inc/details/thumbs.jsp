@@ -105,6 +105,9 @@
         $('#tv_container_row>td>input').live('click', function(){
             var id = $(this).prev().attr('id').substring(3);
             $(jq(id)).find("input").attr("checked", $(this).is(":checked"));
+            if($('#rightMenuBox').tabs( "option", "selected" ) ===2){
+                renderSelection();
+            }
         });
         $('#tv_container').bind('scroll', function(event){
             checkThumbsVisibility();
