@@ -61,7 +61,7 @@
                 </a>
             </div>
         </x:forEach>
-<div ><a href="inc/home/newest-rss.jsp"><span class="ui-icon ui-icon-signal-diag"></span></a></div>
+<div style="position:absolute;right:18px;" ><a href="inc/home/newest-rss.jsp"><span class="ui-icon ui-icon-signal-diag"></span></a></div>
     </c:otherwise>
 </c:choose>
 <c:if test="${param.debug}" >

@@ -18,6 +18,7 @@
 <%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
+<div style="text-align:right;text-align:-moz-right;text-align:-webkit-right;" ><a href="inc/home/mostDesirables-rss.jsp"><span class="ui-icon ui-icon-signal-diag"></span></a></div>
 <%
 
 	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
@@ -70,4 +71,3 @@
     </c:otherwise>
 </c:choose>
 <%}%>
-<div ><a href="inc/home/mostDesirables-rss.jsp"><span class="ui-icon ui-icon-signal-diag"></span></a></div>

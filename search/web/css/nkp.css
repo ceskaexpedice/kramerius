@@ -683,3 +683,15 @@ div.search_result *{
   display: inline-block;
   float:left;
 }
+
+#metaData{
+    height: 100%;
+}
+#mods-full{
+    height: 100%;
+    
+}
+#mods-html{
+    height: calc(100% - 34px);
+    
+}
