@@ -102,6 +102,10 @@
             selectThumb(id);
             $(".viewer").trigger('viewChanged', [id]);
         });
+        $('#tv_container_row>td>input').live('click', function(){
+            var id = $(this).prev().attr('id').substring(3);
+            $(jq(id)).find("input").attr("checked", $(this).is(":checked"));
+        });
         $('#tv_container').bind('scroll', function(event){
             checkThumbsVisibility();
         });
@@ -113,9 +117,9 @@
     function updateThumbs(id){
         $('#tv_container_row>td').remove();
         for(var i=0; i<k4Settings.activeUuids.length; i++){
-            $('#tv_container_row').append('<td><div id="tv_'+k4Settings.activeUuids[i]+'" class="t inactive"><img src="img/empty.gif" />'+
-                '<div id="dost_'+k4Settings.activeUuids[i]+'" style="position:absolute;left:2px;top:2px;"><img src="img/empty.gif" /></div></div>'+
-                '</td>');
+            $('#tv_container_row').append('<td style="position:relative;" ><div id="tv_'+k4Settings.activeUuids[i]+'" class="t inactive"><img src="img/empty.gif" />'+
+                '<div id="dost_'+k4Settings.activeUuids[i]+'" style="position:absolute;left:2px;top:2px;"><img src="img/empty.gif" /></div>'+
+                '</div><input type="checkbox" style="position:absolute;right:1px;top:1px;" /></td>');
         }
         selectThumb(id);
         $('#tv_container_table').show();
