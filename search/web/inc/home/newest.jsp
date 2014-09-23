@@ -50,7 +50,7 @@
     </c:when>
     <c:otherwise>
         <x:parse var="doc" xml="${xml}"  />
-        
+<div style="text-align:right;text-align:-moz-right;text-align:-webkit-right;" ><a href="inc/home/newest-rss.jsp"><span class="ui-icon ui-icon-signal-diag"></span></a></div>        
         <x:forEach varStatus="status" select="$doc/response/result/doc">
             <c:set var="pid"><x:out select="./str[@name='PID']"/></c:set>
             <c:set var="t"><x:out select="./str[@name='root_title']"/></c:set>
@@ -61,7 +61,7 @@
                 </a>
             </div>
         </x:forEach>
-<div style="position:absolute;right:18px;" ><a href="inc/home/newest-rss.jsp"><span class="ui-icon ui-icon-signal-diag"></span></a></div>
+
     </c:otherwise>
 </c:choose>
 <c:if test="${param.debug}" >
