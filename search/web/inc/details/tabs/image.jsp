@@ -84,7 +84,7 @@ function onLoadPlainImage() {
     <div id="container"  class="view_div"  style="display:none;  height: 512px;">
     </div>
     
-    <div id="ol-container" style="display:none; position: relative; top: 3px;">
+    <div id="ol-container" style="height: 100%; display:none; position: relative; top: 3px;">
     
     
      <div id="ol-wrapper-buttons" class="buttons" style="z-index: 1002;position:relative; top:7px; left:10px;">
@@ -98,7 +98,7 @@ function onLoadPlainImage() {
 	   </c:if>
       </div>
    
-    <div id="ol-wrapper" style="height: 512px; position: relative; top:-25px;">
+    <div id="ol-wrapper" style="height: 100%; position: relative; top:-25px;">
         <div id="ol-image" style="width: 100%; height: 100%"></div>
     </div>
     
