@@ -362,27 +362,32 @@
         var autoLoaded = [];
         function loadTreeNode(id){
             if(autoLoaded[id]){
+                renderNode(id, autoLoaded[id]);
                 return;
             }
-            autoLoaded[id] = true;
             var pid = id.split('_')[1];
             
             var path = id.split('_')[0];
             var url = 'inc/details/treeNode.jsp?pid=' + pid + '&model_path=' + path;
             $.get(url, function(data){
                 var d = trim10(data);
-                if(d.length>0){
-                    $(jq(id)).append(d);
-                    if($(jq(id)+">ul").html()==null || $(jq(id)+">ul").html().trim().length==0){
-                        $(jq(id)+">ul").hide();
-                    }
-                }else{
-                    $(jq(id)+">span.folder").removeClass();
-                }
-                if(loadingInitNodes){
-                    loadInitNodes();
-                }
+                autoLoaded[id] = d;
+                renderNode(id, d);
             });
+        }
+        
+        function renderNode(id, d){
+            if(d.length>0){
+                $(jq(id)).append(d);
+                if($(jq(id)+">ul").html()==null || $(jq(id)+">ul").html().trim().length==0){
+                    $(jq(id)+">ul").hide();
+                }
+            }else{
+                $(jq(id)+">span.folder").removeClass();
+            }
+            if(loadingInitNodes){
+                loadInitNodes();
+            }
         }
 
         function setActiveUuids(id){
