@@ -117,8 +117,11 @@
     function updateThumbs(id){
         $('#tv_container_row>td').remove();
         for(var i=0; i<k4Settings.activeUuids.length; i++){
-            $('#tv_container_row').append('<td style="position:relative;" ><div id="tv_'+k4Settings.activeUuids[i]+'" class="t inactive"><img src="img/empty.gif" />'+
-                '<div id="dost_'+k4Settings.activeUuids[i]+'" style="position:absolute;left:2px;top:2px;"><img src="img/empty.gif" /></div>'+
+            var title = $(jq(k4Settings.activeUuids[i])).find("label").text().replaceAll("\n", " ").replace(/\s+/g," ");
+            $('#tv_container_row').append('<td style="position:relative;" ><div id="tv_'+
+                    k4Settings.activeUuids[i]+'" class="t inactive" title="'+title+'"><img src="img/empty.gif" />'+
+                '<div id="dost_'+k4Settings.activeUuids[i]+
+                '" style="position:absolute;left:2px;top:2px;"><img src="img/empty.gif" /></div>'+
                 '</div><input type="checkbox" style="position:absolute;right:1px;top:1px;" /></td>');
         }
         selectThumb(id);
