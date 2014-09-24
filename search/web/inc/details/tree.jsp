@@ -140,9 +140,16 @@
                 nodeOpen(id);
                 event.stopPropagation();
             });
+            
             $("#insideQuery").keypress(function(event){
                 checkEnter(event);
-            })
+            });
+            
+            $('#item_tree li>div>input').live('click', function(){
+                var id = "tv_" + $(this).parent().parent().attr('id');
+                $(jq(id)).next("input").attr("checked", $(this).is(":checked"));
+            });
+            
             $('#rightMenuBox').tabs({
                 show: function(event, ui){
                     var tab = ui.tab.toString().split('#')[1];
