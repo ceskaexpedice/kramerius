@@ -693,5 +693,5 @@ div.search_result *{
 }
 #mods-html{
     height: calc(100% - 34px);
-    
+    overflow: auto;
 }
