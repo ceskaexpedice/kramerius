@@ -52,7 +52,7 @@
 %>
 <style type="text/css">
     #indexerContent div.section{
-        border-bottom:1px solid #E66C00; 
+        border-bottom:1px solid rgba(0, 30, 60, 0.9); 
         padding-bottom: 5px; 
         margin-bottom: 5px;
     }

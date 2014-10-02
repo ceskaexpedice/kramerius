@@ -96,10 +96,6 @@ public class ImageStreamsServlet extends AbstractImageServlet {
         return highQuality;
     }
 
-    
-    
-
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pid = req.getParameter(UUID_PARAMETER);

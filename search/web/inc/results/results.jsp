@@ -12,7 +12,7 @@
     }
     #docs_content>div.header{
         height:17px;
-        border-bottom:1px solid #E66C00; 
+        border-bottom:1px solid rgba(0, 30, 60, 0.9); 
         margin-bottom:2px;
     }
     #docs_content>div.content{

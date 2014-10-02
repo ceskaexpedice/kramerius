@@ -19,7 +19,9 @@ package cz.incad.kramerius.rest.api.k5.admin.users;
 import static cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.simpleFilter;
 import static cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.transform;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +63,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.security.impl.UserImpl;
+import cz.incad.kramerius.security.utils.PasswordDigest;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.database.Offset;
 import cz.incad.kramerius.utils.database.Ordering;
@@ -68,228 +71,277 @@ import cz.incad.kramerius.utils.database.SQLFilter;
 import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
 
 /**
- * Endpoint for users manipulation 
+ * Endpoint for users manipulation
+ * 
  * @author pavels
  */
 @Path("/v5.0/admin/users")
 public class UsersResource {
 
-	@Inject
-	UserManager userManager;
-	
+    @Inject
+    UserManager userManager;
+
     @Inject
     Provider<User> userProvider;
-    
+
     @Inject
     IsActionAllowed actionAllowed;
 
+    // public static final String[] COLS = new String[]
+    // {"user_id","name","surname","loginname"};
+    public static FormalNamesMapping FNAMES = new FormalNamesMapping();
+    static {
+        FNAMES.map("id", "user_id");
+        FNAMES.map("lname", "loginname");
+        FNAMES.map("firstname", "fistname");
+        FNAMES.map("surname", "surname");
+    };
 
-    
-    //public static final String[] COLS = new String[] {"user_id","name","surname","loginname"};
-    public static FormalNamesMapping FNAMES = new FormalNamesMapping(); static {
-    	FNAMES.map("id","user_id");
-    	FNAMES.map("lname","loginname");
-    	FNAMES.map("firstname","fistname");
-    	FNAMES.map("surname","surname");
-	}; 
-
-	public static TypesMapping TYPES = new TypesMapping(); static {
-		TYPES.map("user_id", new SQLFilter.IntegerConverter());
-		TYPES.map("loginname", new SQLFilter.StringConverter());
-		TYPES.map("fistname", new SQLFilter.StringConverter());
-		TYPES.map("surname", new SQLFilter.StringConverter());
-	}
-    
-    
-    @GET
-    @Path("{id:[0-9]+}")
-    @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
-    public Response role(@PathParam("id") String uid) {
-    	if (permit(this.userProvider.get())) {
-    		User ur = this.userManager.findUser(Integer.parseInt(uid));
-    		if (ur != null) {
-    			return Response.ok().entity(userToJSON(ur).toString()).build();
-    		} else throw new ObjectNotFound("cannot find role '"+uid+"'");
-    	} else {
-    		throw new ActionNotAllowed("not allowed");
-    	}
+    public static TypesMapping TYPES = new TypesMapping();
+    static {
+        TYPES.map("user_id", new SQLFilter.IntegerConverter());
+        TYPES.map("loginname", new SQLFilter.StringConverter());
+        TYPES.map("fistname", new SQLFilter.StringConverter());
+        TYPES.map("surname", new SQLFilter.StringConverter());
     }
 
-    
     @GET
-    @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
+    @Path("{id:[0-9]+}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response role(@PathParam("id") String uid) {
+        if (permit(this.userProvider.get())) {
+            User ur = this.userManager.findUser(Integer.parseInt(uid));
+            if (ur != null) {
+                return Response.ok().entity(userToJSON(ur).toString()).build();
+            } else
+                throw new ObjectNotFound("cannot find role '" + uid + "'");
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getUsers(
 
             @QueryParam("lname") String filterLoginName,
-            @QueryParam("firstname")  String filterFirstname,
-            @QueryParam("surname")  String filterSurname,
+            @QueryParam("firstname") String filterFirstname,
+            @QueryParam("surname") String filterSurname,
             @QueryParam("offset") String filterOffset,
             @QueryParam("resultSize") String filterResultSize,
             @QueryParam("ordering") String filterOrdering,
-            @QueryParam("typefordering") @DefaultValue("ASC")String typeofordering) {
+            @QueryParam("typefordering") @DefaultValue("ASC") String typeofordering) {
 
-    	if (permit(this.userProvider.get())) {
-        	Offset offset = null;
-        	if (StringUtils.isAnyString(filterOffset)) {
-        		offset = new Offset(filterOffset, filterResultSize);
-        	}
-        	Ordering ordering = null;
-        	if (StringUtils.isAnyString(filterOffset)) {
-        		ordering = new Ordering("user_id","loginname","fistname","surname").select(transform(FNAMES,filterOrdering));
-        	}
-        	TypeOfOrdering type = null;
-        	if (StringUtils.isAnyString(typeofordering)) {
-        		type = TypeOfOrdering.valueOf(typeofordering);
-        	}
-        	
-            Map<String, String> filterMap = new HashMap<String, String>(); {
-                if (StringUtils.isAnyString(filterLoginName)) filterMap.put(transform(FNAMES, "lname"), filterLoginName);
-                if (StringUtils.isAnyString(filterFirstname)) filterMap.put(transform(FNAMES, "firstname"), filterFirstname);
-                if (StringUtils.isAnyString(filterSurname)) filterMap.put(transform(FNAMES, "surname"), filterSurname);
-            };
+        if (permit(this.userProvider.get())) {
+            Offset offset = null;
+            if (StringUtils.isAnyString(filterOffset)) {
+                offset = new Offset(filterOffset, filterResultSize);
+            }
+            Ordering ordering = null;
+            if (StringUtils.isAnyString(filterOffset)) {
+                ordering = new Ordering("user_id", "loginname", "fistname",
+                        "surname").select(transform(FNAMES, filterOrdering));
+            }
+            TypeOfOrdering type = null;
+            if (StringUtils.isAnyString(typeofordering)) {
+                type = TypeOfOrdering.valueOf(typeofordering);
+            }
+
+            Map<String, String> filterMap = new HashMap<String, String>();
+            {
+                if (StringUtils.isAnyString(filterLoginName))
+                    filterMap.put(transform(FNAMES, "lname"), filterLoginName);
+                if (StringUtils.isAnyString(filterFirstname))
+                    filterMap.put(transform(FNAMES, "firstname"),
+                            filterFirstname);
+                if (StringUtils.isAnyString(filterSurname))
+                    filterMap.put(transform(FNAMES, "surname"), filterSurname);
+            }
+            ;
             SQLFilter filter = simpleFilter(filterMap, TYPES);
 
             JSONArray jsonArray = new JSONArray();
-            List<User> users = this.userManager.filterUsers(ordering,type,offset,filter);
+            List<User> users = this.userManager.filterUsers(ordering, type,
+                    offset, filter);
             for (User user : users) {
-            	jsonArray.add(userToJSON(user));
-    		}
-        	
-        	return Response.ok().entity(jsonArray.toString()).build();
-    	} else {
-    		throw new ActionNotAllowed("not allowed");
-    	}
+                jsonArray.add(userToJSON(user));
+            }
+
+            return Response.ok().entity(jsonArray.toString()).build();
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
     }
-	
+
+
+    @PUT
+    @Path("{id:[0-9]+}/password")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response putPassword(@PathParam("id") String id, JSONObject uOptions) {
+        if (permit(this.userProvider.get())) {
+            try {
+                User u = userManager.findUser(Integer.parseInt(id));
+                if (u != null) {
+                    if (!uOptions.containsKey("password")) {
+                        throw new IllegalStateException("expecting password key");
+                    }
+                    String pswd = uOptions.getString("password");
+                    pswd = PasswordDigest.messageDigest(pswd);
+                    this.userManager.saveNewPassword(u.getId(), pswd);
+                    u = this.userManager.findUser(u.getId());
+                    return Response.ok().entity(userToJSON(u).toString())
+                            .build();
+                } else {
+                    throw new ObjectNotFound("cannot find user '" + id + "'");
+                }
+            } catch (SQLException e) {
+                throw new UpdateException(e.getMessage(), e);
+            } catch (NoSuchAlgorithmException e) {
+                throw new UpdateException(e.getMessage(), e);
+            } catch (UnsupportedEncodingException e) {
+                throw new UpdateException(e.getMessage(), e);
+            }
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
+    }
+    
     @PUT
     @Path("{id:[0-9]+}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response put(@PathParam("id")String id,JSONObject uOptions){
-    	if (permit(this.userProvider.get())) {
-        	try {
-    			User u = userManager.findUser(Integer.parseInt(id));
-    			if (u!=null) {
-    				//TODO: Update firstname, surname !!
-    				JSONArray roles = uOptions.getJSONArray("roles");
-    				List<String> rList = new ArrayList<String>(JSONArray.toCollection(roles));
-    				this.userManager.changeRoles(u, rList);
-        			u =  this.userManager.findUser(u.getId());
-        			return Response.ok().entity(userToJSON(u).toString()).build();
-    			} else {
-        			throw new ObjectNotFound("cannot find user '"+id+"'");
-    			}
-    		} catch (SQLException e) {
-    			throw new UpdateException(e.getMessage(),e);
-    		}
-    	} else {
-    		throw new ActionNotAllowed("not allowed");
-    	}
-    }
-	
-    @DELETE
-    @Path("{id:[0-9]+}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("id")String id){
-    	if (permit(this.userProvider.get())) {
-    		try {
-    			
-    			User u = this.userManager.findUser(Integer.parseInt(id));
-				if (u != null) {
-					User adminUser = this.userManager.findUserByLoginName("krameriusAdmin");
-					if (u.getId() == adminUser.getId()) {
-						// it is not allowed delete kramerius admin
-						throw new ActionNotAllowed("not allowed");
-					}
-					this.userManager.deleteUser(u);
-					JSONObject json = userToJSON(u);
-					json.put("deleted", true);
-					return Response.ok().entity(json.toString()).build();
-				} else {
-        			throw new ObjectNotFound("cannot find user '"+id+"'");
-				}
-			} catch (SQLException e) {
-				throw new DeleteException("cannot find user '"+id+"'");
-			}
-    	} else {
-    		throw new ActionNotAllowed("not allowed");
-    	}
+    public Response put(@PathParam("id") String id, JSONObject uOptions) {
+        if (permit(this.userProvider.get())) {
+            try {
+                User u = userManager.findUser(Integer.parseInt(id));
+                if (u != null) {
+                    // TODO: Update firstname, surname !!
+                    JSONArray roles = uOptions.getJSONArray("roles");
+                    List<String> rList = new ArrayList<String>(
+                            JSONArray.toCollection(roles));
+                    this.userManager.changeRoles(u, rList);
+                    u = this.userManager.findUser(u.getId());
+                    return Response.ok().entity(userToJSON(u).toString())
+                            .build();
+                } else {
+                    throw new ObjectNotFound("cannot find user '" + id + "'");
+                }
+            } catch (SQLException e) {
+                throw new UpdateException(e.getMessage(), e);
+            }
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
     }
 
     
+    
+    @DELETE
+    @Path("{id:[0-9]+}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response delete(@PathParam("id") String id) {
+        if (permit(this.userProvider.get())) {
+            try {
+                User u = this.userManager.findUser(Integer.parseInt(id));
+                if (u != null) {
+                    User adminUser = this.userManager
+                            .findUserByLoginName("krameriusAdmin");
+                    if (u.getId() == adminUser.getId()) {
+                        // it is not allowed delete kramerius admin
+                        throw new ActionNotAllowed("not allowed");
+                    }
+                    this.userManager.deleteUser(u);
+                    JSONObject json = userToJSON(u);
+                    json.put("deleted", true);
+                    return Response.ok().entity(json.toString()).build();
+                } else {
+                    throw new ObjectNotFound("cannot find user '" + id + "'");
+                }
+            } catch (SQLException e) {
+                throw new DeleteException("cannot find user '" + id + "'");
+            }
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
+    }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(JSONObject uOptions) {
-    	if (permit(this.userProvider.get())) {
-	    	try {
-				User user = createUserFromJSON(uOptions);
-				if (!uOptions.containsKey("password")) {
-					throw new IllegalStateException("expecting password key");
-				}
-				String pswd = uOptions.getString("password");
-				this.userManager.insertUser(user, pswd);
-				this.userManager.activateUser(user);
-	            URI uri = UriBuilder.fromResource(UsersResource.class).path("").build();
-	            return Response.created(uri).entity(userToJSON(user).toString()).build();
-	    	} catch (SQLException e) {
-				throw new CreateException(e.getMessage(), e);
-			}
-    	} else {
-    		throw new ActionNotAllowed("not allowed");
-    	}
+        if (permit(this.userProvider.get())) {
+            try {
+                User user = createUserFromJSON(uOptions);
+                if (!uOptions.containsKey("password")) {
+                    throw new IllegalStateException("expecting password key");
+                }
+                String pswd = uOptions.getString("password");
+                this.userManager.insertUser(user, pswd);
+                this.userManager.activateUser(user);
+                URI uri = UriBuilder.fromResource(UsersResource.class).path("")
+                        .build();
+                return Response.created(uri)
+                        .entity(userToJSON(user).toString()).build();
+            } catch (SQLException e) {
+                throw new CreateException(e.getMessage(), e);
+            }
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
     }
 
-	public static JSONObject userToJSON(User user) {
-		JSONObject jsonObj = new JSONObject();
-		jsonObj.put("lname", user.getLoginname());
-		jsonObj.put("firstname", user.getFirstName());
-		jsonObj.put("surname", user.getSurname());
-		jsonObj.put("id", user.getId());
-		
-		JSONArray jsonArr = new JSONArray();
-		Role[] roles = user.getGroups();
-		if (roles != null) {
-			for (Role r : roles) {
-				JSONObject json = RolesResource.roleToJSON(r);
-				jsonArr.add(json);
-			}
-			jsonObj.put("roles", jsonArr);
-		}
-		return jsonObj;
-	}
+    public static JSONObject userToJSON(User user) {
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("lname", user.getLoginname());
+        jsonObj.put("firstname", user.getFirstName());
+        jsonObj.put("surname", user.getSurname());
+        jsonObj.put("id", user.getId());
 
-	public static User createUserFromJSON(JSONObject uOptions) {
-		String lname = uOptions.getString("lname");
-		String fname = uOptions.getString("firstname");
-		String sname = uOptions.getString("surname");
-		
-		int id =  -1;
-		if (uOptions.containsKey("id")) {
-			uOptions.getInt("id");
-		}
+        JSONArray jsonArr = new JSONArray();
+        Role[] roles = user.getGroups();
+        if (roles != null) {
+            for (Role r : roles) {
+                JSONObject json = RolesResource.roleToJSON(r);
+                jsonArr.add(json);
+            }
+            jsonObj.put("roles", jsonArr);
+        }
+        return jsonObj;
+    }
 
-		UserImpl u = new UserImpl(id, fname, sname, lname, -1);
-		if (uOptions.containsKey("roles")) {
-			List<Role> rlist = new ArrayList<Role>();
-			JSONArray jsonArr = uOptions.getJSONArray("roles");
-			for (Object obj : jsonArr) {
-				JSONObject jsonObj = (JSONObject) obj;
-				rlist.add(RolesResource.createRoleFromJSON(jsonObj));
-			}	
-			u.setGroups(rlist.toArray(new Role[rlist.size()]));
-		}
-		
-		return u;
-	}
-	
-	
+    public static User createUserFromJSON(JSONObject uOptions) {
+        String lname = uOptions.getString("lname");
+        String fname = uOptions.getString("firstname");
+        String sname = uOptions.getString("surname");
+
+        int id = -1;
+        if (uOptions.containsKey("id")) {
+            uOptions.getInt("id");
+        }
+
+        UserImpl u = new UserImpl(id, fname, sname, lname, -1);
+        if (uOptions.containsKey("roles")) {
+            List<Role> rlist = new ArrayList<Role>();
+            JSONArray jsonArr = uOptions.getJSONArray("roles");
+            for (Object obj : jsonArr) {
+                JSONObject jsonObj = (JSONObject) obj;
+                rlist.add(RolesResource.createRoleFromJSON(jsonObj));
+            }
+            u.setGroups(rlist.toArray(new Role[rlist.size()]));
+        }
+
+        return u;
+    }
 
     boolean permit(User user) {
-    	if (user != null)
-    		return  this.actionAllowed.isActionAllowed(user,SecuredActions.USERSADMIN.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH);
-    	else 
-    		return false;
+        if (user != null)
+            return this.actionAllowed.isActionAllowed(user,
+                    SecuredActions.USERSADMIN.getFormalName(),
+                    SpecialObjects.REPOSITORY.getPid(), null,
+                    ObjectPidsPath.REPOSITORY_PATH);
+        else
+            return false;
     }
 
 }

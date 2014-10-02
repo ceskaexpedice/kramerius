@@ -340,19 +340,50 @@ public class DocumentServiceImpl implements DocumentService {
 
             } else {
                 // metadata
-                page = new TextPage(modelName, pid);
+
+                page = new ImagePage(modelName, this.fedoraAccess.findFirstViewablePid(pid));
                 page.setOutlineDestination(pid);
-//          String title = DCUtils.titleFromDC(dc);
-//          if ((title == null) || title.equals("")) {
-//              title = BiblioModsUtils.titleFromBiblioMods(biblioMods);
-//              title = BiblioModsUtils.getTitle(biblioMods, fedoraAccess.getKrameriusModelName(objectId));
-//          }
-                //if (title.trim().equals("")) throw new IllegalArgumentException(objectId+" has no title ");
                 
                 page.setBiblioMods(biblioMods);
                 page.setDc(dc);
+
+                Map<String, List<String>> map = new HashMap<String, List<String>>();
+                PageNumbersBuilder pageNumbersBuilder = new PageNumbersBuilder();
+                pageNumbersBuilder.build(biblioMods, map, modelName);
+                List<String> pageNumbers = map.get(PageNumbersBuilder.MODS_PAGENUMBER);
+                pageNumbers = pageNumbers != null ? pageNumbers : new ArrayList<String>();
+                String pageNumber = pageNumbers.isEmpty() ? "" : pageNumbers.get(0);    
+
+
+                page.setPageNumber(pageNumber);
+                //renderedDocument.addPage(page);
+                Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
+                String attribute = part != null ? part.getAttribute("type") : null;
+                if (attribute != null) {
+                    String key = "pdf."+attribute;
+                    if (resourceBundle.containsKey(key)) {
+                        page.setOutlineTitle(page.getPageNumber()+" "+resourceBundle.getString(key));
+                    } else {
+                        page.setOutlineTitle(page.getPageNumber());
+                        //throw new RuntimeException("");
+                    }
+                }
+                if ((renderedDocument.getUuidTitlePage() == null) && ("TitlePage".equals(attribute))) {
+                    renderedDocument.setUuidTitlePage(pid);
+                }
+
+                if ((renderedDocument.getUuidFrontCover() == null) && ("FrontCover".equals(attribute))) {
+                    renderedDocument.setUuidFrontCover(pid);
+                }
+
+                if ((renderedDocument.getUuidBackCover() == null) && ("BackCover".equals(attribute))) {
+                    renderedDocument.setUuidBackCover(pid);
+                }
+
+                if (renderedDocument.getFirstPage() == null)  {
+                    renderedDocument.setFirstPage(pid);
+                }
                 
-                page.setOutlineTitle(TitlesUtils.title(pid, solrAccess, fedoraAccess, resourceBundle));
             }
             return page;
         } catch (XPathExpressionException e) {
