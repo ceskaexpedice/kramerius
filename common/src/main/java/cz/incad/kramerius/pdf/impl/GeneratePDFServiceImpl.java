@@ -88,8 +88,8 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements 
         String[] texts = { 
         "security_fail", "security_fail_CZ_cs",
         // TODO: Move to another position
-        "logininfo", "logininfo_CZ_cs"
-
+        "logininfo", "logininfo_CZ_cs",
+        "k5info"
         };
 
         IOUtils.copyBundledResources(this.getClass(), texts, "res/", this.textsService.textsFolder());
