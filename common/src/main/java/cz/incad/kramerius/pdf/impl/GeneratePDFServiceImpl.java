@@ -89,11 +89,12 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                 .asList(this.fontDirectory.get().getAbsolutePath()));
     }
 
-    public void init() throws IOException {
-        String[] texts = { "security_fail", "security_fail_CZ_cs",
-                // TODO: Move to another position
-                "logininfo", "logininfo_CZ_cs"
-
+	public void init() throws IOException {
+        String[] texts = { 
+        "security_fail", "security_fail_CZ_cs",
+        // TODO: Move to another position
+        "logininfo", "logininfo_CZ_cs",
+        "k5info"
         };
 
         IOUtils.copyBundledResources(this.getClass(), texts, "res/",

@@ -36,7 +36,7 @@ public class StringUtils {
      * @return result of Bigger - Smaller
      */
     public static String minus(String bigger, String smaller) {
-        if (bigger.length() > smaller.length()) {
+        if (bigger.length() >= smaller.length()) {
             return bigger.replace(smaller, "");
         } else throw new IllegalArgumentException("");
     }
