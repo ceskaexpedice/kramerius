@@ -37,6 +37,7 @@ import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.users.UserProfileManager;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -140,8 +141,39 @@ public class FeederResource {
     }
 
     @GET
+    @Path("custom")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response custom() {
+        List alist = KConfiguration.getInstance().getConfiguration().getList("search.home.tab.custom.uuids");
+        JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        if (!alist.isEmpty()) {
+            for (Object p : alist) {
+                String pid = p.toString();
+                if (!pid.trim().equals("")) {
+                    try {
+                        String uriString = UriBuilder
+                                .fromResource(FeederResource.class)
+                                .path("custom").build(pid).toString();
+                        JSONObject mdis = JSONUtils.pidAndModelDesc(pid.toString(), 
+                                uriString, this.solrMemo, this.decoratorsAggregate, uriString);
+                        jsonArray.add(mdis);
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        JSONObject error = new JSONObject();
+                        error.put("pid", p);
+                        error.put("exception", e.getMessage());
+                        jsonArray.add(error);
+                    }
+                }
+            }
+        }
+        jsonObject.put("data", jsonArray);
+        return Response.ok().entity(jsonObject.toString()).build();
+    }
+    
+    @GET
     @Path("mostdesirable")
-
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response mostdesirable(
             @QueryParam("limit") Integer limit,
@@ -177,7 +209,6 @@ public class FeederResource {
             }
         }
         jsonObject.put("data", jsonArray);
-
         return Response.ok().entity(jsonObject.toString()).build();
     }
 }
