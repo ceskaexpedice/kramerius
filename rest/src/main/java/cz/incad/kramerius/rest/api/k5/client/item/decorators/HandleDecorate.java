@@ -54,6 +54,7 @@ public class HandleDecorate extends AbstractItemDecorator {
 
     @Override
     public boolean apply(JSONObject jsonObject, String context) {
-        return false;
+        TokenizedPath tpath = super.itemContext(tokenize(context));
+        return (tpath.isParsed() && tpath.getRestPath().isEmpty());
     }
 }
