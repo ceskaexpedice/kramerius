@@ -155,7 +155,7 @@ public class JSONDecoratorsAggregateTest {
                 acceptedDecorators.add(jsonDec);
             }
         }
-        Assert.assertTrue(acceptedDecorators.size() == 11);
+        Assert.assertTrue(acceptedDecorators.size() == 12);
 
     }
 
@@ -209,7 +209,7 @@ public class JSONDecoratorsAggregateTest {
                 acceptedDecorators.add(jsonDec);
             }
         }
-        Assert.assertTrue(acceptedDecorators.size() == 10);
+        Assert.assertTrue(acceptedDecorators.size() == 11);
     }
 
     @Test
