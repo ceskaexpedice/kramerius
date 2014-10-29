@@ -3,14 +3,11 @@ package cz.incad.Kramerius;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import javax.servlet.ServletConfig;
@@ -38,6 +35,7 @@ import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.handle.DisectHandle;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.utils.solr.SolrUtils;
@@ -70,7 +68,7 @@ public class HandleServlet extends GuiceServlet {
         try {
 
             String requestURL = req.getRequestURL().toString();
-            String handle = disectHandle(requestURL);
+            String handle = DisectHandle.disectHandle(requestURL);
             handle = URLDecoder.decode(handle,"UTF-8");
             
             HandleType handleType = HandleType.createType(handle);
@@ -81,36 +79,6 @@ public class HandleServlet extends GuiceServlet {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             resp.sendError(500);
         }
-    }
-
-    public static String disectHandle(String requestURL) {
-        //"dvju"
-        try {
-            StringBuffer buffer = new StringBuffer();
-            URL url = new URL(requestURL);
-            String path = url.getPath();
-            String application = path;
-            StringTokenizer tokenizer = new StringTokenizer(path, "/");
-            if (tokenizer.hasMoreTokens()) {
-                application = tokenizer.nextToken();
-            }
-            String handleServlet = path;
-            if (tokenizer.hasMoreTokens()) {
-                handleServlet = tokenizer.nextToken();
-            }
-            // check handle servlet
-            while (tokenizer.hasMoreTokens()) {
-                buffer.append(tokenizer.nextElement());
-                if (tokenizer.hasMoreTokens()) {
-                    buffer.append("/");
-                }
-            }
-            return buffer.toString();
-        } catch (MalformedURLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return "<no handle>";
-        }
-
     }
 
     enum HandleType {
