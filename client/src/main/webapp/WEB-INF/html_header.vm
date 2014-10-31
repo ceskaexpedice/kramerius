@@ -1,0 +1,71 @@
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta name="description" content="Digitized documents access aplication." />
+    <meta name="keywords" content="periodical, monograph, library,  book, publication, kramerius, fedora" />
+    <meta name="author" content="INCAD, www.incad.cz" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"  />
+
+    <meta name="viewport" 
+        content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <link rel="apple-touch-icon"
+      href="images/favicon.ico" />
+    <link rel="apple-touch-icon-precomposed"
+      href="images/favicon.ico" />
+
+
+    #* stylesheets maps *# 
+    #foreach($f in $fmap.stylesheets)
+    <link type="text/css" href="$f" rel="stylesheet" />
+    #end
+
+
+    #* javascript maps *# 
+    #foreach($f in $fmap.javascripts)
+    <script src="$f" type="text/javascript" ></script>
+    #end
+
+    <title>$i18n.application.title</title>
+    <script language="JavaScript" type="text/javascript">
+
+        $(document).ready(function() {
+	    // Initializing application	
+	    K5.init({
+                // selected language
+                "language":'$i18n.language', 
+                // home page check
+                #if(!$params.page) "page":'home',
+                #else "page":'$params.page',  #end
+               
+                //user and profile
+                #if($logControl.logged)"user": $logControl.userJSONRepresentation, #end
+                #if($logControl.profileRetrieved)"profile": $logControl.profileJSONRepresentation, #end
+
+                // session controls
+                "session":$sessionControl.sessionFieldsJSONRepresentation,  
+                
+                //selected configurations 
+                "conf": {
+                    "pdf":{
+                        "limit":$conf.getString('k5client.pdf.limit')
+                     }
+                },
+
+
+                // definitions
+                "defs": {
+                    "menu":$fmap.menuDefinitions,
+                    "viewers": $fmap.viewersDefinitions
+                }
+            });
+        });
+
+        $(window).resize(function() {
+            $(".resizable").trigger("wresize");
+        });
+        
+    </script>
+</head>

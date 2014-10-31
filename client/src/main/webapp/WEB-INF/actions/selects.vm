@@ -1,0 +1,20 @@
+<!-- Vyber stranek  -->
+<div class="selections" style="position:absolute;display:none;">
+    <div id="selections_container">  
+
+        <div id="selections_thumbs"> 
+        </div>
+    </div>
+
+    <div class="selection_footer">
+        <div class="right">
+            <div class="buttons">
+                <div class="button" onclick="K5.gui.clipboard.print();" data-ctx="selection">#translatable('application.print')</div>
+                <div class="button" onclick ="K5.gui.clipboard.pdf()" data-ctx="selection;pdflimit">#translatable('application.pdf')</div>
+                <div class="button" onclick="cleanWindow();">#translatable('common.close')</div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+

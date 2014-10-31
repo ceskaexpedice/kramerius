@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<svg
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns="http://www.w3.org/2000/svg"
+    version="1.1"
+    xml:space="preserve"
+    width="100"
+    height="100"
+    viewBox="0 0 100 100"
+    class="pin">
+    <rect x="10" y="10" height="80" width="80" class="svg-icon"/>
+    <line x1="30" y1="30" x2="70" y2="30" class="svg-icon" />
+    <line x1="30" y1="50" x2="70" y2="50" class="svg-icon"/>
+    <line x1="30" y1="70" x2="70" y2="70" class="svg-icon"/>
+</svg>

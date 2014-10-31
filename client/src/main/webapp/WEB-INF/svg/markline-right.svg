@@ -1,0 +1,14 @@
+<svg width="15" height="106"  viewBox="0 0 15 106">
+
+   <line x1="13" y1="3" x2="3" y2="13" class="svg-icon" style="stroke-width: 2"/>    
+   <line x1="3" y1="13" x2="13" y2="23" class="svg-icon" style="stroke-width: 2"/>    
+   <line x1="13" y1="23" x2="3" y2="33" class="svg-icon" style="stroke-width: 2"/>    
+   <line x1="3" y1="33" x2="13" y2="43" class="svg-icon" style="stroke-width: 2"/>    
+   <line x1="13" y1="43" x2="3" y2="53" class="svg-icon" style="stroke-width: 2"/>    
+   <line x1="3" y1="53" x2="13" y2="63" class="svg-icon" style="stroke-width: 2"/>    
+   <line x1="13" y1="63" x2="3" y2="73" class="svg-icon" style="stroke-width: 2"/>    
+   <line x1="3" y1="73" x2="13" y2="83" class="svg-icon" style="stroke-width: 2"/>    
+   <line x1="13" y1="83" x2="3" y2="93" class="svg-icon" style="stroke-width: 2"/>    
+   <line x1="3" y1="93" x2="13" y2="103" class="svg-icon" style="stroke-width: 2"/>    
+
+</svg>

@@ -1,0 +1,15 @@
+
+.vertical-texts {
+    writing-mode: tb-rl; filter: flipv() fliph();
+    margin-left:3px;
+    margin-top:3px;
+    margin-bottom:3px;
+}
+
+#viewer .leftarrow {
+display:-ms-flexbox;
+-ms-flex-pack:center;
+-ms-flex-align:center;
+}
+
+

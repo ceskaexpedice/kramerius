@@ -1,0 +1,15 @@
+<div id="tbl_menus" class="dialogs" style="display:none; ">
+
+    <div class="triangle"></div>
+
+    #if(!$logControl.logged)
+        <div class="button" onclick="link('?page=registration')">#translatable('application.registration')</div>
+        <div class="button" onclick='link("?page=login")'><span>  $logControl.loggedName </span></div>
+    #end
+
+    <div class="button" onclick="link('https://github.com/ceskaexpedice/k5client/wiki')" >#translatable('application.help')</div>
+
+    <div class="right">
+        <div class="button" onclick="cleanWindow();">#translatable('common.close')</div>
+    </div>
+</div>

@@ -1,0 +1,33 @@
+[
+
+        {
+            "id":1,
+            "name":"zoom",
+            "object":"Zoomify"
+        },
+
+        {
+            "id":2,
+            "name":"pdf",
+            "object":"PDFView"
+        },
+
+        {
+            "name":"zoomstatic",
+            "id":3,
+            "object":"ZoomifyStaticImage"
+        },
+
+        {
+            "name":"thumbs",
+            "id":4,
+            "object":"ItemThumbs"
+        },
+
+        {
+            "name":"forbidden",
+            "id":666,
+            "object":"Forbidden"
+        }
+
+]

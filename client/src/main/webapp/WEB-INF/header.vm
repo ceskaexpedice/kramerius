@@ -1,0 +1,62 @@
+<div id="header">
+
+    <div class="logo" href="index.vm" title="home">
+        <a href="?page=home"><img style="border:0;" src="images/k5.png" /></a>
+    </div>
+
+    <div class="buttons">
+        <div class="button #if($params.page == 'browse')sel#end" onclick="link('?page=browse')">#translatable('common.browse')</div>
+        <div class="button #if($params.page == 'da')sel#end" onclick="link('?page=da')">#translatable('common.timeline')</div>
+#if($conf.getBoolean('k5client.showcollections'))
+        <div class="button #if($params.page == 'collections')sel#end" onclick="link('?page=collections')">#translatable('common.collections')</div>
+#end
+    </div>
+    <div id="contextbuttons" class="contextbuttons">
+    </div>
+
+    <div class="right" id="largedisplay">
+        #if(!$logControl.logged)
+            <div class="button" onclick="link('?page=registration')">#translatable('application.registration')</div>
+            <div class="button" onclick="link('?page=login')">#translatable('application.login')</div>
+        #end
+        
+        <div class="button" onclick="link('https://github.com/ceskaexpedice/k5client/wiki')" >#translatable('application.help')</div>
+
+        #if($logControl.logged)
+            <div class="button" onclick="K5.authentication.profileDisplay.toggle()"><span>$logControl.loggedName</span></div>
+        #end
+    
+        <div class="button select">
+            <select id="langSelector" onchange="K5.i18n.askForDictionary( $('#langSelector').val() )">
+                <option #if($i18n.language == 'cs')selected="selected" #end>cs</option>
+                <option #if($i18n.language == 'en')selected="selected" #end>en</option>
+            </select>
+        </div>
+
+
+
+    </div>
+    
+    <div class="right" id="smalldisplay">
+
+        #if($logControl.logged)
+            <div class="button" onclick="K5.authentication.profileDisplay.toggle()"><span>$logControl.loggedName</span></div>
+        #end
+
+        #if(!$logControl.logged)
+            <div class="showmore button" onclick="divopen('#tbl_menus');">
+                #translatable('application.more')
+            </div>
+        #end
+
+
+        <div class="button select">
+            <select id="smallLangSelector" onchange="K5.i18n.askForDictionary( $('#smallLangSelector').val() )">
+                <option #if($i18n.language == 'cs')selected="selected" #end>cs</option>
+                <option #if($i18n.language == 'en')selected="selected" #end>en</option>
+            </select>
+        </div>
+
+    </div>
+
+</div>

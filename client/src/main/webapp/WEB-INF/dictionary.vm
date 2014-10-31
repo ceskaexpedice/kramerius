@@ -1,0 +1,6 @@
+{
+#foreach($key in $jsonDictionary.keys)
+"$key" : "$jsonDictionary.get($key)", 
+#end
+"dummy":""
+}

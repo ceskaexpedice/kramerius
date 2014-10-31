@@ -1,0 +1,9 @@
+{
+    "mappings": {
+        "title": "dc.title",
+        "fedora_model": "fedora.model",
+        "autor": "dc.creator",
+        "dc_description:": "dc.description",
+        "dc_identifier:": "dc.identifier"
+    }
+}

@@ -1,0 +1,42 @@
+@media screen and (max-width: 1024px)  { 
+        .small svg{
+                height: 48px;
+                width: 48px;
+        }        
+
+}
+
+@media screen and (max-width: 1024px) and (orientation: portrait) { 
+        body{background:#F0F;} 
+        #header{
+                height: 12mm;
+                content:  "Tablets.... ";
+        }        
+
+}
+
+@media screen and (max-width: 1024px) and (orientation: landscape) { 
+        body{background:#F00;} 
+}
+
+@media only screen and (max-width: 1366px) {
+        #header{
+                height: 22mm;
+                content:  "Some screens";
+        }        
+}
+
+@media 
+only screen
+and (min-device-width : 768px)
+and (max-device-width : 1024px)
+and (orientation : portrait)
+and (-webkit-min-device-pixel-ratio : 2) {
+        #header{
+                height: 12mm;
+                content:  "Tablets.... ";
+        }        
+        
+}
+
+
