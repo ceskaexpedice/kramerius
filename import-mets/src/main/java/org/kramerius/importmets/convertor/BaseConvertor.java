@@ -12,6 +12,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
@@ -966,10 +967,22 @@ public abstract class BaseConvertor {
                         String tilesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerTilesURLPrefix");
                         String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
                         String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.big");
-                        cl.setREF(imagesPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+"/"+pageFile.getName())+suffix);
-                        //Adjust RELS-EXT
-                        String suffixTiles = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.tiles");
-                        foxmlModel.getRe().addRelation(RelsExt.TILES_URL,tilesPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+"/"+pageFile.getName())+ suffixTiles,true);
+
+                        if(KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerSuffix.removeFilenameExtensions", false)) {
+                            String pageFileNameWithoutExtension = FilenameUtils.removeExtension(pageFile.getName());
+                            cl.setREF(imagesPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+"/"+pageFileNameWithoutExtension)+suffix);
+
+                            //Adjust RELS-EXT
+                            String suffixTiles = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.tiles");
+                            foxmlModel.getRe().addRelation(RelsExt.TILES_URL,tilesPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+"/"+pageFileNameWithoutExtension)+ suffixTiles,true);
+                        } else {
+                            cl.setREF(imagesPrefix + "/" + PathEncoder.encPath(getConfig().getContract() + "/" + pageFile.getName()) + suffix);
+
+                            //Adjust RELS-EXT
+                            String suffixTiles = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.tiles");
+                            foxmlModel.getRe().addRelation(RelsExt.TILES_URL,tilesPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+"/"+pageFile.getName())+ suffixTiles,true);
+                        }
+
                     }   else{
                         String externalPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.externalStreamsUrlPrefix");
                         if (externalPrefix!= null && !"".equals(externalPrefix)){
@@ -1071,7 +1084,12 @@ public abstract class BaseConvertor {
                 }else{
                     String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
                 	String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.thumb");
-                    cl.setREF(imagesPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+filename.substring(filename.lastIndexOf("/")))+suffix);
+                    if(KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerSuffix.removeFilenameExtensions", false)) {
+                        String pageFileNameWithoutExtension = FilenameUtils.removeExtension(filename.substring(filename.lastIndexOf("/")));
+                        cl.setREF(imagesPrefix + "/"+PathEncoder.encPath(getConfig().getContract()+pageFileNameWithoutExtension+suffix));
+                    } else {
+                        cl.setREF(imagesPrefix + "/" + PathEncoder.encPath(getConfig().getContract() + filename.substring(filename.lastIndexOf("/"))) + suffix);
+                    }
                 }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
@@ -1145,7 +1163,12 @@ public abstract class BaseConvertor {
                 }else{
                     String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
                     String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.preview");
-                    cl.setREF(imagesPrefix +"/"+PathEncoder.encPath(getConfig().getContract()+filename.substring(filename.lastIndexOf("/")))+suffix);
+                    if(KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServer.removeFilenameExtensions", false)) {
+                        String pageFileNameWithoutExtension = FilenameUtils.removeExtension(filename.substring(filename.lastIndexOf("/")));
+                        cl.setREF(imagesPrefix +"/"+PathEncoder.encPath(getConfig().getContract()+pageFileNameWithoutExtension+suffix));
+                    } else {
+                        cl.setREF(imagesPrefix + "/" + PathEncoder.encPath(getConfig().getContract() + filename.substring(filename.lastIndexOf("/"))) + suffix);
+                    }
                 }
                 cl.setTYPE("URL");
                 version.setContentLocation(cl);
