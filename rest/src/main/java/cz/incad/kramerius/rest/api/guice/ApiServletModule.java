@@ -32,6 +32,7 @@ import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrAuthorDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrPolicyDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootModelDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootPidDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrTitleDecorate;
@@ -123,6 +124,7 @@ public class ApiServletModule extends JerseyServletModule {
 		decs.addBinding().to(FeederSolrRootPidDecorate.class);
 		decs.addBinding().to(FeederSolrTitleDecorate.class);
         decs.addBinding().to(FeederSolrAuthorDecorate.class);
+        decs.addBinding().to(FeederSolrPolicyDecorate.class);
 		
 		//item
 		decs.addBinding().to(HandleDecorate.class);
