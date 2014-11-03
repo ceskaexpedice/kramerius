@@ -68,12 +68,13 @@ import cz.incad.kramerius.statistics.ReportedAction;
 
 /**
  * REST API module
+ * 
  * @author pavels
  */
 public class ApiServletModule extends JerseyServletModule {
 
-    //public static String VERSION = "v4.6";
-	
+    // public static String VERSION = "v4.6";
+
     @Override
     protected void configureServlets() {
         // API Resources
@@ -89,72 +90,68 @@ public class ApiServletModule extends JerseyServletModule {
         bind(SearchResource.class);
         bind(ClientRightsResource.class);
         bind(PDFResource.class);
-        
-        
+
         bind(RightsResource.class);
         bind(UsersResource.class);
         bind(RolesResource.class);
         bind(VirtualCollectionsResource.class);
-        
+
         bind(StatisticsResource.class);
-        
-        bind(SolrMemoization.class).to(SolrMemoizationImpl.class).asEagerSingleton();
-        
-        //decorators
+
+        bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
+                .asEagerSingleton();
+
+        // decorators
         decorators();
-        
-     
+
         // api
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("com.sun.jersey.api.json.POJOMappingFeature", "true");
-        parameters.put("com.sun.jersey.config.property.packages", "cz.incad.kramerius.rest.api.processes.messages");
-        
-        serve("/api/*").with(GuiceContainer.class, parameters);
-        //serve("/api/"+VERSION+"/*").with(GuiceContainer.class, parameters);
-    }
+        parameters.put("com.sun.jersey.config.property.packages",
+                "cz.incad.kramerius.rest.api.processes.messages");
 
-    
+        serve("/api/*").with(GuiceContainer.class, parameters);
+        // serve("/api/"+VERSION+"/*").with(GuiceContainer.class, parameters);
+    }
 
     public static void decoratorsBindings(Multibinder<JSONDecorator> decs) {
-		//feeder
-		decs.addBinding().to(SolrISSNDecorate.class);
-		decs.addBinding().to(SolrDateDecorate.class);
-		decs.addBinding().to(SolrLanguageDecorate.class);
-		decs.addBinding().to(FeederSolrRootModelDecorate.class);
-		decs.addBinding().to(FeederSolrRootPidDecorate.class);
-		decs.addBinding().to(FeederSolrTitleDecorate.class);
+        // feeder
+        decs.addBinding().to(SolrISSNDecorate.class);
+        decs.addBinding().to(SolrDateDecorate.class);
+        decs.addBinding().to(SolrLanguageDecorate.class);
+        decs.addBinding().to(FeederSolrRootModelDecorate.class);
+        decs.addBinding().to(FeederSolrRootPidDecorate.class);
+        decs.addBinding().to(FeederSolrTitleDecorate.class);
         decs.addBinding().to(FeederSolrAuthorDecorate.class);
         decs.addBinding().to(FeederSolrPolicyDecorate.class);
-		
-		//item
-		decs.addBinding().to(HandleDecorate.class);
-		decs.addBinding().to(ItemSolrTitleDecorate.class);
-		decs.addBinding().to(ItemSolrRootModelDecorate.class);
-		decs.addBinding().to(ItemSolrRootPidDecorate.class);
-		decs.addBinding().to(SolrContextDecorate.class);
-		decs.addBinding().to(SolrDataNode.class);
-		decs.addBinding().to(CollectionsDecorator.class);
-		decs.addBinding().to(ReplicatedFromDecorator.class);
-                decs.addBinding().to(SolrRightsFlag.class);
-		
-		
-		// item, display
-		decs.addBinding().to(ZoomDecorate.class);
-		decs.addBinding().to(PDFDecorate.class);
-		
-		// item, details
-		decs.addBinding().to(MonographUnitDecorate.class);
-		decs.addBinding().to(PageDetailDecorate.class);
-		decs.addBinding().to(PeriodicalItemDecorate.class);
-		decs.addBinding().to(PeriodicalVolumeDecorator.class);
+
+        // item
+        decs.addBinding().to(HandleDecorate.class);
+        decs.addBinding().to(ItemSolrTitleDecorate.class);
+        decs.addBinding().to(ItemSolrRootModelDecorate.class);
+        decs.addBinding().to(ItemSolrRootPidDecorate.class);
+        decs.addBinding().to(SolrContextDecorate.class);
+        decs.addBinding().to(SolrDataNode.class);
+        decs.addBinding().to(CollectionsDecorator.class);
+        decs.addBinding().to(ReplicatedFromDecorator.class);
+        decs.addBinding().to(SolrRightsFlag.class);
+
+        // item, display
+        decs.addBinding().to(ZoomDecorate.class);
+        decs.addBinding().to(PDFDecorate.class);
+
+        // item, details
+        decs.addBinding().to(MonographUnitDecorate.class);
+        decs.addBinding().to(PageDetailDecorate.class);
+        decs.addBinding().to(PeriodicalItemDecorate.class);
+        decs.addBinding().to(PeriodicalVolumeDecorator.class);
     }
-    
+
     private void decorators() {
-		Multibinder<JSONDecorator> decs
-        = Multibinder.newSetBinder(binder(), JSONDecorator.class);
+        Multibinder<JSONDecorator> decs = Multibinder.newSetBinder(binder(),
+                JSONDecorator.class);
 
-		decoratorsBindings(decs);
+        decoratorsBindings(decs);
     }
-
 
 }

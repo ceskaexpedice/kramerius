@@ -23,33 +23,34 @@ import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
 
 public abstract class AbstractFeederDecorator extends AbstractDecorator {
 
-	public static final String FEED_KEY="FEED";
+    public static final String FEED_KEY = "FEED";
 
-	public static String key(String key) {
-		return AbstractDecorator.construct(FEED_KEY, key);
-	}
+    public static String key(String key) {
+        return AbstractDecorator.construct(FEED_KEY, key);
+    }
 
-	
-	protected TokenizedPath feederContext(List<String> input) {
+    protected TokenizedPath feederContext(List<String> input) {
 
-		// basic path
-		TokenizedPath bcont = super.basicContext(input);
-		if (!bcont.isParsed()) return bcont;
-		
-		List<String> atoms = bcont.getRestPath();
-		List<String> retvals = new ArrayList<String>(atoms);
-		if (!retvals.isEmpty()) {
-			if (!retvals.get(0).equals("feed")) return new TokenizedPath(false, atoms);	
-			retvals.remove(0);
-		} else return new TokenizedPath(false, atoms);
+        // basic path
+        TokenizedPath bcont = super.basicContext(input);
+        if (!bcont.isParsed())
+            return bcont;
 
-		
-		return new TokenizedPath(true, retvals);
-	}
+        List<String> atoms = bcont.getRestPath();
+        List<String> retvals = new ArrayList<String>(atoms);
+        if (!retvals.isEmpty()) {
+            if (!retvals.get(0).equals("feed"))
+                return new TokenizedPath(false, atoms);
+            retvals.remove(0);
+        } else
+            return new TokenizedPath(false, atoms);
 
-	protected boolean mostDesirableOrNewest(TokenizedPath fctx) {
-		return fctx.getRestPath().get(0).equals("mostdesirable") || fctx.getRestPath().get(0).equals("newest");
-	}
+        return new TokenizedPath(true, retvals);
+    }
 
-	
+    protected boolean mostDesirableOrNewest(TokenizedPath fctx) {
+        return fctx.getRestPath().get(0).equals("mostdesirable")
+                || fctx.getRestPath().get(0).equals("newest");
+    }
+
 }
