@@ -1,20 +1,14 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath 'org.gradle.api.plugins:gradle-cargo-plugin:1.5'
-    }
-}
-
 apply plugin: 'war'
-apply plugin: 'cargo-base'
-
-apply from: 'debugtasks.gradle'
-apply from: 'deploytasks.gradle'
+apply plugin: 'kdeploy'
 
 description "Admin web application"
+
+
+deployment {
+        http('adminLocal','localhost',8080,'usernameKey','pswdKey') 
+        http('adminVmkram','vmkramerius',8080,'usernameKey','pswdKey') 
+}
+
 
 sourceSets {
     main {
@@ -26,6 +20,7 @@ sourceSets {
             srcDir 'src/java'
         }
     }
+
     test {
 	java {
             srcDir 'src/test'
@@ -35,8 +30,6 @@ sourceSets {
 	}
     }
 }
-
-
 
 dependencies {
 
@@ -98,8 +91,6 @@ task infofile(dependsOn: gitcall) << {
 }
 
 processResources.dependsOn infofile
-
-
 
 war {
     baseName='search'

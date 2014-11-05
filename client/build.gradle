@@ -1,25 +1,20 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath 'org.gradle.api.plugins:gradle-cargo-plugin:1.5'
-    }
-}
+description "Client web application"
 
 apply plugin: 'war'
-apply plugin: 'cargo-base'
+apply plugin: 'kdeploy'
 
+
+deployment {
+        http('clientLocal','localhost', 8080,'usernameKey','pswdKey') 
+        http('clientVmkram','vmkramerius', 8080,'usernameKey','pswdKey') 
+}
 
 
 configurations {
     all*.exclude  module: 'jai_imageio'
 }
 
-
 dependencies {
-
     compile group: 'commons-io', name: 'commons-io', version: '1.4'
     compile group: 'org.apache.velocity', name:'velocity', version:'1.7'
     compile ("org.apache.velocity:velocity-tools:2.0") 
@@ -54,47 +49,6 @@ dependencies {
     compile "com.sun.media:jai_imageio:1.1"
     compile "net.sf:simplecaptcha:1.2.1"
     compile "org.brickred:socialauth:4.6"
-}
-
-class RemoteContainer {
-    String name
-    String hostname
-    Integer port
-    String username
-    String password
-}
-
-def remoteContainers = [
-                        new RemoteContainer(name: 'local', hostname: 'localhost',
-                                            port: Integer.parseInt(local_port), username: 'tomcat', password: 'tomcat')
-]
-
-if (hasProperty('vmkramerius_name') && hasProperty('vmkramerius_pass') ) {
-        remoteContainers.add(new RemoteContainer(name: 'vmkramerius', hostname: 'vmkramerius.incad.cz',
-                    port: 8080, username: vmkramerius_name, password: vmkramerius_pass))
-}
-
-
-
-
-remoteContainers.each { config ->
-    task "deploy${config.name.capitalize()}"(type: org.gradle.api.plugins.cargo.tasks.remote.CargoDeployRemote) {
-        description = "Deploys WAR to remote Tomcat '${config.name}'."
-        containerId = 'tomcat7x'
-        hostname = config.hostname
-        port = config.port
-        username = config.username
-        password = config.password
-    }
-
-    task "undeploy${config.name.capitalize()}"(type: org.gradle.api.plugins.cargo.tasks.remote.CargoUndeployRemote) {
-        description = "UnDeploys WAR to remote Tomcat '${config.name}'."
-        containerId = 'tomcat7x'
-        hostname = config.hostname
-        port = config.port
-        username = config.username
-        password = config.password
-    }
 }
 
 task updateFirst {

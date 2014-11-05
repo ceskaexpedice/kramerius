@@ -3,6 +3,7 @@ apply plugin: 'groovy'
 
 repositories {
 	mavenCentral()
+        jcenter()
 }
 
 dependencies {
@@ -11,6 +12,7 @@ dependencies {
     compile 'com.sun.xml.bind:jaxb-xjc:2.2.7'
     //compile 'com.sun.xml.bind:jaxb-xjc:2.2.1'
     compile 'com.sun.xml.ws:jaxws-tools:2.2.1'
+    compile 'org.gradle.api.plugins:gradle-cargo-plugin:1.5'
 }
 
 
