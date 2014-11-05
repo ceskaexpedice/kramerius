@@ -91,7 +91,7 @@ public class FeederResource {
             int start = (offset == null) ? 0 : offset * limit;
 
             if (!Arrays.asList(new String[]{"private", "public", "all"}).contains(policy)) {
-                Response.status(Response.Status.BAD_REQUEST).build();
+                return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
             JSONObject jsonObject = new JSONObject();
@@ -161,7 +161,7 @@ public class FeederResource {
             @QueryParam("policy") @DefaultValue("all") String policy) {
 
         if (!Arrays.asList(new String[]{"private", "public", "all"}).contains(policy)) {
-            Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         List alist = KConfiguration.getInstance().getConfiguration().getList("search.home.tab.custom.uuids");
