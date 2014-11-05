@@ -672,6 +672,18 @@ public class ProcessesViewObject implements Initializable {
         return "";
     }
 
+    public String getLoginNameLike() {
+        if (this.filter != null) {
+            List<Tripple> tripples = this.filter.getTripples();
+            for (Tripple tripple : tripples) {
+                if (tripple.getName().equals("loginname") && tripple.getOp().equals(SQLFilter.Op.LIKE)) {
+                    return this.filter.getFormattedValue(tripple);
+                }
+            }
+        }
+        return "";
+    }
+
     public String getNameLike() {
         if (this.filter != null) {
             List<Tripple> tripples = this.filter.getTripples();
