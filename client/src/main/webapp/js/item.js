@@ -36,6 +36,14 @@ K5.eventsHandler.addHandler(function(type, configuration) {
             K5.api.askForItem(pid.substring(1));
         }
     }
+        
+    if (type === "application/keys/left") {
+        K5.gui["selected"].next();
+    }
+
+    if (type === "application/keys/right") {
+        K5.gui["selected"].prev();
+    }
 
     // changes in context buttons
     if (type === "application/menu/ctxchanged") {

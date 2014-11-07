@@ -228,14 +228,30 @@ function Application() {
                     this.eventsHandler.trigger("window/resized",configuration);
                 },this));
 
+                console.log(">>> DOCUMENT:"+$(document));
+                console.log(">>> KEYDOWN:"+$(document).keydown);
                 
+                $(document).keydown(function(e) {
+                    switch(e.which) {
+                        case 37: // left
+                        K5.eventsHandler.trigger("application/keys/left",[]);
+                        break;
+
+
+                        case 39: // right
+                        K5.eventsHandler.trigger("application/keys/right",[]);
+                        break;
+
+
+                        default: return; // exit this handler for other keys
+                    }
+                    e.preventDefault(); // prevent the default action (scroll / move caret)
+                });
                 //prevent scrolling
                 this.preventScrolling();
 
                 // receive 
                 this.eventsHandler.trigger("application/init/end",configuration);
-
-                
 
                 this.initialized=true;
        }
