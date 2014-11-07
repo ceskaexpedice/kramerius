@@ -228,8 +228,6 @@ function Application() {
                     this.eventsHandler.trigger("window/resized",configuration);
                 },this));
 
-                console.log(">>> DOCUMENT:"+$(document));
-                console.log(">>> KEYDOWN:"+$(document).keydown);
                 
                 $(document).keydown(function(e) {
                     switch(e.which) {
@@ -247,6 +245,7 @@ function Application() {
                     }
                     e.preventDefault(); // prevent the default action (scroll / move caret)
                 });
+
                 //prevent scrolling
                 this.preventScrolling();
 
