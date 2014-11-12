@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta name="fragment" content="!">
+
+<meta property="og:title" content="${share.title}"> 
+<meta property="og:type" content="book">
+
+<meta property="og:type" content="article" />
+
+<meta property="og:url" content="${share.itemUri}">
+<meta property="og:image" content="${share.itemThumbUri}">
+<meta property="og:site_name" content="Kramerius 5, ${share.rootTitle}">   
+<meta property="og:description" content="${share.description}">
+
+</head>
+<body>
+</body>
+</html>

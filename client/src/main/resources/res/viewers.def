@@ -6,21 +6,22 @@
             "object":"Zoomify"
         },
 
+
         {
-            "id":2,
+            "id":3,
             "name":"pdf",
             "object":"PDFView"
         },
 
         {
             "name":"zoomstatic",
-            "id":3,
+            "id":4,
             "object":"ZoomifyStaticImage"
         },
 
         {
             "name":"thumbs",
-            "id":4,
+            "id":5,
             "object":"ItemThumbs"
         },
 

@@ -29,6 +29,18 @@
             "name":"ocr",
             "i18nkey":"ctx.actions.downloadocr",
             "object":"DownloadOCR"
+        },
+
+        {
+            "name":"fb",
+            "i18nkey":"ctx.actions.sites.fb",
+            "object":"FacebookShare"
+        },
+
+        {
+            "name":"gplus",
+            "i18nkey":"ctx.actions.sites.gp",
+            "object":"GooglePlusShare"
         }
 
 ]

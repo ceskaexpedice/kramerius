@@ -63,6 +63,10 @@ public class I18NTool  {
         return this.locale.getLanguage();
     }
     
+    public String getCountry() {
+        return this.locale.getCountry();
+    }
+    
     public Object get(String key) {
         try {
             Object retval = _instance.get(this.locale, key);

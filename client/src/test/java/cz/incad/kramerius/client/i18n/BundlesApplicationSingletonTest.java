@@ -42,7 +42,7 @@ public class BundlesApplicationSingletonTest extends TestCase {
         JSONObject jsonBundle = json.getJSONObject("bundle");
         System.out.println(json);
 
-        Map<String, BundleContent> bundle = BundlesApplicationSingleton.loadBundle(json.toString());
+        Map<String, BundleContent> bundle = BundlesApplicationSingleton.loadBundle(jsonBundle);
         Iterator keys = jsonBundle.keys();
         while(keys.hasNext()) {
             String oneKey = (String) keys.next();

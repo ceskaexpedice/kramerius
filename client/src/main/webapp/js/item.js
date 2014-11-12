@@ -24,16 +24,17 @@ K5.eventsHandler.addHandler(function(type, configuration) {
         }
     }
     if (type === "widow/url/hash") {
-        var pid = location.hash;
-        if (K5.api.ctx.item && K5.api.ctx.item[pid.substring(1)]) {
-            if (K5.api.ctx.item[pid.substring(1)].pid) {
-                    var data = K5.api.ctx.item[pid.substring(1)];
-                    K5.eventsHandler.trigger("api/item/" + pid.substring(1), data);
+        var phash = location.hash;
+        var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
+        if (K5.api.ctx.item && K5.api.ctx.item[pid]) {
+            if (K5.api.ctx.item[pid].pid) {
+                    var data = K5.api.ctx.item[pid];
+                    K5.eventsHandler.trigger("api/item/" + pid, data);
             } else {
-                    K5.api.askForItem(pid.substring(1));
+                    K5.api.askForItem(pid);
             }       
         } else {
-            K5.api.askForItem(pid.substring(1));
+            K5.api.askForItem(pid);
         }
     }
         
@@ -51,13 +52,15 @@ K5.eventsHandler.addHandler(function(type, configuration) {
     }
 });
 
-var pid = location.hash;
-if (pid) K5.api.askForItem(pid.substring(1));
+//var phash = location.hash;
+var phash = location.hash;
+var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
+if (pid) K5.api.askForItem(pid);
 
 var maxwidth = $('html').css('max-width');
 
 var w = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-K5.serverLog("window width :"+w);
+//K5.serverLog("window width :"+w);
 
 function _eventProcess(pid) {
 
@@ -687,7 +690,6 @@ ItemSupport.prototype = {
         if (!$(panel).hasClass("showing")) {
             $(panel).addClass("showing");
             $(panel).show();
-
             $(panel).animate({'opacity': '1.0', 'left': l, 'top': t}, speed);
 
             $(panel).animate({'opacity': '1.0', 'left': l, 'top': t}, speed);

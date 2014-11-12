@@ -4,33 +4,28 @@
  * I18N support objects
  */
 function I18N(application){
-	this.application = application;
-        this.application.eventsHandler.addHandler(_.bind(function(type, configuration) {
-                console.log("event type "+type);
-                if (type == "i18n/dictionary") {
-                      this.translateAll();
-                } 
-        },this));
-} 
+    this.application = application;
+    this.application.eventsHandler.addHandler(_.bind(function(type, configuration) {
+        if (type == "i18n/dictionary") {
+            this.translateAll();
+        } 
+    },this));
+}
 
 I18N.prototype= {
     ctx:{},
         /** tests if given key is present in the context */
         isKeyReady: function(keys) {
                 return lookUpKey(keys, this.ctx);
-	},
-	
-	/** change language and requests for resource bundle */
-	changeLanguage:function(lang, whenready) {
-            this.ctx['language']=lang;
-	    this.askForDictionary(lang, whenready);
-	},
-	
-	/** Requests for resource bundle */
-	askForDictionary:function(lang, whenready) {
-	    $.getJSON("dictionary.vm?language=" + lang, _.bind(function(data) {
-		this.ctx['language']=lang;
-		this.ctx['dictionary']=data;
+    },
+    
+    
+    /** Requests for resource bundle */
+    askForDictionary:function(lang,country, whenready) {
+        $.getJSON("dictionary.vm?language=" + lang, _.bind(function(data) {
+                this.ctx['language']=lang;
+                this.ctx['country']=country;
+                this.ctx['dictionary']=data;
                 if (whenready != null) whenready.apply(null, [data]);
                 $.getJSON("api/vc", _.bind(function(data) {
                     for(var i=0; i< data.length; i++){
@@ -45,7 +40,6 @@ I18N.prototype= {
 
 
         askForText:function(nm, lang, whenready) {
-                console.log("trying to get texts");
                 $.getJSON("texts.vm?text=" + nm+"&lang="+lang, _.bind(function(data) {
                         if (!K5.i18n.isKeyReady("texts")) {
                                 this.ctx['texts']={};

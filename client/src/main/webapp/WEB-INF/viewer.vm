@@ -104,6 +104,9 @@
     <div class="small pin translate_title" data-ctx="selected" id="vwr_ctx_removeclipboard"  title="$i18n.buttons.actions" onclick="K5.gui.clipboard.removeCurrent();">#parse("svg/minusclipboard.svg")</div>
     <div class="small pin translate_title" data-ctx="clipboardnotempty" id="vwr_ctx_clipboard"  title="$i18n.buttons.actions" onclick="K5.gui.clipboard.display();">#parse("svg/clipboard.svg")</div>
 
+
+
+
 </div>
 
 <div id="item_menu_thumbs" style="display:none;">

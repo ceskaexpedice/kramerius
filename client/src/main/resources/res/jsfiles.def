@@ -10,6 +10,7 @@
     "js/jquery.touchSwipe.min.js",
     "js/ol3/ol-simple.js",
 
+
     "resources/js/utils.js",
     "resources/js/api.js",
     "resources/js/i18n.js",
@@ -38,5 +39,6 @@
     "resources/js/edit/selects.js",
     "resources/js/item.js",
     "resources/js/forbidden.js"
+    
 ]
 

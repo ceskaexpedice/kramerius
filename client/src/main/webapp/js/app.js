@@ -125,7 +125,8 @@ function Application() {
         this.i18n = new I18N(this);
         
         this.cool = new Cool(this);	
-        
+
+
         /** 
          * Authentication support 
          * @member 
@@ -179,13 +180,15 @@ function Application() {
 
                 // receive dictionary
                 if (configuration["language"]) {
-                        this.i18n.askForDictionary(configuration["language"]);
+                        this.i18n.askForDictionary(configuration["language"],configuration["country"]);
                 }
 
                 // receive collections 
                 if (configuration["page"] && configuration["page"]==="collections") {
                         K5.api.askForCollections();
                 }
+
+                
 
                 if ((configuration["page"] && configuration["page"]==="home") || (!configuration["page"])) {
                         K5.api.askForLatest();
@@ -228,7 +231,7 @@ function Application() {
                     this.eventsHandler.trigger("window/resized",configuration);
                 },this));
 
-                
+                // left and right arrows
                 $(document).keydown(function(e) {
                     switch(e.which) {
                         case 37: // left
@@ -248,6 +251,8 @@ function Application() {
 
                 //prevent scrolling
                 this.preventScrolling();
+
+
 
                 // receive 
                 this.eventsHandler.trigger("application/init/end",configuration);

@@ -382,3 +382,35 @@ DownloadOCR.prototype = {
                 }
         }
 }
+
+
+function _socialUrl() {
+        var ind = window.location.href.indexOf("index.vm");
+        var v = window.location.href.substring(0, ind+"index.vm".length)+"?page=doc#!"+K5.api.ctx.item.selected;
+        v = encodeURIComponent(v);
+        return v;                        
+}
+
+function GooglePlusShare() {}
+GooglePlusShare.prototype = {
+        'doAction':function() {
+                var share = "https://plus.google.com/share?url="+_socialUrl();
+                window.open(share,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;
+        },
+        'enabled':function() {
+                return true;
+        }
+}
+
+function FacebookShare() {}
+FacebookShare.prototype = {
+        'doAction':function() {
+                var share = "https://www.facebook.com/sharer/sharer.php?u="+_socialUrl();
+                window.open(share,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;
+
+        },
+        'enabled':function() {
+                return true;
+        }
+}
+
