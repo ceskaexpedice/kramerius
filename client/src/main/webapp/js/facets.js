@@ -74,8 +74,10 @@ Facets.prototype = {
             //a.addClass("vc");
             a.html(K5.i18n.translatable(val));
             //a.text(arr[i]);
-        } else if (key === "fedora.model" || key === "model_path") {
+        } else if (key === "typ_titulu" || key === "fedora.model" || key === "model_path") {
             a.html(K5.i18n.translatable("fedora.model." + val));
+        } else if (key === "dostupnost") {
+            a.html(K5.i18n.translatable("dostupnost." + val));
         } else {
             a.text(val);
         }
