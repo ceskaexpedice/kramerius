@@ -456,7 +456,7 @@ li.public:before{
     right: -460px; 
     top:35px;
     height: 500px;
-    overflow: hidden;
+    overflow: auto;
     font-size: 1.2em;
     width: initial;
 }
@@ -946,6 +946,8 @@ li.public:before{
     position:relative;
     background-color: $params.thumbBackground;
     border: solid 2px transparent;
+    min-height:11mm;
+    min-width:11mm;
 }
 
 #viewer li.hit{
