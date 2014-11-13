@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.api.k5.client.feeder;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -81,12 +82,17 @@ public class FeederResource {
             @QueryParam("vc") @DefaultValue("") String virtualCollection,
             @QueryParam("limit") Integer limit,
             @QueryParam("offset") Integer offset,
-            @QueryParam("type") String documentType) {
+            @QueryParam("type") String documentType,
+            @QueryParam("policy") @DefaultValue("all") String policy) {
         try {
             if (limit == null) {
                 limit = LIMIT;
             }
             int start = (offset == null) ? 0 : offset * limit;
+
+            if (!Arrays.asList(new String[]{"private", "public", "all"}).contains(policy)) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
 
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("rss",
@@ -97,6 +103,13 @@ public class FeederResource {
             if (documentType != null) {
                 req.append("&fq=document_type:" + documentType);
             }
+
+            if ("public".equals(policy)) {
+                req.append("&fq=dostupnost:public");
+            } else if ("private".equals(policy)) {
+                req.append("&fq=dostupnost:private");
+            }
+
             req.append("&rows=").append(limit).append("&start=").append(start)
                     .append("&sort=level+asc%2c+created_date+desc");
 
@@ -143,7 +156,14 @@ public class FeederResource {
     @GET
     @Path("custom")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response custom() {
+    public Response custom(
+            @QueryParam("type") String documentType,
+            @QueryParam("policy") @DefaultValue("all") String policy) {
+
+        if (!Arrays.asList(new String[]{"private", "public", "all"}).contains(policy)) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
         List alist = KConfiguration.getInstance().getConfiguration().getList("search.home.tab.custom.uuids");
         JSONObject jsonObject = new JSONObject();
         JSONArray jsonArray = new JSONArray();
@@ -157,6 +177,14 @@ public class FeederResource {
                                 .path("custom").build(pid).toString();
                         JSONObject mdis = JSONUtils.pidAndModelDesc(pid.toString(), 
                                 uriString, this.solrMemo, this.decoratorsAggregate, uriString);
+
+                        //object with different model or policy is skipped
+                        if (documentType != null && !documentType.equals(mdis.get("model"))) {
+                                continue;
+                            }
+                        if (!"all".equals(policy) && !policy.equals(mdis.get("policy"))) {
+                            continue;
+                        }
                         jsonArray.add(mdis);
                     } catch (Exception e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
