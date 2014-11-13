@@ -19,15 +19,15 @@
         <div class="prfl_footer">
             <div class="right">
                 <div class="buttons">
-                    <div class="button" data-ctx="item" style="display:none"><a href="javascript:javascript:K5.authentication.profileDisplay.appendCurrentToFavorites(true);" >Pridat k oblibenym</a></div> 
-                    <div class="button" data-ctx="dirty"><a href="javascript:javascript:K5.authentication.profileDisplay.store();" >#translatable('common.saveandclose')</a></div>
-                    <div class="button"><a href="javascript:javascript:K5.authentication.profileDisplay.close();" >#translatable('common.close')</a></div>
+                    <div class="button" data-ctx="item" style="display:none" onclick="K5.authentication.profileDisplay.appendCurrentToFavorites(true);">#translatable('ctx.actions.addtofavorites')</div> 
+                    <div class="button" data-ctx="dirty" onclick="K5.authentication.profileDisplay.store();">#translatable('common.saveandclose')</div>
+                    <div class="button" onclick="K5.authentication.profileDisplay.close();">#translatable('common.close')</div>
                 </div>
             </div>
 
             <div class="left">
                 <div class="buttons">
-                    <div class="button"><a href="javascript:K5.authentication.logoutAndRedirect('index.vm');" >#translatable('application.logout')</a></div>
+                    <div class="button" onclick="K5.authentication.logoutAndRedirect('index.vm');">#translatable('application.logout')</div>
                 </div>
             </div>
         </div>

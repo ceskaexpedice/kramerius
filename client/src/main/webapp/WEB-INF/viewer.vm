@@ -30,7 +30,7 @@
         <div class="mtd_footer dialogs_footer">
             <div class="right">
                 <div class="buttons">
-                    <div class="button"><a href="javascript:cleanWindow();" >#translatable('common.close')</a></div>
+                    <div class="button" onclick="cleanWindow();">#translatable('common.close')</div>
                 </div>
             </div>
         </div>
@@ -43,7 +43,7 @@
         <div class="acts_footer dialogs_footer">
             <div class="right">
                 <div class="buttons">
-                    <div class="button"><a href="javascript:cleanWindow();" >#translatable('common.close')</a></div>
+                    <div class="button" onclick="cleanWindow();">#translatable('common.close')</div>
                 </div>
             </div>
         </div>
@@ -67,8 +67,8 @@
 
         <div class="searchinside_footer dialogs_footer">
             <div class="right">
-                <div class="buttons">
-                    <div class="button"><a href="javascript:cleanWindow();" >#translatable('common.close')</a></div>
+                <div class="buttons" onclick="cleanWindow();">
+                    <div class="button">#translatable('common.close')</div>
                 </div>
             </div>
         </div>
