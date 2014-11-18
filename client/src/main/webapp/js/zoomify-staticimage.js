@@ -356,9 +356,61 @@ ZoomifyStaticImage.prototype.fit = function() {
         this.view2D.setCenter([ext[2]/2, ext[3]/2]);
 }
 
+ZoomifyStaticImage.prototype.translateCurrent=function(x1,y1,width,height) {
+    var curpage = this.currentPage();
+    var resolution = this.map.getView().getResolution();
+    var x1off = x1/resolution;
+    var y1off = y1/resolution;
+    var widthoff = width/resolution;
+    var heightoff = height/resolution;
+    var result = [curpage[0] + x1off, curpage[1] + y1off, curpage[0]+ x1off+widthoff, curpage[1]+ y1off+heightoff];
+    return result;
+}
+
+ZoomifyStaticImage.prototype._idealCenter = function (ext) {
+    return [ext[2]/2, ext[3]/2];
+}
+
+ZoomifyStaticImage.prototype._curentSize = function (ext, resolution) {
+    return [ext[2]/resolution, ext[3]/resolution];
+}
+
+ZoomifyStaticImage.prototype.currentPage = function() {
+
+        var ideal = this._idealCenter(this.projection.getExtent());
+        var center = this.view2D.getCenter();   
+
+
+        
+
+        var xoffset = center[0] - ideal[0]; //+ smer doprava; - smer doleva
+        var yoffset = center[1] - ideal[1]; // - smer nahoru; +smer dolu
+
+        var resolution = this.map.getView().getResolution();
+        var pixelxoffset = xoffset / resolution;
+        var pixelyoffset = yoffset / resolution;
+        
+        
+        var currentSize = this._curentSize(this.projection.getExtent(), resolution);
+        var mapCenter = [$("#map").width()/2, $("#map").height()/2];
+
+        var x1ideal = mapCenter[0]- (currentSize[0]/2);   
+        var y1ideal = mapCenter[1]- (currentSize[1]/2);   
+
+        // realny obrazek na obrazovce
+        var x1real = x1ideal-pixelxoffset;   
+        var y1real = y1ideal+pixelyoffset;   
+
+        var x2real = x1real+currentSize[0];   
+        var y2real = y1real+currentSize[1];   
+
+
+
+        return [x1real, y1real, x2real, y2real];
+
+}
+
 ZoomifyStaticImage.prototype.crop = function(rect, offset){
-
-
 
         function idealCenter (ext) {
                  return [ext[2]/2, ext[3]/2];         

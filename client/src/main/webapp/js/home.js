@@ -16,6 +16,9 @@ K5.eventsHandler.addHandler(function(type, data) {
     if (type === "api/feed/cool") {
         K5.gui.currasels["cool"] = new Carousel("#rows>div.cool", {"json": K5.api.ctx.feed.cool});
         K5.gui.currasels["cool"].setName("cool");
+        if (K5.gui.home) {
+                K5.gui.home.displayBackground();
+        }
     }
 
     if (type === "application/init/end") {
@@ -40,13 +43,15 @@ K5.eventsHandler.addHandler(function(type, data) {
 function HomeEffects(application) {
     this.application = application;
     this._init();
+    this.backgroundDisplayed = false;
 }
 
 HomeEffects.prototype = {
     ctx: {},
     _init: function() {
-
-        this.displayBackground();
+        if (K5.gui.currasels["cool"]) {
+                this.displayBackground();
+        }
         this.infoHidden = false;
         
         if (isTouchDevice()) {
@@ -78,10 +83,6 @@ HomeEffects.prototype = {
                 this.hideInfo();
             }.bind(this), 3000);
         }, this));
-//        $('#home').mousemove(_.bind(function() {
-//            clearTimeout(this.hiddingInfo);
-//            
-//        }, this));
         this.addContextButtons();
     },
     
@@ -102,12 +103,13 @@ HomeEffects.prototype = {
         
     },
     displayBackground: function() {
+        if (this.backgroundDisplayed) return;
         var image = new Image();
 
-        var srcs = K5.cool.coolData.data;
+        var srcs = [];
         if (K5.api.ctx["feed"] &&  K5.api.ctx.feed["cool"] && K5.api.ctx.feed.cool["data"]) {
-                srcs = K5.cool.coolData.data;
-                K5.cool.coolData.data = K5.api.ctx.feed.cool["data"];
+                //srcs = K5.cool.coolData.data;
+                srcs = K5.api.ctx.feed.cool["data"];
         }
 
         var index = Math.floor(Math.random() * (srcs.length - 1));
@@ -121,12 +123,12 @@ HomeEffects.prototype = {
             
             
             var a = $("<div/>", {class: "a"});
-            a.append(K5.cool.coolData.data[index].title);
+            a.append(srcs[index].title);
             a.click(function(){
                 K5.api.gotoDisplayingItemPage(pid);
             });
             $("#pidinfo").append(a);
-            $("#pidinfo").append('<div class="details">' + K5.cool.coolData.data[index].details + '</div>');
+            $("#pidinfo").append('<div class="details">' + srcs[index].details + '</div>');
             
             this.hiddingInfo = setTimeout(function() {
                 this.hideInfo();
@@ -138,6 +140,7 @@ HomeEffects.prototype = {
         };
         image.src = src;
 
+        this.backgroundDisplayed = true;
     },
     selBand: function(obj) {
         $('#buttons>div.button').removeClass('sel');

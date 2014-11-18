@@ -233,6 +233,7 @@ PrintPartItem.prototype = {
                 $("#okButton").click(function() {
                         // select selection
                         var rect = [];
+
                         rect.push(K5.gui.selected.edit.selection.x1);
                         rect.push(K5.gui.selected.edit.selection.y1);
 
@@ -283,6 +284,7 @@ PrintPartItem.prototype = {
                                 if (t.left < v.x1+25) {
                                         ui.position.left=v.x1+25;
                                 }
+
                                 K5.gui.selected.edit.selection.dragRightTop(ui.position);
                         }
                 });
@@ -331,8 +333,10 @@ PrintPartItem.prototype = {
 
                         K5.gui.selected["edit"]= {};
                         K5.gui.selected.edit.selection = new SelectObject(K5);
-                        K5.gui.selected.edit.selection.center();
+                        K5.gui.selected.edit.selection.page();
+                                
                 },200);
+                
         },
 
         'enabled': function() {
@@ -367,8 +371,6 @@ DownloadOCR.prototype = {
                         $("#ocr_data").val("");
                 });
                 divopen("#viewer div.ocr");
-
- 
         },
         'enabled': function() {
                 var selected = K5.api.ctx.item.selected; 

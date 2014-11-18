@@ -123,8 +123,8 @@ function Application() {
          * {@link I18N} 
          */		
         this.i18n = new I18N(this);
-        
-        this.cool = new Cool(this);	
+
+        //this.cool = new Cool(this);	
 
 
         /** 
