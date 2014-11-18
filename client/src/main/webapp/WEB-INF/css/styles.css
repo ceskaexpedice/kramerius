@@ -1777,12 +1777,13 @@ li.public:before{
 
 /** OCR */
 #viewer .ocr {
-        top:calc(50% - 12em);
-        width:45%;
-        height: 22em;
+        top: 42px;
+        width: 95%;
+        height: calc(100% - 50px);
         background-color: $params.activeColor;
+        background-color: rgba(0, 30, 60, 0.9);
         z-index: 43;
-        left: 280px; 
+        left: 2.5%;
         color: white;
 }
 
@@ -1802,7 +1803,7 @@ li.public:before{
         font-size: 1.6em;
         background: rgba(255, 255, 255, 0.9);
         border: 0px solid #0e70b3;
-        width: 95%;
+        width: 98%;
         height: calc(100% - 63px);
 }
 
