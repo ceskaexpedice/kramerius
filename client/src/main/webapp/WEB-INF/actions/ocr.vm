@@ -5,7 +5,7 @@
         <div>
             <label data-key="application.url">OCR</label> 
         </div> 
-        <div>
+        <div id="ocr_data_parent">
             <textarea  id="ocr_data">
             </textarea>
         </div>

@@ -228,7 +228,7 @@ Zoomify.prototype.open = function() {
                 
                 var ext = this.projection.getExtent();
                 var size = this.map.getSize();
-                console.log("size ... "+size);
+
                 var nresolution = ext[3]/(size[1]-20);
                 this.map.getView().setResolution(nresolution);
 
@@ -370,21 +370,69 @@ Zoomify.prototype.arrowbuttons = function() {
         }
 }
 
+
+Zoomify.prototype.translateCurrent=function(x1,y1,x2,y2) {
+    var curpage = this.currentPage();
+    var resolution = this.map.getView().getResolution();
+    var x1off = x1/resolution;
+    var y1off = y1/resolution;
+    var widthoff = width/resolution;
+    var heightoff = height/resolution;
+    var result = [curpage[0] + x1off, curpage[1] + y1off, curpage[0]+ x1off+widthoff, curpage[1]+ y1off+heightoff];
+    return result;
+
+}
+
+Zoomify.prototype._currentSize = function(ext, resolution) {
+    return [ext[2]/resolution, ext[3]/resolution];         
+}
+
+Zoomify.prototype._idealCenter = function(ext) {
+    return [ext[2]/2, (-1*ext[3])/2];         
+}
+
+
+Zoomify.prototype.currentPage=function() {
+        
+        var center = this.view2D.getCenter();   
+        var ideal = this._idealCenter(this.projection.getExtent());
+        var xoffset = center[0] - ideal[0]; //- smer doprava; + smer doleva
+        var yoffset = center[1] - ideal[1]; // - smer nahoru; +smer dolu
+
+        var resolution = this.map.getView().getResolution();
+        var pixelxoffset = xoffset / resolution;
+        var pixelyoffset = yoffset / resolution;
+
+        var currentSize = this._currentSize(this.projection.getExtent(), resolution);
+        var mapCenter = [$("#map").width()/2, $("#map").height()/2];
+
+        var x1ideal = mapCenter[0]- (currentSize[0]/2);   
+        var y1ideal = mapCenter[1]- (currentSize[1]/2);   
+
+        // realny obrazek na obrazovce
+        var x1real = x1ideal-pixelxoffset;   
+        var y1real = y1ideal+pixelyoffset;   
+
+        var x2real = x1real+currentSize[0];   
+        var y2real = y1real+currentSize[1];   
+
+        return [x1real, y1real, x2real, y2real];
+}
+
 Zoomify.prototype.crop = function(rect,offset){
 
         $("#header").show();
         $("#pageright").show();
         $("#pageleft").show();
-
-
+        /*
         function idealCenter (ext) {
                  return [ext[2]/2, (-1*ext[3])/2];         
         }
         function curentSize(ext, resolution) {
                  return [ext[2]/resolution, ext[3]/resolution];         
-        }
-        var ideal = idealCenter(this.projection.getExtent());
-        console.log("ideal is :"+ideal);        
+        }*/
+
+        var ideal = this._idealCenter(this.projection.getExtent());
 
         var center = this.view2D.getCenter();   
         var xoffset = center[0] - ideal[0]; //- smer doprava; + smer doleva
@@ -395,7 +443,7 @@ Zoomify.prototype.crop = function(rect,offset){
         var pixelyoffset = yoffset / resolution;
         
         
-        var currentSize = curentSize(this.projection.getExtent(), resolution);
+        var currentSize = this._curentSize(this.projection.getExtent(), resolution);
         var mapCenter = [$("#map").width()/2, $("#map").height()/2];
 
         var x1ideal = mapCenter[0]- (currentSize[0]/2);   

@@ -8,32 +8,68 @@ SelectObject.prototype = {
     x1:30, y1:40, // top left
     x2:140, y2:130, //bottom right
 
-    width:100, height:100, // width & height of the selection
+    width:400, height:400, // width & height of the selection
 
-    pointsize:4, // size of selection point
+    pointsize:32, // size of selection point
     iconsize:30,    
+
     
-    center:function() {
-
+    overlay:function() {
         var relativePos = this.application.gui.selected.relativePosition();
-
         $('#overlay').css('top',relativePos.top);
         $('#overlay').css('left',relativePos.left);
+        $('#overlay').css('margin-top',"40px");
+    },
+    
+    page:function() {
 
-        $('#overlay').css('top',relativePos.top);
-
-
-        var x1 = ($("#overlay").width() - this.width) / 2;   
-        var y1 = ($("#overlay").height() - this.height) / 2;   
-        var x2 = x1 + this.width;
-        var y2 = y1 + this.height;
-
-        this._setSelectBoxPosition(x1,y1,x2,y2);
-        this._recalculateSelectionDiv();        
-        // all points
-        this._recalculatePoints(15);        
-        this._recalculateIcons();
+        this.overlay();
         
+        var sel = K5.api.ctx.item.selected;
+        var streams = K5.api.ctx.item[sel].streams;
+        if (streams["ALTO"]) {
+
+            K5.api.askForItemConcreteStream(sel,"ALTO",_.bind(function(data) {
+                var v = $(data).find("Layout>Page>PrintSpace");
+                
+                var height = parseInt(v.attr("HEIGHT"));
+                var width = parseInt(v.attr("WIDTH"));
+                var vpos = parseInt(v.attr("VPOS"));
+                var hpos = parseInt(v.attr("HPOS"));
+
+                var page = this.application.gui.selected.translateCurrent(hpos, vpos, width , height);
+                
+                var x1 = page[0];
+                var y1 = page[1];    
+                var x2 = page[2]; 
+                var y2 = page[3]; 
+                
+                this._setSelectBoxPosition(x1,y1,x2,y2);
+                this._recalculateSelectionDiv();        
+                
+                // all points
+                this._recalculatePoints(15);        
+                this._recalculateIcons();
+                
+            },this));
+        } else {
+            var page = this.application.gui.selected.currentPage();
+
+            var x1 = page[0];
+            var y1 = page[1];    
+            var x2 = page[2]; 
+            var y2 = page[3]; 
+            
+            this._setSelectBoxPosition(x1,y1,x2,y2);
+            this._recalculateSelectionDiv();        
+            
+            // all points
+            this._recalculatePoints(15);        
+            this._recalculateIcons();
+        }
+        
+        
+
     },    
              
     _recalculateIcons:function() {
@@ -43,14 +79,13 @@ SelectObject.prototype = {
         $( "#okButton" ).css("left", this.x1+this.width-3-(2*this.iconsize));
         $( "#cancelButton" ).css("left",this.x1+this.width-3-this.iconsize);
     },  
-                  
 
     _recalculatePoints:function(pointsflag) {
         //top left
         if ((pointsflag & 1) == 1) {
                 $("#left-top").css("left", this.x1);
                 $("#left-top").css("top", this.y1);
-        }          
+        }
         //top right           
         if ((pointsflag & 2) == 2) {
                 $("#right-top").css("left", this.x1+(this.width - this.pointsize));
@@ -69,11 +104,11 @@ SelectObject.prototype = {
     },    
 
     _recalculateSelectionDiv:function(pointsflag) {
-        $( "#selectbox" ).css("left", this.x1);
-        $( "#selectbox" ).css("top", this.y1);
+        $( "#selectbox" ).css("left", this.x1-2);
+        $( "#selectbox" ).css("top", this.y1-2);
 
-        $( "#selectbox" ).css("width", this.width);
-        $( "#selectbox" ).css("height", this.height);
+        $( "#selectbox" ).css("width", this.width+2);
+        $( "#selectbox" ).css("height", this.height+2);
     },
 
     _setSelectBoxPosition:function(x1,y1,x2,y2) {
@@ -86,7 +121,7 @@ SelectObject.prototype = {
         this.width = this.x2 - this.x1;
         this.height = this.y2 - this.y1;
 
-    },    
+    },
 
     getSelectionBoxPosition:function() {
         var box = {
@@ -115,7 +150,8 @@ SelectObject.prototype = {
     dragLeftTop:function(position) {
         var x1 =  position.left;
         var y1 =  position.top;
-
+        
+        
         this._setSelectBoxPosition(x1,y1,this.x2,this.y2);
         this._recalculateSelectionDiv();        
 
@@ -138,7 +174,6 @@ SelectObject.prototype = {
     dragRightTop:function(position) {
         var y1 =  position.top;
         var x2 =  position.left+this.pointsize;
-                
 
         this._setSelectBoxPosition(this.x1,y1,x2,this.y2);
         this._recalculateSelectionDiv();        
