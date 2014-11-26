@@ -152,6 +152,16 @@
 
 
     <servlet>
+        <servlet-name>audioconf</servlet-name>
+        <servlet-class>cz.incad.kramerius.client.AudioConfigurationServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>audioconf</servlet-name>
+        <url-pattern>/audioconf</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>alto</servlet-name>
         <servlet-class>cz.incad.kramerius.client.AltoSupportServlet</servlet-class>
     </servlet>

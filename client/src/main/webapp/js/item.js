@@ -624,7 +624,7 @@ ItemSupport.prototype = {
      */
     toggleActions: function() {
         if (visible("#viewer>div.actions")) { cleanWindow(); } 
-        else { showActions();  }
+        else { this.showActions();  }
     },
 
     _searchInsideArrow:function() {
@@ -694,7 +694,18 @@ ItemSupport.prototype = {
 
             $(panel).animate({'opacity': '1.0', 'left': l, 'top': t}, speed);
         }
-    }
+    },
+    
+    
+    /** 
+     * toggle actions 
+     * @method
+     */
+    toggleInfo: function() {
+        if (visible("#viewer>div.infobox")) { cleanWindow(); } 
+        else { this.showInfo();  }
+    },
+
 };
 
 

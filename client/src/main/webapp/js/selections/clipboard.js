@@ -145,6 +145,11 @@ Clipboard.prototype = {
                 }
         },
         
+        toggle:function() {
+            if (visible("#viewer>div.selections")) { cleanWindow(); } 
+            else { this.display();  }
+        },
+        
         /**
          * Display current selection 
          * @method

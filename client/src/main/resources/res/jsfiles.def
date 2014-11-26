@@ -10,6 +10,8 @@
     "js/jquery.touchSwipe.min.js",
     "js/ol3/ol-simple.js",
 
+    "jplayer/jquery.jplayer.min.js",
+
 
     "resources/js/utils.js",
     "resources/js/api.js",
@@ -22,10 +24,12 @@
 
     "resources/js/vc.js",
 
-    "resources/js/item_thumbs.js",
-    "resources/js/zoomify.js",
-    "resources/js/zoomify-staticimage.js",
-    "resources/js/pdfview.js",
+    "resources/js/viewers/itemthumbs.js",
+    "resources/js/viewers/zoomify.js",
+    "resources/js/viewers/zoomifyStatic.js",
+    "resources/js/viewers/pdfview.js",
+    "resources/js/viewers/audio.js",
+
     "resources/js/alto.js",
     "resources/js/profile/profile.js",
     "resources/js/selections/selections.js",
