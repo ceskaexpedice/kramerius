@@ -4,6 +4,7 @@
 <body>
 <div class="small">
 #parse("svg/parent.svg")
+
 #parse("svg/arrowleft.svg")
 #parse("svg/arrowright.svg")
 #parse("svg/arrowtop.svg")
@@ -48,6 +49,10 @@
 
 #parse("svg/plusclipboard.svg")
 #parse("svg/minusclipboard.svg")
+
+#parse("svg/share.svg")
+
+
 
 </div>
 <div>

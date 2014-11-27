@@ -2,6 +2,7 @@ description "Client web application"
 
 apply plugin: 'war'
 apply plugin: 'kdeploy'
+apply plugin: 'eclipse-wtp'
 
 
 deployment {
@@ -42,13 +43,14 @@ dependencies {
     testCompile "junit:junit:4.1"
     testCompile "org.easymock:easymock:3.0"
 
-    //TODO: Move to project dependency
     compile project(':common')
     compile project(':rest')
+
    
     compile "com.sun.media:jai_imageio:1.1"
     compile "net.sf:simplecaptcha:1.2.1"
     compile "org.brickred:socialauth:4.6"
+
 }
 
 task updateFirst {
@@ -100,4 +102,8 @@ task jsdoc(type:Exec) {
         executable 'jsdoc'
 }
 
+
+war {
+    archiveName ='client.war'
+}
 

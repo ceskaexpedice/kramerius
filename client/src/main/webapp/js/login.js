@@ -27,12 +27,18 @@ function AuthenticationSupport(application) {
 
 AuthenticationSupport.prototype = {
         
-        ctx:{},
+        ctx:{
+            "configuration":{}
+        },
         
         profileDisplay: null,        
         
         registration:new Registration(),
 
+        initConfiguration: function(conf) {
+            this.ctx.configuration["authentication"]=conf;
+        },
+        
         /** 
          * tests if given key is present in the context 
          * @method
@@ -120,7 +126,48 @@ AuthenticationSupport.prototype = {
                         success: successFunction
                 });
         },
-
+        
+        
+        
+        /**
+         * Display or hide logging options (Google plus, Facebook). If only K5 authentication is supported, redirect to login page  
+         * @method
+         */
+        options:function() {
+            var show = _.bind(function() {
+                // hack ?? check homepage
+                if (K5.gui.page === 'home') {
+                    $("div.infobox").hide();
+                }
+                var conf = this.ctx.configuration["authentication"];
+                if (conf) {
+                    var gp = conf["gplus"];
+                    var fb = conf["fb"];
+                    if (gp || fb) {
+                        divopen("div.logoptions");
+                    } else {
+                        link('?page=login');
+                    }
+                } else {
+                    link('?page=login');
+                }
+            },this);
+            
+            var hide = _.bind(function() {
+                cleanWindow();
+                // hack ?? check homepage
+                if (K5.gui.page === 'home') {
+                    $("div.infobox").show();
+                }
+                
+            },this);
+            
+            var v = $("div.logoptions").is(":visible");
+            if (!v) show();
+            else hide();
+            
+        },
+        
         /** 
          * Perform login action and redirect
          * @method

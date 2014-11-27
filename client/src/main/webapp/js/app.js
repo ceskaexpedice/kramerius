@@ -143,7 +143,8 @@ function Application() {
         this.gui = {
                 clipboard: new Clipboard(this),
                 vc: new VirtualCollections(this),
-                historyitems:[]
+                historyitems:[],
+                page:''
         };
 
         /**
@@ -183,22 +184,30 @@ function Application() {
                         this.i18n.askForDictionary(configuration["language"],configuration["country"]);
                 }
 
+                if (configuration["page"]) {
+                    this.gui.page=configuration["page"];
+                }
+
                 // receive collections 
                 if (configuration["page"] && configuration["page"]==="collections") {
                         K5.api.askForCollections();
                 }
 
                 
-
                 if ((configuration["page"] && configuration["page"]==="home") || (!configuration["page"])) {
                         K5.api.askForLatest();
                         K5.api.askForPopular();
                         K5.api.askForCool();
                 }
 
-                // session values
+                // pdf configuration
                 if (configuration["conf"]["pdf"]) {
                     K5.gui.clipboard.initConfiguration(configuration["conf"]["pdf"]);
+                }
+
+                // pdf configuration
+                if (configuration["conf"]["authentication"]) {
+                    K5.authentication.initConfiguration(configuration["conf"]["authentication"]);
                 }
 
                 // session values

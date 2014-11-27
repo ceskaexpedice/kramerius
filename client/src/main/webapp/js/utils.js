@@ -24,6 +24,11 @@ function lookUpKey(keypath, object) {
 
 }
 
+/**
+ * Goto method
+ * @param addr target address 
+ * @global
+ */
 function link(addr) {
         window.location.assign(addr);
 }

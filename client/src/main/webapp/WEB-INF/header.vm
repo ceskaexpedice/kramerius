@@ -16,10 +16,9 @@
 
     <div class="right" id="largedisplay">
         #if(!$logControl.logged)
-            <div class="button" onclick="link('?page=registration')">#translatable('application.registration')</div>
-            <div class="button" onclick="link('?page=login')">#translatable('application.login')</div>
+            <div class="button" onclick="K5.authentication.options()">#translatable('application.login')</div>
         #end
-        
+
         <div class="button" onclick="link('https://github.com/ceskaexpedice/k5client/wiki')" >#translatable('application.help')</div>
 
         #if($logControl.logged)

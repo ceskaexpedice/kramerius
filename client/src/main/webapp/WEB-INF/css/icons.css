@@ -97,4 +97,11 @@ svg:hover *{
     stroke:$params.get("svg.stroke.hover"); 
 }
 
+/*
+.nofill:hover {
+    fill:none; 
+}
 
+.nostroke:hover {
+    stroke:none; 
+}*/

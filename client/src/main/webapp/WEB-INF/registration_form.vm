@@ -46,6 +46,9 @@
         <label>#translatable('registration.fullname')</label> <label  class="registration_error" id="registration_error_fullname" style="display:none">#translatable('registration.login.error')</label>
         <input id="username" name="username" placeholder="#i18nval('registration.fullname.placeholder')" value="" />
 
+        <label>#translatable('registration.email')</label> <label  class="registration_error" id="registration_error_email" style="display:none">#translatable('registration.login.error')</label>
+        <input id="email" name="email" placeholder="#i18nval('registration.email.placeholder')" value="" />
+
         <label>#translatable('registration.password.placeholder')</label> <label class="registration_error" id="registration_error_password"  style="display:none">#translatable('registration.password.error')</label>
         <input id="password" name="password" type="password" placeholder="#i18nval('registration.password.placeholder')" value="" />
 
