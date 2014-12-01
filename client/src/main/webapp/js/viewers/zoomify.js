@@ -226,6 +226,9 @@ Zoomify.prototype.clearContainer = function() {
         this.alto.clear(this);
         if (this.map != null) this.map.setTarget();
 
+        
+        $("#options").remove();
+
         $("#map").remove();
         $("#pageleft").remove();
         $("#pageright").remove();
