@@ -25,8 +25,11 @@
     "resources/js/vc.js",
 
     "resources/js/viewers/itemthumbs.js",
+
+    "resources/js/viewers/ol3utils.js",
     "resources/js/viewers/zoomify.js",
     "resources/js/viewers/zoomifyStatic.js",
+
     "resources/js/viewers/pdfview.js",
     "resources/js/viewers/audio.js",
 

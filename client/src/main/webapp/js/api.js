@@ -408,5 +408,25 @@ ClientAPIDev.prototype = {
                 .exec(location.search);
         return results == null ? "" : decodeURIComponent(results[1].replace(
                 /\+/g, " "));
+    },
+
+    /**
+     * Method is suitable for storing objects into http session
+     * @param key Session key
+     * @param object Storing object
+     * @method
+     */
+    storeToSession:function(key,object) {
+        console.log(JSON.stringify(object));
+        var encodedData = Base64.encode(JSON.stringify(object));
+        $.ajax({
+                dataType: "json",
+                type: "POST",
+                //contentType:'application/json',
+                'url': 'session?name='+key,
+                //'beforeSend': function(xhr) { xhr.setRequestHeader("Authorization","Basic " + Base64.encode(uname + ":" + pass)); },
+                data: {'encodedfield':encodedData}
+                //success: postok
+        });
     }
 };

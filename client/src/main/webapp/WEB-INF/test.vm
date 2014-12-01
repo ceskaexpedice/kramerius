@@ -30,6 +30,7 @@
 #parse("svg/fb.svg")
 #parse("svg/gplus.svg")
 
+#parse("svg/rotateleft.svg")
 
 </div>
 <div class="big" >
@@ -52,7 +53,13 @@
 
 #parse("svg/share.svg")
 
+#parse("svg/rotateleft.svg")
+#parse("svg/rotateright.svg")
 
+#parse("svg/lock.svg")
+#parse("svg/unlock.svg")
+#parse("svg/addfavorite.svg")
+#parse("svg/removefavorite.svg")
 
 </div>
 <div>
@@ -80,6 +87,7 @@
 #parse("svg/gplus.svg")
 
 #parse("svg/k5.svg")
+#parse("svg/rotateleft.svg")
 
 </div>
 
