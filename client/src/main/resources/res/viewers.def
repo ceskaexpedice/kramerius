@@ -1,27 +1,33 @@
 [
 
         {
-            "id":1,
+            "id":100,
             "name":"zoom",
             "object":"Zoomify"
         },
 
+        {
+            "name":"audio",
+            "id":200,
+            "object":"AudioView"
+        },
 
         {
-            "id":3,
+            "id":300,
             "name":"pdf",
             "object":"PDFView"
         },
 
         {
             "name":"zoomstatic",
-            "id":4,
+            "id":400,
             "object":"ZoomifyStaticImage"
         },
 
+
         {
             "name":"thumbs",
-            "id":5,
+            "id":600,
             "object":"ItemThumbs"
         },
 

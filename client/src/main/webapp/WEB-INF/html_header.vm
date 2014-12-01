@@ -56,10 +56,12 @@
                 "conf": {
                     "pdf":{
                         "limit":$conf.getString('k5client.pdf.limit')
-                     }
-                },
+                     },
+                    "authentication":{
+                        "k5":true, #if($conf.getString('oauth.googleapis.com.consumer_key')) "gplus":true, #else "gplus":false, #end #if($conf.getString('oauth.graph.facebook.com.consumer_key')) "fb":true #else "fb":false #end
 
-                // social networks
+                    },
+                },
                 
                 // definitions
                 "defs": {

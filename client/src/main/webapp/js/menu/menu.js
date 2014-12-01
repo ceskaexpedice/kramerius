@@ -202,16 +202,23 @@ PrintPartItem.prototype = {
                                 '<div id="cancelButton" class="small"></div>'+
 
                                 '<div id="selectbox"></div>'+
-                                '<div id="left-top" class="point"></div>'+
-                                '<div id="right-top" class="point"></div>'+
-                                '<div id="left-bottom" class="point"></div>'+
-                                '<div id="right-bottom" class="point"></div>'+
+                                '<div id="left-top" class="point between"></div>'+
+                                '<div id="right-top" class="point  between"></div>'+
+                                '<div id="left-bottom" class="point  between"></div>'+
+                                '<div id="right-bottom" class="point  between"></div>'+
 
                         '</div>'); 
 
                 $("#okButton").load("svg.vm?svg=ok");
                 $("#cancelButton").load("svg.vm?svg=close");
 
+                $("#left-top").load("svg.vm?svg=topleft");
+                $("#right-top").load("svg.vm?svg=topright");
+
+                $("#left-bottom").load("svg.vm?svg=bottomleft");
+                $("#right-bottom").load("svg.vm?svg=bottomright");
+
+                
                 $("#cancelButton").click(function() {
 
                         var rect = [];

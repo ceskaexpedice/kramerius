@@ -2,10 +2,10 @@
  * PDF view
  * @constructor
  */
-function PDFView(appl, selector, page) {
+function PDFView(appl, selector) {
         this.application = (appl || K5);
-        this.page = page;
-        this.container = $(selector);
+        var jqSel = (selector || '#viewer>div.container');        
+        this.container = $(jqSel);
 }
 /** 
  * Open pdf  

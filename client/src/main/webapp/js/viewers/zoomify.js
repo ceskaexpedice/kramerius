@@ -46,6 +46,8 @@ function Zoomify(appl, selector) {
 }
 
 
+
+
 Zoomify.prototype.repairurl = function(url) {
         var changedurl = url.replace("deepZoom","zoomify");
         var index = changedurl.indexOf("zoomify");

@@ -142,7 +142,6 @@
 }
 
 .point {
-        background-color: $params.activeColor;
 }
 .point:hover {
 }
@@ -172,3 +171,17 @@
 
 }
 
+
+.point svg {
+    fill:$params.get("activeColor"); 
+    stroke:$params.get("svg.stroke"); 
+    stroke-width: 8; 
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+
+.point svg:hover *{
+    fill:$params.get("activeColor"); 
+    stroke:$params.get("svg.stroke"); 
+}

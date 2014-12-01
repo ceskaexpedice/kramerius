@@ -49,11 +49,20 @@ svg{
     height: 28px;
     size: contain;
 }
+
+.between svg{
+    width: 32px;
+    height: 32px;
+    size: contain;
+}
+
+
 .medium svg{
     width: 48px;
     height: 48px;
     size: contain;
 }
+
 
 .big svg{
     width: 128px;
@@ -87,3 +96,12 @@ svg:hover *{
     fill:$params.get("svg.fill.hover"); 
     stroke:$params.get("svg.stroke.hover"); 
 }
+
+/*
+.nofill:hover {
+    fill:none; 
+}
+
+.nostroke:hover {
+    stroke:none; 
+}*/

@@ -5,6 +5,7 @@
 <body>
 
 #parse("profile.vm")
+#parse("logingoptions.vm")
 
 #parse("header.vm")
 #if ($params.exists( "page" )) 

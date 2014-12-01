@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import cz.incad.kramerius.client.tools.K5Configuration;
+import cz.incad.kramerius.client.utils.RedirectHelp;
 
 public class PrintFunctionalityServlet extends HttpServlet {
 
@@ -51,11 +52,13 @@ public class PrintFunctionalityServlet extends HttpServlet {
                             LOGGER.log(Level.SEVERE,e.getMessage(),e);
                         }
                     }
-                    String k4host = K5Configuration.getK5ConfigurationInstance().getConfigurationObject().getString("k4.host");
-                    if (!k4host.endsWith("/")) {
-                        k4host += "/";
-                    }
-                    String str = k4host+"inc/_iprint.jsp?pids="+params+"&transcode="+transcode+"&page=A4&layout=portrait";
+                    String redirecthost = RedirectHelp.redirectApplication(req);
+//                    String k4host = K5Configuration.getK5ConfigurationInstance().getConfigurationObject().getString("k4.host");
+//                    if (!k4host.endsWith("/")) {
+//                        k4host += "/";
+//                    }
+//                    
+                    String str = redirecthost+"inc/_iprint.jsp?pids="+params+"&transcode="+transcode+"&page=A4&layout=portrait";
                     resp.sendRedirect(str);
                 }
             }

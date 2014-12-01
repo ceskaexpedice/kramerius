@@ -13,6 +13,10 @@ $pos>0)#set($pos = $pos +1)$s.substring($pos)#else$s#end
 <span class="translate" data-key="$key">$i18n.get($key)</span>
 #end
 
+#macro(hoversvg $path)
+#parse($path)
+#end
+
 
 #macro( i18nval $key)
 $i18n.get($key)
