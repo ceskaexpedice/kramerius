@@ -45,10 +45,10 @@ Browse.prototype = {
         
         
         this.rightArrow.click(_.bind(function() {
-            this.doScroll(1);
+            this.doDeltaScroll(1);
         }, this));
         this.leftArrow.click(_.bind(function() {
-            this.doScroll(-1);
+            this.doDeltaScroll(-1);
         }, this));
         
         this.sectionDiv = this.elem.find(".section");
@@ -79,9 +79,12 @@ Browse.prototype = {
         var w = Math.floor(100.0 / this.columns);
         $("#browse .res").css("width", "calc("+w+"% - 6px)");
     },
-    doScroll: function(dx){
-        var speed = 500;
+    doDeltaScroll: function(dx){
         var finalPos = this.sectionsScroll.scrollLeft() + this.sectionsScroll.width() * 0.8 * dx;
+        this.doAbsScroll(finalPos);
+    },
+    doAbsScroll: function(finalPos){
+        var speed = 500;
         var th = this;
         th.scrolling = true;
         this.sectionsScroll.animate({scrollLeft: finalPos}, speed, function() {
@@ -123,6 +126,8 @@ Browse.prototype = {
             if (this.selectTyp !== typ) {
                 if("authors"===typ){
                     this.loadAuthors();
+                }else if("titles"===typ){
+                    this.loadTitles();
                 }else{
                     var count = this.typesDiv.find("." + typ).data("count");
                     this.loadTyp(typ, count);
@@ -142,27 +147,60 @@ Browse.prototype = {
         }
     },
     renderTypes: function() {
-        if (!jQuery.isEmptyObject(this.root_models)) {
-            $.each(this.root_models, _.bind(function(typ, count) {
-                var text = K5.i18n.translatable('fedora.model.' + typ) + " (" + count + ")";
-                var div = $('<div/>', {class: 'button ' + typ});
-                div.data('count', count);
-                div.click(_.bind(function() {
-                    window.location.hash = typ;
-                }, this));
-                div.append(text);
-                this.typesDiv.append(div);
-            }, this));
-        }
+//        if (!jQuery.isEmptyObject(this.root_models)) {
+//            $.each(this.root_models, _.bind(function(typ, count) {
+//                var text = K5.i18n.translatable('fedora.model.' + typ) + " (" + count + ")";
+//                var div = $('<div/>', {class: 'button ' + typ});
+//                div.data('count', count);
+//                div.click(_.bind(function() {
+//                    window.location.hash = typ;
+//                }, this));
+//                div.append(text);
+//                this.typesDiv.append(div);
+//            }, this));
+//        }
+        //Pridame tituly
+        var div = $('<div/>', {class: 'button titles'});
+        
+        div.click(_.bind(function() {
+            window.location.hash = 'titles';
+        }, this));
+        div.append('<label>' + K5.i18n.translatable('browse.titles') + ' </label>');
+        
+        var input = $('<input />', {type: "text"});
+        input.change(_.bind(function(ev){
+            this.doSuggest('titles');
+        }, this));
+        div.append(input);
+        this.typesDiv.append(div);
+        
         //Pridame autori
-        var div = $('<div/>', {class: 'button authors'});
+        div = $('<div/>', {class: 'button authors'});
         
         div.click(_.bind(function() {
             window.location.hash = 'authors';
         }, this));
-        div.append(K5.i18n.translatable('browse.authors'));
+        div.append('<label>' + K5.i18n.translatable('browse.authors') + ' </label>');
+        
+        input = $('<input />', {type: "text"});
+        input.change(_.bind(function(ev){
+            this.doSuggest('authors');
+        }, this));
+        div.append(input);
         this.typesDiv.append(div);
         
+    },
+    doSuggest: function(typ){
+        var val = this.typesDiv.find("." + typ + " input").val();
+        if(val.length >= 3){
+            //this.loadSection(val);
+            var hash = window.location.hash;
+            if (hash.length > 1) {
+                hash = hash.substring(1);
+                var parts = hash.split(";");
+                window.location.hash = parts[0] + ";{" + val.toUpperCase() + "}";
+            }
+        }
     },
     getTypes: function() {
         this.root_models = {};
@@ -196,6 +234,31 @@ Browse.prototype = {
                 }, this));
 
     },
+    loadTitles: function() {
+        this.selectTyp = "titles";
+        this.selectedSection = "";
+        this.selectTypCount = 0;
+        this.typesDiv.find(".button").removeClass("sel");
+        this.typesDiv.find(".titles").addClass("sel");
+        this.sectionsDiv.html("");
+        this.sectionDiv.html("");
+        
+        $('.loading').show();
+        K5.api.askForCache('browse_sections_titles',
+                _.bind(function(data) {
+                    console.log("titles from cache: " + data);
+                    this.sections = jQuery.parseJSON(data);
+                    this.renderSections();
+                    this.processHash(true);
+                }, this),
+                _.bind(function(data) {
+                    console.log("titles not in cache. Loading...");
+                    this.sectionLength = 50;
+                    this.sections = [];
+                    this.nextSection("");
+                }, this));
+
+    },
     loadAuthors: function() {
         this.selectTyp = "authors";
         this.selectedSection = "";
@@ -216,11 +279,12 @@ Browse.prototype = {
                 _.bind(function(data) {
                     console.log("authors not in cache. Loading...");
                     this.sectionLength = 50;
-                    this.sections = {};
+                    this.sections = [];
                     this.nextAuthor("");
                 }, this));
 
     },
+    
     nextAuthor: function(startterm) {
         var q = "terms.fl=browse_autor&terms.limit=200&terms.lower.incl=false&terms.sort=index&terms.lower=" + startterm;
 
@@ -264,7 +328,10 @@ Browse.prototype = {
                 } else {
                     //var show = arr[arr.length - 1][this.showField].substring(0, 3);
                     var text = value.split("##")[1].substring(0, 3);
-                    this.sections[key] = text;
+                    
+                    var sec = {};
+                    sec[key] = text;
+                    this.sections.push(sec);
                     var div = $('<li/>', {class: 'button', "data-key": key});
                     div.data("key", key);
                     //div.append(text);
@@ -359,7 +426,7 @@ Browse.prototype = {
                     }
 
                     this.putFirstSections();
-                    this.sections = {};
+                    this.sections = [];
                     this.nextSection("A", 0);
                 }, this));
 
@@ -368,7 +435,9 @@ Browse.prototype = {
 
         if (!jQuery.isEmptyObject(this.sections)) {
             this.putFirstSections();
-            $.each(this.sections, _.bind(function(key, text) {
+            $.each(this.sections, _.bind(function(idx, value) {
+                var key = Object.keys(value)[0];
+                var text = value[key];
                 var div = $('<li/>', {class: 'button', "data-key": key});
                 //div.append(text);
                 div.click(_.bind(function() {
@@ -382,14 +451,20 @@ Browse.prototype = {
             }, this));
             this.checkArrows();
         }
+        
         $('.loading').hide();
     },
     nextSection: function(startterm, start) {
-        var q = "fq=model_path:" + this.selectTyp + "&rows=0&facet.limit=" + this.sectionLength +
-                "&q=" + this.browseField + ":[\"" + startterm + " *\" TO *]" +
+        
+//        var q = "fq=model_path:" + this.selectTyp + "&rows=0&facet.limit=" + this.sectionLength +
+//                "&q=" + this.browseField + ":[\"" + startterm + " *\" TO *]" +
+//                "&fl=" + this.browseField + "," + this.showField + this.facetParams;
+        
+        var q = "fq=level:0&rows=0&facet.limit=" + this.sectionLength +
+                "&q=" + this.browseField + ":[\"" + encodeURIComponent(startterm) + " *\" TO *]" +
                 "&fl=" + this.browseField + "," + this.showField + this.facetParams;
 
-        //sort=" + this.browseField + " asc& + this.groupedParams
+
         K5.api.askForSolr(q, _.bind(function(data) {
             //var arr = data.grouped.root_pid.doclist.docs;
             var arr = data.facet_counts.facet_fields[this.browseField];
@@ -402,7 +477,9 @@ Browse.prototype = {
                 return;
             } else {
                 //var value = arr[arr.length - 1][this.browseField];
-                var value = arr[arr.length - 2];
+                var parts = arr[arr.length - 2].split("##");
+                var value = parts[0];
+                var text = parts[1].substring(0, 3);
                 //var key = value.substring(0, 3);
                 var i = 0;
                 var j = 0;
@@ -424,12 +501,13 @@ Browse.prototype = {
                         c = value.substring(j, j + 1);
                     }
                 }
-                if (key === startterm) {
-                    key = key + "|||";
+                if (key.trim() === startterm.trim()) {
+                    key = key.trim() + "|||";
                 } else {
                     //var show = arr[arr.length - 1][this.showField].substring(0, 3);
-                    var text = value.split("##")[1].substring(0, 3);
-                    this.sections[key] = text;
+                    var sec = {};
+                    sec[key] = text;
+                    this.sections.push(sec);
                     var div = $('<li/>', {class: 'button', "data-key": key});
                     div.data("key", key);
                     //div.append(text);
@@ -453,9 +531,12 @@ Browse.prototype = {
         }, this), "application/json");
     },
     getSectionDocs: function(start, from, to) {
-        var q = "sort=" + this.browseField + " asc&fq=model_path:" + this.selectTyp +
-                "&rows=" + this.rowsPerRequest + "&start=" + start +
-                "&q=" + this.browseField + ":[\"" + from + " *\" TO " + to.trim() + "]" +
+//        var q = "sort=" + this.browseField + " asc&fq=model_path:" + this.selectTyp +
+//                "&rows=" + this.rowsPerRequest + "&start=" + start +
+//                "&q=" + this.browseField + ":[\"" + from + " *\" TO " + to.trim() + "]" +
+//                "&fl=PID,dc.title,dc.creator,datum_str";
+        var q = "sort=" + this.browseField + " asc&fq=level:0&rows=" + this.rowsPerRequest + "&start=" + start +
+                "&q=" + this.browseField + ":[\"" + encodeURIComponent(escapeSolrChars(from)) + " *\" TO " + to.trim() + "]" +
                 "&fl=PID,dc.title,dc.creator,datum_str";
         $('.loading').show();
         K5.api.askForSolr(q, _.bind(function(data) {
@@ -518,7 +599,19 @@ Browse.prototype = {
         if(this.sectionsDiv.children().length===0) return;
         this.selectedSection = section;
         this.sectionsDiv.find(".button").removeClass("sel sel2");
-        var el = this.sectionsDiv.find('.button[data-key="' + section + '"]');
+        
+        var nearest_section = null;
+        $.each(this.sections, function(idx, value) {
+            var key = Object.keys(value)[0];
+            var text = value[key];
+            if(key > section){
+                return;
+            }
+            nearest_section = key;
+        });
+            
+        
+        var el = this.sectionsDiv.find('.button[data-key="' + nearest_section + '"]');
         var nextkey = el.next().data("key");
         if (nextkey === null) {
             nextkey = "*";
@@ -527,6 +620,10 @@ Browse.prototype = {
         }
         el.addClass("sel");
         el.next().addClass("sel2");
+        
+        var finalPos = this.sectionsScroll.scrollLeft() + el.offset().left - this.sectionsScroll.width() * 0.5 ;
+        this.doAbsScroll(finalPos);
+        
         this.sectionDiv.html("");
         if(this.selectTyp==="authors"){
             this.loadAuthor();
