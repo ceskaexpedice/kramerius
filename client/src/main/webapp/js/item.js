@@ -39,11 +39,11 @@ K5.eventsHandler.addHandler(function(type, configuration) {
     }
         
     if (type === "application/keys/left") {
-        K5.gui["selected"].next();
+        K5.gui["selected"].prev();
     }
 
     if (type === "application/keys/right") {
-        K5.gui["selected"].prev();
+        K5.gui["selected"].next();
     }
 
     // changes in context buttons
@@ -80,6 +80,8 @@ function _eventProcess(pid) {
         K5.gui["selected"].initItemSupport();
         K5.gui["selected"].open();
         K5.gui["selected"].ctxMenu();    
+
+        K5.gui["selected"]["ctx"] = {};    
 
         _metadatainit();
 
@@ -437,7 +439,11 @@ ItemSupport.prototype = {
      * @method      
      */    
     hasParent: function() {
-        return (this.itemContext.length > 1);
+        var pid = K5.api.ctx["item"]["selected"];
+        var data = K5.api.ctx["item"][pid];
+        var itemContext = data.context[0];
+
+        return (itemContext.length > 1);
     },
     /**
      * Returns parent pid
@@ -445,9 +451,12 @@ ItemSupport.prototype = {
      */       
     parent: function() {
         cleanWindow();
+        var pid = K5.api.ctx["item"]["selected"];
+        var data = K5.api.ctx["item"][pid];
+        var itemContext = data.context[0];
         
         if (this.itemContext.length > 1) {
-            var parentPid = this.itemContext[this.itemContext.length - 2].pid;
+            var parentPid = itemContext[itemContext.length - 2].pid;
             K5.api.gotoItemPage(parentPid, $("#q").val());
         }
     },

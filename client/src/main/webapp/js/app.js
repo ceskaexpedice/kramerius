@@ -226,6 +226,7 @@ function Application() {
                         if (configuration["defs"]["viewers"]) {
                                 this.gui["viewers"] =  new ViewersControll();
                                 this.gui["viewers"].initalizeViewers(configuration["defs"]["viewers"]);
+                                this.gui["viewers"].loadSessionInitialization(configuration["session"]);
                         }
                 } 
 

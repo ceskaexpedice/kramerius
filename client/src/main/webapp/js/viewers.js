@@ -7,7 +7,8 @@ function ViewersControll() {}
 ViewersControll.prototype = {
 
         'ctx': {
-                "viewers":[]
+                "viewers":[],
+                "session":{}
         },
 
         'instantiate':function(name) {
@@ -66,7 +67,18 @@ ViewersControll.prototype = {
 
         'initalizeViewers':function(viewers) {
                 this.ctx["viewers"]=viewers;
+        },
+        
+
+        'loadSessionInitialization':function(sessionObject) {
+            if (sessionObject["viewers"]) {
+                this.ctx.session = sessionObject["viewers"];
+            }
+        },
+        'storeSessionInitialization':function() {
+            K5.api.storeToSession("viewers",this.ctx.session);
         }
+        
 }
 
 

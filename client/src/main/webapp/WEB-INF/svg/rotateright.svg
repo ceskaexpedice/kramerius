@@ -18,9 +18,9 @@
 
     <circle cx="50" cy="50" r="38" class="svg-icon"  />
 
-    <path d="M 65 40 l -10 -10"  class="svg-icon nofill"  fill="none"/>
-    <path d="M 65 40 l -10 10"  class="svg-icon nofill"  fill="none"/>
-
-    <path id="spln" d="M 65 40 q -30 -5 -25 30"  style="fill:none" class="svg-icon nofill"   fill="none"/>
-
+    <path d="M 70 55 l -6 -6"  class="svg-icon nofill"  fill="none"/>
+    <path d="M 70 55 l 6 -6"  class="svg-icon nofill"  fill="none"/>
+    
+    <path d="M48,70  
+           a20,20 -10 1,1 22,-15" class="svg-icon" style="fill:none"></path>
 </svg>

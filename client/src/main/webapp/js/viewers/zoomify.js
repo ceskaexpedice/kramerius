@@ -36,7 +36,7 @@ function Zoomify(appl, selector) {
 
                                 if (curWidth < size[0] && curHeight < size[1]) {
                                         //NOTE: timeout because of tablet delay                                
-                                        setTimeout(function() { K5.gui.selected.fit();  K5.gui.selected.arrowbuttons(); }, 500);
+                                        setTimeout(function() { K5.gui.selected.fit();  _checkArrows(); }, 500);
                                 } 
                         }
                 }
@@ -44,6 +44,8 @@ function Zoomify(appl, selector) {
 
         this.application.eventsHandler.addHandler(this.resizeHandler);
 }
+
+
 
 
 
@@ -62,39 +64,12 @@ Zoomify.prototype.repairurl = function(url) {
 Zoomify.prototype.open = function() {
     this.chnagedurl = this.repairurl(this.url);   
 
-    var leftArrowContainerDiv = $("<div/>",{"id":"pageleft","class":"leftarrow" });
-    leftArrowContainerDiv.append($("<div/>",{"id":"pagelefticon", class:"arrow"}));    
-    this.elem.append(leftArrowContainerDiv);    
+    this.elem.append(_leftNavigationArrow());    
+    this.elem.append(_rightNavigationArrow());    
 
-    var rightArrowContainerDiv = $("<div/>",{"id":"pageright","class":"rightarrow"});
-    rightArrowContainerDiv.append($("<div/>",{"id":"pagerighticon", class:"arrow"}));    
-    this.elem.append(rightArrowContainerDiv);    
-
-    $.get("svg.vm?svg=arrowleft",_.bind(function(data) {
-        $("#pagelefticon").html(data);            
-        this.arrowbuttons();
-    },this));
-
-    $.get("svg.vm?svg=arrowright",_.bind(function(data) {
-        $("#pagerighticon").html(data);            
-        this.arrowbuttons();
-    },this));
- 
-    $("#pageleft").click(_.bind(function() {
-        K5.gui.selected.prev();
-    }, this));
-
-    $("#pageright").click(_.bind(function() {
-        K5.gui.selected.next();
-    }, this));
-
-    $("#pagelefticon").click(_.bind(function() {
-        K5.gui.selected.prev();
-    }, this));
-
-    $("#pagerighticon").click(_.bind(function() {
-        K5.gui.selected.next();
-    }, this));
+    var optionsDiv = _optionspane();
+    this.elem.append(_optionspane());    
+    
     
     /*
     if(isTouchDevice()){
@@ -111,8 +86,7 @@ Zoomify.prototype.open = function() {
         });
     }*/
 
-    this.arrowbuttons();
-
+    
     var mapDiv = $("<div/>",{"id":"map","width":"100%","height":"100%"});
 
     this.elem.append(mapDiv);    
@@ -227,15 +201,19 @@ Zoomify.prototype.open = function() {
                         });
                         this.map.beforeRender(anim);    
                 }
-                
-                var ext = this.projection.getExtent();
-                var size = this.map.getSize();
 
-                var nresolution = ext[3]/(size[1]-20);
-                this.map.getView().setResolution(nresolution);
+                var lockedZoom = _checkZoomIsLocked(this.map);
+                if (lockedZoom) {
+                    _optionspaneLocked();
+                } else {
+                    var ext = this.projection.getExtent();
+                    var size = this.map.getSize();
+                    var nresolution = ext[3]/(size[1]-20);
+                    this.map.getView().setResolution(nresolution);
+                }
+                _checkArrows();
+        },this));
 
-                this.arrowbuttons();
-    },this));
 }
 
 
@@ -247,6 +225,9 @@ Zoomify.prototype.clearContainer = function() {
 
         this.alto.clear(this);
         if (this.map != null) this.map.setTarget();
+
+        
+        $("#options").remove();
 
         $("#map").remove();
         $("#pageleft").remove();
@@ -260,6 +241,13 @@ Zoomify.prototype.clearContainer = function() {
         this.view2D = null;
 
         this.disposed = true;
+}
+
+Zoomify.prototype.lockZoom = function() {
+    _lockZoomAndStore(this.map);
+}
+Zoomify.prototype.unlockZoom = function() {
+    _unlockZoomAndStore(this.map);
 }
 
 Zoomify.prototype.hideLeftrightbuttons = function() {
@@ -340,37 +328,37 @@ Zoomify.prototype.addContextButtons=  function() {
 }
 
 
-/**
- * Construct arrow buttons
- * @method
- */ 
-Zoomify.prototype.arrowbuttons = function() {
-        var selected = K5.api.ctx["item"].selected;
-        if (K5.api.ctx["item"] && K5.api.ctx["item"][selected] &&  K5.api.ctx["item"][selected]["siblings"]) {
-                var data = K5.api.ctx["item"][selected]["siblings"];
-                var arr = data[0]['siblings'];
-                var index = _.reduce(arr, function(memo, value, index) {
-                        return (value.selected) ? index : memo;
-                }, -1);
-                if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
-                if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
-
-                K5.eventsHandler.trigger("application/menu/ctxchanged", null);
-        } else {
-                K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
-                        var arr = data[0]['siblings'];
-                        var index = _.reduce(arr, function(memo, value, index) {
-                                return (value.selected) ? index : memo;
-                        }, -1);
-
-                        if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
-                        if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
-        
-                        K5.eventsHandler.trigger("application/menu/ctxchanged", null);
-                });
-
-        }
-}
+///**
+// * Construct arrow buttons
+// * @method
+// */ 
+//Zoomify.prototype.arrowbuttons = function() {
+//        var selected = K5.api.ctx["item"].selected;
+//        if (K5.api.ctx["item"] && K5.api.ctx["item"][selected] &&  K5.api.ctx["item"][selected]["siblings"]) {
+//                var data = K5.api.ctx["item"][selected]["siblings"];
+//                var arr = data[0]['siblings'];
+//                var index = _.reduce(arr, function(memo, value, index) {
+//                        return (value.selected) ? index : memo;
+//                }, -1);
+//                if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
+//                if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
+//
+//                K5.eventsHandler.trigger("application/menu/ctxchanged", null);
+//        } else {
+//                K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
+//                        var arr = data[0]['siblings'];
+//                        var index = _.reduce(arr, function(memo, value, index) {
+//                                return (value.selected) ? index : memo;
+//                        }, -1);
+//
+//                        if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
+//                        if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
+//        
+//                        K5.eventsHandler.trigger("application/menu/ctxchanged", null);
+//                });
+//
+//        }
+//}
 
 
 Zoomify.prototype.translateCurrent=function(x1,y1,x2,y2) {
@@ -487,31 +475,37 @@ Zoomify.prototype.crop = function(rect,offset){
  *@method
  */
 Zoomify.prototype.fit = function() {
-        var ext = this.projection.getExtent();
-        var size = this.map.getSize();
+    var ext = this.projection.getExtent();
+    var size = this.map.getSize();
 
-        var nresolution = ext[3]/(size[1]-20);
-        this.view2D.setResolution(nresolution);
-        
-        this.view2D.setCenter([ext[2]/2, -ext[3]/2]);
+    var nresolution = ext[3]/(size[1]-20);
+    this.view2D.setResolution(nresolution);
+    
+    this.view2D.setCenter([ext[2]/2, -ext[3]/2]);
 }
 
 Zoomify.prototype.relativePosition = function() {
         return $("#map").position();        
 }
 
+
+Zoomify.prototype.rotateLeft = function() {
+    this.alto.clear(this);
+    _rotateLeft(this.map);
+}
+
+Zoomify.prototype.rotateRight = function() {
+    this.alto.clear(this);
+    _rotateRight(this.map);
+}
+
+
 /**
  * Zooming out
  * @method       
  */
 Zoomify.prototype.zoomOut = function() {
-     var z = this.map.getView().getZoom()-1;
-     //animation
-     var anim = ol.animation.zoom({
-        resolution:this.map.getView().getResolution()
-     });
-     this.map.beforeRender(anim);    
-     this.map.getView().setZoom(z);
+    _zoomOut(this.map);
 }
 
 /**
@@ -519,13 +513,7 @@ Zoomify.prototype.zoomOut = function() {
  * @method       
  */
 Zoomify.prototype.zoomIn = function() {
-    var z = this.map.getView().getZoom()+1;
-    //animation
-    var anim = ol.animation.zoom({
-     resolution:this.map.getView().getResolution()
-    });
-    this.map.beforeRender(anim);    
-    this.map.getView().setZoom(z);
+    _zoomIn(this.map);
 }
 
 

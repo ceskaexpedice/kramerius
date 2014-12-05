@@ -107,6 +107,7 @@ body * {
     left: 50px;
     display: inline-block;
     margin-top:0px;
+    cursor: pointer;
 }
 
 
@@ -500,6 +501,7 @@ li.public:before{
     overflow: hidden;
 }
 
+
 /** actions section */
 #viewer .actions{
     /*top: -500px; */
@@ -622,6 +624,7 @@ li.public:before{
         display: inline-block;
 }
 
+
 #vwr_ctx_pin {
         display:none;
 }
@@ -635,6 +638,10 @@ li.public:before{
 }
 
 #vwr_ctx_removeclipboard {
+        margin-left:0.8em;        
+}
+
+#vwr_ctx_share {
         margin-left:0.8em;        
 }
 
@@ -1072,6 +1079,41 @@ li.public:before{
     display:table-cell;
     vertical-align:middle;    
 }
+
+
+/** viewer options - rotate, fit, plus, minus */
+#viewer  div.options {
+    position:absolute;
+    top:20px;
+    left:80px;
+    z-index:34;
+    color: rgba(180, 180, 180, 0.4);
+    background-color: $params.activeColor;
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+    
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#viewer  div.options ul {
+    list-style:none;
+    font-size:1.1em;
+    padding-left:0em;
+}
+
+#viewer  div.options ul li {
+    display:inline-block;
+    list-style-type:none;
+}
+
+#viewer  div.options ul li div.small {
+    margin-left:2px;
+    margin-right:2px;
+    cursor: pointer;
+}
+
+/** end of viwer options */
+
 
 #viewer div.container div.arrow svg  {
     opacity:0.2;
@@ -2296,3 +2338,6 @@ div.logoptions  div.logoptions_footer  div.right{
         font-size: 11px;
 }
 /** end of logoptions */
+
+
+

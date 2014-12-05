@@ -41,7 +41,7 @@ function ZoomifyStaticImage(appl, selector) {
                                 var curHeight = ext[3]/resolution ;
 
                                 if (curWidth < size[0] && curHeight < size[1]) {
-                                        setTimeout(function() { K5.gui.selected.fit();  K5.gui.selected.arrowbuttons(); }, 500);
+                                        setTimeout(function() { K5.gui.selected.fit();  _checkArrows(); }, 500);
                                 } 
                         }
                 }
@@ -99,39 +99,12 @@ ZoomifyStaticImage.prototype.prefetchNextAndPrev = function () {
  */
 ZoomifyStaticImage.prototype.open = function() {
 
-        var leftArrowContainerDiv = $("<div/>",{"id":"pageleft","class":"leftarrow" });
-        leftArrowContainerDiv.append($("<div/>",{"id":"pagelefticon", class:"arrow"}));    
-        this.elem.append(leftArrowContainerDiv);    
 
-        var rightArrowContainerDiv = $("<div/>",{"id":"pageright","class":"rightarrow"});
-        rightArrowContainerDiv.append($("<div/>",{"id":"pagerighticon", class:"arrow"}));    
-        this.elem.append(rightArrowContainerDiv);    
+        this.elem.append(_leftNavigationArrow());    
+        this.elem.append(_rightNavigationArrow());    
 
-        $.get("svg.vm?svg=arrowleft",_.bind(function(data) {
-                $("#pagelefticon").html(data);            
-                this.arrowbuttons();
-        },this));
-
-        $.get("svg.vm?svg=arrowright",_.bind(function(data) {
-                $("#pagerighticon").html(data);            
-                this.arrowbuttons();
-        },this));
- 
-        $("#pageleft").click(_.bind(function() {
-                K5.gui.selected.prev();
-        }, this));
-
-        $("#pageright").click(_.bind(function() {
-                K5.gui.selected.next();
-        }, this));
-
-        $("#pagelefticon").click(_.bind(function() {
-                K5.gui.selected.next();
-        }, this));
-
-        $("#pagerighticon").click(_.bind(function() {
-                K5.gui.selected.next();
-        }, this));
+        var optionsDiv = _optionspane();
+        this.elem.append(optionsDiv);    
 
         /*
         if(isTouchDevice()){
@@ -151,7 +124,6 @@ ZoomifyStaticImage.prototype.open = function() {
         */
 
 
-        this.arrowbuttons();
 
         var mapDiv = $("<div/>",{"id":"map"});
         mapDiv.css('width','100%');            
@@ -181,7 +153,7 @@ ZoomifyStaticImage.prototype.open = function() {
                         projection: this.projection,
                         center: ol.extent.getCenter(this.projection.getExtent()),
                         zoom: 1
-                });              
+                });
 
 
                 this.map = new ol.Map({
@@ -192,10 +164,11 @@ ZoomifyStaticImage.prototype.open = function() {
                                 pinchRotate:false,
                                 altShiftDragRotate:false,
                         }),
+                        
                         controls: ol.control.defaults({logo:false, zoom:false}).extend([
                             new ol.interaction.KeyboardZoom()
                         ]),
-                        view: this.view2D,
+                        view: this.view2D
                 });
         
 
@@ -209,14 +182,17 @@ ZoomifyStaticImage.prototype.open = function() {
                         }
                 },this));
 
-        
-                var ext = this.projection.getExtent();
-                var size = this.map.getSize();
-
-                var nresolution = ext[3]/(size[1]-20);
-                this.map.getView().setResolution(nresolution);
-
-                this.arrowbuttons();
+                
+                var lockedZoom = _checkZoomIsLocked(this.map);
+                if (lockedZoom) {
+                    _optionspaneLocked();
+                } else {
+                    var ext = this.projection.getExtent();
+                    var size = this.map.getSize();
+                    var nresolution = ext[3]/(size[1]-20);
+                    this.map.getView().setResolution(nresolution);
+                }
+                _checkArrows();
 
             },this);
 
@@ -227,6 +203,21 @@ ZoomifyStaticImage.prototype.open = function() {
     },this));    
 
     this._tmpimage.src=this.url;
+    
+
+}
+
+/**
+ * Lock zoom 
+ * @method
+ */
+ZoomifyStaticImage.prototype.lockZoom = function() {
+    _lockZoomAndStore(this.map);
+}
+
+
+ZoomifyStaticImage.prototype.unlockZoom = function() {
+    _unlockZoomAndStore(this.map);
 }
 
 
@@ -308,37 +299,47 @@ ZoomifyStaticImage.prototype.addContextButtons=  function() {
 }
 
 
-ZoomifyStaticImage.prototype.arrowbuttons = function() {
-        var selected = K5.api.ctx["item"].selected;
-        if (K5.api.ctx["item"] && K5.api.ctx["item"][selected] &&  K5.api.ctx["item"][selected]["siblings"]) {
-                var data = K5.api.ctx["item"][selected]["siblings"];
-                var arr = data[0]['siblings'];
-                var index = _.reduce(arr, function(memo, value, index) {
-                        return (value.selected) ? index : memo;
-                }, -1);
-                if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
-                if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
-
-                K5.eventsHandler.trigger("application/menu/ctxchanged", null);
-
-        } else {
-                K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
-                        var arr = data[0]['siblings'];
-                        var index = _.reduce(arr, function(memo, value, index) {
-                                return (value.selected) ? index : memo;
-                        }, -1);
-
-                        if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
-                        if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
-
-                        K5.eventsHandler.trigger("application/menu/ctxchanged", null);
-
-                });
-        }
-}
+//ZoomifyStaticImage.prototype.arrowbuttons = function() {
+//        var selected = K5.api.ctx["item"].selected;
+//        if (K5.api.ctx["item"] && K5.api.ctx["item"][selected] &&  K5.api.ctx["item"][selected]["siblings"]) {
+//                var data = K5.api.ctx["item"][selected]["siblings"];
+//                var arr = data[0]['siblings'];
+//                var index = _.reduce(arr, function(memo, value, index) {
+//                        return (value.selected) ? index : memo;
+//                }, -1);
+//                if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
+//                if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
+//
+//                K5.eventsHandler.trigger("application/menu/ctxchanged", null);
+//
+//        } else {
+//                K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
+//                        var arr = data[0]['siblings'];
+//                        var index = _.reduce(arr, function(memo, value, index) {
+//                                return (value.selected) ? index : memo;
+//                        }, -1);
+//
+//                        if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
+//                        if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
+//
+//                        K5.eventsHandler.trigger("application/menu/ctxchanged", null);
+//
+//                });
+//        }
+//}
 
 ZoomifyStaticImage.prototype.relativePosition = function() {
         return $("#map").position();        
+}
+
+ZoomifyStaticImage.prototype.rotateLeft = function() {
+    this.alto.clear(this);
+    _rotateLeft(this.map);
+}
+
+ZoomifyStaticImage.prototype.rotateRight = function() {
+    this.alto.clear(this);
+    _rotateRight(this.map);
 }
 
 
@@ -347,13 +348,13 @@ ZoomifyStaticImage.prototype.relativePosition = function() {
  * @method
  */
 ZoomifyStaticImage.prototype.fit = function() {
-        var ext = this.projection.getExtent();
-        var size = this.map.getSize();
+    var ext = this.projection.getExtent();
+    var size = this.map.getSize();
 
-        var nresolution = ext[3]/(size[1]-20);
-        this.view2D.setResolution(nresolution);
-        
-        this.view2D.setCenter([ext[2]/2, ext[3]/2]);
+    var nresolution = ext[3]/(size[1]-20);
+    this.view2D.setResolution(nresolution);
+    
+    this.view2D.setCenter([ext[2]/2, ext[3]/2]);
 }
 
 ZoomifyStaticImage.prototype.translateCurrent=function(x1,y1,width,height) {
@@ -379,9 +380,6 @@ ZoomifyStaticImage.prototype.currentPage = function() {
 
         var ideal = this._idealCenter(this.projection.getExtent());
         var center = this.view2D.getCenter();   
-
-
-        
 
         var xoffset = center[0] - ideal[0]; //+ smer doprava; - smer doleva
         var yoffset = center[1] - ideal[1]; // - smer nahoru; +smer dolu
@@ -475,13 +473,7 @@ ZoomifyStaticImage.prototype.crop = function(rect, offset){
  * @method
  */
 ZoomifyStaticImage.prototype.zoomOut = function() {
-     var z = this.map.getView().getZoom()-1;
-     //animation
-     var anim = ol.animation.zoom({
-        resolution:this.map.getView().getResolution()
-     });
-     this.map.beforeRender(anim);    
-     this.map.getView().setZoom(z);
+    _zoomOut(this.map);
 }
 
 /**
@@ -489,13 +481,7 @@ ZoomifyStaticImage.prototype.zoomOut = function() {
  * @method
  */
 ZoomifyStaticImage.prototype.zoomIn = function() {
-    var z = this.map.getView().getZoom()+1;
-    //animation
-    var anim = ol.animation.zoom({
-     resolution:this.map.getView().getResolution()
-    });
-    this.map.beforeRender(anim);    
-    this.map.getView().setZoom(z);
+    _zoomIn(this.map);
 }
 
 /**
@@ -503,11 +489,12 @@ ZoomifyStaticImage.prototype.zoomIn = function() {
  * @method       
  */
 ZoomifyStaticImage.prototype.clearContainer = function() {
-        console.log("clear container");
 
         this.alto.clear(this);
         if (this.map) this.map.setTarget();
  
+        
+        $("#options").remove();
         $("#map").remove();
         $("#pageleft").remove();
         $("#pageright").remove();
