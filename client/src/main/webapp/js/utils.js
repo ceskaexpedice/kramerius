@@ -235,7 +235,11 @@ function visible(elm) {
         return ($(elm).is(':visible'));                
 }
 
-
+function escapeSolrChars(value){
+    var specials = ['+', '-', '&', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\'];
+    var regexp = new RegExp("(\\" + specials.join("|\\") + ")", "g");
+    return value.replace(regexp, "\\$1");
+}
 
 
 /** prototypes */
