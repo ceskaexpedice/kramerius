@@ -53,7 +53,6 @@ public class Search {
     private FieldsConfig fieldsConfig;
 
     private String facets;
-    private String boost;
     private final String groupedParams = "&group.field=root_pid&group.type=normal&group.threshold=1"
             + "&group.facet=false&group=true&group.truncate=true&group.ngroups=true";
     private final String hlParams = "&hl=true&hl.fl=text_ocr&hl.mergeContiguous=true&hl.snippets=2";
@@ -68,7 +67,7 @@ public class Search {
             facets = "&facet.mincount=1&facet.field=" + 
                     fieldsConfig.getMappedField("model_path") + 
                     "&facet.field=keywords&facet.field=collection&facet.field=dostupnost";
-            boost = "&defType=edismax&qf=text+" + fieldsConfig.getMappedField("title") + "^4.0+" + fieldsConfig.getMappedField("autor") + "^1.5&bq=(level:0)^4.5";
+            
 
         } catch (ConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -124,7 +123,7 @@ public class Search {
             if (q == null || q.equals("")) {
                 q = "*:*";
             } else {
-                q = URLEncoder.encode(q, "UTF-8") + boost;
+                q = URLEncoder.encode(q, "UTF-8") + getBoost(q);
             }
             String url = apipoint + "/search" + "?q=" + q + "&wt=json&facet=true"
                     + getStart()
@@ -150,7 +149,7 @@ public class Search {
             if (q == null || q.equals("")) {
                 q = "*:*";
             } else {
-                q = URLEncoder.encode(q, "UTF-8") + boost;
+                q = URLEncoder.encode(q, "UTF-8") + getBoost(q);
             }
 
             String url = apipoint + "/search" + "?q=" + q + "&wt=json&facet=true&fl=score,*"
@@ -267,6 +266,14 @@ public class Search {
         return map;
     }
 
+    private String getBoost(String q){
+        String ret = "";
+        ret = "&defType=edismax&qf=text+" + 
+                fieldsConfig.getMappedField("title") + "^4.0+" + 
+                fieldsConfig.getMappedField("autor") + "^1.5&bq=(level:0)^4.5" +
+                "&pf=text^10";
+        return ret;
+    }
     private String getFilters() throws UnsupportedEncodingException {
         String res = getAdvSearch();
         String[] fqs = req.getParameterValues("fq");
