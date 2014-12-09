@@ -157,6 +157,7 @@ ItemThumbs.prototype = {
         this.thumbs = [];
         this.thloaded = -1;
         this.setLoading(true);
+        $("#viewer>div.loading").show();
         K5.api.askForItemChildren(K5.api.ctx["item"]["selected"], _.bind(function(data) {
             console.log("received data");
             this.thumbs = data;
@@ -166,8 +167,9 @@ ItemThumbs.prototype = {
                 this.addThumb(i);
             }
             if (this.thumbs.length === 0) {
-                $("#viewer>div.loading").hide();
+                this.setLoading(false);
             }
+            $("#viewer>div.loading").hide();
             this.getHits();
         }, this));
         this.contentGenerated = true;
@@ -281,9 +283,11 @@ ItemThumbs.prototype = {
     },
     setLoading: function(loading) {
         if (loading) {
-            $("#viewer>div.loading").show();
+            //$("#viewer>div.loading").show();
+            $("#viewer").css("cursor", "progress");
         } else {
-            $("#viewer>div.loading").hide();
+            //$("#viewer>div.loading").hide();
+            $("#viewer").css("cursor", "default");
         }
     },
     checkLoading: function() {
@@ -362,7 +366,7 @@ ItemThumbs.prototype = {
             K5.api.gotoDisplayingItemPage(pid, $("#q").val());
         });
 
-        var title = '<div class="title">' + this.thumbs[index].title + '</div>';
+        var title = '<span class="title">' + this.thumbs[index].title + '</span>';
         var info = {short: "", full: ""};
         this.getDetails(this.thumbs[index], info);
         thumb.data("pid", pid);
@@ -371,6 +375,10 @@ ItemThumbs.prototype = {
         this.container.append(thumb);
 
         thumb.append(img);
+        var infoDiv = $('<div/>', {class: "thumb_info"});
+        infoDiv.append(title);
+        thumb.append(infoDiv);
+        
         thumb.addClass('policy');
         if (this.thumbs[index].policy) {
             thumb.addClass(this.thumbs[index].policy);
@@ -395,7 +403,7 @@ ItemThumbs.prototype = {
 
             if (model === "periodicalvolume") {
 
-                detShort = "<div>" + root_title.substring(0, this.maxInfoLength) + "</div>" +
+                detShort = root_title.substring(0, this.maxInfoLength) +
                         K5.i18n.translatable('field.datum') + ": " + details.year + " ";
                 if (details.volumeNumber) {
                     detShort += K5.i18n.translatable('mods.periodicalvolumenumber') + " " + details.volumeNumber;

@@ -956,6 +956,19 @@ li.public:before{
     min-height:11mm;
     min-width:11mm;
 }
+#viewer li.thumb .thumb_info{
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 100%;
+    overflow: hidden;
+    color: #333333;
+    text-align: left;
+}
+#viewer li.thumb .thumb_info span.title{
+    text-shadow: 0 -2px 3px #fff, 2px 0 3px #fff, 0 2px 3px #fff, -2px 0 3px #fff;
+}
+
 
 #viewer li.hit{
     border: solid 2px $params.hitColor;
