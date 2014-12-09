@@ -271,6 +271,7 @@ public class Search {
         ret = "&defType=edismax&qf=text+" + 
                 fieldsConfig.getMappedField("title") + "^4.0+" + 
                 fieldsConfig.getMappedField("autor") + "^1.5&bq=(level:0)^4.5" +
+                "&bq=" + fieldsConfig.getMappedField("dostupnost") + ":\"public\"^1.2" +
                 "&pf=text^10";
         return ret;
     }
