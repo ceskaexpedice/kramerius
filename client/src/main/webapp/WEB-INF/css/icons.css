@@ -83,6 +83,9 @@ svg  .svg-icon{
     stroke-linecap:round;
     stroke-linejoin:round;
 }
+svg  circle.svg-icon{
+    stroke-width: 4; 
+}
 
 svg:hover{
         /*
