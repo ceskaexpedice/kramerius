@@ -306,9 +306,9 @@ Da.prototype = {
             this.$canvas.drawRect({
                 fillStyle: color,
                 x: l,
-                y: this.barsPanelheight - h * this.scale,
+                y: Math.min(this.barsPanelheight - 3, this.barsPanelheight - h * this.scale),
                 width: w,
-                height: h * this.scale,
+                height: Math.max(3, h * this.scale),
                 fromCenter: false
             });
         }
