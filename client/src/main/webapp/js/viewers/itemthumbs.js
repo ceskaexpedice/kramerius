@@ -18,7 +18,7 @@ ItemThumbs.prototype = {
     relation: 1.3, // height/width
     thumbMargin: 4,
     thumbBorder: 2,
-    thumbMinWidth: 48,
+    thumbMinWidth: 56,
     imgMargin: 2,
     containerMargin: 1,
     maxInfoLength: 100,
@@ -294,11 +294,22 @@ ItemThumbs.prototype = {
         this.thloaded = this.thloaded + 1;
         if (this.thloaded >= this.thumbs.length) {
             this.setLoading(false);
+            this.checkScroll();
+        }
+    },
+    checkScroll: function(){
+        var fit = this.elem.height() < this.elem.parent().height - 40;
+        
+        if (fit) {
+            this.elem.css("overflow", "hidden");
+        } else {
+            this.elem.css("overflow", "auto");
         }
     },
     setDimensions: function() {
         this.width = this.elem.width() - this.containerMargin * 2;
-        this.height = this.elem.height() - this.containerMargin * 2;
+        var marginTop = 40;
+        this.height = this.elem.height() - this.containerMargin * 2 - marginTop;
         this.relation = 128.0 / 96.0;
         this.relation = 96.0 / 128.0;
         var minGridCols = Math.floor(this.width / this.thumbMinWidth);
