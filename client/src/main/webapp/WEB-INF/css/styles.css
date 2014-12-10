@@ -497,7 +497,7 @@ li.public:before{
     top: 0px;
     background-color: #F5F5F5;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 20px);
     overflow: hidden;
 }
 
@@ -1237,7 +1237,8 @@ li.public:before{
     text-align: center;
     padding: 0;
     z-index:3;
-    bottom: 0;
+    bottom: 21px;
+    border-bottom: solid 1px rgba(255,255,255, 0.8);
 }
 
 #buttons div.button{
@@ -2352,5 +2353,31 @@ div.logoptions  div.logoptions_footer  div.right{
 }
 /** end of logoptions */
 
+#footer{
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    height: 20px;
+    text-align: center;
+    color: rgba(180, 180, 180, 0.4);
+    background-color: $params.activeColor;
+    box-shadow: rgba(0, 0, 0, 0.5) -4px 4px 8px 0px;
+    float: left;
+    z-index: 4;
+    vertical-align: bottom;
+    overflow: hidden;
+}
+#footer div{
+    margin: 4px;
+}
 
+#footer a{
+    color: inherit;
+    text-decoration: none;
+}
+
+#footer:hover{
+    color: $params.textColor;
+    background-color: $params.activeColor;
+}
 

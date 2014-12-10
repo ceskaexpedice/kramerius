@@ -279,6 +279,7 @@ ItemThumbs.prototype = {
             $("#viewer li.thumb").css('width', this.thumbWidth + "px");
             $("#viewer li.thumb").css('height', this.thumbHeight + "px");
             $("#viewer li.thumb img").attr("height", this.imgHeight);
+            this.checkScroll();
         }.bind(this), 200);
     },
     setLoading: function(loading) {

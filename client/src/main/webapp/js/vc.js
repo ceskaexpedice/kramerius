@@ -134,8 +134,8 @@ VirtualCollections.prototype = {
                 if (h < 1) {
                     h = $(document).height();
                 }
-                if(console) console.log("height =="+$('#foot').offset().top);
-                $('#rows').css('height', $('#foot').offset().top);
+                if(console) console.log("height =="+$('#footer').offset().top);
+                $('#rows').css('height', $('#footer').offset().top - $('#header').height());
         },
 
         /** append element wich can be localided */    

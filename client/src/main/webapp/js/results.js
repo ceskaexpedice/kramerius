@@ -143,7 +143,7 @@ Results.prototype = {
         $("#contextbuttons").append(text);
     },
     srResize: function() {
-        var h = window.innerHeight - $('#header').height();
+        var h = window.innerHeight - $('#header').height() - $('#footer').height();
         $('#search_results').css('height', h);
         $('#search_results_docs').css('height', h - $('#search_results_header').height() - 5);
     },

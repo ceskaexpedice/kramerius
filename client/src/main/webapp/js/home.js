@@ -68,7 +68,7 @@ HomeEffects.prototype = {
         }, this));
 
         $('#buttons').mouseenter(function() {
-            $("#band").animate({'bottom': 20}, 200);
+            $("#band").animate({'bottom': 41}, 200);
         });
         $('#band').mouseleave(function() {
             $("#band").animate({'bottom': -147}, 200);
