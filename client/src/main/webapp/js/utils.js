@@ -33,7 +33,18 @@ function link(addr) {
         window.location.assign(addr);
 }
 
-
+/**
+ * Returns true if argument is array
+ * @param {obj} tested object 
+ * @global
+ */
+function isArray(obj) {
+    if (typeof obj !== 'undefined') {
+        return obj.constructor === Array;
+    } else{
+        return false;
+    }
+}
 
 /**
  * Returns true if argument is empty string

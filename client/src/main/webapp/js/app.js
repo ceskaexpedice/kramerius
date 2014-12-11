@@ -162,7 +162,71 @@ function Application() {
                 document.body.addEventListener('touchmove', function(event) {
                         event.preventDefault();
                 }, false);         
-        }
+        };
+        
+        this.proccessDetails = function(json, info) {
+            var model = json["model"];
+            var details = json["details"];
+            var root_title = json["root_title"];
+            if (details) {
+
+                if (model === "periodical") {
+
+                    info.short = " ";
+                    info.full = " ";
+                    info.min = root_title;
+                    
+
+                } else if (model === "periodicalvolume") {
+
+                    info.short = root_title.substring(0, this.maxInfoLength) +
+                            K5.i18n.translatable('field.datum') + ": " + details.year + " ";
+                    info.full = "<div>" + root_title + "</div>" +
+                            K5.i18n.translatable('field.datum') + ": " + details.year + " ";
+                    info.min = K5.i18n.translatable('field.datum') + ": " + details.year + " ";
+                    if (details.volumeNumber) {
+                        var v = K5.i18n.translatable('mods.periodicalvolumenumber') + " " + details.volumeNumber;
+                        info.short += v;
+                        info.full += v;
+                        info.min += v;
+                    }
+
+                } else if (model === "internalpart") {
+                    var dArr = details.split("##");
+                    info.full = dArr[0] + " " + dArr[1] + " " + dArr[2] + " " + dArr[3];
+                    info.short = dArr[0] + " " + dArr[1] + " " + dArr[2] + " " + dArr[3];
+                } else if (model === "periodicalitem") {
+                    if (details.issueNumber !== root_title) {
+                        var s = details.issueNumber + " " + details.date + " " + details.partNumber;
+                        info.full = s;
+                        info.short = s;
+                        info.min = s;
+                    } else {
+                        info.full = details.date + " " + details.partNumber;
+                        info.short = details.date + " " + details.partNumber;
+                        info.min = details.date + " " + details.partNumber;
+                    }
+                } else if (model === "monographunit") {
+                    info.full = details.title + " " + details.partNumber;
+                    info.short = details.title + " " + details.partNumber;
+                    info.min = details.title + " " + details.partNumber;
+                } else if (model === "page") {
+                    var s= K5.i18n.translatable('mods.page.partType.' + details.type);
+                    info.full = s;
+                    info.short = s;
+                    info.min = json.title + " " + s + ""  ;
+                } else {
+                    info.full = details;
+                    info.short = details;
+                    info.min = details;
+                }
+            } else {
+                
+                    info.short = " ";
+                    info.full = " ";
+                    info.min = root_title;
+            }
+        };
 
         
 

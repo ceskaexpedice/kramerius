@@ -53,6 +53,14 @@ body * {
         cursor: pointer;
 }
 
+.link{
+        cursor: pointer;
+}
+
+.link:hover{
+        text-decoration: underline;
+}
+
 #band {
     position: relative;
 }
@@ -855,6 +863,32 @@ li.public:before{
     top: 50px;
 }
 
+
+
+/** breadcrumbs section */
+#viewer div.breadcrumbs{
+    position:relative;
+    height: 20px;
+    margin-left: 10px;
+    margin-top: 40px;
+    display: table;
+    font-size: 1.2em;
+    overflow:hidden;
+}
+
+#viewer div.breadcrumbs>div{
+    margin-top: 5px;
+    display: table-cell;
+    vertical-align: bottom;
+}
+
+#viewer div.breadcrumbs>div.sep{
+    margin: 0px 5px;
+}
+#viewer div.breadcrumbs div{
+    display: inline-block;
+}
+
 #viewer>div.container{
     position:absolute;
     left: 0px;
@@ -929,7 +963,7 @@ li.public:before{
 }
 
 #viewer div.container{
-    margin-top: 40px;
+    margin-top: 60px;
 }
 
 #viewer ul.container{

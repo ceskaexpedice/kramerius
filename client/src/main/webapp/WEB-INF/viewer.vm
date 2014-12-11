@@ -4,6 +4,8 @@
 <div id="viewer" class="">
 <input id="q" name="q" type="hidden" value="$!{params.q}" />
 
+    <div class="breadcrumbs"></div>
+
     <div class="container">
         <div class="error">Error</div>
         <!--
@@ -87,12 +89,7 @@
 
 </div>
     
-    
 <div id="item_menu" style="display:none;">
-
-
-
-
 
     <div class="small parent translate_title" data-ctx="all" data-key="buttons.parent" title="$i18n.buttons.parent" onclick="K5.gui.selected.parent();" >#parse("svg/parent.svg")</div>
     <div class="small search translate_title" data-ctx="thumbs" id="vwr_ctx_searchinside" data-key="searchinside.dialog" title="$i18n.searchinside.dialog" onclick="K5.gui.selected.searchInside();" >#parse("svg/lupa.svg")</div>
