@@ -5,5 +5,8 @@
         "autor": "dc.creator",
         "dc_description:": "dc.description",
         "dc_identifier:": "dc.identifier"
+    },
+    "browse":{
+        "models": ["monograph","periodical","article"]
     }
 }
