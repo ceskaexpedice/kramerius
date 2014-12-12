@@ -147,18 +147,6 @@ Browse.prototype = {
         }
     },
     renderTypes: function() {
-//        if (!jQuery.isEmptyObject(this.root_models)) {
-//            $.each(this.root_models, _.bind(function(typ, count) {
-//                var text = K5.i18n.translatable('fedora.model.' + typ) + " (" + count + ")";
-//                var div = $('<div/>', {class: 'button ' + typ});
-//                div.data('count', count);
-//                div.click(_.bind(function() {
-//                    window.location.hash = typ;
-//                }, this));
-//                div.append(text);
-//                this.typesDiv.append(div);
-//            }, this));
-//        }
         //Pridame tituly
         var div = $('<div/>', {class: 'button titles'});
         
@@ -168,7 +156,7 @@ Browse.prototype = {
         div.append('<label>' + K5.i18n.translatable('browse.titles') + ' </label>');
         
         var input = $('<input />', {type: "text"});
-        input.change(_.bind(function(ev){
+        input.keyup(_.bind(function(ev){
             this.doSuggest('titles');
         }, this));
         div.append(input);
@@ -183,7 +171,7 @@ Browse.prototype = {
         div.append('<label>' + K5.i18n.translatable('browse.authors') + ' </label>');
         
         input = $('<input />', {type: "text"});
-        input.change(_.bind(function(ev){
+        input.keyup(_.bind(function(ev){
             this.doSuggest('authors');
         }, this));
         div.append(input);
