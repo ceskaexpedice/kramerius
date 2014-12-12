@@ -50,7 +50,7 @@ public class Search {
     private I18NTool i18n;
     private String host;
     private String apipoint;
-    private FieldsConfig fieldsConfig;
+    private IndexConfig fieldsConfig;
 
     private String facets;
     private final String groupedParams = "&group.field=root_pid&group.type=normal&group.threshold=1"
@@ -63,7 +63,7 @@ public class Search {
             ViewToolContext vc = (ViewToolContext) props.get("velocityContext");
             host = getK5ConfigurationInstance().getConfigurationObject().getString("k4.host");
             apipoint = getK5ConfigurationInstance().getConfigurationObject().getString("api.point");
-            fieldsConfig = FieldsConfig.getInstance();
+            fieldsConfig = IndexConfig.getInstance();
             facets = "&facet.mincount=1&facet.field=" + 
                     fieldsConfig.getMappedField("model_path") + 
                     "&facet.field=keywords&facet.field=collection&facet.field=dostupnost";

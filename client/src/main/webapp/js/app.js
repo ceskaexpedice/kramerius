@@ -293,6 +293,10 @@ function Application() {
                                 this.gui["viewers"].loadSessionInitialization(configuration["session"]);
                         }
                 } 
+                // index configuration
+                if (configuration["conf"]["index"]) {
+                    this.indexConfig = configuration["conf"]["index"];
+                }
 
                 $(window).bind("hashchange", _.bind(function () {
                         if (window.location.hash !== this.previoushash) {

@@ -214,6 +214,17 @@ Browse.prototype = {
                 _.bind(function(data) {
                     //File not found in cache. We should generate
                     var q = "q=browse_title:[* TO *]&rows=0&facet=true&facet.field=model_path&facet.mincount=1" + this.groupedParams;
+                    if(K5.indexConfig){
+                        q += "&fq=";
+                        var models = K5.indexConfig.browse.models;
+                        var modelField = K5.indexConfig.mappings.fedora_model;
+                        for(var i=0; i<models.length; i++){
+                            q += modelField + ':"' + models[i];
+                            if(i<models.length-1){
+                                q += " OR "
+                            }
+                        }
+                    }
                     K5.api.askForSolr(q, _.bind(function(data) {
                         var arr = data.facet_counts.facet_fields.model_path;
                         for (var i = 0; i < arr.length; i++) {
@@ -460,10 +471,20 @@ Browse.prototype = {
 //                "&q=" + this.browseField + ":[\"" + startterm + " *\" TO *]" +
 //                "&fl=" + this.browseField + "," + this.showField + this.facetParams;
         
-        var q = "fq=level:0&rows=0&facet.limit=" + this.sectionLength +
+        var q = "rows=0&facet.limit=" + this.sectionLength +
                 "&q=" + this.browseField + ":[\"" + encodeURIComponent(startterm) + " *\" TO *]" +
                 "&fl=" + this.browseField + "," + this.showField + this.facetParams;
-
+        if(K5.indexConfig){
+            q += "&fq=";
+            var models = K5.indexConfig.browse.models;
+            var modelField = K5.indexConfig.mappings.fedora_model;
+            for(var i=0; i<models.length; i++){
+                q += modelField + ':"' + models[i] + '"';
+                if(i<models.length-1){
+                    q += " OR "
+                }
+            }
+        }
 
         K5.api.askForSolr(q, _.bind(function(data) {
             //var arr = data.grouped.root_pid.doclist.docs;
@@ -531,13 +552,20 @@ Browse.prototype = {
         }, this), "application/json");
     },
     getSectionDocs: function(start, from, to) {
-//        var q = "sort=" + this.browseField + " asc&fq=model_path:" + this.selectTyp +
-//                "&rows=" + this.rowsPerRequest + "&start=" + start +
-//                "&q=" + this.browseField + ":[\"" + from + " *\" TO " + to.trim() + "]" +
-//                "&fl=PID,dc.title,dc.creator,datum_str";
-        var q = "sort=" + this.browseField + " asc&fq=level:0&rows=" + this.rowsPerRequest + "&start=" + start +
+        var q = "sort=" + this.browseField + " asc&rows=" + this.rowsPerRequest + "&start=" + start +
                 "&q=" + this.browseField + ":[\"" + encodeURIComponent(escapeSolrChars(from)) + " *\" TO " + to.trim() + "]" +
                 "&fl=PID,dc.title,dc.creator,datum_str";
+        if(K5.indexConfig){
+            q += "&fq=";
+            var models = K5.indexConfig.browse.models;
+            var modelField = K5.indexConfig.mappings.fedora_model;
+            for(var i=0; i<models.length; i++){
+                q += modelField + ':"' + models[i] + '"';
+                if(i<models.length-1){
+                    q += " OR "
+                }
+            }
+        }
         $('.loading').show();
         K5.api.askForSolr(q, _.bind(function(data) {
             this.sectionDiv.find('.more_docs').remove();
