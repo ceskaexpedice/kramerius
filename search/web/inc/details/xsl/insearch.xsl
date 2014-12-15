@@ -119,12 +119,15 @@
             <xsl:call-template name="default">
                 <xsl:with-param name="fmodel"><xsl:value-of select="$fmodel" /></xsl:with-param>
             </xsl:call-template>
+            <!--
             <xsl:call-template name="details">
                 <xsl:with-param name="fmodel"><xsl:value-of select="$fmodel" /></xsl:with-param>
             </xsl:call-template>
+            -->
             <xsl:call-template name="teaser">
                 <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
             </xsl:call-template>
+            <div class="extInfo" style="display:none;"><xsl:value-of select="./arr[@name='pid_path']/str[position()=1]"/></div>
             </div>
         </td>
     </xsl:template>
