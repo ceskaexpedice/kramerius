@@ -15,7 +15,7 @@
             <!-- <xsl:value-of select="./str[@name='dc.title']" /> -->
             <xsl:call-template name="details" />
             &#160;
-            </a></span>
+            </a></span> 
         </xsl:for-each></div>
         <div class="clear"></div>
     </xsl:template>

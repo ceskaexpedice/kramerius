@@ -77,7 +77,7 @@
             var pid_path = $(info).text();
             if(pid_path.indexOf("/")>0){
                 var url =  "inc/results/extendedInfo.jsp?pid_path=" + pid_path;
-                $.get(url, function(data) {
+                $.get(url, function(data) { 
                     var d = $(data);
                     d.children(':last').remove();
                     $(info).html(d.html());
