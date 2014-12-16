@@ -35,10 +35,10 @@
             <c:param name="q" value="*:*" />
         </c:when>
         <c:when test="${param.q != null}" >
-            <c:if test="${fn:containsIgnoreCase(param.q, '*')}" >
-                
-            </c:if>
             <c:choose>
+                <c:when test="${fn:startsWith(param.q, 'SOLR:')}" >
+                    <c:param name="q" value="${fn:substring(param.q, 5, -1)}" />
+                </c:when>
                 <c:when test="${param.asis}">
                     <c:param name="q" value="${param.q}" />
                 </c:when>
