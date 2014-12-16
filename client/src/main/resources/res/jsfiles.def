@@ -51,6 +51,7 @@
 
     "resources/js/app.js",
     "resources/js/viewers.js",
+    "resources/js/breadcrumbs.js",
     
     "resources/js/edit/selects.js",
     "resources/js/item.js",

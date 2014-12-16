@@ -18,7 +18,7 @@ ItemThumbs.prototype = {
     relation: 1.3, // height/width
     thumbMargin: 4,
     thumbBorder: 2,
-    thumbMinWidth: 48,
+    thumbMinWidth: 56,
     imgMargin: 2,
     containerMargin: 1,
     maxInfoLength: 100,
@@ -93,6 +93,7 @@ ItemThumbs.prototype = {
         this.thumbs = [];
         this.thloaded = -1;
         this.setLoading(true);
+        $("#viewer>div.loading").show();
         K5.api.askForItemChildren(K5.api.ctx["item"]["selected"], _.bind(function(data) {
             this.thumbs = data;
             this.thloaded = 0;
@@ -101,8 +102,9 @@ ItemThumbs.prototype = {
                 this.addThumb(i);
             }
             if (this.thumbs.length === 0) {
-                $("#viewer>div.loading").hide();
+                this.setLoading(false);
             }
+            $("#viewer>div.loading").hide();
             this.getHits();
 
             K5.eventsHandler.trigger("application/menu/ctxchanged", null);
@@ -216,24 +218,38 @@ ItemThumbs.prototype = {
             $("#viewer li.thumb").css('width', this.thumbWidth + "px");
             $("#viewer li.thumb").css('height', this.thumbHeight + "px");
             $("#viewer li.thumb img").attr("height", this.imgHeight);
+            this.checkScroll();
         }.bind(this), 200);
     },
     setLoading: function(loading) {
         if (loading) {
-            $("#viewer>div.loading").show();
+            //$("#viewer>div.loading").show();
+            $("#viewer").css("cursor", "progress");
         } else {
-            $("#viewer>div.loading").hide();
+            //$("#viewer>div.loading").hide();
+            $("#viewer").css("cursor", "default");
         }
     },
     checkLoading: function() {
         this.thloaded = this.thloaded + 1;
         if (this.thloaded >= this.thumbs.length) {
             this.setLoading(false);
+            this.checkScroll();
+        }
+    },
+    checkScroll: function(){
+        var fit = this.elem.height() < this.elem.parent().height - 40;
+        
+        if (fit) {
+            this.elem.css("overflow", "hidden");
+        } else {
+            this.elem.css("overflow", "auto");
         }
     },
     setDimensions: function() {
         this.width = this.elem.width() - this.containerMargin * 2;
-        this.height = this.elem.height() - this.containerMargin * 2;
+        var marginTop = 40;
+        this.height = this.elem.height() - this.containerMargin * 2 - marginTop;
         this.relation = 128.0 / 96.0;
         this.relation = 96.0 / 128.0;
         var minGridCols = Math.floor(this.width / this.thumbMinWidth);
@@ -301,7 +317,7 @@ ItemThumbs.prototype = {
             K5.api.gotoDisplayingItemPage(pid, $("#q").val());
         });
 
-        var title = '<div class="title">' + this.thumbs[index].title + '</div>';
+        var title = '<span class="title">' + this.thumbs[index].title + '</span>';
         var info = {short: "", full: ""};
         this.getDetails(this.thumbs[index], info);
         thumb.data("pid", pid);
@@ -310,6 +326,10 @@ ItemThumbs.prototype = {
         this.container.append(thumb);
 
         thumb.append(img);
+        var infoDiv = $('<div/>', {class: "thumb_info"});
+        infoDiv.append(title);
+        thumb.append(infoDiv);
+        
         thumb.addClass('policy');
         if (this.thumbs[index].policy) {
             thumb.addClass(this.thumbs[index].policy);
@@ -334,7 +354,7 @@ ItemThumbs.prototype = {
 
             if (model === "periodicalvolume") {
 
-                detShort = "<div>" + root_title.substring(0, this.maxInfoLength) + "</div>" +
+                detShort = root_title.substring(0, this.maxInfoLength) +
                         K5.i18n.translatable('field.datum') + ": " + details.year + " ";
                 if (details.volumeNumber) {
                     detShort += K5.i18n.translatable('mods.periodicalvolumenumber') + " " + details.volumeNumber;

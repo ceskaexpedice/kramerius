@@ -26,23 +26,23 @@ import org.json.JSONObject;
  *
  * @author alberto
  */
-public class FieldsConfig {
-    private static FieldsConfig _sharedInstance = null;
+public class IndexConfig {
+    private static IndexConfig _sharedInstance = null;
     private final JSONObject fieldsConfig;
     private final JSONObject mappings;
     
-    public synchronized static FieldsConfig getInstance() throws IOException, JSONException {
+    public synchronized static IndexConfig getInstance() throws IOException, JSONException {
         if (_sharedInstance == null) {
-            _sharedInstance = new FieldsConfig();
+            _sharedInstance = new IndexConfig();
         }
         return _sharedInstance;
     }
     
-    public FieldsConfig() throws IOException, JSONException{
+    public IndexConfig() throws IOException, JSONException{
         String path = System.getProperty("user.home")+File.separator+".kramerius4" + File.separator + "k5indexer" + File.separator + "fields.json";
         File f = new File(path);
         if (!f.exists() || !f.canRead()) {
-            f = FileUtils.toFile(FieldsConfig.class.getResource("/cz/incad/kramerius/client/tools/fields.json"));
+            f = FileUtils.toFile(IndexConfig.class.getResource("/cz/incad/kramerius/client/tools/fields.json"));
         }
         String json = FileUtils.readFileToString(f, "UTF-8");
         fieldsConfig = new JSONObject(json);
@@ -55,5 +55,9 @@ public class FieldsConfig {
     
     public String getMappings(){
         return mappings.toString();
+    }
+    
+    public JSONObject getJSON(){
+        return fieldsConfig;
     }
 }

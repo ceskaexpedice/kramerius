@@ -15,10 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 package cz.incad.kramerius.client.tools;
+
 import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,6 +27,8 @@ import java.util.logging.Logger;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.velocity.tools.config.DefaultKey;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -35,7 +38,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  */
 @DefaultKey("conf")
 public class ConfTool {
-    
+
     public static final Logger LOGGER = Logger.getLogger(ConfTool.class.getName());
 
     Configuration _conf;
@@ -47,12 +50,24 @@ public class ConfTool {
             Logger.getLogger(ConfTool.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public String getString(String key){
+
+    public String getString(String key) {
         return _conf.getString(key);
     }
-    
-    public boolean getBoolean(String key){
+
+    public boolean getBoolean(String key) {
         return _conf.getBoolean(key);
+    }
+
+    public String getIndexConfig() {
+        try {
+            return IndexConfig.getInstance().getJSON().toString();
+        } catch (IOException ex) {
+            Logger.getLogger(ConfTool.class.getName()).log(Level.SEVERE, null, ex);
+            return "{}";
+        } catch (JSONException ex) {
+            Logger.getLogger(ConfTool.class.getName()).log(Level.SEVERE, null, ex);
+            return "{}";
+        }
     }
 }

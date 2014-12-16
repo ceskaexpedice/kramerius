@@ -6,8 +6,8 @@ apply plugin: 'eclipse-wtp'
 
 
 deployment {
-        http('clientLocal','localhost', 8080,'usernameKey','pswdKey') 
-        http('clientVmkram','vmkramerius', 8080,'usernameKey','pswdKey') 
+        http('clientLocal','localhost', 'localPort','localNameKey','localPswdKey') 
+        http('clientVmkram','vmkramerius', 'vmkramPort','vmkramNameKey','vmkramPswdKey') 
 }
 
 

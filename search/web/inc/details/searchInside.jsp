@@ -70,4 +70,23 @@
             loadInitNodes();
         });
     }
+    function getCxtInfo(){
+        $(".extInfo:hidden").each(function(){
+            var info = $(this);
+            //$(info).removeClass("extInfo");
+            var pid_path = $(info).text();
+            if(pid_path.indexOf("/")>0){
+                var url =  "inc/results/extendedInfo.jsp?pid_path=" + pid_path;
+                $.get(url, function(data) { 
+                    var d = $(data);
+                    d.children(':last').remove();
+                    $(info).html(d.html());
+                    $(info).show();
+                });
+            }
+        });
+    }
+    $(document).ready(function(){
+        getCxtInfo();
+    });
 </script>

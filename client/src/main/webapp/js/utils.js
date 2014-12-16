@@ -33,7 +33,18 @@ function link(addr) {
         window.location.assign(addr);
 }
 
-
+/**
+ * Returns true if argument is array
+ * @param {obj} tested object 
+ * @global
+ */
+function isArray(obj) {
+    if (typeof obj !== 'undefined') {
+        return obj.constructor === Array;
+    } else{
+        return false;
+    }
+}
 
 /**
  * Returns true if argument is empty string
@@ -235,7 +246,11 @@ function visible(elm) {
         return ($(elm).is(':visible'));                
 }
 
-
+function escapeSolrChars(value){
+    var specials = ['+', '-', '&', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\'];
+    var regexp = new RegExp("(\\" + specials.join("|\\") + ")", "g");
+    return value.replace(regexp, "\\$1");
+}
 
 
 /** prototypes */

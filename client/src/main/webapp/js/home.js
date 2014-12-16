@@ -68,11 +68,14 @@ HomeEffects.prototype = {
         }, this));
 
         $('#buttons').mouseenter(function() {
-            $("#band").animate({'bottom': 20}, 200);
+            $("#band").animate({'bottom': 41}, 200);
         });
         $('#band').mouseleave(function() {
             $("#band").animate({'bottom': -147}, 200);
         });
+        
+        /* Komentovane podle issue 199
+         * 
         $("#home>div.infobox").mouseenter(_.bind(function() {
             clearTimeout(this.hiddingInfo);
             this.showInfo();
@@ -83,6 +86,8 @@ HomeEffects.prototype = {
                 this.hideInfo();
             }.bind(this), 3000);
         }, this));
+        
+        */
         this.addContextButtons();
     },
     
@@ -130,9 +135,14 @@ HomeEffects.prototype = {
             $("#pidinfo").append(a);
             $("#pidinfo").append('<div class="details">' + srcs[index].details + '</div>');
             
+            /* Komentovane podle issue 199
+             * 
+            
             this.hiddingInfo = setTimeout(function() {
                 this.hideInfo();
             }.bind(this), 3000);
+            
+            */
         }, this);
 
         image.onerror = function() {

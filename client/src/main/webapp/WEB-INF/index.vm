@@ -15,6 +15,7 @@
     #parse("home.vm")
 #end
 
+#parse("footer.vm")
 #parse("small/small.vm")
 
 </body>

@@ -47,7 +47,9 @@ K5.eventsHandler.addHandler(function(type, configuration) {
                 for (var i = 0; i < ja.length; i++) {
                     year = parseInt(ja[i]);
                     val = parseInt(ja[++i]);
-                    if (year > 1000 && year < 2015) {
+                    var curDate = new Date();
+                    var curYear = curDate.getFullYear();
+                    if (year > 1000 && year <= curYear) {
                         maxYear = Math.max(maxYear, year);
                         minYear = Math.min(minYear, year);
                     }
@@ -101,10 +103,12 @@ var Da = function(elem, jarray, th, options) {
     var year;
     var accumulated = 0;
     this.jarray = [];
+    var curDate = new Date();
+    var curYear = curDate.getFullYear();
     for (var i = 0; i < jarray.length; i++) {
         year = parseInt(jarray[i]);
         val = parseInt(jarray[++i]);
-        if (year > 1000 && year < 2015) {
+        if (year > 1000 && year <= curYear) {
             this.years[year] = {"count": val, "accumulated": accumulated};
             accumulated += val;
             this.maxYear = Math.max(this.maxYear, year);
@@ -119,7 +123,7 @@ var Da = function(elem, jarray, th, options) {
         }
 
     }
-    this.period = this.maxYear - this.minYear;
+    this.period = this.maxYear - this.minYear + 1;
     var da = this;
     this.init();
     $(this.canvas).click(function(event) {
@@ -233,7 +237,7 @@ Da.prototype = {
         this.scale = (1.0 * this.barsPanelheight) / this.maxCount;
 
         this.infoCanvas = $('<canvas/>');
-        $(this.infoCanvas).css({left: 0, top: 0, "z-index": 20, "position": "absolute"});
+        $(this.infoCanvas).css({left: 0, top: 0, "z-index": 20, "position": "absolute", "cursor": "pointer"});
         $(this.infoCanvas).css("width", totalWidth);
         $(this.infoCanvas).attr("width", totalWidth);
         $(this.infoCanvas).css("height", $(this.canvas).height());
@@ -302,9 +306,9 @@ Da.prototype = {
             this.$canvas.drawRect({
                 fillStyle: color,
                 x: l,
-                y: this.barsPanelheight - h * this.scale,
+                y: Math.min(this.barsPanelheight - 3, this.barsPanelheight - h * this.scale),
                 width: w,
-                height: h * this.scale,
+                height: Math.max(3, h * this.scale),
                 fromCenter: false
             });
         }

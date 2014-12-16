@@ -53,6 +53,14 @@ body * {
         cursor: pointer;
 }
 
+.link{
+        cursor: pointer;
+}
+
+.link:hover{
+        text-decoration: underline;
+}
+
 #band {
     position: relative;
 }
@@ -497,7 +505,7 @@ li.public:before{
     top: 0px;
     background-color: #F5F5F5;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 20px);
     overflow: hidden;
 }
 
@@ -855,6 +863,32 @@ li.public:before{
     top: 50px;
 }
 
+
+
+/** breadcrumbs section */
+#viewer div.breadcrumbs{
+    position:relative;
+    height: 20px;
+    margin-left: 10px;
+    margin-top: 40px;
+    display: table;
+    font-size: 1.2em;
+    overflow:hidden;
+}
+
+#viewer div.breadcrumbs>div{
+    margin-top: 5px;
+    display: table-cell;
+    vertical-align: bottom;
+}
+
+#viewer div.breadcrumbs>div.sep{
+    margin: 0px 5px;
+}
+#viewer div.breadcrumbs div{
+    display: inline-block;
+}
+
 #viewer>div.container{
     position:absolute;
     left: 0px;
@@ -929,7 +963,7 @@ li.public:before{
 }
 
 #viewer div.container{
-    margin-top: 40px;
+    margin-top: 60px;
 }
 
 #viewer ul.container{
@@ -956,6 +990,19 @@ li.public:before{
     min-height:11mm;
     min-width:11mm;
 }
+#viewer li.thumb .thumb_info{
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 100%;
+    overflow: hidden;
+    color: #333333;
+    text-align: left;
+}
+#viewer li.thumb .thumb_info span.title{
+    text-shadow: 0 -2px 3px #fff, 2px 0 3px #fff, 0 2px 3px #fff, -2px 0 3px #fff;
+}
+
 
 #viewer li.hit{
     border: solid 2px $params.hitColor;
@@ -1224,7 +1271,8 @@ li.public:before{
     text-align: center;
     padding: 0;
     z-index:3;
-    bottom: 0;
+    bottom: 21px;
+    border-bottom: solid 1px rgba(255,255,255, 0.8);
 }
 
 #buttons div.button{
@@ -2339,6 +2387,23 @@ div.logoptions  div.logoptions_footer  div.right{
 }
 /** end of logoptions */
 
+#footer{
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    height: 20px;
+    text-align: center;
+    color: rgba(180, 180, 180, 0.4);
+    background-color: $params.activeColor;
+    box-shadow: rgba(0, 0, 0, 0.5) -4px 4px 8px 0px;
+    float: left;
+    z-index: 4;
+    vertical-align: bottom;
+    overflow: hidden;
+}
+#footer div{
+    margin: 4px;
+}
 
 /** share dialog */
 div.share {
@@ -2645,4 +2710,13 @@ div.download_footer  .buttons div.sel{
 
 /** end of dialog download */
 
+#footer a{
+    color: inherit;
+    text-decoration: none;
+}
+
+#footer:hover{
+    color: $params.textColor;
+    background-color: $params.activeColor;
+}
 

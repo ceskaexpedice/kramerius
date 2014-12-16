@@ -9,17 +9,24 @@ var YearRows = function(elem, options) {
     this.$elem = $(elem);
     this.maxYear = options.maxYear;
     this.minYear = options.minYear;
+    console.log(this.maxYear);
     this.init();
     var th = this;
     $(this.elem).bind("yearChanged", function(event, params) {
-        th.scroll.find(".row").remove();
-        th.activeYear = params.year;
-        for (var i = 0; i < th.maxBands; i++) {
-            var div = $('<div>', {class: 'row'});
-            th.scroll.append(div);
-            th.addYear(params.year + i, div);
-            th.checkArrows();
+        var y = parseInt(params.year);
+        if(y + th.maxBands > th.maxYear){
+            y = th.maxYear - th.maxBands + 1;
         }
+        th.scroll.find(".row").remove();
+        th.activeYear = y;
+        for (var i = 0; i < th.maxBands; i++) {
+            //if(parseInt(params.year) + i <= th.maxYear){
+                var div = $('<div>', {class: 'row'});
+                th.scroll.append(div);
+                th.addYear(y + i, div);
+            //}
+        }
+        th.checkArrows();
         th.onResize();
     });
 
