@@ -8,19 +8,38 @@ function AuthenticationSupport(application) {
         this.application.eventsHandler.addHandler(_.bind(function(type, configuration)  {
                 if (type === "application/init/end") {
                         if (configuration["user"]) {
+                                var afterProfile = null;
+                                if (configuration["session"] && configuration["session"]["loginActions"] && 
+                                        configuration["session"]["loginActions"]["addToFavorites"]) {
+                                    afterProfile = _.bind(function() {
+                                        var pid = configuration["session"]["loginActions"]["addToFavorites"]["pid"];
+                                        this.storeFavoritesToSession();
+                                        if (pid) {
+                                            this.profileDisplay.appendToFavorites(pid,false);
+                                            this.profileDisplay.store();
+                                            // tohle by asi melo byt primo v servletu
+                                            K5.api.gotoItemPage(pid);
+                                        }
+                                    },this);
+                                }
                                 this.contextdata(configuration["user"]);
-
                                 if (configuration["profile"]) {
                                         if (!configuration.profile["favorites"]) {
                                             configuration.profile["favorites"] = [];
                                         }
                                         this.profiledata(configuration["profile"]);
                                         this.profileDisplay = new ProfileDisplay(application);
-                    
+                                        if (afterProfile) afterProfile();
                                 } else {
+                                    if (afterProfile) {
+                                        this.askForProfileRequest(afterProfile);
+                                    } else {
                                         this.askForProfileRequest();
+                                    } 
                                 }
                         }
+                        
+                        
                 }
         }, this));
 }
@@ -28,10 +47,11 @@ function AuthenticationSupport(application) {
 AuthenticationSupport.prototype = {
         
         ctx:{
-            "configuration":{}
+            "configuration":{},
+            "session":{}
         },
         
-        profileDisplay: null,        
+        profileDisplay: null,
         
         registration:new Registration(),
 
@@ -57,6 +77,42 @@ AuthenticationSupport.prototype = {
                 // for display profile
                 this.profileDisplay = new ProfileDisplay(this.application);
         },
+
+
+        askForRemoveFromProfile:function() {
+            var pid = K5.api.ctx.item.selected;
+            if (pid) {
+                if (this.profileDisplay != null) {
+                    K5.authentication.profileDisplay.removeCurrentFromFavorites(false);
+                    K5.eventsHandler.trigger("application/menu/ctxchanged", null);
+                    K5.authentication.profileDisplay.store();
+                    //K5.eventsHandler.trigger("application/menu/ctxchanged", null);
+                }
+            }
+        },
+        
+        askForAppendToProfile:function() {
+            var pid = K5.api.ctx.item.selected;
+            if (pid) {
+                if (this.profileDisplay != null) {
+                    K5.authentication.profileDisplay.appendCurrentToFavorites(false);
+                    K5.eventsHandler.trigger("application/menu/ctxchanged", null);
+                    K5.authentication.profileDisplay.store();
+                    //K5.eventsHandler.trigger("application/menu/ctxchanged", null);
+                } else {
+
+                    var fav = {
+                        "pid":pid
+                    };
+                    // save state and redirect
+                    this.ctx.session["addToFavorites"] = fav;
+
+                    K5.authentication.storeFavoritesToSession();
+                    K5.authentication.options();
+                }
+            }
+        },
+
 
         /**
          * Sends logout request and delete context informations
@@ -91,13 +147,9 @@ AuthenticationSupport.prototype = {
                         }
                         this.contextdata(data);
                         if (whenready) whenready.apply(null, [data]);
-
-                        // receive profile
-                        // this.askForProfileRequest();
-
                         this.application.eventsHandler.trigger("authentication/login",data);
                 },this);
-                
+
                 $.ajax({
                         dataType: "json",
                         'url': 'authentication?action=login',
@@ -185,6 +237,10 @@ AuthenticationSupport.prototype = {
                         }
                 }); 
             }
+        },
+
+        storeFavoritesToSession:function() {
+            K5.api.storeToSession("loginActions",this.ctx.session);
         },
 
         changePassword: function(npass) {

@@ -1,6 +1,5 @@
 package cz.incad.kramerius.client;
 
-import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -24,6 +23,7 @@ import biz.sourcecode.base64Coder.Base64Coder;
 import cz.incad.kramerius.client.kapi.auth.AdminUser;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
 import cz.incad.kramerius.client.utils.ApiCallsHelp;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class RegistrationUsersServlet extends HttpServlet {
 
@@ -38,12 +38,9 @@ public class RegistrationUsersServlet extends HttpServlet {
         String action = req.getParameter("action");
         PostActions aAction = PostActions.valueOf(action);
         try {
-            String authUrl = getK5ConfigurationInstance()
-                    .getConfigurationObject().getString("api.point") + "/admin";
+            String authUrl = KConfiguration.getInstance().getConfiguration().getString("api.point") + "/admin";
             aAction.perform(authUrl, req, resp);
         } catch (JSONException  e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (ConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }

@@ -31,6 +31,7 @@
 #parse("svg/gplus.svg")
 
 #parse("svg/rotateleft.svg")
+#parse("svg/link.svg")
 
 </div>
 <div class="big" >
@@ -60,6 +61,10 @@
 #parse("svg/unlock.svg")
 #parse("svg/addfavorite.svg")
 #parse("svg/removefavorite.svg")
+
+#parse("svg/warning.svg")
+
+#parse("svg/link.svg")
 
 </div>
 <div>

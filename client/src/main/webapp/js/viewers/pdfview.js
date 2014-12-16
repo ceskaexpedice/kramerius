@@ -13,7 +13,6 @@ function PDFView(appl, selector) {
  */
 PDFView.prototype.open = function() {
 
-
         var leftArrowContainerDiv = $("<div/>",{"id":"pageleft","class":"leftarrow" });
         leftArrowContainerDiv.append($("<div/>",{"id":"pagelefticon", class:"arrow"}));    
         this.container.append(leftArrowContainerDiv);    
@@ -103,8 +102,9 @@ PDFView.prototype.arrowbuttons = function() {
 
 }
 
-
-
+PDFView.prototype.addContextButtons=  function() {
+    _ctxbuttonsrefresh();
+}
 
 PDFView.prototype.isEnabled= function(data) {
         var datanode = data["datanode"];
@@ -112,4 +112,3 @@ PDFView.prototype.isEnabled= function(data) {
         var pdf = data["pdf"];
         return  (datanode  &&  pdf);
 }
-

@@ -5,7 +5,7 @@ description "Admin web application"
 
 
 deployment {
-        http('adminLocal','localhost',8080,'usernameKey','pswdKey') 
+        http('adminLocal','localhost',8080,'usernameKey','pswdKey','tomcat6x') 
         http('adminVmkram','vmkramerius',8080,'usernameKey','pswdKey') 
 }
 

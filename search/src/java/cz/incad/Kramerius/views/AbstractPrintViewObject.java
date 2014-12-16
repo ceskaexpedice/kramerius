@@ -313,6 +313,8 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
 
         @Override
         public boolean isInvalidOption() {
+            boolean check = KConfiguration.getInstance().getConfiguration().getBoolean("turnOffPdfCheck");
+            if (check) return true;
             int maxPage = KConfiguration.getInstance().getConfiguration().getInt("generatePdfMaxRange");
             return getPids().size() > maxPage;
         }   

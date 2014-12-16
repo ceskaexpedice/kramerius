@@ -25,7 +25,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.openid4java.util.HttpResponse;
 
 import cz.incad.kramerius.client.resources.merge.Merge;
-import cz.incad.kramerius.client.tools.K5Configuration;
 import cz.incad.kramerius.processes.guice.LongRunningProcessModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.utils.StringUtils;

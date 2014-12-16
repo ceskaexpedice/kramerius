@@ -23,9 +23,11 @@ import cz.incad.kramerius.client.cache.SimpleJSONResultsCache;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.utils.IOUtils;
 
-//TODO: remove 
 public class RESTHelper {
     
+    public static final String READ_TIMEOUT = "readTimeout";
+    public static final String CONNECTION_TIMEOUT = "connectionTimeout";
+
     public static final String CACHEABLE_PREFIXES = "";
 
     public static final boolean childrenURL(String su) throws MalformedURLException {
@@ -46,11 +48,11 @@ public class RESTHelper {
     //http://localhost:8080/client/api/item/uuid:530719f5-ee95-4449-8ce7-12b0f4cadb22/children
     
     
-    public static void fillResponse(String urlString, HttpServletResponse resp, HttpServletRequest req) throws IOException, URISyntaxException {
-        fillResponse(urlString, resp, req.getHeader("Accept"));
+    public static void fillResponse(String urlString, HttpServletResponse resp, HttpServletRequest req, Map<String, String> settings) throws IOException, URISyntaxException {
+        fillResponse(urlString, resp, req.getHeader("Accept"), settings);
     }
 
-    public static void fillResponse(String urlString, HttpServletResponse resp, String accept) throws IOException, URISyntaxException {
+    public static void fillResponse(String urlString, HttpServletResponse resp, String accept, Map<String, String> settings) throws IOException, URISyntaxException {
         if (isCachable(urlString)) {
             if (SimpleJSONResultsCache.CACHE.isPresent(urlString)) {
                 byte[] bytes = SimpleJSONResultsCache.CACHE.getJSONResult(urlString);
@@ -58,7 +60,7 @@ public class RESTHelper {
                 resp.getOutputStream().write(bytes);
             } else {
 
-                URLConnection uc = openConnection(urlString);
+                URLConnection uc = openConnection(urlString,settings);
                 HttpURLConnection hcon = (HttpURLConnection) uc;
                 hcon.setRequestProperty("Accept", accept);
                 hcon = (HttpURLConnection) customRedirect(resp, hcon, accept);
@@ -72,7 +74,7 @@ public class RESTHelper {
                 
             }
         } else {
-            URLConnection uc = openConnection(urlString);
+            URLConnection uc = openConnection(urlString, settings);
             HttpURLConnection hcon = (HttpURLConnection) uc;
             hcon.setRequestProperty("Accept", accept);
             hcon = (HttpURLConnection) customRedirect(resp, hcon, accept);
@@ -87,7 +89,7 @@ public class RESTHelper {
         }
     }
 
-    public static void fillResponse(String urlString, String user, String pass, HttpServletResponse resp, HttpServletRequest req) throws IOException, URISyntaxException {
+    public static void fillResponse(String urlString, String user, String pass, HttpServletResponse resp, HttpServletRequest req, Map<String, String> settings) throws IOException, URISyntaxException {
         if (isCachable(urlString)) {
             if (SimpleJSONResultsCache.CACHE.isPresent(urlString)) {
                 byte[] bytes = SimpleJSONResultsCache.CACHE.getJSONResult(urlString);
@@ -95,7 +97,9 @@ public class RESTHelper {
                 resp.getOutputStream().write(bytes);
             } else {
 
-                URLConnection uc = openConnection(urlString, user, pass);
+                URLConnection uc = openConnection(urlString, user, pass, settings);
+                
+
                 HttpURLConnection hcon = (HttpURLConnection) uc;
                 hcon.setRequestProperty("Accept", req.getHeader("Accept"));
                 hcon = (HttpURLConnection) customRedirect(resp, hcon, req.getHeader("Accept"));
@@ -109,7 +113,7 @@ public class RESTHelper {
                 
             }
         } else {
-            URLConnection uc = openConnection(urlString, user, pass);
+            URLConnection uc = openConnection(urlString, user, pass, settings);
             HttpURLConnection hcon = (HttpURLConnection) uc;
             hcon.setRequestProperty("Accept", req.getHeader("Accept"));
             hcon = (HttpURLConnection) customRedirect(resp, hcon, req.getHeader("Accept"));
@@ -145,8 +149,8 @@ public class RESTHelper {
 
 
 
-    public static InputStream inputStream(String urlString, String accept) throws IOException {
-        URLConnection uc = openConnection(urlString);
+    public static InputStream inputStream(String urlString, String accept, Map<String, String> settings) throws IOException {
+        URLConnection uc = openConnection(urlString,settings);
         HttpURLConnection hcon = (HttpURLConnection) uc;
         hcon.setRequestProperty("Accept", accept);
         //hcon.setInstanceFollowRedirects(true);
@@ -155,27 +159,47 @@ public class RESTHelper {
     }
 
 
-    public static InputStream inputStream(String urlString) throws IOException {
-        URLConnection uc = openConnection(urlString);
+    public static InputStream inputStream(String urlString, Map<String, String> settings) throws IOException {
+        URLConnection uc = openConnection(urlString, settings);
         HttpURLConnection hcon = (HttpURLConnection) uc;
         //hcon.setInstanceFollowRedirects(true);
         return uc.getInputStream();
     }
     
-    public static URLConnection openConnection(String urlString) throws MalformedURLException, IOException {
+    public static URLConnection openConnection(String urlString, Map<String, String> settings) throws MalformedURLException, IOException {
         URL url = new URL(urlString);
         URLConnection uc = url.openConnection();
         HttpURLConnection hcon = (HttpURLConnection) uc;
+
+        if (settings.containsKey(CONNECTION_TIMEOUT) && settings.containsKey(READ_TIMEOUT)) {
+            uc.setReadTimeout(Integer.parseInt(settings.get(READ_TIMEOUT)));
+            uc.setConnectTimeout(Integer.parseInt(settings.get(CONNECTION_TIMEOUT)));
+        }
+
+        
         //hcon.setInstanceFollowRedirects(true);;
         //hcon = (HttpURLConnection) customRedirect(null,hcon,null);
 
-        uc.setReadTimeout(Integer.parseInt("10000"));
-        uc.setConnectTimeout(Integer.parseInt("10000"));
+//        uc.setReadTimeout(Integer.parseInt("10000"));
+//        uc.setConnectTimeout(Integer.parseInt("10000"));
+
         return uc;
     }
 
-    public static InputStream inputStream(String urlString, String user, String pass) throws IOException {
-        URLConnection uc = openConnection(urlString, user, pass);
+//    public static URLConnection openConnectionWithTimeout(String urlString, String readTimeout, String conTimeout) throws MalformedURLException, IOException {
+//        URL url = new URL(urlString);
+//        URLConnection uc = url.openConnection();
+//        HttpURLConnection hcon = (HttpURLConnection) uc;
+//        //hcon.setInstanceFollowRedirects(true);;
+//        //hcon = (HttpURLConnection) customRedirect(null,hcon,null);
+//
+//        uc.setReadTimeout(Integer.parseInt(readTimeout));
+//        uc.setConnectTimeout(Integer.parseInt(conTimeout));
+//
+//        return uc;
+//    }
+    public static InputStream inputStream(String urlString, String user, String pass, Map<String, String> settings) throws IOException {
+        URLConnection uc = openConnection(urlString, user, pass, settings);
         return uc.getInputStream();
     }
 
@@ -192,12 +216,15 @@ public class RESTHelper {
     }
     
     public static URLConnection openConnection(String urlString, String user,
-            String pass) throws MalformedURLException, IOException {
+            String pass, Map<String, String> settings) throws MalformedURLException, IOException {
         URL url = new URL(urlString);
         URLConnection uc = url.openConnection();
-        uc.setReadTimeout(Integer.parseInt("10000"));
-        uc.setConnectTimeout(Integer.parseInt("10000"));
-        
+
+        if (settings.containsKey(CONNECTION_TIMEOUT) && settings.containsKey(READ_TIMEOUT)) {
+            uc.setReadTimeout(Integer.parseInt(settings.get(READ_TIMEOUT)));
+            uc.setConnectTimeout(Integer.parseInt(settings.get(CONNECTION_TIMEOUT)));
+        }
+
         String userPassword = user + ":" + pass;
         String encoded = Base64.encodeBase64String(userPassword.getBytes());
         uc.setRequestProperty("Authorization", "Basic " + encoded);

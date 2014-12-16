@@ -132,6 +132,9 @@ ZoomifyStaticImage.prototype.open = function() {
 
     
         this._tmpimage.onload = _.bind(function() {
+                
+                //this.prefetchNextAndPrev();
+                
                 var width = this._tmpimage.width;                
                 var height = this._tmpimage.height;                
 
@@ -233,100 +236,9 @@ ZoomifyStaticImage.prototype.showLeftrightbuttons = function() {
 
 
 ZoomifyStaticImage.prototype.addContextButtons=  function() {
-        $("#contextbuttons").html("");
-        $("#item_menu>div").each(function() {
-            if ($(this).data("ctx")) {
-                var a = $(this).data("ctx").split(";");
-                if (jQuery.inArray('all', a) > -1 || jQuery.inArray('zoomstatic', a) > -1) {
-                    $("#contextbuttons").append($(this).clone());
-                }
-                
-                if (jQuery.inArray('selected', a) > -1) {
-                    if (K5.gui.clipboard.isCurrentSelected()) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-
-                if (jQuery.inArray('notselected', a) > -1) {
-                    if (!K5.gui.clipboard.isCurrentSelected()) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-
-                // only clipboard
-                if (jQuery.inArray('clipboardnotempty', a) > -1) {
-                    if (K5.gui.clipboard.getSelected().length > 0) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-
-                // next context
-                if (jQuery.inArray('next', a) > -1) {
-                        var selected = K5.api.ctx["item"].selected;
-                        if (K5.api.ctx["item"][selected]["siblings"]) {
-                                var data = K5.api.ctx["item"][selected]["siblings"];
-                                var arr = data[0]['siblings'];
-                                var index = _.reduce(arr, function(memo, value, index) {
-                                        return (value.selected) ? index : memo;
-                                }, -1);
-                                if (index<arr.length-1) { 
-                                        $("#contextbuttons").append($(this).clone());
-                                }  
-                        }
-                }
-
-                // prev context
-                if (jQuery.inArray('prev', a) > -1) {
-                        var selected = K5.api.ctx["item"].selected;
-                        if (K5.api.ctx["item"][selected]["siblings"]) {
-                                var data = K5.api.ctx["item"][selected]["siblings"];
-                                var arr = data[0]['siblings'];
-                                var index = _.reduce(arr, function(memo, value, index) {
-                                        return (value.selected) ? index : memo;
-                                }, -1);
-                                if (index>0) { 
-                                        $("#contextbuttons").append($(this).clone());
-                                }  
-                        }
-                }
-
-            }
-        });
-
-        if (!K5.gui["selected"].hasParent()) {
-            $("#contextbuttons>div.parent").hide();
-        }
+    _ctxbuttonsrefresh();
 }
 
-
-//ZoomifyStaticImage.prototype.arrowbuttons = function() {
-//        var selected = K5.api.ctx["item"].selected;
-//        if (K5.api.ctx["item"] && K5.api.ctx["item"][selected] &&  K5.api.ctx["item"][selected]["siblings"]) {
-//                var data = K5.api.ctx["item"][selected]["siblings"];
-//                var arr = data[0]['siblings'];
-//                var index = _.reduce(arr, function(memo, value, index) {
-//                        return (value.selected) ? index : memo;
-//                }, -1);
-//                if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
-//                if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
-//
-//                K5.eventsHandler.trigger("application/menu/ctxchanged", null);
-//
-//        } else {
-//                K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
-//                        var arr = data[0]['siblings'];
-//                        var index = _.reduce(arr, function(memo, value, index) {
-//                                return (value.selected) ? index : memo;
-//                        }, -1);
-//
-//                        if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
-//                        if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
-//
-//                        K5.eventsHandler.trigger("application/menu/ctxchanged", null);
-//
-//                });
-//        }
-//}
 
 ZoomifyStaticImage.prototype.relativePosition = function() {
         return $("#map").position();        
@@ -368,17 +280,17 @@ ZoomifyStaticImage.prototype.translateCurrent=function(x1,y1,width,height) {
     return result;
 }
 
-ZoomifyStaticImage.prototype._idealCenter = function (ext) {
+ZoomifyStaticImage.prototype.idealCenter = function (ext) {
     return [ext[2]/2, ext[3]/2];
 }
 
-ZoomifyStaticImage.prototype._curentSize = function (ext, resolution) {
+ZoomifyStaticImage.prototype.curentSize = function (ext, resolution) {
     return [ext[2]/resolution, ext[3]/resolution];
 }
 
 ZoomifyStaticImage.prototype.currentPage = function() {
 
-        var ideal = this._idealCenter(this.projection.getExtent());
+        var ideal = this.idealCenter(this.projection.getExtent());
         var center = this.view2D.getCenter();   
 
         var xoffset = center[0] - ideal[0]; //+ smer doprava; - smer doleva
@@ -389,7 +301,7 @@ ZoomifyStaticImage.prototype.currentPage = function() {
         var pixelyoffset = yoffset / resolution;
         
         
-        var currentSize = this._curentSize(this.projection.getExtent(), resolution);
+        var currentSize = this.curentSize(this.projection.getExtent(), resolution);
         var mapCenter = [$("#map").width()/2, $("#map").height()/2];
 
         var x1ideal = mapCenter[0]- (currentSize[0]/2);   
@@ -554,3 +466,12 @@ ZoomifyStaticImage.prototype.forbiddenCheck = function(okFunc, failFunc) {
         });
 }
 
+
+
+ZoomifyStaticImage.prototype.selectionStartNotif = function() {
+    $("#options").hide();
+}
+
+ZoomifyStaticImage.prototype.selectionEndNotif = function() {
+    $("#options").show();
+}

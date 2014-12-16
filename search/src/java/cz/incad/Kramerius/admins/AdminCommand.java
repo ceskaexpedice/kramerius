@@ -43,18 +43,19 @@ import cz.incad.kramerius.utils.IOUtils;
 
 public abstract class AdminCommand {
 
-    
     @Inject
     protected Provider<HttpServletRequest> requestProvider;
+
     @Inject
     protected Provider<HttpServletResponse> responseProvider;
+
     
     @Inject
     protected ResourceBundleService resourceBundleService;
 
     @Inject
     protected LocalesProvider localesProvider;
-    
+
     @Inject
     @Named("securedFedoraAccess")
     protected transient FedoraAccess fedoraAccess;
@@ -67,7 +68,7 @@ public abstract class AdminCommand {
         StringTemplateGroup group = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
         return group;
     }
-    
+
     public Map<String, String> bundleToMap() throws IOException {
         Map<String, String> map = new HashMap<String, String>();
         ResourceBundle bundle = this.resourceBundleService.getResourceBundle("labels", localesProvider.get());
@@ -77,6 +78,4 @@ public abstract class AdminCommand {
         }
         return map;
     }
-
-
 }

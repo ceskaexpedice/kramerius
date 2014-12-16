@@ -54,6 +54,44 @@ public class FilesCollect {
         }
     }
 
+    public String getDownloadsDefinitions() {
+        try {
+            File confPath = new File(K5Configuration.getExtensionsHome()+File.separator+"downloads.def");
+            File warPath = new File(request.getSession().getServletContext().getRealPath("WEB-INF/classes/res")+File.separator+"downloads.def");
+            MenuDefValidateInput vinput = new MenuDefValidateInput();
+            JSONArray merged = merge(confPath,warPath, vinput);
+            return merged.toString();
+        } catch (FileNotFoundException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return "[]";
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return "[]";
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return "[]";
+        }
+    }
+
+    public String getShareDefinitions() {
+        try {
+            File confPath = new File(K5Configuration.getExtensionsHome()+File.separator+"shares.def");
+            File warPath = new File(request.getSession().getServletContext().getRealPath("WEB-INF/classes/res")+File.separator+"shares.def");
+            MenuDefValidateInput vinput = new MenuDefValidateInput();
+            JSONArray merged = merge(confPath,warPath, vinput);
+            return merged.toString();
+        } catch (FileNotFoundException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return "[]";
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return "[]";
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return "[]";
+        }
+    }
+
     public String getMenuDefinitions() {
         try {
             File confPath = new File(K5Configuration.getExtensionsHome()+File.separator+"menu.def");

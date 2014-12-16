@@ -57,6 +57,7 @@ import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.PeriodicalI
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.PeriodicalVolumeDecorator;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.PDFDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.ZoomDecorate;
+import cz.incad.kramerius.rest.api.k5.client.pdf.AsyncPDFResource;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
@@ -91,6 +92,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(SearchResource.class);
         bind(ClientRightsResource.class);
         bind(PDFResource.class);
+        bind(AsyncPDFResource.class);
 
         bind(RightsResource.class);
         bind(UsersResource.class);

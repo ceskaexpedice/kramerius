@@ -16,7 +16,6 @@
  */
 package cz.incad.kramerius.client;
 
-import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,7 +54,7 @@ import cz.incad.kramerius.client.forward.URLPathModify;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
 import cz.incad.kramerius.client.kapi.auth.User;
 import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
-import cz.incad.kramerius.client.tools.K5Configuration;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.IOUtils;
 import cz.incad.utils.StringUtils;
 
@@ -65,7 +64,10 @@ public class ForwardServlet extends HttpServlet {
 
     private static final String URL_PREFIX_KEY = "prefix";
     private static final String URL_PATH_MODIF_KEY = "urlmodif";
-    
+
+    private static final String READ_TIMEOUT_KEY = "readTimeout";
+    private static final String CON_TIMEOUT_KEY = "conTimeout";
+
     public static final Logger LOGGER = Logger.getLogger(ForwardServlet.class.getName());
     
     private Map<String, URLPathModify> MODIFIERS = new HashMap<String, URLPathModify>();
@@ -149,7 +151,7 @@ public class ForwardServlet extends HttpServlet {
                     .getAttribute(CallUserController.KEY));
 
             String urlPrefixKey = getInitParameter(URL_PREFIX_KEY);
-            String prefixAddr = getK5ConfigurationInstance().getConfigurationObject().getString(urlPrefixKey);
+            String prefixAddr = KConfiguration.getInstance().getConfiguration().getString(urlPrefixKey);
             if(prefixAddr == null || StringUtils.isEmptyString(prefixAddr)) throw new RuntimeException("expecting property "+urlPrefixKey);
             
             String queryString = req.getQueryString();
@@ -211,9 +213,6 @@ public class ForwardServlet extends HttpServlet {
         } catch (ClassNotFoundException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        } catch (ConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -227,7 +226,7 @@ public class ForwardServlet extends HttpServlet {
                     .getAttribute(CallUserController.KEY));
 
             String prefixKey = getInitParameter(URL_PREFIX_KEY);
-            String prefixAddr = getK5ConfigurationInstance().getConfigurationObject().getString(prefixKey);
+            String prefixAddr = KConfiguration.getInstance().getConfiguration().getString(prefixKey);
             if(prefixAddr == null || StringUtils.isEmptyString(prefixAddr)) throw new RuntimeException("expecting property "+prefixKey);
 
             String queryString = req.getQueryString();
@@ -248,21 +247,34 @@ public class ForwardServlet extends HttpServlet {
             if (StringUtils.isAnyString(queryString)) {
                 replaceURL = replaceURL + "?" + queryString;
             }
+            
+            // settings
+            String readTimeOut = getInitParameter(READ_TIMEOUT_KEY);
+            String conTimeOut = getInitParameter(CON_TIMEOUT_KEY);
+            Map<String, String> settings = new HashMap<String, String>();
+            if (readTimeOut != null) {
+                settings.put(RESTHelper.READ_TIMEOUT, readTimeOut);
+            }
 
+            if (conTimeOut != null) {
+                settings.put(RESTHelper.CONNECTION_TIMEOUT, conTimeOut);
+            }
+            
+            
             InputStream inputStream = null;
             if (user != null) {
                 
                 fileDisposition(req, resp);
                 
+//                private static final String READ_TIMEOUT_KEY = "readTimeout";
+//                private static final String CON_TIMEOUT_KEY = "conTimeout";
+
                 RESTHelper.fillResponse(replaceURL, user.getUserName(),
-                        user.getPassword(), resp, req);
+                        user.getPassword(), resp, req, settings);
             } else {
-
                 fileDisposition(req, resp);
-
                 RESTHelper.fillResponse(replaceURL, null,
-                        null, resp, req);
-
+                        null, resp, req, settings);
             }
         } catch (InstantiationException  e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -271,9 +283,6 @@ public class ForwardServlet extends HttpServlet {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (ClassNotFoundException  e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        } catch ( ConfigurationException  e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (URISyntaxException e) {

@@ -188,6 +188,9 @@ ProfileDisplay.prototype = {
          */
         appendToFavorites:function(pid, refreshcontent) {
                 if (this.indexInFavorites(pid) >= -1 ) {
+                        if (!K5.authentication.ctx.profile.favorites) {
+                            K5.authentication.ctx.profile.favorites= [];
+                        }
                         K5.authentication.ctx.profile.favorites.push(pid);
                         this.dirtyFlag = true;
                         if (refreshcontent) {
@@ -225,6 +228,7 @@ ProfileDisplay.prototype = {
                 var encodedData = Base64.encode(JSON.stringify(K5.authentication.ctx.profile));
                 var refresh = _.bind(function() { 
                         this.refreshButtons();  this.profileContent(); 
+                        K5.eventsHandler.trigger("application/menu/ctxchanged", null);
                 }, this);
                 var postok = _.bind(function() { 
                         K5.authentication.askForProfileRequest(refresh); 

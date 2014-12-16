@@ -28,47 +28,47 @@ import cz.incad.kramerius.security.impl.UserImpl;
 
 public class UsersUtils {
 
-	public static JSONObject userToJSON(User user) {
-		JSONObject jsonObj = new JSONObject();
-		jsonObj.put("lname", user.getLoginname());
-		jsonObj.put("firstname", user.getFirstName());
-		jsonObj.put("surname", user.getSurname());
-		jsonObj.put("id", user.getId());
-		
-		JSONArray jsonArr = new JSONArray();
-		Role[] roles = user.getGroups();
-		if (roles != null) {
-			for (Role r : roles) {
-				JSONObject json = RolesResource.roleToJSON(r);
-				jsonArr.add(json);
-			}
-			jsonObj.put("roles", jsonArr);
-		}
-		return jsonObj;
-	}
+    public static JSONObject userToJSON(User user) {
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("lname", user.getLoginname());
+        jsonObj.put("firstname", user.getFirstName());
+        jsonObj.put("surname", user.getSurname());
+        jsonObj.put("id", user.getId());
 
-	public static User createUserFromJSON(JSONObject uOptions) {
-		String lname = uOptions.getString("lname");
-		String fname = uOptions.getString("firstname");
-		String sname = uOptions.getString("surname");
-		
-		int id =  -1;
-		if (uOptions.containsKey("id")) {
-			uOptions.getInt("id");
-		}
+        JSONArray jsonArr = new JSONArray();
+        Role[] roles = user.getGroups();
+        if (roles != null) {
+            for (Role r : roles) {
+                JSONObject json = RolesResource.roleToJSON(r);
+                jsonArr.add(json);
+            }
+            jsonObj.put("roles", jsonArr);
+        }
+        return jsonObj;
+    }
 
-		UserImpl u = new UserImpl(id, fname, sname, lname, -1);
-		if (uOptions.containsKey("roles")) {
-			List<Role> rlist = new ArrayList<Role>();
-			JSONArray jsonArr = uOptions.getJSONArray("roles");
-			for (Object obj : jsonArr) {
-				JSONObject jsonObj = (JSONObject) obj;
-				rlist.add(RolesResource.createRoleFromJSON(jsonObj));
-			}	
-			u.setGroups(rlist.toArray(new Role[rlist.size()]));
-		}
-		
-		return u;
-	}
+    public static User createUserFromJSON(JSONObject uOptions) {
+        String lname = uOptions.getString("lname");
+        String fname = uOptions.getString("firstname");
+        String sname = uOptions.getString("surname");
+
+        int id = -1;
+        if (uOptions.containsKey("id")) {
+            uOptions.getInt("id");
+        }
+
+        UserImpl u = new UserImpl(id, fname, sname, lname, -1);
+        if (uOptions.containsKey("roles")) {
+            List<Role> rlist = new ArrayList<Role>();
+            JSONArray jsonArr = uOptions.getJSONArray("roles");
+            for (Object obj : jsonArr) {
+                JSONObject jsonObj = (JSONObject) obj;
+                rlist.add(RolesResource.createRoleFromJSON(jsonObj));
+            }
+            u.setGroups(rlist.toArray(new Role[rlist.size()]));
+        }
+
+        return u;
+    }
 
 }

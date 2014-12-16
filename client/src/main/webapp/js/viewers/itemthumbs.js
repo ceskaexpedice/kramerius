@@ -63,71 +63,7 @@ ItemThumbs.prototype = {
 
     },
     addContextButtons: function() {
-        $("#contextbuttons").html("");
-        $("#item_menu>div").each(function() {
-            if ($(this).data("ctx")) {
-                var a = $(this).data("ctx").split(";");
-                if (jQuery.inArray('all', a) > -1 || jQuery.inArray('thumbs', a) > -1) {
-                    $("#contextbuttons").append($(this).clone());
-                }
-                
-                if (jQuery.inArray('selected', a) > -1) {
-                    if (K5.gui.clipboard.isCurrentSelected()) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-
-                if (jQuery.inArray('notselected', a) > -1) {
-                    if (!K5.gui.clipboard.isCurrentSelected()) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-
-                // only clipboard
-                if (jQuery.inArray('clipboardnotempty', a) > -1) {
-                    if (K5.gui.clipboard.getSelected().length > 0) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-
-                // next context
-                if (jQuery.inArray('next', a) > -1) {
-                        var selected = K5.api.ctx["item"].selected;
-                        if (K5.api.ctx["item"][selected]["siblings"]) {
-                                var data = K5.api.ctx["item"][selected]["siblings"];
-                                var arr = data[0]['siblings'];
-                                var index = _.reduce(arr, function(memo, value, index) {
-                                        return (value.selected) ? index : memo;
-                                }, -1);
-                                if (index<arr.length-1) { 
-                                        $("#contextbuttons").append($(this).clone());
-                                }  
-                        }
-                }
-
-                // prev context
-                if (jQuery.inArray('prev', a) > -1) {
-                        var selected = K5.api.ctx["item"].selected;
-                        if (K5.api.ctx["item"][selected]["siblings"]) {
-                                var data = K5.api.ctx["item"][selected]["siblings"];
-                                var arr = data[0]['siblings'];
-                                var index = _.reduce(arr, function(memo, value, index) {
-                                        return (value.selected) ? index : memo;
-                                }, -1);
-                                if (index>0) { 
-                                        $("#contextbuttons").append($(this).clone());
-                                }  
-                        }
-                }
-
-            }
-        });
-
-
-
-        if (!K5.gui["selected"].hasParent()) {
-            $("#contextbuttons>div.parent").hide();
-        }
+        _ctxbuttonsrefresh();
     },
     doScroll: function(dx) {
         var speed = 500;
@@ -158,7 +94,6 @@ ItemThumbs.prototype = {
         this.thloaded = -1;
         this.setLoading(true);
         K5.api.askForItemChildren(K5.api.ctx["item"]["selected"], _.bind(function(data) {
-            console.log("received data");
             this.thumbs = data;
             this.thloaded = 0;
             this.setDimensions();
@@ -169,8 +104,12 @@ ItemThumbs.prototype = {
                 $("#viewer>div.loading").hide();
             }
             this.getHits();
+
+            K5.eventsHandler.trigger("application/menu/ctxchanged", null);
+
         }, this));
         this.contentGenerated = true;
+
     },
     dosearch: function(q) {
         var q = $("#searchinside_q").val();

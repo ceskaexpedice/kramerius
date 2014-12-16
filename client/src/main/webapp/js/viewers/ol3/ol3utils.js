@@ -213,7 +213,6 @@ function _optionspaneLocked() {
     $("#options_minus").hide();
     $("#options_plus").hide();
     $("#options_fit").hide();
-
     $.get("svg.vm?svg=lock",function(data) {
         $("#options_lock").html(data);            
     });
@@ -223,7 +222,6 @@ function _optionspaneUnlocked() {
     $("#options_minus").show();
     $("#options_plus").show();
     $("#options_fit").show();
-
     $.get("svg.vm?svg=unlock",function(data) {
         $("#options_lock").html(data);            
     });
@@ -232,9 +230,7 @@ function _optionspaneUnlocked() {
 function _optionspane() {
     var optionsDiv = $("<div/>",{"id":"options","class":"options"});
     optionsDiv.css("position","absolute");
-
     var ul = $("<ul/>");
-
     function li(ul) {
         var li = $("<li/>");
         ul.append(li);

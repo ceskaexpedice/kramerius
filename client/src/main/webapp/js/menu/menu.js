@@ -2,24 +2,31 @@
  * Controll menu actions
  * @constructor
  */
-function MenuActionsControll() {}
+function MenuActionsControll() {
+    this.ctx = {};
+}
 
 MenuActionsControll.prototype = {
-
+        /*
         'ctx': {
                                 
-        },   
+        },*/   
         
         '_instantiate':function(objname) {
                 return eval('(function() { return new '+ objname+'();})()');      
         },
 
         'createAction':function(action) {
-                return {
+            var retval = {
                         "name":action.name,
                         "i18nkey":action.i18nkey,
                         "object":this._instantiate(action.object)
                 };
+            if (action["icon"]) {
+                retval["icon"] = action["icon"];
+            }
+            
+            return retval;
         },
 
         'initalizeActions':function(actions) {
@@ -43,9 +50,9 @@ MenuActionsControll.prototype = {
                 var act = null;
                 _.each(this.ctx.actions, _.bind(function(itm) {
                         if (itm.object.enabled()) {
-                                this.displayAction(itm.name);                        
+                                this.displayAction(itm.name);
                         } else {
-                                this.hideAction(itm.name);                        
+                                this.hideAction(itm.name);
                         }
                 }, this));
         },
@@ -84,6 +91,19 @@ PersistentURL.prototype = {
         }
 }
 
+// audio data
+function _isAudio() {
+    var audiomodels = ["soundrecording","track"];
+    var selected = K5.api.ctx.item.selected; 
+    var itm = K5.api.ctx.item[selected];
+    var audio = _.reduce(audiomodels, function(memo, value, index) {
+        if (!memo) {
+            memo = itm["model"] === value;
+        }
+        return memo;
+    }, false);
+    return audio;
+}
 
 
 /**
@@ -111,20 +131,20 @@ function PDFOnePage() {}
 PDFOnePage.prototype = {
 
         'doAction':function() { 
-
                 cleanWindow();
-                
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
-                window.open("api/pdf/selection?pids="+ selected,"_blank");
-        
+                K5.outputs.pdf.page(K5.api.ctx.item.selected);
         },
 
         'enabled': function() {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
+                    if (!_isAudio()) {
+                        // no pdf?
                         return K5.api.ctx.item[selected].datanode; 
+                    } else return false;
                 } else {
                         return false;
                 }
@@ -177,7 +197,10 @@ PrintPartPage.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
+                    if (!_isAudio()) {
+                        // no pdf?
                         return K5.api.ctx.item[selected].datanode; 
+                    } else return false;
                 } else {
                         return false;
                 }
@@ -234,7 +257,11 @@ PrintPartItem.prototype = {
 
                         $("#header").show();
                         K5.gui.selected.showLeftrightbuttons();
-        
+
+
+                        if (K5.gui.selected.selectionEndNotif) {
+                            K5.gui.selected.selectionEndNotif();
+                        }
                 });
 
                 $("#okButton").click(function() {
@@ -259,6 +286,10 @@ PrintPartItem.prototype = {
                         $("#header").show();
 
                         K5.gui.selected.showLeftrightbuttons();
+
+                        if (K5.gui.selected.selectionEndNotif) {
+                            K5.gui.selected.selectionEndNotif();
+                        }
                 });
 
                 $( "#left-top" ).draggable({
@@ -335,8 +366,17 @@ PrintPartItem.prototype = {
                 setTimeout(function() {
 
                         $("#header").hide();
-                        K5.gui.selected.fit();
-                        K5.gui.selected.hideLeftrightbuttons();
+                        
+                        if (K5.gui.selected.fit) {
+                            K5.gui.selected.fit();
+                        }
+                        if (K5.gui.selected.hideLeftrightbuttons) {
+                            K5.gui.selected.hideLeftrightbuttons();
+                        }
+
+                        if (K5.gui.selected.selectionStartNotif) {
+                            K5.gui.selected.selectionStartNotif();
+                        }
 
                         K5.gui.selected["edit"]= {};
                         K5.gui.selected.edit.selection = new SelectObject(K5);
@@ -356,6 +396,48 @@ PrintPartItem.prototype = {
                 }
         }
 }
+
+
+function PDFTitle() {}
+PDFTitle.prototype = {
+        'doAction':function() {
+                cleanWindow();
+                K5.outputs.pdf.asyncTitle(K5.api.ctx.item.selected);
+        },
+        
+        'message' :function() {
+            if (K5.outputs.pdf.isLimitDefined()) {
+                return "Maximalni pocet stranek :"+K5.outputs.pdf.limit(); 
+            } else return null;
+        },
+        
+        'enabled': function() {
+                var selected = K5.api.ctx.item.selected; 
+                var itm = K5.api.ctx.item[selected];
+                if (!itm['forbidden']) {
+                    if (!_isAudio()) {
+                        var children = K5.api.ctx.item[selected]["children"];
+                        if (children) {
+                            var pages = _.reduce(children, function(memo, value, index) {
+                                if (value["model"] === "page") {
+                                    memo.push(value);
+                                }
+                                return memo;
+                            }, []);
+                            if (pages.length > 0) {
+                                return true;
+                            } else return false;
+                            
+                        } else {
+                            return false;
+                        }
+                    } else return false;
+                } else {
+                        return false;
+                }
+        }
+}
+
 
 
 /**

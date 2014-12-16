@@ -78,7 +78,6 @@ ViewersControll.prototype = {
         'storeSessionInitialization':function() {
             K5.api.storeToSession("viewers",this.ctx.session);
         }
-        
 }
 
 

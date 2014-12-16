@@ -1,6 +1,5 @@
 package cz.incad.kramerius.client;
 
-import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,11 +35,11 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 
 import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
-import cz.incad.kramerius.client.tools.K5Configuration;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.ALTOUtils.AltoDisected;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.XMLUtils.ElementsFilter;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
 /**
@@ -68,13 +67,13 @@ public class AltoSupportServlet extends HttpServlet {
         String pid = req.getParameter("pid");
         try {
             String query = URLEncoder.encode(q+" AND PID:"+pid.replace(":", "\\:"),"UTF-8");
-            String searchUrl = K5Configuration.getK5ConfigurationInstance().getConfigurationObject().getString("api.point")+"/search?"+"q="+query+"&hl=true";
+            String searchUrl = KConfiguration.getInstance().getConfiguration().getString("api.point")+"/search?"+"q="+query+"&hl=true";
             String xml = get(searchUrl, null, null);
             Document parsed = XMLUtils.parseDocument(new StringReader(xml));
             List<String> hterms = findHighlightTerm(parsed.getDocumentElement(), pid);
             JSONObject jsonObject = new JSONObject();
             for (String sterm : hterms) {
-                String altoUrl = K5Configuration.getK5ConfigurationInstance().getConfigurationObject().getString("api.point")+"/item/"+pid+"/streams/ALTO";
+                String altoUrl = KConfiguration.getInstance().getConfiguration().getString("api.point")+"/item/"+pid+"/streams/ALTO";
 
                 String alto = get(altoUrl, null, null);
                 byte[] bytes = alto.getBytes(Charset.forName("UTF-8"));
@@ -87,8 +86,6 @@ public class AltoSupportServlet extends HttpServlet {
             }
             resp.setContentType("application/json");
             resp.getWriter().write(jsonObject.toString());
-        } catch (ConfigurationException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (JSONException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (ParserConfigurationException e) {

@@ -24,16 +24,25 @@
 
     "resources/js/vc.js",
 
+
+    "resources/js/item/downloadItem.js",
+    "resources/js/item/shareItem.js",
+    "resources/js/item/ctxbtnsutils.js",
+    "resources/js/item/messages.js",
+
     "resources/js/viewers/itemthumbs.js",
 
-    "resources/js/viewers/ol3utils.js",
+    "resources/js/viewers/ol3/ol3utils.js",
+    "resources/js/viewers/alto/alto.js",
+
     "resources/js/viewers/zoomify.js",
     "resources/js/viewers/zoomifyStatic.js",
 
     "resources/js/viewers/pdfview.js",
     "resources/js/viewers/audio.js",
 
-    "resources/js/alto.js",
+    "resources/js/outputs/outpdf.js",
+
     "resources/js/profile/profile.js",
     "resources/js/selections/selections.js",
 
@@ -45,7 +54,7 @@
     
     "resources/js/edit/selects.js",
     "resources/js/item.js",
-    "resources/js/forbidden.js"
+    "resources/js/viewers/forbidden.js"
     
 ]
 

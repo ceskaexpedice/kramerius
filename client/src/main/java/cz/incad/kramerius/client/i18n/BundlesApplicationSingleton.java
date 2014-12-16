@@ -1,6 +1,5 @@
 package cz.incad.kramerius.client.i18n;
 
-import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,6 +36,7 @@ import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
 import cz.incad.kramerius.client.utils.ApiCallsHelp;
 import cz.incad.kramerius.service.impl.ResourceBundleServiceImpl.ResourceClassLoader;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class BundlesApplicationSingleton {
 
@@ -61,7 +61,7 @@ public class BundlesApplicationSingleton {
             String country = locale.getCountry();
             StringBuilder psfix = new StringBuilder();
             psfix.append("&country=").append(country).append("&language=").append(lang);
-            String burl = getK5ConfigurationInstance().getConfigurationObject().getString("k4.host") + "/i18n?action=bundle&name="+bname+"&format=json&";
+            String burl = KConfiguration.getInstance().getConfiguration().getString("k4.host") + "/i18n?action=bundle&name="+bname+"&format=json&";
             burl += psfix.toString();
 
             String jsonVal = ApiCallsHelp.getJSON(burl);
@@ -76,7 +76,7 @@ public class BundlesApplicationSingleton {
                 k.add(bKeys.next().toString());
             }
             this.keys.put(locale, k);
-        } catch (ConfigurationException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }

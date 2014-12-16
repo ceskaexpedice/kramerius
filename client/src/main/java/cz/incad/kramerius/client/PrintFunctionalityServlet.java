@@ -15,8 +15,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cz.incad.kramerius.client.tools.K5Configuration;
 import cz.incad.kramerius.client.utils.RedirectHelp;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class PrintFunctionalityServlet extends HttpServlet {
 
@@ -36,7 +36,7 @@ public class PrintFunctionalityServlet extends HttpServlet {
                     boolean transcode = false;
                     for (String pid : splitted) {
                         try {
-                            String api = K5Configuration.getK5ConfigurationInstance().getConfigurationObject().getString("api.point");
+                            String api = KConfiguration.getInstance().getConfiguration().getString("api.point");
                             if (!api.endsWith("/")) {
                                 api += "/";
                             }

@@ -14,41 +14,46 @@ function AudioView(appl, selector) {
  * @method       
  */
 AudioView.prototype.open = function() {
-        var leftArrowContainerDiv = $("<div/>",{"id":"pageleft","class":"leftarrow" });
-        leftArrowContainerDiv.append($("<div/>",{"id":"pagelefticon", class:"arrow"}));    
-        this.container.append(leftArrowContainerDiv);    
+//        var leftArrowContainerDiv = $("<div/>",{"id":"pageleft","class":"leftarrow" });
+//        leftArrowContainerDiv.append($("<div/>",{"id":"pagelefticon", class:"arrow"}));    
+//        this.container.append(leftArrowContainerDiv);    
+//
+//        
+//        var rightArrowContainerDiv = $("<div/>",{"id":"pageright","class":"rightarrow"});
+//        rightArrowContainerDiv.append($("<div/>",{"id":"pagerighticon", class:"arrow"}));    
+//        this.container.append(rightArrowContainerDiv);    
+//
+//        $.get("svg.vm?svg=arrowleft",_.bind(function(data) {
+//                $("#pagelefticon").html(data);            
+//                this.arrowbuttons();
+//        },this));
+//
+//        $.get("svg.vm?svg=arrowright",_.bind(function(data) {
+//                $("#pagerighticon").html(data);            
+//                this.arrowbuttons();
+//        },this));
+// 
+//        $("#pageleft").click(_.bind(function() {
+//                K5.gui.selected.prev();
+//        }, this));
+//
+//        $("#pageright").click(_.bind(function() {
+//                K5.gui.selected.next();
+//        }, this));
+//
+//        $("#pagelefticon").click(_.bind(function() {
+//                K5.gui.selected.next();
+//        }, this));
+//
+//        $("#pagerighticon").click(_.bind(function() {
+//                K5.gui.selected.next();
+//        }, this));
+//
+//        this.arrowbuttons();
 
-        var rightArrowContainerDiv = $("<div/>",{"id":"pageright","class":"rightarrow"});
-        rightArrowContainerDiv.append($("<div/>",{"id":"pagerighticon", class:"arrow"}));    
-        this.container.append(rightArrowContainerDiv);    
-
-        $.get("svg.vm?svg=arrowleft",_.bind(function(data) {
-                $("#pagelefticon").html(data);            
-                this.arrowbuttons();
-        },this));
-
-        $.get("svg.vm?svg=arrowright",_.bind(function(data) {
-                $("#pagerighticon").html(data);            
-                this.arrowbuttons();
-        },this));
- 
-        $("#pageleft").click(_.bind(function() {
-                K5.gui.selected.prev();
-        }, this));
-
-        $("#pageright").click(_.bind(function() {
-                K5.gui.selected.next();
-        }, this));
-
-        $("#pagelefticon").click(_.bind(function() {
-                K5.gui.selected.next();
-        }, this));
-
-        $("#pagerighticon").click(_.bind(function() {
-                K5.gui.selected.next();
-        }, this));
-
-        this.arrowbuttons();
+        
+        this.container.append(_leftNavigationArrow());    
+        this.container.append(_rightNavigationArrow());    
 
         var audioContainer = $("<div/>",{'id':'audioContainer'});
         audioContainer.css("width","100%");

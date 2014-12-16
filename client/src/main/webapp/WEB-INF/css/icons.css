@@ -63,6 +63,12 @@ svg{
     size: contain;
 }
 
+.bigger svg{
+    width: 88px;
+    height: 88px;
+    size: contain;
+}
+
 
 .big svg{
     width: 128px;

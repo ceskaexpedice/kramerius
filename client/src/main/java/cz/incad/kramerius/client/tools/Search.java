@@ -17,8 +17,10 @@
 package cz.incad.kramerius.client.tools;
 
 import cz.incad.kramerius.client.RESTHelper;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
 import cz.incad.utils.StringUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -28,9 +30,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.configuration.ConfigurationException;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.velocity.tools.config.DefaultKey;
 import org.apache.velocity.tools.view.ViewToolContext;
 import org.json.JSONArray;
@@ -62,16 +65,14 @@ public class Search {
         try {
             req = (HttpServletRequest) props.get("request");
             ViewToolContext vc = (ViewToolContext) props.get("velocityContext");
-            host = getK5ConfigurationInstance().getConfigurationObject().getString("k4.host");
-            apipoint = getK5ConfigurationInstance().getConfigurationObject().getString("api.point");
+            host = KConfiguration.getInstance().getConfiguration().getString("k4.host");
+            apipoint = KConfiguration.getInstance().getConfiguration().getString("api.point");
             fieldsConfig = FieldsConfig.getInstance();
             facets = "&facet.mincount=1&facet.field=" + 
                     fieldsConfig.getMappedField("model_path") + 
                     "&facet.field=keywords&facet.field=collection&facet.field=dostupnost";
             boost = "&defType=edismax&qf=text+" + fieldsConfig.getMappedField("title") + "^4.0+" + fieldsConfig.getMappedField("autor") + "^1.5&bq=(level:0)^4.5";
 
-        } catch (ConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (JSONException e) {
@@ -86,7 +87,7 @@ public class Search {
     private String getJSON(String url) throws IOException {
 
         LOGGER.log(Level.INFO, "requesting url {0}", url);
-        InputStream inputStream = RESTHelper.inputStream(url, "application/json");
+        InputStream inputStream = RESTHelper.inputStream(url, "application/json", new HashMap<String, String>());
         StringWriter sw = new StringWriter();
         org.apache.commons.io.IOUtils.copy(inputStream, sw, "UTF-8");
         return sw.toString();

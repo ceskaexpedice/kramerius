@@ -135,6 +135,9 @@ function Application() {
         this.authentication = new AuthenticationSupport(this); 
         
 
+        this.outputs = {
+                        'pdf':new PDFSupport(this)
+        };
 
         /** 
          * Gui objects	
@@ -200,6 +203,10 @@ function Application() {
                         K5.api.askForCool();
                 }
 
+                if (configuration["conf"]["pdf"]) {
+                    K5.outputs.pdf.initConfiguration(configuration["conf"]["pdf"]);
+                }
+
                 // pdf configuration
                 if (configuration["conf"]["pdf"]) {
                     K5.gui.clipboard.initConfiguration(configuration["conf"]["pdf"]);
@@ -223,12 +230,23 @@ function Application() {
                                 this.gui["nmenu"] =  new MenuActionsControll();
                                 this.gui["nmenu"].initalizeActions(configuration["defs"]["menu"]);
                         }                        
+
+                        if (configuration["defs"]["downloadoptions"]) {
+                            this.gui["downloadoptions"] =  new MenuActionsControll();
+                            this.gui["downloadoptions"].initalizeActions(configuration["defs"]["downloadoptions"]);
+                        }
+
+                        if (configuration["defs"]["shareoptions"]) {
+                            this.gui["shareoptions"] =  new MenuActionsControll();
+                            this.gui["shareoptions"].initalizeActions(configuration["defs"]["shareoptions"]);
+                        }
+                        
                         if (configuration["defs"]["viewers"]) {
                                 this.gui["viewers"] =  new ViewersControll();
                                 this.gui["viewers"].initalizeViewers(configuration["defs"]["viewers"]);
                                 this.gui["viewers"].loadSessionInitialization(configuration["session"]);
                         }
-                } 
+                }
 
                 $(window).bind("hashchange", _.bind(function () {
                         if (window.location.hash !== this.previoushash) {
@@ -261,8 +279,6 @@ function Application() {
 
                 //prevent scrolling
                 this.preventScrolling();
-
-
 
                 // receive 
                 this.eventsHandler.trigger("application/init/end",configuration);
