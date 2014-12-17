@@ -21,34 +21,38 @@ public class ServersExtension {
                 return unameFlag && pswdFlag;
         }
 
-        public void http(String ident, String address,int port, String unameKey, String pswdKey) {
+        public void http(String ident, String address,String portKey, String unameKey, String pswdKey) {
                 if (checkProperty(unameKey, pswdKey)) {
                         String uname = this.project.property(unameKey);
                         String pswd = this.project.property(pswdKey);
+                        String port = this.project.property(portKey);
                         server(new Server(ident,"http",port,address,uname,pswd,"tomcat7x"));
                 }
         }
 
-        public void http(String ident, String address, int port, String unameKey, String pswdKey, String containerId) {
+        public void http(String ident, String address, String portKey, String unameKey, String pswdKey, String containerId) {
                 if (checkProperty(unameKey, pswdKey)) {
                         String uname = this.project.property(unameKey);
                         String pswd = this.project.property(pswdKey);
+                        String port = this.project.property(portKey);
                         server(new Server(ident,"http",port,address,uname,pswd, containerId));
                 }
         }
 
-        public void https(String ident, String address, int port, String unameKey, String pswdKey) {
+        public void https(String ident, String address, String portKey, String unameKey, String pswdKey) {
                 if (checkProperty(unameKey, pswdKey)) {
                         String uname = this.project.property(unameKey);
                         String pswd = this.project.property(pswdKey);
+                        String port = this.project.property(portKey);
                         server(new Server(ident,"https",port,address,uname,pswd,"tomcat7x"));
                 }
         }
 
-        public void https(String ident, String address, int port, String unameKey, String pswdKey, String containerId) {
+        public void https(String ident, String address, String portKey, String unameKey, String pswdKey, String containerId) {
                 if (checkProperty(unameKey, pswdKey)) {
                         String uname = this.project.property(unameKey);
                         String pswd = this.project.property(pswdKey);
+                        String port = this.project.property(portKey);
                         server(new Server(ident,"https",port,address,uname,pswd, containerId));
                 }
         }
@@ -61,7 +65,7 @@ public class ServersExtension {
                 String ident = (""+firstLetter) +  srv.ident.substring(1);
                 
                 CargoDeployRemote deploy = project.getTasks().create("deploy"+ident, CargoDeployRemote.class);                
-                deploy.port = srv.port;
+                deploy.port = Integer.parseInt(srv.port);
                 deploy.protocol = srv.protocol;
                 deploy.hostname = srv.address;
                 deploy.username = srv.userName;
@@ -69,7 +73,7 @@ public class ServersExtension {
                 deploy.containerId = srv.containerId;        
 
                 CargoUndeployRemote undeploy = project.getTasks().create("undeploy"+ident, CargoUndeployRemote.class);                
-                undeploy.port = srv.port;
+                undeploy.port = Integer.parseInt(srv.port);
                 undeploy.protocol = srv.protocol;
                 undeploy.hostname = srv.address;
                 undeploy.username = srv.userName;
@@ -88,7 +92,7 @@ class Server {
         private String ident;        
         private String protocol;
 
-        private int port = 8080;
+        private String port = "8080";
 
 	private String address;
 	private String userName;
@@ -96,7 +100,7 @@ class Server {
         private String containerId;
 
         
-        public Server(String ident, String protocol, int port, String address, String userName, String password, String containerId) {
+        public Server(String ident, String protocol, String port, String address, String userName, String password, String containerId) {
                 this.port = port;
                 this.containerId = containerId;
                 this.protocol = protocol;
@@ -108,6 +112,10 @@ class Server {
 
 
                 
+
+        public String getPort() {
+                return this.port;
+        }
 
         public String getProtocol() {
                 return this.protocol;
