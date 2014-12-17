@@ -15,14 +15,16 @@ public class ServersExtension {
                 this.project = prj;
         }
 
-        public boolean checkProperty(String uname, String pswd) {
-                boolean unameFlag = this.project.hasProperty(uname);
-                boolean pswdFlag =  this.project.hasProperty(pswd)               
-                return unameFlag && pswdFlag;
+        public boolean checkProperty(String ... args) {
+		for (String arg: args) {
+			if (!this.project.hasProperty(arg)) return false;
+		}
+
+		return true;
         }
 
         public void http(String ident, String address,String portKey, String unameKey, String pswdKey) {
-                if (checkProperty(unameKey, pswdKey)) {
+                if (checkProperty(unameKey, pswdKey,portKey)) {
                         String uname = this.project.property(unameKey);
                         String pswd = this.project.property(pswdKey);
                         String port = this.project.property(portKey);
@@ -31,7 +33,7 @@ public class ServersExtension {
         }
 
         public void http(String ident, String address, String portKey, String unameKey, String pswdKey, String containerId) {
-                if (checkProperty(unameKey, pswdKey)) {
+                if (checkProperty(unameKey, pswdKey,portKey)) {
                         String uname = this.project.property(unameKey);
                         String pswd = this.project.property(pswdKey);
                         String port = this.project.property(portKey);
@@ -40,7 +42,7 @@ public class ServersExtension {
         }
 
         public void https(String ident, String address, String portKey, String unameKey, String pswdKey) {
-                if (checkProperty(unameKey, pswdKey)) {
+                if (checkProperty(unameKey, pswdKey,portKey)) {
                         String uname = this.project.property(unameKey);
                         String pswd = this.project.property(pswdKey);
                         String port = this.project.property(portKey);
@@ -49,7 +51,7 @@ public class ServersExtension {
         }
 
         public void https(String ident, String address, String portKey, String unameKey, String pswdKey, String containerId) {
-                if (checkProperty(unameKey, pswdKey)) {
+                if (checkProperty(unameKey, pswdKey, portKey)) {
                         String uname = this.project.property(unameKey);
                         String pswd = this.project.property(pswdKey);
                         String port = this.project.property(portKey);
