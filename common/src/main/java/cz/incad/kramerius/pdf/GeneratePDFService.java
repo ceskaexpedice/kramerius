@@ -17,9 +17,11 @@ import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 /**
  * Service for generating PDF
  * @author pavels
+ * 
+ * This will be redesigned in future release
  */
+@Deprecated
 public interface GeneratePDFService {
-	
 
     /**
      * Full PDF export 

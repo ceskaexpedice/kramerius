@@ -259,72 +259,8 @@ Zoomify.prototype.showLeftrightbuttons = function() {
         $("#pageleft").show();
 }
 
-/** 
- */
 Zoomify.prototype.addContextButtons=  function() {
-        $("#contextbuttons").html("");
-        $("#item_menu>div").each(function() {
-            if ($(this).data("ctx")) {
-                var a = $(this).data("ctx").split(";");
-                if (jQuery.inArray('all', a) > -1 || jQuery.inArray('zoom', a) > -1) {
-                    $("#contextbuttons").append($(this).clone());
-                }
-                
-                if (jQuery.inArray('selected', a) > -1) {
-                    if (K5.gui.clipboard.isCurrentSelected()) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-
-                if (jQuery.inArray('notselected', a) > -1) {
-                    if (!K5.gui.clipboard.isCurrentSelected()) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-
-                // only clipboard
-                if (jQuery.inArray('clipboardnotempty', a) > -1) {
-                    if (K5.gui.clipboard.getSelected().length > 0) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-
-
-                // next context
-                if (jQuery.inArray('next', a) > -1) {
-                        var selected = K5.api.ctx["item"].selected;
-                        if (K5.api.ctx["item"][selected]["siblings"]) {
-                                var data = K5.api.ctx["item"][selected]["siblings"];
-                                var arr = data[0]['siblings'];
-                                var index = _.reduce(arr, function(memo, value, index) {
-                                        return (value.selected) ? index : memo;
-                                }, -1);
-                                if (index<arr.length-1) { 
-                                        $("#contextbuttons").append($(this).clone());
-                                }  
-                        }
-                }
-
-                // prev context
-                if (jQuery.inArray('prev', a) > -1) {
-                        var selected = K5.api.ctx["item"].selected;
-                        if (K5.api.ctx["item"][selected]["siblings"]) {
-                                var data = K5.api.ctx["item"][selected]["siblings"];
-                                var arr = data[0]['siblings'];
-                                var index = _.reduce(arr, function(memo, value, index) {
-                                        return (value.selected) ? index : memo;
-                                }, -1);
-                                if (index>0) { 
-                                        $("#contextbuttons").append($(this).clone());
-                                }  
-                        }
-                }
-            }
-        });
-
-        if (!K5.gui["selected"].hasParent()) {
-            $("#contextbuttons>div.parent").hide();
-        }
+    _ctxbuttonsrefresh();
 }
 
 
@@ -361,7 +297,7 @@ Zoomify.prototype.addContextButtons=  function() {
 //}
 
 
-Zoomify.prototype.translateCurrent=function(x1,y1,x2,y2) {
+Zoomify.prototype.translateCurrent=function(x1,y1,width,height) {
     var curpage = this.currentPage();
     var resolution = this.map.getView().getResolution();
     var x1off = x1/resolution;
@@ -373,11 +309,11 @@ Zoomify.prototype.translateCurrent=function(x1,y1,x2,y2) {
 
 }
 
-Zoomify.prototype._currentSize = function(ext, resolution) {
+Zoomify.prototype.currentSize = function(ext, resolution) {
     return [ext[2]/resolution, ext[3]/resolution];         
 }
 
-Zoomify.prototype._idealCenter = function(ext) {
+Zoomify.prototype.idealCenter = function(ext) {
     return [ext[2]/2, (-1*ext[3])/2];         
 }
 
@@ -385,7 +321,7 @@ Zoomify.prototype._idealCenter = function(ext) {
 Zoomify.prototype.currentPage=function() {
         
         var center = this.view2D.getCenter();   
-        var ideal = this._idealCenter(this.projection.getExtent());
+        var ideal = this.idealCenter(this.projection.getExtent());
         var xoffset = center[0] - ideal[0]; //- smer doprava; + smer doleva
         var yoffset = center[1] - ideal[1]; // - smer nahoru; +smer dolu
 
@@ -393,7 +329,7 @@ Zoomify.prototype.currentPage=function() {
         var pixelxoffset = xoffset / resolution;
         var pixelyoffset = yoffset / resolution;
 
-        var currentSize = this._currentSize(this.projection.getExtent(), resolution);
+        var currentSize = this.currentSize(this.projection.getExtent(), resolution);
         var mapCenter = [$("#map").width()/2, $("#map").height()/2];
 
         var x1ideal = mapCenter[0]- (currentSize[0]/2);   
@@ -422,7 +358,7 @@ Zoomify.prototype.crop = function(rect,offset){
                  return [ext[2]/resolution, ext[3]/resolution];         
         }*/
 
-        var ideal = this._idealCenter(this.projection.getExtent());
+        var ideal = this.idealCenter(this.projection.getExtent());
 
         var center = this.view2D.getCenter();   
         var xoffset = center[0] - ideal[0]; //- smer doprava; + smer doleva
@@ -433,7 +369,7 @@ Zoomify.prototype.crop = function(rect,offset){
         var pixelyoffset = yoffset / resolution;
         
         
-        var currentSize = this._curentSize(this.projection.getExtent(), resolution);
+        var currentSize = this.currentSize(this.projection.getExtent(), resolution);
         var mapCenter = [$("#map").width()/2, $("#map").height()/2];
 
         var x1ideal = mapCenter[0]- (currentSize[0]/2);   
@@ -556,5 +492,13 @@ Zoomify.prototype.forbiddenCheck = function(okFunc, failFunc) {
         },this)).success(function() {
                 okFunc.apply(null, []);
         });
+}
+
+Zoomify.prototype.selectionStartNotif = function() {
+    $("#options").hide();
+}
+
+Zoomify.prototype.selectionEndNotif = function() {
+    $("#options").show();
 }
 

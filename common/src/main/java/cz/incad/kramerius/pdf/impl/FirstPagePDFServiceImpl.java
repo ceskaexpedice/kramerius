@@ -128,7 +128,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
 
     @Override
-    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os, String[] pids, String imgServlet, String i18nServlet, FontMap fontMap) {
+    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os, String[] pids, String i18nServlet, FontMap fontMap) {
         try {
 
             Document doc = DocumentUtils.createDocument(rdoc);
@@ -425,7 +425,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
 
     @Override
-    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path, String imgServlet, String i18nServlet, FontMap fontMap) {
+    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path,  String i18nServlet, FontMap fontMap) {
         try {
             processMods(path.getLeaf());
 

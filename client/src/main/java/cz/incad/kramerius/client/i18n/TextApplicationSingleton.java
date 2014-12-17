@@ -1,6 +1,5 @@
 package cz.incad.kramerius.client.i18n;
 
-import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
 import static cz.incad.kramerius.client.i18n.LoadJSONVal.getJSONVal;
 
 import java.util.ArrayList;
@@ -17,6 +16,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class TextApplicationSingleton {
 
@@ -46,7 +47,7 @@ public class TextApplicationSingleton {
             String country = locale.getCountry();
             StringBuilder psfix = new StringBuilder();
             psfix.append("&country=").append(country).append("&language=").append(lang);
-            String burl = getK5ConfigurationInstance().getConfigurationObject().getString("k4.host") + "/i18n?action=text&name="+tname+"&format=json&";
+            String burl = KConfiguration.getInstance().getConfiguration().getString("k4.host") + "/i18n?action=text&name="+tname+"&format=json&";
             burl += psfix.toString();
 
             String jsonVal = getJSONVal(burl);
@@ -58,7 +59,7 @@ public class TextApplicationSingleton {
             Map<String, String> map = this.texts.get(locale);
             map.put(textObject.getString("name"), textObject.getString("value"));
             
-        } catch (ConfigurationException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }

@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import cz.incad.kramerius.client.utils.ApiCallsHelp;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class Share {
 
@@ -33,15 +34,13 @@ public class Share {
             String pid = req.getParameter("pid");
             this.applicationUrl = ApplicationURL.applicationURL(req);
             if (pid != null && StringUtils.isAnyString(pid)) {
-                String api = K5Configuration.getK5ConfigurationInstance().getConfigurationObject().getString("api.point");
+                String api = KConfiguration.getInstance().getConfiguration().getString("api.point");
                 if (!api.endsWith("/")) {
                     api += "/";
                 }
                 String jsoned = getJSON(api+"item/"+pid+"");
                 this.itemObject = new JSONObject(jsoned);
             }
-        } catch (ConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (JSONException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }

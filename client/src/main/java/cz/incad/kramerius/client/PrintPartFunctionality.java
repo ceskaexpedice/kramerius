@@ -1,6 +1,5 @@
 package cz.incad.kramerius.client;
 
-import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -14,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.configuration.ConfigurationException;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 public class PrintPartFunctionality extends HttpServlet {
 
     public static final Logger LOGGER = Logger.getLogger(PrintPartFunctionality.class.getName());
@@ -21,7 +22,7 @@ public class PrintPartFunctionality extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            String k4host = getK5ConfigurationInstance().getConfigurationObject().getString("k4.host");
+            String k4host = KConfiguration.getInstance().getConfiguration().getString("k4.host");
             if (!k4host.endsWith("/")) { k4host = k4host + "/"; }
             String xpos = req.getParameter("xpos");
             String ypos = req.getParameter("ypos");
@@ -32,7 +33,7 @@ public class PrintPartFunctionality extends HttpServlet {
             k4host = k4host + "localPrintPDF?pids="+pid+"&pagesize=A4&imgop=CUT&xpos="+xpos+"&ypos="+ypos+"&width="+width+"&height="+height;
             resp.sendRedirect(k4host);
 
-        } catch (ConfigurationException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
         

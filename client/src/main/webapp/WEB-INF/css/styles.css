@@ -2405,6 +2405,311 @@ div.logoptions  div.logoptions_footer  div.right{
     margin: 4px;
 }
 
+/** share dialog */
+div.share {
+        top: 20%;
+        width: 500px;
+        height: 40%;
+        background-color: $params.activeColor;
+        box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+        z-index: 43;
+        color: white;
+        margin:auto;
+        left:calc(50% - 250px);
+}
+
+
+#share_container {
+    height:calc(100% - 43px);
+    width:100%;
+    position:absolute;
+    top:0;
+}
+
+
+div.share_footer {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    left: 0px;
+    height: 43px;
+    border-top: 1px solid white;
+
+}
+
+#share_container ul {
+    text-align:center;
+}
+
+#share_container ul li {
+    display:inline-block;
+    list-style-type:none;
+    text-align: center;
+    margin-left:1.3em;
+    margin-right:1.3em;
+    
+}
+
+#share_container ul li div.bigger {
+    cursor: pointer;
+}
+
+
+#share_container ul li div.bigger svg path{
+    fill:white; 
+}
+
+#share_container ul li div.bigger svg g path{
+    fill:white; 
+}
+
+#share_container ul li div.bigger svg g polygon{
+    fill:white; 
+}
+
+div.share_footer div.right {
+    position: absolute;
+    right: 15px;
+    margin-top: 5px;
+    display: inline-block;
+    font-size: 11px;
+    float: right;
+}
+
+
+div.share_footer div.right div.buttons {
+    position: relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+div.share_footer div.right div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+    margin-left: 2px;
+}
+
+div.share_footer  a {
+        color: inherit;
+        text-decoration: none;
+}
+
+div.share_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+/** end of share dialog */
+
+
+
+
+/** messages dialog */
+div.message {
+        top: 20%;
+        width: 500px;
+        height: 40%;
+        background-color: $params.activeColor;
+        box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+        z-index: 43;
+        color: white;
+        margin:auto;
+        left:calc(50% - 250px);
+}
+
+
+#message_container {
+    height:calc(100% - 43px);
+    width:100%;
+    position:absolute;
+    top:0;
+}
+
+
+div.message_footer {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    left: 0px;
+    height: 43px;
+    border-top: 1px solid white;
+
+}
+
+div.message_footer div.right {
+    position: absolute;
+    right: 15px;
+    margin-top: 5px;
+    display: inline-block;
+    font-size: 11px;
+    float: right;
+}
+
+
+div.message_footer div.right div.buttons {
+    position: relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+div.message_footer div.right div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+    margin-left: 2px;
+}
+
+div.message_footer  a {
+        color: inherit;
+        text-decoration: none;
+}
+
+div.message_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+/** end of dialog message */
+
+
+
+/** pdf busy content */
+div.pdfbusy_head h2 {
+    text-align: center;
+}
+
+div.pdfbusy_message {
+    padding: 15px;
+}
+
+div.pdfbusy_cont {
+    
+}
+/** end of pdf busy content */
+
+
+/** pdf wait content */
+div.pdfwait_head h2 {
+    text-align: center;
+}
+
+div.pdfwait_message {
+    padding: 15px;
+}
+
+div.pdfwait_cont {
+    
+}
+/** end of pdf busy content */
+
+
+/** download options */
+div.download {
+        top: 20%;
+        width: 300px;
+        height: 40%;
+        background-color: $params.activeColor;
+        box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+        z-index: 43;
+        color: white;
+        margin:auto;
+        left:calc(50% - 150px);
+}
+
+#download_container {
+    height:calc(100% - 43px);
+    width:100%;
+    position:absolute;
+    top:0;
+}
+
+
+#download_container label {
+    margin-left: 5px; 
+}
+
+#download_container div.download_header  {
+
+}
+
+#download_container div.download_header h2 {
+    text-align: center;
+}
+
+#download_options {
+    padding: 5px;
+}
+
+#download_options select {
+    width: 100%;
+    height: 26px;
+    background: transparent;
+    color: inherit;
+}
+
+#download_options select option {
+    color: black;
+}
+#download_options div {
+    margin-bottom: 5px; 
+    margin-top: 5px; 
+}
+#download_action_message {
+    margin-left: 7px;
+}
+div.download_footer {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    left: 0px;
+    height: 43px;
+    border-top: 1px solid white;
+
+}
+
+div.download_footer div.right {
+    position: absolute;
+    right: 15px;
+    margin-top: 5px;
+    display: inline-block;
+    font-size: 11px;
+    float: right;
+}
+
+
+div.download_footer div.right div.buttons {
+    position: relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+div.download_footer div.right div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+    margin-left: 2px;
+}
+
+div.download_footer  a {
+        color: inherit;
+        text-decoration: none;
+}
+
+div.download_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+/** end of dialog download */
+
 #footer a{
     color: inherit;
     text-decoration: none;

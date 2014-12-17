@@ -16,7 +16,6 @@
  */
 package cz.incad.kramerius.client;
 
-import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -50,8 +49,8 @@ import cz.incad.kramerius.client.kapi.auth.User;
 import cz.incad.kramerius.client.kapi.auth.impl.CallUserControllerImpl;
 import cz.incad.kramerius.client.socialauth.OpenIDSupport;
 import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
-import cz.incad.kramerius.client.tools.K5Configuration;
 import cz.incad.kramerius.users.UserProfile;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
 /**
@@ -97,8 +96,8 @@ public class AuthenticationServlet extends HttpServlet {
             contr.createCaller(username, password, ProfileDelegator.class);
         }
         if (contr.getAdminCaller() == null) {
-            String admUserName = getK5ConfigurationInstance().getConfigurationObject().getString("k4.admin.user");
-            String admPswd = getK5ConfigurationInstance().getConfigurationObject().getString("k4.admin.pswd");
+            String admUserName = KConfiguration.getInstance().getConfiguration().getString("k4.admin.user");
+            String admPswd = KConfiguration.getInstance().getConfiguration().getString("k4.admin.pswd");
             contr.createCaller(admUserName, admPswd, AdminUser.class);
         }
         return contr;
@@ -110,11 +109,9 @@ public class AuthenticationServlet extends HttpServlet {
         String action = req.getParameter("action");
         PostActions aAction = PostActions.valueOf(action);
         try {
-            String authUrl = getK5ConfigurationInstance().getConfigurationObject().getString("api.point")+"/user";
+            String authUrl = KConfiguration.getInstance().getConfiguration().getString("api.point")+"/user";
             aAction.perform(authUrl, req, resp);
         } catch (JSONException  e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-        } catch (ConfigurationException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
@@ -125,11 +122,9 @@ public class AuthenticationServlet extends HttpServlet {
         String action = req.getParameter("action");
         AuthenticationActions aAction = AuthenticationActions.valueOf(action);
         try {
-            String authUrl = getK5ConfigurationInstance().getConfigurationObject().getString("api.point")+"/user";
+            String authUrl = KConfiguration.getInstance().getConfiguration().getString("api.point")+"/user";
             aAction.perform(authUrl, req, resp);
         } catch (JSONException  e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-        } catch (ConfigurationException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
@@ -212,7 +207,6 @@ public class AuthenticationServlet extends HttpServlet {
 
             @Override
             public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
-                // tak vyzkousime !! 
                 OpenIDSupport oidSupport = new OpenIDSupport();
                 oidSupport.login(req, resp);
             }

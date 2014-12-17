@@ -158,7 +158,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
         String urlForStream = getURLForStream(uuid, url);
     	if (useFromReplicated()) {
     		Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
-    		urlForStream = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
+    		urlForStream = ZoomChangeFromReplicated.deepZoomAddress(relsEXT, uuid);
     	}
         if (urlForStream != null) {
             StringTemplate dziUrl = stGroup().getInstanceOf("ndzi");

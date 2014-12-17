@@ -24,17 +24,19 @@ K5.eventsHandler.addHandler(function(type, configuration) {
         }
     }
     if (type === "widow/url/hash") {
-        var phash = location.hash;
-        var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
-        if (K5.api.ctx.item && K5.api.ctx.item[pid]) {
-            if (K5.api.ctx.item[pid].pid) {
-                    var data = K5.api.ctx.item[pid];
-                    K5.eventsHandler.trigger("api/item/" + pid, data);
+        if (K5.gui.page && K5.gui.page ==="doc") {
+            var phash = location.hash;
+            var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
+            if (K5.api.ctx.item && K5.api.ctx.item[pid]) {
+                if (K5.api.ctx.item[pid].pid) {
+                        var data = K5.api.ctx.item[pid];
+                        K5.eventsHandler.trigger("api/item/" + pid, data);
+                } else {
+                        K5.api.askForItem(pid);
+                }       
             } else {
-                    K5.api.askForItem(pid);
-            }       
-        } else {
-            K5.api.askForItem(pid);
+                K5.api.askForItem(pid);
+            }
         }
     }
         
@@ -70,16 +72,17 @@ function _eventProcess(pid) {
     K5.api.ctx["item"]["selected"] = pid;
     if (K5.gui.selected) {
         K5.gui.selected.clearContainer();
+        if (K5.gui.selected.download) {
+            K5.gui.selected.download.cleanDialog();
+        }
     }
 
     var okfunc = _.bind(function() {
-        
         var instance = K5.gui["viewers"].instantiate(viewer.object);        
-
         K5.gui["selected"] = mixInto(new ItemSupport(K5), instance);
         K5.gui["selected"].initItemSupport();
         K5.gui["selected"].open();
-        K5.gui["selected"].ctxMenu();    
+        //K5.gui["selected"].ctxMenu();    
 
         K5.gui["selected"]["ctx"] = {};    
 
@@ -99,9 +102,10 @@ function _eventProcess(pid) {
         K5.gui["selected"].open();
 
         // initialization
-        K5.gui["selected"].ctxMenu();    
-        _metadatainit();
+        //K5.gui["selected"].ctxMenu();    
         
+        _metadatainit();
+
         K5.gui.selected["disabledDisplay"] = false;
     });
 
@@ -158,6 +162,17 @@ ItemSupport.prototype = {
     initItemSupport: function() {
         if (this.application.i18n.ctx && this.application.i18n.ctx.dictionary) {
             this._initInfo();
+
+            // ?? reorganizovat?
+            this.download= new DownloadItem();
+            this.download.init();
+            
+            this.messages = new Messages();
+            this.messages.init();
+            
+            this.shares = new ShareItem();
+            this.shares.init();
+            
         } else {
             this.application.eventsHandler.addHandler(_.bind(function(type, configuration) {
                 console.log("event type " + type);
@@ -165,89 +180,31 @@ ItemSupport.prototype = {
                     this._initInfo();
                 }
             }, this));
+
+            // ?? reorganizovat?
+            this.download = new DownloadItem();
+            this.download.init();
+
+            this.messages = new Messages();
+            this.messages.init();
+
+            this.shares = new ShareItem();
+            this.shares.init();
+
         }
     },
 
     _initInfo: function() {
-
-
         var pid = K5.api.ctx["item"]["selected"];
         var root_title = K5.api.ctx["item"][pid].root_title;
         $(document).prop('title', K5.i18n.ctx.dictionary['application.title'] + ". " + root_title);
-
-
         this.renderContext();
-        /*this.addContextButtons();*/
-
-        /*if (($.cookie('item_showinfo') === 'undefined') || $.cookie('item_showinfo') === 'true') {
-            this.showInfo();
-        }*/
     },
 
-    /**
-     * Explore data-ctx attribute and add header button
-     * allowed values are all , item , selected , notselected
-     * @method 
-     */
+    
+    
     addContextButtons: function() {
-        $("#contextbuttons").html("");
-        $("#item_menu>div").each(function() {
-            if ($(this).data("ctx")) {
-                var a = $(this).data("ctx").split(";");
-                // all context
-                if (jQuery.inArray('all', a) > -1) {
-                    $("#contextbuttons").append($(this).clone());
-                }
-                // only selected
-                if (jQuery.inArray('selected', a) > -1) {
-                    if (K5.gui.clipboard.isCurrentSelected()) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-
-                // only notselected
-                if (jQuery.inArray('notselected', a) > -1) {
-                    if (!K5.gui.clipboard.isCurrentSelected()) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-
-                // only clipboard
-                if (jQuery.inArray('clipboardnotempty', a) > -1) {
-                    if (K5.gui.clipboard.getSelected().length > 0) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-
-                // next context
-                if (jQuery.inArray('next', a) > -1) {
-                        if (K5.api.ctx["item"][selected]["siblings"]) {
-                                var data = K5.api.ctx["item"][selected]["siblings"];
-                                var arr = data[0]['siblings'];
-                                var index = _.reduce(arr, function(memo, value, index) {
-                                        return (value.selected) ? index : memo;
-                                }, -1);
-                                if (index<arr.length-1) { 
-                                        $("#contextbuttons").append($(this).clone());
-                                }  
-                        }
-                }
-
-                // prev context
-                if (jQuery.inArray('prev', a) > -1) {
-                        if (K5.api.ctx["item"][selected]["siblings"]) {
-                                var data = K5.api.ctx["item"][selected]["siblings"];
-                                var arr = data[0]['siblings'];
-                                var index = _.reduce(arr, function(memo, value, index) {
-                                        return (value.selected) ? index : memo;
-                                }, -1);
-                                if (index>0) { 
-                                        $("#contextbuttons").append($(this).clone());
-                                }  
-                        }
-                }
-            }
-        });
+        _ctxbuttonsrefresh();
     },
 
    /**
@@ -256,7 +213,6 @@ ItemSupport.prototype = {
     */     
    ctxMenu: function() {
         $("#acts_container").empty();
-
         var menuDiv = $("<div/>", {'id': 'ctxmenu'});
         var ul = $('<ul/>');
         var items = _.map(K5.gui.nmenu.ctx.actions, function(a) {
@@ -384,16 +340,6 @@ ItemSupport.prototype = {
 
     // toggle actions -> change it     
     toggleActions: function() {
-        /*
-        if ($('#ctxmenu').size() == 0) {
-            console.log("javascript request");
-            $.getScript("js/menu/menuload.js", _.bind(function(data, textStatus, jqxhr) {
-                this._initCtxMenu(K5.gui.menu.actions);
-            }, this)).fail(function(jqxhr, settings, exception) {
-            });
-        } else {
-            $('#ctxmenu').toggle();
-        }*/
     },
     /**
      * Siblings request
@@ -713,7 +659,7 @@ ItemSupport.prototype = {
     toggleInfo: function() {
         if (visible("#viewer>div.infobox")) { cleanWindow(); } 
         else { this.showInfo();  }
-    },
+    }
 
 };
 

@@ -18,6 +18,7 @@
 package cz.incad.kramerius.client.tools;
 
 import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
@@ -25,10 +26,11 @@ import java.util.logging.Logger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-
 import org.apache.velocity.tools.config.DefaultKey;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  *
@@ -43,8 +45,8 @@ public class ConfTool {
 
     public void configure(Map props) {
         try {
-            _conf = getK5ConfigurationInstance().getConfigurationObject();
-        } catch (ConfigurationException ex) {
+            _conf = KConfiguration.getInstance().getConfiguration();
+        } catch (Exception ex) {
             Logger.getLogger(ConfTool.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

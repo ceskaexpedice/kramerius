@@ -115,6 +115,9 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     public String getRequestedStream() {
         return this.requestedStream;
     }
-    
-    
+
+    @Override
+    public SolrAccess getSolrAccess() {
+        return this.solrAccess;
+    }
 }

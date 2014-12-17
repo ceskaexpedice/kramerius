@@ -311,7 +311,7 @@ public class DocumentServiceImpl implements DocumentService {
                 page.setPageNumber(pageNumber);
                 //renderedDocument.addPage(page);
                 Element part = XMLUtils.findElement(biblioMods.getDocumentElement(), "part", FedoraNamespaces.BIBILO_MODS_URI);
-                String attribute = part.getAttribute("type");
+                String attribute = part != null ? part.getAttribute("type") : null;
                 if (attribute != null) {
                     String key = "pdf."+attribute;
                     if (resourceBundle.containsKey(key)) {
@@ -460,10 +460,4 @@ public class DocumentServiceImpl implements DocumentService {
 
         return renderedDocument;
     }
-
-
-
-    
-
-    
 }

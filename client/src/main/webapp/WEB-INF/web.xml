@@ -237,6 +237,38 @@
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
 
+    <!--  pdf forwarding; special because of forwarding -->
+    <servlet>
+        <servlet-name>pdfforward</servlet-name>
+        <servlet-class>cz.incad.kramerius.client.ForwardServlet</servlet-class>
+        <init-param>
+            <param-name>prefix</param-name>
+            <param-value>api.point</param-value>
+        </init-param>
+        <init-param>
+            <param-name>urlmodif</param-name>
+            <param-value>cz.incad.kramerius.client.forward.PDFForwardUrlPathModify</param-value>
+        </init-param>
+
+        <!--  timeout for this forwarding  -->
+        <init-param>
+            <param-name>readTimeout</param-name>
+            <param-value>0</param-value>
+        </init-param>
+
+        <init-param>
+            <param-name>conTimeout</param-name>
+            <param-value>0</param-value>
+        </init-param>
+
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>pdfforward</servlet-name>
+        <url-pattern>/pdfforward/*</url-pattern>
+    </servlet-mapping>
+
+
     <!--  zoomify forwarding -->
     <servlet>
         <servlet-name>zoomify</servlet-name>

@@ -16,7 +16,6 @@
  */
 package cz.incad.kramerius.client.socialauth;
 
-import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
 
 import java.io.InputStream;
 import java.sql.Savepoint;
@@ -54,8 +53,8 @@ import cz.incad.kramerius.client.kapi.auth.AdminUser;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
 import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
 import cz.incad.kramerius.client.tools.GeneratePasswordUtils;
-import cz.incad.kramerius.client.tools.K5Configuration;
 import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.StringUtils;
 
 public class OpenIDSupport {
@@ -88,8 +87,7 @@ public class OpenIDSupport {
         // Create an instance of SocialAuthConfgi object
         SocialAuthConfig config = SocialAuthConfig.getDefault();
 
-        Configuration confObject = K5Configuration.getK5ConfigurationInstance()
-                .getConfigurationObject();
+        Configuration confObject = KConfiguration.getInstance().getConfiguration();
         Iterator<String> keys = confObject.getKeys();
         Properties props = new Properties();
         while (keys.hasNext()) {
@@ -138,7 +136,7 @@ public class OpenIDSupport {
 
     public static void deleteUser(HttpServletRequest req, String userId) {
         try {
-            String url = getK5ConfigurationInstance().getConfigurationObject()
+            String url = KConfiguration.getInstance().getConfiguration()
                     .getString("api.point") + "/admin/users/" + userId;
 
             Client c = Client.create();
@@ -155,8 +153,6 @@ public class OpenIDSupport {
             String t = r.accept(MediaType.APPLICATION_JSON)
                     .type(MediaType.APPLICATION_JSON).delete(String.class);
 
-        } catch (ConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (ClientHandlerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (UniformInterfaceException e) {
@@ -168,7 +164,7 @@ public class OpenIDSupport {
             String pswd) {
         try {
             Client c = Client.create();
-            String url = getK5ConfigurationInstance().getConfigurationObject()
+            String url = KConfiguration.getInstance().getConfiguration()
                     .getString("api.point")
                     + "/admin/users/"
                     + userId
@@ -188,8 +184,6 @@ public class OpenIDSupport {
                     .type(MediaType.APPLICATION_JSON)
                     .entity(object.toString(), MediaType.APPLICATION_JSON)
                     .put(String.class);
-        } catch (ConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (UniformInterfaceException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (ClientHandlerException  e) {
@@ -202,7 +196,7 @@ public class OpenIDSupport {
     // create user
     public static String createUser(HttpServletRequest req, Profile profile,
             String password) throws JSONException, ConfigurationException {
-        String url = getK5ConfigurationInstance().getConfigurationObject()
+        String url = KConfiguration.getInstance().getConfiguration()
                 .getString("api.point") + "/admin/users";
 
         Client c = Client.create();
@@ -230,7 +224,7 @@ public class OpenIDSupport {
     private static JSONArray getUser(HttpServletRequest req, Profile p)
             throws ConfigurationException, JSONException {
         Client c = Client.create();
-        String url = getK5ConfigurationInstance().getConfigurationObject()
+        String url = KConfiguration.getInstance().getConfiguration()
                 .getString("api.point")
                 + "/admin/users?lname="
                 + calculateUserName(p);

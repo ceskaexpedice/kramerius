@@ -18,10 +18,12 @@ package cz.incad.kramerius.client.tools;
 
 import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
 import cz.incad.kramerius.client.RESTHelper;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,8 +54,8 @@ public class Item {
             req = (HttpServletRequest) props.get("request");
             pid = req.getParameter("pid");
             ViewToolContext vc = (ViewToolContext) props.get("velocityContext");
-            host = getK5ConfigurationInstance().getConfigurationObject().getString("api.point")+"/item/";
-        } catch (ConfigurationException e) {
+            host = KConfiguration.getInstance().getConfiguration().getString("api.point")+"/item/";
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
@@ -61,7 +63,7 @@ public class Item {
 
     private String getUrl(String url) throws IOException {
         LOGGER.info("requesting url " + host + pid + url);
-        InputStream inputStream = RESTHelper.inputStream(host + pid + url);
+        InputStream inputStream = RESTHelper.inputStream(host + pid + url, new HashMap<String, String>());
         StringWriter sw = new StringWriter();
         org.apache.commons.io.IOUtils.copy(inputStream, sw, "UTF-8");
         return sw.toString();
