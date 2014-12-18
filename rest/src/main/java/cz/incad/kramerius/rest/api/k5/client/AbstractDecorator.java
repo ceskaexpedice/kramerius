@@ -24,128 +24,140 @@ import java.util.StringTokenizer;
 
 import net.sf.json.JSONObject;
 
-
 /**
  * Abstract implementation of the JSONDecorator
+ * 
  * @author pavels
  */
 public abstract class AbstractDecorator implements JSONDecorator {
-	
-	/** Default delimiter for the key */
-	protected static String DELITIMER = ".";
 
-	/** Runtime context hashmap */
-	protected Map<String, Object> context = new HashMap<String, Object>();
-	
-	@Override
-	public Map<String, Object> getRunningContext() {
-		return context;
-	}
+    /** Default delimiter for the key */
+    protected static String DELITIMER = ".";
 
-	@Override
-	public void before(Map<String, Object> runningContext) {
-		this.context = runningContext;
-	}
+    /** Runtime context hashmap */
+    protected Map<String, Object> context = new HashMap<String, Object>();
 
-	@Override
-	public void after() {}
+    @Override
+    public Map<String, Object> getRunningContext() {
+        return context;
+    }
 
-	/**
-	 * Utility method -> Lookup pid from json
-	 * @param jsonObject
-	 * @return
-	 */
-	protected String getPidFromJSON(JSONObject jsonObject) {
-		return jsonObject.getString("pid");
-	}
-	
-	protected boolean containsPidInJSON(JSONObject jsonObject) {
-		return jsonObject.containsKey("pid");
-	}
-	
-	
-	/**
-	 * Tokenize path
-	 * @param input
-	 * @return List of path tokens
-	 */
-	protected static List<String> tokenize(String input) {
-		StringTokenizer tokenizer = new StringTokenizer(input,"/");
-		List<String> strs = new ArrayList<String>();
-		while(tokenizer.hasMoreTokens()) {
-			strs.add(tokenizer.nextToken());
-		}
-		return strs;
-	}
+    @Override
+    public void before(Map<String, Object> runningContext) {
+        this.context = runningContext;
+    }
 
-	/**
-	 * Parse basic context
-	 * @param atoms 
-	 * @return
-	 */
-	protected TokenizedPath basicContext(List<String> atoms) {
-		List<String> retvals = new ArrayList<String>(atoms);
-		if (!retvals.isEmpty()) {
-			if (!retvals.get(0).equals("v5.0")) return new TokenizedPath(false, atoms);	
-			retvals.remove(0);
-		} else return new TokenizedPath(false, atoms);
-	
-		
-		return new TokenizedPath(true, retvals);
-	}
+    @Override
+    public void after() {
+    }
 
+    /**
+     * Utility method -> Lookup pid from json
+     * 
+     * @param jsonObject
+     * @return
+     */
+    protected String getPidFromJSON(JSONObject jsonObject) {
+        return jsonObject.getString("pid");
+    }
 
-	/**
-	 * Utility method -> Helps with constructing KEY
-	 * @param keys
-	 * @return
-	 */
-	protected static String construct(String ... keys) {
-		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < keys.length; i++) {
-			if (i > 0) builder.append(DELITIMER);
-			builder.append(keys[i]);
-		}
-		return builder.toString();
-	}
+    /**
+     * Utility method -> Returns true if given object contains 'pid' key
+     * @param jsonObject
+     * @return
+     */
+    protected boolean containsPidInJSON(JSONObject jsonObject) {
+        return jsonObject.containsKey("pid");
+    }
 
-	
-	
-	/**
-	 * Tokenized path object
-	 * @author pavels
-	 */
-	public static final class TokenizedPath {
-		
-		private boolean parsed = false;
-		private List<String> restPath;
-		
-		public TokenizedPath(boolean parsed, List<String> restPath) {
-			super();
-			this.parsed = parsed;
-			this.restPath = restPath;
-		}
-		
-		/**
-		 * Returns true if the path is parsed
-		 * @return
-		 */
-		public boolean isParsed() {
-			return parsed;
-		}
-		
-		/**
-		 * REturns rest of the path
-		 * @return
-		 */
-		public List<String> getRestPath() {
-			return restPath;
-		}
-	
-		@Override
-		public String toString() {
-			return "TokenizedPath [parsed=" + parsed + ", restPath=" + restPath + "]";
-		}
-	}
+    /**
+     * Tokenize path
+     * 
+     * @param input
+     * @return List of path tokens
+     */
+    protected static List<String> tokenize(String input) {
+        StringTokenizer tokenizer = new StringTokenizer(input, "/");
+        List<String> strs = new ArrayList<String>();
+        while (tokenizer.hasMoreTokens()) {
+            strs.add(tokenizer.nextToken());
+        }
+        return strs;
+    }
+
+    /**
+     * Parse basic context
+     * 
+     * @param atoms
+     * @return
+     */
+    protected TokenizedPath basicContext(List<String> atoms) {
+        List<String> retvals = new ArrayList<String>(atoms);
+        if (!retvals.isEmpty()) {
+            if (!retvals.get(0).equals("v5.0"))
+                return new TokenizedPath(false, atoms);
+            retvals.remove(0);
+        } else
+            return new TokenizedPath(false, atoms);
+
+        return new TokenizedPath(true, retvals);
+    }
+
+    /**
+     * Utility method -> Helps with constructing KEY
+     * 
+     * @param keys
+     * @return
+     */
+    protected static String construct(String... keys) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < keys.length; i++) {
+            if (i > 0)
+                builder.append(DELITIMER);
+            builder.append(keys[i]);
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Tokenized path object
+     * 
+     * @author pavels
+     */
+    public static final class TokenizedPath {
+
+        private boolean parsed = false;
+        private List<String> restPath;
+
+        public TokenizedPath(boolean parsed, List<String> restPath) {
+            super();
+            this.parsed = parsed;
+            this.restPath = restPath;
+        }
+
+        /**
+         * Returns true if the path is parsed
+         * 
+         * @return
+         */
+        public boolean isParsed() {
+            return parsed;
+        }
+
+        /**
+         * REturns rest of the path
+         * 
+         * @return
+         */
+        public List<String> getRestPath() {
+            return restPath;
+        }
+
+        @Override
+        public String toString() {
+            return "TokenizedPath [parsed=" + parsed + ", restPath=" + restPath
+                    + "]";
+        }
+    }
 
 }

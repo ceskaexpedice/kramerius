@@ -1,0 +1,15 @@
+
+<svg
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns="http://www.w3.org/2000/svg"
+    version="1.1"
+    xml:space="preserve"
+    width="100"
+    height="100"
+    viewBox="0 0 100 100"
+    class="heart"
+>
+
+    <path id="Heart" d="M 379.14286,136.36218 C 599.14285,-120.78067 819.14286,159.21932 696.28571,304.93361 L 379.14286,627.79075 M 379.14285,136.36218 C 159.14286,-120.78067 -60.857149,159.21932 62.000001,304.93361 L 379.14285,627.79075"/>
+</svg>

@@ -333,22 +333,14 @@
         }
 
         function selectNodeView(id){
-            var currentLevel = k4Settings.activePidPath.split("_")[0].split("-").length;
-            var newLevel = id.split("_")[0].split("-").length;
-            var changeLevel = currentLevel != newLevel;
-            var fire = false;
-            if(!$(jq(id)).parent().parent().hasClass('sel') ||
-                ($(jq(id)).hasClass('viewable') && changeLevel)){
-                fire = true;
-            }
+            
             $("#item_tree li>div>a").removeClass('sel');
             $("#item_tree li").removeClass('sel');
             $("#item_tree li>div>a").removeClass('ui-state-active');
             $("#item_tree li").removeClass('ui-state-active');
             highLigthNode(id);
-            if(fire){
-                setActiveUuids(id);
-            }
+            setActiveUuids(id);
+                
             setSelectedPath(id);
             
         }

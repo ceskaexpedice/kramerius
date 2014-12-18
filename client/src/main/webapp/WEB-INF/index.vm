@@ -1,0 +1,22 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+#parse("html_header.vm")
+<body>
+
+#parse("profile.vm")
+#parse("logingoptions.vm")
+
+#parse("header.vm")
+#if ($params.exists( "page" )) 
+#parse("sitemap.vm")
+#parse($site.Map.get($params.page))
+#else
+    #parse("home.vm")
+#end
+
+#parse("footer.vm")
+#parse("small/small.vm")
+
+</body>
+</html>

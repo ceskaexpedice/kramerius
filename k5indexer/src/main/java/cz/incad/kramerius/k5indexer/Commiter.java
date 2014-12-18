@@ -37,13 +37,13 @@ import org.apache.solr.common.SolrInputDocument;
 public class Commiter {
 
     private static final Logger logger = Logger.getLogger(Commiter.class.getName());
-    private final SolrServer server;
-    private final String host;
-    private final String collection;
-    private final int batchSize;
+    private SolrServer server;
+    private  String host;
+    private String core;
+    private  int batchSize;
     List<SolrInputDocument> insertDocs = new ArrayList<SolrInputDocument>();
 
-    private final URL solrUrl;
+    private URL solrUrl;
     private final Configuration config;
     private static Commiter _sharedInstance = null;
     
@@ -53,29 +53,27 @@ public class Commiter {
         }
         return _sharedInstance;
     }
-
-    public Commiter() throws MalformedURLException {
-        config = KConfiguration.getInstance().getConfiguration();
-        this.host = config.getString("k5indexer.solrHost");
-        this.collection = config.getString("k5indexer.solrCollection");
+    
+    private void init() throws MalformedURLException{
+        solrUrl = new URL(config.getString("k5indexer.solr.host") + "/" + core + "/update");
+        
+        this.host = config.getString("k5indexer.solr.host");
         this.batchSize = config.getInt("k5indexer.batchSize", 100);
         
-        solrUrl = new URL(config.getString("k5indexer.solrHost") + "/" + collection + "/update");
-
-//Http, Cloud,  ConcurrentUpdate,  LBHttp
+        //Http, Cloud,  ConcurrentUpdate,  LBHttp
         String serverType = config.getString("k5indexer.solrServerType", "Http");
         if("Http".equals(serverType)){
-            server = new HttpSolrServer(host + "/" + collection);
+            server = new HttpSolrServer(host + "/" + core);
         }else if("LBHttp".equals(serverType)){
-            LBHttpSolrServer lb = new LBHttpSolrServer(host + "/" + collection);
+            LBHttpSolrServer lb = new LBHttpSolrServer(host + "/" + core);
             
             server = (SolrServer)lb;
         }else if("Cloud".equals(serverType)){
-            CloudSolrServer cloud = new CloudSolrServer(host + "/" + collection);
+            CloudSolrServer cloud = new CloudSolrServer(host + "/" + core);
             cloud.setIdField("PID");
             server = (SolrServer)cloud;
         }else{
-            server = new HttpSolrServer(host + "/" + collection);
+            server = new HttpSolrServer(host + "/" + core);
         }
         
         //server.setMaxRetries(1); // defaults to 0.  > 1 not recommended.
@@ -94,6 +92,19 @@ public class Commiter {
         // allowCompression defaults to false.
         // Server side must support gzip or deflate for this to have any effect.
         //server.setAllowCompression(true);
+        
+    }
+
+    public Commiter() throws MalformedURLException {
+        config = KConfiguration.getInstance().getConfiguration();
+        this.core = config.getString("k5indexer.solr.core");
+        init();
+    }
+
+    public Commiter(String core) throws MalformedURLException {
+        config = KConfiguration.getInstance().getConfiguration();
+        this.core = core;
+        init();
     }
     
     @Override
@@ -154,24 +165,30 @@ public class Commiter {
 
     public void postXml(String xml)
             throws Exception {
-        postData(new StringReader(xml), "text/xml; charset=UTF-8", new StringBuilder());
+        postData(solrUrl,new StringReader(xml), "text/xml; charset=UTF-8", new StringBuilder());
+    }
+
+    public void postXml(String urlStr, String xml)
+            throws Exception {
+        URL url = new URL(urlStr + "/" + core + "/update");
+        postData(url, new StringReader(xml), "text/xml; charset=UTF-8", new StringBuilder());
     }
 
     public void postJson(String json)
             throws Exception {
-        postData(new StringReader(json), "application/json; charset=UTF-8", new StringBuilder());
+        postData(solrUrl, new StringReader(json), "application/json; charset=UTF-8", new StringBuilder());
     }
 
     /**
      * Reads data from the data reader and posts it to solr, writes the response
      * to output
      */
-    private void postData(Reader data, String contentType, StringBuilder output)
+    private void postData(URL url, Reader data, String contentType, StringBuilder output)
             throws Exception {
         HttpURLConnection urlc = null;
 
         try {
-            urlc = (HttpURLConnection) solrUrl.openConnection();
+            urlc = (HttpURLConnection) url.openConnection();
             urlc.setConnectTimeout(config.getInt("http.timeout", 10000));
             try {
                 urlc.setRequestMethod("POST");

@@ -1,6 +1,5 @@
 package cz.incad.kramerius.service.impl;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -27,176 +26,184 @@ import cz.incad.kramerius.service.ResourceBundleService;
 
 public class ResourceBundleServiceImpl implements ResourceBundleService {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ResourceBundleServiceImpl.class.getName());
-    
-	@Inject(optional = true)
-	@Named("workingDir")
-	private String workingDir;
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger
+            .getLogger(ResourceBundleServiceImpl.class.getName());
 
-	@Override
-	public File bundlesFolder() {
-		String dirName = Constants.WORKING_DIR + File.separator + "bundles";
-		if (workingDir != null)
-			dirName = workingDir + File.separator + "bundles";
-		File dir = new File(dirName);
-		if (!dir.exists()) {
-			boolean created = dir.mkdirs();
-			if (!created)
-				throw new RuntimeException("cannot create dir '"
-						+ dir.getAbsolutePath() + "'");
-		}
-		return dir;
-	}
+    @Inject(optional = true)
+    @Named("workingDir")
+    private String workingDir;
 
-	@Override
-	public ResourceBundle getResourceBundle(final String name,
-			final Locale locale) throws IOException {
-		LOGGER.fine("resource bundle "+name+"  "+locale);
-	    final File resourcesDir = checkFiles(name);
-		return ResourceBundle.getBundle(name, locale, new ResourceClassLoader(
-				resourcesDir));
-	}
+    @Override
+    public File bundlesFolder() {
+        String dirName = Constants.WORKING_DIR + File.separator + "bundles";
+        if (workingDir != null)
+            dirName = workingDir + File.separator + "bundles";
+        File dir = new File(dirName);
+        if (!dir.exists()) {
+            boolean created = dir.mkdirs();
+            if (!created)
+                throw new RuntimeException("cannot create dir '"
+                        + dir.getAbsolutePath() + "'");
+        }
+        return dir;
+    }
 
-	public File checkFiles(String name) throws IOException {
-		File resourcesDir = bundlesFolder();
-		createDefault(name);
-		return resourcesDir;
-	}
+    @Override
+    public ResourceBundle getResourceBundle(final String name,
+            final Locale locale) throws IOException {
+        LOGGER.fine("resource bundle " + name + "  " + locale);
+        final File resourcesDir = checkFiles(name);
+        return ResourceBundle.getBundle(name, locale, new ResourceClassLoader(
+                resourcesDir));
+    }
 
-	private void createDefault(String name) throws IOException {
-		// TODO Auto-generated method stub
-		String bundleName = name + ".properties";
-		File pfile = new File(bundlesFolder(), bundleName);
-		if (!pfile.exists()) {
-			Properties properties = new Properties();
-			boolean created = pfile.createNewFile();
-			if (!created) {
-				throw new IOException("cannot create file '"
-						+ pfile.getAbsolutePath() + "'");
-			}
-			FileOutputStream fos = new FileOutputStream(pfile);
-			properties.store(fos, "Default resource bundle");
-		}
-	}
+    public File checkFiles(String name) throws IOException {
+        File resourcesDir = bundlesFolder();
+        createDefault(name);
+        return resourcesDir;
+    }
 
-	public static class ResourceClassLoader extends ClassLoader {
-		/**
-		 * Charset used when reading a properties file.
-		 */
-		private static final String CHARSET = "UTF-8";
+    private void createDefault(String name) throws IOException {
+        // TODO Auto-generated method stub
+        String bundleName = name + ".properties";
+        File pfile = new File(bundlesFolder(), bundleName);
+        if (!pfile.exists()) {
+            Properties properties = new Properties();
+            boolean created = pfile.createNewFile();
+            if (!created) {
+                throw new IOException("cannot create file '"
+                        + pfile.getAbsolutePath() + "'");
+            }
+            FileOutputStream fos = new FileOutputStream(pfile);
+            properties.store(fos, "Default resource bundle");
+        }
+    }
 
-		/**
-		 * Buffer size used when reading a properties file.
-		 */
-		private static final int BUFFER_SIZE = 2000;
+    public static class ResourceClassLoader extends ClassLoader {
+        /**
+         * Charset used when reading a properties file.
+         */
+        private static final String CHARSET = "UTF-8";
 
-		private File folder;
+        /**
+         * Buffer size used when reading a properties file.
+         */
+        private static final int BUFFER_SIZE = 2000;
 
-		public ResourceClassLoader(File folder) {
-			super();
-			this.folder = folder;
-		}
+        private File folder;
 
-		static InputStream readUTFStreamToEscapedASCII(InputStream is)
-				throws IOException {
-			Reader reader = new InputStreamReader(is, CHARSET);
+        public ResourceClassLoader(File folder) {
+            super();
+            this.folder = folder;
+        }
 
-			StringBuilder builder = new StringBuilder(BUFFER_SIZE);
-			char[] buffer = new char[BUFFER_SIZE];
+        static InputStream readUTFStreamToEscapedASCII(InputStream is)
+                throws IOException {
+            Reader reader = new InputStreamReader(is, CHARSET);
 
-			while (true) {
-				int length = reader.read(buffer);
+            StringBuilder builder = new StringBuilder(BUFFER_SIZE);
+            char[] buffer = new char[BUFFER_SIZE];
 
-				if (length < 0)
-					break;
+            while (true) {
+                int length = reader.read(buffer);
 
-				for (int i = 0; i < length; i++) {
-					char ch = buffer[i];
+                if (length < 0)
+                    break;
 
-					if (ch <= '\u007f') {
-						builder.append(ch);
-						continue;
-					}
+                for (int i = 0; i < length; i++) {
+                    char ch = buffer[i];
 
-					builder.append(String.format("\\u%04x", (int) ch));
-				}
-			}
+                    if (ch <= '\u007f') {
+                        builder.append(ch);
+                        continue;
+                    }
 
-			reader.close();
+                    builder.append(String.format("\\u%04x", (int) ch));
+                }
+            }
 
-			byte[] resourceContent = builder.toString().getBytes();
+            reader.close();
 
-			return new ByteArrayInputStream(resourceContent);
-		}
+            byte[] resourceContent = builder.toString().getBytes();
 
-		@Override
-		public InputStream getResourceAsStream(String name) {
-		    LOGGER.fine("reading stream '"+name+"'");
-		    // TODO: HACK - do it another way
-		    if (name.endsWith("_en.properties")) name = name.substring(0, name.length() - "_en.properties".length())+".properties";
-		    InputStream defaultPropsInputStream = null;
-			InputStream filePropsInputStream = null;
-			try {
-			    File propsFile = new File(this.folder, name);
+            return new ByteArrayInputStream(resourceContent);
+        }
 
-			    Properties defaultProps = new Properties();
-				
-				defaultPropsInputStream = this.getClass().getClassLoader().getResourceAsStream(name);
-				if (defaultPropsInputStream !=null || propsFile.exists()) {
-	                defaultProps.load(new InputStreamReader(defaultPropsInputStream, CHARSET));
+        @Override
+        public InputStream getResourceAsStream(String name) {
+            LOGGER.fine("reading stream '" + name + "'");
+            if (name.endsWith("_en.properties"))
+                name = name.substring(0,
+                        name.length() - "_en.properties".length())
+                        + ".properties";
+            InputStream defaultPropsInputStream = null;
+            InputStream filePropsInputStream = null;
+            try {
+                File propsFile = new File(this.folder, name);
 
-	                Properties fileProps = new Properties();
-	                if (propsFile.exists()) {
-	                    filePropsInputStream = new FileInputStream(propsFile);
-	                    fileProps.load(new InputStreamReader(filePropsInputStream, CHARSET));
-	                }
-	                
-	                Set<Object> keySet = defaultProps.keySet();
-	                for (Object key : keySet) {
-	                    if (!fileProps.containsKey(key)) {
-	                        fileProps.setProperty(key.toString(), defaultProps.getProperty(key.toString()));
-	                    }
-	                }
-	                
-	                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-	                fileProps.store(bos, "");
+                Properties defaultProps = new Properties();
 
-	                return readUTFStreamToEscapedASCII(new ByteArrayInputStream(
-	                        bos.toByteArray()));
-				} else return null;
+                defaultPropsInputStream = this.getClass().getClassLoader()
+                        .getResourceAsStream(name);
+                if (defaultPropsInputStream != null || propsFile.exists()) {
+                    defaultProps.load(new InputStreamReader(
+                            defaultPropsInputStream, CHARSET));
 
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} finally {
-				try {
-					if (defaultPropsInputStream != null) {
-						defaultPropsInputStream.close();
-					}
-				} catch (IOException e) {
-					LOGGER.log(Level.SEVERE, e.getMessage(), e);
-				}
-				try {
-					if (filePropsInputStream != null) {
-						filePropsInputStream.close();
-					}
-				} catch (IOException e) {
-					LOGGER.log(Level.SEVERE, e.getMessage(), e);
-				}
-			}
-			return null;
-		}
+                    Properties fileProps = new Properties();
+                    if (propsFile.exists()) {
+                        filePropsInputStream = new FileInputStream(propsFile);
+                        fileProps.load(new InputStreamReader(
+                                filePropsInputStream, CHARSET));
+                    }
 
-		@Override
-		protected URL findResource(String name) {
-			return null;
-		}
+                    Set<Object> keySet = defaultProps.keySet();
+                    for (Object key : keySet) {
+                        if (!fileProps.containsKey(key)) {
+                            fileProps.setProperty(key.toString(),
+                                    defaultProps.getProperty(key.toString()));
+                        }
+                    }
 
-		@Override
-		protected Enumeration<URL> findResources(String name)
-				throws IOException {
-			Enumeration<URL> elements = new Vector().elements();
-			return elements;
-		}
-	}
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    fileProps.store(bos, "");
+
+                    return readUTFStreamToEscapedASCII(new ByteArrayInputStream(
+                            bos.toByteArray()));
+                } else
+                    return null;
+
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } finally {
+                try {
+                    if (defaultPropsInputStream != null) {
+                        defaultPropsInputStream.close();
+                    }
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+                try {
+                    if (filePropsInputStream != null) {
+                        filePropsInputStream.close();
+                    }
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected URL findResource(String name) {
+            return null;
+        }
+
+        @Override
+        protected Enumeration<URL> findResources(String name)
+                throws IOException {
+            Enumeration<URL> elements = new Vector().elements();
+            return elements;
+        }
+    }
 
 }

@@ -1,0 +1,16 @@
+<div>
+    <div  class="registration">
+        <div>
+            #parse("registration_form.vm")
+        </div>
+        <div class="footer"> 
+            <div class="right">
+                <div class="buttons">
+                    <div class="button" data-ctx="selection" style="" onclick="__register();">
+                        #translatable('application.registerbutton')
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

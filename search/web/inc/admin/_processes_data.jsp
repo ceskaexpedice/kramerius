@@ -324,6 +324,12 @@ $(document).ready(function(){
 
             <tr>
                 <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
+                <td><label for="filter-state"><view:msg>administrator.processes.filter.loginname</view:msg>:</label></td>
+                <td><input type="text" name="loginname" class="filter-vals like" value="${processView.loginNameLike}"></input></td>
+            </tr>
+
+            <tr>
+                <td><span class="ui-icon ui-icon-triangle-1-e"></span></td>
                 <td><label for="filter-state"><view:msg>administrator.processes.filter.pname</view:msg>:</label></td>
                 <td><input type="text" name="name" class="filter-vals like" value="${processView.nameLike}"></input></td>
             </tr>

@@ -1,0 +1,22 @@
+
+<!-- OCR  -->
+<div class="ocr" style="position:absolute;display:none;">
+
+    <div id="ocr_container" class="dialogs_content">  
+        <div>
+            <label data-key="application.url">OCR</label> 
+        </div> 
+        <div id="ocr_data_parent">
+            <textarea  id="ocr_data">
+            </textarea>
+        </div>
+    </div>
+
+    <div class="ocr_footer dialogs_footer">
+        <div class="right">
+            <div class="buttons">
+                <div class="button" onclick="cleanWindow();">#translatable('common.close')</div>
+            </div>
+        </div>
+    </div>
+</div>

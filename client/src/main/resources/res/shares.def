@@ -1,0 +1,21 @@
+[
+        {
+            "name":"persistenturl",
+            "i18nkey":"ctx.actions.persistenturl",
+            "icon":"link",
+            "object":"PersistentURL"
+        },
+        {
+            "name":"fb",
+            "i18nkey":"ctx.actions.sites.fb",
+            "icon":"fb",
+            "object":"FacebookShare"
+        },
+        {
+            "name":"gplus",
+            "i18nkey":"ctx.actions.sites.gp",
+            "icon":"gplus",
+            "object":"GooglePlusShare"
+        }
+]
+

@@ -1,0 +1,54 @@
+
+@media (max-width: 900px) {
+
+        #header  #largedisplay {
+                display:none;
+        }
+
+        #viewer .actions {
+                width: 45%;
+        }
+
+        #viewer .searchinside {
+                width: 45%;
+        }
+
+        #acts_container ul li {
+                margin-top: 0.6em;
+        }
+
+        #header #smalldisplay {
+                display:block;
+                position:absolute;
+                right: 5px;
+                margin-top:5px;
+                display: inline-block;
+        }
+
+        #header #smalldisplay div.showmore {
+                display: inline-block;
+        }
+
+
+        #ctxmenu-printpart {
+                display:none;        
+        }
+        
+}
+@media (max-width: 760px) {
+        #header {
+        }
+
+        #largedisplay {
+                display:none;
+        }
+
+        #header div.buttons {
+                display:none;
+        }
+
+        #viewer .actions {
+                left: 130px;        
+        }
+
+ }

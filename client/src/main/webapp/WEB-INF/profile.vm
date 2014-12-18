@@ -1,0 +1,34 @@
+<div class="actions" id="prfl_dialog" style="display:none;">
+
+        <div class="triangle"></div>
+
+        <div class="prfl_header"> 
+            <div id="prfl_text"> </div>
+         </div>
+
+        <div id="prfl_content" style="">
+            <div>
+                <h3>#translatable('common.favorites')</h3>
+            </div>
+
+            <div id="prfl_content_favorites">
+            </div>
+
+        </div>
+
+        <div class="prfl_footer">
+            <div class="right">
+                <div class="buttons">
+                    <div class="button" data-ctx="item" style="display:none" onclick="K5.authentication.profileDisplay.appendCurrentToFavorites(true);">#translatable('ctx.actions.addtofavorites')</div> 
+                    <div class="button" data-ctx="dirty" onclick="K5.authentication.profileDisplay.store();">#translatable('common.saveandclose')</div>
+                    <div class="button" onclick="K5.authentication.profileDisplay.close();">#translatable('common.close')</div>
+                </div>
+            </div>
+
+            <div class="left">
+                <div class="buttons">
+                    <div class="button" onclick="K5.authentication.logoutAndRedirect('index.vm');">#translatable('application.logout')</div>
+                </div>
+            </div>
+        </div>
+</div>

@@ -1,0 +1,102 @@
+<style>
+
+#login_box{
+    z-index: 3;
+    top:2px;
+    left: 2px;
+    width: 100%;
+}
+
+#login_box input{
+    font-size: 2.2em;
+    background: rgba(255, 255, 255, 0.9);
+    border: 0px solid #0e70b3;
+    width: 100%;
+}
+
+#login_box input:hover{
+    background: rgba(255, 255, 255, 1);
+}
+
+
+#login_box div.alternatives ul{
+    margin-top:0px;
+}
+
+
+#login_box div.alternatives{
+    border-top:1px solid white;
+    margin-top:1em;
+}
+
+#login_box div.alternatives ul {
+    padding-left:0px;
+    margin-top:.3em;
+}
+
+#login_box div.alternatives li {
+    display:inline-block;
+}
+
+.login_error {
+    color:red;
+}
+
+</style>
+
+<div id="login_box">
+<span>
+
+
+<form id="login_form" name="login_form">
+    <label>Prihlasovaci jmeno:</label>
+    <input id="username" name="username" placeholder="Tve jmeno" value="" />
+    <label>Prihlasovaci heslo:</label>
+    <input id="password" name="password" placeholder="Tve heslo" value="" type="password" />
+</form>
+
+<span>
+
+    <script type="text/javascript">
+    
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+        
+    
+        function __loginbutton() {
+            var lname = $("#username").val();
+            var pswd =  $("#password").val();
+            K5.authentication.loginAndRedirect(lname,pswd, 'index.vm', 'index.vm?page=login&error=true'); 
+        }
+
+        function __gplus() {
+            window.location.assign('authentication?action=socialLogin&provider=googleplus');
+        }
+
+        function __fb() {
+            window.location.assign('authentication?action=socialLogin&provider=facebook');
+        }
+
+        $( document ).ready( function() {
+            var err = getParameterByName("error");
+            if (err === "true") {
+                $("#login_box_error").show();
+            }
+        });
+
+    </script>
+
+    <div class="button" onclick="__loginbutton()">
+        <a href="javascript:__loginbutton()">#translatable('login.button')</a>
+    </div>
+
+<div id="login_box_error" class="login_error" style="display:none">#translatable('login.error')</span>
+</div>
+
+
+</span>
+</div>

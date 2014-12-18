@@ -22,6 +22,7 @@ import org.w3c.dom.Document;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
 
 /**
  * Implementation of this interface holds information 
@@ -69,6 +70,8 @@ public interface RightCriteriumContext {
      * @return
      */
     public FedoraAccess getFedoraAccess();
+
+    public SolrAccess getSolrAccess();
     
     public UserManager getUserManager();
     

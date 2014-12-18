@@ -189,7 +189,7 @@
         });
         setScope('scope_multiple');
         $('#scope_single').hide();
-        var s = '<td><div style="float:right" id="selection_options">'+
+        var s = '<td><div style="float:right;" id="selection_options">'+
             '<input type="checkbox" /><span style="float:right;" class="ui-icon ui-icon-triangle-1-s  ">item</span>'+
             '</div></td>';
         var s1 = '<div style="display:none;position:absolute;width:200px;top:75px;clear:both;right:2px;padding:10px;text-align:right;" class="ui-widget-content shadow" id="selection_options_dlg">'+
@@ -198,6 +198,8 @@
             '<div><a style="padding:5px;text-align:right;font-size:1.2em;" href="javascript:selectInvert();">'+dictionary['search.results.select.invert']+'</a></div>'+
             '</div>';
         $('#docs_content>div.header>table>tbody>tr').append(s);
+        
+        
         $('#docs_content').append(s1);
         $('#selection_options>span').click(function(){
             $('#selection_options_dlg').toggle();

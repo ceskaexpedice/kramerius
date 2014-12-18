@@ -1,0 +1,22 @@
+<div id="login">
+    <div class="loginbox">
+        <div>
+            <h3> #translatable('login.display') </h3>
+        </div>
+
+        #parse("login_form.vm")
+
+        <div id="login_register_option">
+
+        <div class="register_text">
+            #translatable('login.registrationtext')
+        </div>
+        
+        <div class="button" onclick="link('?page=registration')">
+            #translatable('application.registration')
+        </div>
+
+        </div>
+        
+    </div>
+</div>

@@ -1,0 +1,2724 @@
+/*
+#**
+  - Stylesheet parameters and properties definition -
+*#
+#set( 
+    $params = {
+        "inactiveColor"         : "rgba(14, 112, 179, 0.3)",
+        "activeColor"           : "rgba(0, 30, 60, 0.9)",
+        "rowBackground"         : "rgba(14, 112, 179, 0.03)",
+        "thumbBackground"       : "rgba(14, 112, 179, 0.1)",
+        "textColor"             : "white",
+
+        "svg.stroke"            :  "rgba(174, 207, 229, 1)",
+        "svg.stroke.hover"      :  "white",
+        "svg.fill"              :  "none",
+        "svg.fill.hover"        :  "rgba(0, 30, 60, 0.9)",
+
+        "policy.public.color"   : "#00dd00",
+        "policy.private.color"  :"#dd0000",
+
+
+        "hitColor"              :  "rgba(0, 30, 60, 0.7)",
+
+        "chitColor"             :   "rgba(0, 30, 60, 1)",
+
+        "hl.text.color"         : "#767676",
+        "hl.hit.color"          : "#763636",
+
+                
+        "menu.dialogs.width"    : "25%"
+    })
+*/
+html {
+   height:100%;
+}
+body {
+    font-family: 'Exo 2', Verdana, Arial, Helvetica, Tahoma;
+    font-size:11px;
+    color:#0B0F0A;
+    background:#F7F7F7;
+    margin:0px;
+    overflow: hidden;
+    position: relative;
+    height:100%;    
+}
+
+/*
+body * {
+    position: relative;
+}*/
+
+.button {
+        cursor: pointer;
+}
+
+.link{
+        cursor: pointer;
+}
+
+.link:hover{
+        text-decoration: underline;
+}
+
+#band {
+    position: relative;
+}
+
+.content{
+
+    position: absolute;
+    margin-top: 40px;
+    width: 100%;
+}
+
+
+#header{
+    position: absolute;
+    height: 40px;
+    width: 100%;
+    color: rgba(180, 180, 180, 0.4);
+    background-color: $params.activeColor;
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+    float: left;
+    z-index: 4;
+    vertical-align: middle;
+}
+
+#header a{
+    color: inherit;
+    text-decoration: none;
+}
+
+#header:hover{
+    color: $params.textColor;
+    background-color: $params.activeColor;
+}
+
+#header div.buttons{
+    position:relative;
+    left: 5px;
+    top: -8px;
+    display: inline-block;
+    margin-top:5px;
+}
+
+
+#header .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+#header div.contextbuttons{
+    position:relative;
+    left: 50px;
+    display: inline-block;
+    margin-top:0px;
+    cursor: pointer;
+}
+
+
+#header div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+}
+
+#header div.contextbuttons>div.small{
+    display: inline-block;
+    padding: 0px;
+    margin-top:5px;
+}
+
+#header div.select{
+    padding: 0px;
+}
+
+#header select{
+    border: none;
+    background: transparent;
+    color: inherit;
+    height: 23px;
+}
+
+#header option{
+    color: black;
+}
+
+#header div.icon{
+    margin-top:3px;
+}
+
+#header div.button:hover{
+    border-color: rgba(255, 255, 255, 1);
+}
+#header div.right{
+    position:absolute;
+    right: 5px;
+    margin-top:5px;
+    display: inline-block;
+}
+
+#header>div.logo{
+    margin-left:-207px;
+    margin-top:6px;
+    display:inline-block;
+    margin-right:10px;
+}
+
+#search_box{
+    z-index: 3;
+    top:2px;
+    left: 2px;
+    width: 100%;
+}
+#search_box input{
+    font-size: 2.2em;
+    background: rgba(255, 255, 255, 0.9);
+    border: 0px solid #0e70b3;
+    width: 95%;
+}
+#search_box input:hover{
+    background: rgba(255, 255, 255, 1);
+}
+
+#rows  div.scroll { 
+    overflow:hidden;
+    width:100%; 
+    height:100%;
+    position: relative;
+
+}
+
+
+#rows .row{
+    overflow:hidden;
+    margin: 15px 0 10px 0;
+    position: relative;
+    padding:10px 20px 10px 10px;
+    border: solid 1px transparent;
+    background-color: transparent;
+
+}
+
+#rows .row:hover{
+    /*box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px 0px;*/
+}
+
+#rows .row .container{
+    position: absolute;
+    top: 0;
+    left:0;
+}
+#rows .row div.scroll { 
+    overflow:hidden;
+    width:100%; 
+    height:146px;
+    position: relative;
+
+}
+#rows  ul { 
+    white-space: nowrap;
+    height: 140px;
+    margin: 0 0 0 34px;
+    padding: 0;
+}
+
+#rows li.thumb{
+    white-space: normal;
+    display: inline-block;
+    list-style:none;
+    margin: 2px 5px 2px 5px;
+    height: 135px;
+    padding: 5px;
+    vertical-align: top;
+    position:relative;
+}
+.thumb img{
+    box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px 0px;
+    height: 100%;
+}
+.thumb>img:hover{
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 15px 0px;
+    transform: translate(-2px,-2px);
+    -ms-transform: translate(-2px,-2px); /* IE 9 */
+    -webkit-transform: translate(-2px,-2px); /* Safari and Chrome */
+
+}
+#rows li.thumb>div.img{
+    float: left;
+}
+.thumb>div.info{
+    margin: 0 0 0 5px;
+    float: left;
+    max-width:128px;
+    height: 136px;
+}
+
+
+
+
+div.policy{
+    height:20; 
+    width:20;  
+    position:absolute;
+    right: 0;
+    bottom:0;
+}
+div.policy:before{
+    content:''; 
+    height:0; 
+    width:0; 
+    display:block; 
+    border:8px transparent solid; 
+    border-top-width:0; 
+    border-right-width:0;  
+    position:absolute;  
+    right:6px; 
+    bottom:6px;
+    border-bottom-color: $params.get("policy.private.color");
+}
+
+div.public:before{
+    border-bottom-color: $params.get("policy.public.color");
+}
+
+
+li.policy:before{
+    content:''; 
+    height:0; 
+    width:0; 
+    display:block; 
+    border:7px transparent solid; 
+    border-top-width:0; 
+    border-right-width:0;  
+    position:absolute;  
+    right:0; 
+    bottom:0;
+    border-bottom-color: $params.get("policy.private.color");
+}
+
+li.public:before{
+    border-bottom-color: $params.get("policy.public.color");
+}
+
+
+.ui-tooltip{
+    font-size:1.1em;
+}
+
+.thumb .title, .ui-tooltip .title{
+    font-weight: bold;
+    font-size:1.1em;
+}
+
+.thumb .autor{
+    font-style:italic;
+}
+
+#rows div.button{
+    top: 20px;
+    z-index: 20;
+    position: absolute;
+}
+
+
+#rows .button .svg-icon{
+    /* fill: $params.get("svg.fill.hover"); 
+    opacity: 0.2; */
+}
+#rows .button:hover .svg-icon{
+    fill: $params.get("svg.fill.hover"); 
+    opacity: 1;
+}
+
+#rows div.arrow{
+    background-color: rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 50px;
+    width: 20px;
+    height: 126px;
+    z-index: 22;
+}
+
+
+#rows div.arrow{
+    height:36px; 
+    width:36px; 
+    border:2px solid rgba(0, 0, 0, 0.2);
+    border-radius:40px;
+    -webkit-border-radius:40px;
+    -moz-border-radius:40px;}
+
+#rows div.arrow:before{
+    content:'';     
+    height:0; 
+    width:0; 
+    display:block; 
+    border:10px transparent solid; 
+    border-right-width:0; 
+    border-left-color: rgba(0, 0, 0, 0.4);
+    position:absolute; 
+    top:8px; 
+    left:14px;
+}
+
+#rows div.arrow:hover{
+    background:#333; border-radius:40px;-webkit-border-radius:40px;-moz-border-radius:40px;
+
+
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 10px 0px;
+    transform: translate(-2px,-2px);
+    -ms-transform: translate(-2px,-2px); /* IE 9 */
+    -webkit-transform: translate(-2px,-2px); /* Safari and Chrome */
+
+}
+
+#rows div.arrow:hover:before{
+    content:''; 
+    height:0; 
+    width:0; 
+    display:block; 
+    border:10px transparent solid; 
+    border-right-width:0; 
+    border-left-color:#fff; 
+    position:absolute; 
+    top:8px; 
+    left:14px;}
+
+#rows div.arrowLeft{
+    left: 24px;
+
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(-180deg);
+    -o-transform: rotate(-180deg);
+    -ms-transform:rotate(-180deg);
+
+}
+
+#rows div.arrowLeft:hover{
+
+    transform: translate(-2px,-2px);
+    -ms-transform: translate(-2px,-2px); /* IE 9 */
+    -webkit-transform: translate(-2px,-2px); /* Safari and Chrome */
+
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(-180deg);
+    -o-transform: rotate(-180deg);
+    -ms-transform:rotate(-180deg);
+
+}
+
+#rows div.arrowRight{
+    right: 25px;
+}
+#rows div.rowtitle{
+    background-color: #aaaaaa;
+    color: #ffffff;
+    text-align: center;
+    font-size: 2em;
+    height: initial;
+    width: 166px;
+    position: absolute;
+    left:-166px;
+    top:0;
+    cursor: pointer;
+
+    -webkit-transform: rotate(-90deg);
+    -webkit-transform-origin: 100% 0%;
+    -moz-transform: rotate(-90deg);
+    -moz-transform-origin: 100% 0%;
+    -o-transform: rotate(-90deg);
+    -o-transform-origin: 100% 0%;
+    -ms-transform:rotate(-90deg);
+    -ms-transform-origin: 100% 0%;
+
+}
+
+#rows div.total{
+    background-color: #aaaaaa;
+    color: #ffffff;
+    text-align: center;
+    font-size: 2em;
+    height: 24px;
+    width: 166px;
+    position: absolute;
+    right:24px;
+    top:0;
+    cursor: pointer;
+
+    -webkit-transform: rotate(-90deg);
+    -webkit-transform-origin: 100% 0%;
+    -moz-transform: rotate(-90deg);
+    -moz-transform-origin: 100% 0%;
+    -o-transform: rotate(-90deg);
+    -o-transform-origin: 100% 0%;
+    -ms-transform:rotate(-90deg);
+    -ms-transform-origin: 100% 0%;
+
+}
+
+
+#facets{
+    left:initial;
+    right: -460px; 
+    top:35px;
+    height: 500px;
+    overflow: auto;
+    font-size: 1.2em;
+    width: initial;
+}
+
+#facets.pin .pin{
+}
+#facets.pin .pin *{
+    stroke:white; 
+}
+
+#facets .more{
+    display: none;
+}
+
+#facets a{
+    color:inherit;
+    text-decoration: inherit;
+}
+
+#facets span.count{
+    float:right;
+    text-decoration: inherit;
+    margin-left: 40px;
+}
+
+#facets .res:hover{
+    text-decoration: underline;
+}
+
+
+/* Viewer styles */
+
+
+#viewer{
+    position:relative;
+    left: 0px;
+    top: 0px;
+    background-color: #F5F5F5;
+    width: 100%;
+    height: calc(100% - 20px);
+    overflow: hidden;
+}
+
+
+/** actions section */
+#viewer .actions{
+    /*top: -500px; */
+        width: $params.get("menu.dialogs.width");
+        height: 22em;
+        background-color: $params.activeColor;
+        z-index: 43;
+        left: 260px; 
+        color: white;
+}
+
+#viewer .actions .triangle {
+        width:0; 
+        height:0; 
+        border-left: 10px solid transparent; 
+        border-right: 10px solid transparent; 
+        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        background-color: transparent;
+        color: transparent;
+        position: absolute;
+        top: -10px;
+        z-index: 23;
+        right: 125px;
+}
+
+#viewer .actions .acts_header {
+        height: 50px;
+        margin-top: 0.4em;
+        color: inherit;
+        text-align: center;
+        border-bottom: 1px solid white;
+}
+
+#item_share_btn {
+        position:absolute;
+        bottom: 20px;
+        left: 145px;
+}
+
+#item_share_btn label.entypo-export {
+        border-radius: 0px;
+}
+
+
+#acts_container  {
+}
+
+#acts_container > div {
+    font-size: 1.3em;
+    width:100%;
+    position:absolute;    
+}
+
+#acts_container  ul {
+        list-style: none;
+        font-size: 1.1em;
+        padding-left: 1em;
+}
+
+#acts_container  ul li:before {
+        content: "\203A";
+        padding-right: 15px;
+}
+
+#acts_container  ul li {
+        margin-top: .2em;
+}
+
+#acts_container a {
+        color: inherit;
+        text-decoration: none;
+}
+
+#acts_header_text {
+        color: inherit;
+        text-align: center;
+        font-size: 2.2em; 
+}
+
+
+#viewer div.acts_footer {
+}
+
+
+#viewer div.acts_footer div.buttons{
+        position:relative;
+        left: 5px;
+        top: 0px;
+        display: inline-block;
+        margin-top:5px;
+}
+
+#viewer div.acts_footer a {
+        color: inherit;
+        text-decoration: none;
+}
+
+#viewer div.acts_footer .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+#viewer div.acts_footer div.button{
+        display: inline-block;
+        border: solid 1px rgba(180, 180, 180, 0.4);
+        padding: 5px;
+}
+
+#viewer div.acts_footer div.button a {
+        color: inherit;
+        text-decoration: none;
+}
+
+
+#viewer  div.acts_footer div.right{
+        position:absolute;
+        right: 15px;
+        margin-top:5px;
+        display: inline-block;
+}
+
+
+#vwr_ctx_pin {
+        display:none;
+}
+
+#vwr_ctx_actions {
+        margin-left:0.8em;        
+}
+
+#vwr_ctx_metadata {
+        margin-left:0.8em;        
+}
+
+#vwr_ctx_removeclipboard {
+        margin-left:0.8em;        
+}
+
+#vwr_ctx_share {
+        margin-left:0.8em;        
+}
+
+#vwr_ctx_fitpage {
+        margin-left:0.8em;        
+}
+
+#vwr_ctx_addclipboard {
+        margin-left:0.8em;        
+}
+/** end of actions section */
+
+
+/** searchinside section */
+#viewer .searchinside{
+        width: $params.get("menu.dialogs.width");
+        height: 9em;
+        background-color: $params.activeColor;
+        z-index: 43;
+        left: 260px; 
+        color: white;
+}
+
+#viewer .searchinside .triangle {
+        width:0; 
+        height:0; 
+        border-left: 10px solid transparent; 
+        border-right: 10px solid transparent; 
+        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        background-color: transparent;
+        color: transparent;
+        position: absolute;
+        top: -10px;
+        z-index: 23;
+        right: 125px;
+}
+
+#searchinside_container  {
+        margin-top: 12px;
+        margin-left: 4px;
+}
+
+
+#viewer div.searchinside_footer {
+}
+
+#viewer div.searchinside_footer div.buttons{
+    position:relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top:5px;
+}
+
+#viewer div.searchinside_footer a {
+        color: inherit;
+        text-decoration: none;
+}
+
+#viewer div.searchinside_footer .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+#viewer div.searchinside_footer div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+}
+
+#viewer div.searchinside_footer div.right{
+    position:absolute;
+    right: 15px;
+    margin-top:5px;
+    display: inline-block;
+}
+/** end of searchinside section */
+
+
+
+/** metadata section */
+#viewer .infobox{
+    /*top: -500px; */
+        width:33%;
+        height: 22em;
+        background-color: $params.activeColor;
+        z-index: 43;
+        left: 225px; /* ?? */
+        color: white;
+        font-size: 1.5em;
+}
+
+.infobox div.right{
+    position: absolute;
+    float:right;
+    right: 10px;
+}
+
+#viewer .infobox div.right .small{
+    display: inline-block;
+}
+
+#viewer .infobox h4{
+    margin-top:0;;
+}
+
+#viewer div.mtd_footer {
+}
+
+#viewer div.mtd_footer div.buttons{
+    position:relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top:5px;
+}
+
+#viewer div.mtd_footer  a {
+        color: inherit;
+        text-decoration: none;
+}
+
+#viewer div.mtd_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+#viewer div.mtd_footer  div.button{
+        display: inline-block;
+        border: solid 1px rgba(180, 180, 180, 0.4);
+        padding: 5px;
+
+}
+
+#viewer div.mtd_footer  div.button a {
+        color: inherit;
+        text-decoration: none;
+}
+
+
+#viewer  div.mtd_footer  div.right{
+        position:absolute;
+        right: 15px;
+        margin-top:5px;
+        display: inline-block;
+        /** override 1.5em; */
+        font-size: 11px;
+}
+
+#mtd_footer_triangle {
+        width:0; 
+        height:0; 
+        border-left: 10px solid transparent; 
+        border-right: 10px solid transparent; 
+        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        background-color: transparent;
+        color: transparent;
+        position: absolute;
+        top: -10px;
+        z-index: 23;
+        right: 225px;
+}
+/** end of metadata section */
+
+
+/** basic information */
+.infobox{
+    position:absolute; 
+    top: 150px;
+    left: 90px;
+
+    width: 50%;
+    border:0px solid rgba(0, 0, 0, 0.3);
+    color: $params.textColor;
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+    font-size: 1.5em;
+    padding: 15px;
+    background-color: $params.activeColor;
+}
+
+.infobox:hover{
+    background-color: $params.activeColor;
+}
+/** end of basic information */
+
+
+/** loginbox section */
+.loginbox {
+    position:absolute; 
+    top: 50px;
+    left: 90px;
+
+    width: 50%;
+    border:0px solid rgba(0, 0, 0, 0.3);
+    color: $params.textColor;
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+    font-size: 1.5em;
+    padding: 15px;
+    background-color: $params.activeColor;
+}
+
+.loginbox:hover{
+    background-color: $params.activeColor;
+}
+/** end of loginbox section */
+
+
+#viewer .pages{
+    top: 50px;
+}
+
+
+
+/** breadcrumbs section */
+#viewer div.breadcrumbs{
+    position:relative;
+    height: 20px;
+    margin-left: 10px;
+    margin-top: 40px;
+    display: table;
+    font-size: 1.2em;
+    overflow:hidden;
+}
+
+#viewer div.breadcrumbs>div{
+    margin-top: 5px;
+    display: table-cell;
+    vertical-align: bottom;
+}
+
+#viewer div.breadcrumbs>div.sep{
+    margin: 0px 5px;
+}
+#viewer div.breadcrumbs div{
+    display: inline-block;
+}
+
+#viewer>div.container{
+    position:absolute;
+    left: 0px;
+    top: 0px;
+    background-color: #F5F5F5;
+    width: 100%;
+    height: calc(100% - 40px);    
+    overflow: auto;
+}
+
+#viewer img.plain{
+    position:absolute; 
+}
+
+
+#viewer .error{
+    position: absolute;
+    display: none;
+    margin: 50%;
+    left: 0; right: 0; top: 0; bottom: 0;
+}
+.loading{
+    background: url(../../images/loading_1.gif) center center no-repeat; 
+    background-color: rgba(0,0,0,0.2);
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    position: relative;
+    cursor: progress;
+    display:none;
+}
+
+#viewer .pages {
+    position: absolute;
+    float:right;
+    right: 10px;
+    top: 10px;
+    width:80%;
+    height:80%;
+}
+
+
+
+/** pro pdf -- vyhodit !! */
+.actionbox {
+    position:absolute; 
+    /*top: 150px;
+    right: 90px;
+    height:40%;
+    width: 30%;*/
+
+    border:0px solid rgba(0, 0, 0, 0.3);
+    color: $params.textColor;
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+    font-size: 1.5em;
+    padding: 15px;
+    background-color: $params.inactiveColor;
+}
+
+.actionbox:hover{
+    background-color: $params.activeColor;
+}
+
+#viewer .actionbox {
+    top: 50px;       
+}
+
+#viewer>div.pin svg.pin .svg-icon{
+    fill: $params.get("svg.fill.hover"); 
+    stroke:$params.get("svg.stroke.hover"); 
+    opacity: 1;
+}
+
+#viewer div.container{
+    margin-top: 60px;
+}
+
+#viewer ul.container{
+    margin: 0;
+    padding: 0;
+}
+
+#viewer li.thumbmarker{
+    list-style: none;
+    float:left;
+    margin-top: 4px;
+    margin-left: 4px;
+    position:relative;
+}
+
+#viewer li.thumb{
+    list-style: none;
+    float:left;
+    margin: 4px;
+    text-align: center;
+    position:relative;
+    background-color: $params.thumbBackground;
+    border: solid 2px transparent;
+    min-height:11mm;
+    min-width:11mm;
+}
+#viewer li.thumb .thumb_info{
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 95%;
+    overflow: hidden;
+    color: #333333;
+    text-align: left;
+    text-overflow: ellipsis;
+}
+#viewer li.thumb .thumb_info span.title{
+    text-shadow: 0 -2px 3px #fff, 2px 0 3px #fff, 0 2px 3px #fff, -2px 0 3px #fff;
+    white-space: nowrap;
+}
+
+
+#viewer li.hit{
+    border: solid 2px $params.hitColor;
+}
+
+#viewer li.hit2:after{
+    content:''; 
+    height:0; 
+    width:0; 
+    display:block; 
+    border:4px transparent solid; 
+    position:absolute;  
+    right:4px; 
+    top:4px;
+    border-radius:4px;
+    -webkit-border-radius:4px;
+    -moz-border-radius:4px;
+    border-color: $params.hitColor;
+}
+#viewer li.chit{
+    border: solid 2px $params.chitColor;
+}
+
+#viewer li.chit2:after{
+    content:''; 
+    height:6; 
+    width:6; 
+    display:
+        block; 
+    border:1px transparent solid; 
+    position:absolute;  
+    right:4px; 
+    top:4px;
+    border-radius:4px;
+    -webkit-border-radius:4px;
+    -moz-border-radius:4px;
+    border-color: $params.chitColor;
+}
+#viewer li.thumb img{
+
+}
+#viewer li.thumb>div.img{
+    margin: 5px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+#viewer div.policy:before {
+    right: 1px;
+    bottom: 1px;
+}
+
+#viewer div.context{
+    padding-top: 5px;
+}
+
+#viewer div.context>div{
+    display:block;
+    margin: 5px;
+}
+
+#viewer div.context>div span{
+    cursor: pointer;
+}
+
+#viewer div.context>div>div{
+    display:inline-block;
+    margin-left:8px;    
+}
+#viewer div.context>div>img{
+    display:inline-block;
+}
+
+#viewer div.context div span:hover{
+    text-decoration: underline;
+}
+
+
+#viewer .pin.infobox{
+    background-color: $params.activeColor;
+}
+
+
+
+#viewer .actions a{
+    text-decoration: none;
+    color: inherit;
+}
+
+#viewer .actions a:hover{
+    text-decoration: none;
+}
+
+
+#viewer .leftarrow {
+    position:absolute;
+    z-index:33;
+    left:0px;
+    height:100%;    
+    display:table;
+    height:100%;    
+}
+
+#viewer  .rightarrow {
+    position:absolute;
+    z-index:33;
+    right:0px;
+    height:100%;    
+    display:table;
+}
+
+#viewer  .rightarrow div {
+    display:table-cell;
+    vertical-align:middle;    
+}
+#viewer  .leftarrow div {
+    display:table-cell;
+    vertical-align:middle;    
+}
+
+
+/** viewer options - rotate, fit, plus, minus */
+#viewer  div.options {
+    position:absolute;
+    top:20px;
+    left:80px;
+    z-index:34;
+    color: rgba(180, 180, 180, 0.4);
+    background-color: $params.activeColor;
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+    
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#viewer  div.options ul {
+    list-style:none;
+    font-size:1.1em;
+    padding-left:0em;
+}
+
+#viewer  div.options ul li {
+    display:inline-block;
+    list-style-type:none;
+}
+
+#viewer  div.options ul li div.small {
+    margin-left:2px;
+    margin-right:2px;
+    cursor: pointer;
+}
+
+/** end of viwer options */
+
+
+#viewer div.container div.arrow svg  {
+    opacity:0.2;
+}
+#viewer div.container div.arrow svg:hover  {
+    opacity:1;
+}
+
+.hl{
+    color: $params.get("hl.text.color");
+    margin-top: 4px;
+    margin-left: 6px;
+}
+.hl em{
+    font-weight: bold;
+    font-style: normal;
+    color: $params.get("hl.hit.color")};
+}
+
+.tt_text{
+    margin-left: 4px;
+    display: inline-block;
+}
+
+.actionbox{
+    color: rgba(3, 3, 3, 0.4);
+    background-color: $params.inactiveColor;
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+}
+
+.actionbox:hover{
+    color: $params.textColor;
+    background-color: $params.activeColor;
+}
+
+.actionbox select {
+    border: none;
+    background: transparent;
+    color: inherit;
+    height: 23px;
+}
+.actionbox  table {
+    border-collapse:collapse
+        width:80%
+}
+
+.actionbox td {
+    vertical-align:bottom
+}
+
+/* home */
+#home{
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;    
+    background-repeat: no-repeat;
+    background-position: 40%;
+}
+
+
+
+#pidinfo{
+    position:absolute;
+    right: 20px;
+    bottom:100px;
+    padding: 10px;
+    max-width: 300px;
+    text-align: center;
+    text-shadow: 0 0 5px #000;
+    /* background-color: $params.activeColor; */
+    color: $params.textColor;
+    font-weight: bold;
+}
+#pidinfo>div.a:hover{
+    text-decoration: underline;
+}
+#pidinfo>div.a{
+    font-size: 1.8em;
+    cursor: pointer;
+}
+#pidinfo>div.details{
+    font-size: 1.5em;
+}
+
+#band{
+    background-color: $params.inactiveColor;
+    width: 100%;
+    height: 170px;
+    position:absolute; 
+    bottom: -147px;
+    transition: bottom 0.3s;
+    -webkit-transition: bottom 0.3s; /* Safari */
+    box-shadow: rgba(0, 0, 0, 0.5) 0px -4px 8px 0px;
+}
+
+#band:hover{
+    /* bottom: 0px;  */
+}
+
+
+#buttons{
+    white-space: nowrap;
+    position:fixed;
+    width: 100%;
+    display: inline-block;
+    background-color: $params.activeColor;
+    text-align: center;
+    padding: 0;
+    z-index:3;
+    bottom: 21px;
+    border-bottom: solid 1px rgba(255,255,255, 0.8);
+}
+
+#buttons div.button{
+    white-space: nowrap;
+    display: inline-block;
+    border-right: solid 1px rgba(255,255,255, 0.8);
+    padding: 3px;
+    width: 33%;
+    color: white;
+    font-size: 1.4em;
+    cursor:pointer;
+}
+
+#buttons div.sel{
+    font-weight: bold;
+}
+
+#buttons div.button:hover{
+    border-color: rgba(255, 255, 255, 1);
+}
+
+#band #rows .row{
+    margin: 0;
+}
+/* end home */
+
+/* collections */
+
+#rows{
+    height:100%;
+}
+#rows .row{
+    background-color: $params.rowBackground;
+    position:relative;
+}
+#rows .row li.thumb{
+    background-color: $params.thumbBackground;
+}
+
+
+
+
+
+/* end collections */
+
+#details h2 {
+    padding:1px;
+    font-size:0.8em;
+}
+
+#details h3 {
+    padding:1px;
+    margin:1px;
+    font-size:1em;
+}
+#details ul li {
+    list-style-type:none
+}
+
+#details ul li h4{
+    margin-top: 0.5em !important;
+    margin-bottom: 0 !important;
+}
+
+.pageType {
+    font-size:0.8em;
+}
+
+/* search results */
+#search_results{
+    position: absolute;
+    margin-top: 40px;
+    width: 100%;
+}
+#search_results_header{
+    margin-top: 2px;
+    padding-left:10px;
+    width: 100%;
+    height: 36px;
+    background-color: rgba(0, 30, 60, 0.1);
+    position: relative;
+}
+#search_results_header .totals{
+    float:left;
+    position:absolute;
+    bottom:5px;
+    font-size: 1.2em;
+}
+
+#search_results_header div.form{
+    position:absolute;
+    width: 200px;
+    margin-top:4px;
+    right:70px;
+    display: inline-block;
+    font-size: 0.6em;
+}
+
+#search_results_header div.right{
+    position:absolute;
+    right: 5px;
+    margin-top:2px;
+    display: inline-block;
+}
+#search_results_header div.right div{
+    display: inline-block;
+}
+
+#search_results_docs{
+    text-align: center;
+    overflow: auto;
+    display:block;
+    height: auto;
+}
+
+#search_results .search_result{
+    display:inline-block;
+    overflow: hidden;
+    position:relative;
+}
+
+#search_results .search_result .collapsed{
+    float: left;
+    /* position: absolute; */
+    bottom: 10;
+    right: 15;
+
+    margin: 0 0 0 5px;
+    /* text-align: right; */
+    clear: both;
+}
+
+#search_results .full{
+    display:none;
+}
+#search_results div.short{
+    display:inline-block;
+}
+
+#search_results .as_row{
+    display:block;
+    width: 100%;
+}
+
+
+#search_results .as_row div.full{
+    display:inline-block;
+}
+
+#search_results .as_row div.short{
+    display:none;
+}
+
+
+#search_results .as_row div.thumb{
+    width: 100%;
+}
+
+#search_results .as_row div.thumb > div.info{
+    max-width: 100%;
+}
+
+.search_result div.thumb{
+    background-color: rgba(0, 30, 60, 0.1);
+    margin:5px;
+    padding:5px;
+    float:left;
+}
+
+.search_result div.thumb>div.img{
+    float:left;
+}
+.search_result div.thumb>div.img>img{
+    max-height: 128px;
+}
+
+
+.search_result div.thumb>div.info{
+    margin: 0 0 0 5px;
+    display:inline-block;
+    max-width:140px;
+    height: 136px;
+    text-align: left;
+}
+
+#browse{
+    top: 40px;
+    position: absolute;
+    overflow:hidden;
+    height: calc(100% - 48px);
+    width: 100%;
+}
+
+#browse .types{
+    overflow: auto;
+    width: 100%;
+    height: 35px;
+    text-align: center
+}
+
+#browse .sections{
+    overflow: hidden;
+    width: 100%;
+    height: 126px;
+    position: relative;
+    text-align: center;
+}
+
+#browse .sections .scroll{
+    overflow: hidden;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-color: $params.activeColor;
+    position: relative;
+    color: rgba(180, 180, 180, 0.4);
+    opacity:0.9;
+}
+#browse .sections>.scroll:hover{
+    color: $params.textColor;
+    opacity:1.0;
+}
+#browse .sections>.scroll>ul{
+    height: 100%;
+    white-space: nowrap;
+    padding: 0;
+    margin:4px;
+}
+
+#browse .section{
+    overflow:auto;
+    height: calc(100% - 161px);
+    width: 100%;
+}
+
+#browse .button{
+    font-size: 1.2em;
+    display: inline-block;
+    border: solid 1px black;
+    border-color:$params.activeColor;
+    padding: 4px;
+    margin: 4px;
+    cursor: pointer;
+}
+
+#browse .types .button{
+    font-size: 1.2em;
+    display: inline-block;
+    border: solid 1px black;
+    padding: 4px;
+    margin: 4px;
+    cursor: pointer;
+}
+#browse .more_docs{
+    font-size: 1.2em;
+    font-weight: bold;
+    border: solid 1px black;
+    padding: 4px;
+    margin: 4px;
+    text-align: center;
+}
+
+#browse .sections>.scroll>ul>li{
+    white-space: normal;
+    list-style: none;
+    width: 18px;
+    height: 100px;
+    overflow: hidden;
+    border-color:rgba(180, 180, 180, 0.4);
+}
+
+#browse .sections>.scroll>ul>li:hover{
+    border-color:$params.textColor;
+}
+
+
+#browse .sections div.arrow {
+    top: 39px;
+    position: absolute;
+}
+#browse .spine{
+    text-align: center;
+    width: 100px;
+    position: relative;
+    left:-102px;
+    top:0;
+    cursor: pointer;
+    font-size: 1.4em;
+    text-transform: uppercase;
+
+    -webkit-transform: rotate(-90deg);
+    -webkit-transform-origin: 100% 0%;
+    -moz-transform: rotate(-90deg);
+    -moz-transform-origin: 100% 0%;
+    -o-transform: rotate(-90deg);
+    -o-transform-origin: 100% 0%;
+    -ms-transform:rotate(-90deg);
+    -ms-transform-origin: 100% 0%;
+
+}
+
+#browse .sel{
+    font-weight: bold;
+}
+
+#browse .sections>.scroll>ul>li.sel{
+    border-color:$params.textColor;
+    color: params.textColor;
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+    margin: 2px 6px 6px 2px;
+}
+/* /// / 
+#browse .sections>.scroll>ul>li.sel{
+    border-right: none;
+    margin-right: 0;
+    padding-right: 0;
+}
+#browse .sections>.scroll>ul>li.sel2{
+    font-weight: bold;
+    border-left: none;
+    margin-left: 0;
+    padding-left: 0;
+    border-color:params.textColor;
+}
+
+#browse .sections .sel:after{
+    content:" -";
+}
+#browse .sections .sel2:before{
+    content:"- ";
+}
+*/
+#browse .res{
+    margin-left: 5px;
+    margin-bottom: 10px;
+    display: inline-block;
+    width: calc(50% - 6px);
+    vertical-align: top;
+}
+
+#browse .res div{
+    margin-left: 15px;
+}
+#browse .res .title{
+    margin-left: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+#browse .res .title:hover{
+    text-decoration: underline;
+}
+
+/*redefine jquery ui style because of bug */
+.ui-widget-overlay {
+    background: #aaaaaa;
+}
+
+
+
+
+/** profile dialog */
+#prfl_dialog {
+        position:absolute; right:1px; top:50px; 
+        width:60%; height:60%;
+        z-index:43; 
+        background-color: $params.activeColor;
+        color: white;
+}
+
+#prfl_dialog div.buttons{
+    position:relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top:5px;
+}
+
+#prfl_dialog a {
+        color: inherit;
+        text-decoration: none;
+}
+
+#prfl_dialog .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+#prfl_dialog div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+}
+
+#prfl_dialog div.right{
+    position:absolute;
+    right: 15px;
+    margin-top:5px;
+    display: inline-block;
+}
+
+#prfl_dialog div.left{
+    position:absolute;
+    left: 15px;
+    margin-top:5px;
+    display: inline-block;
+}
+
+
+#prfl_dialog div.triangle {
+        width:0; 
+        height:0; 
+        border-left: 10px solid transparent; 
+        border-right: 10px solid transparent; 
+        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        background-color: transparent;
+        color: transparent;
+        position: absolute;
+        top: -10px;
+        z-index: 23;
+        right: 55px;
+}
+
+
+#prfl_dialog div.prfl_header {
+        height:50px;
+        margin-top:0.4em;
+        color: inherit; 
+        text-align: center; 
+        font-size: 2.2em; 
+        position:relative; 
+        border-bottom:1px solid white;
+}
+
+#prfl_dialog div.prfl_footer {
+        position:absolute; 
+        width:100%; 
+        bottom:0px; 
+        left:0px; 
+        height:43px; 
+        border-top:1px solid white;
+}
+
+#prfl_dialog:hover{
+    color: $params.textColor;
+}
+
+#prfl_dialog div.button:hover{
+    border-color: rgba(255, 255, 255, 1);
+}
+
+
+#prfl_dialog  div.small{
+    display: inline-block;
+    padding: 0px;
+    margin-left:5px;
+}
+
+#prfl_content {
+        /*
+        height: 60%;  
+        overflow-y: scroll; 
+        overflow-x:auto;
+        */
+}
+
+#prfl_content > div {
+        width:100%; 
+        text-align:center;
+}
+
+#prfl_content_favorites {
+        height: calc(100% - 18em);  
+        overflow-y: scroll; 
+        overflow-x:auto;
+}
+
+#prfl_content_favorites >div {
+        overflow: hidden; 
+        max-height: 100px; 
+        padding-left: 10px; 
+        padding-right: 10px; 
+        float: left; margin: 5px;
+        
+}
+
+#prfl_content_favorites >div.clear {
+        clear:both;
+        float:none;
+}
+
+/*
+#prfl_content_favorites >div:hover {
+        max-height: 142px; 
+}*/
+
+
+#prfl_content_favorites >div>div {
+        float:left;
+}
+/** end ofprofile dialog */
+
+
+/** persisetnt url */
+#viewer .persistents {
+        top:calc(50% - 12em);
+        width:45%;
+        height: 12em;
+        background-color: $params.activeColor;
+        z-index: 43;
+        left: 280px; 
+        color: white;
+}
+
+#persistens_container>div {
+        width:100%;
+        margin-left: 10px; 
+        margin-right: 10px; 
+        margin-bottom: 10px;
+        margin-top: 10px;
+}
+
+#persistens_container label {
+        font-size: 1.6em;
+}
+
+#persistens_container input{
+        font-size: 1.6em;
+        background: rgba(255, 255, 255, 0.9);
+        border: 0px solid #0e70b3;
+        width: 95%;
+}
+#persistens_container input:hover{
+        background: rgba(255, 255, 255, 1);
+}
+
+.persistents div.right{
+    position: absolute;
+    float:right;
+    right: 10px;
+}
+
+#viewer div.persisturl_footer {
+}
+
+#viewer div.persisturl_footer div.buttons{
+    position:relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top:5px;
+}
+
+#viewer div.persisturl_footer  a {
+        color: inherit;
+
+        text-decoration: none;
+}
+
+#viewer div.persisturl_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+#viewer div.persisturl_footer  div.button{
+        display: inline-block;
+        border: solid 1px rgba(180, 180, 180, 0.4);
+        padding: 5px;
+
+}
+
+#viewer div.persisturl_footer  div.button a {
+        color: inherit;
+        text-decoration: none;
+}
+
+
+#viewer  div.persisturl_footer  div.right{
+        position:absolute;
+        right: 15px;
+        margin-top:5px;
+
+        display: inline-block;
+        /** override 1.5em; */
+        font-size: 11px;
+}
+/** end of persistent url */
+
+
+
+/** OCR */
+#viewer .ocr {
+        top: 42px;
+        width: 95%;
+        height: calc(100% - 50px);
+        background-color: $params.activeColor;
+        background-color: rgba(0, 30, 60, 0.9);
+        z-index: 43;
+        left: 2.5%;
+        color: white;
+}
+
+#ocr_container>div {
+        width:100%;
+        margin-left: 10px; 
+        margin-right: 10px; 
+        margin-bottom: 10px;
+        margin-top: 10px;
+}
+
+#ocr_container label {
+        font-size: 1.6em;
+}
+
+#ocr_container textarea{
+        font-size: 1.6em;
+        background: rgba(255, 255, 255, 0.9);
+        border: 0px solid #0e70b3;
+        width: 98%;
+        height: calc(100% - 63px);
+}
+
+.ocr div.right{
+    position: absolute;
+    float:right;
+    right: 10px;
+}
+
+#viewer div.ocr_footer {
+}
+
+#viewer div.ocr_footer div.buttons{
+    position:relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top:5px;
+}
+
+#viewer div.ocr_footer  a {
+        color: inherit;
+        text-decoration: none;
+}
+
+#viewer div.ocr_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+#viewer div.ocr_footer  div.button{
+        display: inline-block;
+        border: solid 1px rgba(180, 180, 180, 0.4);
+        padding: 5px;
+
+}
+
+#viewer div.ocr_footer  div.button a {
+        color: inherit;
+        text-decoration: none;
+}
+
+
+#viewer  div.ocr_footer  div.right{
+        position:absolute;
+        right: 15px;
+        margin-top:5px;
+
+        display: inline-block;
+        /** override 1.5em; */
+        font-size: 11px;
+}
+/** end of OCR */
+
+
+/** selections dialog */
+#viewer .selections {
+        top:calc(50% - 12em);
+        width:45%;
+        height: 22em;
+        background-color: $params.activeColor;
+        z-index: 43;
+        left: 280px; 
+        color: white;
+}
+
+#selections_container {
+        height:calc(100% - 43px);
+}
+
+.selections div.right{
+    position: absolute;
+    float:right;
+    right: 10px;
+}
+
+#viewer div.selection_footer {
+        position: absolute;
+        width: 100%;
+        bottom: 0px;
+        left: 0px;
+        height: 43px;
+        border-top: 1px solid white;
+}
+
+#viewer div.selection_footer div.buttons{
+    position:relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top:5px;
+}
+
+#viewer div.selection_footer  a {
+        color: inherit;
+        text-decoration: none;
+}
+
+#viewer div.selection_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+#viewer div.selection_footer  div.button{
+        display: inline-block;
+        border: solid 1px rgba(180, 180, 180, 0.4);
+        padding: 5px;
+
+}
+
+#viewer div.selection_footer  div.button a {
+        color: inherit;
+        text-decoration: none;
+}
+
+
+#viewer  div.selection_footer  div.right{
+        position:absolute;
+        right: 15px;
+        margin-top:5px;
+        display: inline-block;
+        font-size: 11px;
+}
+
+/** end of selection dialog */
+
+
+
+/** scroll -TODO: Zmenit ! */
+#selections_thumbs {
+        position:relative;
+        /*overflow-x: scroll;*/
+        overflow-x: hidden;
+        margin-left:5px;
+        margin-right:5px;
+        -webkit-overflow-scrolling: touch;
+}
+
+
+#selections_thumbs div.medium {
+        position: absolute;
+        top: 65px;
+}
+
+#selections_slider {
+        width:80%;
+}
+
+#selections_container {
+        background-color: rgba(0, 30, 60, 0.05);
+}
+
+#selections_container ul {
+        white-space: nowrap;
+        background-color: rgba(0, 30, 60, 0.1);
+        margin-top: 20px;
+}
+
+#selections_container li.selitem {
+    list-style:none;
+    padding: 5px;
+    height: 135px;
+    display: inline-block;
+
+    /*    
+    white-space: normal;
+    display: inline-block;
+    margin: 2px 5px 2px 5px;
+    height: 135px;
+    padding: 5px;
+    vertical-align: top;
+    position:relative;
+    */        
+}
+
+#selections_container li.selitem div.info {
+    margin-left:8px;
+    margin-right:4px;
+    overflow:hidden;        
+
+    /*    
+    white-space: normal;
+    display: inline-block;
+    margin: 2px 5px 2px 5px;
+    height: 135px;
+    padding: 5px;
+
+    vertical-align: top;
+    position:relative;
+    */        
+}
+
+.selections_buttons {
+        margin-left:5px;
+}
+
+#selections_container li.selitem > div> div {
+        float:left;
+}
+
+#selections_container > div {
+        height:98%;
+}
+
+#selections_slider {
+        height:15%;
+}
+
+#selections_container .ui-slider { 
+        background: none; 
+        border:0; 
+        height: 29%; 
+        margin: 0 auto;  
+}
+
+#selections_container .ui-slider .ui-slider-handle { top:.2em; height: 1.5em; }
+#selections_container .ui-slider .ui-slider-handle .ui-icon { margin: -8px auto 0; position: relative; top: 50%; }
+
+#selections_thumbs  div.small{
+    padding: 0px;
+    margin-left:5px;
+}
+/* end of selection */
+
+
+
+/** registration */
+.registration {
+        position: absolute;
+        top: 50px;
+        left: 90px;
+        width: 50%;
+
+        border: 0px solid rgba(0, 0, 0, 0.3);
+        box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+        background-color: rgba(0, 30, 60, 0.9);
+}
+.registration>div{
+        padding: 15px;
+        font-size: 1.5em;
+        color: white;
+}
+
+.registration div.footer {
+        height:43px; 
+        border-top: 1px solid white; 
+        padding:0px;
+}
+.registration div.footer div.right {
+        position: absolute;
+        right: 15px;
+        margin-top: 5px;
+        display: inline-block;
+        font-size: 11px;
+}
+
+.registration div.footer div.buttons {
+        position: relative;
+        left: 5px;
+        top: 0px;
+        display: inline-block;
+        margin-top: 5px;
+}
+
+.registration div.footer div.buttons div.button {
+        display: inline-block;
+        border: solid 1px rgba(180, 180, 180, 0.4);
+        padding: 5px;
+}
+
+.registration div.footer div.buttons div.button a {
+        color: inherit;
+        text-decoration: none;
+}
+/** end of registration box */
+
+
+
+
+.ctxmenuitemdisabled {
+        display: none;
+}
+
+.ctxmenuitemenabled {
+        display: list-item;
+}
+
+/** small screen */
+
+#header  #smalldisplay {
+        display:none;
+}
+
+
+#tbl_menus {
+        position:absolute;
+        right:12px;                
+        width:60%;
+        height:calc(100%-50px);
+
+        border:0px solid rgba(0, 0, 0, 0.3);
+        color: $params.textColor;
+        box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+        padding: 15px;
+        background-color: $params.activeColor;
+        z-index: 43;
+}
+
+#tbl_menus div.button {
+        border: solid 1px rgba(180, 180, 180, 0.4);
+        padding: 5px;
+        display: inline-block;
+
+}
+
+#tbl_menus div.button a {
+        color: inherit;
+        text-decoration: none;
+}
+
+#tbl_menus .triangle {
+        width:0; 
+        height:0; 
+        border-left: 10px solid transparent; 
+        border-right: 10px solid transparent; 
+        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        background-color: transparent;
+        color: transparent;
+        position: absolute;
+        top: -10px;
+        z-index: 23;
+        right: 50px;
+}
+
+
+#tbl_menus div.right{
+    position:absolute;
+    right: 10px;
+    display: inline-block;
+}
+
+/** end of small screen */
+
+/** containers */
+
+.dialogs {
+        top:50px;
+}
+
+.dialogs_content  {
+        height:calc(100% - 43px);
+        width:100%;
+        position: absolute;
+}
+
+.dialogs_footer {
+        position: absolute;
+        width: 100%;
+        bottom: 0px;
+        left: 0px;
+        height: 43px;
+        border-top: 1px solid white;
+}
+
+/** end of containers */
+
+#login div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+}
+
+#login div.button:hover{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+}
+
+#login {
+    color: rgba(180, 180, 180, 0.4);
+}
+#login a {
+    color: inherit;
+    text-decoration: none;
+}
+
+#login_register_option {
+	border-top:1px solid white; 
+	margin-top:15px
+}
+
+#login_register_option div.register_text {
+    font-size:0.7em;
+	margin-bottom: 15px;
+}
+
+
+/** logoptions */
+div.logoptions {
+        top: 20%;
+        width: 30%;
+        height: 30%;
+        background-color: $params.activeColor;
+        z-index: 43;
+        left: 40%;
+        color: white;
+}
+
+#logoptions_container  ul {
+        list-style: none;
+        font-size: 1.1em;
+        padding-left: 1em;
+}
+
+#logoptions_container  ul li {
+        display: inline-block;
+        list-style-type: none;
+}
+
+#logoptions_container div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+}
+
+
+
+#logoptions_container>div {
+        width:100%;
+        margin-top: 5px;
+        text-align: center;
+        margin-bottom: 5px;
+}
+
+
+#logoptions_container label {
+        font-size: 1.6em;
+}
+
+div.logoptions div.right{
+    position: absolute;
+    float:right;
+    right: 10px;
+}
+
+
+div.logoptions div.logoptions_footer {
+}
+
+div.logoptions div.logoptions_footer div.buttons{
+    position:relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top:5px;
+}
+
+div.logoptions div.logoptions_footer  a {
+        color: inherit;
+        text-decoration: none;
+}
+
+div.logoptions  div.logoptions_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+div.logoptions  div.logoptions_footer  div.button{
+        display: inline-block;
+        border: solid 1px rgba(180, 180, 180, 0.4);
+        padding: 5px;
+
+}
+
+div.logoptions  div.logoptions_footer  div.button a {
+        color: inherit;
+        text-decoration: none;
+}
+
+
+div.logoptions  div.logoptions_footer  div.right{
+        position:absolute;
+        right: 15px;
+        margin-top:5px;
+
+        display: inline-block;
+        /** override 1.5em; */
+        font-size: 11px;
+}
+/** end of logoptions */
+
+#footer{
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    height: 20px;
+    text-align: center;
+    color: rgba(180, 180, 180, 0.4);
+    background-color: $params.activeColor;
+    box-shadow: rgba(0, 0, 0, 0.5) -4px 4px 8px 0px;
+    float: left;
+    z-index: 4;
+    vertical-align: bottom;
+    overflow: hidden;
+}
+#footer div{
+    margin: 4px;
+}
+
+/** share dialog */
+div.share {
+        top: 20%;
+        width: 500px;
+        height: 40%;
+        background-color: $params.activeColor;
+        box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+        z-index: 43;
+        color: white;
+        margin:auto;
+        left:calc(50% - 250px);
+}
+
+
+#share_container {
+    height:calc(100% - 43px);
+    width:100%;
+    position:absolute;
+    top:0;
+}
+
+
+div.share_footer {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    left: 0px;
+    height: 43px;
+    border-top: 1px solid white;
+
+}
+
+#share_container ul {
+    text-align:center;
+}
+
+#share_container ul li {
+    display:inline-block;
+    list-style-type:none;
+    text-align: center;
+    margin-left:1.3em;
+    margin-right:1.3em;
+    
+}
+
+#share_container ul li div.bigger {
+    cursor: pointer;
+}
+
+
+#share_container ul li div.bigger svg path{
+    fill:white; 
+}
+
+#share_container ul li div.bigger svg g path{
+    fill:white; 
+}
+
+#share_container ul li div.bigger svg g polygon{
+    fill:white; 
+}
+
+div.share_footer div.right {
+    position: absolute;
+    right: 15px;
+    margin-top: 5px;
+    display: inline-block;
+    font-size: 11px;
+    float: right;
+}
+
+
+div.share_footer div.right div.buttons {
+    position: relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+div.share_footer div.right div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+    margin-left: 2px;
+}
+
+div.share_footer  a {
+        color: inherit;
+        text-decoration: none;
+}
+
+div.share_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+/** end of share dialog */
+
+
+
+
+/** messages dialog */
+div.message {
+        top: 20%;
+        width: 500px;
+        height: 40%;
+        background-color: $params.activeColor;
+        box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+        z-index: 43;
+        color: white;
+        margin:auto;
+        left:calc(50% - 250px);
+}
+
+
+#message_container {
+    height:calc(100% - 43px);
+    width:100%;
+    position:absolute;
+    top:0;
+}
+
+
+div.message_footer {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    left: 0px;
+    height: 43px;
+    border-top: 1px solid white;
+
+}
+
+div.message_footer div.right {
+    position: absolute;
+    right: 15px;
+    margin-top: 5px;
+    display: inline-block;
+    font-size: 11px;
+    float: right;
+}
+
+
+div.message_footer div.right div.buttons {
+    position: relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+div.message_footer div.right div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+    margin-left: 2px;
+}
+
+div.message_footer  a {
+        color: inherit;
+        text-decoration: none;
+}
+
+div.message_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+/** end of dialog message */
+
+
+
+/** pdf busy content */
+div.pdfbusy_head h2 {
+    text-align: center;
+}
+
+div.pdfbusy_message {
+    padding: 15px;
+}
+
+div.pdfbusy_cont {
+    
+}
+/** end of pdf busy content */
+
+
+/** pdf wait content */
+div.pdfwait_head h2 {
+    text-align: center;
+}
+
+div.pdfwait_message {
+    padding: 15px;
+}
+
+div.pdfwait_cont {
+    
+}
+/** end of pdf busy content */
+
+
+/** download options */
+div.download {
+        top: 20%;
+        width: 300px;
+        height: 40%;
+        background-color: $params.activeColor;
+        box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+        z-index: 43;
+        color: white;
+        margin:auto;
+        left:calc(50% - 150px);
+}
+
+#download_container {
+    height:calc(100% - 43px);
+    width:100%;
+    position:absolute;
+    top:0;
+}
+
+
+#download_container label {
+    margin-left: 5px; 
+}
+
+#download_container div.download_header  {
+
+}
+
+#download_container div.download_header h2 {
+    text-align: center;
+}
+
+#download_options {
+    padding: 5px;
+}
+
+#download_options select {
+    width: 100%;
+    height: 26px;
+    background: transparent;
+    color: inherit;
+}
+
+#download_options select option {
+    color: black;
+}
+#download_options div {
+    margin-bottom: 5px; 
+    margin-top: 5px; 
+}
+#download_action_message {
+    margin-left: 7px;
+}
+div.download_footer {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    left: 0px;
+    height: 43px;
+    border-top: 1px solid white;
+
+}
+
+div.download_footer div.right {
+    position: absolute;
+    right: 15px;
+    margin-top: 5px;
+    display: inline-block;
+    font-size: 11px;
+    float: right;
+}
+
+
+div.download_footer div.right div.buttons {
+    position: relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+div.download_footer div.right div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+    margin-left: 2px;
+}
+
+div.download_footer  a {
+        color: inherit;
+        text-decoration: none;
+}
+
+div.download_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+/** end of dialog download */
+
+#footer a{
+    color: inherit;
+    text-decoration: none;
+}
+
+#footer:hover{
+    color: $params.textColor;
+    background-color: $params.activeColor;
+}
+

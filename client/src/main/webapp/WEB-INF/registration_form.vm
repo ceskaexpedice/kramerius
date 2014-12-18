@@ -1,0 +1,215 @@
+
+<style>
+
+#registration_box{
+    z-index: 3;
+    top:2px;
+    left: 2px;
+    width: 100%;
+    /*
+    background-color: rgba(0, 30, 60, 0.9);
+    */
+}
+
+#registration_box input{
+    font-size: 1.8em;
+    background: rgba(255, 255, 255, 0.9);
+    border: 0px solid #0e70b3;
+    width: 100%;
+}
+
+#registration_box input:hover{
+    background: rgba(255, 255, 255, 1);
+}
+
+#registration_box div.button{
+    display: inline-block;
+    border: solid 1px rgba(0, 0, 0, 0.3);
+    padding: 5px;
+}
+
+.registration_error {
+    color:red;
+}
+</style>
+
+
+
+
+<div id="registration_box">
+    <span>
+        <form id="registration_form" name="registration_form">
+
+        <label>#translatable('registration.login')</label> <label class="registration_error" id="registration_error_label" style="display:none">#translatable('registration.login.error')</label>
+        <input id="login" name="login" placeholder="#i18nval('registration.login.placeholder')" value="" />
+
+        <label>#translatable('registration.fullname')</label> <label  class="registration_error" id="registration_error_fullname" style="display:none">#translatable('registration.login.error')</label>
+        <input id="username" name="username" placeholder="#i18nval('registration.fullname.placeholder')" value="" />
+
+        <label>#translatable('registration.email')</label> <label  class="registration_error" id="registration_error_email" style="display:none">#translatable('registration.login.error')</label>
+        <input id="email" name="email" placeholder="#i18nval('registration.email.placeholder')" value="" />
+
+        <label>#translatable('registration.password.placeholder')</label> <label class="registration_error" id="registration_error_password"  style="display:none">#translatable('registration.password.error')</label>
+        <input id="password" name="password" type="password" placeholder="#i18nval('registration.password.placeholder')" value="" />
+
+        <label>#translatable('registration.repeatpassword')</label> <label class="registration_error" id="registration_error_repeatpassword" style="display:none">#translatable('registration.repeatpassword.error')</label> <label class="registration_error" id="registration_error_differentpasswords" style="display:none">#translatable('registration.differentpass.error')</label>
+        <input id="repeatpassword" name="repeatpassword" type="password" placeholder="#i18nval('registration.repeatpassword.placeholder')" value="" />
+
+        <label>#translatable('registration.captcha')</label>
+        <div style="width:100%">
+        <img src="simpleCaptcha.png"></tr>
+        </div>
+        
+        <label>#translatable('registration.repeatcaptcha')</label> <label class="registration_error" id="registration_error_repeatcaptcha" style="display:none">#translatable('registration.repeatcaptcha.error')</label><label class="registration_error" id="registration_error_badcaptcha" style="display:none">#translatable('registration.badcaptcha.error')</label>
+        <input id="captcha" name="captcha" placeholder="#i18nval('registration.repeatcaptcha.placeholder')" value=""  />
+    </form>
+    </span>
+
+    <script type="text/javascript">
+
+        function __checkfields() {
+            var results = [];
+            
+            var lname = $("#login").val();
+            var username = $("#username").val();
+            var password = $("#password").val();
+            var repeatpassword = $("#repeatpassword").val();
+
+            var repeatcaptcha = $("#captcha").val();
+
+            if (lname ==="") {
+                results.push({
+                    "message":"missing login name", //I18N,
+                    "validated": false,
+                    "ident":"#registration_error_label"
+                });
+            } else {
+                results.push({
+                    "message":"", //I18N,
+                    "validated": true,
+                    "ident":"#registration_error_label"
+                });
+            }
+
+            if (username ==="") {
+                results.push({
+                    "message":"missing user name", //I18N,
+                    "validated": false,
+                    "ident":"#registration_error_fullname"
+                });
+            } else {
+                results.push({
+                    "message":"", //I18N,
+                    "validated": true,
+                    "ident":"#registration_error_fullname"
+                });
+            }
+
+            if (password ==="") {
+                results.push({
+                    "message":"missing password", //I18N,
+                    "validated": false,
+                    "ident":"#registration_error_password"
+                });
+            } else {
+                results.push({
+                    "message":"", //I18N,
+                    "validated": true,
+                    "ident":"#registration_error_password"
+                });
+            }
+
+            if (repeatpassword ==="") {
+                results.push({
+                    "message":"missing repeatedpassword field", //I18N,
+                    "validated": false,
+                    "ident":"#registration_error_differentpasswords"
+                });
+            } else {
+                results.push({
+                    "message":"", //I18N,
+                    "validated": true,
+                    "ident":"#registration_error_differentpasswords"
+                });
+            }
+
+            if (repeatcaptcha ==="") {
+                results.push({
+                    "message":"missing repeatedpassword field", //I18N,
+                    "validated": false,
+                    "ident":"#registration_error_repeatcaptcha"
+                });
+            } else {
+                results.push({
+                    "message":"", //I18N,
+                    "validated": true,
+                    "ident":"#registration_error_repeatcaptcha"
+                });
+            }
+
+            if (password !== repeatpassword) {
+                results.push({
+                    "message":"missing repeatedpassword field", //I18N,
+                    "validated": false,
+                    "ident":"#registration_error_differentpasswords"
+                });
+            } else {
+                results.push({
+                    "message":"", //I18N,
+                    "validated": true,
+                    "ident":"#registration_error_differentpasswords"
+                });
+            }
+
+            return results;
+        }
+
+        function __failcaptcha() {
+            $("#registration_error_badcaptcha").show();
+        }
+
+        function __redirect() {
+            window.location.assign("index.vm");
+        }
+
+        function __register() {
+            $(".registration_error").hide();
+
+            var results = __checkfields();
+            var validated = true;
+
+            $.each(results, function(index, value) {
+                if (!value.validated) {
+                    validated = value.validated;
+                }
+            });
+            
+            if (validated) {
+                var lname = $("#login").val();
+                var username = $("#username").val();
+                var password = $("#password").val();
+                var repeatpassword = $("#repeatpassword").val();
+                var captcha = $("#captcha").val();
+                if (password === repeatpassword) {
+                    var creatingUser = {
+                        "lname":lname,
+                        "username":username,
+                        "id":-1,
+                        "password":password,
+                        "captcha":captcha
+                    };
+                    K5.authentication.registration.register(creatingUser, __redirect,__failcaptcha); 
+                }
+            } else {
+                
+                $.each(results, function(index, value) {
+                    if (!value.validated) {
+                        $(value.ident).show();
+                    }
+                });
+            }
+        }
+    </script>
+
+</div>
+

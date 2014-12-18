@@ -1,0 +1,46 @@
+[
+        {
+            "name":"persistenturl",
+            "i18nkey":"ctx.actions.persistenturl",
+            "object":"PersistentURL"
+        },
+        {
+            "name":"clipboard",
+            "i18nkey":"ctx.actions.clipboard",
+            "object":"DisplayClipboard"
+        },
+        {
+            "name":"onepagepdf",
+            "i18nkey":"ctx.actions.generatepdf",
+            "object":"PDFOnePage"
+        },
+        {
+            "name":"download",
+            "i18nkey":"ctx.actions.downloadoriginal",
+            "object":"DownloadPage"
+        },
+        {
+            "name":"printpart",
+            "i18nkey":"ctx.actions.printpart",
+            "object":"PrintPartItem"
+        },
+
+        {
+            "name":"ocr",
+            "i18nkey":"ctx.actions.downloadocr",
+            "object":"DownloadOCR"
+        },
+
+        {
+            "name":"fb",
+            "i18nkey":"ctx.actions.sites.fb",
+            "object":"FacebookShare"
+        },
+
+        {
+            "name":"gplus",
+            "i18nkey":"ctx.actions.sites.gp",
+            "object":"GooglePlusShare"
+        }
+
+]

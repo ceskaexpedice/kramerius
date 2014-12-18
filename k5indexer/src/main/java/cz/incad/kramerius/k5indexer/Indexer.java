@@ -4,10 +4,12 @@ package cz.incad.kramerius.k5indexer;
  *
  * @author Alberto
  */
+import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import java.io.IOException;
+import cz.incad.kramerius.virtualcollections.VirtualCollection;
+import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.DateFormat;
@@ -16,24 +18,23 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import org.apache.commons.configuration.Configuration;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
 
 public class Indexer {
 
@@ -46,7 +47,7 @@ public class Indexer {
     XPathFactory factory = XPathFactory.newInstance();
     XPath xpath;
     XPathExpression expr;
-    private final Transformer transformer;
+
     public static int total;
     public static int success;
     public static int skipped;
@@ -69,11 +70,6 @@ public class Indexer {
         commiter = Commiter.getInstance();
 
         rindex = ResourceIndexService.getResourceIndexImpl();
-
-        TransformerFactory tfactory = TransformerFactory.newInstance();
-        InputStream stylesheet = this.getClass().getResourceAsStream("/cz/incad/kramerius/k5indexer/res/tr.xsl");
-        StreamSource xslt = new StreamSource(stylesheet);
-        transformer = tfactory.newTransformer(xslt);
         logger.info("Indexer initialized");
     }
 
@@ -91,15 +87,50 @@ public class Indexer {
 
             long timeInMiliseconds = System.currentTimeMillis() - startTime;
             showResults(timeInMiliseconds);
-            
+
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Run failed", ex);
             throw new Exception(ex);
         }
     }
 
+    public static ArrayList<String> getCollections(Indexer indexer) throws Exception {
+        String query = "<fedora-model:hasModel> <info:fedora/model:collection>";
+        ArrayList<String> collsList = new ArrayList<String>();
+        String urlStr = indexer.config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off"
+                + "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
+        java.net.URL url = new java.net.URL(urlStr);
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+        String inputLine;
+        int end;
+        while ((inputLine = in.readLine()) != null) {
+            //<info:fedora/vc:534b8b98-82d8-49c7-a751-33e88aaeeea9> <info:fedora/fedora-system:def/model#hasModel> <info:fedora/model:collection>
+            end = inputLine.indexOf(">");
+            //13 je velikost   <info:fedora/
+            inputLine = inputLine.substring(13, end);
+            collsList.add(inputLine);
+        }
+        in.close();
+        return collsList;
+    }
+
     enum Actions {
 
+        //Index collections
+        INDEXCOLLECTIONS {
+                    @Override
+                    void doPerform(Indexer indexer) throws Exception {
+                        List<VirtualCollection> collsList
+                        = VirtualCollectionsManager.getVirtualCollections(new FedoraAccessImpl(KConfiguration.getInstance(), null), null);
+                        Commiter commiter = new Commiter(KConfiguration.getInstance().getConfiguration().getString("k5indexer.solr.virtualCollections.core", "vc"));
+                        for (VirtualCollection collection : collsList) {
+                            logger.log(Level.INFO, "Reindex collection: {0}", collection.getLabel());
+                            CollectionDocument cd = new CollectionDocument(collection, commiter);
+                            cd.index();
+                        }
+                        commiter.commit();
+                    }
+                },
         //Index all documents in collection
         INDEXCOLLECTION {
                     @Override
@@ -115,9 +146,9 @@ public class Indexer {
                             ArrayList<String> pids = indexer.rindex.getObjectsInCollection(collection, rows, offset);
                             //int modelsProcessed = 0;
                             while (!pids.isEmpty()) {
-                                    KrameriusDocument kdoc = new KrameriusDocument();
+                                KrameriusDocument kdoc = new KrameriusDocument();
                                 for (String pid : pids) {
-                                    if(pid.startsWith("info:fedora/")){
+                                    if (pid.startsWith("info:fedora/")) {
                                         pid = pid.substring("info:fedora/".length());
                                     }
                                     kdoc.indexOne(pid);
@@ -145,7 +176,7 @@ public class Indexer {
                             while (!pids.isEmpty()) {
                                 KrameriusDocument kdoc = new KrameriusDocument();
                                 for (String pid : pids) {
-                                    if(pid.startsWith("info:fedora/")){
+                                    if (pid.startsWith("info:fedora/")) {
                                         pid = pid.substring("info:fedora/".length());
                                     }
                                     kdoc.updateOne(pid);
@@ -212,15 +243,13 @@ public class Indexer {
                         String pidSeparator = indexer.config.getString("k5indexer.pidSeparator", ";");
                         for (String pid_path : indexer.arguments.value.split(pidSeparator)) {
                             Commiter commiter = Commiter.getInstance();
-                            //String q = "pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "\\\\") + "*";
                             String q = "pid_path:" + ClientUtils.escapeQueryChars(pid_path) + "*";
                             commiter.deleteByQuery(q);
                             commiter.commit();
                         }
-                        
+
                     }
                 },
-        
         FIX_ROOT_TITLE {
                     void fix(Indexer indexer, String pid, String title) throws Exception {
                         String query = "root_pid:\"" + pid + "\" AND -PID:\"" + pid + "\"";
@@ -265,77 +294,54 @@ public class Indexer {
                     }
                 },
         CONVERT {
-                    void convert() throws Exception {
-
-                    }
-
                     @Override
                     void doPerform(Indexer indexer) throws Exception {
+                        int sent = 0;
+                        TransformerFactory tfactory = TransformerFactory.newInstance();
+                        InputStream stylesheet = this.getClass().getResourceAsStream("/cz/incad/kramerius/k5indexer/res/convert.xsl");
+                        StreamSource xslt = new StreamSource(stylesheet);
+                        Transformer transformer = tfactory.newTransformer(xslt);
+
                         String k5Index = indexer.config.getString("k5indexer.convert.dest");
 
                         String k4Index = indexer.config.getString("k5indexer.convert.orig");
+                        int rows = indexer.config.getInt("k5indexer.convert.rows", 100);
                         int total = 0;
-                        int start = 0;
-                        int rows = indexer.config.getInt("k5indexer.batchSize", 100);
-                        String urlStr = k4Index + "/select?q=*:*&rows=" + rows + "&start=" + start;
-                        logger.log(Level.INFO, "urlStr: {0}", urlStr);
-                        java.net.URL url = new java.net.URL(urlStr);
-                        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                        org.w3c.dom.Document solrDom;
-                        InputStream is;
-                        try {
-                            is = url.openStream();
-                        } catch (IOException ex) {
-                            logger.log(Level.WARNING, "", ex);
-                            is = url.openStream();
+                        IndexBrowser docs = new IndexBrowser();
+                        docs.setWt("xml");
+                        docs.setHost(k4Index);
+                        docs.setFl(indexer.config.getString("k5indexer.convert.fl"));
+                        if(indexer.arguments.value.startsWith("uuid:")){
+                            docs.setStart(indexer.arguments.value);
                         }
-                        solrDom = builder.parse(is);
-                        String xPathStr = "/response/result/@numFound";
-                        indexer.factory = XPathFactory.newInstance();
-                        indexer.xpath = indexer.factory.newXPath();
-                        indexer.expr = indexer.xpath.compile(xPathStr);
-                        int numDocs = Integer.parseInt((String) indexer.expr.evaluate(solrDom, XPathConstants.STRING));
-                        logger.log(Level.INFO, "numDocs: {0}", numDocs);
-                        if (numDocs > 0) {
-                            StreamResult destStream = new StreamResult(new StringWriter());
-                            indexer.transformer.transform(new DOMSource(solrDom), destStream);
-                            StringWriter sw = (StringWriter) destStream.getWriter();
-                            logger.log(Level.FINE, "{0} processed", sw.toString());
-                            indexer.commiter.postXml(sw.toString());
-                            start = start + rows;
-                            //numDocs = 10;
-                            logger.log(Level.INFO, "{0} processed", start);
-                            while (start < numDocs) {
-                                urlStr = k4Index + "/select?q=*:*&rows=" + rows + "&start=" + start;
-                                logger.log(Level.INFO, "urlStr: {0}", urlStr);
-                                url = new java.net.URL(urlStr);
-                                InputStream is2;
-                                try {
-                                    is2 = url.openStream();
-                                } catch (IOException ex) {
-                                    logger.log(Level.WARNING, "", ex);
-                                    is2 = url.openStream();
-                                }
-                                StreamResult destStream2 = new StreamResult(new StringWriter());
-                                logger.fine("Transforming");
-                                indexer.transformer.transform(new StreamSource(is2), destStream2);
-                                StringWriter sw2 = (StringWriter) destStream2.getWriter();
-                                logger.fine("Indexing");
-                                indexer.commiter.postXml(sw2.toString());
-                                start = start + rows;
-                                logger.log(Level.INFO, "{0} processed", start);
-                            }
-                            total += numDocs;
-                            indexer.commiter.commit();
-                            logger.log(Level.INFO, "total: {0}", total);
+                        Iterator it = docs.iterator();
+                        int page = 0;
+                        while (it.hasNext()) {
+                            logger.log(Level.INFO, "retrieving...");
+                            Document xml = (Document) it.next();
+                            StreamResult destStream2 = new StreamResult(new StringWriter());
+                            logger.fine("transforming...");
+                            transformer.transform(new DOMSource(xml), destStream2);
+                            StringWriter sw2 = (StringWriter) destStream2.getWriter();
+                            logger.log(Level.INFO, "sending to index...");
+                            indexer.commiter.postXml(k5Index, sw2.toString());
+//                            page++;
+//                            if (page > 200) {
+//                                logger.log(Level.INFO, "commiting...");
+//                                indexer.commiter.postXml(k5Index, "<commit softCommit = \"true\" />");
+//                                page = 0;
+//                            }
+                            total += rows;
+                            logger.log(Level.INFO, "{0} sent to index", total);
                         }
+                        indexer.commiter.postXml(k5Index, "<commit />");
                     }
                 };
 
         abstract void doPerform(Indexer indexer) throws Exception;
     }
 
-    private String formatElapsedTime(long timeInMiliseconds) {
+    private static String formatElapsedTime(long timeInMiliseconds) {
         long hours, minutes, seconds;
         long timeInSeconds = timeInMiliseconds / 1000;
         hours = timeInSeconds / 3600;
@@ -346,10 +352,11 @@ public class Indexer {
         return hours + " hour(s) " + minutes + " minute(s) " + seconds + " second(s)";
     }
 
-    private void showResults(long timeInMiliseconds) {
+    private static void showResults(long timeInMiliseconds) {
         logger.log(Level.INFO, "{0} total docs processed. {1} success, {2} skipped, {3} pdf pages, {4} warnings, {5} errors\n {6}",
-                                new Object[]{Indexer.total, Indexer.success, 
-                                    Indexer.skipped, Indexer.pdfpages, Indexer.warnings, Indexer.errors,
-                                formatElapsedTime(timeInMiliseconds)});
+                new Object[]{Indexer.total, Indexer.success,
+                    Indexer.skipped, Indexer.pdfpages, Indexer.warnings, Indexer.errors,
+                    formatElapsedTime(timeInMiliseconds)});
     }
 }
+

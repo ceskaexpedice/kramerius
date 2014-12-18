@@ -46,7 +46,7 @@ public interface FirstPagePDFService {
      * @param i18nServlet I18N servlet 
      * @param fontMap Prepared FontMap object
      */
-    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os, String[] pids, String imgServlet, String i18nServlet, FontMap fontMap);
+    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os, String[] pids,  String i18nServlet, FontMap fontMap);
     
     /**
      * Generate first pdf page for title 
@@ -57,6 +57,6 @@ public interface FirstPagePDFService {
      * @param i18nServlet I18N servlet 
      * @param fontMap Prepared FontMap object
      */
-    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path,String imgServlet, String i18nServlet, FontMap fontMap);
+    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path,String i18nServlet, FontMap fontMap);
     
 }

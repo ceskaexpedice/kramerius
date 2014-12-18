@@ -1,0 +1,187 @@
+/*
+#**
+  - Stylesheet parameters and properties definition -
+*#
+#set( 
+    $params = {
+        "inactiveColor"         : "rgba(14, 112, 179, 0.3)",
+        "activeColor"           : "rgba(0, 30, 60, 0.3)",
+        "rowBackground"         : "rgba(14, 112, 179, 0.03)",
+        "thumbBackground"       : "rgba(14, 112, 179, 0.1)",
+        "textColor"             : "white",
+
+        "svg.stroke"            :  "rgba(174, 207, 229, 1)",
+        "svg.stroke.hover"      :  "white",
+        "svg.fill"              :  "none",
+        "svg.fill.hover"        :  "rgba(0, 30, 60, 0.9)",
+
+        "policy.public.color"   : "#00dd00",
+        "policy.private.color"  :"#dd0000",
+
+
+        "hitColor"              :  "rgba(0, 30, 60, 0.7)",
+
+        "chitColor"             :   "rgba(0, 30, 60, 1)",
+
+        "hl.text.color"         : "#767676",
+        "hl.hit.color"          : "#763636",
+
+                
+        "menu.dialogs.width"    : "25%"
+    })
+*/
+
+#orezmenu {
+        position: fixed; 
+        z-index:904; 
+        width: 100%; 
+        height: 100%; 
+        right: 0; top: 15px;
+        background:rgba(255, 255, 255, 0.8);
+}
+
+
+#overlay {
+        position: fixed; 
+        z-index:903; 
+        width: 100%; 
+        height: 100%; 
+        left: 0; top: 36px;
+        background:rgba(255, 255, 255, 0.0);
+}
+
+
+#pdfButton {
+    position:absolute;
+    top:20px;
+    left:110px;
+    width:30px;
+    height:30px;
+    background-color:rgba(28, 21, 32, 0.0);
+    border:none;
+    padding: 0px;
+    margin: 0px;
+}
+
+#printButton {
+    position:absolute;
+    top:20px;
+    left:110px;
+    width:30px;
+    height:30px;
+    background-color:rgba(28, 21, 32, 0.0);
+    border:none;
+    padding: 0px;
+    margin: 0px;
+}
+
+#okButton {
+    position:absolute;
+    top:20px;
+    left:110px;
+    width:30px;
+    height:30px;
+    background-color:rgba(28, 21, 32, 0.0);
+    border:none;
+    padding: 0px;
+    margin: 0px;
+}
+
+#cancelButton {
+    position:absolute;
+    top:20px;
+    left:80px;
+    width:30px;
+    height:30px;
+    background-color:rgba(28, 21, 32, 0.0);
+    border:none;
+    padding: 0px;
+    margin: 0px;
+}
+
+#selectbox {
+    position:absolute;
+    top:30px;
+    left:40px;
+    width:100px;
+    height:100px;
+ 
+   background-color:rgba(28, 21, 32, 0.0);
+
+    border:1px dashed white;
+    outline:1px dashed black;
+
+    padding: 0px;
+    margin: 0px;
+}
+
+#right-top {
+    position:absolute; 
+    top:30px;left:136px; 
+    width:32px; 
+    height:32px; 
+    border:0px;
+    padding: 0px; 
+    margin: 0px;
+    cursor: pointer;
+
+}
+
+
+#left-top {
+    position:absolute; 
+    top:30px;left:40px; 
+    width:32px; 
+    height:32px; 
+    border:0px;
+    padding: 0px; 
+    margin: 0px;
+
+   cursor: pointer;
+
+}
+
+.point {
+}
+.point:hover {
+}
+
+
+#left-bottom {
+    position:absolute; 
+    top:125px;left:40px; 
+    width:32px; 
+    height:32px; 
+    border:0px;
+    padding: 0px; 
+    margin: 0px;
+    cursor: pointer;
+
+}
+
+#right-bottom {
+    position:absolute; 
+    top:125px;left:136px; 
+    width:32px; 
+    height:32px; 
+    border:0px;
+    padding: 0px; 
+    margin: 0px;
+    cursor: pointer;
+
+}
+
+
+.point svg {
+    fill:$params.get("activeColor"); 
+    stroke:$params.get("svg.stroke"); 
+    stroke-width: 8; 
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+
+.point svg:hover *{
+    fill:$params.get("activeColor"); 
+    stroke:$params.get("svg.stroke"); 
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" xmlns:fb="http://ogp.me/ns/fb#">
+#set($jsonFacet = $search.getDaJSON("fedora.model:monograph OR fedora.model:map"))
+<html>
+    #parse( "html_header.vm" )
+    <style>
+
+        @font-face {                                                                                                                              
+            font-family: 'RemoteFont';                                                                                                              
+            src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf') format('truetype');                                         
+        }
+
+
+        #canvasda{
+            width:100%; 
+            height:100px;
+            background-color: #f3f3f3;
+        }
+        #canvasda .info{
+            font: 12px Duru Sans;
+            font-family: 'Duru Sans', sans-serif;
+            font-weight: 500;
+            color: #ffff00;
+            background-color: #234589;
+        }
+        #canvasda .label{
+            font: 12px Duru Sans;
+            font-family: 'Duru Sans', sans-serif;
+            font-weight: 500;
+            color: rgba(23, 45, 89, 1);
+            background-color: rgba(23, 45, 89, 0.5);
+        }
+        #canvasda .bar{
+            background-color: orange;
+            width: 6px;
+        }
+        #canvasda .bar .sel{
+            background-color: #234589;
+        }
+    </style>
+    <body>
+        
+        <script src="js/rgbHex.min.js"></script>
+        <script src="js/jcanvas.js" type="text/javascript" ></script>
+        <script src="js/canvasDa.js" type="text/javascript" ></script>
+        <script src="js/canvasThumbs.js" type="text/javascript" ></script>
+        <script type="text/javascript">
+            var ja = $jsonFacet;
+        </script>
+        <div id="canvasda" class="years" style="overflow:auto; width:100%; height:150px;position: fixed;bottom:0;">
+        <div class="info"></div><div class="label"></div><div class="bar"><div class="sel"></div></div>
+        <canvas width="1000" height="130" style="position: absolute;bottom:0;"></canvas>
+        </div>
+    </body>
+</html>
+

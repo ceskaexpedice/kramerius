@@ -1,0 +1,40 @@
+[
+
+        {
+            "id":100,
+            "name":"zoom",
+            "object":"Zoomify"
+        },
+
+        {
+            "name":"audio",
+            "id":200,
+            "object":"AudioView"
+        },
+
+        {
+            "id":300,
+            "name":"pdf",
+            "object":"PDFView"
+        },
+
+        {
+            "name":"zoomstatic",
+            "id":400,
+            "object":"ZoomifyStaticImage"
+        },
+
+
+        {
+            "name":"thumbs",
+            "id":600,
+            "object":"ItemThumbs"
+        },
+
+        {
+            "name":"forbidden",
+            "id":666,
+            "object":"Forbidden"
+        }
+
+]

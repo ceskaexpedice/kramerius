@@ -1,0 +1,17 @@
+
+#set( $site = {})
+#set( 
+    $site.Map = {
+        "da" : "rows.vm", 
+        "collections" : "collections.vm",
+        "search":"search_results.vm",
+        "doc":"viewer.vm" ,
+        "zoom":"olimage.vm",
+        "home":"home.vm",
+        "browse":"browse.vm",
+        "login":"login.vm",
+        "registration":"registration.vm",
+        "printpart":"printpart.vm"
+    }
+)
+

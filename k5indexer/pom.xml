@@ -45,5 +45,11 @@
             <version>4.6.0</version>
             <type>jar</type>
      </dependency>
+     
+     <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>2.11.0</version>
+    </dependency>
   </dependencies>
 </project>

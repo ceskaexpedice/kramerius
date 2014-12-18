@@ -22,47 +22,58 @@ import net.sf.json.JSONObject;
 
 /**
  * Implementation of this interface is able to decorate resulting JSON object
+ * 
  * @author pavels
  *
  */
 public interface JSONDecorator {
 
-	/**
-	 * Returns unique key of this decorator
-	 * @return
-	 */
-	public String getKey();
-	
-	/**
-	 * Decorate method
-	 * @param jsonObject Resulting json object
-	 * @param runtimeContext Running context
-	 */
-	public void decorate(JSONObject jsonObject, Map<String, Object> runtimeContext);
+    /**
+     * Returns unique key of this decorator
+     * 
+     * @return
+     */
+    public String getKey();
 
-	/**
-	 * Returns true, if the decorator can be applied
-	 * @param jsonObject JSON object
-	 * @param context The web context
-	 * @return
-	 */
-	public boolean apply(JSONObject jsonObject, String context);
-	
-	
-	/**
-	 * Running context - suitable for sharing objects to prevent multiple request, for example. solr data document
-	 * @return
-	 */
-	public Map<String, Object> getRunningContext();
-	
-	/**
-	 * Before trigger - called before decorators started work
-	 * @param runningContext
-	 */
-	public void before(Map<String, Object> runningContext);
-	
-	/**
-	 * After trigger - called after decorators finish their work
-	 */
-	public void after();
+    /**
+     * Decorate method
+     * 
+     * @param jsonObject
+     *            Resulting json object
+     * @param runtimeContext
+     *            Running context
+     */
+    public void decorate(JSONObject jsonObject,
+            Map<String, Object> runtimeContext);
+
+    /**
+     * Returns true, if the decorator can be applied
+     * 
+     * @param jsonObject
+     *            JSON object
+     * @param context
+     *            The web context
+     * @return
+     */
+    public boolean apply(JSONObject jsonObject, String context);
+
+    /**
+     * Running context - suitable for sharing objects to prevent multiple
+     * request, for example. solr data document
+     * 
+     * @return
+     */
+    public Map<String, Object> getRunningContext();
+
+    /**
+     * Before trigger - called before decorators started work
+     * 
+     * @param runningContext
+     */
+    public void before(Map<String, Object> runningContext);
+
+    /**
+     * After trigger - called after decorators finish their work
+     */
+    public void after();
 }

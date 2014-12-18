@@ -54,11 +54,11 @@ public class FirstPageAsImagePDFServiceImpl extends AbstractPDFRenderSupport imp
 
     
     @Override
-    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os,String[] pids, String imgServlet, String i18nServlet, FontMap fontMap) {
+    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os,String[] pids,  String i18nServlet, FontMap fontMap) {
         try {
 
 
-            File pdfFile = writeSelectionToPDF(rdoc, pids,  imgServlet,  i18nServlet, fontMap);
+            File pdfFile = writeSelectionToPDF(rdoc, pids,  i18nServlet, fontMap);
             BufferedImage image = KrameriusImageSupport.readImage(pdfFile.toURI().toURL(), ImageMimeType.PDF, 0);
             LOGGER.fine("Original first page file :"+pdfFile.getAbsolutePath());
             
@@ -87,24 +87,24 @@ public class FirstPageAsImagePDFServiceImpl extends AbstractPDFRenderSupport imp
         os.flush();
     }
 
-    File writeSelectionToPDF(AbstractRenderedDocument rdoc, String[] pids, String imgServlet, String i18nServlet, FontMap fontMap) throws IOException, FileNotFoundException {
+    File writeSelectionToPDF(AbstractRenderedDocument rdoc, String[] pids, String i18nServlet, FontMap fontMap) throws IOException, FileNotFoundException {
         FileOutputStream pdfFos = null;
         try {
             File tmpFile = File.createTempFile("firstpage", "pdf");
             pdfFos = new FileOutputStream(tmpFile);
-            this.textPDFService.generateFirstPageForSelection(rdoc, pdfFos, pids, imgServlet, i18nServlet, fontMap);
+            this.textPDFService.generateFirstPageForSelection(rdoc, pdfFos, pids, i18nServlet, fontMap);
             return tmpFile;
         } finally {
             if (pdfFos != null) pdfFos.close();
         }
     }
 
-    public File writeParentToPDF(AbstractRenderedDocument rdoc,ObjectPidsPath path,  String imgServlet, String i18nServlet, FontMap fontMap) throws IOException, FileNotFoundException {
+    public File writeParentToPDF(AbstractRenderedDocument rdoc,ObjectPidsPath path,  String i18nServlet, FontMap fontMap) throws IOException, FileNotFoundException {
         FileOutputStream pdfFos = null;
         try {
             File tmpFile = File.createTempFile("firstpage", "pdf");
             pdfFos = new FileOutputStream(tmpFile);
-            this.textPDFService.generateFirstPageForParent(rdoc, pdfFos,path, imgServlet, i18nServlet, fontMap);
+            this.textPDFService.generateFirstPageForParent(rdoc, pdfFos,path,i18nServlet, fontMap);
             return tmpFile;
         } finally {
             if (pdfFos != null) pdfFos.close();
@@ -112,9 +112,9 @@ public class FirstPageAsImagePDFServiceImpl extends AbstractPDFRenderSupport imp
     }
 
     @Override
-    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path, String imgServlet, String i18nServlet, FontMap fontMap) {
+    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path,  String i18nServlet, FontMap fontMap) {
         try {
-            File pdfFile =writeParentToPDF(rdoc, path, imgServlet, i18nServlet, fontMap);
+            File pdfFile =writeParentToPDF(rdoc, path, i18nServlet, fontMap);
             BufferedImage image = KrameriusImageSupport.readImage(pdfFile.toURI().toURL(), ImageMimeType.PDF, 0);
             
             File imageFile = File.createTempFile("image", ImageMimeType.PNG.getDefaultFileExtension());
@@ -128,5 +128,4 @@ public class FirstPageAsImagePDFServiceImpl extends AbstractPDFRenderSupport imp
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
-
 }

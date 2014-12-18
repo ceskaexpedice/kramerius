@@ -1,0 +1,124 @@
+    
+
+
+<div id="viewer" class="">
+<input id="q" name="q" type="hidden" value="$!{params.q}" />
+
+    <div class="breadcrumbs"></div>
+
+    <div class="container">
+        <div class="error">Error</div>
+        <!--
+        <div id="left" class="leftarrow"><div>#parse("svg/arrowleft.svg")</div></div>
+        <div id="right" class="rightarrow"><div>#parse("svg/arrowright.svg")</div></div>
+        -->
+    </div> 
+    
+    <!-- metadata panel -->
+    <div class="info infobox dialogs" style="position:absolute;display:none;">
+        <div class="triangle" id="mtd_footer_triangle"></div>
+
+        <h4 id="model"></h4>
+        <div id="title"></div>
+        <div id="root_title" style="display:none"></div>
+            
+        <div style="position:absolute; bottom:0; left:50%;" />
+        <div class="small info show" style="display: none;" title="$i18n.buttons.info" onclick="K5.gui.selected.showInfo();" >#parse("svg/arrow2d.svg")</div>
+        </div>
+
+        <div id="metadata" class="info show" style="display:none">
+        </div>
+
+        <div class="mtd_footer dialogs_footer">
+            <div class="right">
+                <div class="buttons">
+                    <div class="button" onclick="cleanWindow();">#translatable('common.close')</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- akce -->
+    <div class="actions dialogs" style="position:absolute;display:none;">
+        <div class="triangle" id="acts_footer_triangle"></div>
+        <div id="acts_container" class="dialogs_content">  </div>
+        <div class="acts_footer dialogs_footer">
+            <div class="right">
+                <div class="buttons">
+                    <div class="button" onclick="cleanWindow();">#translatable('common.close')</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hits infobox" style="position:absolute;display:none;">
+        <div class="right">
+            <div class="small" title="$i18n.buttons.hide" onclick="K5.gui.selected.hidePanels();" >#parse("svg/close.svg")</div>
+        </div>
+    </div>
+
+
+    <div class="searchinside dialogs" style="position:absolute;display:none;">
+        <div class="triangle" id="searchinside_triangle"></div>
+
+        <div id="searchinside_container" class="dialogs_content">  
+            <input type="text" id="searchinside_q" style="float:left;width: 90%;" />
+
+            <div class="small" title="$i18n.buttons.hide" onclick="K5.gui.selected.dosearch();" >#parse("svg/lupa.svg")</div>
+        </div>
+
+        <div class="searchinside_footer dialogs_footer">
+            <div class="right">
+                <div class="buttons" onclick="cleanWindow();">
+                    <div class="button">#translatable('common.close')</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading"></div> 
+
+    <!-- persistent url -->
+    #parse("actions/persistent.vm")
+
+    <!-- selections url -->
+    #parse("actions/selects.vm")
+
+    <!-- ocr url -->
+    #parse("actions/ocr.vm")
+
+</div>
+    
+<div id="item_menu" style="display:none;">
+
+
+    <div class="small parent translate_title" data-ctx="parent" data-key="buttons.parent" title="$i18n.buttons.parent" onclick="K5.gui.selected.parent();" >#parse("svg/parent.svg")</div>
+
+    <div class="small search translate_title" data-ctx="thumbs" id="vwr_ctx_searchinside" data-key="searchinside.dialog" title="$i18n.searchinside.dialog" onclick="K5.gui.selected.searchInside();" >#parse("svg/lupa.svg")</div>
+
+    <div class="small pin translate_title" data-ctx="all" id="vwr_ctx_actions" data-key="buttons.actions" title="$i18n.buttons.actions" onclick="K5.gui.selected.toggleActions();" style="display:none">#parse("svg/actions.svg")</div>
+
+    <div class="small pin translate_title" data-ctx="all"  id="vwr_ctx_pin" style="display:none" data-key="buttons.pin" title="$i18n.buttons.pin" onclick="K5.gui.selected.togglePin();" >#parse("svg/pin.svg")</div>
+    <div class="small info translate_title" data-ctx="all" id="vwr_ctx_metadata" data-key="buttons.showinfo" title="$i18n.buttons.showinfo" onclick="K5.gui.selected.toggleInfo();" >#parse("svg/info.svg")</div>
+
+
+    <div class="small translate_title" data-ctx="all" id="vwr_ctx_share" data-key="buttons.fit" title="$i18n.buttons.fit" onclick="K5.gui.selected.shares.open();" >#parse("svg/share.svg")</div>
+    <div class="small translate_title" data-ctx="download" id="vwr_ctx_download" data-key="buttons.fit" title="$i18n.buttons.fit" onclick="K5.gui.selected.download.open();" >#parse("svg/download.svg")</div>
+
+    <div class="small translate_title" data-ctx="favorite"  title="$i18n.buttons.parent" onclick="K5.authentication.askForAppendToProfile();" >#parse("svg/addfavorite.svg")</div>
+    <div class="small translate_title" data-ctx="notfavorite"  title="$i18n.buttons.parent" onclick="K5.authentication.askForRemoveFromProfile();" >#parse("svg/removefavorite.svg")</div>
+
+    <!--
+    <div class="small translate_title" data-ctx="all"  title="$i18n.buttons.parent" onclick="K5.gui.clipboard.removeCurrent();" >#parse("svg/warning.svg")</div>
+    <div class="small pin translate_title" data-ctx="notselected" id="vwr_ctx_addclipboard"  title="$i18n.buttons.addclipboard" onclick="K5.gui.clipboard.addCurrent();" >#parse("svg/plusclipboard.svg")</div>
+    <div class="small pin translate_title" data-ctx="selected" id="vwr_ctx_removeclipboard"  title="$i18n.buttons.removefromclipboard" onclick="K5.gui.clipboard.removeCurrent();">#parse("svg/minusclipboard.svg")</div>
+    <div class="small pin translate_title" data-ctx="clipboardnotempty" id="vwr_ctx_clipboard"  title="$i18n.buttons.showclipboard" onclick="K5.gui.clipboard.display();">#parse("svg/clipboard.svg")</div>
+    -->
+    
+</div>
+
+<div id="item_menu_thumbs" style="display:none;">
+    <div class="small search translate_title" data-key="searchinside.dialog" title="$i18n.searchinside.dialog" onclick="K5.gui.selected.search();" >#parse("svg/lupa.svg")</div>
+</div>
+
+
