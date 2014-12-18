@@ -86,4 +86,7 @@
             }
         });
     }
+    $(document).ready(function(){
+        getCxtInfo();
+    });
 </script>

@@ -113,23 +113,21 @@
         </td>
         <xsl:variable name="model"><xsl:value-of select="concat('fedora.model.', ./str[@name='fedora.model'])" /></xsl:variable>
         <td class="resultText" valign="top">
-            <!--
+            
             <a><xsl:attribute name="href">javascript:changeSelect('<xsl:value-of select="./arr[@name='pid_path']/str"/>');</xsl:attribute><b><xsl:value-of select="./str[@name='dc.title']"/></b></a>&#160;
             (<xsl:value-of select="$bundle/value[@key=$model]"/>)
             <div>
             <xsl:call-template name="default">
                 <xsl:with-param name="fmodel"><xsl:value-of select="$fmodel" /></xsl:with-param>
             </xsl:call-template>
-            <xsl:call-template name="details">
-                <xsl:with-param name="fmodel"><xsl:value-of select="$fmodel" /></xsl:with-param>
-            </xsl:call-template>
-            </div>
-            -->
-            <div class="extInfo" style="display:none;"><xsl:value-of select="./arr[@name='pid_path']/str[position()=1]"/></div>
-            
             <xsl:call-template name="teaser">
                 <xsl:with-param name="pid"><xsl:value-of select="$pid" /></xsl:with-param>
             </xsl:call-template>
+            <div class="extInfo" style="display:none;"><xsl:value-of select="./arr[@name='pid_path']/str[position()=1]"/></div>
+            
+            </div>
+            
+            
         </td>
     </xsl:template>
 
