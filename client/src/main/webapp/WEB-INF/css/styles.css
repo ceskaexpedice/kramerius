@@ -994,13 +994,15 @@ li.public:before{
     position: absolute;
     top: 3px;
     left: 3px;
-    width: 100%;
+    width: 95%;
     overflow: hidden;
     color: #333333;
     text-align: left;
+    text-overflow: ellipsis;
 }
 #viewer li.thumb .thumb_info span.title{
     text-shadow: 0 -2px 3px #fff, 2px 0 3px #fff, 0 2px 3px #fff, -2px 0 3px #fff;
+    white-space: nowrap;
 }
 
 
