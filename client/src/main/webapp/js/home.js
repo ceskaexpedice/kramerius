@@ -128,10 +128,10 @@ HomeEffects.prototype = {
             
             
             var a = $("<div/>", {class: "a"});
-            if(srcs[index].model === 'page'){
+            if(srcs[index].root_title !== srcs[index].title){
                 a.append(srcs[index].root_title + " [" + srcs[index].title + "]");
             }else{
-                a.append(srcs[index].title);
+                a.append(srcs[index].root_title);
             }
             
             a.click(function(){
