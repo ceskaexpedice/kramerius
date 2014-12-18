@@ -13,6 +13,7 @@ import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.utils.XSLFunctions;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -432,9 +433,25 @@ public class KrameriusDocument {
             }
         }
         
+        
+        //Fields with special procesing
+        setProcessedFields(doc);
+        
         commiter.add(doc);
         ds_cache.clear();
         return doc;
+    }
+    
+    private void setProcessedFields(SolrInputDocument doc) throws Exception {
+        List<String> browseModels = Arrays.asList(config.getStringArray("k5indexer.browseModels"));
+        if(browseModels.contains(doc.getField("fedora_model").getValue().toString())){
+            String b = XSLFunctions.prepareCzech(doc.getField("title").getValue().toString());
+            doc.addField("browse_title", b);
+        }
+        
+        String a = XSLFunctions.prepareCzech(doc.getField("autor").getValue().toString());
+        doc.addField("browse_autor", a);
+        
     }
 
     private JSONObject makeJson(String pid) throws JSONException, IOException {
