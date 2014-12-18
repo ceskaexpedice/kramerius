@@ -128,12 +128,19 @@ HomeEffects.prototype = {
             
             
             var a = $("<div/>", {class: "a"});
-            a.append(srcs[index].title);
+            if(srcs[index].model === 'page'){
+                a.append(srcs[index].root_title + " [" + srcs[index].title + "]");
+            }else{
+                a.append(srcs[index].title);
+            }
+            
             a.click(function(){
                 K5.api.gotoDisplayingItemPage(pid);
             });
             $("#pidinfo").append(a);
-            $("#pidinfo").append('<div class="details">' + srcs[index].details + '</div>');
+            if(srcs[index].author){
+                $("#pidinfo").append('<div class="details">' + srcs[index].author + '</div>');
+            }
             
             /* Komentovane podle issue 199
              * 
