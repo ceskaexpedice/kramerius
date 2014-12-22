@@ -5,7 +5,7 @@
 var delayedEvent = {'pid':'','enabled':true};        
 K5.eventsHandler.addHandler(function(type, configuration) {
     var splitted = type.split("/");
-    if (splitted.length == 3) {
+    if (splitted.length === 3) {
         //api/item/
         if ((splitted[0] === "api") && (splitted[1] === "item")) {
             var pid = splitted[2];
@@ -127,14 +127,14 @@ function _eventProcess(pid) {
                     $("#metadata").html(data);
                     $(".infobox .label").each(function(index, val) {
                         var txt = $(val).text();
-                        txt = txt.trim()
+                        txt = txt.trim();
                         if (txt.indexOf(":") === 0) {
                             $(val).text('');
                         }
                     });
                    $(".infobox .label").each(function(index, val) {
                         var valueText = $(val).siblings(".value").text();
-                        valueText = valueText.trim()
+                        valueText = valueText.trim();
                         if ("" === valueText) {
                             $(val).siblings(".value").remove();
                             $(val).remove();
@@ -176,7 +176,7 @@ ItemSupport.prototype = {
         } else {
             this.application.eventsHandler.addHandler(_.bind(function(type, configuration) {
                 console.log("event type " + type);
-                if (type == "i18n/dictionary") {
+                if (type === "i18n/dictionary") {
                     this._initInfo();
                 }
             }, this));
@@ -224,7 +224,7 @@ ItemSupport.prototype = {
         });
 
         _.each(items, function(itm) {
-            if (itm != null) ul.append(itm);
+            if (itm !== null) ul.append(itm);
         });
         menuDiv.append(ul);
         $("#acts_container").append(menuDiv);
@@ -248,7 +248,7 @@ ItemSupport.prototype = {
         });
 
         _.each(items, function(itm) {
-            if (itm != null)
+            if (itm !== null)
                 ul.append(itm);
         });
 
@@ -336,10 +336,6 @@ ItemSupport.prototype = {
     },
     showItemNavigation: function() {
         this.hideInfo();
-    },
-
-    // toggle actions -> change it     
-    toggleActions: function() {
     },
     /**
      * Siblings request
@@ -491,9 +487,8 @@ ItemSupport.prototype = {
     /**
      * Search inside document
      * @method      
-     * @param {integer} speed.
      */       
-    searchInside: function(speed) {
+    searchInside: function() {
         cleanWindow();
 
         $("#searchinside_q").val($("#q").val());
@@ -503,23 +498,13 @@ ItemSupport.prototype = {
         $("#searchinside_q").select();
 
         this._searchInsideArrow();
-
-//        this.showPanel("#viewer>div.searchinside", 290, 37, speed);
-        /*
-        this.hidePanels(_.bind(function(){
-            this.showPanel("#viewer>div.searchinside", 290, 37, speed);
-            $("#searchinside_q").focus();
-            $("#searchinside_q").select();
-        }, this));
-        */
-
     },
 
     /**
      * Show info panel
      * @method      
      */       
-    showInfo: function(speed) {
+    showInfo: function() {
         cleanWindow();
         divopen("#viewer>div.info");
 
@@ -529,8 +514,8 @@ ItemSupport.prototype = {
         var contextheight = $(".context").height();
         console.log("context height :"+contextheight);
 
-        var titleheight = $("#title").height()
-        var modelheight = $("#model").height()
+        var titleheight = $("#title").height();
+        var modelheight = $("#model").height();
 
         var nheight = metadataheight + 63 +contextheight+titleheight+modelheight ;
 
@@ -570,16 +555,6 @@ ItemSupport.prototype = {
         }else{
             this.hidePanel("#viewer>div.infobox:visible", 290, -500, 200, whenready);
         }
-    },
-
-
-    /** 
-     * toggle actions 
-     * @method
-     */
-    toggleActions: function() {
-        if (visible("#viewer>div.actions")) { cleanWindow(); } 
-        else { this.showActions();  }
     },
 
     _searchInsideArrow:function() {
