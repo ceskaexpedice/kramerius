@@ -296,9 +296,20 @@ ItemThumbs.prototype = {
             var h = this.naturalHeight;
             var relation = w / h;
             if (itemths.imgHeight * relation > itemths.imgWidth) {
-                $(img).attr("width", itemths.imgWidth);
+                if(w > itemths.imgWidth){
+                    $(img).attr("width", Math.min(w, itemths.imgWidth));
+                }else{
+                    $(img).css("width", w);
+                    $(img).css("top", (itemths.imgWidth-w)/2);
+                }
             } else {
-                $(img).attr("height", itemths.imgHeight);
+                if(h > itemths.imgHeight){
+                    $(img).attr("height", Math.min(h, itemths.imgHeight));
+                    
+                }else{
+                    $(img).css("height", Math.min(h, itemths.imgHeight));
+                    $(img).css("top", (itemths.imgHeight - h)/2);
+                }
             }
 
             itemths.checkLoading();

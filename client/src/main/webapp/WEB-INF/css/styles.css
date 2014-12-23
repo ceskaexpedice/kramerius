@@ -238,6 +238,7 @@ body * {
 .thumb img{
     box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px 0px;
     height: 100%;
+    position: relative;
 }
 .thumb>img:hover{
     box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 15px 0px;
