@@ -156,10 +156,9 @@ function _checkArrows() {
 
                         if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
                         if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
-        
+
                         K5.eventsHandler.trigger("application/menu/ctxchanged", null);
                 });
-
         }
 }
 

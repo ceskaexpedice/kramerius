@@ -136,7 +136,8 @@ function Application() {
         
 
         this.outputs = {
-                        'pdf':new PDFSupport(this)
+                        'pdf':new PDFSupport(this),
+                        'print':new PrintSupport(this)
         };
 
         /** 
@@ -146,6 +147,7 @@ function Application() {
         this.gui = {
                 clipboard: new Clipboard(this),
                 vc: new VirtualCollections(this),
+                footer:new Footer(this),
                 historyitems:[],
                 page:''
         };
@@ -166,7 +168,7 @@ function Application() {
                         event.preventDefault();
                 }, false);         
         };
-        
+        // to utils
         this.proccessDetails = function(json, info) {
             var model = json["model"];
             var details = json["details"];

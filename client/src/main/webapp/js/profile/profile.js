@@ -224,14 +224,17 @@ ProfileDisplay.prototype = {
          * Store current state of the profileContent
          * @method 
          */        
-        store:function() {
+        store:function(fnc) {
                 var encodedData = Base64.encode(JSON.stringify(K5.authentication.ctx.profile));
                 var refresh = _.bind(function() { 
                         this.refreshButtons();  this.profileContent(); 
+                        if (fnc) {
+                            fnc.apply(null, []);
+                        }
                         K5.eventsHandler.trigger("application/menu/ctxchanged", null);
                 }, this);
                 var postok = _.bind(function() { 
-                        K5.authentication.askForProfileRequest(refresh); 
+                    K5.authentication.askForProfileRequest(refresh); 
                 }, this);
 
                 $.ajax({

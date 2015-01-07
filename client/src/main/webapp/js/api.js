@@ -296,6 +296,16 @@ ClientAPIDev.prototype = {
         });
     },
 
+    feedback:function(message, pid, from, okFunc, failFunc) {
+        //http://krameriusdemo.mzk.cz/search/feedback?from=pavel.stastny&pid=[http://krameriusdemo.mzk.cz/search/handle/uuid:b79dd230-d2fb-11dc-b6af-000d606f5dc6]%20&content=pavel.stastny%20test
+
+        $.post("feedback", {
+            "from" : from,
+            "pid" : pid,
+            "content" : message
+        }, okFunc);
+    },
+    
     /** Requests for save content into cache */
     saveToCache : function(filename, content, whenready) {
         $.post("cache", {

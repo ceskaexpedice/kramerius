@@ -52,6 +52,7 @@ K5.eventsHandler.addHandler(function(type, configuration) {
     if (type === "application/menu/ctxchanged") {
         K5.gui["selected"].addContextButtons();
     }
+
 });
 
 //var phash = location.hash;
@@ -173,6 +174,7 @@ ItemSupport.prototype = {
             this.shares = new ShareItem();
             this.shares.init();
             
+            
         } else {
             this.application.eventsHandler.addHandler(_.bind(function(type, configuration) {
                 console.log("event type " + type);
@@ -233,33 +235,7 @@ ItemSupport.prototype = {
         }
     },
  
-   _toOld: function(actions) {
-        var menuDiv = $("<div/>", {'id': 'ctxmenu'});
-        var ul = $('<ul/>');
-        var items = _.map(actions, function(a) {
-            if (a.visible) {
-                var li = $('<li/>');
-                var item = $('<a/>', {'href': 'javascript:' + a.action, 'data-key': a.i18nkey});
-                item.addClass("translate");
-                li.append(item);
-                return li;
-            } else
-                return null;
-        });
-
-        _.each(items, function(itm) {
-            if (itm != null)
-                ul.append(itm);
-        });
-
-        menuDiv.append(ul);
-        $("#acts_container").append(menuDiv);
-
-        K5.i18n.k5translate(menuDiv);
-    },
-
-
-
+  
     renderContext: function() {
         $(".context").remove();
         var pid = K5.api.ctx["item"]["selected"];
@@ -347,19 +323,32 @@ ItemSupport.prototype = {
      */    
     siblings: function() {
         $("#itemparts").append("<div id='itempartssiblings' style='overflow:scroll; width:100%; height:40%; text-align:center'><h1>Siblings</h1></div>");
-        K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
-            console.log(data.length);
-            var arr = data[0]['siblings'];
-            console.log('array length:' + arr);
+
+        var selected = K5.api.ctx["item"].selected;
+        if (K5.api.ctx["item"] && K5.api.ctx["item"][selected] &&  K5.api.ctx["item"][selected]["siblings"]) {
+            var arr = K5.api.ctx["item"][selected]["siblings"][0]['siblings'];
             var str = _.reduce(arr, function(memo, value, index) {
                 var pid = value.pid;
                 memo +=
                         "<div style='float:left'> <a href='?page=doc&pid=" + pid + "'> <img src='api/item/" + pid + "/thumb'/></a> </div>";
                 return memo;
             }, "");
-            $("#itempartssiblings").append(str + "<div style='clear:both'></div>");
 
-        });
+            $("#itempartssiblings").append(str + "<div style='clear:both'></div>");
+        } else {
+            K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
+                var arr = data[0]['siblings'];
+                console.log('array length:' + arr);
+                var str = _.reduce(arr, function(memo, value, index) {
+                    var pid = value.pid;
+                    memo +=
+                            "<div style='float:left'> <a href='?page=doc&pid=" + pid + "'> <img src='api/item/" + pid + "/thumb'/></a> </div>";
+                    return memo;
+                }, "");
+                $("#itempartssiblings").append(str + "<div style='clear:both'></div>");
+
+            });
+        }
 
     },
     /**

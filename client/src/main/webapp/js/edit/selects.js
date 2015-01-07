@@ -15,10 +15,14 @@ SelectObject.prototype = {
 
     
     overlay:function() {
+        // margin top header plus breadcrum
+        var headerHeight = $("#header").height();
+        var breadcrumHeight = $("#viewer div.breadcrumbs").height();
+        
         var relativePos = this.application.gui.selected.relativePosition();
         $('#overlay').css('top',relativePos.top);
         $('#overlay').css('left',relativePos.left);
-        $('#overlay').css('margin-top',"40px");
+        $('#overlay').css('margin-top',(headerHeight+ breadcrumHeight)+"px");
     },
     
     page:function() {

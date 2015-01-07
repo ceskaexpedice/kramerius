@@ -895,7 +895,7 @@ li.public:before{
     top: 0px;
     background-color: #F5F5F5;
     width: 100%;
-    height: calc(100% - 40px);    
+    height: calc(100% - 70px);    
     overflow: auto;
 }
 
@@ -2404,7 +2404,7 @@ div.logoptions  div.logoptions_footer  div.right{
     overflow: hidden;
 }
 #footer div{
-    margin: 4px;
+    margin: 2px;
 }
 
 /** share dialog */
@@ -2712,6 +2712,7 @@ div.download_footer  .buttons div.sel{
 
 /** end of dialog download */
 
+
 #footer a{
     color: inherit;
     text-decoration: none;
@@ -2722,3 +2723,106 @@ div.download_footer  .buttons div.sel{
     background-color: $params.activeColor;
 }
 
+
+
+/** feedback dialog */
+div.feedback {
+        top: 20%;
+        width: 300px;
+        height: 40%;
+        background-color: $params.activeColor;
+        box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+        z-index: 43;
+        color: white;
+        margin:auto;
+        left:calc(50% - 150px);
+}
+
+#feedback_container {
+    height:calc(100% - 43px);
+    width:100%;
+    position:absolute;
+    top:0;
+    text-align: center;
+}
+
+
+#feedback_container label {
+    margin-left: 5px; 
+}
+
+#feedback_container div.download_header  {
+    text-align: center;
+}
+
+#feedback_container div.download_header h2 {
+    text-align: center;
+}
+
+#feedback_container div {
+    text-align: left;
+}
+
+#feedback_container div label {
+    margin-left: 5px;
+}
+
+#feedback_container div input {
+    width:90%;
+    margin-left: 10px;
+}
+
+
+#feedback_container div textarea {
+    width: 90%;
+    height: 60px;
+    margin-left: 10px;
+}
+
+
+div.feedback_footer {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    left: 0px;
+    height: 43px;
+    border-top: 1px solid white;
+
+}
+
+div.feedback_footer div.right {
+    position: absolute;
+    right: 15px;
+    margin-top: 5px;
+    display: inline-block;
+    font-size: 11px;
+    float: right;
+}
+
+div.feedback_footer div.right div.buttons {
+    position: relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+div.feedback_footer div.right div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+    margin-left: 2px;
+}
+
+div.feedback_footer  a {
+        color: inherit;
+        text-decoration: none;
+}
+
+div.feedback_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+/** end of dialog feedback */
