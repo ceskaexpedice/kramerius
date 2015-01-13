@@ -86,7 +86,7 @@ function _eventProcess(pid) {
 
         K5.gui["selected"]["ctx"] = {};    
 
-        _metadatainit();
+        //_metadatainit();
 
 
         K5.gui.selected["disabledDisplay"] = false;
@@ -104,7 +104,7 @@ function _eventProcess(pid) {
         // initialization
         //K5.gui["selected"].ctxMenu();    
         
-        _metadatainit();
+        //_metadatainit();
 
         K5.gui.selected["disabledDisplay"] = false;
     });
@@ -200,8 +200,6 @@ ItemSupport.prototype = {
         $(document).prop('title', K5.i18n.ctx.dictionary['application.title'] + ". " + root_title);
         this.renderContext();
     },
-
-    
     
     addContextButtons: function() {
         _ctxbuttonsrefresh();
@@ -232,103 +230,125 @@ ItemSupport.prototype = {
                 K5.i18n.k5translate(menuDiv);
         }
     },
- 
-   _toOld: function(actions) {
-        var menuDiv = $("<div/>", {'id': 'ctxmenu'});
-        var ul = $('<ul/>');
-        var items = _.map(actions, function(a) {
-            if (a.visible) {
-                var li = $('<li/>');
-                var item = $('<a/>', {'href': 'javascript:' + a.action, 'data-key': a.i18nkey});
-                item.addClass("translate");
-                li.append(item);
-                return li;
-            } else
-                return null;
-        });
-
-        _.each(items, function(itm) {
-            if (itm !== null)
-                ul.append(itm);
-        });
-
-        menuDiv.append(ul);
-        $("#acts_container").append(menuDiv);
-
-        K5.i18n.k5translate(menuDiv);
+    ns: function(prefix){
+        var    pref = 'mods';
+        var    ns = 'http://www.loc.gov/mods/v3';
+        if (prefix === pref)
+                return ns;
+        
+    },
+    getXpath:function(data, path){
+        var node = $(data).xpath(path, this.ns);
+        if(node.length > 0){
+            return node[0].textContent;
+        }else{
+            return "";
+        }
+    },
+    biblioMods: function(elem, pid){
+        K5.api.askForItemConcreteStream(pid, "BIBLIO_MODS", _.bind(function(data) {
+            for(var i=0; i<K5.indexConfig.metadata.length; i++){
+                var cval = K5.indexConfig.metadata[i];
+                var val = this.getXpath(data, cval.xpath);
+                if(val !== ""){
+                    $(elem).append('<div style="display:block;"><label>' + cval.label + ':</label> ' + val + '</div>');
+                }
+            }
+            this.parseBiblioModsXml(elem, pid, data);
+            
+        }, this));
+    },
+    parseBiblioModsXml: function(elem, pid, data){
+            var xmlstr = (typeof XMLSerializer!=="undefined") ? 
+               (new window.XMLSerializer()).serializeToString(data) : 
+               data.xml;
+            var t = $('<textarea/>');
+            t.text(xmlstr);
+            $(t).format({method: 'xml'});
+            
+            $.SyntaxHighlighter.init({
+                'stripInitialWhitespace': true,
+                'lineNumbers': false,
+                'wrapLines': true
+            });
+            var modsid = "mods_"+pid;
+            var div = $('<div style="display:none;" />');
+            div.attr("id", modsid);
+            div.css('height', $("#viewer").height() - 60);
+            var $content = $('<pre class="language-xml"></pre>');
+            $content.text(t.val());
+            $content.css(t.val());
+            $content.syntaxHighlight();
+            div.append($content);
+            $('#viewer').append(div);
+    },
+    biblioModsXml: function(elem, pid){
+        K5.api.askForItemConcreteStream(pid, "BIBLIO_MODS", _.bind(function(data) {
+            this.parseBiblioModsXml(elem, pid, data);
+        }, this));
     },
 
-
+    metadata: function(elem, pid, model) {
+        $.get("metadata?pid=" + pid + "&model=" + model, _.bind(function(data) {
+            
+            $(elem).append(data);
+            $(elem).find(".infobox .label").each(function(index, val) {
+                var txt = $(val).text();
+                txt = txt.trim();
+                if (txt.indexOf(":") === 0) {
+                    $(val).text('');
+                }
+            });
+            $(elem).find(".infobox .label").each(function(index, val) {
+                var valueText = $(val).siblings(".value").text();
+                valueText = valueText.trim();
+                if ("" === valueText) {
+                    $(val).siblings(".value").remove();
+                    $(val).remove();
+                }
+            });
+            this.biblioModsXml(elem, pid);
+            
+            var b = $(elem).find("h2");
+            b.addClass("button");
+            b.attr("data-id", pid);
+            b.data("id", pid);
+            b.text(b.text() + ' <xml>');
+            b.attr('title', 'show mods');
+            b.click(function(){
+                var id = $(this).data("id");
+                var h = $("#viewer").height() - 60;
+                $(jq("mods_" + id)).dialog({
+                    width:'90%', 
+                    height: h, 
+                    modal: true,
+                    title : "Biblio Mods: " + id
+                });
+            });
+            //$(elem).append(b);
+            
+        }, this));
+    },
 
     renderContext: function() {
         $(".context").remove();
         var pid = K5.api.ctx["item"]["selected"];
         var data = K5.api.ctx["item"][pid];
 
-        // update model
-        var model = data.model;
-
-        K5.i18n.translatableElm("fedora.model." + K5.api.ctx.item[pid].model, "#model");
-        $("#title").text(K5.api.ctx.item[pid].title);
-        if (data.model === "page") {
-            if (data.details && data.details.type) {
-                if (data.details.type !== "normalPage" && data.details.type !== "NormalPage") {
-                    var type = $(K5.i18n.translatable("mods.page.partType." + data.details.type));
-                    type.addClass("pageType");
-                    var title = $("<span/>");
-                    title.text(K5.api.ctx.item[pid].title + " ");
-
-                    $("#title").empty();
-
-                    $("#title").append(title);
-                    $("#title").append(type);
-                } else {
-                    $("#title").html("<span>" + K5.api.ctx.item[pid].title + "</span>");
-                }
-            } else {
-                $("#title").html("<span>" + K5.api.ctx.item[pid].title + "</span>");
-            }
-        } else {
-            $("#title").html("<span>" + K5.api.ctx.item[pid].title + "</span>");
-        }
-
-
         this.itemContext = data.context[0];
         var contextDiv = $("<div/>", {class: "context"});
-        for (var i = 0; i < this.itemContext.length - 1; i++) {
+        for (var i = 0; i < this.itemContext.length; i++) {
             var p = this.itemContext[i].pid;
             var div = $('<div/>');
-            $(div).css("margin-left", (i * 15) + "px");
-            var a = $('<div/>', {'data-pid': p});
-            var img = $('<img/>', {'src': 'api/item/' + p + '/thumb'});
-            img.css('height', '48px');
-            div.append(img);
-            var model = K5.i18n.translatable('fedora.model.' + this.itemContext[i].model);
 
-            a.data('pid', p);
-
-            if (K5.api.ctx.item[p]) {
-                a.append('<span> ' + model + '</span>');
-                a.append('<span> (' + K5.api.ctx.item[p].title + ')</span>');
-            } else {
-                K5.api.askForItemContextData(p, function(data) {
-                    var pidElm = $("div:data(pid)").filter(function() {
-                        return $(this).data("pid") === data.pid;
-                    });
-                    var m = K5.i18n.translatable('fedora.model.' + data.model);
-                    pidElm.append('<span> ' + m + '</span>');
-                    pidElm.append('<span> (' + data.title + ')</span>');
-                });
-            }
-
-            a.click(_.bind(function(l) {
-                K5.api.gotoItemPage(l, $("#q").val());
-            }, this, p));
-
-            div.append(a);
+            this.metadata(div, p, this.itemContext[i].model);
+            //div.append(K5.i18n.translatable("fedora.model." + this.itemContext[i].model));
+            //this.biblioMods(div, p);
+            //this.biblioModsXml(div, p);
             contextDiv.append(div);
         }
-        contextDiv.insertBefore(".mtd_footer");
+        contextDiv.insertBefore("#metadata");
+        //contextDiv.insertBefore(".mtd_footer");
     },
 
     hidePages: function() {
