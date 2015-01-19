@@ -2,7 +2,7 @@
 /**
  * Register listener -> Create viewer 
  */
-var delayedEvent = {'pid':'','enabled':true};        
+var delayedEvent = {'pid':'','enabled':true};
 K5.eventsHandler.addHandler(function(type, configuration) {
     var splitted = type.split("/");
     if (splitted.length == 3) {

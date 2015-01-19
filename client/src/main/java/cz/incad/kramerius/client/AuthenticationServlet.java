@@ -48,6 +48,7 @@ import cz.incad.kramerius.client.kapi.auth.ProfileDelegator;
 import cz.incad.kramerius.client.kapi.auth.User;
 import cz.incad.kramerius.client.kapi.auth.impl.CallUserControllerImpl;
 import cz.incad.kramerius.client.socialauth.OpenIDSupport;
+import cz.incad.kramerius.client.socialauth.ShibbolethSupport;
 import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
 import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -60,7 +61,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class AuthenticationServlet extends HttpServlet {
 
     public static final Logger LOGGER = Logger.getLogger(AuthenticationServlet.class.getName());
-    
+
     public static String get(String url,String userName, String pswd) throws JSONException {
         Client c = Client.create();
         WebResource r = c.resource(url);
@@ -78,6 +79,7 @@ public class AuthenticationServlet extends HttpServlet {
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(profile.toString()).post(String.class);
         return t;
     }
+
 
     public static CallUserController createCaller(HttpServletRequest req, String username,
             String password, String returned) throws JSONException,
@@ -209,6 +211,27 @@ public class AuthenticationServlet extends HttpServlet {
             public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
                 OpenIDSupport oidSupport = new OpenIDSupport();
                 oidSupport.login(req, resp);
+            }
+        },
+        
+        shibbLoginRedirect {
+            @Override
+            public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
+                try {
+                    ShibbolethSupport shibbSupport = new ShibbolethSupport();
+                    shibbSupport.provideRedirection(req,resp);
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                }
+            }
+            
+        },
+        
+        shibbLogin {
+            @Override
+            public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
+                ShibbolethSupport shibbolethSupport = new ShibbolethSupport();
+                shibbolethSupport.login(req, resp);
             }
         },
         

@@ -102,7 +102,7 @@ public class MatchRule implements Expr {
      * @param ctx Runtime context
      * @see ShibContext
      */
-    public void evaluate( ShibContext ctx) {
+    public void evaluate( ShibbolethContext ctx) {
         if (this.leftOperand.match(this.rightOperand, ctx.getHttpServletRequest())) {
             if (body != null) {
                 this.body.evaluate(ctx);

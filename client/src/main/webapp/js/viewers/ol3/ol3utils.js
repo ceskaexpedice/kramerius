@@ -1,4 +1,5 @@
 
+
 function _checkZoomIsLocked(map) {
     var selected = K5.api.ctx.item.selected;
     var item = K5.api.ctx.item[selected];
@@ -21,7 +22,6 @@ function _checkZoomIsLocked(map) {
             } 
         }
     }
-    
     return false;
 }
 
@@ -208,22 +208,31 @@ function _rotateRight (map){
     map.getView().setRotation(dest);
 }
 
-function _optionspaneLocked() {
+function _optionspaneLocked(dkey) {
     $("#options_minus").hide();
     $("#options_plus").hide();
     $("#options_fit").hide();
     $.get("svg.vm?svg=lock",function(data) {
         $("#options_lock").html(data);            
     });
+    
+    if (dkey) {
+        $("#options_lock").attr("data-key",dkey);
+        $("#options_lock").attr("title",K5.i18n.ctx.dictionary[dkey]);
+    }
 }
 
-function _optionspaneUnlocked() {
+function _optionspaneUnlocked(dkey) {
     $("#options_minus").show();
     $("#options_plus").show();
     $("#options_fit").show();
     $.get("svg.vm?svg=unlock",function(data) {
         $("#options_lock").html(data);            
     });
+    if (lockDataKey) {
+        $("#options_lock").attr("data-key",dkey);
+        $("#options_lock").attr("title",K5.i18n.ctx.dictionary[dkey]);
+    }
 }
 
 function _optionspane() {
@@ -241,52 +250,70 @@ function _optionspane() {
         if (datakey) {
             div.attr("data-key",datakey);
         }
+
         if (title) {
             div.attr("title",title);
         }
+
         $.get("svg.vm?svg="+icon,function(data) {
-            $("#"+id).html(data);            
+            $("#"+id).html(data);
         });
-        
+
         li.append(div);
         if (func) {
             div.click(func);
         }
+
         return div;
     }
     
-    icondiv(li(ul),"options_fit","fit","buttons.fit",K5.i18n.ctx["buttons.fit"], function() {
+    icondiv(li(ul),"options_fit","fit","buttons.fit",K5.i18n.ctx.dictionary["buttons.fit"], function() {
         K5.gui.selected.fit();
     });
 
-    icondiv(li(ul),"options_rotate_left","rotateleft","buttons.fit",K5.i18n.ctx["buttons.fit"],function() {
+    icondiv(li(ul),"options_rotate_left","rotateleft","buttons.fit",K5.i18n.ctx.dictionary["buttons.rotateleft"],function() {
         K5.gui.selected.rotateLeft();
     });
     
-    icondiv(li(ul),"options_rotate_right","rotateright","buttons.fit",K5.i18n.ctx["buttons.fit"],function() {
+    icondiv(li(ul),"options_rotate_right","rotateright","buttons.fit",K5.i18n.ctx.dictionary["buttons.rotateright"],function() {
         K5.gui.selected.rotateRight();
     });
 
-    icondiv(li(ul),"options_plus","plus","buttons.fit",K5.i18n.ctx["buttons.fit"], function() {
+    icondiv(li(ul),"options_plus","plus","buttons.zoomin",K5.i18n.ctx.dictionary["buttons.zoomin"], function() {
         K5.gui.selected.zoomIn();
     });
 
-    icondiv(li(ul),"options_minus","minus","buttons.fit",K5.i18n.ctx["buttons.fit"], function() {
+    icondiv(li(ul),"options_minus","minus","buttons.zoomout",K5.i18n.ctx.dictionary["buttons.zoomout"], function() {
         K5.gui.selected.zoomOut();
     });
 
-    icondiv(li(ul),"options_lock","unlock","buttons.fit",K5.i18n.ctx["buttons.fit"], function() {
+    icondiv(li(ul),"options_lock","unlock","buttons.zoomlock",K5.i18n.ctx.dictionary["buttons.zoomlock"], function() {
         var visible = $("#options_minus").is(":visible");
         if (visible) {
             K5.gui.selected.lockZoom();
-            _optionspaneLocked();
+            _optionspaneLocked("buttons.zoomunlock");
         } else {
             K5.gui.selected.unlockZoom();
-            _optionspaneUnlocked();
+            _optionspaneUnlocked("buttons.zoomlock");
         }
     });
     
     optionsDiv.append(ul);
 
     return optionsDiv;
+}
+
+function _nextorprev() {
+    
+}
+
+function _postrederer() {
+    var vrs = K5.gui.selected.postrendererEvts().postRenderEventsKeys();
+    for (var v = 0,ll=vrs.length;v<ll;v++) {
+        var key = vrs[v];
+        while (K5.gui.selected.postrendererEvts().isPostrenderEventDefined(key)) {
+            var v = K5.gui.selected.postrendererEvts().popPostrenderEvent(key);
+            v.apply(null,[]);
+        }
+    }
 }

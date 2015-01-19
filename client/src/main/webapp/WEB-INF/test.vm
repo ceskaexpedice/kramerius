@@ -66,6 +66,8 @@
 
 #parse("svg/link.svg")
 
+#parse("svg/shibb.svg")
+
 </div>
 <div>
 #parse("svg/parent.svg")

@@ -279,6 +279,17 @@
         <url-pattern>/feedback/*</url-pattern>
     </servlet-mapping>
 
+    <!--  headers -->
+    <servlet>
+        <servlet-name>header</servlet-name>
+        <servlet-class>cz.incad.kramerius.client.HeaderPropertiesServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>header</servlet-name>
+        <url-pattern>/header</url-pattern>
+    </servlet-mapping>
+
 
     <!--  zoomify forwarding -->
     <servlet>
