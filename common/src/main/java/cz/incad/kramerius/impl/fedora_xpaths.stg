@@ -25,6 +25,12 @@ find_datastream3_7(dsid) ::=<<
 /apia:objectDatastreams/apia:datastream[@dsid='$dsid$']
 >>
 
+/** find datastream for fedora 3.8 */
+find_datastream3_8(dsid) ::=<<
+/apia:objectDatastreams/apia:datastream[@dsid='$dsid$']
+>>
+
+
 /** finds mimetype - fedora 3.3 */
 find_mimetype3_3() ::=<<
 /datastreamProfile/dsMIME
@@ -50,6 +56,11 @@ find_mimetype3_7() ::=<<
 /apim:datastreamProfile/apim:dsMIME
 >>
 
+/** finds mimetype - fedora 3.8 */
+find_mimetype3_8() ::=<<
+/apim:datastreamProfile/apim:dsMIME
+>>
+
 /** dsCreateDate from profile - fedora 3.3 */
 dscreatedate3_3() ::=<<
 /datastreamProfile/dsCreateDate/text()
@@ -72,5 +83,10 @@ dscreatedate3_6() ::=<<
 
 /** dsCreateDate from profile - fedora 3.7 */
 dscreatedate3_7() ::=<<
+/apim:datastreamProfile/apim:dsCreateDate/text()
+>>
+
+/** dsCreateDate from profile - fedora 3.8 */
+dscreatedate3_8() ::=<<
 /apim:datastreamProfile/apim:dsCreateDate/text()
 >>
