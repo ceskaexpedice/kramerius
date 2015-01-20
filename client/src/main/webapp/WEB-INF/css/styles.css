@@ -735,8 +735,9 @@ li.public:before{
 /** metadata section */
 #viewer .infobox{
     /*top: -500px; */
-        width:33%;
+        width:63%;
         height: 22em;
+        max-height: calc(100% - 120px);
         background-color: $params.activeColor;
         z-index: 43;
         left: 225px; /* ?? */
@@ -1063,7 +1064,15 @@ li.public:before{
 }
 
 #viewer div.context{
-    padding-top: 5px;
+    padding-top: 1px;
+    overflow: auto;
+    max-height: calc(100% - 40px);
+}
+
+#viewer div.context h2{
+    padding: 5px;
+    font-size: 1.1em;
+    margin: 0;
 }
 
 #viewer div.context>div{

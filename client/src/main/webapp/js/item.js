@@ -284,16 +284,52 @@ ItemSupport.prototype = {
             div.append($content);
             $('#viewer').append(div);
     },
-    biblioModsXml: function(elem, pid){
+    renderModsXml: function(elem, pid, data){
+        var modsid = "mods_"+pid;
+        var e = $('<div class="modsxml"></div>');
+        //elem.append(e);
+        
+        var div = $('<div style="display:block;" />');
+        div.attr("id", modsid);
+        
+        div.append(e);
+        $('#viewer').append(div);
+         
+        var modsXml = new ModsXml(e);
+        modsXml.loadXmlFromDocument(data, e);
+        modsXml.renderAsHTML();
+        modsXml.translateNodes();
+        modsXml.compact();
+        modsXml.showTranslated();
+        elem.append(div);
+        return modsXml;
+
+    },
+    biblioModsXml: function(elem, pid, model){
+        var m = $('<div>', {class: "model"});
+            
+        m.html(K5.i18n.translatable("fedora.model." + model));
+        $(elem).append(m);
         K5.api.askForItemConcreteStream(pid, "BIBLIO_MODS", _.bind(function(data) {
-            this.parseBiblioModsXml(elem, pid, data);
+            //this.parseBiblioModsXml(elem, pid, data);
+            var modsxml = this.renderModsXml(elem, pid, data);
+            var b = $(elem).find("div.model");
+            b.addClass("button");
+            b.attr("data-id", pid);
+            b.data("id", pid);
+            b.append(' <xml>');
+            b.attr('title', 'show mods');
+            b.click(function(){
+                modsxml.toggle();
+            
+            });
         }, this));
     },
 
     metadata: function(elem, pid, model) {
         $.get("metadata?pid=" + pid + "&model=" + model, _.bind(function(data) {
             
-            $(elem).append(data);
+            //$(elem).append(data);
             $(elem).find(".infobox .label").each(function(index, val) {
                 var txt = $(val).text();
                 txt = txt.trim();
@@ -309,15 +345,22 @@ ItemSupport.prototype = {
                     $(val).remove();
                 }
             });
-            this.biblioModsXml(elem, pid);
+            var m = $('<div>', {class: "model"});
             
-            var b = $(elem).find("h2");
+            m.html(K5.i18n.translatable("fedora.model." + model));
+            $(elem).append(m);
+            this.biblioModsXml(elem, pid, model);
+            
+            
+            var b = $(elem).find("div.model");
             b.addClass("button");
             b.attr("data-id", pid);
             b.data("id", pid);
-            b.text(b.text() + ' <xml>');
+            b.append(' <xml>');
             b.attr('title', 'show mods');
             b.click(function(){
+                modsxml.toggle();
+                return;
                 var id = $(this).data("id");
                 var h = $("#viewer").height() - 60;
                 $(jq("mods_" + id)).dialog({
@@ -339,11 +382,15 @@ ItemSupport.prototype = {
 
         this.itemContext = data.context[0];
         var contextDiv = $("<div/>", {class: "context"});
+        contextDiv.append('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
         for (var i = 0; i < this.itemContext.length; i++) {
             var p = this.itemContext[i].pid;
             var div = $('<div/>');
+            
+            this.biblioModsXml(div, p, this.itemContext[i].model);
 
-            this.metadata(div, p, this.itemContext[i].model);
+            //this.metadata(div, p, this.itemContext[i].model);
+            
             //div.append(K5.i18n.translatable("fedora.model." + this.itemContext[i].model));
             //this.biblioMods(div, p);
             //this.biblioModsXml(div, p);
