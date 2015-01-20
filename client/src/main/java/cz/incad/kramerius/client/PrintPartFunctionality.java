@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.configuration.ConfigurationException;
 
+import cz.incad.kramerius.client.utils.RedirectHelp;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class PrintPartFunctionality extends HttpServlet {
@@ -22,7 +23,7 @@ public class PrintPartFunctionality extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            String k4host = KConfiguration.getInstance().getConfiguration().getString("k4.host");
+            String k4host = RedirectHelp.redirectApplication(req)+"search/";
             if (!k4host.endsWith("/")) { k4host = k4host + "/"; }
             String xpos = req.getParameter("xpos");
             String ypos = req.getParameter("ypos");

@@ -1,8 +1,14 @@
 [
         {
             "name":"onepagepdf",
-            "i18nkey":"ctx.actions.generatepdf",
+            "i18nkey":"ctx.actions.pdftitle",
             "object":"PDFOnePage"
+        },
+
+        {
+            "name":"onepageprint",
+            "i18nkey":"ctx.actions.printtitle",
+            "object":"PrintPage"
         },
 
         {
@@ -19,7 +25,19 @@
 
         {
             "name":"titlepdf",
-            "i18nkey":"ctx.actions.generatepdf",
+            "i18nkey":"ctx.actions.pdftitle",
             "object":"PDFTitle"
+        },
+    
+        {
+            "name":"titleprint",
+            "i18nkey":"ctx.actions.printtitle",
+            "object":"PrintTitle"
+        },
+
+        {
+            "name":"ocr",
+            "i18nkey":"ctx.actions.downloadocr",
+            "object":"DownloadOCR"
         }
 ]

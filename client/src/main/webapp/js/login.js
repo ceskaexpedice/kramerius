@@ -16,9 +16,9 @@ function AuthenticationSupport(application) {
                                         this.storeFavoritesToSession();
                                         if (pid) {
                                             this.profileDisplay.appendToFavorites(pid,false);
-                                            this.profileDisplay.store();
-                                            // tohle by asi melo byt primo v servletu
-                                            K5.api.gotoItemPage(pid);
+                                            this.profileDisplay.store(function() {
+                                                K5.api.gotoItemPage(pid);
+                                            });
                                         }
                                     },this);
                                 }

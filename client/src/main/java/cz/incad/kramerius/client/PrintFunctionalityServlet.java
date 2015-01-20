@@ -40,6 +40,7 @@ public class PrintFunctionalityServlet extends HttpServlet {
                             if (!api.endsWith("/")) {
                                 api += "/";
                             }
+
                             String jsoned = getJSON(api+"item/"+pid+"/streams");
                             JSONObject jObject = new JSONObject(jsoned);
                             JSONObject imgFull = jObject.getJSONObject("IMG_FULL");
@@ -52,13 +53,9 @@ public class PrintFunctionalityServlet extends HttpServlet {
                             LOGGER.log(Level.SEVERE,e.getMessage(),e);
                         }
                     }
+                    
                     String redirecthost = RedirectHelp.redirectApplication(req);
-//                    String k4host = K5Configuration.getK5ConfigurationInstance().getConfigurationObject().getString("k4.host");
-//                    if (!k4host.endsWith("/")) {
-//                        k4host += "/";
-//                    }
-//                    
-                    String str = redirecthost+"inc/_iprint.jsp?pids="+params+"&transcode="+transcode+"&page=A4&layout=portrait";
+                    String str = redirecthost+"search/inc/_iprint.jsp?pids="+params+"&transcode="+transcode+"&page=A4&layout=portrait";
                     resp.sendRedirect(str);
                 }
             }

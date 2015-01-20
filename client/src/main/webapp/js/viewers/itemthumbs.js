@@ -63,7 +63,7 @@ ItemThumbs.prototype = {
 
     },
     addContextButtons: function() {
-        _ctxbuttonsrefresh();
+        _ctxbuttonsrefresh("thumbs");
     },
     doScroll: function(dx) {
         var speed = 500;

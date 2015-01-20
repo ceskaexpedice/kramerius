@@ -52,6 +52,7 @@ K5.eventsHandler.addHandler(function(type, configuration) {
     if (type === "application/menu/ctxchanged") {
         K5.gui["selected"].addContextButtons();
     }
+
 });
 
 //var phash = location.hash;
@@ -172,6 +173,7 @@ ItemSupport.prototype = {
             
             this.shares = new ShareItem();
             this.shares.init();
+            
             
         } else {
             this.application.eventsHandler.addHandler(_.bind(function(type, configuration) {
@@ -363,19 +365,32 @@ ItemSupport.prototype = {
      */    
     siblings: function() {
         $("#itemparts").append("<div id='itempartssiblings' style='overflow:scroll; width:100%; height:40%; text-align:center'><h1>Siblings</h1></div>");
-        K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
-            console.log(data.length);
-            var arr = data[0]['siblings'];
-            console.log('array length:' + arr);
+
+        var selected = K5.api.ctx["item"].selected;
+        if (K5.api.ctx["item"] && K5.api.ctx["item"][selected] &&  K5.api.ctx["item"][selected]["siblings"]) {
+            var arr = K5.api.ctx["item"][selected]["siblings"][0]['siblings'];
             var str = _.reduce(arr, function(memo, value, index) {
                 var pid = value.pid;
                 memo +=
                         "<div style='float:left'> <a href='?page=doc&pid=" + pid + "'> <img src='api/item/" + pid + "/thumb'/></a> </div>";
                 return memo;
             }, "");
-            $("#itempartssiblings").append(str + "<div style='clear:both'></div>");
 
-        });
+            $("#itempartssiblings").append(str + "<div style='clear:both'></div>");
+        } else {
+            K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
+                var arr = data[0]['siblings'];
+                console.log('array length:' + arr);
+                var str = _.reduce(arr, function(memo, value, index) {
+                    var pid = value.pid;
+                    memo +=
+                            "<div style='float:left'> <a href='?page=doc&pid=" + pid + "'> <img src='api/item/" + pid + "/thumb'/></a> </div>";
+                    return memo;
+                }, "");
+                $("#itempartssiblings").append(str + "<div style='clear:both'></div>");
+
+            });
+        }
 
     },
     /**

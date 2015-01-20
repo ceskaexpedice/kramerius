@@ -398,19 +398,73 @@ PrintPartItem.prototype = {
 }
 
 
+function PrintPage() {}
+
+PrintPage.prototype = {
+        'doAction':function() {
+            cleanWindow();
+            K5.outputs.print.page(K5.api.ctx.item.selected);
+    },
+    'enabled': function() {
+            var selected = K5.api.ctx.item.selected; 
+            var itm = K5.api.ctx.item[selected];
+            if (!itm['forbidden']) {
+                    return K5.api.ctx.item[selected].datanode; 
+            } else {
+                    return false;
+            }
+    }
+}
+
+function PrintTitle() {}
+
+PrintTitle.prototype = {
+        'doAction':function() {
+                cleanWindow();
+                K5.outputs.print.title(K5.api.ctx.item.selected);
+        },
+        
+        'enabled': function() {
+                var selected = K5.api.ctx.item.selected; 
+                var itm = K5.api.ctx.item[selected];
+                if (!itm['forbidden']) {
+                    if (!_isAudio()) {
+                        var children = K5.api.ctx.item[selected]["children"];
+                        if (children) {
+                            var pages = _.reduce(children, function(memo, value, index) {
+                                if (value["model"] === "page") {
+                                    memo.push(value);
+                                }
+                                return memo;
+                            }, []);
+                            if (pages.length > 0) {
+                                return true;
+                            } else return false;
+                            
+                        } else {
+                            return false;
+                        }
+                    } else return false;
+                } else {
+                        return false;
+                }
+        }
+}
+
 function PDFTitle() {}
 PDFTitle.prototype = {
         'doAction':function() {
                 cleanWindow();
-                K5.outputs.pdf.asyncTitle(K5.api.ctx.item.selected);
+                K5.outputs.print.title(K5.api.ctx.item.selected);
         },
+        
         
         'message' :function() {
             if (K5.outputs.pdf.isLimitDefined()) {
                 return "Maximalni pocet stranek :"+K5.outputs.pdf.limit(); 
             } else return null;
         },
-        
+
         'enabled': function() {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];

@@ -108,6 +108,7 @@
     <div class="small translate_title" data-ctx="favorite"  title="$i18n.buttons.parent" onclick="K5.authentication.askForAppendToProfile();" >#parse("svg/addfavorite.svg")</div>
     <div class="small translate_title" data-ctx="notfavorite"  title="$i18n.buttons.parent" onclick="K5.authentication.askForRemoveFromProfile();" >#parse("svg/removefavorite.svg")</div>
 
+
     <!--
     <div class="small translate_title" data-ctx="all"  title="$i18n.buttons.parent" onclick="K5.gui.clipboard.removeCurrent();" >#parse("svg/warning.svg")</div>
     <div class="small pin translate_title" data-ctx="notselected" id="vwr_ctx_addclipboard"  title="$i18n.buttons.addclipboard" onclick="K5.gui.clipboard.addCurrent();" >#parse("svg/plusclipboard.svg")</div>

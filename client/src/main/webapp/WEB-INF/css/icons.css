@@ -44,6 +44,13 @@ svg{
     background: transparent;
     /*box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px 0px;*/
 }
+
+.footer svg {
+    width: 18px;
+    height: 18px;
+    size: contain;
+}
+
 .small svg{
     width: 28px;
     height: 28px;
