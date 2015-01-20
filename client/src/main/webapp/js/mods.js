@@ -29,7 +29,7 @@
 var ModsXml = function (elem, options) {
 
     this.elem = $(elem);
-    // private members //////////////////////////////////////////////////////	
+    this.dict = modslocale[K5.i18n.ctx['language']];
     this._nodeRefs = [], // will hold references to XML nodes   
             this._initNodeState = "expandable",
             this._$event = $({}), // beforeHtmlRendered, afterHtmlRendered, beforeToggleNode, afterToggleNode
@@ -96,7 +96,7 @@ ModsXml.prototype = {
             var s = parent.nodeName;
             for (var i = 0; i < parent.attributes.length; i++) {
                 var attr = parent.attributes.item(i);
-                if (attr.nodeName.indexOf("xmlns") < 0) {
+                if (attr.nodeName.indexOf("xmlns") < 0 && attr.nodeName !== "this.parentRefIndex") {
                     s += "[@" + attr.nodeName + " = " + attr.value + "]";
                 }
             }
@@ -210,17 +210,21 @@ ModsXml.prototype = {
      * Assigns handlers for editing nodes and attributes. Happens only once, during renderAsHTML()
      */
     assignEditHandlers: function () {
-        
+        K5.eventsHandler.addHandler(_.bind(function(type, configuration) {
+            if (type === "i18n/dictionary") {
+                this.translateAll();
+            } 
+        },this));
         this.$container.find("li.node").mouseover(_.partial(function (modsxml, e) {
             var $this = $(this);
             var node = modsxml._getNodeFromElemAttr($this);
             var path = modsxml._getNodePath(node);
+            //var tr = modsxml.translate(path);
             
             modsxml.$container.find("div.nodePath").text(modsxml.cropPath(path));
 
-            var tr = modsxml.translate(path);
 
-            //var tr = $(this).data("tr");
+            var tr = $(this).data("tr");
             modsxml.nodeTooltip.text(tr);
             if (node.firstElementChild === null && node.firstChild !== null) {
                 modsxml.nodeTooltip.append(": <span>" + node.firstChild.data + "</span>");
@@ -297,13 +301,6 @@ ModsXml.prototype = {
                 $ul;
 
 
-        var path = this._getNodePath(node);
-        var tr = this.translate(path);
-        $li.data("tr", tr);
-        var nodename = $li.children("span.nodeName").text();
-        $li.data("nodename", nodename);
-        $li.data("nodepath", path);
-
         if ($xmlPrevSib.length) { // appending node to previous sibling's parent
 
             this.$parent = this.parentRefs[$xmlPrevSib.attr("this.parentRefIndex")];
@@ -334,6 +331,15 @@ ModsXml.prototype = {
                 this.parentRefIndex++;
             }
         }
+        
+        
+
+        var path = this._getNodePath(node);
+        var tr = this.translate(path);
+        $li.data("tr", tr);
+        var nodename = $li.children("span.nodeName").text();
+        $li.data("nodename", nodename);
+        $li.data("nodepath", path);
     }, // end of appendNode()
 
     /**
@@ -347,7 +353,7 @@ ModsXml.prototype = {
         this.$container.append(this.nodeTooltip);
         this.$parent = this.$container;
         this._traverseDOM(this.xml);
-        //$("*", this.xml).removeAttr("this.parentRefIndex"); // clean up remaining this.parentRefIndex-es
+        $("*", this.xml).removeAttr("this.parentRefIndex"); // clean up remaining this.parentRefIndex-es
         this.assignEditHandlers(); // bind in core app afterHtmlRendered
 
         this._$event.trigger("afterHtmlRendered");
@@ -484,11 +490,6 @@ ModsXml.prototype = {
             $(this).attr("data-after", ">");
             
         });
-
-        this.$container.find('li').each(function () {
-            var nodename = $(this).children("span.nodeName").text();
-            $(this).data("nodename", nodename);
-        });
     },
     showTranslated: function () {
 
@@ -535,10 +536,25 @@ ModsXml.prototype = {
         }
         return s;
     },
+    translateAll: function(){
+        this.dict = modslocale[K5.i18n.ctx['language']];
+        this.$container.find('li.node').each(_.partial(function (modsxml) {
+            var $li = $(this);
+            var node = modsxml._getNodeFromElemAttr($li);
+            var path = modsxml._getNodePath(node);
+            var tr = modsxml.translate(path);
+            $li.data("tr", tr);
+            var nodename = $li.children("span.nodeName").text();
+            $li.data("nodename", nodename);
+            $li.data("nodepath", path);
+        }, this));
+        this.showTranslated();
+        
+    },
     translate: function (orig) {
         var s = this.cropPath(orig);
-        if (dict.hasOwnProperty(s)) {
-            return dict[s];
+        if (this.dict.hasOwnProperty(s)) {
+            return this.dict[s];
         } else {
             //posledni tag
             var p = s.lastIndexOf("> ");
@@ -546,14 +562,14 @@ ModsXml.prototype = {
                 p = -2;
             }
             var s1 = s.substring(p + 2);
-            if (dict.hasOwnProperty(s1)) {
-                return dict[s1];
+            if (this.dict.hasOwnProperty(s1)) {
+                return this.dict[s1];
             }
 
             //bez attributu
             s1 = s.replace(/\[[^\]]+\]/g, "");
-            if (dict.hasOwnProperty(s1)) {
-                return dict[s1];
+            if (this.dict.hasOwnProperty(s1)) {
+                return this.dict[s1];
             }
 
             //posledni tag
@@ -562,8 +578,8 @@ ModsXml.prototype = {
                 p = -2;
             }
             s1 = s1.substring(p + 2);
-            if (dict.hasOwnProperty(s1)) {
-                return dict[s1];
+            if (this.dict.hasOwnProperty(s1)) {
+                return this.dict[s1];
             } else {
                 return s1;
             }
@@ -583,58 +599,117 @@ ModsXml.prototype = {
 };
 
 
+var modslocale = {
+    "en":{
+        "titleinfo": "Title info",
+        "titleinfo > title": "Main title",
+        "titleinfo > partnumber": "Part number",
+        "titleinfo > partname": "Part name",
+        "title": "Title",
+        "name[@type = personal]": "Author",
+        "namepart": "Author",
+        "namepart[@type = family]": "Given name",
+        "namepart[@type = given]": "Surname",
+        "namepart[@type = date]": "Date",
+        "dateissued": "Issued date",
+        "identifier[@type = issn]": "ISSN",
+        "identifier[@type = isbn]": "ISBN",
+        "identifier[@type = ccnb]": "čČNB",
+        "subtitle": "Subtitle",
+        "part > detail[@type = regularsupplement]": "Supplement",
+        "part > detail[@type = specialsupplement]": "Special supplement",
+        "part > date": "Date",
+        "part": "Part",
+        "number": "Number",
+        "detail[@type = pagenumber]": "Page number",
+        "detail[@type = pageindex]": "Page index",
+        "part > detail[@type = volume] > number": "Number",
+        "language": "Language info",
+        "languageterm": "Language",
+        "languageofcataloging": "Language of cataloging",
+        "origininfo[@transliteration = publisher]": "Publisher",
+        "origininfo[@transliteration = publisher] > publisher": "Publisher name",
+        "origininfo[@transliteration = publisher] > place > placeterm": "Place of publication",
+        "place": "Place",
+        "origininfo > place > placeterm": "Place of publication",
+        "origininfo[@transliteration = printer] > publisher": "Printer name",
+        "origininfo[@transliteration = printer] > place > placeterm": "Place of print",
+        "physicaldescription": "Physical description",
+        "physicaldescription > extent": "Physical description",
+        "physicaldescription > form": "Form",
+        "role": "Role",
+        "roleterm": "Role name",
+        "origininfo": "Origin info",
+        "typeofresource": "Type of resource",
+        "physicallocation": "Physical location",
+        "location": "Location",
+        "shelflocator": "Shelf locator",
+        "recordinfo": "Record info",
+        "recordorigin": "Record origin",
+        "recordcontentsource": "Record content source",
+        "recordcreationdate": "Record creation date",
+        "recordchangedate": "Record change date",
+        "recordidentifier": "Record identifier",
+        "identifier": "Identifier",
+        "issuance": "Issuance",
+        "note":"Note",
+        "detail": "Detail"
+    },
+    "cs": {
+        "titleinfo": "Názvová informace",
+        "titleinfo > title": "Hlavní název",
+        "titleinfo > partnumber": "Číslo svazku",
+        "titleinfo > partname": "Název svazku",
+        "title": "Název",
+        "name[@type = personal]": "Autor",
+        "namepart": "Autor",
+        "namepart[@type = family]": "Příjmení",
+        "namepart[@type = given]": "Jméno",
+        "namepart[@type = date]": "Datum",
+        "dateissued": "Datum vydání",
+        "identifier[@type = issn]": "ISSN",
+        "identifier[@type = isbn]": "ISBN",
+        "identifier[@type = ccnb]": "čČNB",
+        "subtitle": "Podnázev",
+        "part > detail[@type = regularsupplement]": "Příloha",
+        "part > detail[@type = specialsupplement]": "Speciální příloha",
+        "part > date": "Datum vydání",
+        "part": "Část",
+        "number": "Číslo",
+        "detail[@type = pagenumber]": "Číslo stránky",
+        "detail[@type = pageindex]": "Index stránky",
+        "part > detail[@type = volume] > number": "Číslo",
+        "language": "Jazykové údaje",
+        "languageterm": "Jazyk",
+        "languageofcataloging": "Jazyk katalogového záznamu",
+        "origininfo[@transliteration = publisher]": "Vydavatel",
+        "origininfo[@transliteration = publisher] > publisher": "Název vydavatele",
+        "origininfo[@transliteration = publisher] > place > placeterm": "Místo vydání",
+        "place": "Místo",
+        "origininfo > place > placeterm": "Místo vydání",
+        "origininfo[@transliteration = printer] > publisher": "Název tiskaře",
+        "origininfo[@transliteration = printer] > place > placeterm": "Místo tisku",
+        "physicaldescription": "Fyzický popis",
+        "physicaldescription > extent": "Fyzický popis",
+        "physicaldescription > form": "Podoba",
+        "role": "Role",
+        "roleterm": "Název role",
+        "origininfo": "Informace o původu",
+        "typeofresource": "Popis charakteristiky typu",
+        "physicallocation": "Fyzické uložení",
+        "location": "Uložení",
+        "shelflocator": "Lokační údaje",
+        "recordinfo": "Údaje o metadatovém záznamu",
+        "recordorigin": "Údaje o vzniku záznamu",
+        "recordcontentsource": "Kód nebo jméno instituce",
+        "recordcreationdate": "Datum vytvoření",
+        "recordchangedate": "Datum změny",
+        "recordidentifier": "Identifikátor záznamu",
+        "identifier": "Identifikátor",
+        "issuance": "Údaje o vydávání",
+        "note": "Poznámka",
+        "detail": "Detail"
 
-var dict = {
-    "titleinfo": "Názvová informace",
-    "titleinfo > title": "Hlavní název",
-    "titleinfo > partnumber": "Číslo svazku",
-    "titleinfo > partname": "Název svazku",
-    "title": "Název",
-    "name[@type = personal]": "Autor",
-    "namepart": "Autor",
-    "namepart[@type = family]": "Příjmení",
-    "namepart[@type = given]": "Jméno",
-    "namepart[@type = date]": "Datum",
-    "dateissued": "Datum vydání",
-    "identifier[@type = issn]": "ISSN",
-    "identifier[@type = isbn]": "ISBN",
-    "identifier[@type = ccnb]": "čČNB",
-    "subtitle": "Podnázev",
-    "part > detail[@type = regularsupplement]": "Příloha",
-    "part > detail[@type = specialsupplement]": "Speciální příloha",
-    "part > date": "Datum vydání",
-    "part": "Část",
-    "number": "Číslo",
-    "detail[@type = pagenumber]": "Číslo stránky",
-    "detail[@type = pageindex]": "Index stránky",
-    "part > detail[@type = volume] > number": "Číslo",
-    "language": "Jazykové údaje",
-    "languageterm": "Jazyk",
-    "languageofcataloging": "Jazyk katalogového záznamu",
-    "origininfo[@transliteration = publisher]": "Vydavatel",
-    "origininfo[@transliteration = publisher] > publisher": "Název vydavatele",
-    "origininfo[@transliteration = publisher] > place > placeterm": "Místo vydání",
-    "place": "Místo",
-    "origininfo > place > placeterm": "Místo vydání",
-    "origininfo[@transliteration = printer] > publisher": "Název tiskaře",
-    "origininfo[@transliteration = printer] > place > placeterm": "Místo tisku",
-    "physicaldescription": "Fyzický popis",
-    "physicaldescription > extent": "Fyzický popis",
-    "physicaldescription > form": "Podoba",
-    "role": "Role",
-    "roleterm": "Název role",
-    "origininfo": "Informace o původu",
-    "typeofresource": "Popis charakteristiky typu",
-    "physicallocation": "Fyzické uložení",
-    "location": "Uložení",
-    "shelflocator": "Lokační údaje",
-    "recordinfo": "Údaje o metadatovém záznamu",
-    "recordorigin": "Údaje o vzniku záznamu",
-    "recordcontentsource": "Kód nebo jméno instituce",
-    "recordcreationdate": "Datum vytvoření",
-    "recordchangedate": "Datum změny",
-    "recordidentifier": "Identifikátor záznamu",
-    "identifier": "Identifikátor"
-
+    }
 };
     
