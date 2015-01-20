@@ -55,7 +55,7 @@ public class ExpressionsBody implements Expr {
     /**
      * Evaluate expressions inside block
      */
-    public void evaluate( ShibContext ctx) {
+    public void evaluate( ShibbolethContext ctx) {
         for (Expr expr : this.expressions) {
             expr.evaluate(ctx);
         }

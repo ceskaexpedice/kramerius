@@ -19,7 +19,7 @@
             <div class="button" onclick="K5.authentication.options()">#translatable('application.login')</div>
         #end
 
-        <div class="button" onclick="link('https://github.com/ceskaexpedice/k5client/wiki')" >#translatable('application.help')</div>
+        <div class="button" onclick="link('$conf.getString('k5client.help')')" >#translatable('application.help')</div>
 
         #if($logControl.logged)
             <div class="button" onclick="K5.authentication.profileDisplay.toggle()"><span>$logControl.loggedName</span></div>

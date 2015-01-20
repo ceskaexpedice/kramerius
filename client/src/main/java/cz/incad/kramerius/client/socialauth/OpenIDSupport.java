@@ -30,28 +30,18 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
 import org.brickred.socialauth.AuthProvider;
 import org.brickred.socialauth.Profile;
 import org.brickred.socialauth.SocialAuthConfig;
 import org.brickred.socialauth.SocialAuthManager;
 import org.brickred.socialauth.util.SocialAuthUtil;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-
 import cz.incad.kramerius.client.AuthenticationServlet;
-import cz.incad.kramerius.client.kapi.auth.AdminUser;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
-import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
 import cz.incad.kramerius.client.tools.GeneratePasswordUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -113,8 +103,7 @@ public class OpenIDSupport {
             }
             appUrl +="authentication?action=socialLoginRedirect";
         }
-        
-        
+
         String redirectingUrl = manager.getAuthenticationUrl(provider, succUrl);
 
         session.setAttribute("authManager", manager);
@@ -130,137 +119,51 @@ public class OpenIDSupport {
         }
     }
 
-    private static String calculateUserName(Profile p) {
-        return p.getProviderId() + "_" + p.getValidatedId();
-    }
 
-    public static void deleteUser(HttpServletRequest req, String userId) {
-        try {
-            String url = KConfiguration.getInstance().getConfiguration()
-                    .getString("api.point") + "/admin/users/" + userId;
+    public static class OpenIdUserWrapper implements UsersWrapper {
 
-            Client c = Client.create();
+        private Profile p;
+        
+        public OpenIdUserWrapper(Profile p) {
+            super();
+            this.p = p;
+        }
 
-            CallUserController callUserController = (cz.incad.kramerius.client.kapi.auth.CallUserController) req
-                    .getSession(true).getAttribute(CallUserController.KEY);
-            AdminUser adminCaller = callUserController.getAdminCaller();
+        @Override
+        public String getCalculatedName() {
+            return p.getProviderId() + "_" + p.getValidatedId();
+        }
 
-            WebResource r = c.resource(url);
-
-            r.addFilter(new BasicAuthenticationFilter(
-                    adminCaller.getUserName(), adminCaller.getPassword()));
-
-            String t = r.accept(MediaType.APPLICATION_JSON)
-                    .type(MediaType.APPLICATION_JSON).delete(String.class);
-
-        } catch (ClientHandlerException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (UniformInterfaceException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        @Override
+        public String getProperty(String key) {
+            if (key.equals(UsersWrapper.FIRST_NAME_KEY)) {
+                return p.getFirstName();
+            } else if (key.equals(UsersWrapper.LAST_NAME_KEY)) {
+                return p.getLastName();
+            } else  return null;
         }
     }
-
-    public static void newPasswordUser(HttpServletRequest req, String userId,
-            String pswd) {
-        try {
-            Client c = Client.create();
-            String url = KConfiguration.getInstance().getConfiguration()
-                    .getString("api.point")
-                    + "/admin/users/"
-                    + userId
-                    + "/password";
-
-            CallUserController callUserController = (cz.incad.kramerius.client.kapi.auth.CallUserController) req
-                    .getSession(true).getAttribute(CallUserController.KEY);
-            AdminUser adminCaller = callUserController.getAdminCaller();
-
-            WebResource r = c.resource(url);
-            r.addFilter(new BasicAuthenticationFilter(
-                    adminCaller.getUserName(), adminCaller.getPassword()));
-            JSONObject object = new JSONObject();
-            object.put("password", pswd);
-
-            String t = r.accept(MediaType.APPLICATION_JSON)
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(object.toString(), MediaType.APPLICATION_JSON)
-                    .put(String.class);
-        } catch (UniformInterfaceException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (ClientHandlerException  e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (JSONException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-    }
-
-    // create user
-    public static String createUser(HttpServletRequest req, Profile profile,
-            String password) throws JSONException, ConfigurationException {
-        String url = KConfiguration.getInstance().getConfiguration()
-                .getString("api.point") + "/admin/users";
-
-        Client c = Client.create();
-        WebResource r = c.resource(url);
-
-        CallUserController callUserController = (cz.incad.kramerius.client.kapi.auth.CallUserController) req
-                .getSession(true).getAttribute(CallUserController.KEY);
-        AdminUser adminCaller = callUserController.getAdminCaller();
-
-        JSONObject object = new JSONObject();
-        object.put("lname", calculateUserName(profile));
-        object.put("firstname", profile.getFirstName());
-        object.put("surname", profile.getLastName());
-        object.put("password", password);
-
-        r.addFilter(new BasicAuthenticationFilter(adminCaller.getUserName(),
-                adminCaller.getPassword()));
-        String t = r.accept(MediaType.APPLICATION_JSON)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(object.toString(), MediaType.APPLICATION_JSON)
-                .post(String.class);
-        return t;
-    }
-
-    private static JSONArray getUser(HttpServletRequest req, Profile p)
-            throws ConfigurationException, JSONException {
-        Client c = Client.create();
-        String url = KConfiguration.getInstance().getConfiguration()
-                .getString("api.point")
-                + "/admin/users?lname="
-                + calculateUserName(p);
-
-        CallUserController callUserController = (cz.incad.kramerius.client.kapi.auth.CallUserController) req
-                .getSession(true).getAttribute(CallUserController.KEY);
-        AdminUser adminCaller = callUserController.getAdminCaller();
-
-        WebResource r = c.resource(url);
-        r.addFilter(new BasicAuthenticationFilter(adminCaller.getUserName(),
-                adminCaller.getPassword()));
-        String t = r.accept(MediaType.APPLICATION_JSON)
-                .type(MediaType.APPLICATION_JSON).get(String.class);
-        JSONArray jsonArr = new JSONArray(t);
-        return jsonArr;
-    }
-
+    
     public void provideRedirection(HttpServletRequest req,
             HttpServletResponse resp) throws Exception {
         AuthenticationServlet.createCaller(req, null, null, null);
         Profile profile = getProfile(req.getSession(), req, resp);
-        JSONArray users = getUser(req, profile);
-
+        OpenIdUserWrapper owrap = new OpenIdUserWrapper(profile);
+        JSONArray users = ProviderUsersUtils.getUser(req, owrap);
+        
         String generatedPassword = GeneratePasswordUtils.generatePswd();
         if (users.length() > 0) {
             JSONObject jsonObject = users.getJSONObject(0);
-            newPasswordUser(req, "" + jsonObject.getInt("id"),
+            ProviderUsersUtils.newPasswordUser(req, "" + jsonObject.getInt("id"),
                     generatedPassword);
         } else {
-            createUser(req, profile, generatedPassword);
+            ProviderUsersUtils.createUser(req, owrap, generatedPassword);
         }
 
-        users = getUser(req, profile);
+        users = ProviderUsersUtils.getUser(req, new OpenIdUserWrapper(profile));
         if (users.length() > 0) {
             CallUserController caller = AuthenticationServlet.createCaller(req,
-                    calculateUserName(profile), generatedPassword, users
+                    owrap.getCalculatedName(), generatedPassword, users
                             .getJSONObject(0).toString());
             caller.getClientCaller().updateInformation(profile.getFirstName(),
                     profile.getLastName());

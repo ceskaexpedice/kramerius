@@ -19,6 +19,12 @@
     .gplus >  div.medium >  svg > g * {
         fill:white;
     }
+    
+    .shibb > div.medium > svg > path {
+        fill:white;
+        stroke:white;
+    }
+    
     .k5 >  div.medium  {
         cursor: pointer;
     }
@@ -38,6 +44,10 @@
             window.location.assign('authentication?action=socialLogin&provider=facebook');
         }
 
+        function __shibb() {
+            window.location.assign('authentication?action=shibbLogin');
+        }
+
 </script>
 
         <div>
@@ -49,6 +59,10 @@
      
 #if($conf.getString('oauth.googleapis.com.consumer_key'))
                 <li class="gplus"> <div title="#i18nval('login.option.gplus')" class="medium" onclick="__gplus()">#parse("svg/gplus.svg")</div> </li>
+#end
+
+#if($conf.getString('shibboleth.loginpage'))
+                <li class="shibb"> <div title="#i18nval('login.option.shibboleth')" class="medium" onclick="__shibb()">#parse("svg/shibb.svg")</div> </li>
 #end
 
                 <li class="k5"> <div title="#i18nval('login.option.k5')" class="medium" onclick="link('?page=login')"> #parse("svg/k5.svg") </div> </li>
