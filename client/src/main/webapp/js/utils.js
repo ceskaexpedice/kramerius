@@ -1,3 +1,13 @@
+
+
+/**
+ * Returns valid jquery identifier
+ * @param {string} id to convert. 
+ * @global
+ */function jq(myid) { 
+    return '#' + myid.replace(/(:|\.|\/)/g,'\\$1');
+}
+
 /**
  * Returns true (or false) if given keypath in given objects exists
  * @param {string} keys combined keys into one string.  '/' is used as delimiter. 

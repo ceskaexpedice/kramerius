@@ -17,11 +17,11 @@
     <!-- metadata panel -->
     <div class="info infobox dialogs" style="position:absolute;display:none;">
         <div class="triangle" id="mtd_footer_triangle"></div>
-
+<!--
         <h4 id="model"></h4>
         <div id="title"></div>
         <div id="root_title" style="display:none"></div>
-            
+-->            
         <div style="position:absolute; bottom:0; left:50%;" />
         <div class="small info show" style="display: none;" title="$i18n.buttons.info" onclick="K5.gui.selected.showInfo();" >#parse("svg/arrow2d.svg")</div>
         </div>

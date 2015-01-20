@@ -1,0 +1,78 @@
+div.modsxml  {
+    font-size: .9em;
+}
+
+div.nodePath {position:absolute; top:1px; right:10px; color:#000089;font-size:.9em;}
+div.nodePathTr {
+    position:absolute; top:-201px; 
+    color:#000089;font-size:.85em;
+    border:1px gray solid;background-color:white;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, .75);
+    padding:3px;
+}
+div#nodePathTr span{
+    font-weight: bold;
+}
+
+
+/* xml structure */
+
+div.modsxml ul{
+    padding-left:10px;
+    padding-top: 2px;
+    margin: 0;
+}
+div.modsxml ul li                     {margin-bottom:0; padding-bottom:0;list-style: none;}
+div.modsxml ul li.node:hover>span.nodeName         {text-decoration: underline;}
+div.modsxml ul li input,
+
+
+div.modsxml ul.nodeCore{
+    display: inline-block;
+}
+
+div.modsxml ul li span.nodeName{
+    padding:1px; 
+    font-weight:bold; 
+    color:white; 
+}
+div.modsxml ul li span.nodeName:before{
+    content: attr(data-before);
+}
+
+div.modsxml ul li.comment span.nodeName     {color:#dddddd; font-style:italic;}
+
+div.modsxml ul li span.nodeAttrs{
+    padding:1px; 
+    color:#eeeeee; 
+    font-weight:normal;
+    display: none;
+}
+div.modsxml ul li span.nodeAttrs:after{
+    content: attr(data-after);
+    font-weight:bold; 
+    color:#eeeeee; 
+}
+div.modsxml ul li span.nodeAttrs span.singleAttr      {margin-left:8px;}
+div.modsxml ul li span.nodeAttrs span.attrValue       {font-style:italic; color:#dddddd;}
+div.modsxml ul li span.nodeAttrs span.attrValue:hover {color:#ffffff; }
+div.modsxml ul li span.nodeAttrs button.killAttr      {background-position:-34px -194px;}
+
+
+div.modsxml ul li span.nodeValue        {color:#eeeeee;}
+div.modsxml ul li span.nodeValue strong {color:#ffffff;}
+
+div.modsxml ul li ul.nodeCore li p.nodeValue                    {font-style:italic; padding:0; margin:0; margin-left:4px; color:#dddddd;}
+div.modsxml ul li ul.nodeCore li p.nodeValue:hover              {color:#ffffff; }
+div.modsxml ul li ul.nodeCore li p.nodeValue span.noValue       {color:#dddddd;}
+div.modsxml ul li ul.nodeCore li p.nodeValue:hover span.noValue {color:#dddddd; }
+div.modsxml ul li ul.nodeCore li a.addChild                     {margin-left:4px;}
+
+
+
+
+div.modsxml span.comment {font-style:italic; color:#999;}
+
+
+/* fix for IE6 */
+* html .hitarea {display:inline; float:none;}

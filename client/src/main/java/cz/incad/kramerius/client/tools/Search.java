@@ -260,6 +260,7 @@ public class Search {
         usedFilter(map, "author", fieldsConfig.getMappedField("autor"));
         usedFilter(map, "udc", "mdt");
         usedFilter(map, "ddc", "ddt");
+        usedFilter(map, "typ_titulu");
         usedFilter(map, "rok");
         usedFilter(map, "keywords");
         usedFilter(map, fieldsConfig.getMappedField("fedora_model"));

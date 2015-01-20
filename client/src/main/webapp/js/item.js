@@ -5,7 +5,7 @@
 var delayedEvent = {'pid':'','enabled':true};
 K5.eventsHandler.addHandler(function(type, configuration) {
     var splitted = type.split("/");
-    if (splitted.length == 3) {
+    if (splitted.length === 3) {
         //api/item/
         if ((splitted[0] === "api") && (splitted[1] === "item")) {
             var pid = splitted[2];
@@ -87,7 +87,7 @@ function _eventProcess(pid) {
 
         K5.gui["selected"]["ctx"] = {};    
 
-        _metadatainit();
+        //_metadatainit();
 
 
         K5.gui.selected["disabledDisplay"] = false;
@@ -105,7 +105,7 @@ function _eventProcess(pid) {
         // initialization
         //K5.gui["selected"].ctxMenu();    
         
-        _metadatainit();
+        //_metadatainit();
 
         K5.gui.selected["disabledDisplay"] = false;
     });
@@ -128,14 +128,14 @@ function _eventProcess(pid) {
                     $("#metadata").html(data);
                     $(".infobox .label").each(function(index, val) {
                         var txt = $(val).text();
-                        txt = txt.trim()
+                        txt = txt.trim();
                         if (txt.indexOf(":") === 0) {
                             $(val).text('');
                         }
                     });
                    $(".infobox .label").each(function(index, val) {
                         var valueText = $(val).siblings(".value").text();
-                        valueText = valueText.trim()
+                        valueText = valueText.trim();
                         if ("" === valueText) {
                             $(val).siblings(".value").remove();
                             $(val).remove();
@@ -178,7 +178,7 @@ ItemSupport.prototype = {
         } else {
             this.application.eventsHandler.addHandler(_.bind(function(type, configuration) {
                 console.log("event type " + type);
-                if (type == "i18n/dictionary") {
+                if (type === "i18n/dictionary") {
                     this._initInfo();
                 }
             }, this));
@@ -202,8 +202,6 @@ ItemSupport.prototype = {
         $(document).prop('title', K5.i18n.ctx.dictionary['application.title'] + ". " + root_title);
         this.renderContext();
     },
-
-    
     
     addContextButtons: function() {
         _ctxbuttonsrefresh();
@@ -226,7 +224,7 @@ ItemSupport.prototype = {
         });
 
         _.each(items, function(itm) {
-            if (itm != null) ul.append(itm);
+            if (itm !== null) ul.append(itm);
         });
         menuDiv.append(ul);
         $("#acts_container").append(menuDiv);
@@ -234,77 +232,66 @@ ItemSupport.prototype = {
                 K5.i18n.k5translate(menuDiv);
         }
     },
- 
-  
+    renderModsXml: function(elem, pid, data){
+        var modsid = "mods_"+pid;
+        var e = $('<div class="modsxml"></div>');
+        //elem.append(e);
+        
+        var div = $('<div style="display:block;" />');
+        div.attr("id", modsid);
+        
+        div.append(e);
+        $('#viewer').append(div);
+         
+        var modsXml = new ModsXml(e);
+        modsXml.loadXmlFromDocument(data, e);
+        modsXml.renderAsHTML();
+        modsXml.translateNodes();
+        modsXml.compact();
+        modsXml.showTranslated();
+        elem.append(div);
+        return modsXml;
+
+    },
+    biblioModsXml: function(elem, pid, model){
+        var m = $('<div>', {class: "model"});
+            
+        m.html(K5.i18n.translatable("fedora.model." + model));
+        $(elem).append(m);
+        K5.api.askForItemConcreteStream(pid, "BIBLIO_MODS", _.bind(function(data) {
+            //this.parseBiblioModsXml(elem, pid, data);
+            var modsxml = this.renderModsXml(elem, pid, data);
+            var b = $(elem).find("div.model");
+            b.addClass("button");
+            b.attr("data-id", pid);
+            b.data("id", pid);
+            b.append(' <xml>');
+            b.attr('title', 'show mods');
+            b.click(function(){
+                modsxml.toggle();
+            
+            });
+        }, this));
+    },
+
+
     renderContext: function() {
         $(".context").remove();
         var pid = K5.api.ctx["item"]["selected"];
         var data = K5.api.ctx["item"][pid];
 
-        // update model
-        var model = data.model;
-
-        K5.i18n.translatableElm("fedora.model." + K5.api.ctx.item[pid].model, "#model");
-        $("#title").text(K5.api.ctx.item[pid].title);
-        if (data.model === "page") {
-            if (data.details && data.details.type) {
-                if (data.details.type !== "normalPage" && data.details.type !== "NormalPage") {
-                    var type = $(K5.i18n.translatable("mods.page.partType." + data.details.type));
-                    type.addClass("pageType");
-                    var title = $("<span/>");
-                    title.text(K5.api.ctx.item[pid].title + " ");
-
-                    $("#title").empty();
-
-                    $("#title").append(title);
-                    $("#title").append(type);
-                } else {
-                    $("#title").html("<span>" + K5.api.ctx.item[pid].title + "</span>");
-                }
-            } else {
-                $("#title").html("<span>" + K5.api.ctx.item[pid].title + "</span>");
-            }
-        } else {
-            $("#title").html("<span>" + K5.api.ctx.item[pid].title + "</span>");
-        }
-
-
         this.itemContext = data.context[0];
         var contextDiv = $("<div/>", {class: "context"});
-        for (var i = 0; i < this.itemContext.length - 1; i++) {
+        contextDiv.append('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
+        for (var i = 0; i < this.itemContext.length; i++) {
             var p = this.itemContext[i].pid;
             var div = $('<div/>');
-            $(div).css("margin-left", (i * 15) + "px");
-            var a = $('<div/>', {'data-pid': p});
-            var img = $('<img/>', {'src': 'api/item/' + p + '/thumb'});
-            img.css('height', '48px');
-            div.append(img);
-            var model = K5.i18n.translatable('fedora.model.' + this.itemContext[i].model);
-
-            a.data('pid', p);
-
-            if (K5.api.ctx.item[p]) {
-                a.append('<span> ' + model + '</span>');
-                a.append('<span> (' + K5.api.ctx.item[p].title + ')</span>');
-            } else {
-                K5.api.askForItemContextData(p, function(data) {
-                    var pidElm = $("div:data(pid)").filter(function() {
-                        return $(this).data("pid") === data.pid;
-                    });
-                    var m = K5.i18n.translatable('fedora.model.' + data.model);
-                    pidElm.append('<span> ' + m + '</span>');
-                    pidElm.append('<span> (' + data.title + ')</span>');
-                });
-            }
-
-            a.click(_.bind(function(l) {
-                K5.api.gotoItemPage(l, $("#q").val());
-            }, this, p));
-
-            div.append(a);
+            
+            this.biblioModsXml(div, p, this.itemContext[i].model);
             contextDiv.append(div);
         }
-        contextDiv.insertBefore(".mtd_footer");
+        contextDiv.insertBefore("#metadata");
+        //contextDiv.insertBefore(".mtd_footer");
     },
 
     hidePages: function() {
@@ -312,10 +299,6 @@ ItemSupport.prototype = {
     },
     showItemNavigation: function() {
         this.hideInfo();
-    },
-
-    // toggle actions -> change it     
-    toggleActions: function() {
     },
     /**
      * Siblings request
@@ -480,9 +463,8 @@ ItemSupport.prototype = {
     /**
      * Search inside document
      * @method      
-     * @param {integer} speed.
      */       
-    searchInside: function(speed) {
+    searchInside: function() {
         cleanWindow();
 
         $("#searchinside_q").val($("#q").val());
@@ -492,23 +474,13 @@ ItemSupport.prototype = {
         $("#searchinside_q").select();
 
         this._searchInsideArrow();
-
-//        this.showPanel("#viewer>div.searchinside", 290, 37, speed);
-        /*
-        this.hidePanels(_.bind(function(){
-            this.showPanel("#viewer>div.searchinside", 290, 37, speed);
-            $("#searchinside_q").focus();
-            $("#searchinside_q").select();
-        }, this));
-        */
-
     },
 
     /**
      * Show info panel
      * @method      
      */       
-    showInfo: function(speed) {
+    showInfo: function() {
         cleanWindow();
         divopen("#viewer>div.info");
 
@@ -518,8 +490,8 @@ ItemSupport.prototype = {
         var contextheight = $(".context").height();
         console.log("context height :"+contextheight);
 
-        var titleheight = $("#title").height()
-        var modelheight = $("#model").height()
+        var titleheight = $("#title").height();
+        var modelheight = $("#model").height();
 
         var nheight = metadataheight + 63 +contextheight+titleheight+modelheight ;
 
@@ -559,16 +531,6 @@ ItemSupport.prototype = {
         }else{
             this.hidePanel("#viewer>div.infobox:visible", 290, -500, 200, whenready);
         }
-    },
-
-
-    /** 
-     * toggle actions 
-     * @method
-     */
-    toggleActions: function() {
-        if (visible("#viewer>div.actions")) { cleanWindow(); } 
-        else { this.showActions();  }
     },
 
     _searchInsideArrow:function() {

@@ -675,7 +675,7 @@ public class SolrOperations {
     private void commit() throws java.rmi.RemoteException, Exception {
         String s;
         if(isSoftCommit){
-            s = "<commit />";
+            s = "<commit softCommit=\"true\" />";
         }else{
             s = "<commit softCommit=\"false\" />";
         }

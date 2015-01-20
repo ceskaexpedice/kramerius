@@ -238,6 +238,7 @@ body * {
 .thumb img{
     box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px 0px;
     height: 100%;
+    position: relative;
 }
 .thumb>img:hover{
     box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 15px 0px;
@@ -734,8 +735,9 @@ li.public:before{
 /** metadata section */
 #viewer .infobox{
     /*top: -500px; */
-        width:33%;
+        width:63%;
         height: 22em;
+        max-height: calc(100% - 120px);
         background-color: $params.activeColor;
         z-index: 43;
         left: 225px; /* ?? */
@@ -1062,7 +1064,15 @@ li.public:before{
 }
 
 #viewer div.context{
-    padding-top: 5px;
+    padding-top: 1px;
+    overflow: auto;
+    max-height: calc(100% - 40px);
+}
+
+#viewer div.context h2{
+    padding: 5px;
+    font-size: 1.1em;
+    margin: 0;
 }
 
 #viewer div.context>div{
