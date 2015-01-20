@@ -232,58 +232,6 @@ ItemSupport.prototype = {
                 K5.i18n.k5translate(menuDiv);
         }
     },
-    ns: function(prefix){
-        var    pref = 'mods';
-        var    ns = 'http://www.loc.gov/mods/v3';
-        if (prefix === pref)
-                return ns;
-        
-    },
-    getXpath:function(data, path){
-        var node = $(data).xpath(path, this.ns);
-        if(node.length > 0){
-            return node[0].textContent;
-        }else{
-            return "";
-        }
-    },
-    biblioMods: function(elem, pid){
-        K5.api.askForItemConcreteStream(pid, "BIBLIO_MODS", _.bind(function(data) {
-            for(var i=0; i<K5.indexConfig.metadata.length; i++){
-                var cval = K5.indexConfig.metadata[i];
-                var val = this.getXpath(data, cval.xpath);
-                if(val !== ""){
-                    $(elem).append('<div style="display:block;"><label>' + cval.label + ':</label> ' + val + '</div>');
-                }
-            }
-            this.parseBiblioModsXml(elem, pid, data);
-            
-        }, this));
-    },
-    parseBiblioModsXml: function(elem, pid, data){
-            var xmlstr = (typeof XMLSerializer!=="undefined") ? 
-               (new window.XMLSerializer()).serializeToString(data) : 
-               data.xml;
-            var t = $('<textarea/>');
-            t.text(xmlstr);
-            $(t).format({method: 'xml'});
-            
-            $.SyntaxHighlighter.init({
-                'stripInitialWhitespace': true,
-                'lineNumbers': false,
-                'wrapLines': true
-            });
-            var modsid = "mods_"+pid;
-            var div = $('<div style="display:none;" />');
-            div.attr("id", modsid);
-            div.css('height', $("#viewer").height() - 60);
-            var $content = $('<pre class="language-xml"></pre>');
-            $content.text(t.val());
-            $content.css(t.val());
-            $content.syntaxHighlight();
-            div.append($content);
-            $('#viewer').append(div);
-    },
     renderModsXml: function(elem, pid, data){
         var modsid = "mods_"+pid;
         var e = $('<div class="modsxml"></div>');
@@ -326,54 +274,6 @@ ItemSupport.prototype = {
         }, this));
     },
 
-    metadata: function(elem, pid, model) {
-        $.get("metadata?pid=" + pid + "&model=" + model, _.bind(function(data) {
-            
-            //$(elem).append(data);
-            $(elem).find(".infobox .label").each(function(index, val) {
-                var txt = $(val).text();
-                txt = txt.trim();
-                if (txt.indexOf(":") === 0) {
-                    $(val).text('');
-                }
-            });
-            $(elem).find(".infobox .label").each(function(index, val) {
-                var valueText = $(val).siblings(".value").text();
-                valueText = valueText.trim();
-                if ("" === valueText) {
-                    $(val).siblings(".value").remove();
-                    $(val).remove();
-                }
-            });
-            var m = $('<div>', {class: "model"});
-            
-            m.html(K5.i18n.translatable("fedora.model." + model));
-            $(elem).append(m);
-            this.biblioModsXml(elem, pid, model);
-            
-            
-            var b = $(elem).find("div.model");
-            b.addClass("button");
-            b.attr("data-id", pid);
-            b.data("id", pid);
-            b.append(' <xml>');
-            b.attr('title', 'show mods');
-            b.click(function(){
-                modsxml.toggle();
-                return;
-                var id = $(this).data("id");
-                var h = $("#viewer").height() - 60;
-                $(jq("mods_" + id)).dialog({
-                    width:'90%', 
-                    height: h, 
-                    modal: true,
-                    title : "Biblio Mods: " + id
-                });
-            });
-            //$(elem).append(b);
-            
-        }, this));
-    },
 
     renderContext: function() {
         $(".context").remove();
@@ -388,12 +288,6 @@ ItemSupport.prototype = {
             var div = $('<div/>');
             
             this.biblioModsXml(div, p, this.itemContext[i].model);
-
-            //this.metadata(div, p, this.itemContext[i].model);
-            
-            //div.append(K5.i18n.translatable("fedora.model." + this.itemContext[i].model));
-            //this.biblioMods(div, p);
-            //this.biblioModsXml(div, p);
             contextDiv.append(div);
         }
         contextDiv.insertBefore("#metadata");
