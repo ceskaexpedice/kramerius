@@ -30,14 +30,7 @@
 </div>
 </td><td style="width:745px;"> 
 <div style="float:left;width:740px;">
-<div id="dt_home">
-    <c:url var="dtxslurl" value="inc/home/dt.xsl" />
-    <c:import url="${dtxslurl}" var="facetxsl" charEncoding="UTF-8"  />
-    <x:transform doc="${xml}"  xslt="${facetxsl}">
-        <x:param name="bundle_url" value="${i18nServlet}"/>
-        <x:param name="dts" value="${dts}"/>
-    </x:transform>
-</div>
+
 <%@ include file="home/tabs.jsp" %>
 </div>
 </td></tr></table>

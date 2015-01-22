@@ -18,7 +18,7 @@
     }
     
     #intro_text a{
-        color:#e66c00;
+        color:rgba(0, 30, 60, 0.9);
         font-size:1.1em;
         
     }

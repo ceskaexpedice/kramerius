@@ -128,7 +128,7 @@ $(document).ready(function(){
 
 #processes_log>div.separator {
     width: 100%;
-    border-top: 2px solid #E66C00;
+    border-top: 2px solid rgba(0, 30, 60, 0.9);
     margin-top: 3px;
 }
 

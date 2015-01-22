@@ -4,7 +4,7 @@
         height:25px;
         padding-top:5px;
         padding-right:10px;
-        border-bottom:1px solid #E66C00;
+        border-bottom:1px solid rgba(0, 30, 60, 0.9);
         background-color: white;
     }
     #fullImageContainer>div.header>div.title{

@@ -515,7 +515,6 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                     } else {
                         insertJavaImage(document, percentage, javaImg);
                     }
-
                 } else {
                     String text = textsService.getText("image_not_available",
                             localeProvider.get());

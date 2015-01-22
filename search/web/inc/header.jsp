@@ -4,12 +4,14 @@
 <!-- search form object -->
 <view:object name="searchFormViewObject" clz="cz.incad.Kramerius.views.SearchFormViewObject"></view:object>
 
-<div class="clear" id="header"><div style="float:left;"><%@ include file="logo.jsp" %></div>
+<div class="clear" id="header">
+<div style="float:left;width: 50px;margin-top: 13px; margin-left:10px"><%@ include file="logo.jsp" %></div>
+
 <%--    <div style="float:right;position:absolute;top:0px;right:2px;"><%@ include file="themes.jsp" %></div>  --%>
 <div id="main_menu" style="">
     <%@ include file="menu.jsp" %>
 </div>
-<div id="searchFormDiv" style="vertical-align:middle;margin:auto;padding:7px;width:600px;">
+<div id="searchFormDiv" style="position: relative;top: 8px; width:55%;">
     <%@ include file="searchForm.jsp" %>
 </div>
 </div>
