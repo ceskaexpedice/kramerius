@@ -13,7 +13,8 @@
     "resources/css/icons.css",
     "resources/css/mods.css",
 
-    "resources/css/small.css"
+    "resources/css/small.css",
+    "resources/css/waiting.css"
 ]
 
 

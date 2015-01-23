@@ -43,7 +43,7 @@
         #end
 
         #if(!$logControl.logged)
-            <div class="showmore button" onclick="divopen('#tbl_menus');">
+            <div class="showmore button" onclick="(function() {cleanWindow(); divopen('#tbl_menus');})();">
                 #translatable('application.more')
             </div>
         #end

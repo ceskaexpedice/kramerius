@@ -25,4 +25,6 @@
     <div class="small translate_title" data-key="buttons.results.inline" title="$i18n.buttons.results.inline" onclick="K5.gui.results.setThumbsStyle();" >#parse("svg/thumbs.svg")</div>
     <div class="small translate_title" data-key="buttons.results.row" title="$i18n.buttons.results.row" onclick="K5.gui.results.setRowStyle();" >#parse("svg/rows.svg")</div>
 </div>
-        <div class="loading"></div>
+
+<!-- waiting div -->
+#parse("waiting.vm")

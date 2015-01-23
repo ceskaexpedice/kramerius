@@ -118,6 +118,7 @@ DownloadItem.prototype.init = function() {
 
 
 DownloadItem.prototype.open = function() {
+    cleanWindow();
     divopen("#download");
     var doptions = K5.gui.downloadoptions.ctx.actions;
     var select = $('<select/>');

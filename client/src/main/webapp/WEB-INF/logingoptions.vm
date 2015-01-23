@@ -25,6 +25,10 @@
         stroke:white;
     }
     
+    .shibb > div.medium {
+        cursor: pointer;
+    }
+    
     .k5 >  div.medium  {
         cursor: pointer;
     }
@@ -64,18 +68,15 @@
 #if($conf.getString('shibboleth.loginpage'))
                 <li class="shibb"> <div title="#i18nval('login.option.shibboleth')" class="medium" onclick="__shibb()">#parse("svg/shibb.svg")</div> </li>
 #end
-
                 <li class="k5"> <div title="#i18nval('login.option.k5')" class="medium" onclick="link('?page=login')"> #parse("svg/k5.svg") </div> </li>
             </ul>
-
-            
         </div>
     </div>
 
     <div class="logoptions_footer dialogs_footer">
         <div class="right">
             <div class="buttons">
-                <div class="button" onclick="K5.authentication.options();">#translatable('common.close')</div>
+                <div class="button" onclick="cleanWindow();">#translatable('common.close')</div>
             </div>
         </div>
     </div>

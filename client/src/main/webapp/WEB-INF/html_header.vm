@@ -31,7 +31,6 @@
     #end
 
 
-<script type="text/javascript" src='js/mods.js'></script>
 
     <title>$i18n.application.title</title>
     <script language="JavaScript" type="text/javascript">

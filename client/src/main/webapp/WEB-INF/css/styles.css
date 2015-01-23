@@ -912,16 +912,6 @@ li.public:before{
     margin: 50%;
     left: 0; right: 0; top: 0; bottom: 0;
 }
-.loading{
-    background: url(../../images/loading_1.gif) center center no-repeat; 
-    background-color: rgba(0,0,0,0.2);
-    width: 100%;
-    height: 100%;
-    z-index: 100;
-    position: relative;
-    cursor: progress;
-    display:none;
-}
 
 #viewer .pages {
     position: absolute;
@@ -1796,7 +1786,7 @@ li.public:before{
         height: 12em;
         background-color: $params.activeColor;
         z-index: 43;
-        left: 280px; 
+        left: 22.5%; 
         color: white;
 }
 
@@ -2195,61 +2185,6 @@ li.public:before{
         display: list-item;
 }
 
-/** small screen */
-
-#header  #smalldisplay {
-        display:none;
-}
-
-
-#tbl_menus {
-        position:absolute;
-        right:12px;                
-        width:60%;
-        height:calc(100%-50px);
-
-        border:0px solid rgba(0, 0, 0, 0.3);
-        color: $params.textColor;
-        box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
-        padding: 15px;
-        background-color: $params.activeColor;
-        z-index: 43;
-}
-
-#tbl_menus div.button {
-        border: solid 1px rgba(180, 180, 180, 0.4);
-        padding: 5px;
-        display: inline-block;
-
-}
-
-#tbl_menus div.button a {
-        color: inherit;
-        text-decoration: none;
-}
-
-#tbl_menus .triangle {
-        width:0; 
-        height:0; 
-        border-left: 10px solid transparent; 
-        border-right: 10px solid transparent; 
-        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
-        background-color: transparent;
-        color: transparent;
-        position: absolute;
-        top: -10px;
-        z-index: 23;
-        right: 50px;
-}
-
-
-#tbl_menus div.right{
-    position:absolute;
-    right: 10px;
-    display: inline-block;
-}
-
-/** end of small screen */
 
 /** containers */
 
@@ -2306,12 +2241,12 @@ li.public:before{
 
 /** logoptions */
 div.logoptions {
-        top: 20%;
-        width: 30%;
+        top: calc(20% + 40px);
+        width: 300px;
         height: 30%;
         background-color: $params.activeColor;
         z-index: 43;
-        left: 40%;
+        left: calc(50% - 150px);
         color: white;
 }
 
@@ -2418,6 +2353,7 @@ div.logoptions  div.logoptions_footer  div.right{
 }
 
 /** share dialog */
+
 div.share {
         top: 20%;
         width: 500px;
@@ -2438,6 +2374,9 @@ div.share {
     top:0;
 }
 
+#share_container ul {
+    padding:0px;
+}
 
 div.share_footer {
     position: absolute;
@@ -2462,22 +2401,29 @@ div.share_footer {
     
 }
 
-#share_container ul li div.bigger {
+.sharesicon svg{
+    width: 88px;
+    height: 88px;
+    size: contain;
+}
+
+#share_container ul li div.sharesicon {
     cursor: pointer;
 }
 
 
-#share_container ul li div.bigger svg path{
+#share_container ul li div.sharesicon svg path{
     fill:white; 
 }
 
-#share_container ul li div.bigger svg g path{
+#share_container ul li div.sharesicon svg g path{
     fill:white; 
 }
 
-#share_container ul li div.bigger svg g polygon{
+#share_container ul li div.sharesicon svg g polygon{
     fill:white; 
 }
+
 
 div.share_footer div.right {
     position: absolute;
@@ -2785,7 +2731,7 @@ div.feedback {
 
 #feedback_container div textarea {
     width: 90%;
-    height: 60px;
+    /*height: 60px; */
     margin-left: 10px;
 }
 
@@ -2836,3 +2782,5 @@ div.feedback_footer  .buttons div.sel{
 }
 
 /** end of dialog feedback */
+
+

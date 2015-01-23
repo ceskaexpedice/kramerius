@@ -76,9 +76,14 @@ function _eventProcess(pid) {
         if (K5.gui.selected.download) {
             K5.gui.selected.download.cleanDialog();
         }
+        
+        $("#viewer>div.loading").show();
     }
 
     var okfunc = _.bind(function() {
+        
+        $("#viewer>div.loading").hide();
+
         var instance = K5.gui["viewers"].instantiate(viewer.object);        
         K5.gui["selected"] = mixInto(new ItemSupport(K5), instance);
         K5.gui["selected"].initItemSupport();
@@ -93,6 +98,9 @@ function _eventProcess(pid) {
         K5.gui.selected["disabledDisplay"] = false;
     });
     var failfunc = _.bind(function() {
+
+        $("#viewer>div.loading").hide();
+
         var nviewer = K5.gui["viewers"].findByName('forbidden');
         var instance = K5.gui["viewers"].instantiate(nviewer.object);        
 
