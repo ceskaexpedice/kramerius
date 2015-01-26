@@ -148,7 +148,7 @@ public class AbstractPDFResource {
                 final ObjectPidsPath path = AbstractPDFResource.selectOnePath(pid, paths);
             
                 RenderedDocument rdoc = new RenderedDocument(this.fedoraAccess.getKrameriusModelName(pid), pid);
-                File parentFile = ITextUtils.bodyPDF(pid, solrAccess, solrMemoization, this.decoratorsAggregate, fedoraAccess, fmap, rdoc,textService, localesProvider);
+                File parentFile = ITextUtils.bodyPDF(pid, Integer.parseInt(number), solrAccess, solrMemoization, this.decoratorsAggregate, fedoraAccess, fmap, rdoc,textService, localesProvider);
                 File firstPageFile = ITextUtils.firstPagePDF(firstPagePDFService, imgServletUrl, i18nUrl,
                         fmap, path, rdoc);
                 File generatedPDF = File.createTempFile("rendered", "pdf");

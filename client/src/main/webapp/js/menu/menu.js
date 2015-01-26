@@ -455,7 +455,7 @@ function PDFTitle() {}
 PDFTitle.prototype = {
         'doAction':function() {
                 cleanWindow();
-                K5.outputs.print.title(K5.api.ctx.item.selected);
+                K5.outputs.pdf.asyncTitle(K5.api.ctx.item.selected);
         },
         
         
