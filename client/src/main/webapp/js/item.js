@@ -115,7 +115,7 @@ function _eventProcess(pid) {
         
         //_metadatainit();
 
-        K5.gui.selected["disabledDisplay"] = false;
+        K5.gui.selected["disabledDisplay"] = true;
     });
 
     K5.gui["viewers"].forbiddenCheck(viewer.object,okfunc,failfunc); 

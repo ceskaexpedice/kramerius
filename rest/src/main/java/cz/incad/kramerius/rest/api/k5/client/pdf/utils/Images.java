@@ -79,8 +79,8 @@ public class Images {
 
 
     public static void imageNotAvailable(Document document, TextsService textsService, Provider<Locale> localesProvider, Font font) throws IOException, DocumentException {
-        String text = textsService.getText("image_not_available",localesProvider.get());
-        text = text != null ? text : "image_not_available";
+        String text = textsService.getText("security_fail",localesProvider.get());
+        text = text != null ? text : "security_fail";
         Chunk chunk = new Chunk(text, font);
         Paragraph na = new Paragraph();
         na.add(chunk);

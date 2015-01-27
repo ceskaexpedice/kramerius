@@ -30,6 +30,8 @@ Forbidden.prototype.open =  function(rect) {
         this.disabledDisplay = true;
 
         K5.i18n.k5translate('#forbidden');
+        
+        K5.eventsHandler.trigger("application/menu/ctxchanged", null);
 }
 
 Forbidden.prototype.clearContainer = function() {
@@ -37,37 +39,65 @@ Forbidden.prototype.clearContainer = function() {
 }
 
 Forbidden.prototype.addContextButtons=  function() {
-        $("#contextbuttons").html("");
-        $("#item_menu>div").each(function() {
-            if ($(this).data("ctx")) {
-                var a = $(this).data("ctx").split(";");
-                if (jQuery.inArray('all', a) > -1 || jQuery.inArray('forbidden', a) > -1) {
-                    $("#contextbuttons").append($(this).clone());
-                }
-                
-                if (jQuery.inArray('selected', a) > -1) {
-                    if (K5.gui.clipboard.isCurrentSelected()) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
+    $("#contextbuttons").html("");
+    $("#item_menu>div")
+            .each(
+                    function() {
+                        if ($(this).data("ctx")) {
+                            var a = $(this).data("ctx").split(";");
+                            if (viewer) {
+                                if (jQuery.inArray(viewer, a) > -1) {
+                                    $("#contextbuttons").append($(this).clone());
+                                }
+                            }
 
-                if (jQuery.inArray('notselected', a) > -1) {
-                    if (!K5.gui.clipboard.isCurrentSelected()) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
+                            // all context
+                            if (jQuery.inArray('all', a) > -1) {
+                                $("#contextbuttons").append($(this).clone());
+                            }
+                           
 
-                // only clipboard
-                if (jQuery.inArray('clipboardnotempty', a) > -1) {
-                    if (K5.gui.clipboard.getSelected().length > 0) {
-                        $("#contextbuttons").append($(this).clone());
-                    }
-                }
-            }
-        });
+                            // next context
+                            if (jQuery.inArray('next', a) > -1) {
+                                if (K5.api.ctx["item"][selected]["siblings"]) {
+                                    var data = K5.api.ctx["item"][selected]["siblings"];
+                                    var arr = data[0]['siblings'];
+                                    var index = _.reduce(arr, function(memo,
+                                            value, index) {
+                                        return (value.selected) ? index : memo;
+                                    }, -1);
+                                    if (index < arr.length - 1) {
+                                        $("#contextbuttons").append(
+                                                $(this).clone());
+                                    }
+                                }
+                            }
 
-        if (!K5.gui["selected"].hasParent()) {
-            $("#contextbuttons>div.parent").hide();
-        }
+                            // prev context
+                            if (jQuery.inArray('prev', a) > -1) {
+                                if (K5.api.ctx["item"][selected]["siblings"]) {
+                                    var data = K5.api.ctx["item"][selected]["siblings"];
+                                    var arr = data[0]['siblings'];
+                                    var index = _.reduce(arr, function(memo,
+                                            value, index) {
+                                        return (value.selected) ? index : memo;
+                                    }, -1);
+                                    if (index > 0) {
+                                        $("#contextbuttons").append(
+                                                $(this).clone());
+                                    }
+                                }
+                            }
+
+                            if (jQuery.inArray('parent', a) > -1) {
+                                var pid = K5.api.ctx["item"]["selected"];
+                                var data = K5.api.ctx["item"][pid];
+                                var itemContext = data.context[0]; // jinak?
+                                if (itemContext.length > 1) {
+                                    $("#contextbuttons").append($(this).clone());
+                                }
+                            }
+                        }
+                    });
 }
 

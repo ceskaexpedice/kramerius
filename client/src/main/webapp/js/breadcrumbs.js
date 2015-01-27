@@ -15,7 +15,7 @@ K5.eventsHandler.addHandler(function(type, data) {
         if ((splitted[0] === "api") && (splitted[1] === "item")) {
             var pid = splitted[2];
             delayedEvent.pid=pid;    
-            if (K5.initialized) {
+            if (K5.initialized && K5.i18n.ctx.dictionary) {
                 K5.gui["breadcrumbs"].refresh(pid);
                 delayedEvent.enabled = false;
             } else {
@@ -23,9 +23,18 @@ K5.eventsHandler.addHandler(function(type, data) {
             }
         }
     }
-    if (type === "application/init/end") {
-        if ((delayedEvent.enabled)  && (K5.api.ctx["item"] && K5.api.ctx["item"][delayedEvent.pid])) {
+    if (type === "i18n/dictionary ") {
+        if (K5.initialized) {
+            if ((delayedEvent.enabled)  && (K5.api.ctx["item"] && K5.api.ctx["item"][delayedEvent.pid])) {
                 K5.gui["breadcrumbs"].refresh(delayedEvent.pid);
+            }
+        }
+    }
+    if (type === "application/init/end") {
+        if (K5.i18n.ctx.dictionary) {
+            if ((delayedEvent.enabled)  && (K5.api.ctx["item"] && K5.api.ctx["item"][delayedEvent.pid])) {
+                K5.gui["breadcrumbs"].refresh(delayedEvent.pid);
+            }
         }
     }
     

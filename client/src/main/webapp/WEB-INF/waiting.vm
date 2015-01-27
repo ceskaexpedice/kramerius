@@ -1,4 +1,4 @@
-    <div class="loading spinner">
+    <div class="loading spinner" style="display:none">
       <div class="rect1"></div>
       <div class="rect2"></div>
       <div class="rect3"></div>

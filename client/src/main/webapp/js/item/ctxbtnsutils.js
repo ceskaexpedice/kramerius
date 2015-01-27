@@ -15,6 +15,13 @@ function _ctxbuttonsrefresh(viewer) {
                             if (jQuery.inArray('all', a) > -1) {
                                 $("#contextbuttons").append($(this).clone());
                             }
+
+
+                            // all context
+                            if (jQuery.inArray('share', a) > -1) {
+                                $("#contextbuttons").append($(this).clone());
+                            }
+
                             // only selected
                             if (jQuery.inArray('selected', a) > -1) {
                                 if (K5.gui.clipboard.isCurrentSelected()) {
@@ -40,7 +47,7 @@ function _ctxbuttonsrefresh(viewer) {
                             }
 
                             // add to favorites
-                            if (jQuery.inArray('favorite', a) > -1) {
+                            if (jQuery.inArray('favorite', a) > -1 ) {
                                 var addf = false;
                                 if (K5.authentication.profileDisplay != null) {
                                     addf = !K5.authentication.profileDisplay.isCurrentPidInFavorites();
