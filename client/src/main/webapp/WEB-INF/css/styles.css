@@ -2611,6 +2611,7 @@ div.download {
 }
 
 #download_options select option {
+    background-color: white;
     color: black;
 }
 #download_options div {

@@ -88,12 +88,8 @@ function _eventProcess(pid) {
         K5.gui["selected"] = mixInto(new ItemSupport(K5), instance);
         K5.gui["selected"].initItemSupport();
         K5.gui["selected"].open();
-        //K5.gui["selected"].ctxMenu();    
 
         K5.gui["selected"]["ctx"] = {};    
-
-        //_metadatainit();
-
 
         K5.gui.selected["disabledDisplay"] = false;
     });

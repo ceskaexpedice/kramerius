@@ -31,14 +31,6 @@ PrintSupport.prototype= {
 
         
         title: function(pid) {
-            var itm = K5.api.ctx.item[pid];
-            var children = itm.children;
-            var ll = children.length;
-            var v = _.reduce(children, function(memo, value, key){ 
-                memo = memo + value.pid;
-                if (key >= 0 && key < ll - 1) memo = memo +",";
-                        return memo; 
-                }, "");  
-            window.open('print?pids='+v,'_blank');
+            window.open('print?parentPid='+pid,'_blank');
         }
 }
