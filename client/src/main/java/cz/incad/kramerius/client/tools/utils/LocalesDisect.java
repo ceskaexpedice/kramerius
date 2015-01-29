@@ -5,6 +5,8 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.LocaleUtils;
+
 public class LocalesDisect {
 
     public static Locale findLocale(HttpServletRequest req) {
@@ -15,7 +17,7 @@ public class LocalesDisect {
         }
         String language = req.getParameter(LocalesDisect.LANGUAGE_PARAM);
         if (language != null) {
-            retval = Locale.forLanguageTag(language);
+            retval = LocaleUtils.toLocale(language);
         }
         httpSession.setAttribute(SESSION_PARAM, retval);
         return retval;
