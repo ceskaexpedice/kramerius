@@ -28,7 +28,7 @@ DownloadItem.prototype.doAction = function() {
     if (act != null) {
         act.object.doAction();
     }
-    cleanWindow();
+    /*cleanWindow();*/
 }
 
 DownloadItem.prototype.init = function() {
