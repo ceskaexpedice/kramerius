@@ -11,7 +11,8 @@
 <div id="main_menu" style="">
     <%@ include file="menu.jsp" %>
 </div>
-<div id="searchFormDiv" style="position: relative;top: 8px; width:55%;">
+
+<div id="searchFormDiv" style="float:left;margin-top:10px">
     <%@ include file="searchForm.jsp" %>
 </div>
 </div>

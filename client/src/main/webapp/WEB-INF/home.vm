@@ -32,5 +32,4 @@
 </div>
 
 <div id="item_menu" style="display:none;">
-    <div class="small info translate_title" data-key="buttons.showinfo" title="$i18n.buttons.showinfo" onclick="K5.gui.home.showInfo();" >#parse("svg/info.svg")</div>
 </div>

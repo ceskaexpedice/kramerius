@@ -20,6 +20,8 @@ import cz.incad.Kramerius.Initializable;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
+import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
@@ -48,6 +50,9 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
     @Inject
     SolrAccess solrAccess;
     
+    @Inject
+    SolrMemoization solrMemoization;
+    
     private List<String> pids = new ArrayList<String>();
     
     
@@ -57,7 +62,18 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
             double ratio = KConfiguration.getInstance().getConfiguration().getDouble("search.print.pageratio",1.414);
             HttpServletRequest request = this.servletRequestProvider.get();
             String pidsString = request.getParameter("pids");
-            String[] pids = pidsString.split(",");
+            String startPid = request.getParameter("startPid");
+            String parentPid = request.getParameter("parentPid");
+
+            String[] pids = new String[0];
+            if (StringUtils.isAnyString(pidsString)) {
+                pids = pidsAsList(pidsString);
+            } else if (StringUtils.isAnyString(startPid)){
+                pids = pidsAsSiblings(startPid);
+            } else if (StringUtils.isAnyString(parentPid)){
+                pids =  pidsAsChildren(parentPid);
+            }
+
             String transcode = request.getParameter("transcode");
             int bits = numberOfBits(pids.length);
             for (int i = 0; i < pids.length; i++) {
@@ -86,6 +102,47 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
         }
     }
 
+
+    private String[] pidsAsChildren(String parentPid)
+            throws IOException {
+        String[] pids = new String[0];
+        List<String> solrChildrenPids = ItemResourceUtils.solrChildrenPids(parentPid, new ArrayList<String>(), this.solrAccess, this.solrMemoization);
+        return solrChildrenPids.toArray(new String[solrChildrenPids.size()]);
+    }
+
+    
+    private String[] pidsAsSiblings( String startPid)
+            throws IOException {
+        String[] pids = new String[0];
+        ObjectPidsPath[] paths = this.solrAccess.getPath(startPid);
+        ObjectPidsPath pths = selectOnePath(startPid, paths);
+        String[] pidsPths = pths.getPathFromRootToLeaf();
+        if (pidsPths.length > 1) {
+            String parent = pidsPths[pidsPths.length -2];
+            List<String> solrChildrenPids = ItemResourceUtils.solrChildrenPids(parent, new ArrayList<String>(), this.solrAccess, this.solrMemoization);
+            List<String> rest = new ArrayList<String>();
+            boolean append = true;
+            for (String pid : solrChildrenPids) {
+                if ((!append) && pid.equals(startPid)) {
+                    append = true;
+                }
+                if (append) {
+                    rest.add(pid);
+                }
+            }
+            pids = rest.toArray(new String[rest.size()]);
+        }
+        return pids;
+    }
+
+
+    private String[] pidsAsList(String pidsString) {
+        String[] pids;
+        pids = pidsString.split(",");
+        return pids;
+    }
+
+
     private boolean canBeRead(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
         for (ObjectPidsPath pth : paths) {
@@ -94,6 +151,17 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
             }
         }
         return false;
+    }
+
+    public static ObjectPidsPath selectOnePath(String requestedPid,
+            ObjectPidsPath[] paths) {
+        ObjectPidsPath path;
+        if (paths.length > 0) {
+            path = paths[0];
+        } else {
+            path = new ObjectPidsPath(requestedPid);
+        }
+        return path;
     }
 
 }

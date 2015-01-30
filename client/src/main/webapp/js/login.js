@@ -186,6 +186,7 @@ AuthenticationSupport.prototype = {
          * @method
          */
         options:function() {
+            cleanWindow();
             var show = _.bind(function() {
                 // hack ?? check homepage
                 if (K5.gui.page === 'home') {

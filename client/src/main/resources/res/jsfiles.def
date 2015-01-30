@@ -9,8 +9,10 @@
     "js/jquery.mousewheel.min.js",
     "js/jquery.touchSwipe.min.js",
     "js/ol3/ol-simple.js",
+    'js/mods.js',
 
     "jplayer/jquery.jplayer.min.js",
+
 
 
     "resources/js/utils.js",

@@ -4,11 +4,9 @@ function Footer(app) {
     this.application.eventsHandler.addHandler(_.bind(function(type, configuration) {
         var splitted = type.split("/");
         if (type === "widow/url/hash") {
-            console.log("page :"+K5.gui.page);
             this.footer((K5.gui.page && K5.gui.page ==="doc"))
         }
         if (type === "application/init/end") {
-            console.log("page :"+K5.gui.page);
             this.footer((K5.gui.page && K5.gui.page ==="doc"))
         }
     },this));

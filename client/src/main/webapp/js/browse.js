@@ -62,6 +62,8 @@ Browse.prototype = {
             this.columns = parseInt($.cookie('browse_columns'));
         }
         this.resizeResults();
+        
+        $('.loading').hide();
     },
     plus: function(){
         this.columns++;
@@ -249,12 +251,14 @@ Browse.prototype = {
                     this.sections = jQuery.parseJSON(data);
                     this.renderSections();
                     this.processHash(true);
+                    $('.loading').hide();
                 }, this),
                 _.bind(function(data) {
                     console.log("titles not in cache. Loading...");
                     this.sectionLength = 50;
                     this.sections = [];
                     this.nextSection("");
+                    $('.loading').hide();
                 }, this));
 
     },
@@ -274,12 +278,14 @@ Browse.prototype = {
                     this.sections = jQuery.parseJSON(data);
                     this.renderSections();
                     this.processHash(true);
+                    $('.loading').hide();
                 }, this),
                 _.bind(function(data) {
                     console.log("authors not in cache. Loading...");
                     this.sectionLength = 50;
                     this.sections = [];
                     this.nextAuthor("");
+                    $('.loading').hide();
                 }, this));
 
     },

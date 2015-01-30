@@ -14,9 +14,10 @@ function I18N(application){
 
 I18N.prototype= {
     ctx:{},
-        /** tests if given key is present in the context */
-        isKeyReady: function(keys) {
-                return lookUpKey(keys, this.ctx);
+ 
+    /** tests if given key is present in the context */
+    isKeyReady: function(keys) {
+        return lookUpKey(keys, this.ctx);
     },
     
     
@@ -39,7 +40,7 @@ I18N.prototype= {
 
 
 
-        askForText:function(nm, lang, whenready) {
+    askForText:function(nm, lang, whenready) {
                 $.getJSON("texts.vm?text=" + nm+"&lang="+lang, _.bind(function(data) {
                         if (!K5.i18n.isKeyReady("texts")) {
                                 this.ctx['texts']={};

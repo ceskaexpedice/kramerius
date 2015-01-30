@@ -66,8 +66,6 @@ public class PDFResource extends AbstractPDFResource  {
 
     public static Logger LOGGER = Logger.getLogger(PDFResource.class.getName());
 
-
-
     
     @GET
     @Path("selection")
@@ -95,6 +93,7 @@ public class PDFResource extends AbstractPDFResource  {
                             && (!configuration.getApplicationURL().equals(""))) {
                         i18nUrl = configuration.getApplicationURL() + "i18n";
                     }
+
                     AbstractPDFResource.FirstPage fp = pageType != null ? AbstractPDFResource.FirstPage
                             .valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
                     String[] pids = pidsParam.split(",");

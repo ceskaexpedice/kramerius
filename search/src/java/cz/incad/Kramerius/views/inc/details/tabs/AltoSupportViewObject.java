@@ -80,6 +80,7 @@ public class AltoSupportViewObject implements Initializable {
         HttpServletRequest request = this.requestProvider.get();
         if (request.getParameterMap().containsKey("q")) {
             String par = request.getParameter("q");
+            par = par.replace("'", "\\'");
             return "'"+par+"'";
         } else return "null";
     }

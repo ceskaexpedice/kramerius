@@ -76,7 +76,8 @@
         </div>
     </div>
 
-    <div class="loading"></div> 
+    <!-- waiting div -->
+    #parse("waiting.vm")
 
     <!-- persistent url -->
     #parse("actions/persistent.vm")
@@ -102,7 +103,7 @@
     <div class="small info translate_title" data-ctx="all" id="vwr_ctx_metadata" data-key="buttons.showinfo" title="$i18n.buttons.showinfo" onclick="K5.gui.selected.toggleInfo();" >#parse("svg/info.svg")</div>
 
 
-    <div class="small translate_title" data-ctx="all" id="vwr_ctx_share" data-key="buttons.share" title="$i18n.buttons.share" onclick="K5.gui.selected.shares.open();" >#parse("svg/share.svg")</div>
+    <div class="small translate_title" data-ctx="share" id="vwr_ctx_share" data-key="buttons.share" title="$i18n.buttons.share" onclick="K5.gui.selected.shares.open();" >#parse("svg/share.svg")</div>
     <div class="small translate_title" data-ctx="download" id="vwr_ctx_download" data-key="buttons.download" title="$i18n.buttons.download" onclick="K5.gui.selected.download.open();" >#parse("svg/download.svg")</div>
 
     <div class="small translate_title" data-ctx="favorite" data-key="buttons.addtofavorite"  title="$i18n.buttons.addtofavorite" onclick="K5.authentication.askForAppendToProfile();" >#parse("svg/addfavorite.svg")</div>
