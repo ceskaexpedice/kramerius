@@ -61,8 +61,23 @@ public class ALTOUtilsTest {
         AltoDisected disected = ALTOUtils.disectAlto("prosa", parsed);
         Assert.assertNotNull(disected.getAltoImageDimension());
         Assert.assertTrue(disected.getBoxes().size() > 0);
-        System.out.println(disected.toJSON());
         
     }
-    
+
+    @Test
+    public void testNoAlto() throws ParserConfigurationException, SAXException, IOException {
+        Document parsed = XMLUtils.parseDocument(ALTOUtilsTest.class.getResourceAsStream("res/nalto.xml"));
+        AltoDisected disected = ALTOUtils.disectAlto("", parsed);
+        Assert.assertNotNull(disected.getAltoImageDimension());
+        Assert.assertTrue(disected.getBoxes().size() == 0);
+    }
+
+    @Test
+    public void testNoAlto2() throws ParserConfigurationException, SAXException, IOException {
+        Document parsed = XMLUtils.parseDocument(ALTOUtilsTest.class.getResourceAsStream("res/nalto.xml"));
+        AltoDisected disected = ALTOUtils.disectAlto(null, parsed);
+        Assert.assertNotNull(disected.getAltoImageDimension());
+        Assert.assertTrue(disected.getBoxes().size() == 0);
+    }
+
 }

@@ -43,6 +43,24 @@ public class AltoSupportServletTest extends TestCase {
         for (String sterm : terms) {
             AltoDisected disected = ALTOUtils.disectAlto(sterm, altoDocument);
             Assert.assertNotNull(disected);
+            Assert.assertNotNull(disected.getBoxes().size() > 0);
         }
     }
+
+    public void testZeroAltos() throws ParserConfigurationException, SAXException, IOException {
+        URL solr = AltoSupportServletTest.class.getResource("solr.xml");
+        URL alto = AltoSupportServletTest.class.getResource("alto.xml");
+        InputStream openStream = solr.openStream();
+
+        openStream = alto.openStream();
+        Document altoDocument = XMLUtils.parseDocument(openStream);
+
+        AltoDisected disected = ALTOUtils.disectAlto(null, altoDocument);
+        Assert.assertTrue(disected.getBoxes().size() == 0);
+
+        disected = ALTOUtils.disectAlto("", altoDocument);
+        Assert.assertTrue(disected.getBoxes().size() == 0);
+        
+    }
+
 }
