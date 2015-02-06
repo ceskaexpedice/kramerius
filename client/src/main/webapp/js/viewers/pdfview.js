@@ -69,6 +69,8 @@ PDFView.prototype.open = function() {
 
         this.container.append(pdfContainer);
 
+        K5.eventsHandler.trigger("application/menu/ctxchanged", null);
+
 }
 
 PDFView.prototype.clearContainer = function() {

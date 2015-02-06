@@ -105,6 +105,13 @@ function _isAudio() {
     return audio;
 }
 
+function _isPDF() {
+    var selected = K5.api.ctx.item.selected; 
+    var itm = K5.api.ctx.item[selected];
+    var streams = itm.streams;
+    return (itm.datanode &&  streams["IMG_FULL"].mimeType == "application/pdf");
+}
+
 
 /**
  * Display clipboard  
@@ -141,8 +148,7 @@ PDFOnePage.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
-                    if (!_isAudio()) {
-                        // no pdf?
+                    if ((!_isAudio()) && (!_isPDF())) {
                         return K5.api.ctx.item[selected].datanode; 
                     } else return false;
                 } else {
@@ -197,8 +203,7 @@ PrintPartPage.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
-                    if (!_isAudio()) {
-                        // no pdf?
+                    if (!_isAudio() && (!_isPDF())) {
                         return K5.api.ctx.item[selected].datanode; 
                     } else return false;
                 } else {
@@ -409,7 +414,9 @@ PrintPage.prototype = {
             var selected = K5.api.ctx.item.selected; 
             var itm = K5.api.ctx.item[selected];
             if (!itm['forbidden']) {
+                if ((!_isAudio()) && (!_isPDF())) {
                     return K5.api.ctx.item[selected].datanode; 
+                } else return false;
             } else {
                     return false;
             }
@@ -428,7 +435,7 @@ PrintTitle.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
-                    if (!_isAudio()) {
+                    if ((!_isAudio()) && (!_isPDF())) {
                         var children = K5.api.ctx.item[selected]["children"];
                         if (children) {
                             var pages = _.reduce(children, function(memo, value, index) {
@@ -469,7 +476,8 @@ PDFTitle.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
-                    if (!_isAudio()) {
+                    if ((!_isAudio()) && (!_isPDF())) {
+
                         var children = K5.api.ctx.item[selected]["children"];
                         if (children) {
                             var pages = _.reduce(children, function(memo, value, index) {

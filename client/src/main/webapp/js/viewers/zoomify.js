@@ -149,7 +149,6 @@ Zoomify.prototype.open = function() {
 
                 this.map.on('moveend',function() {
                     var curpage = K5.gui.selected.currentPage();
-                    console.log(curpage);
                     if (curpage[2] < 0) {
                         K5.gui.selected.next();
                     }

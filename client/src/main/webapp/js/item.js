@@ -55,7 +55,6 @@ K5.eventsHandler.addHandler(function(type, configuration) {
 
 });
 
-//var phash = location.hash;
 var phash = location.hash;
 var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
 if (pid) K5.api.askForItem(pid);
@@ -63,7 +62,6 @@ if (pid) K5.api.askForItem(pid);
 var maxwidth = $('html').css('max-width');
 
 var w = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-//K5.serverLog("window width :"+w);
 
 function _eventProcess(pid) {
 
@@ -106,11 +104,6 @@ function _eventProcess(pid) {
         K5.gui["selected"].initItemSupport();
         K5.gui["selected"].open();
 
-        // initialization
-        //K5.gui["selected"].ctxMenu();    
-        
-        //_metadatainit();
-
         K5.gui.selected["disabledDisplay"] = true;
     });
 
@@ -118,7 +111,6 @@ function _eventProcess(pid) {
         
 
     function _metadatainit() {
-            // metadata initialization 
             $("#metadata").hide();
             if (data.model === "page") {
                 $("#model").show();
@@ -181,21 +173,20 @@ ItemSupport.prototype = {
             
         } else {
             this.application.eventsHandler.addHandler(_.bind(function(type, configuration) {
-                console.log("event type " + type);
                 if (type === "i18n/dictionary") {
                     this._initInfo();
+
+                    this.download = new DownloadItem();
+                    this.download.init();
+
+                    this.messages = new Messages();
+                    this.messages.init();
+
+                    this.shares = new ShareItem();
+                    this.shares.init();
                 }
             }, this));
 
-            // ?? reorganizovat?
-            this.download = new DownloadItem();
-            this.download.init();
-
-            this.messages = new Messages();
-            this.messages.init();
-
-            this.shares = new ShareItem();
-            this.shares.init();
 
         }
     },
@@ -211,31 +202,6 @@ ItemSupport.prototype = {
         _ctxbuttonsrefresh();
     },
 
-   /**
-    * Render ctx menu 
-    * @method
-    */     
-   ctxMenu: function() {
-        $("#acts_container").empty();
-        var menuDiv = $("<div/>", {'id': 'ctxmenu'});
-        var ul = $('<ul/>');
-        var items = _.map(K5.gui.nmenu.ctx.actions, function(a) {
-                var li = $('<li/>', {'id': 'ctxmenu-'+a.name});
-                var item = $('<a/>', {'href': 'javascript:K5.gui.nmenu.action("' + a.name+'")', 'data-key': a.i18nkey});
-                item.addClass("translate");
-                li.append(item);
-                return li;
-        });
-
-        _.each(items, function(itm) {
-            if (itm !== null) ul.append(itm);
-        });
-        menuDiv.append(ul);
-        $("#acts_container").append(menuDiv);
-        if (K5.i18n.ctx.dictionary) {
-                K5.i18n.k5translate(menuDiv);
-        }
-    },
     renderModsXml: function(elem, pid, data){
         var modsid = "mods_"+pid;
         var e = $('<div class="modsxml"></div>');
@@ -263,7 +229,6 @@ ItemSupport.prototype = {
         m.html(K5.i18n.translatable("fedora.model." + model));
         $(elem).append(m);
         K5.api.askForItemConcreteStream(pid, "BIBLIO_MODS", _.bind(function(data) {
-            //this.parseBiblioModsXml(elem, pid, data);
             var modsxml = this.renderModsXml(elem, pid, data);
             var b = $(elem).find("div.model");
             b.addClass("button");
@@ -295,15 +260,11 @@ ItemSupport.prototype = {
             contextDiv.append(div);
         }
         contextDiv.insertBefore("#metadata");
-        //contextDiv.insertBefore(".mtd_footer");
     },
 
-    hidePages: function() {
-        $("#itemparts").hide();
-    },
-    showItemNavigation: function() {
-        this.hideInfo();
-    },
+    
+   
+    
     /**
      * Siblings request
      * @method
@@ -325,7 +286,6 @@ ItemSupport.prototype = {
         } else {
             K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
                 var arr = data[0]['siblings'];
-                console.log('array length:' + arr);
                 var str = _.reduce(arr, function(memo, value, index) {
                     var pid = value.pid;
                     memo +=
