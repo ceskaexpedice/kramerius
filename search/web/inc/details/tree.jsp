@@ -391,7 +391,16 @@
         }
 
         function setActiveUuids(id){
+            var oldPidPath = k4Settings.activePidPath;
+            
             k4Settings.activePidPath = id;
+            
+            if(oldPidPath!== null && $(jq(id)).parent()[0] === $(jq(oldPidPath)).parent()[0]){
+                //jenom se zmenil pid, ale jsme na stejne vetvi
+                return;
+            }
+            
+        
             k4Settings.activeUuids = [];
             
             var i = 0;
