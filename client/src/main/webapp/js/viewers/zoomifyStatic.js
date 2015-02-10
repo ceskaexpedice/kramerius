@@ -261,11 +261,7 @@ ZoomifyStaticImage.prototype.rotateRight = function() {
 ZoomifyStaticImage.prototype.fit = function() {
     var ext = this.projection.getExtent();
     var size = this.map.getSize();
-
-    var nresolution = ext[3]/(size[1]-20);
-    this.view2D.setResolution(nresolution);
-    
-    this.view2D.setCenter([ext[2]/2, ext[3]/2]);
+    this.view2D.fitExtent(ext,size);
 }
 
 ZoomifyStaticImage.prototype.translateCurrent=function(x1,y1,width,height) {
