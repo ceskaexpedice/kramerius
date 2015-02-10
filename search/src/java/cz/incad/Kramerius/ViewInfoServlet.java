@@ -203,13 +203,11 @@ public class ViewInfoServlet extends GuiceServlet {
                     map.put("hasAlto", "false");
                 }
                 
-                resp.setContentType("text/plain");
+                resp.setContentType("application/json; charset=utf-8");
                 StringTemplate template = ST_GROUP.getInstanceOf("viewinfo");
                 template.setAttribute("data", map);
                 
                 resp.getWriter().println(template.toString());
-                
-                
             }
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
