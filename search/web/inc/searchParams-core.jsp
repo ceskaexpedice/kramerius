@@ -17,9 +17,9 @@
 <%--
 <view:object name="searchParams" clz="cz.incad.Kramerius.views.inc.SearchParamsViews"></view:object>
 --%>
-
+<view:kconfig var="collapsed_conf" key="search.query.collapsed" defaultValue="true" />
 <c:catch var="searchException">
-    <c:set var="isCollapsed" value="${!isHome && (param.collapsed != 'false')}" scope="request"  />
+    <c:set var="isCollapsed" value="${!isHome && (param.collapsed != 'false') && (collapsed_conf == 'true')}" scope="request"  />
     <c:set var="filterByType" value="false" scope="request" />
     <c:set var="rowsdefault" value="${searchParams.searchResultsRows}" scope="request" />
     <c:set var="rows" value="${rowsdefault}" scope="request" />
