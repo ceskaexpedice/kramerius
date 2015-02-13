@@ -112,7 +112,7 @@ public class Search {
     }
 
     public JSONObject getResults() {
-        if (isFilterByType()) {
+        if (isFilterByType() && KConfiguration.getInstance().getConfiguration().getBoolean("search.query.collapsed", true)) {
             return getUngrouped();
         } else {
             return getGrouped();
