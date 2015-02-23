@@ -99,7 +99,8 @@ public class FeederResource {
                     ApplicationURL.applicationURL(requestProvider.get())
                             + "/inc/home/newest-rss.jsp");
 
-            StringBuilder req = new StringBuilder("q=level%3a0");
+            String query = KConfiguration.getInstance().getConfiguration().getString("search.newest.query", "q=level%3a0");
+            StringBuilder req = new StringBuilder(query);
             if (documentType != null) {
                 req.append("&fq=document_type:" + documentType);
             }
