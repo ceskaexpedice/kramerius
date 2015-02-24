@@ -6,6 +6,7 @@
         "dc_description:": "dc.description",
         "dc_identifier:": "dc.identifier"
     },
+    "facets":["model_path", "keywords", "collection", "dostupnost"],
     "browse":{
         "models": ["monograph","periodical","article"]
     },
