@@ -5,8 +5,12 @@
     </div>
 
     <div class="buttons">
+#if($conf.getBoolean('k5client.showbrowse'))
         <div class="button #if($params.page == 'browse')sel#end" onclick="link('?page=browse')">#translatable('common.browse')</div>
+#end
+#if($conf.getBoolean('k5client.showtimeline'))
         <div class="button #if($params.page == 'da')sel#end" onclick="link('?page=da')">#translatable('common.timeline')</div>
+#end
 #if($conf.getBoolean('k5client.showcollections'))
         <div class="button #if($params.page == 'collections')sel#end" onclick="link('?page=collections')">#translatable('common.collections')</div>
 #end
