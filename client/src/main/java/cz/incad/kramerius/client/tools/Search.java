@@ -69,9 +69,15 @@ public class Search {
             apipoint = KConfiguration.getInstance().getConfiguration().getString("api.point");
             fieldsConfig = IndexConfig.getInstance();
             
-            facets = "&facet.mincount=1&facet.field=" + 
-                    fieldsConfig.getMappedField("model_path") + 
-                    "&facet.field=keywords&facet.field=collection&facet.field=dostupnost";
+            facets = "&facet.mincount=1";
+            JSONArray fs = fieldsConfig.getJSON().getJSONArray("facets");
+            for(int i = 0; i<fs.length(); i++){
+                facets += "&facet.field=" + fs.getString(i);
+            }
+                    
+//            facets = "&facet.mincount=1&facet.field=" + 
+//                    fieldsConfig.getMappedField("model_path") + 
+//                    "&facet.field=keywords&facet.field=collection&facet.field=dostupnost";
             
 
         } catch (IOException e) {
