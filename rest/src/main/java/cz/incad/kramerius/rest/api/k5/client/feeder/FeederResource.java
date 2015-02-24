@@ -1,6 +1,8 @@
 package cz.incad.kramerius.rest.api.k5.client.feeder;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -99,8 +101,9 @@ public class FeederResource {
                     ApplicationURL.applicationURL(requestProvider.get())
                             + "/inc/home/newest-rss.jsp");
 
-            String query = KConfiguration.getInstance().getConfiguration().getString("search.newest.query", "q=level%3a0");
-            StringBuilder req = new StringBuilder(query);
+            String query = KConfiguration.getInstance().getConfiguration().getString("search.newest.query", "level:0");
+            String encodedQuery = URLEncoder.encode(query, "UTF-8");
+            StringBuilder req = new StringBuilder("q="+encodedQuery);
             if (documentType != null) {
                 req.append("&fq=document_type:" + documentType);
             }
@@ -240,4 +243,5 @@ public class FeederResource {
         jsonObject.put("data", jsonArray);
         return Response.ok().entity(jsonObject.toString()).build();
     }
+    
 }
