@@ -18,6 +18,9 @@ package cz.incad.kramerius.client.tools;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +30,7 @@ import org.json.JSONObject;
  * @author alberto
  */
 public class IndexConfig {
+    public static final Logger LOGGER = Logger.getLogger(IndexConfig.class.getName());
     private static IndexConfig _sharedInstance = null;
     private final JSONObject fieldsConfig;
     private final JSONObject mappings;
@@ -40,12 +44,26 @@ public class IndexConfig {
     
     public IndexConfig() throws IOException, JSONException{
         String path = System.getProperty("user.home")+File.separator+".kramerius4" + File.separator + "k5indexer" + File.separator + "fields.json";
-        File f = new File(path);
-        if (!f.exists() || !f.canRead()) {
-            f = FileUtils.toFile(IndexConfig.class.getResource("/cz/incad/kramerius/client/tools/fields.json"));
-        }
-        String json = FileUtils.readFileToString(f, "UTF-8");
+//        File f = new File(path);
+//        if (!f.exists() || !f.canRead()) {
+//            f = FileUtils.toFile(IndexConfig.class.getResource("/cz/incad/kramerius/client/tools/fields.json"));
+//        }
+        File fdef = FileUtils.toFile(IndexConfig.class.getResource("/cz/incad/kramerius/client/tools/fields.json"));
+        String json = FileUtils.readFileToString(fdef, "UTF-8");
         fieldsConfig = new JSONObject(json);
+        
+        File f = new File(path);
+        if (f.exists() && f.canRead()) {
+            json = FileUtils.readFileToString(f, "UTF-8");
+            JSONObject confCustom = new JSONObject(json);
+            Iterator keys = confCustom.keys();
+            while (keys.hasNext() ) {
+                String key = (String) keys.next();
+                LOGGER.log(Level.INFO, "key {0} will be overrided", key);
+                fieldsConfig.put(key, confCustom.get(key));
+            }
+        }
+        
         mappings = fieldsConfig.getJSONObject("mappings");
     }
     
