@@ -18,8 +18,8 @@ function Alto() {
  */
 Alto.prototype.altoident = function(term, index) {
     var encoded = encodeURIComponent(term);
-    encoded = ecnoded.replace(/%/g, "");
-    return 'marker-'+encoded'-'+index;
+    encoded = encoded.replace(/%/g, "");
+    return 'marker-'+encoded+'-'+index;
 }
 
 
