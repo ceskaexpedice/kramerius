@@ -66,22 +66,27 @@ BreadCrumbs.prototype = {
             if(i > 0){
                 this.elem.append('<div class="sep"> :: </div>');
             }
-            var span = $('<div/>', {class: "link"});
             var cpid = item_ctx[i].pid;
+            var span = $('<div/>', {class: "link", id: "bc_"+cpid});
             span.data("pid", cpid);
-            
-            if(K5.api.ctx["item"][cpid]){
-                
-                var info = {short: "", full: ""};
-                K5.proccessDetails(K5.api.ctx["item"][cpid], info);
-                span.append(info.min);
-            }
             
             span.click(function(){
                 var cpid = $(this).data("pid");
                 K5.api.gotoItemPage(cpid, $("#q").val());
             });
             this.elem.append(span);
+            
+            if(K5.api.ctx["item"][cpid]){
+                var info = {short: "", full: ""};
+                K5.proccessDetails(K5.api.ctx["item"][cpid], info);
+                $(jq("bc_"+cpid)).append(info.min);
+            }else{
+		var info = {short: "", full: ""};
+                K5.api.askForItemContextData(cpid, _.partial(function(p, data){
+		  K5.proccessDetails(data, info);
+		  $(jq("bc_"+p)).append(info.min);
+		}, cpid));
+            }
         }
     },
     resized: function(){
