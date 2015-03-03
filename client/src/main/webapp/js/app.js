@@ -16,7 +16,8 @@ AppError.prototype = {
 
 
 /** 
- * Events application handler 
+ * @description
+ * Handle events in appliction
  * @constructor 
  */
 function ApplicationEvents() {}
@@ -25,26 +26,20 @@ ApplicationEvents.prototype = {
 
         handlerEnabled:true,        
         
-        /**
-         * Enable events firing 
-         */
         enableHandler:function() {
                 this.handlerEnabled = true;
         },
-        /**
-         * Disable events firing    
-         */
         disableHandler:function() {
                 this.handlerEnabled = false;
         },        
-
-        /** contains event handlers*/
         handlers: [],
         
         
 
         /** 
-         * Trigger event 
+         * Trigger new event
+         * @param {string} event type
+         * @param {Object} data describes the event
          * @method
          */
         trigger:function(type, data) {
@@ -57,8 +52,9 @@ ApplicationEvents.prototype = {
         },
 
         /** 
-         * Add new handler 
-         *@method
+         * Add new event handler 
+         * @param {requestCallback} - handler Callback function
+         * @method
          */
         addHandler: function(handler) {
                 this.handlers.push(handler);
@@ -66,6 +62,7 @@ ApplicationEvents.prototype = {
 
         /** 
          * Remove already registered handler 
+         * @param {requestCallback} - handler Callback function 
          * @method
          */
         removeHandler:function(handler) {
@@ -87,40 +84,43 @@ ApplicationEvents.prototype = {
 
 
 /**
- * Application object holds all properties for application. Referenced as singleton K5. 
+ * @description 
+ * Main application object accessed via <code>K5</code> singleton instance. Envelope all properties in the application.
+ * The properties can be accessed by following way:  
+ * <pre><code>
+ *  // ask for children 
+ *  K5.api.askForChildren(
+ *      function() { 
+ *          alert("children loaded"); 
+ *  }); <br>
+ *  
+ *  // selected view 
+ *  var selview = K5.gui.selected;
+ * </code></pre>
  * @constructor
- */	
+ */
 function Application() {
 
         this.initialized = false;
 
         /** 
-         * Event handlers 
-         * <pre><code>
-         *  K5.eventsHandler
-         * </code></pre>
+         * Event handlers {@link ApplicationEvents}
+         * @example K5.eventsHandler
          * @member
-         * {@link ApplicationEvents} 
          */
         this.eventsHandler =  new ApplicationEvents();
 
         /** 
-         * Api point 
-         * <pre><code>
-         *  K5.api
-         * </code></pre>
+         * Basic API communication point see {@link ClientAPIDev}
+         * @example K5.api.askForSiblings()
          * @member 
-         * {@link ClientAPIDev} 
-         */		
+         */
         this.api = new ClientAPIDev(this);
 
         /** 
-         * I18N object 
-         * <pre><code>
-         *  K5.i18n
-         * </code></pre>
-         * @member 
-         * {@link I18N} 
+         * Internationalization object  {@link I18N} 
+         * @example K5.i18n
+         * @member  
          */		
         this.i18n = new I18N(this);
 
@@ -128,13 +128,16 @@ function Application() {
 
 
         /** 
-         * Authentication support 
+         * Authentication support {@link AuthenticationSupport}
          * @member 
-         * {@link AuthenticationSupport} 
          */
         this.authentication = new AuthenticationSupport(this); 
         
-
+        /**
+         * Outputs. Prints or pdf. Only print or pdf is now supported.
+         * @member
+         * {@link PDFSupport}
+         */
         this.outputs = {
                         'pdf':new PDFSupport(this),
                         'print':new PrintSupport(this)
@@ -143,6 +146,8 @@ function Application() {
         /** 
          * Gui objects	
          * @member 
+         * {@link VirtualCollections} 
+         * {@link Footer} 
          */
         this.gui = {
                 clipboard: new Clipboard(this),
@@ -162,12 +167,13 @@ function Application() {
 
 
         
-
+        // to utils
         this.preventScrolling = function() {
                 document.body.addEventListener('touchmove', function(event) {
                         event.preventDefault();
                 }, false);         
         };
+        
         // to utils
         this.proccessDetails = function(json, info) {
             var model = json["model"];
@@ -240,9 +246,7 @@ function Application() {
         /** 
          * Initialization  method. Before adnd initialization process fires 'application/init/start' or 'application/init/start' events.
          * @member
-         * @param {object} configuration instance.
-         * @fires AppError 
-         * {@tutorial tutorialID}
+         * @param {Object} configuration instance.
          */
         this.init = function (configuration) {
                 if(console) console.log("singleton initalization starting ...");
@@ -354,16 +358,11 @@ function Application() {
                 this.eventsHandler.trigger("application/init/end",configuration);
 
                 this.initialized=true;
-       }
-        
-        
+        }
 };
 
 /** 
- * Singleton instance.  
- *
+ * Singleton instance
  * @global
  */
 var K5 = new Application();
-
-

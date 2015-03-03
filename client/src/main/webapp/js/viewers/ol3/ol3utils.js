@@ -317,3 +317,31 @@ function _postrederer() {
         }
     }
 }
+
+
+// because of problem with firefox 
+// and dom renderer -> https://github.com/openlayers/ol3/issues/3283
+function _olrenderer() {
+    var detect = _browserdetect();
+    return detect.firefox ? "canvas" : "dom";
+}
+function _browserdetect() {
+    var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+    // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
+    var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
+    var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+    // At least Safari 3+: "[object HTMLElementConstructor]"
+    var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;   // At least IE6
+    
+    return {
+        "opera":isOpera,
+        "firefox":isFirefox,
+        "safari":isSafari,
+        "chrome":isChrome,
+        "ie":isIE
+    }
+}
+
+
+
