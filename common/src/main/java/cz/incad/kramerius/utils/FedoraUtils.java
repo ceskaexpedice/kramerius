@@ -47,6 +47,10 @@ public class FedoraUtils {
     public static final String DC_STREAM = "DC";
     public static final String BIBLIO_MODS_STREAM = "BIBLIO_MODS";
     public static final String TEXT_OCR_STREAM = "TEXT_OCR";
+    public static final String MP3_STREAM = "MP3";
+    public static final String OGG_STREAM = "OGG";
+    public static final String WAV_STREAM = "WAV";
+
     
     public static final String POLICY_STREAM="POLICY";
     
