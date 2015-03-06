@@ -14,33 +14,33 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class METSServlet extends GuiceServlet {
 
-	/**
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-			.getLogger(METSServlet.class.getName());
+    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+            .getLogger(METSServlet.class.getName());
 
-	public static final String PID = "pid";
+    public static final String PID = "pid";
 
-	@Inject
-	transient METSService service;
-	@Inject
-	transient KConfiguration configuration;
+    @Inject
+    transient METSService service;
+    @Inject
+    transient KConfiguration configuration;
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException {
-		try {
-			resp.setContentType("text/xml");
-			String pid = req.getParameter(PID);
-			service.exportMETS(pid, resp.getOutputStream());
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException {
+        try {
+            resp.setContentType("text/xml");
+            String pid = req.getParameter(PID);
+            service.exportMETS(pid, resp.getOutputStream());
 
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			throw new RuntimeException(e);
-		}
-	}
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
 
 }

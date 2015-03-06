@@ -147,6 +147,10 @@
             left: 25%;
         }
 
+        #viewer div.share ul li .translate{
+            display:none;
+        }
+
         .sharesicon svg{
             width: 64px;
             height: 64px;
@@ -174,6 +178,10 @@
             width: 32px;
             height: 32px;
             size: contain;
+        }
+
+        #viewer div.share ul li .translate{
+            display:none;
         }
 
  }

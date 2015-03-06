@@ -527,7 +527,7 @@ li.public:before{
         height:0; 
         border-left: 10px solid transparent; 
         border-right: 10px solid transparent; 
-        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        border-bottom: 10px solid $params.activeColor;
         background-color: transparent;
         color: transparent;
         position: absolute;
@@ -679,7 +679,7 @@ li.public:before{
         height:0; 
         border-left: 10px solid transparent; 
         border-right: 10px solid transparent; 
-        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        border-bottom: 10px solid $params.activeColor;
         background-color: transparent;
         color: transparent;
         position: absolute;
@@ -808,7 +808,7 @@ li.public:before{
         height:0; 
         border-left: 10px solid transparent; 
         border-right: 10px solid transparent; 
-        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        border-bottom: 10px solid $params.activeColor;
         background-color: transparent;
         color: transparent;
         position: absolute;
@@ -1690,7 +1690,7 @@ li.public:before{
         height:0; 
         border-left: 10px solid transparent; 
         border-right: 10px solid transparent; 
-        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        border-bottom: 10px solid $params.activeColor;
         background-color: transparent;
         color: transparent;
         position: absolute;
@@ -1873,7 +1873,6 @@ li.public:before{
         width: 95%;
         height: calc(100% - 50px);
         background-color: $params.activeColor;
-        background-color: rgba(0, 30, 60, 0.9);
         z-index: 43;
         left: 2.5%;
         color: white;
@@ -2133,7 +2132,7 @@ li.public:before{
 
         border: 0px solid rgba(0, 0, 0, 0.3);
         box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
-        background-color: rgba(0, 30, 60, 0.9);
+        background-color: $params.activeColor;
 }
 .registration>div{
         padding: 15px;

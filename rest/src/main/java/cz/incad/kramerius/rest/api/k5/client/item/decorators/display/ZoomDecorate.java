@@ -69,7 +69,6 @@ public class ZoomDecorate extends AbstractDisplayDecorate {
                 "type",
                 KConfiguration.getInstance().getProperty("zoom.viewer",
                         "zoomify"));
-
         return options;
     }
 
