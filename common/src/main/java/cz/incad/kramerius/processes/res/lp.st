@@ -139,7 +139,7 @@
         <mainClass>org.kramerius.k3replications.ParametrizedReplication</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+        <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
         <parameters></parameters>
         <templates>
             <input class="org.kramerius.k3replications.input.InputTemplate"></input>
@@ -156,7 +156,7 @@
         <!--
         <processOutputURL>processes/imported/_imported.jsp</processOutputURL>
         -->
-        <javaProcessParameters>-Xmx3072m -Xms512m</javaProcessParameters>
+        <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
         <parameters>monographs</parameters>
         <!--
         <parameters>
@@ -182,7 +182,7 @@
         <!--
         <processOutputURL>processes/imported/_imported.jsp</processOutputURL>
         -->
-        <javaProcessParameters>-Xmx3072m -Xms512m</javaProcessParameters>
+        <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
         <parameters>periodicals</parameters>
         <!--
         <parameters>
@@ -275,7 +275,7 @@
         <mainClass>org.kramerius.convert.ParametrizedConvert</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx3072m -Xms512m</javaProcessParameters>
+        <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
         
         <templates>
             <input class="org.kramerius.convert.input.ParametrizedConvertInputTemplate"></input>
@@ -291,7 +291,7 @@
         <mainClass>org.kramerius.importmets.parametrized.ParametrizedMetsNKDImport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx3072m -Xms512m</javaProcessParameters>
+        <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
         
         <templates>
             <input class="org.kramerius.importmets.parametrized.input.MetsImportInputTemplate"></input>
@@ -307,7 +307,7 @@
         <mainClass>org.kramerius.Convert</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx3072m -Xms512m</javaProcessParameters>
+        <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
     </process>
 
 
