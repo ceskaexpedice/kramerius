@@ -275,7 +275,7 @@
         <mainClass>org.kramerius.convert.ParametrizedConvert</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+        <javaProcessParameters>-Xmx3072m -Xms512m</javaProcessParameters>
         
         <templates>
             <input class="org.kramerius.convert.input.ParametrizedConvertInputTemplate"></input>
@@ -291,7 +291,7 @@
         <mainClass>org.kramerius.importmets.parametrized.ParametrizedMetsNKDImport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+        <javaProcessParameters>-Xmx3072m -Xms512m</javaProcessParameters>
         
         <templates>
             <input class="org.kramerius.importmets.parametrized.input.MetsImportInputTemplate"></input>
