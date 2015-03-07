@@ -3,6 +3,7 @@ package cz.incad.kramerius.service.impl;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
+import cz.incad.kramerius.utils.BasicAuthenticationFilter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import java.io.UnsupportedEncodingException;
@@ -10,11 +11,11 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.ws.rs.core.MediaType;
 
-import sun.security.krb5.internal.rcache.AuthTime;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -34,6 +35,9 @@ public class IndexerProcessStarter {
     private static final String AUTH_TOKEN_HEADER_KEY = "auth-token";
     private static final String TOKEN_ATTRIBUTE_KEY = "token";
 
+    private static final String USER_TOKEN="user";
+    private static final String PSWD_TOKEN="pswd";
+    
     
     public static class TokensFilter extends ClientFilter {
         
@@ -47,9 +51,14 @@ public class IndexerProcessStarter {
             if (System.getProperties().containsKey(TOKEN_ATTRIBUTE_KEY)) {
                 clientRequest.getHeaders().add(TOKEN_ATTRIBUTE_KEY, System.getProperty(TOKEN_ATTRIBUTE_KEY));
             }            
+
+            if ((System.getProperties().containsKey(USER_TOKEN)) && (System.getProperties().containsKey(PSWD_TOKEN))) {
+                String uname = System.getProperties().getProperty(USER_TOKEN);
+                String pwd = System.getProperties().getProperty(PSWD_TOKEN);
+                BasicAuthenticationFilter.encodeUserAndPass(clientRequest, uname, pwd);
+            }
             return getNext().handle(clientRequest);
         }
-
     }
     
     
@@ -74,6 +83,11 @@ public class IndexerProcessStarter {
     }
 
     
+    public static void spawnIndexer(String name, String pswd, boolean incremental, String title, String uuid) throws UnsupportedEncodingException {
+        System.setProperty(USER_TOKEN, name);
+        System.setProperty(PSWD_TOKEN, pswd);
+        spawnIndexer(incremental, title, uuid);
+    }
     
     public static void spawnIndexer(boolean incremental, String title, String uuid) throws UnsupportedEncodingException {
         log.info("Spawn indexer: title: "+title+" pid: "+uuid);
