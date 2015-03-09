@@ -495,6 +495,7 @@ public class SolrOperations {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("DOCCOUNT", docCount);
         params.put("PAGENUM", "0");
+        params.put("BROWSEMODELS", config.getString("indexer.browseModels", "monograph,periodical"));
 
         String xsltPath = config.getString("UpdateIndexDocXslt");
 
