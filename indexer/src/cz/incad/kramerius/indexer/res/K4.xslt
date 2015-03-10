@@ -30,6 +30,7 @@
     <xsl:param name="ROK" select="''"/>
     <xsl:param name="DATUM_BEGIN" select="''"/>
     <xsl:param name="DATUM_END" select="''"/>
+    <xsl:param name="BROWSEMODELS" select="''"/>
     
     <xsl:param name="RELS_EXT_INDEX" select="''"/>
     <xsl:variable name="generic" select="exts:new()" />
@@ -332,7 +333,10 @@
             </xsl:when>
         </xsl:choose>
         -->
-        <xsl:if test="($MODEL = 'monograph' or $MODEL = 'periodical') and ($PAGENUM = 0)">
+        <!--
+        <xsl:if test=($MODEL = 'monograph' or $MODEL = 'periodical') and ($PAGENUM = 0)">
+        -->
+        <xsl:if test="contains($BROWSEMODELS, $MODEL) and ($PAGENUM = 0)">
             <field name="browse_title" >
                 <xsl:value-of select="exts:prepareCzech($generic, $title)"/>##<xsl:value-of select="$title"/>
             </field>
