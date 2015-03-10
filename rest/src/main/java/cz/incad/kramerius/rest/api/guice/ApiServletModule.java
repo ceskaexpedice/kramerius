@@ -62,6 +62,7 @@ import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 import cz.incad.kramerius.rest.api.k5.client.user.ClientUserResource;
+import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientResources;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
@@ -89,6 +90,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(ItemResource.class);
         bind(FeederResource.class);
         bind(ClientVirtualCollections.class);
+        bind(ClientResources.class);
         bind(SearchResource.class);
         bind(ClientRightsResource.class);
         bind(PDFResource.class);

@@ -34,7 +34,9 @@ import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.impl.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.virtualcollections.CDKVirtualCollectionsGet;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
+import cz.incad.kramerius.virtualcollections.impl.CDKVirtualCollectionsGetImpl;
 
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
@@ -86,6 +88,9 @@ public class BaseModule extends AbstractModule {
 
         Multibinder<LifeCycleHook> lfhooks = Multibinder.newSetBinder(binder(), LifeCycleHook.class);
         lfhooks.addBinding().to(AudioLifeCycleHook.class);
+        
+        // only CDK
+        bind(CDKVirtualCollectionsGet.class).to(CDKVirtualCollectionsGetImpl.class);
     }
 
     @Provides

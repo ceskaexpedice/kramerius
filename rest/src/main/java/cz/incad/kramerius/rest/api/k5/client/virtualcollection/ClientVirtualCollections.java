@@ -40,8 +40,10 @@ import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.security.utils.PasswordDigest;
+import cz.incad.kramerius.virtualcollections.CDKVirtualCollectionsGet;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
 import cz.incad.kramerius.virtualcollections.VirtualCollection.CollectionDescription;
+import cz.incad.kramerius.virtualcollections.impl.CDKResourcesFilter;
 import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
 
 import javax.ws.rs.PathParam;
@@ -59,21 +61,37 @@ public class ClientVirtualCollections {
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
+    @Inject
+    CDKVirtualCollectionsGet cdkVirtGet;
+    
+
+    
     @GET
     @Path("{pid}")
     @Consumes
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response oneVirtualCollection(@PathParam("pid") String pid) {
         try {
-            VirtualCollection vc = VirtualCollectionsResource
-                    .findVirtualCollection(this.fedoraAccess, pid);
-            if (vc != null) {
+            String res = this.cdkVirtGet.getResource(pid);
+            if (res == null) {
+                List<VirtualCollection> vcs = this.cdkVirtGet.virtualCollections();
+                for (VirtualCollection vc : vcs) {
+                    if (vc.getPid().equals(pid)) {
+                        return Response
+                                .ok()
+                                .entity(VirtualCollectionsResource
+                                        .virtualCollectionTOJSON(vc)).build();
+                        
+                    }
+                }
+                throw new ObjectNotFound("cannot find vc '" + pid + "'");
+            } else {
+                VirtualCollection vc = this.cdkVirtGet.virtualCollectionsFromResource(pid, res);
                 return Response
                         .ok()
                         .entity(VirtualCollectionsResource
                                 .virtualCollectionTOJSON(vc)).build();
-            } else {
-                throw new ObjectNotFound("cannot find vc '" + pid + "'");
+                
             }
         } catch (ObjectNotFound e) {
             throw e;
@@ -87,9 +105,7 @@ public class ClientVirtualCollections {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response get() {
         try {
-            List<VirtualCollection> vcs = VirtualCollectionsManager
-                    .getVirtualCollections(fedoraAccess,
-                            new ArrayList<String>());
+            List<VirtualCollection> vcs = this.cdkVirtGet.virtualCollections();
             JSONArray jsonArr = new JSONArray();
             for (VirtualCollection vc : vcs) {
                 jsonArr.add(VirtualCollectionsResource

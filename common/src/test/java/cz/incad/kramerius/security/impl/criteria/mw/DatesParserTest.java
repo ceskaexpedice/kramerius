@@ -29,6 +29,7 @@ import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 public class DatesParserTest {
+    
 
     @Test
     public void shouldPass() throws RecognitionException, TokenStreamException {

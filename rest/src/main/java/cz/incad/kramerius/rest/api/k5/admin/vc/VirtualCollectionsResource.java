@@ -54,6 +54,10 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
 import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
+import cz.incad.kramerius.virtualcollections.impl.CDKResourcesFilter;
+
+
+// TODO: Change it
 
 @Path("/v5.0/admin/vc")
 public class VirtualCollectionsResource {
@@ -71,6 +75,8 @@ public class VirtualCollectionsResource {
     @Inject
     Provider<User> userProvider;
 
+    private CDKResourcesFilter cdkResFilter = new CDKResourcesFilter();
+    
     @POST
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -131,6 +137,7 @@ public class VirtualCollectionsResource {
                 VirtualCollection vc = findVirtualCollection(this.fedoraAccess,
                         pid);
                 if (vc != null) {
+                    
                     String label = jsonObj.getString("label");
                     boolean canLeaveFlag = jsonObj.getBoolean("canLeave");
                     VirtualCollectionsManager.modify(pid, label, canLeaveFlag,
@@ -167,7 +174,7 @@ public class VirtualCollectionsResource {
     public Response delete(@PathParam("pid") String pid) {
         if (permit(this.userProvider.get())) {
             VirtualCollection vc = findVirtualCollection(this.fedoraAccess, pid);
-            if (vc != null) {
+            if (vc != null && (!this.cdkResFilter.isFiltered(vc.getPid()))) {
                 try {
                     VirtualCollectionsManager
                             .deleteWOIndexer(pid, fedoraAccess);
@@ -194,8 +201,12 @@ public class VirtualCollectionsResource {
                 VirtualCollection vc = findVirtualCollection(this.fedoraAccess,
                         pid);
                 if (vc != null) {
-                    return Response.ok().entity(virtualCollectionTOJSON(vc))
-                            .build();
+                    if (!this.cdkResFilter.isFiltered(vc.getPid())) {
+                        return Response.ok().entity(virtualCollectionTOJSON(vc))
+                                .build();
+                    } else {
+                        throw new ObjectNotFound("cannot find vc '" + pid + "'");
+                    }
                 } else {
                     throw new ObjectNotFound("cannot find vc '" + pid + "'");
                 }
@@ -217,7 +228,9 @@ public class VirtualCollectionsResource {
                                 new ArrayList<String>());
                 JSONArray jsonArr = new JSONArray();
                 for (VirtualCollection vc : vcs) {
-                    jsonArr.add(virtualCollectionTOJSON(vc));
+                    if (!this.cdkResFilter.isFiltered(vc.getPid())) {
+                        jsonArr.add(virtualCollectionTOJSON(vc));
+                    }
                 }
                 return Response.ok().entity(jsonArr.toString()).build();
             } catch (Exception e) {
