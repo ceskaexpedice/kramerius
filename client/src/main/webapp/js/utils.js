@@ -39,8 +39,12 @@ function lookUpKey(keypath, object) {
  * @param addr target address 
  * @global
  */
-function link(addr) {
+function link(addr, target) {
+    if(target){
+         window.open(addr, target);
+    }else{
         window.location.assign(addr);
+    }
 }
 
 /**

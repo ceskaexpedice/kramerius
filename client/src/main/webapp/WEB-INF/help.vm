@@ -1,0 +1,17 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+#parse("html_header.vm")
+<body>
+
+#parse("profile.vm")
+#parse("logingoptions.vm")
+
+#parse("header.vm")
+$texts.help
+
+#parse("footer.vm")
+#parse("small/small.vm")
+
+</body>
+</html>
