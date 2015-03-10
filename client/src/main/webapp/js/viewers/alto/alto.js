@@ -17,7 +17,9 @@ function Alto() {
  * @method
  */
 Alto.prototype.altoident = function(term, index) {
-        return 'marker-'+term+'-'+index;
+    var encoded = encodeURIComponent(term);
+    encoded = encoded.replace(/%/g, "");
+    return 'marker-'+encoded+'-'+index;
 }
 
 
@@ -52,10 +54,6 @@ Alto.prototype.init = function(zoomifyInstance) {
 
                                 var boxes = data[i]["boxes"];
                                 for(var j=0;j<boxes.length;j++) {
-                                        /*
-                                        var overlayContainer = $('<div/>', {class: 'ol-overlaycontainer'});
-                                        var inDiv = $('<div/>', {"position": 'absolute', 'display':'none'});
-                                        */
                                         var marker = $('<div/>', {"id": this.altoident(i,j)});
                                 
                                         $(marker).css("border","3px solid rgba(0, 30, 60, 0.7)");
@@ -116,10 +114,6 @@ Alto.prototype.clear = function(zoomifyInstance) {
                         } 
                }
         }
-        /*
-        for(var i=0;i<this.oContainers.length;i++) {
-                this.oContainers[i].remove();
-        }*/
         this.altoMarkers = null;
         this.altoData = null;
 }

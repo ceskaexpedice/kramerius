@@ -92,7 +92,7 @@ svg{
 svg  .svg-icon{
     fill:$params.get("svg.fill"); 
     stroke:$params.get("svg.stroke"); 
-    stroke-width: 8; 
+    stroke-width: 4; 
     stroke-linecap:round;
     stroke-linejoin:round;
 }
@@ -111,6 +111,13 @@ svg:hover{
 svg:hover *{
     fill:$params.get("svg.fill.hover"); 
     stroke:$params.get("svg.stroke.hover"); 
+}
+
+svg path.star {
+    stroke-width:4;
+    stroke-linecap:square;
+    stroke-linejoin:miter
+
 }
 
 /*

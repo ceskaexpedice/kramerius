@@ -131,9 +131,11 @@ Zoomify.prototype.open = function() {
                         zoom: 1
                 });              
 
+                var rend = _olrenderer();
+                
                 this.map = new ol.Map({
                         layers: [this.tile],
-                        renderer:'dom',
+                        renderer:rend,
                         target: 'map',
                         
                         interactions:ol.interaction.defaults({
@@ -393,8 +395,11 @@ Zoomify.prototype.crop = function(rect,offset){
 Zoomify.prototype.fit = function() {
     var ext = this.projection.getExtent();
     var size = this.map.getSize();
-    this.view2D.fitExtent(ext,size);
+    var nresolution = ext[3]/(size[1]-20);
+    this.view2D.setResolution(nresolution);
+    this.view2D.setCenter([ext[2]/2, -ext[3]/2]);
 }
+
 
 Zoomify.prototype.relativePosition = function() {
         return $("#map").position();        

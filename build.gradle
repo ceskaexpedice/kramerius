@@ -117,15 +117,26 @@ subprojects {
          }
          
          repositories {
+
+         	 maven {
+         	 	 url "http://kramerius.googlecode.com/svn/mvnrepo"
+         	 }
+
+         	 maven {
+         	 	 url "http://aplikator.googlecode.com/svn/mvnrepository"
+         	 }
+
+
          	 mavenLocal()
          	 mavenCentral()
+
          	 
          	 maven {
          	 	 url "http://download.java.net/maven/2/"
          	 }
 
          	 maven {
-         	 	 url "https://m2.duraspace.org/content/repositories/releases"
+         	 	 url "http://m2.duraspace.org/content/repositories/releases"
          	 }
 
          	 maven {
@@ -136,13 +147,6 @@ subprojects {
          	 	 url "http://guiceyfruit.googlecode.com/svn/repo/releases/"
          	 }
 
-         	 maven {
-         	 	 url "http://kramerius.googlecode.com/svn/mvnrepo"
-         	 }
-
-         	 maven {
-         	 	 url "http://aplikator.googlecode.com/svn/mvnrepository"
-         	 }
 
          	 maven {
          	 	 url "http://jsdoctk-plugin.googlecode.com/svn/repo"
@@ -160,6 +164,10 @@ subprojects {
          	 	 url "http://download.osgeo.org/webdav/geotools/"
          	 }
          	 
+                 maven {
+                        url "http://repo.jfrog.org/artifactory/libs-releases/"
+                 }
+
          	 maven {
          	 	 url "https://maven.atlassian.com/content/groups/public"
          	 }
@@ -167,6 +175,7 @@ subprojects {
          	 maven {
          	 	 url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
          	 }
+
          }
 
         build.finalizedBy 'install'

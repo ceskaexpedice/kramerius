@@ -1,7 +1,7 @@
 <div id="header">
 
     <div class="logo" href="index.vm" title="home">
-        <a href="?page=home"><img style="border:0;" src="images/k5.png" /></a>
+        <a href="?page=home"><img style="border:0;" src="$conf.getString('k5.logo')" /></a>
     </div>
 
     <div class="buttons">

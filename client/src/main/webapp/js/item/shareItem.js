@@ -89,6 +89,7 @@ ShareItem.prototype.open = function() {
         if (a.object.enabled()) {
             var liHtml =$('<li/>');
             var div  =$('<div/>',{"class":"sharesicon"});
+            div.attr("title",K5.i18n.translate(a.i18nkey));
             div.click(function() {
                 K5.gui.selected.shares.doShare(a.name);
             });

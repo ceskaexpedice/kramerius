@@ -1,5 +1,5 @@
 /**
- * Audio view
+ * Display audio player
  * @constructor
  */
 function AudioView(appl, selector) {
@@ -11,7 +11,7 @@ function AudioView(appl, selector) {
 
 /** 
  * Open audio stream player  
- * @method       
+ * @method
  */
 AudioView.prototype.open = function() {
 //        var leftArrowContainerDiv = $("<div/>",{"id":"pageleft","class":"leftarrow" });

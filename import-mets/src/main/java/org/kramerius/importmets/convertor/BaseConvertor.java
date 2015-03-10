@@ -105,6 +105,10 @@ public abstract class BaseConvertor {
 
     protected static final String MODEL_PICTURE = "model:picture";
 
+    protected static final String MODEL_MAP = "model:map";
+
+    protected static final String MODEL_SHEETMUSIC = "model:sheetmusic";
+
     private static final String CUSTOM_MODEL_PREFIX = "kramerius";
 
     /**
@@ -784,6 +788,24 @@ public abstract class BaseConvertor {
         return title.toString().trim();
     }
 
+    protected static enum Genre {NONE, CARTOGRAPHIC, SHEETMUSIC}
+
+    protected Genre getGenrefromMods(ModsDefinition mods){
+        StringBuilder title = new StringBuilder();
+        for(Object mg:    mods.getModsGroup()){
+            if (mg instanceof GenreDefinition){
+                GenreDefinition genreDefinition = (GenreDefinition)mg;
+                String gdString = genreDefinition.getValue();
+                if ("cartographic".equalsIgnoreCase(gdString)){
+                    return Genre.CARTOGRAPHIC;
+                }
+                if  ("sheetmusic".equalsIgnoreCase(gdString)){
+                    return Genre.SHEETMUSIC;
+                }
+            }
+        }
+        return Genre.NONE;
+    }
     /**
      * Encapsulate given String value into DC ElementType (used in JAXB DC object creation)
      * @param value

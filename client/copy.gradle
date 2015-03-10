@@ -1,0 +1,48 @@
+task updateFirst {
+        println  "update path $System.env.CATALINA_HOME/webapps/client"       
+}
+
+task updateWebappVM(dependsOn: 'updateFirst', type: Copy) {
+    from 'src/main/webapp/WEB-INF/'
+    include '**/*.vm'    
+    into "$System.env.CATALINA_HOME/webapps/client/WEB-INF/"
+}
+
+task updateWebappJS(dependsOn: 'updateFirst',type: Sync) {
+    from 'src/main/webapp/js'
+    into "$System.env.CATALINA_HOME/webapps/client/js"
+}
+
+task updateWebappSVG(dependsOn: 'updateFirst',type: Sync) {
+    from 'src/main/webapp/WEB-INF/svg/'
+    include '*.svg'    
+    into "$System.env.CATALINA_HOME/webapps/client/WEB-INF/svg/"
+}
+
+task updateWebappCSS(dependsOn: 'updateFirst',type: Sync) {
+    from 'src/main/webapp/WEB-INF/css/'
+    into "$System.env.CATALINA_HOME/webapps/client/WEB-INF/css/"
+}
+
+task updateWebappImages(dependsOn: 'updateFirst',type: Sync) {
+    from 'src/main/webapp/images/'
+    into "$System.env.CATALINA_HOME/webapps/client/images/"
+}
+
+task update (dependsOn: ['updateWebappImages','updateWebappCSS','updateWebappSVG','updateWebappJS','updateWebappVM']) {
+
+}
+
+
+
+FileTree tree = fileTree('src/main/webapp/js/') {
+    include "**/*.js"
+    exclude "**/*.min.js"
+    exclude "**/*jquery.*.js"
+    exclude "**/underscore-min.js"
+    exclude "**/base64.js"
+
+    exclude "download/*"
+    exclude "ol3/*"
+}
+

@@ -204,7 +204,10 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     static boolean isDefaultSecuredStream(String streamName) {
         return FedoraUtils.IMG_FULL_STREAM.equals(streamName)
                 || FedoraUtils.IMG_PREVIEW_STREAM.equals(streamName)
-                || FedoraUtils.TEXT_OCR_STREAM.equals(streamName);
+                || FedoraUtils.TEXT_OCR_STREAM.equals(streamName)
+                || FedoraUtils.MP3_STREAM.equals(streamName)
+                || FedoraUtils.WAV_STREAM.equals(streamName)
+                || FedoraUtils.OGG_STREAM.equals(streamName);
     }
 
     @Override
