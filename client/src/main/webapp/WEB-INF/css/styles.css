@@ -462,13 +462,13 @@ li.public:before{
 
 
 #facets{
-    left:initial;
+    left:inherit;
     right: -460px; 
     top:35px;
     height: 500px;
     overflow: auto;
     font-size: 1.2em;
-    width: initial;
+    width: auto;
 }
 
 #facets.pin .pin{
