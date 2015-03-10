@@ -37,16 +37,21 @@ public class BasicAuthenticationFilter extends ClientFilter {
     }
 
     public ClientResponse handle(ClientRequest clientRequest) throws ClientHandlerException {
+        
+        encodeUserAndPass(clientRequest, this.username, this.password);
 
+        return getNext().handle(clientRequest);
+    }
+
+    public static void encodeUserAndPass(ClientRequest clientRequest, String unm,
+            String pswd) {
         // encode the password
-        byte[] encoded = Base64.encode((username + ":" + password).getBytes());
+        byte[] encoded = Base64.encode((unm + ":" + pswd).getBytes());
 
         // add the header
         List<Object> headerValue = new ArrayList<Object>();
         headerValue.add("Basic " + new String(encoded));
         clientRequest.getMetadata().put("Authorization", headerValue);
-
-        return getNext().handle(clientRequest);
     }
 
     private String username;

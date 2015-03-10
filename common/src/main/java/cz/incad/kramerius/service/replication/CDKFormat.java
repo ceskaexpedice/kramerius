@@ -47,7 +47,12 @@ public class CDKFormat implements ReplicationFormat {
                                                                                 * IMG_THUMB_STREAM
                                                                                 * ,
                                                                                 */
-    FedoraUtils.IMG_PREVIEW_STREAM };
+    FedoraUtils.IMG_PREVIEW_STREAM, 
+    
+    
+    // media files
+    FedoraUtils.OGG_STREAM, FedoraUtils.MP3_STREAM, FedoraUtils.WAV_STREAM 
+    };
 
     @Override
     public byte[] formatFoxmlData(byte[] input, Object... params)
