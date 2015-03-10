@@ -26,6 +26,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -495,8 +496,8 @@ public class SolrOperations {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("DOCCOUNT", docCount);
         params.put("PAGENUM", "0");
-        params.put("BROWSEMODELS", config.getString("indexer.browseModels", "monograph,periodical"));
-
+        params.put("BROWSEMODELS", Arrays.toString(config.getStringArray("indexer.browseModels")));
+        logger.log(Level.INFO, "BROWSEMODELS = {0}", Arrays.toString(config.getStringArray("indexer.browseModels")));
         String xsltPath = config.getString("UpdateIndexDocXslt");
 
         for (int i = 0; i <= Integer.parseInt(docCount); i++) {
