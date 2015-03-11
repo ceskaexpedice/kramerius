@@ -105,10 +105,10 @@ public class ItemResource {
             checkPid(pid);
             if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
                 if (!PIDSupport.isComposedPID(pid)) {
-                    String mimeTypeForStream = this.fedoraAccess
-                            .getMimeTypeForStream(pid, dsid);
                     final InputStream is = this.fedoraAccess.getDataStream(pid,
                             dsid);
+                    String mimeTypeForStream = this.fedoraAccess
+                            .getMimeTypeForStream(pid, dsid);
                     StreamingOutput stream = new StreamingOutput() {
                         public void write(OutputStream output)
                                 throws IOException, WebApplicationException {
