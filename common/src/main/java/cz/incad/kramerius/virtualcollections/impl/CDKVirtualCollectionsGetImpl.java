@@ -24,6 +24,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.DCUtils;
@@ -153,6 +154,7 @@ public class CDKVirtualCollectionsGetImpl implements CDKVirtualCollectionsGet {
         try {
             Client c = Client.create();
             WebResource r = c.resource(point);
+            r.setProperty(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, new Boolean(true));
             String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
             JSONArray jsonArr = new JSONArray(t);
             return jsonArr;
@@ -214,21 +216,21 @@ public class CDKVirtualCollectionsGetImpl implements CDKVirtualCollectionsGet {
         }
     }
 
-    public static void main(String[] args) throws JSONException {
-        List<VirtualCollection> cols = new ArrayList<VirtualCollection>();
-        String str = "http://kramerius.lib.cas.cz/search/";
-        //http://kramerius.lib.cas.cz/search/api/v5.0/vc
-        JSONArray jsonArray = virtualCollectionsFromPoint(appendVCPoint(str));
-        for (int i = 0, ll = jsonArray.length(); i < ll; i++) {
-            cols.add(collectionFromJSON(jsonArray.getJSONObject(i)));
-        }
-
-        for (VirtualCollection vc : cols) {
-            System.out.println(vc.getLabel());
-            System.out.println(vc.getPid());
-            System.out.println(vc.getDescriptionLocale("en"));
-            System.out.println(vc.getDescriptionLocale("cs"));
-        }
-    }
+//    public static void main(String[] args) throws JSONException {
+//        List<VirtualCollection> cols = new ArrayList<VirtualCollection>();
+//        String str = "http://kramerius.lib.cas.cz/search";
+//        //http://kramerius.lib.cas.cz/search/api/v5.0/vc
+//        JSONArray jsonArray = virtualCollectionsFromPoint(appendVCPoint(str));
+//        for (int i = 0, ll = jsonArray.length(); i < ll; i++) {
+//            cols.add(collectionFromJSON(jsonArray.getJSONObject(i)));
+//        }
+//
+//        for (VirtualCollection vc : cols) {
+//            System.out.println(vc.getLabel());
+//            System.out.println(vc.getPid());
+//            System.out.println(vc.getDescriptionLocale("en"));
+//            System.out.println(vc.getDescriptionLocale("cs"));
+//        }
+//    }
 
 }
