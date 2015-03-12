@@ -55,8 +55,7 @@
                 //selected configurations 
                 "conf": {
                     "pdf":{
-
-                        #if($conf.getString('generatePdfMaxRange') && !$conf.getBoolean('turnOffPdfCheck'))
+                        #if(!$conf.getBoolean('turnOffPdfCheck'))
                             "limit":$conf.getString('generatePdfMaxRange')
                          #end
 

@@ -8,7 +8,7 @@
 #parse("logingoptions.vm")
 
 #parse("header.vm")
-$texts.help
+$texts.clienthelp
 
 #parse("footer.vm")
 #parse("small/small.vm")

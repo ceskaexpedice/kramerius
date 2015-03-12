@@ -1,0 +1,83 @@
+<div style="padding:10px 20px 15px 20px;margin-top:50px;position: absolute;  overflow: auto;  height: calc(100% - 100px);  margin-bottom: 30px;">
+<h2>Knihovna Václava Matěje Krameria</h2>
+
+    <h3>Návod k použití knihovny</h3>
+
+    <p>
+    <h3>Co potřebuji pro práci? </h3>
+    Moderní prohlížeč webových stránek, nejlépe Firefox 3, Safari, Google Chrome nebo Internet Explorer 10. 
+    Pro zobrazení souborů DjVu a PDF je třeba doinstalovat příslušný plugin, prohlížeč Vám jej sám nabídne. 
+    Doporučené rozlišení Vašeho monitoru je 1024x768 bodů a více. 
+    Při menším rozlišení počítejte se ztížením manipulace s obrazovými soubory.
+    </p>
+    <p>
+    <h3>Úvodní obrazovka </h3>
+    Úvodní obrazovka slouží především k vyhledávání dokumentů v digitální knihovně.
+    </p>
+    <p>
+    <h3>Záhlaví stránky</h3>
+
+    Velké pole uprostřed záhlaví stránky umožňuje vyhledávat v plném textu dokumentů v digitální knihovně - zapište hledané slovo a klikněte na symbol lupy.
+    <br/>
+    Pro hledání je možné použít zástupný znak * nahrazující libovolnou část slova, případně znak "?" nahrazující jedno písmeno. Dále jsou k dispozici logické operátory AND, OR a NOT.
+    <br/>
+    Pokud chcete vyhledat přesný tvar slovního spojení, uzavřete požadovaná slova do uvozovek .
+    <br/>
+    Odkaz Pokročilé vyhledávání otevře dialogové okno s formulářem pro vyhledávání v metadatech (MODS) dokumentů - můžete hledat podle ISBN/ISSN, autora, názvu, roku vydání a třídění MDT/DDT a můžete také omezit výběr na pouze veřejné dokumenty. Vyhledávání spustíte kliknutím na tlačítko OK. Okno pro pokročilé vyhledávání zavřete stiskem tlačítka Zavřít.
+    <br/>
+    V pravé části záhlaví stránky je odkaz pro zobrazení této nápovědy, přepínání jazyka uživatelského rozhraní a přihlášení do administrátorské části aplikace.
+    </p>
+    <p>
+    <h3>Časová osa</h3>
+
+    Rámeček Časová osa obsahuje histogram s počty dokumentů vydaných v jednotlivých letech. Zapsáním datumů do políček v horní části rámečku (nebo jejich výběrem z kalendáře či posunutím značek vertikálních posuvníků) můžete omezit vyhledávání na požadované časové období. Oba výběry současně je možno potvrdit stiskem lupy umístěné vedle polí Od a Do.
+    </p>
+    <p>
+    <h3>Záložky Autoři a Tituly</h3>
+
+    Jsou určeny k rychlému vyhledání dokumentu podle názvu nebo autora. Během postupného zapisování písmen se pod příslušným polem aktualizuje seznam nalezených dokumentů, čísla v závorce označují počet odpovídajících dokumentů. Kliknutím na položku seznamu jej vyberte k zobrazení. Nerozlišují se malá a velká písmena, je ale potřeba dodržovat diakritiku.
+    </p>
+    <p>
+    <h3>Záložka Navigace</h3>
+
+    Záložka Navigace obsahuje rámečky, které umožňují omezit vyhledávání pouze na určité typy dokumentů. Kliknutím na některou položku v rámečku jsou vyhledány pouze dokumenty splňující příslušné kritérium. Čísla v závorce za jednotlivými položkami udávají počet odpovídajících dokumentů v digitální knihovně.
+    </p>
+    <p>
+    <h3>Záložky Vybrané, Nejnovější a Nejžádanější</h3>
+    Pod záložkou Nejnovější jsou ikony s miniaturami prvních stránek dokumentů nejnověji přidaných do digitální knihovny. Kliknutím na ikonu příslušný dokument zobrazíte. Podobně záložka Nejžádanější obsahuje ikony nejčastěji zobrazovaných dokumentů. Záložka Vybrané obsahuje ikony zajímavých dokumentů vybrané administrátorem aplikace
+    </p>
+    <p>
+    <h3>Výsledky vyhledávání</h3>
+    Tato stránka je zobrazena po spuštění vyhledávání z úvodní obrazovky. V pravém rámečku je seznam nalezených dokumentů seskupených podle titulů nejvyšší úrovně (tedy většinou monografií nebo periodik). Jednotlivé dokumenty náležející k titulu je možno zobrazit kliknutím na údaj o jejich počtu v pravém dolním rohu rámečku daného titulu. Další položky seznamu se načítají automaticky při posunutí zobrazení na konec aktuálního seznamu. Tituly v rámečku lze třídit podle relevance nebo abecedně podle názvu, kliknutím na příslušný odkaz ve střední části záhlaví rámečku. Kliknutím na přepínač v pravé části záhlaví volíte mezi jedním a dvěma sloupci výsledků.
+    <br/>
+    Rámečky na levé straně obrazovky obsahují položky pro výběr jednotlivých podkategorií v rámci vyhledaných dokumentů, funkce je obdobná záložce Navigace na úvodní straně.
+    <br/>
+    V druhé záložce levé části obrazovky je časová osa se stejnou funkcí jako na úvodní straně.
+    </p>
+
+    <p>
+    <h3>Zobrazení titulu</h3>
+    Obrazovka třetí úrovně slouží k přehlednému zobrazení titulu, jeho metadat a listování v jeho obsahu.
+    <br/>
+    V horní části je pás ikonek s miniaturami všech stránek v dokumentu nebo jeho vybrané části. Pásem je možno procházet šipkami na jeho koncích nebo posuvníkem pod ním. Posuvníkem si prohlížíte miniatury stránek, šipkami pak přecházíte mezi jednotlivými náhledy. Stejnou funkci pak mají i šipky vpravo a vlevo na klávesnici. Pás s přehledem stran není zobrazen pro dokumenty uložené v jediném souboru PDF.
+    <br/>
+    Hlavní prostor stránky zabírá náhled na vybranou stránku. V horní části náhledu se nacházejí 3 tlačítka - plus, šipka vlevo a šipka vpravo. Šipky opět slouží k přecházení mezi jednotlivými náhledy. Po stisknutí tlačítka plus jsou zpřístupněna tlačítka Zvětšit, Zmenšit, Domů a Plná stránka. Tato tlačítka ovšem zmizí při přechodu na další náhled.
+    <br/>
+    Tlačítky Zvětšit a Zmenšit si můžete náhled přiblížit nebo oddálit, stejně funguje i rolovací tlačítko u myši. Původní velikost náhledu získáte stiskem tlačítka Domů. Tlačítko Plná stránka roztáhne náhled přes celou stránku. I zde jsou pak dostupná tlačítka Zvětšit, Zmenšit, Domů, Plná stránka a šipky doleva a doprava. Tlačítka jsou dostupná i při přechodu na další náhled. Náhled přes celou stránku zrušíte dalším stiskem tlačítka Plná stránka.
+    </p>
+    <p>
+    <h3>Zobrazení metadat</h3>
+    Další záložky v centrální části stránky slouží k zobrazení metadat vybraného dokumentu ve formátu MODS, případně dalších dat souvisejících s dokumentem.
+    <br/>
+    Rámeček vlevo od náhledu slouží k navigaci ve struktuře titulu. První záložka zobrazuje stromovou strukturu titulu. Druhá záložka obsahuje políčko, které umožňuje textové vyhledávání v rámci aktuálního titulu. Třetí záložka obsahuje nabídku s operacemi, které je možné aplikovat na dokument vybraný v první záložce.
+    <br/>
+    K dispozici jsou tyto operace: 
+    <br/>
+    <b>Persistentní URL:</b> Zobrazí URL dokumentu, které lze použít jako záložku pro přímý přístup k dokumentu z externích aplikací.
+    <br/>
+    <b>Generování PDF:</b> Umožňuje vygenerovat a stáhnout PDF dokument obsahující zadaný rozsah stran začínající vybranou stránkou. Maximální počet stran v PDF dokumentu může být omezen.
+    <br/>
+    <b>Stáhnout originál </b>(jen pro typ dokumentu stránka): Stáhne naskenovaný dokument v plné velikosti. 
+    <br/>Záznam METS:</b> Otevře okno se záznamem ve formátu Fedora METS pro vybraný dokument.
+    </p>
+</div>
