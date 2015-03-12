@@ -21,6 +21,8 @@ import org.w3c.dom.Document;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.FedoraAccess;
@@ -148,11 +150,19 @@ public class CDKVirtualCollectionsGetImpl implements CDKVirtualCollectionsGet {
 
     static JSONArray virtualCollectionsFromPoint(String point)
             throws JSONException {
-        Client c = Client.create();
-        WebResource r = c.resource(point);
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        JSONArray jsonArr = new JSONArray(t);
-        return jsonArr;
+        try {
+            Client c = Client.create();
+            WebResource r = c.resource(point);
+            String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
+            JSONArray jsonArr = new JSONArray(t);
+            return jsonArr;
+        } catch (UniformInterfaceException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            
+        } catch (ClientHandlerException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+        return new JSONArray();
     }
 
     static JSONObject virtualCollectionFromPoint(String point, String pid)
