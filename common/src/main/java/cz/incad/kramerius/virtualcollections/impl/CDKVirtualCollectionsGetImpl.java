@@ -216,7 +216,8 @@ public class CDKVirtualCollectionsGetImpl implements CDKVirtualCollectionsGet {
 
     public static void main(String[] args) throws JSONException {
         List<VirtualCollection> cols = new ArrayList<VirtualCollection>();
-        String str = "http://kramerius4.nkp.cz/search/";
+        String str = "http://kramerius.lib.cas.cz/search/";
+        //http://kramerius.lib.cas.cz/search/api/v5.0/vc
         JSONArray jsonArray = virtualCollectionsFromPoint(appendVCPoint(str));
         for (int i = 0, ll = jsonArray.length(); i < ll; i++) {
             cols.add(collectionFromJSON(jsonArray.getJSONObject(i)));
