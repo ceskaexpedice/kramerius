@@ -32,9 +32,9 @@ configurations {
 
 dependencies {
         // editor dependency
-        editors group: "cz.incad.kramerius", name: "editor", version: "5.0.0-SNAPSHOT", ext: "war"
+        editors group: "cz.incad.kramerius", name: "editor", version: "5.1.0", ext: "war"
         // rightseditor dependency
-        editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.0.0-SNAPSHOT", ext: "war"
+        editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.0", ext: "war"
 }
 
 
@@ -86,7 +86,7 @@ subprojects {
 
          
          group='cz.incad.kramerius'
-         version='5.0.2'
+         version='5.1.0'
          
          sourceCompatibility = 1.6
          targetCompatibility= 1.6
