@@ -91,13 +91,13 @@ PDFSupport.prototype= {
                     $("body").css("cursor", "default");
                 });
             } else {
-                $.getJSON("pdfforward/asyncpdf/parent?pid="+ pid+"&number="+number, _.bind(function(data) {
+                $.getJSON("pdfforward/asyncpdf/parent?pid="+ pid+"&number="+pages.length, _.bind(function(data) {
                     var handle = data["handle"];
                     window.open("pdfforward/asyncpdf/handle?handle="+ handle,"_blank");
                     $("body").css("cursor", "default");
                     $(".opacityloading").hide();
                 }, this)).error(function(jqXHR, textStatus, errorThrown) {
-                    (".opacityloading").hide();
+                    $(".opacityloading").hide();
                     if (jqXHR.status === 400) {
                         function _message(cont) {
                             function _waitheader() {
