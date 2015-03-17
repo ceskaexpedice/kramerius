@@ -51,8 +51,9 @@ public class AbstractPDFResource {
         IMAGES, TEXT;
     }
 
-    public static final Logger LOGGER = Logger.getLogger(AbstractPDFResource.class.getName());
-    
+    public static final Logger LOGGER = Logger
+            .getLogger(AbstractPDFResource.class.getName());
+
     @Inject
     @Named("TEXT")
     FirstPagePDFService textFirstPage;
@@ -80,38 +81,39 @@ public class AbstractPDFResource {
     @Inject
     JSONDecoratorsAggregate decoratorsAggregate;
 
-    
     @Inject
     SolrMemoization solrMemoization;
 
     @Inject
     TextsService textService;
-    
+
     @Inject
     Provider<Locale> localesProvider;
 
     @Inject
     GeneratePDFService service;
 
-
     public static void checkNumber(String number) {
         String maxPage = KConfiguration.getInstance().getProperty(
                 "generatePdfMaxRange");
-        
-        boolean turnOff = KConfiguration.getInstance().getConfiguration().getBoolean("turnOffPdfCheck");
-        if (turnOff) return;
-    
+
+        boolean turnOff = KConfiguration.getInstance().getConfiguration()
+                .getBoolean("turnOffPdfCheck");
+        if (turnOff)
+            return;
+
         if (Integer.parseInt(number) >= Integer.parseInt(maxPage)) {
             throw new PDFResourceBadRequestException("too much pages");
         }
     }
 
-
     public static void checkNumber(String[] pids) {
         String maxPage = KConfiguration.getInstance().getProperty(
                 "generatePdfMaxRange");
-        boolean turnOff = KConfiguration.getInstance().getConfiguration().getBoolean("turnOffPdfCheck");
-        if (turnOff) return;
+        boolean turnOff = KConfiguration.getInstance().getConfiguration()
+                .getBoolean("turnOffPdfCheck");
+        if (turnOff)
+            return;
         if (pids.length >= Integer.parseInt(maxPage)) {
             throw new PDFResourceBadRequestException("too much pages");
         }
@@ -126,76 +128,107 @@ public class AbstractPDFResource {
             String maxPage = KConfiguration.getInstance().getProperty(
                     "generatePdfMaxRange");
             jsonObject.put("maxpage", maxPage);
-            
-            boolean turnOff = KConfiguration.getInstance().getConfiguration().getBoolean("turnOffPdfCheck");
+
+            boolean turnOff = KConfiguration.getInstance().getConfiguration()
+                    .getBoolean("turnOffPdfCheck");
             jsonObject.put("turnOffPdfCheck", turnOff);
         } catch (JSONException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return Response.ok().entity(jsonObject.toString()).build();
     }
 
-    public File parent(String pid, String number, FirstPagePDFService firstPagePDFService, GeneratePDFService pdfService,
-            SolrAccess solrAccess, DocumentService documentService, String imgServletUrl, String i18nUrl, String srect)
-            throws DocumentException, IOException, COSVisitorException,
-            NumberFormatException, ProcessSubtreeException {
-            
-                FontMap fmap = new FontMap(pdfService.fontsFolder());
-            
-                AbstractPDFResource.checkNumber(number);
-            
-                ObjectPidsPath[] paths = solrAccess.getPath(pid);
-                final ObjectPidsPath path = AbstractPDFResource.selectOnePath(pid, paths);
-            
-                RenderedDocument rdoc = new RenderedDocument(this.fedoraAccess.getKrameriusModelName(pid), pid);
-                File parentFile = ITextUtils.bodyPDF(pid, Integer.parseInt(number), solrAccess, solrMemoization, this.decoratorsAggregate, fedoraAccess, fmap, rdoc,textService, localesProvider);
-                File firstPageFile = ITextUtils.firstPagePDF(firstPagePDFService, imgServletUrl, i18nUrl,
-                        fmap, path, rdoc);
-                File generatedPDF = File.createTempFile("rendered", "pdf");
-                FileOutputStream fos = new FileOutputStream(generatedPDF);
-            
-                AbstractPDFResource.mergeToOutput(fos, parentFile, firstPageFile);
-            
-                return generatedPDF;
-            }
+    public File parent(String pid, String number,
+            FirstPagePDFService firstPagePDFService,
+            GeneratePDFService pdfService, SolrAccess solrAccess,
+            DocumentService documentService, String imgServletUrl,
+            String i18nUrl, String srect) throws DocumentException,
+            IOException, COSVisitorException, NumberFormatException,
+            ProcessSubtreeException {
+
+        FontMap fmap = new FontMap(pdfService.fontsFolder());
+
+        AbstractPDFResource.checkNumber(number);
+
+        ObjectPidsPath[] paths = solrAccess.getPath(pid);
+        final ObjectPidsPath path = AbstractPDFResource.selectOnePath(pid,
+                paths);
+
+        File parentFile = null;
+        File firstPageFile = null;
+        
+        try {
+            RenderedDocument rdoc = new RenderedDocument(
+                    this.fedoraAccess.getKrameriusModelName(pid), pid);
+            parentFile = ITextUtils.bodyPDF(pid, Integer.parseInt(number),
+                    solrAccess, solrMemoization, this.decoratorsAggregate,
+                    fedoraAccess, fmap, rdoc, textService, localesProvider);
+            firstPageFile = ITextUtils.firstPagePDF(firstPagePDFService,
+                    imgServletUrl, i18nUrl, fmap, path, rdoc);
+            File generatedPDF = File.createTempFile("rendered", "pdf");
+            FileOutputStream fos = new FileOutputStream(generatedPDF);
+
+            AbstractPDFResource.mergeToOutput(fos, parentFile, firstPageFile);
+
+            return generatedPDF;
+        } finally {
+            saveDeleteFile(parentFile, firstPageFile);
+        }
+    }
 
     static File selection(FirstPagePDFService firstPagePDFService,
             GeneratePDFService pdfService, DocumentService documentService,
             String imgServletUrl, String i18nUrl, String[] pids, String srect)
             throws IOException, FileNotFoundException, DocumentException,
             ProcessSubtreeException, COSVisitorException {
-    
-        List<File> filesToDelete = new ArrayList<File>();
-        FileOutputStream generatedPDFFos = null;
-    
-        File tmpFile = File.createTempFile("body", "pdf");
-        filesToDelete.add(tmpFile);
-        FileOutputStream bodyTmpFos = new FileOutputStream(tmpFile);
-        File fpage = File.createTempFile("head", "pdf");
-        filesToDelete.add(fpage);
-        FileOutputStream fpageFos = new FileOutputStream(fpage);
-    
-        int[] irects = srect(srect);
-    
-        FontMap fMap = new FontMap(pdfService.fontsFolder());
-    
-        AbstractRenderedDocument rdoc = documentService
-                .buildDocumentFromSelection(pids, irects);
-    
-        firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, pids,
-                 i18nUrl, fMap);
-    
-        pdfService.generateCustomPDF(rdoc, bodyTmpFos, fMap, imgServletUrl,
-                i18nUrl, ImageFetcher.WEB);
-    
-        bodyTmpFos.close();
-        fpageFos.close();
-    
-        File generatedPDF = File.createTempFile("rendered", "pdf");
-        generatedPDFFos = new FileOutputStream(generatedPDF);
-    
-        mergeToOutput(generatedPDFFos, tmpFile, fpage);
-        return generatedPDF;
+
+        
+        File tmpFile = null;
+        File fpage = null;
+
+        try {
+            List<File> filesToDelete = new ArrayList<File>();
+            FileOutputStream generatedPDFFos = null;
+
+            tmpFile = File.createTempFile("body", "pdf");
+            filesToDelete.add(tmpFile);
+            FileOutputStream bodyTmpFos = new FileOutputStream(tmpFile);
+            fpage = File.createTempFile("head", "pdf");
+            filesToDelete.add(fpage);
+            FileOutputStream fpageFos = new FileOutputStream(fpage);
+
+            int[] irects = srect(srect);
+
+            FontMap fMap = new FontMap(pdfService.fontsFolder());
+
+            AbstractRenderedDocument rdoc = documentService
+                    .buildDocumentFromSelection(pids, irects);
+
+            firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, pids,
+                    i18nUrl, fMap);
+
+            pdfService.generateCustomPDF(rdoc, bodyTmpFos, fMap, imgServletUrl,
+                    i18nUrl, ImageFetcher.WEB);
+
+            bodyTmpFos.close();
+            fpageFos.close();
+
+            File generatedPDF = File.createTempFile("rendered", "pdf");
+            generatedPDFFos = new FileOutputStream(generatedPDF);
+
+            mergeToOutput(generatedPDFFos, tmpFile, fpage);
+            return generatedPDF;
+        } finally {
+            saveDeleteFile(tmpFile, fpage);
+        }
+    }
+
+    private static void saveDeleteFile(File ... files) {
+        for (File f : files) {
+            if (f != null) {
+                f.delete();
+            }
+        }
     }
 
     static ObjectPidsPath selectOnePath(String requestedPid,
