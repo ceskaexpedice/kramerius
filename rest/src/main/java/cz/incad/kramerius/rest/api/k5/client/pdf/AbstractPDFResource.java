@@ -165,37 +165,48 @@ public class AbstractPDFResource {
             throws IOException, FileNotFoundException, DocumentException,
             ProcessSubtreeException, COSVisitorException {
     
-        List<File> filesToDelete = new ArrayList<File>();
-        FileOutputStream generatedPDFFos = null;
-    
-        File tmpFile = File.createTempFile("body", "pdf");
-        filesToDelete.add(tmpFile);
-        FileOutputStream bodyTmpFos = new FileOutputStream(tmpFile);
-        File fpage = File.createTempFile("head", "pdf");
-        filesToDelete.add(fpage);
-        FileOutputStream fpageFos = new FileOutputStream(fpage);
-    
-        int[] irects = srect(srect);
-    
-        FontMap fMap = new FontMap(pdfService.fontsFolder());
-    
-        AbstractRenderedDocument rdoc = documentService
-                .buildDocumentFromSelection(pids, irects);
-    
-        firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, pids,
-                 i18nUrl, fMap);
-    
-        pdfService.generateCustomPDF(rdoc, bodyTmpFos, fMap, imgServletUrl,
-                i18nUrl, ImageFetcher.WEB);
-    
-        bodyTmpFos.close();
-        fpageFos.close();
-    
-        File generatedPDF = File.createTempFile("rendered", "pdf");
-        generatedPDFFos = new FileOutputStream(generatedPDF);
-    
-        mergeToOutput(generatedPDFFos, tmpFile, fpage);
-        return generatedPDF;
+        File tmpFile = null;
+        File fpage = null;
+        try {
+            List<File> filesToDelete = new ArrayList<File>();
+            FileOutputStream generatedPDFFos = null;
+   
+            tmpFile = File.createTempFile("body", "pdf");
+            filesToDelete.add(tmpFile);
+            FileOutputStream bodyTmpFos = new FileOutputStream(tmpFile);
+            fpage = File.createTempFile("head", "pdf");
+            filesToDelete.add(fpage);
+            FileOutputStream fpageFos = new FileOutputStream(fpage);
+   
+            int[] irects = srect(srect);
+   
+            FontMap fMap = new FontMap(pdfService.fontsFolder());
+   
+            AbstractRenderedDocument rdoc = documentService
+                    .buildDocumentFromSelection(pids, irects);
+   
+            firstPagePDFService.generateFirstPageForSelection(rdoc, fpageFos, pids,
+                     i18nUrl, fMap);
+   
+            pdfService.generateCustomPDF(rdoc, bodyTmpFos, fMap, imgServletUrl,
+                    i18nUrl, ImageFetcher.WEB);
+   
+            bodyTmpFos.close();
+            fpageFos.close();
+   
+            File generatedPDF = File.createTempFile("rendered", "pdf");
+            generatedPDFFos = new FileOutputStream(generatedPDF);
+   
+            mergeToOutput(generatedPDFFos, tmpFile, fpage);
+            return generatedPDF;
+        } finally {
+            if (tmpFile != null && tmpFile.exists()) {
+                tmpFile.delete();
+            }
+            if (fpage != null && fpage.exists()) {
+                fpage.delete();
+            }
+        }
     }
 
     static ObjectPidsPath selectOnePath(String requestedPid,
