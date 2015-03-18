@@ -226,6 +226,7 @@
     }
     
     function focusThumb(id, elem){
+        if($(elem).length === 0) return;
         var l = $(elem).offset().left - $('#tv_container').offset().left + $('#tv_container').scrollLeft() - $('#tv_container').width()/2 ;
 
         $('#tv_container').scrollLeft(l);
