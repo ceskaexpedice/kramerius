@@ -167,6 +167,7 @@
             var id = $('#docs_content .more_docs').attr('id');
             if(isScrolledIntoView($('#'+id), $('#docs_content>div.content'))){
                 getMoreDocs(id);
+                
             }
         }
     });
@@ -462,6 +463,7 @@
             });
 </scrd:loggedusers>
             setColumnsWidth();
+            getCollapsedPolicy();
         });
     }
     
