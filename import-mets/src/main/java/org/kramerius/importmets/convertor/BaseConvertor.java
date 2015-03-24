@@ -1185,7 +1185,7 @@ public abstract class BaseConvertor {
                 }else{
                     String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
                     String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.preview");
-                    if(KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServer.removeFilenameExtensions", false)) {
+                    if(KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerSuffix.removeFilenameExtensions", false)) {
                         String pageFileNameWithoutExtension = FilenameUtils.removeExtension(filename.substring(filename.lastIndexOf("/")));
                         cl.setREF(imagesPrefix +"/"+PathEncoder.encPath(getConfig().getContract()+pageFileNameWithoutExtension+suffix));
                     } else {
