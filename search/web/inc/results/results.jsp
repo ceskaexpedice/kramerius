@@ -153,7 +153,9 @@
         $("#dali").remove();
     }else{
         resizeAll();
-        
+        $("#dadiv").bind("yearChanged", function(event, params){
+            daYearClicked(params);
+        });
     }
     translateCollections();
     getExtInfo();
