@@ -53,7 +53,7 @@ public class ShibRules implements Expr{
     }
     
     @Override
-    public void evaluate(ShibContext ctx) {
+    public void evaluate(ShibbolethContext ctx) {
         for (MatchRule mrule : this.rules) {
             mrule.evaluate(ctx);
         }

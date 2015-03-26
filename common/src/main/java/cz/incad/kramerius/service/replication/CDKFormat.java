@@ -28,6 +28,7 @@ import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
@@ -46,7 +47,12 @@ public class CDKFormat implements ReplicationFormat {
                                                                                 * IMG_THUMB_STREAM
                                                                                 * ,
                                                                                 */
-    FedoraUtils.IMG_PREVIEW_STREAM };
+    FedoraUtils.IMG_PREVIEW_STREAM, 
+    
+    
+    // media files
+    FedoraUtils.OGG_STREAM, FedoraUtils.MP3_STREAM, FedoraUtils.WAV_STREAM 
+    };
 
     @Override
     public byte[] formatFoxmlData(byte[] input, Object... params)
@@ -96,8 +102,11 @@ public class CDKFormat implements ReplicationFormat {
                 }
 
                 // remove virtual collections
-                removeVirtualCollections(document, relsExt.get(0));
-
+                boolean omitvc = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.omitvc",true);
+                if (!omitvc) {
+                    removeVirtualCollections(document, relsExt.get(0));
+                }
+                
                 if (params != null && params.length > 0) {
                     String vcname = params[0].toString();
                     virtualCollectionName(vcname, document, relsExt.get(0));

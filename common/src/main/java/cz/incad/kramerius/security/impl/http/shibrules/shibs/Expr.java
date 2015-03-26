@@ -28,5 +28,5 @@ public interface Expr {
      * Evaluate expression
      * @param ctx Shibboleth runtime context
      */
-    public void evaluate(ShibContext ctx);
+    public void evaluate(ShibbolethContext ctx);
 }

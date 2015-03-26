@@ -2,10 +2,10 @@
 /**
  * Register listener -> Create viewer 
  */
-var delayedEvent = {'pid':'','enabled':true};        
+var delayedEvent = {'pid':'','enabled':true};
 K5.eventsHandler.addHandler(function(type, configuration) {
     var splitted = type.split("/");
-    if (splitted.length == 3) {
+    if (splitted.length === 3) {
         //api/item/
         if ((splitted[0] === "api") && (splitted[1] === "item")) {
             var pid = splitted[2];
@@ -52,9 +52,9 @@ K5.eventsHandler.addHandler(function(type, configuration) {
     if (type === "application/menu/ctxchanged") {
         K5.gui["selected"].addContextButtons();
     }
+
 });
 
-//var phash = location.hash;
 var phash = location.hash;
 var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
 if (pid) K5.api.askForItem(pid);
@@ -62,7 +62,6 @@ if (pid) K5.api.askForItem(pid);
 var maxwidth = $('html').css('max-width');
 
 var w = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-//K5.serverLog("window width :"+w);
 
 function _eventProcess(pid) {
 
@@ -75,23 +74,27 @@ function _eventProcess(pid) {
         if (K5.gui.selected.download) {
             K5.gui.selected.download.cleanDialog();
         }
+        
+        $("#viewer>div.loading").show();
     }
 
     var okfunc = _.bind(function() {
+        
+        $("#viewer>div.loading").hide();
+
         var instance = K5.gui["viewers"].instantiate(viewer.object);        
         K5.gui["selected"] = mixInto(new ItemSupport(K5), instance);
         K5.gui["selected"].initItemSupport();
         K5.gui["selected"].open();
-        //K5.gui["selected"].ctxMenu();    
 
         K5.gui["selected"]["ctx"] = {};    
-
-        _metadatainit();
-
 
         K5.gui.selected["disabledDisplay"] = false;
     });
     var failfunc = _.bind(function() {
+
+        $("#viewer>div.loading").hide();
+
         var nviewer = K5.gui["viewers"].findByName('forbidden');
         var instance = K5.gui["viewers"].instantiate(nviewer.object);        
 
@@ -101,19 +104,13 @@ function _eventProcess(pid) {
         K5.gui["selected"].initItemSupport();
         K5.gui["selected"].open();
 
-        // initialization
-        //K5.gui["selected"].ctxMenu();    
-        
-        _metadatainit();
-
-        K5.gui.selected["disabledDisplay"] = false;
+        K5.gui.selected["disabledDisplay"] = true;
     });
 
     K5.gui["viewers"].forbiddenCheck(viewer.object,okfunc,failfunc); 
         
 
     function _metadatainit() {
-            // metadata initialization 
             $("#metadata").hide();
             if (data.model === "page") {
                 $("#model").show();
@@ -127,14 +124,14 @@ function _eventProcess(pid) {
                     $("#metadata").html(data);
                     $(".infobox .label").each(function(index, val) {
                         var txt = $(val).text();
-                        txt = txt.trim()
+                        txt = txt.trim();
                         if (txt.indexOf(":") === 0) {
                             $(val).text('');
                         }
                     });
                    $(".infobox .label").each(function(index, val) {
                         var valueText = $(val).siblings(".value").text();
-                        valueText = valueText.trim()
+                        valueText = valueText.trim();
                         if ("" === valueText) {
                             $(val).siblings(".value").remove();
                             $(val).remove();
@@ -173,23 +170,23 @@ ItemSupport.prototype = {
             this.shares = new ShareItem();
             this.shares.init();
             
+            
         } else {
             this.application.eventsHandler.addHandler(_.bind(function(type, configuration) {
-                console.log("event type " + type);
-                if (type == "i18n/dictionary") {
+                if (type === "i18n/dictionary") {
                     this._initInfo();
+
+                    this.download = new DownloadItem();
+                    this.download.init();
+
+                    this.messages = new Messages();
+                    this.messages.init();
+
+                    this.shares = new ShareItem();
+                    this.shares.init();
                 }
             }, this));
 
-            // ?? reorganizovat?
-            this.download = new DownloadItem();
-            this.download.init();
-
-            this.messages = new Messages();
-            this.messages.init();
-
-            this.shares = new ShareItem();
-            this.shares.init();
 
         }
     },
@@ -200,64 +197,51 @@ ItemSupport.prototype = {
         $(document).prop('title', K5.i18n.ctx.dictionary['application.title'] + ". " + root_title);
         this.renderContext();
     },
-
-    
     
     addContextButtons: function() {
         _ctxbuttonsrefresh();
     },
 
-   /**
-    * Render ctx menu 
-    * @method
-    */     
-   ctxMenu: function() {
-        $("#acts_container").empty();
-        var menuDiv = $("<div/>", {'id': 'ctxmenu'});
-        var ul = $('<ul/>');
-        var items = _.map(K5.gui.nmenu.ctx.actions, function(a) {
-                var li = $('<li/>', {'id': 'ctxmenu-'+a.name});
-                var item = $('<a/>', {'href': 'javascript:K5.gui.nmenu.action("' + a.name+'")', 'data-key': a.i18nkey});
-                item.addClass("translate");
-                li.append(item);
-                return li;
-        });
+    renderModsXml: function(elem, pid, data){
+        var modsid = "mods_"+pid;
+        var e = $('<div class="modsxml"></div>');
+        //elem.append(e);
+        
+        var div = $('<div style="display:block;" />');
+        div.attr("id", modsid);
+        
+        div.append(e);
+        $('#viewer').append(div);
+         
+        var modsXml = new ModsXml(e);
+        modsXml.loadXmlFromDocument(data, e);
+        modsXml.renderAsHTML();
+        modsXml.translateNodes();
+        modsXml.compact();
+        modsXml.showTranslated();
+        elem.append(div);
+        return modsXml;
 
-        _.each(items, function(itm) {
-            if (itm != null) ul.append(itm);
-        });
-        menuDiv.append(ul);
-        $("#acts_container").append(menuDiv);
-        if (K5.i18n.ctx.dictionary) {
-                K5.i18n.k5translate(menuDiv);
-        }
     },
- 
-   _toOld: function(actions) {
-        var menuDiv = $("<div/>", {'id': 'ctxmenu'});
-        var ul = $('<ul/>');
-        var items = _.map(actions, function(a) {
-            if (a.visible) {
-                var li = $('<li/>');
-                var item = $('<a/>', {'href': 'javascript:' + a.action, 'data-key': a.i18nkey});
-                item.addClass("translate");
-                li.append(item);
-                return li;
-            } else
-                return null;
-        });
-
-        _.each(items, function(itm) {
-            if (itm != null)
-                ul.append(itm);
-        });
-
-        menuDiv.append(ul);
-        $("#acts_container").append(menuDiv);
-
-        K5.i18n.k5translate(menuDiv);
+    biblioModsXml: function(elem, pid, model){
+        var m = $('<div>', {class: "model"});
+            
+        m.html(K5.i18n.translatable("fedora.model." + model));
+        $(elem).append(m);
+        K5.api.askForItemConcreteStream(pid, "BIBLIO_MODS", _.bind(function(data) {
+            var modsxml = this.renderModsXml(elem, pid, data);
+            var b = $(elem).find("div.model");
+            b.addClass("button");
+            b.attr("data-id", pid);
+            b.data("id", pid);
+            b.append(' <xml>');
+            b.attr('title', 'show mods');
+            b.click(function(){
+                modsxml.toggle();
+            
+            });
+        }, this));
     },
-
 
 
     renderContext: function() {
@@ -265,101 +249,53 @@ ItemSupport.prototype = {
         var pid = K5.api.ctx["item"]["selected"];
         var data = K5.api.ctx["item"][pid];
 
-        // update model
-        var model = data.model;
-
-        K5.i18n.translatableElm("fedora.model." + K5.api.ctx.item[pid].model, "#model");
-        $("#title").text(K5.api.ctx.item[pid].title);
-        if (data.model === "page") {
-            if (data.details && data.details.type) {
-                if (data.details.type !== "normalPage" && data.details.type !== "NormalPage") {
-                    var type = $(K5.i18n.translatable("mods.page.partType." + data.details.type));
-                    type.addClass("pageType");
-                    var title = $("<span/>");
-                    title.text(K5.api.ctx.item[pid].title + " ");
-
-                    $("#title").empty();
-
-                    $("#title").append(title);
-                    $("#title").append(type);
-                } else {
-                    $("#title").html("<span>" + K5.api.ctx.item[pid].title + "</span>");
-                }
-            } else {
-                $("#title").html("<span>" + K5.api.ctx.item[pid].title + "</span>");
-            }
-        } else {
-            $("#title").html("<span>" + K5.api.ctx.item[pid].title + "</span>");
-        }
-
-
         this.itemContext = data.context[0];
         var contextDiv = $("<div/>", {class: "context"});
-        for (var i = 0; i < this.itemContext.length - 1; i++) {
+        contextDiv.append('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
+        for (var i = 0; i < this.itemContext.length; i++) {
             var p = this.itemContext[i].pid;
             var div = $('<div/>');
-            $(div).css("margin-left", (i * 15) + "px");
-            var a = $('<div/>', {'data-pid': p});
-            var img = $('<img/>', {'src': 'api/item/' + p + '/thumb'});
-            img.css('height', '48px');
-            div.append(img);
-            var model = K5.i18n.translatable('fedora.model.' + this.itemContext[i].model);
-
-            a.data('pid', p);
-
-            if (K5.api.ctx.item[p]) {
-                a.append('<span> ' + model + '</span>');
-                a.append('<span> (' + K5.api.ctx.item[p].title + ')</span>');
-            } else {
-                K5.api.askForItemContextData(p, function(data) {
-                    var pidElm = $("div:data(pid)").filter(function() {
-                        return $(this).data("pid") === data.pid;
-                    });
-                    var m = K5.i18n.translatable('fedora.model.' + data.model);
-                    pidElm.append('<span> ' + m + '</span>');
-                    pidElm.append('<span> (' + data.title + ')</span>');
-                });
-            }
-
-            a.click(_.bind(function(l) {
-                K5.api.gotoItemPage(l, $("#q").val());
-            }, this, p));
-
-            div.append(a);
+            
+            this.biblioModsXml(div, p, this.itemContext[i].model);
             contextDiv.append(div);
         }
-        contextDiv.insertBefore(".mtd_footer");
+        contextDiv.insertBefore("#metadata");
     },
 
-    hidePages: function() {
-        $("#itemparts").hide();
-    },
-    showItemNavigation: function() {
-        this.hideInfo();
-    },
-
-    // toggle actions -> change it     
-    toggleActions: function() {
-    },
+    
+   
+    
     /**
      * Siblings request
      * @method
      */    
     siblings: function() {
         $("#itemparts").append("<div id='itempartssiblings' style='overflow:scroll; width:100%; height:40%; text-align:center'><h1>Siblings</h1></div>");
-        K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
-            console.log(data.length);
-            var arr = data[0]['siblings'];
-            console.log('array length:' + arr);
+
+        var selected = K5.api.ctx["item"].selected;
+        if (K5.api.ctx["item"] && K5.api.ctx["item"][selected] &&  K5.api.ctx["item"][selected]["siblings"]) {
+            var arr = K5.api.ctx["item"][selected]["siblings"][0]['siblings'];
             var str = _.reduce(arr, function(memo, value, index) {
                 var pid = value.pid;
                 memo +=
                         "<div style='float:left'> <a href='?page=doc&pid=" + pid + "'> <img src='api/item/" + pid + "/thumb'/></a> </div>";
                 return memo;
             }, "");
-            $("#itempartssiblings").append(str + "<div style='clear:both'></div>");
 
-        });
+            $("#itempartssiblings").append(str + "<div style='clear:both'></div>");
+        } else {
+            K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
+                var arr = data[0]['siblings'];
+                var str = _.reduce(arr, function(memo, value, index) {
+                    var pid = value.pid;
+                    memo +=
+                            "<div style='float:left'> <a href='?page=doc&pid=" + pid + "'> <img src='api/item/" + pid + "/thumb'/></a> </div>";
+                    return memo;
+                }, "");
+                $("#itempartssiblings").append(str + "<div style='clear:both'></div>");
+
+            });
+        }
 
     },
     /**
@@ -491,9 +427,8 @@ ItemSupport.prototype = {
     /**
      * Search inside document
      * @method      
-     * @param {integer} speed.
      */       
-    searchInside: function(speed) {
+    searchInside: function() {
         cleanWindow();
 
         $("#searchinside_q").val($("#q").val());
@@ -503,23 +438,13 @@ ItemSupport.prototype = {
         $("#searchinside_q").select();
 
         this._searchInsideArrow();
-
-//        this.showPanel("#viewer>div.searchinside", 290, 37, speed);
-        /*
-        this.hidePanels(_.bind(function(){
-            this.showPanel("#viewer>div.searchinside", 290, 37, speed);
-            $("#searchinside_q").focus();
-            $("#searchinside_q").select();
-        }, this));
-        */
-
     },
 
     /**
      * Show info panel
      * @method      
      */       
-    showInfo: function(speed) {
+    showInfo: function() {
         cleanWindow();
         divopen("#viewer>div.info");
 
@@ -529,8 +454,8 @@ ItemSupport.prototype = {
         var contextheight = $(".context").height();
         console.log("context height :"+contextheight);
 
-        var titleheight = $("#title").height()
-        var modelheight = $("#model").height()
+        var titleheight = $("#title").height();
+        var modelheight = $("#model").height();
 
         var nheight = metadataheight + 63 +contextheight+titleheight+modelheight ;
 
@@ -570,16 +495,6 @@ ItemSupport.prototype = {
         }else{
             this.hidePanel("#viewer>div.infobox:visible", 290, -500, 200, whenready);
         }
-    },
-
-
-    /** 
-     * toggle actions 
-     * @method
-     */
-    toggleActions: function() {
-        if (visible("#viewer>div.actions")) { cleanWindow(); } 
-        else { this.showActions();  }
     },
 
     _searchInsideArrow:function() {

@@ -75,7 +75,7 @@ public class MonographUnitDecorate extends AbstractDetailDecorator {
                         String[] details = super.details(array.get(0));
                         JSONObject detailsJSONObject = new JSONObject();
                         if (details.length > 0) {
-                            detailsJSONObject.put("partNumber", details[1]);
+                            detailsJSONObject.put("partNumber", details[0]);
                         }
                         if (details.length > 1) {
                             detailsJSONObject.put("title", details[1]);

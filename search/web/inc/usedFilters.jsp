@@ -11,7 +11,7 @@
       !empty param.udc ||!empty param.ddc || !empty param.onlyPublic || param.suggest=='true' ||
       cols.current != null}" >
 <ul>
-    <li style="border-color: #E66C00;border-right: 1px solid #E66C00;">
+    <li style="border-color: rgba(0, 30, 60, 0.9);border-right: 1px solid rgba(0, 30, 60, 0.9);">
         <span class="ui-icon ui-icon-triangle-1-e folder"></span>
         <span style="text-indent:0px;width:auto;font-weight: bold;"><fmt:message bundle="${lctx}" key="filter.used" /></span><div class="clear"> </div>
         <ul id="usedFilters">

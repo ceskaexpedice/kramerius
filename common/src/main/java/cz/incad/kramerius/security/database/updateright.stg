@@ -108,3 +108,27 @@ insertRight_show_print_menu() ::=<<
         where gname='k4_admins'
 >>
 
+
+updateUserEntities() ::=<<
+
+    alter table user_entity alter column name drop not null;
+    alter table user_entity alter column surname drop not null;
+
+    DELETE FROM group_user_assoc
+        WHERE user_id IN (SELECT user_id
+              FROM (SELECT user_id,
+                             row_number() over (partition BY loginname ORDER BY user_id) AS rnum
+                     FROM user_entity) t
+              WHERE t.rnum > 1);
+
+    DELETE FROM user_entity
+        WHERE user_id IN (SELECT user_id
+              FROM (SELECT user_id,
+                             row_number() over (partition BY loginname ORDER BY user_id) AS rnum
+                     FROM user_entity) t
+              WHERE t.rnum > 1);
+    
+    DROP INDEX LOGINNAME_IDX; 
+    CREATE UNIQUE INDEX LOGINNAME_IDX ON USER_ENTITY (LOGINNAME);
+>>
+

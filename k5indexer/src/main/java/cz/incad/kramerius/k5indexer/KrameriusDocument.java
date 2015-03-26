@@ -1,11 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package cz.incad.kramerius.k5indexer;
 
-import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
@@ -16,7 +11,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.XSLFunctions;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.DateFormat;
@@ -37,7 +31,6 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
 import org.json.JSONArray;
@@ -203,9 +196,7 @@ public class KrameriusDocument {
         doc.addField("datum_str", datumStr);
         if (datum != null) {
             doc.addField("datum", solrDateFormat.format(datum));
-        } else {
-            doc.addField("datum", solrDateFormat.format(new Date(0)));
-        }
+        } 
         if (!rok.equals("")) {
             doc.addField("rok", rok);
         }

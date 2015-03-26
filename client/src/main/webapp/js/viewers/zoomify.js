@@ -131,9 +131,11 @@ Zoomify.prototype.open = function() {
                         zoom: 1
                 });              
 
+                var rend = _olrenderer();
+                
                 this.map = new ol.Map({
                         layers: [this.tile],
-                        renderer:'dom',
+                        renderer:rend,
                         target: 'map',
                         
                         interactions:ol.interaction.defaults({
@@ -147,6 +149,17 @@ Zoomify.prototype.open = function() {
                 });
                 
 
+                this.map.on('moveend',function() {
+                    var curpage = K5.gui.selected.currentPage();
+                    if (curpage[2] < 0) {
+                        K5.gui.selected.next();
+                    }
+                    
+                    var wdth = $("#map").width();
+                    if (curpage[0] > wdth) {
+                        K5.gui.selected.prev();
+                    } 
+                });
                 
 
                 this.map.on('postrender', _.bind(function(evt) {
@@ -204,7 +217,7 @@ Zoomify.prototype.open = function() {
 
                 var lockedZoom = _checkZoomIsLocked(this.map);
                 if (lockedZoom) {
-                    _optionspaneLocked();
+                    _optionspaneLocked("buttons.zoomunlock");
                 } else {
                     var ext = this.projection.getExtent();
                     var size = this.map.getSize();
@@ -264,37 +277,6 @@ Zoomify.prototype.addContextButtons=  function() {
 }
 
 
-///**
-// * Construct arrow buttons
-// * @method
-// */ 
-//Zoomify.prototype.arrowbuttons = function() {
-//        var selected = K5.api.ctx["item"].selected;
-//        if (K5.api.ctx["item"] && K5.api.ctx["item"][selected] &&  K5.api.ctx["item"][selected]["siblings"]) {
-//                var data = K5.api.ctx["item"][selected]["siblings"];
-//                var arr = data[0]['siblings'];
-//                var index = _.reduce(arr, function(memo, value, index) {
-//                        return (value.selected) ? index : memo;
-//                }, -1);
-//                if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
-//                if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
-//
-//                K5.eventsHandler.trigger("application/menu/ctxchanged", null);
-//        } else {
-//                K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
-//                        var arr = data[0]['siblings'];
-//                        var index = _.reduce(arr, function(memo, value, index) {
-//                                return (value.selected) ? index : memo;
-//                        }, -1);
-//
-//                        if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
-//                        if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
-//        
-//                        K5.eventsHandler.trigger("application/menu/ctxchanged", null);
-//                });
-//
-//        }
-//}
 
 
 Zoomify.prototype.translateCurrent=function(x1,y1,width,height) {
@@ -413,12 +395,11 @@ Zoomify.prototype.crop = function(rect,offset){
 Zoomify.prototype.fit = function() {
     var ext = this.projection.getExtent();
     var size = this.map.getSize();
-
     var nresolution = ext[3]/(size[1]-20);
     this.view2D.setResolution(nresolution);
-    
     this.view2D.setCenter([ext[2]/2, -ext[3]/2]);
 }
+
 
 Zoomify.prototype.relativePosition = function() {
         return $("#map").position();        

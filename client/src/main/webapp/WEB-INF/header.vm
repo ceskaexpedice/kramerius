@@ -1,12 +1,16 @@
 <div id="header">
 
     <div class="logo" href="index.vm" title="home">
-        <a href="?page=home"><img style="border:0;" src="images/k5.png" /></a>
+        <a href="?page=home"><img style="border:0;" src="$conf.getString('k5.logo')" /></a>
     </div>
 
     <div class="buttons">
+#if($conf.getBoolean('k5client.showbrowse'))
         <div class="button #if($params.page == 'browse')sel#end" onclick="link('?page=browse')">#translatable('common.browse')</div>
+#end
+#if($conf.getBoolean('k5client.showtimeline'))
         <div class="button #if($params.page == 'da')sel#end" onclick="link('?page=da')">#translatable('common.timeline')</div>
+#end
 #if($conf.getBoolean('k5client.showcollections'))
         <div class="button #if($params.page == 'collections')sel#end" onclick="link('?page=collections')">#translatable('common.collections')</div>
 #end
@@ -19,7 +23,7 @@
             <div class="button" onclick="K5.authentication.options()">#translatable('application.login')</div>
         #end
 
-        <div class="button" onclick="link('https://github.com/ceskaexpedice/k5client/wiki')" >#translatable('application.help')</div>
+        <div class="button" onclick="link('$conf.getString('k5client.help')', 'help')" >#translatable('application.help')</div>
 
         #if($logControl.logged)
             <div class="button" onclick="K5.authentication.profileDisplay.toggle()"><span>$logControl.loggedName</span></div>
@@ -43,7 +47,7 @@
         #end
 
         #if(!$logControl.logged)
-            <div class="showmore button" onclick="divopen('#tbl_menus');">
+            <div class="showmore button" onclick="(function() {cleanWindow(); divopen('#tbl_menus');})();">
                 #translatable('application.more')
             </div>
         #end

@@ -1,4 +1,5 @@
 
+
 function _checkZoomIsLocked(map) {
     var selected = K5.api.ctx.item.selected;
     var item = K5.api.ctx.item[selected];
@@ -21,7 +22,6 @@ function _checkZoomIsLocked(map) {
             } 
         }
     }
-    
     return false;
 }
 
@@ -156,10 +156,9 @@ function _checkArrows() {
 
                         if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
                         if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
-        
+
                         K5.eventsHandler.trigger("application/menu/ctxchanged", null);
                 });
-
         }
 }
 
@@ -209,22 +208,31 @@ function _rotateRight (map){
     map.getView().setRotation(dest);
 }
 
-function _optionspaneLocked() {
+function _optionspaneLocked(dkey) {
     $("#options_minus").hide();
     $("#options_plus").hide();
     $("#options_fit").hide();
     $.get("svg.vm?svg=lock",function(data) {
         $("#options_lock").html(data);            
     });
+    
+    if (dkey) {
+        $("#options_lock").attr("data-key",dkey);
+        $("#options_lock").attr("title",K5.i18n.ctx.dictionary[dkey]);
+    }
 }
 
-function _optionspaneUnlocked() {
+function _optionspaneUnlocked(dkey) {
     $("#options_minus").show();
     $("#options_plus").show();
     $("#options_fit").show();
     $.get("svg.vm?svg=unlock",function(data) {
         $("#options_lock").html(data);            
     });
+    if (lockDataKey) {
+        $("#options_lock").attr("data-key",dkey);
+        $("#options_lock").attr("title",K5.i18n.ctx.dictionary[dkey]);
+    }
 }
 
 function _optionspane() {
@@ -242,48 +250,51 @@ function _optionspane() {
         if (datakey) {
             div.attr("data-key",datakey);
         }
+
         if (title) {
             div.attr("title",title);
         }
+
         $.get("svg.vm?svg="+icon,function(data) {
-            $("#"+id).html(data);            
+            $("#"+id).html(data);
         });
-        
+
         li.append(div);
         if (func) {
             div.click(func);
         }
+
         return div;
     }
     
-    icondiv(li(ul),"options_fit","fit","buttons.fit",K5.i18n.ctx["buttons.fit"], function() {
+    icondiv(li(ul),"options_fit","fit","buttons.fit",K5.i18n.ctx.dictionary["buttons.fit"], function() {
         K5.gui.selected.fit();
     });
 
-    icondiv(li(ul),"options_rotate_left","rotateleft","buttons.fit",K5.i18n.ctx["buttons.fit"],function() {
+    icondiv(li(ul),"options_rotate_left","rotateleft","buttons.fit",K5.i18n.ctx.dictionary["buttons.rotateleft"],function() {
         K5.gui.selected.rotateLeft();
     });
     
-    icondiv(li(ul),"options_rotate_right","rotateright","buttons.fit",K5.i18n.ctx["buttons.fit"],function() {
+    icondiv(li(ul),"options_rotate_right","rotateright","buttons.fit",K5.i18n.ctx.dictionary["buttons.rotateright"],function() {
         K5.gui.selected.rotateRight();
     });
 
-    icondiv(li(ul),"options_plus","plus","buttons.fit",K5.i18n.ctx["buttons.fit"], function() {
+    icondiv(li(ul),"options_plus","plus","buttons.zoomin",K5.i18n.ctx.dictionary["buttons.zoomin"], function() {
         K5.gui.selected.zoomIn();
     });
 
-    icondiv(li(ul),"options_minus","minus","buttons.fit",K5.i18n.ctx["buttons.fit"], function() {
+    icondiv(li(ul),"options_minus","minus","buttons.zoomout",K5.i18n.ctx.dictionary["buttons.zoomout"], function() {
         K5.gui.selected.zoomOut();
     });
 
-    icondiv(li(ul),"options_lock","unlock","buttons.fit",K5.i18n.ctx["buttons.fit"], function() {
+    icondiv(li(ul),"options_lock","unlock","buttons.zoomlock",K5.i18n.ctx.dictionary["buttons.zoomlock"], function() {
         var visible = $("#options_minus").is(":visible");
         if (visible) {
             K5.gui.selected.lockZoom();
-            _optionspaneLocked();
+            _optionspaneLocked("buttons.zoomunlock");
         } else {
             K5.gui.selected.unlockZoom();
-            _optionspaneUnlocked();
+            _optionspaneUnlocked("buttons.zoomlock");
         }
     });
     
@@ -291,3 +302,46 @@ function _optionspane() {
 
     return optionsDiv;
 }
+
+function _nextorprev() {
+    
+}
+
+function _postrederer() {
+    var vrs = K5.gui.selected.postrendererEvts().postRenderEventsKeys();
+    for (var v = 0,ll=vrs.length;v<ll;v++) {
+        var key = vrs[v];
+        while (K5.gui.selected.postrendererEvts().isPostrenderEventDefined(key)) {
+            var v = K5.gui.selected.postrendererEvts().popPostrenderEvent(key);
+            v.apply(null,[]);
+        }
+    }
+}
+
+
+// because of problem with firefox 
+// and dom renderer -> https://github.com/openlayers/ol3/issues/3283
+function _olrenderer() {
+    var detect = _browserdetect();
+    return detect.firefox ? "canvas" : "dom";
+}
+function _browserdetect() {
+    var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+    // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
+    var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
+    var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+    // At least Safari 3+: "[object HTMLElementConstructor]"
+    var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;   // At least IE6
+    
+    return {
+        "opera":isOpera,
+        "firefox":isFirefox,
+        "safari":isSafari,
+        "chrome":isChrome,
+        "ie":isIE
+    }
+}
+
+
+

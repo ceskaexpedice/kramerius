@@ -62,7 +62,6 @@ public class ImageStreamsServlet extends AbstractImageServlet {
     /** What the servlet should do  */
     public static final String ACTION_NAME="action";
 
-    
     @Override
     public ScalingMethod getScalingMethod() {
         KConfiguration config = KConfiguration.getInstance();
@@ -97,7 +96,38 @@ public class ImageStreamsServlet extends AbstractImageServlet {
     }
 
     
-    
+
+    @Override
+    protected void doHead(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        String pid = req.getParameter(UUID_PARAMETER);
+        if (pid == null || pid.trim().equals("")) {
+            pid = req.getParameter(PID_PARAMETER);
+        }
+        String stream = req.getParameter(STREAM_PARAMETER);
+        int page = disectPageParam(req);
+        if (pid != null && stream != null) {
+            // TODO: Change it !!
+            pid = cutHREF(pid);
+            if (!fedoraAccess.isStreamAvailable(pid, stream)) {
+                pid = fedoraAccess.findFirstViewablePid(pid);
+            }
+            if (pid != null) {
+                boolean accessible = fedoraAccess.isContentAccessible(pid);
+                String mimeType = fedoraAccess.getMimeTypeForStream(pid, stream);
+                resp.setContentType(mimeType);
+                if (accessible) {
+                    resp.setStatus(HttpServletResponse.SC_OK);
+                } else {
+                    resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                }
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            }
+        } else {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
 
 
     @Override

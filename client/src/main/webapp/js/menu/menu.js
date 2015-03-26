@@ -105,6 +105,13 @@ function _isAudio() {
     return audio;
 }
 
+function _isPDF() {
+    var selected = K5.api.ctx.item.selected; 
+    var itm = K5.api.ctx.item[selected];
+    var streams = itm.streams;
+    return (itm.datanode &&  streams["IMG_FULL"].mimeType == "application/pdf");
+}
+
 
 /**
  * Display clipboard  
@@ -141,8 +148,7 @@ PDFOnePage.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
-                    if (!_isAudio()) {
-                        // no pdf?
+                    if ((!_isAudio()) && (!_isPDF())) {
                         return K5.api.ctx.item[selected].datanode; 
                     } else return false;
                 } else {
@@ -197,8 +203,7 @@ PrintPartPage.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
-                    if (!_isAudio()) {
-                        // no pdf?
+                    if (!_isAudio() && (!_isPDF())) {
                         return K5.api.ctx.item[selected].datanode; 
                     } else return false;
                 } else {
@@ -398,6 +403,61 @@ PrintPartItem.prototype = {
 }
 
 
+function PrintPage() {}
+
+PrintPage.prototype = {
+        'doAction':function() {
+            cleanWindow();
+            K5.outputs.print.page(K5.api.ctx.item.selected);
+    },
+    'enabled': function() {
+            var selected = K5.api.ctx.item.selected; 
+            var itm = K5.api.ctx.item[selected];
+            if (!itm['forbidden']) {
+                if ((!_isAudio()) && (!_isPDF())) {
+                    return K5.api.ctx.item[selected].datanode; 
+                } else return false;
+            } else {
+                    return false;
+            }
+    }
+}
+
+function PrintTitle() {}
+
+PrintTitle.prototype = {
+        'doAction':function() {
+                cleanWindow();
+                K5.outputs.print.title(K5.api.ctx.item.selected);
+        },
+        
+        'enabled': function() {
+                var selected = K5.api.ctx.item.selected; 
+                var itm = K5.api.ctx.item[selected];
+                if (!itm['forbidden']) {
+                    if ((!_isAudio()) && (!_isPDF())) {
+                        var children = K5.api.ctx.item[selected]["children"];
+                        if (children) {
+                            var pages = _.reduce(children, function(memo, value, index) {
+                                if (value["model"] === "page") {
+                                    memo.push(value);
+                                }
+                                return memo;
+                            }, []);
+                            if (pages.length > 0) {
+                                return true;
+                            } else return false;
+                            
+                        } else {
+                            return false;
+                        }
+                    } else return false;
+                } else {
+                        return false;
+                }
+        }
+}
+
 function PDFTitle() {}
 PDFTitle.prototype = {
         'doAction':function() {
@@ -405,17 +465,19 @@ PDFTitle.prototype = {
                 K5.outputs.pdf.asyncTitle(K5.api.ctx.item.selected);
         },
         
+        
         'message' :function() {
             if (K5.outputs.pdf.isLimitDefined()) {
                 return "Maximalni pocet stranek :"+K5.outputs.pdf.limit(); 
             } else return null;
         },
-        
+
         'enabled': function() {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
-                    if (!_isAudio()) {
+                    if ((!_isAudio()) && (!_isPDF())) {
+
                         var children = K5.api.ctx.item[selected]["children"];
                         if (children) {
                             var pages = _.reduce(children, function(memo, value, index) {

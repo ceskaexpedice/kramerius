@@ -69,9 +69,15 @@ public class Search {
             apipoint = KConfiguration.getInstance().getConfiguration().getString("api.point");
             fieldsConfig = IndexConfig.getInstance();
             
-            facets = "&facet.mincount=1&facet.field=" + 
-                    fieldsConfig.getMappedField("model_path") + 
-                    "&facet.field=keywords&facet.field=collection&facet.field=dostupnost";
+            facets = "&facet.mincount=1";
+            JSONArray fs = fieldsConfig.getJSON().getJSONArray("facets");
+            for(int i = 0; i<fs.length(); i++){
+                facets += "&facet.field=" + fs.getString(i);
+            }
+                    
+//            facets = "&facet.mincount=1&facet.field=" + 
+//                    fieldsConfig.getMappedField("model_path") + 
+//                    "&facet.field=keywords&facet.field=collection&facet.field=dostupnost";
             
 
         } catch (IOException e) {
@@ -112,7 +118,7 @@ public class Search {
     }
 
     public JSONObject getResults() {
-        if (isFilterByType()) {
+        if (isFilterByType() || !KConfiguration.getInstance().getConfiguration().getBoolean("search.query.collapsed", true)) {
             return getUngrouped();
         } else {
             return getGrouped();
@@ -260,6 +266,7 @@ public class Search {
         usedFilter(map, "author", fieldsConfig.getMappedField("autor"));
         usedFilter(map, "udc", "mdt");
         usedFilter(map, "ddc", "ddt");
+        usedFilter(map, "typ_titulu");
         usedFilter(map, "rok");
         usedFilter(map, "keywords");
         usedFilter(map, fieldsConfig.getMappedField("fedora_model"));

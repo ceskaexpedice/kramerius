@@ -87,7 +87,7 @@ Results.prototype = {
         }
     },
     getDocs: function() {
-        $('.loading').show();
+        $('.opacityloading').show();
         $.get("raw_results.vm?" + $("#search_form").serialize(), _.bind(function(data) {
             //console.log(data);
             $('#search_results_docs .more_docs').remove();
@@ -98,7 +98,7 @@ Results.prototype = {
                 this.srResize();
                 K5.eventsHandler.trigger("results/loaded", json);
             }
-            $('.loading').hide();
+            $('.opacityloading').hide();
             this.resultsLoaded = true;
         }, this));
     },

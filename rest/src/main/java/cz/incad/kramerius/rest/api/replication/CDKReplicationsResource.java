@@ -6,8 +6,12 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.w3c.dom.Document;
@@ -36,6 +41,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
@@ -46,6 +52,8 @@ import cz.incad.kramerius.service.ReplicationService;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.replication.FormatType;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.virtualcollections.VirtualCollection;
+import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
 
 /**
  * CDK replication resource
@@ -85,6 +93,43 @@ public class CDKReplicationsResource {
 
     @Inject
     Provider<User> userProvider;
+
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getVirtualCollections() throws IOException {
+        if (checkPermission()) {
+            try {
+                List<VirtualCollection> vcs = VirtualCollectionsManager
+                        .getVirtualCollections(fedoraAccess,
+                                new ArrayList<String>());
+                JSONArray jsonArr = new JSONArray();
+                for (VirtualCollection vc : vcs) {
+                    jsonArr.add(virtualCollectionTOJSON(vc));
+                }
+                return Response.ok().entity(jsonArr.toString()).build();
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new GenericApplicationException(e.getMessage());
+            }
+        } else
+            throw new ActionNotAllowed("action is not allowed");
+    }
+
+
+    public static JSONObject virtualCollectionTOJSON(VirtualCollection vc) {
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("pid", vc.getPid());
+        jsonObj.put("label", vc.getLabel());
+        jsonObj.put("canLeave", vc.isCanLeave());
+        JSONObject jsonMap = new JSONObject();
+        Map<String, String> descMAp = vc.getDescriptionsMap();
+        for (String k : descMAp.keySet()) {
+            jsonMap.put(k, descMAp.get(k));
+        }
+        jsonObj.put("descs", jsonMap);
+        return jsonObj;
+    }
 
     @GET
     @Path("prepare")

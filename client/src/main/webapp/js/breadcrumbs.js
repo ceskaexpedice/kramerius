@@ -15,7 +15,7 @@ K5.eventsHandler.addHandler(function(type, data) {
         if ((splitted[0] === "api") && (splitted[1] === "item")) {
             var pid = splitted[2];
             delayedEvent.pid=pid;    
-            if (K5.initialized) {
+            if (K5.initialized && K5.i18n.ctx.dictionary) {
                 K5.gui["breadcrumbs"].refresh(pid);
                 delayedEvent.enabled = false;
             } else {
@@ -23,9 +23,18 @@ K5.eventsHandler.addHandler(function(type, data) {
             }
         }
     }
-    if (type === "application/init/end") {
-        if ((delayedEvent.enabled)  && (K5.api.ctx["item"] && K5.api.ctx["item"][delayedEvent.pid])) {
+    if (type === "i18n/dictionary ") {
+        if (K5.initialized) {
+            if ((delayedEvent.enabled)  && (K5.api.ctx["item"] && K5.api.ctx["item"][delayedEvent.pid])) {
                 K5.gui["breadcrumbs"].refresh(delayedEvent.pid);
+            }
+        }
+    }
+    if (type === "application/init/end") {
+        if (K5.i18n.ctx.dictionary) {
+            if ((delayedEvent.enabled)  && (K5.api.ctx["item"] && K5.api.ctx["item"][delayedEvent.pid])) {
+                K5.gui["breadcrumbs"].refresh(delayedEvent.pid);
+            }
         }
     }
     
@@ -57,22 +66,27 @@ BreadCrumbs.prototype = {
             if(i > 0){
                 this.elem.append('<div class="sep"> :: </div>');
             }
-            var span = $('<div/>', {class: "link"});
             var cpid = item_ctx[i].pid;
+            var span = $('<div/>', {class: "link", id: "bc_"+cpid});
             span.data("pid", cpid);
-            
-            if(K5.api.ctx["item"][cpid]){
-                
-                var info = {short: "", full: ""};
-                K5.proccessDetails(K5.api.ctx["item"][cpid], info);
-                span.append(info.min);
-            }
             
             span.click(function(){
                 var cpid = $(this).data("pid");
                 K5.api.gotoItemPage(cpid, $("#q").val());
             });
             this.elem.append(span);
+            
+            if(K5.api.ctx["item"][cpid]){
+                var info = {short: "", full: ""};
+                K5.proccessDetails(K5.api.ctx["item"][cpid], info);
+                $(jq("bc_"+cpid)).append(info.min);
+            }else{
+		var info = {short: "", full: ""};
+                K5.api.askForItemContextData(cpid, _.partial(function(p, data){
+		  K5.proccessDetails(data, info);
+		  $(jq("bc_"+p)).append(info.min);
+		}, cpid));
+            }
         }
     },
     resized: function(){

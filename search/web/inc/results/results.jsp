@@ -11,8 +11,8 @@
         padding-bottom:1px;
     }
     #docs_content>div.header{
-        height:20px;
-        border-bottom:1px solid #E66C00; 
+       height:17px;
+        border-bottom:1px solid rgba(0, 30, 60, 0.9); 
         margin-bottom:2px;
     }
     #docs_content>div.content{
@@ -158,7 +158,9 @@
         $("#dali").remove();
     }else{
         resizeAll();
-        
+        $("#dadiv").bind("yearChanged", function(event, params){
+            daYearClicked(params);
+        });
     }
     translateCollections();
     getExtInfo();
@@ -170,6 +172,7 @@
             var id = $('#docs_content .more_docs').attr('id');
             if(isScrolledIntoView($('#'+id), $('#docs_content>div.content'))){
                 getMoreDocs(id);
+                
             }
         }
     });
@@ -473,6 +476,7 @@
             });
 </scrd:loggedusers>
             setColumnsWidth();
+            getCollapsedPolicy();
         });
     }
     

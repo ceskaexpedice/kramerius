@@ -49,10 +49,10 @@
 
 
 <form id="login_form" name="login_form">
-    <label>Prihlasovaci jmeno:</label>
-    <input id="username" name="username" placeholder="Tve jmeno" value="" />
-    <label>Prihlasovaci heslo:</label>
-    <input id="password" name="password" placeholder="Tve heslo" value="" type="password" />
+    <label>#translatable('login.username'):</label>
+    <input id="username" name="username" placeholder="#i18nval('login.username.placeholder')" value="" />
+    <label>#translatable('login.password'):</label>
+    <input id="password" name="password" placeholder="#i18nval('login.password.placeholder')" value="" type="password" />
 </form>
 
 <span>

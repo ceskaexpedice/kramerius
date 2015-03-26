@@ -54,7 +54,7 @@
     }
     #processes_list>div.separator{
         width:100%;
-        border-top: 2px solid #E66C00;
+        border-top: 2px solid rgba(0, 30, 60, 0.9);
         margin-top: 3px;
     }
     #processes td{
@@ -65,7 +65,7 @@
         display: none;
     }
     #processes tr.subprocess>td.t1{
-        border-left:solid 1px #E66C00;
+        border-left:solid 1px rgba(0, 30, 60, 0.9);
     }
     #processes tr.subprocess>td.t2{
         padding-left:10px;
@@ -617,7 +617,7 @@ $(document).ready(function(){
 
                 </tr>
             </c:forEach>
-                <tr class="${lrProc.UUID} subprocess"><td colspan="11" style="border-top:solid 1px #E66C00;"></td></tr>
+                <tr class="${lrProc.UUID} subprocess"><td colspan="11" style="border-top:solid 1px rgba(0, 30, 60, 0.9);"></td></tr>
             </c:if>
         </c:forEach>
     </tbody>

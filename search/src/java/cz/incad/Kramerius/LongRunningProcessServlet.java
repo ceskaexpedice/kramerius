@@ -1,5 +1,32 @@
 package cz.incad.Kramerius;
 
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.intconfig.InternalConfiguration;
+import cz.incad.kramerius.processes.*;
+import cz.incad.kramerius.processes.template.InputTemplateFactory;
+import cz.incad.kramerius.processes.template.OutputTemplateFactory;
+import cz.incad.kramerius.processes.template.ProcessInputTemplate;
+import cz.incad.kramerius.processes.template.ProcessOutputTemplate;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
+import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.security.utils.UserUtils;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
+import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+import cz.incad.kramerius.utils.params.ParamsLexer;
+import cz.incad.kramerius.utils.params.ParamsParser;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -8,56 +35,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import antlr.RecognitionException;
-import antlr.TokenStreamException;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
-
-import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.intconfig.InternalConfiguration;
-import cz.incad.kramerius.processes.BatchStates;
-import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.GCScheduler;
-import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessDefinition;
-import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.ProcessScheduler;
-import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.template.InputTemplateFactory;
-import cz.incad.kramerius.processes.template.OutputTemplateFactory;
-import cz.incad.kramerius.processes.template.ProcessInputTemplate;
-import cz.incad.kramerius.processes.template.ProcessOutputTemplate;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
-import cz.incad.kramerius.security.utils.UserUtils;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
-import cz.incad.kramerius.utils.ApplicationURL;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
-import cz.incad.kramerius.utils.params.ParamsLexer;
-import cz.incad.kramerius.utils.params.ParamsParser;
 
 /**
  * This is support for long running processes
@@ -144,7 +124,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
     }
 
     public String getWebAppClasspath() {
-        String appLibPath = getServletContext().getRealPath("WEB-INF/lib");
+        String appLibPath = getServletContext().getRealPath("/WEB-INF/lib");
         return appLibPath;
     }
 

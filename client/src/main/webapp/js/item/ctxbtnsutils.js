@@ -1,14 +1,27 @@
-function _ctxbuttonsrefresh() {
+function _ctxbuttonsrefresh(viewer) {
     $("#contextbuttons").html("");
     $("#item_menu>div")
             .each(
                     function() {
                         if ($(this).data("ctx")) {
                             var a = $(this).data("ctx").split(";");
+                            if (viewer) {
+                                if (jQuery.inArray(viewer, a) > -1) {
+                                    $("#contextbuttons").append($(this).clone());
+                                }
+                            }
+
                             // all context
                             if (jQuery.inArray('all', a) > -1) {
                                 $("#contextbuttons").append($(this).clone());
                             }
+
+
+                            // all context
+                            if (jQuery.inArray('share', a) > -1) {
+                                $("#contextbuttons").append($(this).clone());
+                            }
+
                             // only selected
                             if (jQuery.inArray('selected', a) > -1) {
                                 if (K5.gui.clipboard.isCurrentSelected()) {
@@ -24,7 +37,7 @@ function _ctxbuttonsrefresh() {
                                             .append($(this).clone());
                                 }
                             }
-
+                            
                             // only clipboard
                             if (jQuery.inArray('clipboardnotempty', a) > -1) {
                                 if (K5.gui.clipboard.getSelected().length > 0) {
@@ -34,7 +47,7 @@ function _ctxbuttonsrefresh() {
                             }
 
                             // add to favorites
-                            if (jQuery.inArray('favorite', a) > -1) {
+                            if (jQuery.inArray('favorite', a) > -1 ) {
                                 var addf = false;
                                 if (K5.authentication.profileDisplay != null) {
                                     addf = !K5.authentication.profileDisplay.isCurrentPidInFavorites();
@@ -122,6 +135,5 @@ function _ctxbuttonsrefresh() {
                                 }
                             }
                         }
-                        
                     });
 }

@@ -108,4 +108,63 @@ public class CallUserControllerImpl extends CallUserController {
             }
         }
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((aUser == null) ? 0 : aUser.hashCode());
+        result = prime * result + ((cUser == null) ? 0 : cUser.hashCode());
+        result = prime
+                * result
+                + ((jsonRepresention == null) ? 0 : jsonRepresention.hashCode());
+        result = prime * result
+                + ((pDelegator == null) ? 0 : pDelegator.hashCode());
+        result = prime
+                * result
+                + ((profileJSONReprestation == null) ? 0
+                        : profileJSONReprestation.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CallUserControllerImpl other = (CallUserControllerImpl) obj;
+        if (aUser == null) {
+            if (other.aUser != null)
+                return false;
+        } else if (!aUser.equals(other.aUser))
+            return false;
+        if (cUser == null) {
+            if (other.cUser != null)
+                return false;
+        } else if (!cUser.equals(other.cUser))
+            return false;
+        if (jsonRepresention == null) {
+            if (other.jsonRepresention != null)
+                return false;
+        } else if (!jsonRepresention.equals(other.jsonRepresention))
+            return false;
+        if (pDelegator == null) {
+            if (other.pDelegator != null)
+                return false;
+        } else if (!pDelegator.equals(other.pDelegator))
+            return false;
+        if (profileJSONReprestation == null) {
+            if (other.profileJSONReprestation != null)
+                return false;
+        } else if (!profileJSONReprestation
+                .equals(other.profileJSONReprestation))
+            return false;
+        return true;
+    }
+
+    
+    
 }

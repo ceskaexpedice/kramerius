@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -228,18 +229,29 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 
     public abstract boolean turnOnIterateScaling();
 
-    public void copyFromImageServer(String urlString, HttpServletResponse resp)
+    public void copyFromImageServer(String urlString, HttpServletRequest req, HttpServletResponse resp)
             throws MalformedURLException, IOException {
         InputStream inputStream = null;
         try {
-            URLConnection con = RESTHelper.openConnection(urlString, "", "");
+            HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(urlString, "", "");
+            
             inputStream = con.getInputStream();
             String contentType = con.getContentType();
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             copyStreams(inputStream, bos);
             copyStreams(new ByteArrayInputStream(bos.toByteArray()),
                     resp.getOutputStream());
+
             resp.setContentType(contentType);
+            String headerFiled = con.getHeaderField("Cache-Control");
+            String lamodif = con.getHeaderField("Last-Modified");
+            
+            resp.setHeader("Cache-Control", headerFiled);
+            resp.setHeader("Last-Modified", lamodif);
+            
+            resp.setHeader("Access-Control-Allow-Origin", "*");
+            
+            
         } finally {
             IOUtils.tryClose(inputStream);
         }

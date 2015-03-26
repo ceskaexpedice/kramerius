@@ -1,11 +1,16 @@
 /**
- * Manipulating with Remote API v5.0
- * 
- * K5 client api stub
- * 
+ * @description
+ * Manipulating with Remote API v5.0. Accessed via singleton <code>K5</code>
+ * <pre><code>
+ *  K5.api.askForCool(function(data) {
+ *      alert("cool : "+data);
+ *  });
+ *  K5.api.askForLatest(function(data) {
+ *      alert("cool : "+data);
+ *  });
+ * </code></pre>
  * @constructor
- * @param {Application}
- *            application - The application instance {@link Application}.
+ * @param {Application} application - The application instance.
  */
 function ClientAPIDev(application) {
     this.application = application;
@@ -14,8 +19,10 @@ function ClientAPIDev(application) {
 ClientAPIDev.prototype = {
 
     /**
-     * Contains context informations
-     * 
+     * @description
+     * Contains information received from API (items, children, siblings, etc...)
+     * @example <caption>var array = K5.api.ctx.item;</caption> 
+     * @example <caption>var current = K5.api.ctx.item[K5.api.ctx.item.selected];</caption> 
      * @member
      */
     ctx : {},
@@ -29,6 +36,10 @@ ClientAPIDev.prototype = {
         return lookUpKey(keys, this.ctx);
     },
 
+    /**
+     * Request for cool data
+     * @param {requestCallback} whenready  - Callback handling responses.
+     */
     askForCool : function(whenready) {
         $.getJSON("api/feed/custom", _.bind(function(data) {
             if (!this.isKeyReady("feed")) {
@@ -43,7 +54,7 @@ ClientAPIDev.prototype = {
 
     /**
      * Requests for latest
-     * 
+     * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
     askForLatest : function(whenready) {
@@ -60,7 +71,7 @@ ClientAPIDev.prototype = {
 
     /**
      * Request for mostdesirable
-     * 
+     * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
     askForPopular : function(whenready) {
@@ -78,7 +89,7 @@ ClientAPIDev.prototype = {
 
     /**
      * Request for virtual collections
-     * 
+     * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
     askForCollections : function(whenready) {
@@ -99,13 +110,12 @@ ClientAPIDev.prototype = {
     },
 
     /**
-     * Search request
-     * 
+     * Solr search request
+     * @param {string} query - Query.
+     * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
     askForSolr : function(query, whenready) {
-        // "?fl=dc.creator,dc.title,PID,dostupnost&fq=" + URLEncoder.encode(fq,
-        // "UTF-8") + "&q=rok:" + year + "&start=" + offset + "&rows=" + rows;
         $.getJSON("api/search?" + query, _.bind(function(data) {
             this.ctx["solr"] = {};
             this.ctx["solr"][query] = data;
@@ -116,13 +126,12 @@ ClientAPIDev.prototype = {
     },
 
     /**
-     * Search terms request
-     * 
+     * Solr search terms request
+     * @param {string} query - Query.
+     * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
     askForTerms : function(query, whenready) {
-        // "?fl=dc.creator,dc.title,PID,dostupnost&fq=" + URLEncoder.encode(fq,
-        // "UTF-8") + "&q=rok:" + year + "&start=" + offset + "&rows=" + rows;
         $.getJSON("api/search/terms?" + query, _.bind(function(data) {
             this.ctx["solr"] = {};
             this.ctx["solr"][query] = data;
@@ -133,8 +142,9 @@ ClientAPIDev.prototype = {
     },
 
     /**
-     * Requests for item
-     * 
+     * Requests for basic item information
+     * @param {string} pid - Pid of object.
+     * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
     askForItem : function(pid, whenready) {
@@ -163,7 +173,8 @@ ClientAPIDev.prototype = {
 
     /**
      * Requests for item streams
-     * 
+     * @param {string} pid - Pid of object.
+     * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
     askForItemStreams : function(pid, whenready) {
@@ -186,6 +197,13 @@ ClientAPIDev.prototype = {
         }, this));
     },
 
+    /**
+     * Requesting data from concrete stream
+     * @param {string} pid - Pid of object.
+     * @param {string} pid - Name of the stream.
+     * @param {requestCallback} whenready  - Callback handling responses.
+     * @method
+     */
     askForItemConcreteStream : function(pid, stream, whenready) {
         $.get("api/item/" + pid + "/streams/" + stream, _.bind(function(
                 data) {
@@ -212,8 +230,9 @@ ClientAPIDev.prototype = {
     },
 
     /**
-     * Requests for item
-     * 
+     * Requesting information about context
+     * @param {string} pid - Pid of object.
+     * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
     askForItemContextData : function(pid, whenready) {
@@ -232,8 +251,9 @@ ClientAPIDev.prototype = {
     },
 
     /**
-     * Requests for siblings
-     * 
+     * Requesting siblings
+     * @param {string} pid - Pid of object.
+     * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
     askForItemSiblings : function(pid, whenready) {
@@ -253,8 +273,9 @@ ClientAPIDev.prototype = {
     },
 
     /**
-     * Requests for children
-     * 
+     * Requesting children from concrete pid
+     * @param {string} pid - Pid of object.
+     * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
     askForItemChildren : function(pid, whenready) {
@@ -296,6 +317,23 @@ ClientAPIDev.prototype = {
         });
     },
 
+    /**
+     * Sending feedback
+     * @param {string} mess - Message.
+     * @param {string} pid - Pid.
+     * @param {string} pid - From - user identification.
+     * @param {requestCallback} okFunc  - Message has been sent callback.
+     * @param {requestCallback} failFunc  - Something wrong callback.
+     * @method
+     */
+    feedback:function(message, pid, from, okFunc, failFunc) {
+        $.post("feedback", {
+            "from" : from,
+            "pid" : pid,
+            "content" : message
+        }, okFunc);
+    },
+    
     /** Requests for save content into cache */
     saveToCache : function(filename, content, whenready) {
         $.post("cache", {
@@ -327,12 +365,12 @@ ClientAPIDev.prototype = {
     },
     // ??
     translate : function(obj) {
-        // alert($(obj).find('.translate').length);
         $(obj).find('.translate').each(function() {
             var key = $(this).data("key");
             $(this).text(dictionary[key]);
         });
     },
+
     // ??
     translatable : function(key) {
         return '<span class="translate" data-key="' + key + '">'
@@ -345,7 +383,14 @@ ClientAPIDev.prototype = {
     },
 
     /**
-     * Search given pid and find first component to display ommit every
+     * Searching first item to display. 
+     * <p>
+     * The algorithm finds first item wich doesn't contain only one child
+     * </p>
+     * @param {string} pid - Pid.
+     * @param {string} pid - From - user identification.
+     * @param {requestCallback} okFunc  - Message has been sent callback.
+     * @param {requestCallback} failFunc  - Something wrong callback.
      */
     searchItemAndExploreChildren : function(pid, whenready) {
         $.getJSON("api/item/" + pid + "/children", _.bind(function(data) {
@@ -365,6 +410,10 @@ ClientAPIDev.prototype = {
         }, this));
     },
 
+    /**
+     * Search first pid to display and navigate browser to  this item.
+     * @method
+     */
     gotoDisplayingItemPage : function(pid, q) {
         this.searchItemAndExploreChildren(pid, _.bind(function(data) {
             this.gotoItemPage(data, q);
@@ -372,8 +421,7 @@ ClientAPIDev.prototype = {
     },
 
     /**
-     * Go to item page
-     * 
+     * Navigate browser to concrete item 
      * @method
      */
     gotoItemPage : function(pid, q) {

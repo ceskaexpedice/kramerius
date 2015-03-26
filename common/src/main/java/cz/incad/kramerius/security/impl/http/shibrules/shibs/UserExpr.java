@@ -42,12 +42,14 @@ public class UserExpr implements Expr {
 
 
     @Override
-    public void evaluate(ShibContext ctx) {
-        User user = ctx.getUser();
+    public void evaluate(ShibbolethContext ctx) {
+        //User user = ctx.getUser();
         if (userField.equals(FIRSTNAME)) {
-            ((UserImpl) user).setFirstName(this.value.getValue(ctx.getHttpServletRequest()));
+            String firstName = this.value.getValue(ctx.getHttpServletRequest());
+            ctx.associateFirstName(firstName);
         } else if (userField.equals(SURNAME)) {
-            ((UserImpl) user).setSurname(this.value.getValue(ctx.getHttpServletRequest()));
+            String sName = this.value.getValue(ctx.getHttpServletRequest());
+            ctx.associateLastName(sName);
         } else throw new IllegalStateException("illegal key '"+userField);
     }
 }

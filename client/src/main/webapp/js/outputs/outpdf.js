@@ -45,12 +45,15 @@ PDFSupport.prototype= {
             
             if (this.ctx.configuration.pdf["limit"] && this.ctx.configuration.pdf["limit"] >=-1) {
                 var number = Math.min(this.ctx.configuration.pdf.limit-1,pages.length);
+                $(".opacityloading").show();
                 $.getJSON("pdfforward/asyncpdf/parent?pid="+ pid+"&number="+number, _.bind(function(data) {
+                    $(".opacityloading").hide();
                     var handle = data["handle"];
-                    //http://localhost:8080/search/api/v5.0/asyncpdf/handle?uuid=389d66b8-22bb-4ade-8e92-78b8dd1de157
                     window.open("pdfforward/asyncpdf/handle?handle="+ handle,"_blank");
                     $("body").css("cursor", "default");
                 }, this)).error(function(jqXHR, textStatus, errorThrown) {
+                    $(".opacityloading").hide();
+
                     if (jqXHR.status === 400) {
                         
                         function _message(cont) {
@@ -88,11 +91,13 @@ PDFSupport.prototype= {
                     $("body").css("cursor", "default");
                 });
             } else {
-                $.getJSON("pdfforward/asyncpdf/parent?pid="+ pid+"&number="+number, _.bind(function(data) {
+                $.getJSON("pdfforward/asyncpdf/parent?pid="+ pid+"&number="+pages.length, _.bind(function(data) {
                     var handle = data["handle"];
                     window.open("pdfforward/asyncpdf/handle?handle="+ handle,"_blank");
                     $("body").css("cursor", "default");
+                    $(".opacityloading").hide();
                 }, this)).error(function(jqXHR, textStatus, errorThrown) {
+                    $(".opacityloading").hide();
                     if (jqXHR.status === 400) {
                         function _message(cont) {
                             function _waitheader() {
@@ -169,7 +174,7 @@ PDFSupport.prototype= {
             }, []);
 
             if (this.ctx.configuration.pdf["limit"] && this.ctx.configuration.pdf["limit"] >=-1) {
-                var number = Math.min(this.ctx.configuration.pdf.limit-1,pages.length);
+                var number = Math.min(this.ctx.configuration.pdf.limit,pages.length);
                 // safra.. jak na to ??
                 window.open("pdfforward/pdf/parent?pid="+ pid+"&number="+number,"_blank");
             } else {

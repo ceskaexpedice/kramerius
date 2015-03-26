@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageTypeSpecifier;
@@ -119,16 +121,14 @@ public class PrintPDFServlet extends GuiceServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+        List<File> filesToDelete = new ArrayList<File>();
         try {
-
             resp.setContentType(ImageMimeType.PDF.getValue());
-            
             String pid = req.getParameter("pid");
             String pids = req.getParameter("pids");
             String pageSize = req.getParameter("pagesize");
             String imgop = req.getParameter("imgop");
 
-            
             Document document = new Document(Page.valueOf(pageSize).getRect());
             ServletOutputStream sos = resp.getOutputStream();
             PdfWriter.getInstance(document, sos);
@@ -137,12 +137,12 @@ public class PrintPDFServlet extends GuiceServlet {
             if (StringUtils.isAnyString(pid)) {
                 if (canBeRead(pid)) {
                     
-                    File nfile = File.createTempFile("local", "print");
-                    nfile.deleteOnExit();
-                    FileOutputStream fos = new FileOutputStream(nfile);
+                    File renderedFile = File.createTempFile("local", "print");
+                    filesToDelete.add(renderedFile);
+                    FileOutputStream fos = new FileOutputStream(renderedFile);
                     ImageOP.valueOf(imgop).imageData(this.fedoraAccess, pid, req, fos);
                     
-                    Image image = Image.getInstance(nfile.toURI().toURL());
+                    Image image = Image.getInstance(renderedFile.toURI().toURL());
 
                     image.scaleToFit(
                             document.getPageSize().getWidth() - document.leftMargin()
@@ -163,7 +163,8 @@ public class PrintPDFServlet extends GuiceServlet {
                 if (canBeRendered) {
                     for (int i = 0; i < pds.length; i++) {
                         File nfile = File.createTempFile("local", "print");
-                        nfile.deleteOnExit();
+                        filesToDelete.add(nfile);
+                        
                         FileOutputStream fos = new FileOutputStream(nfile);
                         
                         ImageOP.valueOf(imgop).imageData(this.fedoraAccess, pds[i], req, fos);
@@ -189,6 +190,12 @@ public class PrintPDFServlet extends GuiceServlet {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (DocumentException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } finally {
+            for (File file : filesToDelete) {
+                if (file != null) {
+                    file.delete();
+                }
+            }
         }
     }
 

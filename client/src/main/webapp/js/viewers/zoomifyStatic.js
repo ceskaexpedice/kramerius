@@ -29,7 +29,8 @@ function ZoomifyStaticImage(appl, selector) {
         this.alto = new Alto();
 
         this.disposed = false;
-
+        
+        
         this.application.eventsHandler.addHandler(_.bind(function(type, configuration) {
                 if (type =="window/resized") {
                         if (this.projection && this.map && this.view2D) {
@@ -46,6 +47,7 @@ function ZoomifyStaticImage(appl, selector) {
                         }
                 }
         },this));
+
 }
 
 ZoomifyStaticImage.prototype.makeStaticURL=function(pid) {
@@ -61,7 +63,7 @@ ZoomifyStaticImage.prototype.makeStaticURL=function(pid) {
 } 
 
 ZoomifyStaticImage.prototype.prefetchNextAndPrev = function () {
-	if (K5.api.isKeyReady("item/selected") && (K5.api.isKeyReady("item/"+K5.api.ctx.item.selected+"/siblings"))) {
+    if (K5.api.isKeyReady("item/selected") && (K5.api.isKeyReady("item/"+K5.api.ctx.item.selected+"/siblings"))) {
             var arr = K5.api.ctx.item[K5.api.ctx.item.selected].siblings[0]['siblings'];
             var index = _.reduce(arr, function(memo, value, index) {
                 return (value.selected) ? index : memo;
@@ -105,24 +107,6 @@ ZoomifyStaticImage.prototype.open = function() {
 
         var optionsDiv = _optionspane();
         this.elem.append(optionsDiv);    
-
-        /*
-        if(isTouchDevice()){
-        this.elem.swipe({
-                swipeLeft: function(event, direction, distance, duration, fingerCount) {
-                        K5.gui.selected.next();
-                },
-                swipeRight: function(event, direction, distance, duration, fingerCount) {
-                        K5.gui.selected.prev();
-                },
-                maxTimeThreshold:200,
-                threshold:5,
-                triggerOnTouchEnd:true
-        });
-        
-            }
-        */
-
 
 
         var mapDiv = $("<div/>",{"id":"map"});
@@ -175,20 +159,30 @@ ZoomifyStaticImage.prototype.open = function() {
                 });
         
 
+                this.map.on('moveend',function() {
+                    var curpage = K5.gui.selected.currentPage();
+                    if (curpage[2] < 0) {
+                        K5.gui.selected.next();
+                    }
+                    
+                    var wdth = $("#map").width();
+                    if (curpage[0] > wdth) {
+                        K5.gui.selected.prev();
+                    } 
+                });
+
                 this.map.on('postrender', _.bind(function(evt) {
-                        if (!this.disposed) {
-                                console.log("post compose");
-                                if (!this.alto.altoInitialized) {
-                                        this.alto.init(this);
-                                }
-                                this.alto.markers(this);                       
+                    if (!this.disposed) {
+                        if (!this.alto.altoInitialized) {
+                            this.alto.init(this);
                         }
+                        this.alto.markers(this);                       
+                    }
                 },this));
 
-                
                 var lockedZoom = _checkZoomIsLocked(this.map);
                 if (lockedZoom) {
-                    _optionspaneLocked();
+                    _optionspaneLocked("buttons.zoomunlock");
                 } else {
                     var ext = this.projection.getExtent();
                     var size = this.map.getSize();
@@ -209,6 +203,9 @@ ZoomifyStaticImage.prototype.open = function() {
     
 
 }
+
+
+
 
 /**
  * Lock zoom 
@@ -255,6 +252,8 @@ ZoomifyStaticImage.prototype.rotateRight = function() {
 }
 
 
+
+
 /**
  * Make current image to fit to the current space  
  * @method
@@ -262,11 +261,7 @@ ZoomifyStaticImage.prototype.rotateRight = function() {
 ZoomifyStaticImage.prototype.fit = function() {
     var ext = this.projection.getExtent();
     var size = this.map.getSize();
-
-    var nresolution = ext[3]/(size[1]-20);
-    this.view2D.setResolution(nresolution);
-    
-    this.view2D.setCenter([ext[2]/2, ext[3]/2]);
+    this.view2D.fitExtent(ext,size);
 }
 
 ZoomifyStaticImage.prototype.translateCurrent=function(x1,y1,width,height) {
@@ -314,10 +309,7 @@ ZoomifyStaticImage.prototype.currentPage = function() {
         var x2real = x1real+currentSize[0];   
         var y2real = y1real+currentSize[1];   
 
-
-
         return [x1real, y1real, x2real, y2real];
-
 }
 
 ZoomifyStaticImage.prototype.crop = function(rect, offset){
@@ -341,7 +333,6 @@ ZoomifyStaticImage.prototype.crop = function(rect, offset){
         
         var currentSize = curentSize(this.projection.getExtent(), resolution);
         var mapCenter = [$("#map").width()/2, $("#map").height()/2];
-        console.log("map center "+mapCenter);
 
         var x1ideal = mapCenter[0]- (currentSize[0]/2);   
         var y1ideal = mapCenter[1]- (currentSize[1]/2);   
@@ -465,6 +456,8 @@ ZoomifyStaticImage.prototype.forbiddenCheck = function(okFunc, failFunc) {
                 okFunc.apply(null, []);
         });
 }
+
+
 
 
 

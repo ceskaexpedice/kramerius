@@ -79,6 +79,7 @@ ShareItem.prototype.init = function() {
 }
 
 ShareItem.prototype.open = function() {
+    cleanWindow();
     divopen("#share");
 
     var vacts = K5.gui.shareoptions.ctx.actions;
@@ -87,7 +88,8 @@ ShareItem.prototype.open = function() {
     var options = _.map(vacts, function(a) {
         if (a.object.enabled()) {
             var liHtml =$('<li/>');
-            var div  =$('<div/>',{"class":"bigger"});
+            var div  =$('<div/>',{"class":"sharesicon"});
+            div.attr("title",K5.i18n.translate(a.i18nkey));
             div.click(function() {
                 K5.gui.selected.shares.doShare(a.name);
             });

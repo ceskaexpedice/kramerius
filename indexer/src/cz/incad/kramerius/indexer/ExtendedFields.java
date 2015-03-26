@@ -1,8 +1,12 @@
 package cz.incad.kramerius.indexer;
 
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
+import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -19,6 +23,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -221,8 +226,6 @@ public class ExtendedFields {
         sb.append("<field name=\"datum_str\">").append(datum_str).append("</field>");
         if (datum != null) {
             sb.append("<field name=\"datum\">").append(solrDateFormat.format(datum)).append("</field>");
-        } else {
-            sb.append("<field name=\"datum\">").append(solrDateFormat.format(new Date(0))).append("</field>");
         }
         if (!rok.equals("")) {
             sb.append("<field name=\"rok\">").append(rok).append("</field>");
@@ -298,7 +301,7 @@ public class ExtendedFields {
     }
 
     private void parseDatum(String datumStr) {
-            DateFormat outformatter = new SimpleDateFormat("yyyy");
+        DateFormat outformatter = new SimpleDateFormat("yyyy");
         try {
             Date dateValue = df.parse(datumStr);
             rok = outformatter.format(dateValue);
@@ -329,6 +332,17 @@ public class ExtendedFields {
                 String end = datumStr.split("-")[1].trim();
                 datum_begin = begin;
                 datum_end = end;
+            }else{
+                try {
+                    DatesParser p = new DatesParser(new DateLexer(new StringReader(datumStr)));
+                    Date parsed = p.dates();
+                    rok = outformatter.format(parsed);
+                    datum = parsed;
+                } catch (RecognitionException ex) {
+                    logger.log(Level.FINE, "Cant parse date "+datumStr);
+                } catch (TokenStreamException ex) {
+                    logger.log(Level.FINE, "Cant parse date "+datumStr);
+                }
             }
         }
     }

@@ -41,12 +41,17 @@ public class RoleExpr implements Expr {
 
 
     @Override
-    public void evaluate(ShibContext ctx) {
-        Role grole = ctx.getUserManager().findRoleByName(this.value.getValue(ctx.getHttpServletRequest()));
-        User user = ctx.getUser();
-        Role[] groups = user.getGroups() == null ? new Role[0]:user.getGroups();
-        List<Role> grpList = new ArrayList<Role>(Arrays.asList(groups));
-        grpList.add(grole);
-        ((UserImpl)user).setGroups(grpList.toArray(new Role[grpList.size()]));
+    public void evaluate(ShibbolethContext ctx) {
+        String rname = this.value.getValue(ctx.getHttpServletRequest());
+        if (!ctx.isRoleAssociated(rname)) {
+            ctx.associateRole(rname);
+        }
+        
+//        Role grole = ctx.getUserManager().findRoleByName(this.value.getValue(ctx.getHttpServletRequest()));
+//        User user = ctx.getUser();
+//        Role[] groups = user.getGroups() == null ? new Role[0]:user.getGroups();
+//        List<Role> grpList = new ArrayList<Role>(Arrays.asList(groups));
+//        grpList.add(grole);
+//        ((UserImpl)user).setGroups(grpList.toArray(new Role[grpList.size()]));
     }
 }

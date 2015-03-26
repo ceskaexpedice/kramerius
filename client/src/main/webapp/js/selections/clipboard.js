@@ -3,6 +3,7 @@
  *
  * @constructor
  * @param {Application} application - The application instance  {@link Application}.
+ * @deprecated Removed 
  */
 function Clipboard(application) {
         this.application = application;

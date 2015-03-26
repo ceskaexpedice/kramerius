@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns="http://www.w3.org/2000/svg"
+    version="1.1"
+    xml:space="preserve"
+    width="100"
+    height="100"
+    viewBox="0 0 100 100"
+    class="share"
+>
+
+    <circle cx="50" cy="50" r="38" class="svg-icon"  />
+    <path
+   d="m 20.370371,40.929293 22.73924,0.261072  7.180852,-21.577223 6.778517,21.706977 22.740164, 0.161667 -18.549885,13.154578 6.873343,21.677139 -18.242977,-13.577 -18.492205,13.235541 7.275105,-21.545626 z"
+
+   class="svg-icon" />
+
+
+</svg>

@@ -237,7 +237,8 @@ body * {
 }
 .thumb img{
     box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px 0px;
-    height: 100%;
+    /*height: 100%;*/
+    position: relative;
 }
 .thumb>img:hover{
     box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 15px 0px;
@@ -461,13 +462,13 @@ li.public:before{
 
 
 #facets{
-    left:initial;
+    left:inherit;
     right: -460px; 
     top:35px;
     height: 500px;
     overflow: auto;
     font-size: 1.2em;
-    width: initial;
+    width: auto;
 }
 
 #facets.pin .pin{
@@ -526,7 +527,7 @@ li.public:before{
         height:0; 
         border-left: 10px solid transparent; 
         border-right: 10px solid transparent; 
-        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        border-bottom: 10px solid $params.activeColor;
         background-color: transparent;
         color: transparent;
         position: absolute;
@@ -678,7 +679,7 @@ li.public:before{
         height:0; 
         border-left: 10px solid transparent; 
         border-right: 10px solid transparent; 
-        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        border-bottom: 10px solid $params.activeColor;
         background-color: transparent;
         color: transparent;
         position: absolute;
@@ -734,8 +735,9 @@ li.public:before{
 /** metadata section */
 #viewer .infobox{
     /*top: -500px; */
-        width:33%;
+        width:63%;
         height: 22em;
+        max-height: calc(100% - 120px);
         background-color: $params.activeColor;
         z-index: 43;
         left: 225px; /* ?? */
@@ -806,7 +808,7 @@ li.public:before{
         height:0; 
         border-left: 10px solid transparent; 
         border-right: 10px solid transparent; 
-        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        border-bottom: 10px solid $params.activeColor;
         background-color: transparent;
         color: transparent;
         position: absolute;
@@ -895,7 +897,7 @@ li.public:before{
     top: 0px;
     background-color: #F5F5F5;
     width: 100%;
-    height: calc(100% - 40px);    
+    height: calc(100% - 70px);    
     overflow: auto;
 }
 
@@ -909,16 +911,6 @@ li.public:before{
     display: none;
     margin: 50%;
     left: 0; right: 0; top: 0; bottom: 0;
-}
-.loading{
-    background: url(../../images/loading_1.gif) center center no-repeat; 
-    background-color: rgba(0,0,0,0.2);
-    width: 100%;
-    height: 100%;
-    z-index: 100;
-    position: relative;
-    cursor: progress;
-    display:none;
 }
 
 #viewer .pages {
@@ -1062,7 +1054,15 @@ li.public:before{
 }
 
 #viewer div.context{
-    padding-top: 5px;
+    padding-top: 1px;
+    overflow: auto;
+    max-height: calc(100% - 40px);
+}
+
+#viewer div.context h2{
+    padding: 5px;
+    font-size: 1.1em;
+    margin: 0;
 }
 
 #viewer div.context>div{
@@ -1690,7 +1690,7 @@ li.public:before{
         height:0; 
         border-left: 10px solid transparent; 
         border-right: 10px solid transparent; 
-        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
+        border-bottom: 10px solid $params.activeColor;
         background-color: transparent;
         color: transparent;
         position: absolute;
@@ -1786,7 +1786,7 @@ li.public:before{
         height: 12em;
         background-color: $params.activeColor;
         z-index: 43;
-        left: 280px; 
+        left: 22.5%; 
         color: white;
 }
 
@@ -1873,7 +1873,6 @@ li.public:before{
         width: 95%;
         height: calc(100% - 50px);
         background-color: $params.activeColor;
-        background-color: rgba(0, 30, 60, 0.9);
         z-index: 43;
         left: 2.5%;
         color: white;
@@ -2133,7 +2132,7 @@ li.public:before{
 
         border: 0px solid rgba(0, 0, 0, 0.3);
         box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
-        background-color: rgba(0, 30, 60, 0.9);
+        background-color: $params.activeColor;
 }
 .registration>div{
         padding: 15px;
@@ -2185,61 +2184,6 @@ li.public:before{
         display: list-item;
 }
 
-/** small screen */
-
-#header  #smalldisplay {
-        display:none;
-}
-
-
-#tbl_menus {
-        position:absolute;
-        right:12px;                
-        width:60%;
-        height:calc(100%-50px);
-
-        border:0px solid rgba(0, 0, 0, 0.3);
-        color: $params.textColor;
-        box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
-        padding: 15px;
-        background-color: $params.activeColor;
-        z-index: 43;
-}
-
-#tbl_menus div.button {
-        border: solid 1px rgba(180, 180, 180, 0.4);
-        padding: 5px;
-        display: inline-block;
-
-}
-
-#tbl_menus div.button a {
-        color: inherit;
-        text-decoration: none;
-}
-
-#tbl_menus .triangle {
-        width:0; 
-        height:0; 
-        border-left: 10px solid transparent; 
-        border-right: 10px solid transparent; 
-        border-bottom: 10px solid rgba(0, 30, 60, 0.901961);
-        background-color: transparent;
-        color: transparent;
-        position: absolute;
-        top: -10px;
-        z-index: 23;
-        right: 50px;
-}
-
-
-#tbl_menus div.right{
-    position:absolute;
-    right: 10px;
-    display: inline-block;
-}
-
-/** end of small screen */
 
 /** containers */
 
@@ -2296,12 +2240,12 @@ li.public:before{
 
 /** logoptions */
 div.logoptions {
-        top: 20%;
-        width: 30%;
+        top: calc(20% + 40px);
+        width: 300px;
         height: 30%;
         background-color: $params.activeColor;
         z-index: 43;
-        left: 40%;
+        left: calc(50% - 150px);
         color: white;
 }
 
@@ -2404,10 +2348,11 @@ div.logoptions  div.logoptions_footer  div.right{
     overflow: hidden;
 }
 #footer div{
-    margin: 4px;
+    margin: 2px;
 }
 
 /** share dialog */
+
 div.share {
         top: 20%;
         width: 500px;
@@ -2428,6 +2373,9 @@ div.share {
     top:0;
 }
 
+#share_container ul {
+    padding:0px;
+}
 
 div.share_footer {
     position: absolute;
@@ -2452,22 +2400,29 @@ div.share_footer {
     
 }
 
-#share_container ul li div.bigger {
+.sharesicon svg{
+    width: 88px;
+    height: 88px;
+    size: contain;
+}
+
+#share_container ul li div.sharesicon {
     cursor: pointer;
 }
 
 
-#share_container ul li div.bigger svg path{
+#share_container ul li div.sharesicon svg path{
     fill:white; 
 }
 
-#share_container ul li div.bigger svg g path{
+#share_container ul li div.sharesicon svg g path{
     fill:white; 
 }
 
-#share_container ul li div.bigger svg g polygon{
+#share_container ul li div.sharesicon svg g polygon{
     fill:white; 
 }
+
 
 div.share_footer div.right {
     position: absolute;
@@ -2655,6 +2610,7 @@ div.download {
 }
 
 #download_options select option {
+    background-color: white;
     color: black;
 }
 #download_options div {
@@ -2712,6 +2668,7 @@ div.download_footer  .buttons div.sel{
 
 /** end of dialog download */
 
+
 #footer a{
     color: inherit;
     text-decoration: none;
@@ -2720,5 +2677,120 @@ div.download_footer  .buttons div.sel{
 #footer:hover{
     color: $params.textColor;
     background-color: $params.activeColor;
+}
+
+
+
+/** feedback dialog */
+div.feedback {
+        top: 20%;
+        width: 300px;
+        height: 40%;
+        background-color: $params.activeColor;
+        box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+        z-index: 43;
+        color: white;
+        margin:auto;
+        left:calc(50% - 150px);
+}
+
+#feedback_container {
+    height:calc(100% - 43px);
+    width:100%;
+    position:absolute;
+    top:0;
+    text-align: center;
+}
+
+
+#feedback_container label {
+    margin-left: 5px; 
+}
+
+#feedback_container div.download_header  {
+    text-align: center;
+}
+
+#feedback_container div.download_header h2 {
+    text-align: center;
+}
+
+#feedback_container div {
+    text-align: left;
+}
+
+#feedback_container div label {
+    margin-left: 5px;
+}
+
+#feedback_container div input {
+    width:90%;
+    margin-left: 10px;
+}
+
+
+#feedback_container div textarea {
+    width: 90%;
+    /*height: 60px; */
+    margin-left: 10px;
+}
+
+
+div.feedback_footer {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    left: 0px;
+    height: 43px;
+    border-top: 1px solid white;
+
+}
+
+div.feedback_footer div.right {
+    position: absolute;
+    right: 15px;
+    margin-top: 5px;
+    display: inline-block;
+    font-size: 11px;
+    float: right;
+}
+
+div.feedback_footer div.right div.buttons {
+    position: relative;
+    left: 5px;
+    top: 0px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+div.feedback_footer div.right div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+    margin-left: 2px;
+}
+
+div.feedback_footer  a {
+        color: inherit;
+        text-decoration: none;
+}
+
+div.feedback_footer  .buttons div.sel{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+}
+
+/** end of dialog feedback */
+
+
+.opacityloading {
+    position:absolute;
+    top:0
+    left:0;
+    opacity:0.7;
+    background-color: white;
+    width:100%;
+    height:100%;
 }
 

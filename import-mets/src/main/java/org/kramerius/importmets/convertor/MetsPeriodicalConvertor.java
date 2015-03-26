@@ -93,6 +93,9 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                 } else {
                     modsCounter++;
                 }
+                if (specialGenre.equals(Genre.NONE)) {//if cartographic or sheetmusic was already detected, do not overwrite it
+                    specialGenre = getGenrefromMods(mods);//otherwise check, if it is set or not
+                }
             } else if ("DC".equalsIgnoreCase(type)) {
                 Object elementValue =null;
                 try{
@@ -339,6 +342,8 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         return foxml;
     }
 
+    private Genre specialGenre = Genre.NONE;
+
     private String mapModel(String divType){
         if ("PERIODICAL_TITLE".equalsIgnoreCase(divType)){
             return MODEL_PERIODICAL;
@@ -354,16 +359,28 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             return MODEL_PICTURE;
         }else if ("VOLUME".equalsIgnoreCase(divType)){
             if (singleVolumeMonograph) {
-                return MODEL_MONOGRAPH;
+                return checkSpecialGenreOrMonograph();
             }else{
                 return MODEL_MONOGRAPH_UNIT;
             }
         }else if ("CHAPTER".equalsIgnoreCase(divType)){
             return MODEL_INTERNAL_PART;
         }else if ("MONOGRAPH".equalsIgnoreCase(divType)){
-            return MODEL_MONOGRAPH;
+            return checkSpecialGenreOrMonograph();
         }
         throw new ServiceException("Unsupported div type in logical structure: "+divType);
+    }
+
+    /**
+     * If special genre (cartographic or sheetmusic) was detected in MODS, return MODEL MAP or SHEETMUSIC, otherwise return default model MONOGRAPH
+     */
+    private String checkSpecialGenreOrMonograph(){
+        if  (specialGenre.equals(Genre.CARTOGRAPHIC)) {
+            return MODEL_MAP;
+        }else if (specialGenre.equals(Genre.SHEETMUSIC)) {
+            return MODEL_SHEETMUSIC;
+        }
+        return MODEL_MONOGRAPH;
     }
 
     private String mapParentRelation(String model){

@@ -1,5 +1,8 @@
 package cz.incad.kramerius.client.utils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONException;
@@ -56,4 +59,36 @@ public class ApiCallsHelp {
         return t;
     }
 
+    public static String postParams(String url, String userName,
+            String pswd, String... params) throws UnsupportedEncodingException {
+        String postfix = "";
+        for (int i = 0; i < params.length; i++) {
+            if (i > 0) {
+                postfix += "&";
+            }
+            String[] dpars = params[i].split("=");
+            if (dpars.length > 0) {
+                String val = "";
+                for (int j = 1; j < dpars.length; j++) {
+                    val += URLEncoder.encode(dpars[1],"UTF-8");
+                }
+                postfix += dpars[0]+"="+val;
+            }  else {
+                postfix += URLEncoder.encode(params[i],"UTF-8");
+            }
+        }
+
+        if (postfix.length() > 0) {
+            url += "?"+postfix;
+        }
+        
+        Client c = Client.create();
+        WebResource r = c.resource(url);
+        r.addFilter(new BasicAuthenticationFilter(userName, pswd));
+        String t = r.accept(MediaType.APPLICATION_JSON)
+                .type(MediaType.APPLICATION_JSON)
+                .post(String.class);
+        return t;
+        
+    }
 }

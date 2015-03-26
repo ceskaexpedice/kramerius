@@ -146,8 +146,8 @@
             });
             
             $('#item_tree li>div>input').live('click', function(){
-                var id = "tv_" + $(this).parent().parent().attr('id');
-                $(jq(id)).next("input").attr("checked", $(this).is(":checked"));
+                var id = $(this).parent().parent().attr('id');
+                $('#tv.viewer').trigger('selectedDocsChanged', [id, $(this).is(":checked")]);
             });
             
             $('#rightMenuBox').tabs({
@@ -402,7 +402,16 @@
         }
 
         function setActiveUuids(id){
+            var oldPidPath = k4Settings.activePidPath;
+            
             k4Settings.activePidPath = id;
+            
+            if(oldPidPath!== null && $(jq(id)).parent()[0] === $(jq(oldPidPath)).parent()[0]){
+                //jenom se zmenil pid, ale jsme na stejne vetvi
+                return;
+            }
+            
+        
             k4Settings.activeUuids = [];
             
             var i = 0;

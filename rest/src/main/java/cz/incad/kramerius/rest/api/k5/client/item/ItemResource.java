@@ -1,69 +1,30 @@
 package cz.incad.kramerius.rest.api.k5.client.item;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriBuilderException;
-import javax.xml.transform.TransformerException;
-
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
-import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowedXML;
-import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
-import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
-import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
-import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
-import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
-import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
-import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
-import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.SecuredActions;
+import com.google.inject.*;
+import com.google.inject.name.*;
+import cz.incad.kramerius.*;
+import cz.incad.kramerius.rest.api.exceptions.*;
+import cz.incad.kramerius.rest.api.k5.client.*;
+import cz.incad.kramerius.rest.api.k5.client.item.exceptions.*;
+import cz.incad.kramerius.rest.api.k5.client.item.utils.*;
+import cz.incad.kramerius.rest.api.k5.client.utils.*;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.service.ReplicateException;
-import cz.incad.kramerius.service.ReplicationService;
-import cz.incad.kramerius.service.replication.FormatType;
-import cz.incad.kramerius.utils.ApplicationURL;
-import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.service.*;
+import cz.incad.kramerius.service.replication.*;
+import cz.incad.kramerius.utils.*;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
-import cz.incad.kramerius.utils.solr.SolrUtils;
+import cz.incad.kramerius.utils.pid.*;
+import net.sf.json.*;
+import org.w3c.dom.*;
+
+import javax.servlet.http.*;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.logging.*;
 
 /**
  * Item endpoint
@@ -144,10 +105,10 @@ public class ItemResource {
             checkPid(pid);
             if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
                 if (!PIDSupport.isComposedPID(pid)) {
-                    String mimeTypeForStream = this.fedoraAccess
-                            .getMimeTypeForStream(pid, dsid);
                     final InputStream is = this.fedoraAccess.getDataStream(pid,
                             dsid);
+                    String mimeTypeForStream = this.fedoraAccess
+                            .getMimeTypeForStream(pid, dsid);
                     StreamingOutput stream = new StreamingOutput() {
                         public void write(OutputStream output)
                                 throws IOException, WebApplicationException {
@@ -401,7 +362,7 @@ public class ItemResource {
                 this.fedoraAccess.getRelsExt(pid);
             }
         } catch (IOException e) {
-            throw new PIDNotFound("pid not found ("+pid+")");
+            throw new PIDNotFound("pid not found");
         } catch(Exception e) {
             throw new PIDNotFound("error while parsing pid ("+pid+")");
         }

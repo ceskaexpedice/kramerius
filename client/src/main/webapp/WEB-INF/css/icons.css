@@ -44,6 +44,13 @@ svg{
     background: transparent;
     /*box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px 0px;*/
 }
+
+.footer svg {
+    width: 18px;
+    height: 18px;
+    size: contain;
+}
+
 .small svg{
     width: 28px;
     height: 28px;
@@ -85,7 +92,7 @@ svg{
 svg  .svg-icon{
     fill:$params.get("svg.fill"); 
     stroke:$params.get("svg.stroke"); 
-    stroke-width: 8; 
+    stroke-width: 4; 
     stroke-linecap:round;
     stroke-linejoin:round;
 }
@@ -104,6 +111,13 @@ svg:hover{
 svg:hover *{
     fill:$params.get("svg.fill.hover"); 
     stroke:$params.get("svg.stroke.hover"); 
+}
+
+svg path.star {
+    stroke-width:4;
+    stroke-linecap:square;
+    stroke-linejoin:miter
+
 }
 
 /*

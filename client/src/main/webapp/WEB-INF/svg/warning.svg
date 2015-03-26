@@ -15,7 +15,12 @@
 
 
 
+    <path d="M42,25 l15,0 l-5,30 l -5,0 l -5,-30" class="svg-icon" style="stroke-width:3;fill:white;"></path>
+    <circle cx="49" cy="65" r="5" style="stroke-width: 3; fill:white;" class="svg-icon"></circle>
+
+<!--
     <path d="M45,25 l10,0 l-5,35 l -5,-35" class="svg-icon" style="fill:none;stroke-width:3"></path>
     <circle cx="50" cy="72" r="2" style="fill:none"  class="svg-icon"></circle>
+-->
 
 </svg>

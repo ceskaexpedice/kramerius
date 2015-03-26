@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject VERSION="1.1" PID="model:picture" xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+<foxml:objectProperties>
+<foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Content Model Object for Picture"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="fedoraAdmin"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2008-12-01T12:00:00.000Z"/>
+<foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2011-06-27T14:31:05.775Z"/>
+</foxml:objectProperties>
+<foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+<foxml:datastreamVersion ID="DC1.0" LABEL="Dublin Core Record for this object" CREATED="2008-12-10T12:00:00.000Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="404">
+<foxml:xmlContent>
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+  <dc:title>Content Model Object for Picture</dc:title>
+  <dc:identifier>model:picture</dc:identifier>
+</oai_dc:dc>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="DS-COMPOSITE-MODEL" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+<foxml:datastreamVersion ID="DS-COMPOSITE-MODEL1.0" LABEL="Datastream Composite Model" CREATED="2008-12-10T12:00:00.000Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:FedoraDSCompositeModel-1.0" SIZE="581">
+<foxml:xmlContent>
+<dsCompositeModel xmlns="info:fedora/fedora-system:def/dsCompositeModel#">
+          <dsTypeModel ID="DC">
+            <form FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" MIME="text/xml"/>
+          </dsTypeModel>
+          <dsTypeModel ID="RELS-EXT">
+            <form FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" MIME="application/rdf+xml"/>
+          </dsTypeModel>
+          <dsTypeModel ID="BIBLIO_MODS">
+            <form FORMAT_URI="http://www.loc.gov/mods/v3" MIME="text/xml"/>
+          </dsTypeModel>
+        </dsCompositeModel>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+<foxml:datastreamVersion ID="RELS-EXT.0" LABEL="RDF Statements about this object" CREATED="2011-06-27T14:31:05.799Z" MIMETYPE="application/rdf+xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="727">
+<foxml:xmlContent>
+<rdf:RDF xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          <rdf:Description rdf:about="info:fedora/model:picture">
+            <oai:setSpec>picture</oai:setSpec>
+            <oai:setName>Picture</oai:setName>
+            <fedora-model:hasService rdf:resource="info:fedora/service:ESEDef"/>
+            <fedora-model:hasService rdf:resource="info:fedora/service:OAIExportDef"/>
+            <fedora-model:hasModel rdf:resource="info:fedora/fedora-system:ContentModel-3.0"/>
+          </rdf:Description>
+        </rdf:RDF>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+</foxml:digitalObject>

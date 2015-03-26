@@ -1,7 +1,22 @@
-
-
 /**
- * I18N support objects
+ * @description
+ * Envelope I18n operations. Accessed via singleton <code>K5</code>
+ * <pre><code>
+ *  K5.i18n.askForDictionary(function(data) {
+ *      alert("new dictionary :  "+data);
+ *  });
+ * </code></pre>
+ * <pre><code>
+ *  var i18nkey ="application.title";
+ *  K5.eventsHandler.addHandler(function(type, data) {
+ *      if (type == "i18n/dictionary") {
+ *          var translated = K5.i18n.translate(i18nkey);
+ *          alert(translated);
+ *      }
+ *  });
+ * </code></pre>
+ * @constructor
+ * @param {Application} application - The application instance.
  */
 function I18N(application){
     this.application = application;
@@ -13,14 +28,26 @@ function I18N(application){
 }
 
 I18N.prototype= {
+
     ctx:{},
-        /** tests if given key is present in the context */
-        isKeyReady: function(keys) {
-                return lookUpKey(keys, this.ctx);
+ 
+    /** 
+     * Tests if given key is present in the context 
+     * @param {string} keys - tested keys
+     * @method
+     */
+    isKeyReady: function(keys) {
+        return lookUpKey(keys, this.ctx);
     },
     
     
-    /** Requests for resource bundle */
+    /** 
+     * Sends request for new dictionary. It fires "i18n/dictionary" event.
+     * @param {string} lang - Requesting language
+     * @param {string} country - Requesting coutry - may be null
+     * @param {requestCallback} whenready  - Callback handling responses.
+     * @method
+     */
     askForDictionary:function(lang,country, whenready) {
         $.getJSON("dictionary.vm?language=" + lang, _.bind(function(data) {
                 this.ctx['language']=lang;
@@ -38,8 +65,14 @@ I18N.prototype= {
 	},
 
 
-
-        askForText:function(nm, lang, whenready) {
+    /**
+     * Sends request for new text
+     * @param {string} nm - Name of the text
+     * @param {string} country - Requesting coutry - may be null
+     * @param {requestCallback} whenready  - Callback handling responses.
+     * @method
+	 */
+    askForText:function(nm, lang, whenready) {
                 $.getJSON("texts.vm?text=" + nm+"&lang="+lang, _.bind(function(data) {
                         if (!K5.i18n.isKeyReady("texts")) {
                                 this.ctx['texts']={};
@@ -52,12 +85,28 @@ I18N.prototype= {
                 });
         },         
 
-        /** generovani dom element -> prelozitelny */
+        
+        /**
+         * Generate element with class 'translate'. 
+         * Every elements contains class 'transalte' are translated when 'i18n/dictionary' has been fired
+         * @param {string} key - i18n key
+         * @method
+         */
         translatable: function(key) {
             var t = this.ctx.dictionary[key]!=null? this.ctx.dictionary[key]: key;
             return '<span class="translate" data-key="' + key + '">' + t + '</span>';
         },
-
+        
+        /**
+         * Returns translated key 
+         * @param {string} key - Key to be translated
+         * @method
+         */
+        translate:function(key) {
+            var t = this.ctx.dictionary[key]!=null? this.ctx.dictionary[key]: key;
+            return t;
+        },
+        
         translatableElm:function(key, elmId) {
                 var t = this.ctx.dictionary[key]? this.ctx.dictionary[key]: key;
                 $(elmId).attr('data-key',key);
@@ -78,9 +127,7 @@ I18N.prototype= {
                         var key = $(this).data("key");
                         $(this).attr('title', K5.i18n.ctx.dictionary[key]);
                 });
-                
-                
-        },       
+        },
 
 
 
@@ -93,14 +140,10 @@ I18N.prototype= {
                 var key = $(this).data("key");
                 $(this).attr('title', K5.i18n.ctx.dictionary[key]);
             });
-            // ?? kam?    
-            //K5.gui.vc.translateCollections();
         }
-                
-        
 }
 
-
+/*
 function k5translateAll() {
     $('.translate').each(function() {
         var key = $(this).data("key");
@@ -125,5 +168,4 @@ function translatable(key) {
 function vctranslatable(key, collections, language) {
     return '<span class="vc" data-key="' + key + '">' + collections[key][language] + '</span>';
 }
-
-
+*/

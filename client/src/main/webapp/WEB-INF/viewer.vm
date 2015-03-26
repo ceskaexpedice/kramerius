@@ -17,11 +17,11 @@
     <!-- metadata panel -->
     <div class="info infobox dialogs" style="position:absolute;display:none;">
         <div class="triangle" id="mtd_footer_triangle"></div>
-
+<!--
         <h4 id="model"></h4>
         <div id="title"></div>
         <div id="root_title" style="display:none"></div>
-            
+-->            
         <div style="position:absolute; bottom:0; left:50%;" />
         <div class="small info show" style="display: none;" title="$i18n.buttons.info" onclick="K5.gui.selected.showInfo();" >#parse("svg/arrow2d.svg")</div>
         </div>
@@ -76,7 +76,8 @@
         </div>
     </div>
 
-    <div class="loading"></div> 
+    <!-- waiting div -->
+    #parse("waiting.vm")
 
     <!-- persistent url -->
     #parse("actions/persistent.vm")
@@ -102,18 +103,12 @@
     <div class="small info translate_title" data-ctx="all" id="vwr_ctx_metadata" data-key="buttons.showinfo" title="$i18n.buttons.showinfo" onclick="K5.gui.selected.toggleInfo();" >#parse("svg/info.svg")</div>
 
 
-    <div class="small translate_title" data-ctx="all" id="vwr_ctx_share" data-key="buttons.fit" title="$i18n.buttons.fit" onclick="K5.gui.selected.shares.open();" >#parse("svg/share.svg")</div>
-    <div class="small translate_title" data-ctx="download" id="vwr_ctx_download" data-key="buttons.fit" title="$i18n.buttons.fit" onclick="K5.gui.selected.download.open();" >#parse("svg/download.svg")</div>
+    <div class="small translate_title" data-ctx="share" id="vwr_ctx_share" data-key="buttons.share" title="$i18n.buttons.share" onclick="K5.gui.selected.shares.open();" >#parse("svg/share.svg")</div>
+    <div class="small translate_title" data-ctx="download" id="vwr_ctx_download" data-key="buttons.download" title="$i18n.buttons.download" onclick="K5.gui.selected.download.open();" >#parse("svg/download.svg")</div>
 
-    <div class="small translate_title" data-ctx="favorite"  title="$i18n.buttons.parent" onclick="K5.authentication.askForAppendToProfile();" >#parse("svg/addfavorite.svg")</div>
-    <div class="small translate_title" data-ctx="notfavorite"  title="$i18n.buttons.parent" onclick="K5.authentication.askForRemoveFromProfile();" >#parse("svg/removefavorite.svg")</div>
+    <div class="small translate_title" data-ctx="favorite" data-key="buttons.addtofavorite"  title="$i18n.buttons.addtofavorite" onclick="K5.authentication.askForAppendToProfile();" >#parse("svg/addfavorite.svg")</div>
+    <div class="small translate_title" data-ctx="notfavorite" data-key="buttons.removefromfavorite"  title="$i18n.buttons.removefromfavorite" onclick="K5.authentication.askForRemoveFromProfile();" >#parse("svg/removefavorite.svg")</div>
 
-    <!--
-    <div class="small translate_title" data-ctx="all"  title="$i18n.buttons.parent" onclick="K5.gui.clipboard.removeCurrent();" >#parse("svg/warning.svg")</div>
-    <div class="small pin translate_title" data-ctx="notselected" id="vwr_ctx_addclipboard"  title="$i18n.buttons.addclipboard" onclick="K5.gui.clipboard.addCurrent();" >#parse("svg/plusclipboard.svg")</div>
-    <div class="small pin translate_title" data-ctx="selected" id="vwr_ctx_removeclipboard"  title="$i18n.buttons.removefromclipboard" onclick="K5.gui.clipboard.removeCurrent();">#parse("svg/minusclipboard.svg")</div>
-    <div class="small pin translate_title" data-ctx="clipboardnotempty" id="vwr_ctx_clipboard"  title="$i18n.buttons.showclipboard" onclick="K5.gui.clipboard.display();">#parse("svg/clipboard.svg")</div>
-    -->
     
 </div>
 

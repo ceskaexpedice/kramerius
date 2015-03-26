@@ -24,7 +24,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -38,28 +37,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONObject;
-
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
-
 import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.impl.http.shibrules.ShibRuleLexer;
 import cz.incad.kramerius.security.impl.http.shibrules.ShibRuleParser;
-import cz.incad.kramerius.security.impl.http.shibrules.shibs.ShibContext;
 import cz.incad.kramerius.security.impl.http.shibrules.shibs.ShibRules;
+import cz.incad.kramerius.security.impl.http.shibrules.shibs.ShibbolethContext;
+import cz.incad.kramerius.security.impl.http.shibrules.shibs.ShibbolethContextImpl;
 import cz.incad.kramerius.security.jaas.K4LoginModule;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.shib.utils.ShibbolethUtils;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -73,7 +64,6 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
         super();
         LOGGER.fine("Creating db userprovider");
     }
-
 
     public User getPreviousLoggedUser(HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession();
@@ -149,8 +139,10 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
 
     public void evaluateShibRules(User user) throws IOException, FileNotFoundException, RecognitionException, TokenStreamException {
-        ShibContext ctx = new ShibContext(this.provider.get(), user, this.userManager);
+        //ShibContext ctx = new ShibContext(this.provider.get(), user, this.userManager);
 
+        ShibbolethContext ctx = new ShibbolethContextImpl( ((UserImpl)user), this.userManager,this.provider.get());
+        
         String shibRulesPath = KConfiguration.getInstance().getShibAssocRules();
         LOGGER.fine("reading rules file :"+shibRulesPath);
         String readAsString = IOUtils.readAsString(new FileInputStream(shibRulesPath), Charset.forName("UTF-8"), true);

@@ -9,8 +9,10 @@
     "js/jquery.mousewheel.min.js",
     "js/jquery.touchSwipe.min.js",
     "js/ol3/ol-simple.js",
+    'js/mods.js',
 
     "jplayer/jquery.jplayer.min.js",
+
 
 
     "resources/js/utils.js",
@@ -42,6 +44,7 @@
     "resources/js/viewers/audio.js",
 
     "resources/js/outputs/outpdf.js",
+    "resources/js/outputs/outprint.js",
 
     "resources/js/profile/profile.js",
     "resources/js/selections/selections.js",
@@ -49,12 +52,15 @@
     "resources/js/selections/clipboard.js",
     "resources/js/menu/menu.js",
 
+    "resources/js/footer.js",
+
     "resources/js/app.js",
     "resources/js/viewers.js",
     "resources/js/breadcrumbs.js",
     
     "resources/js/edit/selects.js",
     "resources/js/item.js",
+
     "resources/js/viewers/forbidden.js"
     
 ]

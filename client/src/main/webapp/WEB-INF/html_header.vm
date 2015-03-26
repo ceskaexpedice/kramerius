@@ -15,8 +15,6 @@
 
     <link rel="apple-touch-icon"
       href="images/favicon.ico" />
-    <link rel="apple-touch-icon-precomposed"
-      href="images/favicon.ico" />
 
 
     #* stylesheets maps *# 
@@ -29,6 +27,8 @@
     #foreach($f in $fmap.javascripts)
     <script src="$f" type="text/javascript" ></script>
     #end
+
+
 
     <title>$i18n.application.title</title>
     <script language="JavaScript" type="text/javascript">
@@ -55,8 +55,7 @@
                 //selected configurations 
                 "conf": {
                     "pdf":{
-
-                        #if($conf.getString('generatePdfMaxRange') && !$conf.getBoolean('turnOffPdfCheck'))
+                        #if(!$conf.getBoolean('turnOffPdfCheck'))
                             "limit":$conf.getString('generatePdfMaxRange')
                          #end
 

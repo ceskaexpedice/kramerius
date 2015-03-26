@@ -6,7 +6,13 @@
         "dc_description:": "dc.description",
         "dc_identifier:": "dc.identifier"
     },
+    "facets":["model_path", "keywords", "collection", "dostupnost"],
     "browse":{
         "models": ["monograph","periodical","article"]
-    }
+    },
+    "metadata":[
+        {"label": "title", "xpath": "//mods:modsCollection/mods:mods/mods:titleInfo/mods:title"},
+        {"label": "isbn", "xpath": "//mods:modsCollection/mods:mods/mods:identifier[@type='isbn']"},
+        {"label": "issn", "xpath": "//mods:modsCollection/mods:mods/mods:identifier[@type='issn']"}
+    ]
 }

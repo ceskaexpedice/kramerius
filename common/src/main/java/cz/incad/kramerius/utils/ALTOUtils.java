@@ -195,20 +195,22 @@ public class ALTOUtils {
         }
 
         
-
-        List<Element> fElements = XMLUtils.getElementsRecursive(dom.getDocumentElement(),
-                new ElementsFilter() {
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        if (element.getNodeName().equals("String")) {
-                            String content = element.getAttribute("CONTENT");
-                            if (matchContent(content, parameter)) {
-                                return true;
+        List<Element> fElements = new ArrayList<Element>();
+        if (StringUtils.isAnyString(parameter)) {
+            fElements = XMLUtils.getElementsRecursive(dom.getDocumentElement(),
+                    new ElementsFilter() {
+                        @Override
+                        public boolean acceptElement(Element element) {
+                            if (element.getNodeName().equals("String")) {
+                                String content = element.getAttribute("CONTENT");
+                                if (matchContent(content, parameter)) {
+                                    return true;
+                                }
                             }
-                        }
-                        return false;
-                }
-        });
+                            return false;
+                    }
+            });
+        }
 
         List<AltoSelectedBox> boxes = new ArrayList<ALTOUtils.AltoSelectedBox>();
         for (Element sElm : fElements) {

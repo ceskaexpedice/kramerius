@@ -41,7 +41,7 @@ public class ITextUtils {
 
     public static final Logger LOGGER = Logger.getLogger(ITextUtils.class.getName());
     
-    public static File bodyPDF(String pid, SolrAccess solrAccess, SolrMemoization solrMemoization, JSONDecoratorsAggregate decoratorsAggregate, FedoraAccess fedoraAccess,
+    public static File bodyPDF(String pid, int maxnumber,SolrAccess solrAccess, SolrMemoization solrMemoization, JSONDecoratorsAggregate decoratorsAggregate, FedoraAccess fedoraAccess,
             FontMap fmap,  RenderedDocument rdoc, TextsService textService, Provider<Locale> localesProvider)
             throws IOException, BadElementException, MalformedURLException,
             DocumentException {
@@ -62,6 +62,7 @@ public class ITextUtils {
             JSONArray jsonArray = ItemResourceUtils.decoratedJSONChildren(pid, solrAccess, solrMemoization, decoratorsAggregate);
             for (int i = 0; i < jsonArray.size(); i++) {
                 doc.newPage();
+                if (maxnumber >= -1 && i >= maxnumber) break;
                 JSONObject jsonObj = jsonArray.getJSONObject(i);
                 if (jsonObj.getString("model").equals("page")) {
                     String pagePid = jsonObj.getString("pid");

@@ -474,3 +474,26 @@ $.jCanvas.extend({
 });
 
 
+
+    function daYearClicked(params){
+        var rok = params.year;
+        $("#" + fromField).val("01.01."+rok);
+        $("#" + toField).val("31.12."+rok);
+        if(!isValidDate($("#" + fromField).val()) || !isValidDate($("#" + toField).val())){
+            alert(dictionary['filter.invalid.date'] );
+            return;
+        }
+
+        var page = new PageQuery(window.location.search);
+        page.setValue("offset", "0");
+        page.setValue("forProfile", "dateaxis");
+        //page.setValue(fromField, decodeDate($("#" + fromField).val()));
+        //page.setValue(toField, decodeDate($("#" + toField).val()));
+
+        page.setValue("da_od", decodeDate($("#" + fromField).val()));
+        page.setValue("da_do", decodeDate($("#" + toField).val()));
+        var newurl = "r.jsp?" + page.toString() + dateAxisAdditionalParams;
+
+        document.location.href = newurl;
+
+    }
