@@ -57,6 +57,11 @@ public class XSLFunctions {
         init(source, user, pass);
 
     }
+    
+    public static String fixDatum(String datum_str){
+        logger.log(Level.INFO, "fixing datum for {0}...", datum_str);
+        return datum_str;
+    }
 
     public static String detailsToJson(String val, String model) throws JSONException {
         JSONObject js = new JSONObject();
