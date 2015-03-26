@@ -44,7 +44,7 @@ public class VirtualCollectionViewObject {
     
     @Inject
     Provider<VirtualCollection> virtualCollectionProvider;
-
+    
     @Inject
     KConfiguration kConfiguration;
     

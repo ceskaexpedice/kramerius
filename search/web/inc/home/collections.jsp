@@ -14,6 +14,7 @@
 
 <!-- virtual collections -->
 <view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
+<view:kconfig var="hiddenCols" key="cdk.collections.hidden" defaultValue="true" />
 
 <c:if test="${empty param.refresh}">
 <style type="text/css">
@@ -58,6 +59,7 @@
 <c:forEach var="col" items="${cols.virtualCollectionsLocale}">
     <li>
         <c:forEach items="${col.descriptions}" var="desc">
+            <c:if test="${!fn:contains(hiddenCols, col.pid)}"></c:if>
             <a href="javascript:setVirtualCollection('${col.pid}');">${desc.text}</a>
         </c:forEach>
     </li>
