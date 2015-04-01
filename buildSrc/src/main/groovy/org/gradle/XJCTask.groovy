@@ -5,13 +5,14 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.artifacts.*;
 
-import org.apache.tools.ant.taskdefs.optional.ANTLR;
-import org.apache.tools.ant.types.Path;
 import org.gradle.api.file.FileCollection;
+/*
 import org.gradle.api.plugins.antlr.internal.GenerationPlan;
 import org.gradle.api.plugins.antlr.internal.GenerationPlanBuilder;
 import org.gradle.api.plugins.antlr.internal.MetadataExtracter;
 import org.gradle.api.plugins.antlr.internal.XRef;
+*/
+
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
@@ -96,7 +97,9 @@ public class XJCTask extends DefaultTask {
     
 	@TaskAction
 	public void generate() {
-    	    JAXBExtensions ext = getProject().getExtensions().getByType(JAXBExtensions.class);
+
+	System.setProperty('javax.xml.accessExternalSchema', 'all')
+	JAXBExtensions ext = getProject().getExtensions().getByType(JAXBExtensions.class);
     	    if (ext != null) {
     	    	    configureExt(ext);
     	    }
@@ -104,9 +107,13 @@ public class XJCTask extends DefaultTask {
     	    ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJC2Task', classpath: getXjcClasspath().asPath)
     	    for(File f:this.xsds) {
 		    if (catalog != null) {
-	    	    	    ant.xjc(schema: f.getAbsolutePath(), package: this.packageName, destdir: outputDirectory.getAbsolutePath(),removeOldOutput: true, catalog: this.catalog)
+	    	    	    ant.xjc(schema: f.getAbsolutePath(), package: this.packageName, destdir: outputDirectory.getAbsolutePath(),removeOldOutput: true, catalog: this.catalog) {
+	arg(value:"-disableXmlSecurity")
+	}
 		    } else {
-	    	    	    ant.xjc(schema: f.getAbsolutePath(), package: this.packageName, destdir: outputDirectory.getAbsolutePath(),removeOldOutput: true)
+	    	    	    ant.xjc(schema: f.getAbsolutePath(), package: this.packageName, destdir: outputDirectory.getAbsolutePath(),removeOldOutput: true) {
+	arg(value:"-disableXmlSecurity")
+}
 		    }		
     	    }
 	    
