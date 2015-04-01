@@ -32,7 +32,7 @@
 
         <init-param>
             <param-name>warmount</param-name>
-            <param-value>js</param-value>
+            <param-value>/js</param-value>
         </init-param>
         <init-param>
             <param-name>fileext</param-name>
@@ -67,7 +67,7 @@
 
         <init-param>
             <param-name>warmount</param-name>
-            <param-value>WEB-INF/css</param-value>
+            <param-value>/WEB-INF/css</param-value>
         </init-param>
         <init-param>
             <param-name>fileext</param-name>
@@ -101,7 +101,7 @@
 
         <init-param>
             <param-name>warmount</param-name>
-            <param-value>WEB-INF/classes/res</param-value>
+            <param-value>/WEB-INF/classes/res</param-value>
         </init-param>
         
         <init-param>
