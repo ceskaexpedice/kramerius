@@ -17,7 +17,7 @@
 
 println "Building K4; please read BUILD-README.txt"
 
-apply plugin: 'distribution' // -> generate distributions
+//apply plugin: 'distribution' // -> generate distributions
 apply plugin: 'java' // -> generate javadoc
 
 
@@ -40,7 +40,7 @@ dependencies {
 
 
 
-
+/*
 distributions {
         // main distribution        
         main {
@@ -59,7 +59,7 @@ distributions {
                         from {'security-core/build/libs'}
                 }
         }
-}
+}*/
 
 
 repositories {
@@ -182,10 +182,9 @@ subprojects {
 }
 
 
-
-
+// disabled distributions
+/*
 task zipAllJavadocs(type: Zip) {
-        //only from this project 
         String[] _spr = ["common","fedora-api","security-core","rest","search"];
         description "create javadocs for ${_spr} and zip it"
         baseName "kramerius-javadoc"
@@ -202,5 +201,5 @@ task zipAllJavadocs(type: Zip) {
 [distZip, distTar, installDist].each() { 
   it.dependsOn('clean',':search:build', 'zipAllJavadocs')
 };
-
+*/
 

@@ -38,7 +38,7 @@ public class FilesCollect {
     public String getViewersDefinitions() {
         try {
             File confPath = new File(K5Configuration.getExtensionsHome()+File.separator+"viewers.def");
-            File warPath = new File(request.getSession().getServletContext().getRealPath("WEB-INF/classes/res")+File.separator+"viewers.def");
+            File warPath = new File(request.getSession().getServletContext().getRealPath("/WEB-INF/classes/res")+File.separator+"viewers.def");
             MenuDefValidateInput vinput = new MenuDefValidateInput();
             JSONArray merged = merge(confPath,warPath, vinput);
             return merged.toString();
@@ -57,7 +57,7 @@ public class FilesCollect {
     public String getDownloadsDefinitions() {
         try {
             File confPath = new File(K5Configuration.getExtensionsHome()+File.separator+"downloads.def");
-            File warPath = new File(request.getSession().getServletContext().getRealPath("WEB-INF/classes/res")+File.separator+"downloads.def");
+            File warPath = new File(request.getSession().getServletContext().getRealPath("/WEB-INF/classes/res")+File.separator+"downloads.def");
             MenuDefValidateInput vinput = new MenuDefValidateInput();
             JSONArray merged = merge(confPath,warPath, vinput);
             return merged.toString();
@@ -76,7 +76,7 @@ public class FilesCollect {
     public String getShareDefinitions() {
         try {
             File confPath = new File(K5Configuration.getExtensionsHome()+File.separator+"shares.def");
-            File warPath = new File(request.getSession().getServletContext().getRealPath("WEB-INF/classes/res")+File.separator+"shares.def");
+            File warPath = new File(request.getSession().getServletContext().getRealPath("/WEB-INF/classes/res")+File.separator+"shares.def");
             MenuDefValidateInput vinput = new MenuDefValidateInput();
             JSONArray merged = merge(confPath,warPath, vinput);
             return merged.toString();
@@ -95,7 +95,7 @@ public class FilesCollect {
     public String getMenuDefinitions() {
         try {
             File confPath = new File(K5Configuration.getExtensionsHome()+File.separator+"menu.def");
-            File warPath = new File(request.getSession().getServletContext().getRealPath("WEB-INF/classes/res")+File.separator+"menu.def");
+            File warPath = new File(request.getSession().getServletContext().getRealPath("/WEB-INF/classes/res")+File.separator+"menu.def");
             MenuDefValidateInput vinput = new MenuDefValidateInput();
             JSONArray merged = merge(confPath,warPath, vinput);
             return merged.toString();
@@ -114,7 +114,7 @@ public class FilesCollect {
     public List<String> getStylesheets() {
         try {
             File confPath = new File(K5Configuration.getExtensionsHome()+File.separator+"cssfiles.def");
-            File warPath = new File(request.getSession().getServletContext().getRealPath("WEB-INF/classes/res")+File.separator+"cssfiles.def");
+            File warPath = new File(request.getSession().getServletContext().getRealPath("/WEB-INF/classes/res")+File.separator+"cssfiles.def");
             JSONArray mrg = merge(confPath, warPath, null);
             List<String> alist = new ArrayList<String>();
             for (int i = 0, ll = mrg.length(); i < ll; i++) {
@@ -133,7 +133,7 @@ public class FilesCollect {
     public List<String> getJavascripts() {
         try {
             File confPath = new File(K5Configuration.getExtensionsHome()+File.separator+"jsfiles.def");
-            File warPath = new File(request.getSession().getServletContext().getRealPath("WEB-INF/classes/res")+File.separator+"jsfiles.def");
+            File warPath = new File(request.getSession().getServletContext().getRealPath("/WEB-INF/classes/res")+File.separator+"jsfiles.def");
             JSONArray mrg = merge(confPath, warPath, null);
             List<String> alist = new ArrayList<String>();
             for (int i = 0, ll = mrg.length(); i < ll; i++) {
