@@ -973,15 +973,17 @@ li.public:before{
 
 #viewer li.thumb{
     list-style: none;
-    float:left;
-    margin: 4px;
+    /*float:left;*/
+    display: inline-block;
+    margin: 8px;
     text-align: center;
     position:relative;
     background-color: $params.thumbBackground;
     border: solid 2px transparent;
-    min-height:11mm;
-    min-width:11mm;
+    min-height:128px;
+    min-width:90px;
 }
+
 #viewer li.thumb .thumb_info{
     position: absolute;
     top: 3px;
