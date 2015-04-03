@@ -393,7 +393,7 @@
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
         
-        <templates>
+        <templates>	
             <input class="org.kramerius.replications.inputs.InputTemplate"></input>
             <output class="org.kramerius.replications.outputs.OutputTemplate"></output>
         </templates>

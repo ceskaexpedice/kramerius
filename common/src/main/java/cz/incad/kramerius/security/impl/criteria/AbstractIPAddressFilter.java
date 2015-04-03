@@ -56,7 +56,6 @@ public abstract class AbstractIPAddressFilter extends AbstractCriterium implemen
                 LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' -(negative pattern) NOT ACCEPTING");
             }
         }
-        
         return false;
     }
 

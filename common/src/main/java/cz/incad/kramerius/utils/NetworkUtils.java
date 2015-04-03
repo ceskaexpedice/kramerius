@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2013 Pavel Stastny
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package cz.incad.kramerius.utils;
 
 import java.net.InetAddress;
@@ -9,12 +25,18 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Network utitlity class
+ * @author pavels
+ */
 public class NetworkUtils {
     
     public static Logger LOGGER = Logger.getLogger(NetworkUtils.class.getName());
-    //private static String[] _LOCALHOST={"127.0.0.1","localhost","0:0:0:0:0:0:0:1","::1"}; 
     
+    /**
+     * Remove all host ip addresses
+     * @return
+     */
     public static String[] getLocalhostsAddress() {
         List<String> alist = new ArrayList<String>();
         try {
@@ -37,8 +59,4 @@ public class NetworkUtils {
         return alist.toArray(new String[alist.size()]);
     }
 
- 
-    public static void main(String[] args) {
-        getLocalhostsAddress();
-    }
 }
