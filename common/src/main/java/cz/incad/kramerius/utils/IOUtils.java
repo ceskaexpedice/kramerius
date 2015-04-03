@@ -1,22 +1,10 @@
 package cz.incad.kramerius.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.logging.Level;
-
-import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
 
 public class IOUtils {
 
@@ -143,7 +131,7 @@ public class IOUtils {
     public static File checkDirectory(String name) {
         File directory = new File(name);
         if (!directory.exists() || !directory.isDirectory()) {
-            if (!directory.mkdir()) {
+            if (!directory.mkdirs()) {
                 LOGGER.severe("Folder doesn't exist and can't be created: "
                         + directory.getAbsolutePath());
                 throw new RuntimeException(
