@@ -90,7 +90,9 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     }
 
     public void init() throws IOException {
-        String[] texts = { "security_fail", "security_fail_CZ_cs",
+        String[] texts = { 
+                "k5security_fail", "k5security_fail_CZ_cs",
+                "security_fail", "security_fail_CZ_cs",
                 // TODO: Move to another position
                 "logininfo", "logininfo_CZ_cs", "k5info","clienthelp" };
 
