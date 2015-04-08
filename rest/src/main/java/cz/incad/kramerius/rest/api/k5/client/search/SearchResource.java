@@ -90,7 +90,7 @@ public class SearchResource {
             for (String k : keys) {
                 for (String v : queryParameters.get(k)) {
                     String value = URLEncoder.encode(v, "UTF-8");
-                    value = checkHighlightValues(v, value);
+                    value = checkHighlightValues(k, value);
                     builder.append(k + "=" + value);
                     builder.append("&");
                 }
@@ -158,7 +158,7 @@ public class SearchResource {
             for (String k : keys) {
                 for (String v : queryParameters.get(k)) {
                     String value = URLEncoder.encode(v, "UTF-8");
-                    value = checkHighlightValues(v, value);
+                    value = checkHighlightValues(k, value);
                     builder.append(k + "=" + value);
                     builder.append("&");
                 }
