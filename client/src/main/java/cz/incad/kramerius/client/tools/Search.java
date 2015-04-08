@@ -94,7 +94,7 @@ public class Search {
     private String getJSON(String url) throws IOException {
 
         LOGGER.log(Level.INFO, "requesting url {0}", url);
-        InputStream inputStream = RESTHelper.inputStream(url, "application/json", new HashMap<String, String>());
+        InputStream inputStream = RESTHelper.inputStream(url, "application/json",this.req, new HashMap<String, String>());
         StringWriter sw = new StringWriter();
         org.apache.commons.io.IOUtils.copy(inputStream, sw, "UTF-8");
         return sw.toString();

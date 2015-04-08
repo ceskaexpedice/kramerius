@@ -497,7 +497,6 @@ public class SolrOperations {
         params.put("DOCCOUNT", docCount);
         params.put("PAGENUM", "0");
         params.put("BROWSEMODELS", Arrays.toString(config.getStringArray("indexer.browseModels")));
-        logger.log(Level.INFO, "BROWSEMODELS = {0}", Arrays.toString(config.getStringArray("indexer.browseModels")));
         String xsltPath = config.getString("UpdateIndexDocXslt");
 
         for (int i = 0; i <= Integer.parseInt(docCount); i++) {

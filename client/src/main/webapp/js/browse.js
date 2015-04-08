@@ -209,9 +209,9 @@ Browse.prototype = {
                         var models = K5.indexConfig.browse.models;
                         var modelField = K5.indexConfig.mappings.fedora_model;
                         for(var i=0; i<models.length; i++){
-                            q += modelField + ':"' + models[i];
+                            q += modelField + ':"' + models[i] + '"';
                             if(i<models.length-1){
-                                q += " OR "
+                                q += ' OR ';
                             }
                         }
                     }

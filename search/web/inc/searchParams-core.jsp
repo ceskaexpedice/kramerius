@@ -1,22 +1,13 @@
-<%@page import="cz.incad.kramerius.utils.UTFSort"%>
-<%@page import="java.text.SimpleDateFormat"%>
-<%@page import="java.text.DateFormat"%>
 <%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c-rt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
 <%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
-
 <%@ page isELIgnored="false"%>
 
-<%--
-<view:object name="searchParams" clz="cz.incad.Kramerius.views.inc.SearchParamsViews"></view:object>
---%>
+<view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
 <view:kconfig var="collapsed_conf" key="search.query.collapsed" defaultValue="true" />
 <c:catch var="searchException">
     <c:set var="isCollapsed" value="${!isHome && (param.collapsed != 'false') && (collapsed_conf == 'true')}" scope="request"  />
@@ -70,8 +61,14 @@
     <%-- datum --%>
     <c:if test="${param.da_od != null && !empty param.da_od}">
         <c:set var="fieldedSearch" value="true" scope="request" />
-        <c:param name="fq" value="(rok:[${searchParams.yearFrom} TO ${searchParams.yearUntil}]) OR (datum_begin:[1 TO ${searchParams.yearUntil}] AND datum_end:[${searchParams.yearFrom} TO 3000]) OR datum:[${searchParams.dateFromFormatted} TO ${searchParams.dateUntilFormatted}]" />
-            <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="da">(rok:[${searchParams.yearFrom} TO ${searchParams.yearUntil}]) OR (datum_begin:[1 TO ${searchParams.yearUntil}] AND datum_end:[${searchParams.yearFrom} TO 3000])</c:set>
+        <c:if test="${param.da_od == param.da_do}">
+            <c:set var="da">
+                 ${da} OR (datum:"${searchParams.dateFromFormatted}")
+            </c:set>
+        </c:if>
+        <c:param name="fq" value="${da}" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
     <c:if test="${!empty param.offset}">
         <c:param name="start" value="${param.offset}" />
@@ -136,7 +133,6 @@
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
 
-    <view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
     <c:if test="${cols.current != null}">
         <c:param name="fq" value="collection:\"${cols.current.pid}\"" />
     </c:if>
@@ -162,6 +158,7 @@
         <c:param name="f.rok.facet.sort" value="false" />
         <c:param name="facet" value="true" />
         <c:param name="facet.mincount" value="1" />
+        <c:param name="f.rok.facet.mincount" value="0" />
     </c:if>
     <c:if test="${rows!='0'}">
         <c:param name="facet.field" value="facet_autor" />

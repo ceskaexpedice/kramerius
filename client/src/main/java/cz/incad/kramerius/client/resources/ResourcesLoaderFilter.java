@@ -51,7 +51,7 @@ public class ResourcesLoaderFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        try {
+        try { 
             String mergeClass = filterConfig.getInitParameter("merge");
 
             Class<?> clz = Class.forName(mergeClass);

@@ -196,9 +196,7 @@ public class KrameriusDocument {
         doc.addField("datum_str", datumStr);
         if (datum != null) {
             doc.addField("datum", solrDateFormat.format(datum));
-        } else {
-            doc.addField("datum", solrDateFormat.format(new Date(0)));
-        }
+        } 
         if (!rok.equals("")) {
             doc.addField("rok", rok);
         }

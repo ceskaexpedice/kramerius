@@ -7,13 +7,8 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.artifacts.*;
 
-import org.apache.tools.ant.taskdefs.optional.ANTLR;
-import org.apache.tools.ant.types.Path;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.plugins.antlr.internal.GenerationPlan;
-import org.gradle.api.plugins.antlr.internal.GenerationPlanBuilder;
-import org.gradle.api.plugins.antlr.internal.MetadataExtracter;
-import org.gradle.api.plugins.antlr.internal.XRef;
+
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;

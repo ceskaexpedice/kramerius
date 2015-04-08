@@ -1,0 +1,13 @@
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+<rdf:Description rdf:about="info:fedora/uuid:24330953-cccc-4c06-b4f9-859dd01fa2e7">
+	<hasModel xmlns="info:fedora/fedora-system:def/model#" rdf:resource="info:fedora/model:page"></hasModel>
+	<itemID xmlns="http://www.openarchives.org/OAI/2.0/">uuid:24330953-cccc-4c06-b4f9-859dd01fa2e7</itemID>
+	<tiles-url xmlns="http://www.nsdl.org/ontologies/relationships#">http://imageserver.mzk.cz/mzk01/000/329/646/24330953-cccc-4c06-b4f9-859dd01fa2e7</tiles-url>
+	<policy xmlns="http://www.nsdl.org/ontologies/relationships#">policy:public</policy>
+	
+	
+<replicatedFrom xmlns="http://www.nsdl.org/ontologies/relationships#">http://kramerius.mzk.cz/search/handle/uuid:24330953-cccc-4c06-b4f9-859dd01fa2e7</replicatedFrom><isMemberOfCollection xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" resource="vc:700a6cc7-1e5c-4487-b111-c425cbc51091"></isMemberOfCollection></rdf:Description>
+
+</rdf:RDF>

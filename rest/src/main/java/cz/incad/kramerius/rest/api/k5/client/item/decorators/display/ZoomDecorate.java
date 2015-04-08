@@ -55,19 +55,25 @@ public class ZoomDecorate extends AbstractDisplayDecorate {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
+    @Inject
+    KConfiguration kconf;
+    
     @Override
     public String getKey() {
         return ZOOM_KEY;
     }
 
-    private Object zoom(String vpid) {
+    JSONObject zoom(String vpid, String confObject, String appUrl) {
+        //String zoomType = KConfiguration.getInstance().getProperty("zoom.viewer","zoomify");
+//        String appUrl = ApplicationURL.applicationURL(this.requestProvider.get())
+//                .toString() + (zoomType.equals("zoomify") ? "/zoomify/" : "/deepZoom/");
+        
         JSONObject options = new JSONObject();
-        String url = ApplicationURL.applicationURL(this.requestProvider.get())
-                .toString() + "/deepZoom/" + vpid;
+        String url = appUrl + vpid;
         options.put("url", url);
         options.put(
                 "type",
-                KConfiguration.getInstance().getProperty("zoom.viewer",
+                this.kconf.getProperty("zoom.viewer",
                         "zoomify"));
         return options;
     }
@@ -84,7 +90,10 @@ public class ZoomDecorate extends AbstractDisplayDecorate {
                     String url = RelsExtHelper.getRelsExtTilesUrl(relsExt,
                             fedoraAccess);
                     if (url != null) {
-                        jsonObject.put("zoom", zoom(pid));
+                		String zoomType = this.kconf.getProperty("zoom.viewer","zoomify");
+                		String appUrl = ApplicationURL.applicationURL(this.requestProvider.get())
+                              .toString() + (zoomType.equals("zoomify") ? "/zoomify/" : "/deepZoom/");
+                    	jsonObject.put("zoom", zoom(pid, zoomType, appUrl));
                     }
                 }
             }

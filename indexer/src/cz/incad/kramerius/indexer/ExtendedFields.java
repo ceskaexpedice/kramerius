@@ -226,8 +226,6 @@ public class ExtendedFields {
         sb.append("<field name=\"datum_str\">").append(datum_str).append("</field>");
         if (datum != null) {
             sb.append("<field name=\"datum\">").append(solrDateFormat.format(datum)).append("</field>");
-        } else {
-            sb.append("<field name=\"datum\">").append(solrDateFormat.format(new Date(0))).append("</field>");
         }
         if (!rok.equals("")) {
             sb.append("<field name=\"rok\">").append(rok).append("</field>");
@@ -316,6 +314,8 @@ public class ExtendedFields {
             } else if (datumStr.matches("\\d\\d--")) {  //Datum muze byt typu 18--
                 datum_begin = datumStr.substring(0, 2) + "00";
                 datum_end = datumStr.substring(0, 2) + "99";
+            } else if (datumStr.matches("\\d\\d-\\d\\d\\.\\d\\d\\d\\d")) {  //Datum muze byt typu 11-12.1946
+                rok = datumStr.split("\\.")[1].trim();
             } else if (datumStr.matches("\\d\\d\\.-\\d\\d\\.\\d\\d\\.\\d\\d\\d\\d")) {  //Datum muze byt typu 19.-20.03.1890
                 
                 String end = datumStr.split("-")[1].trim();

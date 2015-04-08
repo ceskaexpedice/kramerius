@@ -976,7 +976,7 @@ public abstract class BaseConvertor {
                     String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "img";
                     if (useImageServer){
                         String externalImagesDirectory = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerDirectory");
-                        binaryDirectory = externalImagesDirectory +  System.getProperty("file.separator") + getConfig().getContract();
+                        binaryDirectory = externalImagesDirectory + getConfig().getImgTreePath()+ System.getProperty("file.separator") + getConfig().getContract();
                     }
 
                     // Destination directory
@@ -986,8 +986,8 @@ public abstract class BaseConvertor {
                     FileUtils.copyFile(pageFile, target);
                     ContentLocationType cl = new ContentLocationType();
                     if (useImageServer) {
-                        String tilesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerTilesURLPrefix");
-                        String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
+                        String tilesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerTilesURLPrefix")+ getConfig().getImgTreeUrl();
+                        String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix")+ getConfig().getImgTreeUrl();
                         String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.big");
 
                         if(KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerSuffix.removeFilenameExtensions", false)) {
@@ -1104,7 +1104,7 @@ public abstract class BaseConvertor {
                         cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
                     }
                 }else{
-                    String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
+                    String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix") + getConfig().getImgTreeUrl();
                 	String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.thumb");
                     if(KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerSuffix.removeFilenameExtensions", false)) {
                         String pageFileNameWithoutExtension = FilenameUtils.removeExtension(filename.substring(filename.lastIndexOf("/")));
@@ -1183,9 +1183,9 @@ public abstract class BaseConvertor {
                         cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
                     }
                 }else{
-                    String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix");
+                    String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix") + getConfig().getImgTreeUrl();
                     String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.preview");
-                    if(KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServer.removeFilenameExtensions", false)) {
+                    if(KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerSuffix.removeFilenameExtensions", false)) {
                         String pageFileNameWithoutExtension = FilenameUtils.removeExtension(filename.substring(filename.lastIndexOf("/")));
                         cl.setREF(imagesPrefix +"/"+PathEncoder.encPath(getConfig().getContract()+pageFileNameWithoutExtension+suffix));
                     } else {
