@@ -23,6 +23,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import org.xml.sax.SAXException;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
@@ -89,6 +91,9 @@ public class SearchResource {
             Set<String> keys = queryParameters.keySet();
             for (String k : keys) {
                 for (String v : queryParameters.get(k)) {
+                    if (k.equals("fl")) {
+                        checkFieldSettings(v);
+                    }
                     String value = URLEncoder.encode(v, "UTF-8");
                     value = checkHighlightValues(k, value);
                     builder.append(k + "=" + value);
@@ -125,6 +130,14 @@ public class SearchResource {
         }
     }
 
+    private void checkFieldSettings(String value) {
+        List<String> filters = Arrays.asList(KConfiguration.getInstance().getAPISolrFilter());
+        String[] vals = value.split(",");
+        for (String v : vals) {
+            if (filters.contains(v)) throw new BadRequestException("requesting filtering field");
+        }
+    }
+    
     private String checkHighlightValues(String v, String value) {
         if (v.equals("hl.fragsize")) {
             try {
@@ -157,6 +170,9 @@ public class SearchResource {
             Set<String> keys = queryParameters.keySet();
             for (String k : keys) {
                 for (String v : queryParameters.get(k)) {
+                    if (k.equals("fl")) {
+                        checkFieldSettings(v);
+                    }
                     String value = URLEncoder.encode(v, "UTF-8");
                     value = checkHighlightValues(k, value);
                     builder.append(k + "=" + value);
