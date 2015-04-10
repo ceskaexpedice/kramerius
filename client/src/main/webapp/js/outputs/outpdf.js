@@ -53,9 +53,7 @@ PDFSupport.prototype= {
                     $("body").css("cursor", "default");
                 }, this)).error(function(jqXHR, textStatus, errorThrown) {
                     $(".opacityloading").hide();
-
                     if (jqXHR.status === 400) {
-                        
                         function _message(cont) {
                             function _waitheader() {
                                 var head = $("<div/>",{"class":"pdfbusy_head"});
@@ -82,7 +80,6 @@ PDFSupport.prototype= {
 
                         K5.gui.selected.messages.close();
                         K5.gui.selected.messages.open(_message);
-
                     } else if (jqXHR.status === 404) {
                         
                     } else {
@@ -91,6 +88,7 @@ PDFSupport.prototype= {
                     $("body").css("cursor", "default");
                 });
             } else {
+                $(".opacityloading").show();
                 $.getJSON("pdfforward/asyncpdf/parent?pid="+ pid+"&number="+pages.length, _.bind(function(data) {
                     var handle = data["handle"];
                     window.open("pdfforward/asyncpdf/handle?handle="+ handle,"_blank");
@@ -99,6 +97,7 @@ PDFSupport.prototype= {
                 }, this)).error(function(jqXHR, textStatus, errorThrown) {
                     $(".opacityloading").hide();
                     if (jqXHR.status === 400) {
+			
                         function _message(cont) {
                             function _waitheader() {
                                 var head = $("<div/>",{"class":"pdfbusy_head"});
@@ -124,11 +123,13 @@ PDFSupport.prototype= {
 
                         K5.gui.selected.messages.close();
                         K5.gui.selected.messages.open(_message);
+			
                     } else if (jqXHR.status === 404) {
                         
                     } else {
                         console.log("error");
                     }
+		    	
 
                 });
 
@@ -156,8 +157,6 @@ PDFSupport.prototype= {
                     cont.append(m);
                 }
 
-                K5.gui.selected.messages.close();
-                K5.gui.selected.messages.open(_message);
             }
             
         },

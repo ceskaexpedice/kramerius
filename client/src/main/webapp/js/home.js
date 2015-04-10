@@ -116,6 +116,7 @@ HomeEffects.prototype = {
                 //srcs = K5.cool.coolData.data;
                 srcs = K5.api.ctx.feed.cool["data"];
         }
+	if (srcs.length == 0) return;
 
         var index = Math.floor(Math.random() * (srcs.length - 1));
         var pid = srcs[index].pid;
