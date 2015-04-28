@@ -82,7 +82,6 @@ public class LoadCustomViewObject implements Initializable {
 
         String tab = this.requestProvider.get().getParameter("tab");
         String ds = tab;
-        LOGGER.severe("LOADCUSTOMVIEWOBJECT:" + ds);
         String xsl = tab;
         if (tab.indexOf('.') >= 0) {
             ds = tab.split("\\.")[0];
