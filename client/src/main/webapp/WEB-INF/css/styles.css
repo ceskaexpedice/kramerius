@@ -1466,26 +1466,29 @@ li.public:before{
     top: 40px;
     position: absolute;
     overflow:hidden;
-    height: calc(100% - 48px);
+    height: calc(100% - 62px);
     width: 100%;
 }
 
-#browse .types{
-    overflow: auto;
+#browse .input{
     width: 100%;
-    height: 35px;
-    text-align: center
+    text-align: center;
+    margin: 5px;
 }
 
-#browse .sections{
+#browse input{
+    width: 80%;
+}
+
+#browse .letters{
     overflow: hidden;
     width: 100%;
-    height: 126px;
+    height: 100px;
     position: relative;
     text-align: center;
 }
 
-#browse .sections .scroll{
+#browse .letters .scroll{
     overflow: hidden;
     margin: 0;
     width: 100%;
@@ -1495,21 +1498,49 @@ li.public:before{
     color: rgba(180, 180, 180, 0.4);
     opacity:0.9;
 }
-#browse .sections>.scroll:hover{
+#browse .letters>.scroll:hover{
     color: $params.textColor;
     opacity:1.0;
 }
-#browse .sections>.scroll>ul{
+#browse .letters>.scroll>ul{
     height: 100%;
     white-space: nowrap;
     padding: 0;
     margin:4px;
 }
 
-#browse .section{
-    overflow:auto;
-    height: calc(100% - 161px);
+#browse .results{
+    overflow:hidden;
+    height: calc(100% - 132px);
     width: 100%;
+}
+
+#browse .results h3{
+    background-color: white;
+    font-size: 1.1em;
+    margin: 3px;
+    margin-bottom: 8px;
+    box-shadow: 0px 5px 3px rgba(0,0,0,0.3);
+    padding: 3px;
+    padding-left: 8px;
+}
+
+#browse .results .typ{
+    float:left;
+    width: calc(50% - 10px);
+}
+#browse .results .authors{
+    float:right;
+}
+#browse .results .titles{
+    border-right: 1px solid rgba(0,0,0,0.3);
+}
+
+#browse .results .typ ul{
+    overflow:auto;
+    height: calc(100% - 35px);
+    margin: 0px;
+    padding: 2px;
 }
 
 #browse .button{
@@ -1517,15 +1548,6 @@ li.public:before{
     display: inline-block;
     border: solid 1px black;
     border-color:$params.activeColor;
-    padding: 4px;
-    margin: 4px;
-    cursor: pointer;
-}
-
-#browse .types .button{
-    font-size: 1.2em;
-    display: inline-block;
-    border: solid 1px black;
     padding: 4px;
     margin: 4px;
     cursor: pointer;
@@ -1539,29 +1561,29 @@ li.public:before{
     text-align: center;
 }
 
-#browse .sections>.scroll>ul>li{
+#browse .letters>.scroll>ul>li{
     white-space: normal;
     list-style: none;
     width: 18px;
-    height: 100px;
+    height: 74px;
     overflow: hidden;
     border-color:rgba(180, 180, 180, 0.4);
 }
 
-#browse .sections>.scroll>ul>li:hover{
+#browse .letters>.scroll>ul>li:hover{
     border-color:$params.textColor;
 }
 
 
-#browse .sections div.arrow {
+#browse .letters div.arrow {
     top: 39px;
     position: absolute;
 }
 #browse .spine{
     text-align: center;
-    width: 100px;
+    width: 74px;
     position: relative;
-    left:-102px;
+    left:-76px;
     top:0;
     cursor: pointer;
     font-size: 1.4em;
@@ -1582,7 +1604,7 @@ li.public:before{
     font-weight: bold;
 }
 
-#browse .sections>.scroll>ul>li.sel{
+#browse .letters>.scroll>ul>li.sel{
     border-color:$params.textColor;
     color: params.textColor;
     box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
