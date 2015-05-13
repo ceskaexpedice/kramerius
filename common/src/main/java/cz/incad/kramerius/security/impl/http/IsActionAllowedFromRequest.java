@@ -48,11 +48,17 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class IsActionAllowedFromRequest implements IsActionAllowed {
 
+    public static final Logger LOGGER = Logger.getLogger(IsActionAllowedFromRequest.class.getName());
     
     public static final String X_IP_FORWARD = "X_IP_FORWARD";
     static String[] LOCALHOSTS = {"127.0.0.1","localhost","0:0:0:0:0:0:0:1","::1"};
     static {
-        LOCALHOSTS = NetworkUtils.getLocalhostsAddress();
+        try {
+            LOCALHOSTS = NetworkUtils.getLocalhostsAddress();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOCALHOSTS = new String[] {"127.0.0.1","localhost","0:0:0:0:0:0:0:1","::1"};
+        }
     }
     
     

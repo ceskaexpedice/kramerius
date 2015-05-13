@@ -20,6 +20,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
@@ -49,7 +50,12 @@ public class NetworkUtils {
                 while(addresses.hasMoreElements()) {
                     InetAddress addr = addresses.nextElement();
                     String ip = addr.getHostAddress();
-                    String ipaddr = StringUtils.minus(ip, "%"+iface.getDisplayName());
+                    LOGGER.fine("local ip address "+ip);
+                    String ipaddr = ip;
+                    if (ip.contains("%"+iface.getDisplayName())) {
+                        LOGGER.fine("removing postfix "+"%"+iface.getDisplayName());
+                        ipaddr = StringUtils.minus(ip, "%"+iface.getDisplayName());
+                    }
                     alist.add(ipaddr);
                 }
             }
@@ -59,4 +65,5 @@ public class NetworkUtils {
         return alist.toArray(new String[alist.size()]);
     }
 
+    
 }
