@@ -119,7 +119,11 @@ public class RegisterPublicUser extends AbstractPostUser{
             msg.setSubject(resourceBundle.getString("registeruser.mail.subject"));
             String formatted = MessageFormat.format(resourceBundle.getString("registeruser.mail.message"),user.getFirstName()+" "+user.getSurname(), user.getLoginname(), ApplicationURL.applicationURL(request)+"/users?action=activation&key="+key);
             msg.setText(formatted);
-            InternetAddress mailFrom = new InternetAddress(sess.getProperty("mail.from"));
+            String from = sess.getProperty("mail.from");
+            if (from == null) {
+                from = sess.getProperty("mail.smtp.user");
+            }
+            InternetAddress mailFrom = new InternetAddress(from);
             msg.setFrom(mailFrom);
             Transport.send(msg);
         } catch (NoSuchProviderException e) {
