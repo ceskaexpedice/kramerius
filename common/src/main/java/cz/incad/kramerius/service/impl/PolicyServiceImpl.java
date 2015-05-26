@@ -128,6 +128,24 @@ public class PolicyServiceImpl implements PolicyService {
         }
     }
 
+    
+    public FedoraAccess getFedoraAccess() {
+        return fedoraAccess;
+    }
+
+    public void setFedoraAccess(FedoraAccess fedoraAccess) {
+        this.fedoraAccess = fedoraAccess;
+    }
+
+    public KConfiguration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(KConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
+
     private static final String POLICY_PREDICATE = "http://www.nsdl.org/ontologies/relationships#policy";
     private static final String INFO = "info:fedora/";
 

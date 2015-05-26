@@ -23,12 +23,21 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
 import javax.xml.xpath.*;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
@@ -70,16 +79,13 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                 	Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
                     // try all xpaths on mods
                     for (String xp : MODS_XPATHS) {
-                        result = resolveInternal(wallFromConf,pid,xp,biblioMods);
+                        result = resolveInternal(wallFromConf,pid,xp,biblioMods, this.xpfactory);
                         if (result !=null) break;
                     }
-                    
-                    
                     // TRUE or FALSE -> rozhodnul, nevratil NOT_APPLICABLE
                     if (result != null && (result.equals(EvaluatingResult.TRUE) ||  result.equals(EvaluatingResult.FALSE))) return result; 
                 }
             }
-
             return result != null ? result :EvaluatingResult.NOT_APPLICABLE;
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
@@ -95,14 +101,14 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
     
     
-    public EvaluatingResult resolveInternal(int wallFromConf, String pid, String xpath, Document xmlDoc) throws IOException, XPathExpressionException {
+    public static EvaluatingResult resolveInternal(int wallFromConf, String pid, String xpath, Document xmlDoc,XPathFactory xpfactory) throws IOException, XPathExpressionException {
         if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResult.NOT_APPLICABLE;
-        return evaluateDoc(wallFromConf, xmlDoc, xpath);
+        return evaluateDoc(wallFromConf, xmlDoc, xpath, xpfactory);
     }
 
 
 
-    public EvaluatingResult evaluateDoc(int wallFromConf, Document xmlDoc, String xPathExpression) throws XPathExpressionException {
+    public static EvaluatingResult evaluateDoc(int wallFromConf, Document xmlDoc, String xPathExpression,XPathFactory xpfactory) throws XPathExpressionException {
         XPath xpath = xpfactory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         XPathExpression expr = xpath.compile(xPathExpression);
@@ -111,8 +117,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
             String patt = ((Text) date).getData();
 
             try {
-                DatesParser dateParse = new DatesParser(new DateLexer(new StringReader(patt)));
-                Date parsed = dateParse.dates();
+                Date parsed = tryToParseDates(patt);
 
                 Calendar calFromMetadata = Calendar.getInstance();
                 calFromMetadata.setTime(parsed);
@@ -130,6 +135,10 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 LOGGER.log(Level.SEVERE,"Returning NOT_APPLICABLE");
                 return EvaluatingResult.NOT_APPLICABLE;
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                LOGGER.log(Level.SEVERE,"Returning NOT_APPLICABLE");
+                return EvaluatingResult.NOT_APPLICABLE;
             }
             
         }
@@ -138,6 +147,62 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         return null;
     }
 
+    public static Date tryToParseDates(String patt)
+            throws RecognitionException, TokenStreamException, IOException {
+        try {
+            return ndkDates(patt);
+        } catch (Exception e) {
+            // try to parse custom 
+            return customizedDates(patt);
+        }
+    }
+
+    /**
+     * Parse customized dates
+     * @param patt Read date from data
+     * @return Parsed date
+     * @throws IOException
+     */
+    public static Date customizedDates(String patt) throws IOException {
+        BufferedReader buffReader = null;
+        try {
+            String patternFile = KConfiguration.getInstance().getConfiguration().getString("patterns.file");
+            KConfiguration.getInstance().getConfiguration().getString("patterns.file", "${sys:user.home}/.kramerius4/mw.patterns");
+            FileReader freader = new FileReader(new File(patternFile));
+            buffReader = new BufferedReader(freader);
+            String line = null;
+            while((line = buffReader.readLine()) != null ) {
+                try {
+                    SimpleDateFormat sdateFormat = new SimpleDateFormat(line);
+                    Date parsed = sdateFormat.parse(patt);
+                    // parsed -> return
+                    return parsed;
+                } catch (Exception e) {
+                    //skip to next pattern
+                }
+                
+            }
+            return null;
+        } finally {
+            IOUtils.tryClose(buffReader);
+        }
+    }
+    
+    /**
+     * NDK dates - NDK specifications
+     * @param patt REad date from data
+     * @return Parsed date
+     * @throws RecognitionException
+     * @throws TokenStreamException
+     */
+    public static Date ndkDates(String patt) throws RecognitionException,
+            TokenStreamException {
+        DatesParser dateParse = new DatesParser(new DateLexer(new StringReader(patt)));
+        Date parsed = dateParse.dates();
+        return parsed;
+    }
+
+    
 
     @Override
     public RightCriteriumPriorityHint getPriorityHint() {

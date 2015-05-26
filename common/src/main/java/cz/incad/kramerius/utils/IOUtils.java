@@ -154,6 +154,27 @@ public class IOUtils {
         }
     }
 
+    public static void tryClose(Reader reader) {
+        try {
+            if (reader != null) {
+                reader.close();
+            }
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static void tryClose(Writer writer) {
+        try {
+            if (writer != null) {
+                writer.close();
+            }
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    
     public static void tryClose(InputStream is) {
         try {
             if (is != null) {
