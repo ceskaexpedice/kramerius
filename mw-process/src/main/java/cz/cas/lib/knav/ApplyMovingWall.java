@@ -109,7 +109,6 @@ public class ApplyMovingWall {
         String[] models = path.getPathFromLeafToRoot();
         int wall =conf.getInt("mwprocess.wall",70);
         for (String model : models) {
-            LOGGER.info("try to find configuration for model "+model);
             if (conf.containsKey("mwprocess.model."+model+".wall")) {
                 wall = conf.getInt("mwprocess.model."+model+".wall");
             }

@@ -37,9 +37,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -76,7 +79,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                 for (String pid : pids) {
                     
                     if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
-                	Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
+                    Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
                     // try all xpaths on mods
                     for (String xp : MODS_XPATHS) {
                         result = resolveInternal(wallFromConf,pid,xp,biblioMods, this.xpfactory);
@@ -118,15 +121,17 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
             try {
                 Date parsed = tryToParseDates(patt);
+                if (parsed != null) {
+                    Calendar calFromMetadata = Calendar.getInstance();
+                    calFromMetadata.setTime(parsed);
 
-                Calendar calFromMetadata = Calendar.getInstance();
-                calFromMetadata.setTime(parsed);
+                    Calendar calFromConf = Calendar.getInstance();
+                    calFromConf.add(Calendar.YEAR, -1*wallFromConf);
 
-                Calendar calFromConf = Calendar.getInstance();
-                calFromConf.add(Calendar.YEAR, -1*wallFromConf);
-
-                return calFromMetadata.before(calFromConf) ?  EvaluatingResult.TRUE:EvaluatingResult.FALSE;
-                
+                    return calFromMetadata.before(calFromConf) ?  EvaluatingResult.TRUE:EvaluatingResult.FALSE;
+                } else {
+                    return EvaluatingResult.NOT_APPLICABLE;
+                }
             } catch (RecognitionException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 LOGGER.log(Level.SEVERE,"Returning NOT_APPLICABLE");
@@ -153,39 +158,52 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
             return ndkDates(patt);
         } catch (Exception e) {
             // try to parse custom 
-            return customizedDates(patt);
+            List<String> patterns = readCustomizedPatterns();
+            return customizedDates(patt, patterns);
         }
     }
 
+    public static List<String> readCustomizedPatterns() throws IOException {
+        List<String> retvals = new ArrayList<String>();
+        BufferedReader buffReader = null;
+        try {
+            String patternFile = KConfiguration.getInstance().getConfiguration().getString("mw.patterns.file", "${sys:user.home}/.kramerius4/mw.patterns");
+            File file = new File(patternFile);
+            if (file.exists()) {
+                FileReader freader = new FileReader(file);
+
+                buffReader = new BufferedReader(freader);
+                String line = null;
+                while((line = buffReader.readLine()) != null ) {
+                    retvals.add(line);
+                }
+            }
+        } finally {
+            IOUtils.tryClose(buffReader);
+        }
+        return retvals;
+        
+    }
+    
     /**
      * Parse customized dates
      * @param patt Read date from data
      * @return Parsed date
      * @throws IOException
      */
-    public static Date customizedDates(String patt) throws IOException {
-        BufferedReader buffReader = null;
-        try {
-            String patternFile = KConfiguration.getInstance().getConfiguration().getString("patterns.file");
-            KConfiguration.getInstance().getConfiguration().getString("patterns.file", "${sys:user.home}/.kramerius4/mw.patterns");
-            FileReader freader = new FileReader(new File(patternFile));
-            buffReader = new BufferedReader(freader);
-            String line = null;
-            while((line = buffReader.readLine()) != null ) {
-                try {
-                    SimpleDateFormat sdateFormat = new SimpleDateFormat(line);
-                    Date parsed = sdateFormat.parse(patt);
-                    // parsed -> return
-                    return parsed;
-                } catch (Exception e) {
-                    //skip to next pattern
-                }
-                
+    public static Date customizedDates(String patt, List<String> patterns) throws IOException {
+        for (String pattern : patterns) {
+            try {
+                SimpleDateFormat sdateFormat = new SimpleDateFormat(pattern);
+                Date parsed = sdateFormat.parse(patt);
+                // parsed -> return
+                return parsed;
+            } catch (ParseException e) {
+                // continue
+                LOGGER.fine("failed to parse date "+patt);
             }
-            return null;
-        } finally {
-            IOUtils.tryClose(buffReader);
         }
+        return null;
     }
     
     /**

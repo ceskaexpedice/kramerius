@@ -1,17 +1,36 @@
 package cz.cas.lib.knav;
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.configuration.Configuration;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.impl.criteria.MovingWall;
+import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
+import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
+import cz.incad.kramerius.utils.XMLUtils;
 
 public class ApplyMovingWallTest {
     
@@ -52,12 +71,12 @@ public class ApplyMovingWallTest {
     }
     
     @Test
-    public void testPath() {
-        String raw = "periodical/periodicalvolume/periodicalitem/page";
-        String[] split = raw.split("/");
-        for (String f : split) {
-            System.out.println(f);
-        }
+    public void testPattern() throws IOException {
+        Date date = MovingWall.customizedDates("2001.07.04 at 12:08:56 PDT", Arrays.asList("yyyy.MM.dd 'at' HH:mm:ss 'PDT'"));
+        Assert.assertNotNull(date);
+
+        date = MovingWall.customizedDates("2001.07.04 at 12:08:56 PDT", Arrays.asList("yyyy HH:mm:ss 'PDT'","yyyy.MM HH:mm:ss 'PDT'"));
+        Assert.assertNull(date);
+        
     }
-    
 }

@@ -419,4 +419,15 @@
     </process>
 
 
+    <!-- Apply moving wall to subtree -->
+	<process>
+        <id>applymw</id>
+        <description>Apply moving wall</description>
+        <mainClass>cz.cas.lib.knav.ApplyMovingWall</mainClass>
+        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+    </process>
+
+
 </processes>

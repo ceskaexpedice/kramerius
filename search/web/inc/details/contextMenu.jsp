@@ -814,6 +814,18 @@
       }
 
 
+      function applyMovingWall(){
+          var structs = pidstructs();
+          if (structs.length > 1) {
+              var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={applymw;",structs)+"}";
+              processStarter("applymw").start(u);
+          } else {
+              var u = urlWithPids("lr?action=start&def=applymw&out=text&nparams=",structs);
+              processStarter("applymw").start(u);
+          }
+      }
+
+
       function generateDeepZoomTiles(){
           var structs = pidstructs();
           var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={generateDeepZoomTiles;",structs);
