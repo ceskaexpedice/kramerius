@@ -429,5 +429,27 @@
         <errOs>lrErr</errOs>
     </process>
 
+    <!-- iterate over models -->
+    <process>
+        <id>iterated_appliedmw</id>
+        <description>Iterate over models and starts subprocesses</description>
+        <mainClass>cz.incad.kramerius.processes.impl.IterateNonParametrized</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>applymw ["$pid$"]</parameters>
+        <securedaction>aggregate</securedaction>
+    </process>
+
+    <!-- iterate over models -->
+    <process>
+        <id>iterated_mock</id>
+        <description>Iterate over models and starts subprocesses</description>
+        <mainClass>cz.incad.kramerius.processes.impl.IterateNonParametrized</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>mock ["$pid$","$model$","$index$"]</parameters>
+        <securedaction>aggregate</securedaction>
+    </process>
+
 
 </processes>
