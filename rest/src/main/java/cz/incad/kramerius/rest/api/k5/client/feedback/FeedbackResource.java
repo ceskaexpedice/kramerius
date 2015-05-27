@@ -7,12 +7,12 @@ import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -34,29 +34,38 @@ import java.util.logging.Logger;
 @Path("/v5.0/feedback")
 public class FeedbackResource {
 
-    public static Logger LOGGER = Logger.getLogger(FeedbackResource.class.getName());
+    private static Logger LOGGER = Logger.getLogger(FeedbackResource.class.getName());
 
     @Inject
-    KConfiguration configuration;
+    private KConfiguration configuration;
     @Inject
-    protected ResourceBundleService resourceBundleService;
+    private ResourceBundleService resourceBundleService;
     @Inject
-    protected Provider<HttpServletRequest> requestProvider;
+    private Provider<Locale> localesProvider;
     @Inject
-    protected Provider<Locale> localesProvider;
-    @Inject
-    Mailer mailer;
+    private Mailer mailer;
 
     @POST
     @Produces({MediaType.TEXT_PLAIN+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response sendFeedback(JSONObject data) {
         try {
-            // nenalezení způsobí JSONException
-            String pid = data.getString("pid");
-            String url = data.getString("url");
-            String text = data.getString("text");
-            String email = data.getString("email");
+            String pid = "";
+            String url = "";
+            String text = "";
+            String email = "";
+            if (data.containsKey("pid")) {
+                pid = data.getString("pid");
+            }
+            if (data.containsKey("url")) {
+                url = data.getString("url");
+            }
+            if (data.containsKey("text")) {
+                text = data.getString("text");
+            }
+            if (data.containsKey("email")) {
+                email = data.getString("email");
+            }
 
             sendMail(email, pid, url, text);
             return Response.status(201).entity("Feedback sent to administrator").build();
@@ -71,7 +80,7 @@ public class FeedbackResource {
         }
     }
 
-    public void sendMail(String from, String pid, String url, String text) throws ServerException {
+    private void sendMail(String from, String pid, String url, String text) throws ServerException {
         try {
             ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("labels", this.localesProvider.get());
 
