@@ -59,7 +59,7 @@ public class PolicyServiceImpl implements PolicyService {
         }
     }
 
-    private void setPolicyForNode(String pid, String policyName) {
+    public void setPolicyForNode(String pid, String policyName) {
         LOGGER.info("Set policy pid: "+pid+" policy: "+policyName);
         setPolicyDC(pid, policyName);
         setPolicyRELS_EXT(pid, policyName);

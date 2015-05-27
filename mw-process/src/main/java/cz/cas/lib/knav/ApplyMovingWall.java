@@ -78,7 +78,9 @@ public class ApplyMovingWall {
         } else {
             // wrong data
             LOGGER.warning("cannot set flag for pid "+onePid);
+            
         }
+        // TODO: Create list of pid for indexing 
     }
 
     
@@ -92,7 +94,7 @@ public class ApplyMovingWall {
         PolicyServiceImpl policy = new PolicyServiceImpl();
         policy.setFedoraAccess(fa);
         policy.setConfiguration(KConfiguration.getInstance());
-        policy.setPolicy(pid, b ? "public":"private");
+        policy.setPolicyForNode(pid, b ? "public":"private");
      }
     
     /**
