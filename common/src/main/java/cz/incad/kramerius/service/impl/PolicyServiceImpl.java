@@ -14,6 +14,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathExpression;
 
@@ -73,34 +74,7 @@ public class PolicyServiceImpl implements PolicyService {
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(new ByteArrayInputStream(stream.getStream()));
-            XPathFactory factory = XPathFactory.newInstance();
-            XPath xpath = factory.newXPath();
-            xpath.setNamespaceContext(new NamespaceContext() {
-
-                @SuppressWarnings("unchecked")
-                @Override
-                public Iterator getPrefixes(String arg0) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public String getPrefix(String arg0) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public String getNamespaceURI(String prefix) {
-                    if (prefix == null)
-                        throw new NullPointerException("Null prefix");
-                    else if ("dc".equals(prefix))
-                        return "http://purl.org/dc/elements/1.1/";
-
-                    return XMLConstants.XML_NS_URI;
-                }
-            });
-            XPathExpression expr = xpath.compile("//dc:rights");
-            Object result = expr.evaluate(doc, XPathConstants.NODESET);
-            NodeList nodes = (NodeList) result;
+            NodeList nodes = selectPolicyDCNodes(doc);
             for (int i = 0; i < nodes.getLength(); i++) {
                 Node node = nodes.item(i);
                 node.setTextContent("policy:" + policyName);
@@ -126,6 +100,39 @@ public class PolicyServiceImpl implements PolicyService {
             LOGGER.severe("Error while setting DC policy" + t);
             throw new RuntimeException(t);
         }
+    }
+
+    public NodeList selectPolicyDCNodes(Document doc)
+            throws XPathExpressionException {
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+        xpath.setNamespaceContext(new NamespaceContext() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Iterator getPrefixes(String arg0) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public String getPrefix(String arg0) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public String getNamespaceURI(String prefix) {
+                if (prefix == null)
+                    throw new NullPointerException("Null prefix");
+                else if ("dc".equals(prefix))
+                    return "http://purl.org/dc/elements/1.1/";
+
+                return XMLConstants.XML_NS_URI;
+            }
+        });
+        XPathExpression expr = xpath.compile("//dc:rights");
+        Object result = expr.evaluate(doc, XPathConstants.NODESET);
+        NodeList nodes = (NodeList) result;
+        return nodes;
     }
 
     

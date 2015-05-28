@@ -79,4 +79,17 @@ public class ApplyMovingWallTest {
         Assert.assertNull(date);
         
     }
+    @Test
+    public void testFlags() {
+        Assert.assertTrue(ApplyMovingWall.detectChange(false, null));
+        Assert.assertTrue(ApplyMovingWall.detectChange(true, null));
+        Assert.assertTrue(ApplyMovingWall.detectChange(false, "policy:public"));
+        Assert.assertTrue(ApplyMovingWall.detectChange(true, "policy:private"));
+
+        Assert.assertFalse(ApplyMovingWall.detectChange(false, "policy:private"));
+        Assert.assertFalse(ApplyMovingWall.detectChange(true, "policy:public"));
+
+    }
+    
+
 }

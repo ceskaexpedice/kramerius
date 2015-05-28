@@ -450,6 +450,15 @@
         <parameters>mock ["$pid$","$model$","$index$"]</parameters>
         <securedaction>aggregate</securedaction>
     </process>
+    
+    <process>
+        <id>batchindexer</id>
+        <description>Iterate over models and starts subprocesses</description>
+        <mainClass>cz.cas.lib.knav.indexer.BatchIndexerSupport</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>reindex</securedaction>
+    </process>
 
 
 </processes>
