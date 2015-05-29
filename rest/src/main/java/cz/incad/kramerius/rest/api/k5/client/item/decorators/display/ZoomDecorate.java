@@ -87,11 +87,10 @@ public class ZoomDecorate extends AbstractDisplayDecorate {
                     Document relsExt = RELSEXTDecoratorUtils
                             .getRELSEXTPidDocument(pid, context,
                                     this.fedoraAccess);
-                    String url = RelsExtHelper.getRelsExtTilesUrl(relsExt,
-                            fedoraAccess);
+                    String url = RelsExtHelper.getRelsExtTilesUrl(relsExt);
                     if (url != null) {
-                		String zoomType = this.kconf.getProperty("zoom.viewer","zoomify");
-                		String appUrl = ApplicationURL.applicationURL(this.requestProvider.get())
+                        String zoomType = this.kconf.getProperty("zoom.viewer","zoomify");
+                        String appUrl = ApplicationURL.applicationURL(this.requestProvider.get())
                               .toString() + (zoomType.equals("zoomify") ? "/zoomify/" : "/deepZoom/");
                     	jsonObject.put("zoom", zoom(pid, zoomType, appUrl));
                     }

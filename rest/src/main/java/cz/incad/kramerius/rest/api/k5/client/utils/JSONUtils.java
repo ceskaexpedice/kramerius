@@ -55,8 +55,10 @@ public class JSONUtils {
             if (indexDoc ==  null) {
                 indexDoc = soMemo.askForIndexDocument(pid);
             }
-            String fedoraModel = SOLRUtils.value(indexDoc, "fedora.model", String.class);
-            jsonObject.put("model",fedoraModel);
+            if (indexDoc != null) {
+                String fedoraModel = SOLRUtils.value(indexDoc, "fedora.model", String.class);
+                jsonObject.put("model",fedoraModel);
+            }
         }
 
         // apply decorator
