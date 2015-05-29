@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import cz.incad.kramerius.indexer.Indexer;
 import cz.incad.kramerius.indexer.ProgramArguments;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Support multiple 
@@ -34,20 +35,32 @@ public class BatchIndexerSupport {
                 LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
             }
             String act = args[0];
-            for (int i = 1; i < args.length; i++) {
-                LOGGER.info("starting indexer utility for pid "+args[i]);
-                try {
-                    ProgramArguments parsedIndexerArguments = new ProgramArguments();
-                    String[] indexerArgs = {act,args[i]};
-                    if (parsedIndexerArguments.parse(indexerArgs)) {
-                        Indexer indexer = new Indexer(parsedIndexerArguments);
-                        indexer.run();
-                    }
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
+            LOGGER.info("starting indexer utility for pid(s) "+pidsToIndex(args));
+            try {
+                ProgramArguments parsedIndexerArguments = new ProgramArguments();
+                String[] indexerArgs = {act,pidsToIndex(args)};
+                if (parsedIndexerArguments.parse(indexerArgs)) {
+                    Indexer indexer = new Indexer(parsedIndexerArguments);
+                    indexer.run();
                 }
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
+
         }
+    }
+
+    public static String pidsToIndex(String[] args) {
+        StringBuilder builder = new StringBuilder();
+        String separatorString = KConfiguration.getInstance().getConfiguration().getString("indexer.pidSeparator", ";");
+        for (int i = 1; i < args.length; i++) {
+            if (i > 1) {
+                builder.append(separatorString);
+            }
+            builder.append(args[i]);
+        }
+        return builder.toString();
     }
 
     private static void createIndexingStamp(String[] args) throws IOException {

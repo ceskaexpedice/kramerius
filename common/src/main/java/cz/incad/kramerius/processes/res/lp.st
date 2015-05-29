@@ -1,3 +1,4 @@
+
 <processes>
     <process>
         <!-- identifikator  -->
@@ -453,7 +454,7 @@
     
     <process>
         <id>batchindexer</id>
-        <description>Iterate over models and starts subprocesses</description>
+        <description>Batch indexer </description>
         <mainClass>cz.cas.lib.knav.indexer.BatchIndexerSupport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>

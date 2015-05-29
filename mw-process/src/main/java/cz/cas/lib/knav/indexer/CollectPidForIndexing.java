@@ -22,17 +22,19 @@ import cz.incad.kramerius.service.impl.IndexerProcessStarter.TokensFilter;
  */
 public class CollectPidForIndexing {
 
-    public static final int MAXIMUM_DOCUMENTS = 100000;
+    public static final int MAXIMUM_DOCUMENTS = 10000;
 
+    
     private List<String> collectedPids = new ArrayList<String>();
+    private boolean inUse = false;
     
     public void enqueuePid(String pid) {
         collectedPids.add(pid);
         if (this.reachCapacity()) {
             planIndexerWithCollectedPids();
         }
+        this.inUse = true;
     }
-    
     
     boolean reachCapacity() {
         return this.collectedPids.size() == MAXIMUM_DOCUMENTS;
@@ -63,6 +65,11 @@ public class CollectPidForIndexing {
         return t;
     }
     
+    
+    public boolean hasBeenTouched() {
+        return inUse;
+    }
+
     public void close(){
         if (this.collectedPids.size() > 0) {
             this.planIndexerWithCollectedPids();
