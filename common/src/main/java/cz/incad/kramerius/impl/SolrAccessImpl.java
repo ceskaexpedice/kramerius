@@ -23,11 +23,13 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.utils.solr.SolrUtils;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -126,7 +128,8 @@ public class SolrAccessImpl implements SolrAccess {
             List<String> disected = SolrUtils.disectModelPaths(doc);
             ObjectModelsPath[] paths = new ObjectModelsPath[disected.size()];
             for (int i = 0; i < paths.length; i++) {
-                paths[i] = new ObjectModelsPath(disected.get(i));
+                String[] models = disected.get(i).split("/");
+                paths[i] = new ObjectModelsPath(models);
             }
             return paths;
         } catch (XPathExpressionException e) {

@@ -45,6 +45,7 @@ dependencies {
     compile project(':import-mets')
     compile project(':security-core')
     compile project(':rest')
+    compile project(':mw-process')
 
     compile 'javax.servlet:jstl:1.1.2'   
     compile 'taglibs:standard:1.1.2'   
