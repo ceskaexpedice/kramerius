@@ -121,14 +121,9 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
             try {
                 Date parsed = tryToParseDates(patt);
+                Date currentDate = new Date();
                 if (parsed != null) {
-                    Calendar calFromMetadata = Calendar.getInstance();
-                    calFromMetadata.setTime(parsed);
-
-                    Calendar calFromConf = Calendar.getInstance();
-                    calFromConf.add(Calendar.YEAR, -1*wallFromConf);
-
-                    return calFromMetadata.before(calFromConf) ?  EvaluatingResult.TRUE:EvaluatingResult.FALSE;
+                    return mwCalc(wallFromConf, parsed, currentDate);
                 } else {
                     return EvaluatingResult.NOT_APPLICABLE;
                 }
@@ -150,6 +145,34 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
         
         return null;
+    }
+
+    
+    /**
+     * Computing moving wall
+     * @param wallFromConf Moving wall set by user
+     * @param parsed Parsed date from metadata
+     * @param currentDate Current date
+     * @return
+     */
+    static EvaluatingResult mwCalc(int wallFromConf, Date parsed,
+            Date currentDate) {
+        Calendar calFromMetadata = Calendar.getInstance();
+        calFromMetadata.setTime(parsed);
+
+        Calendar currentCal = Calendar.getInstance();
+        currentCal.setTime(currentDate);
+        
+        // Pocita se na cele roky. Odvolavam se na komentar p. Zabicky  
+        // https://github.com/ceskaexpedice/kramerius/issues/38 se pocita zed na cele roky
+        
+        int yearFromMetadata = calFromMetadata.get(Calendar.YEAR);
+        int currentYear = currentCal.get(Calendar.YEAR);
+        if ((currentYear - yearFromMetadata) >= wallFromConf) {
+            return EvaluatingResult.TRUE;
+        } else {
+            return EvaluatingResult.FALSE;
+        }
     }
 
     public static Date tryToParseDates(String patt)

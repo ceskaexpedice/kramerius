@@ -15,9 +15,14 @@ import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter.TokensFilter;
 
+/**
+ * Collecting pids for indexing
+ * @author pavels
+ *
+ */
 public class CollectPidForIndexing {
 
-    public static final int MAXIMUM_DOCUMENTS = 10000;
+    public static final int MAXIMUM_DOCUMENTS = 100000;
 
     private List<String> collectedPids = new ArrayList<String>();
     
