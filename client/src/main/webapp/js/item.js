@@ -258,11 +258,21 @@ ItemSupport.prototype = {
             
             this.biblioModsXml(div, p, this.itemContext[i].model);
             contextDiv.append(div);
+            
         }
         contextDiv.insertBefore("#metadata");
+        this.renderDonator();
     },
 
-    
+    renderDonator: function(){
+        var pid = K5.api.ctx["item"]["selected"];
+        var data = K5.api.ctx["item"][pid];
+        if(data.hasOwnProperty("donator")){
+            var donatorDiv = $("<div/>", {class: "donator"});
+            donatorDiv.append('<img src="api/item/'+data.donator+'/streams/LOGO"/>');
+            $(".mtd_footer dialogs_footer").prepend(donatorDiv);
+        }
+    },
    
     
     /**
