@@ -245,8 +245,15 @@ public class ExtendedFields {
             root_title = root_title_cache.get(root_pid);
         } else {
             Document doc = fa.getDC(root_pid);
-            root_title = StringEscapeUtils.escapeXml(DCUtils.titleFromDC(doc));
-            root_title_cache.put(root_pid, root_title);
+//            root_title = StringEscapeUtils.escapeXml(DCUtils.titleFromDC(doc));
+//            root_title_cache.put(root_pid, root_title);
+            xPathStr = prefix + "dc:title/text()";
+            expr = xpath.compile(xPathStr);
+            Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
+            if (node != null) {
+                root_title = StringEscapeUtils.escapeXml(node.getNodeValue());
+                root_title_cache.put(root_pid, root_title);
+            }
         }
     }
 
