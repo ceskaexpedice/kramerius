@@ -1,10 +1,10 @@
-package cz.incad.Kramerius.audio;
+package cz.incad.kramerius.audio;
 
 import java.util.logging.Logger;
 
 import com.google.inject.Inject;
 
-import cz.incad.Kramerius.audio.urlMapping.RepositoryUrlManager;
+import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.service.LifeCycleHook;
 
 public class AudioLifeCycleHook implements LifeCycleHook {

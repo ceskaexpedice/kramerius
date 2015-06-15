@@ -14,11 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.audio.urlMapping;
+package cz.incad.kramerius.audio.urlMapping;
 
-import cz.incad.Kramerius.audio.AudioStreamId;
+import cz.incad.kramerius.audio.AudioStreamId;
+
 import java.net.URL;
 import java.util.logging.Logger;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;

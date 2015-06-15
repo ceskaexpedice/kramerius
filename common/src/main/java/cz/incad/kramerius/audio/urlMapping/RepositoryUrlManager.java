@@ -14,36 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.audio.urlMapping;
+package cz.incad.kramerius.audio.urlMapping;
 
-import cz.incad.Kramerius.audio.AudioStreamId;
+import cz.incad.kramerius.audio.AudioStreamId;
+
+import java.io.IOException;
 import java.net.URL;
 
 /**
- * Cache for storing urls to Audio Repository by AudioStreamId.
+ * RepositoryUrlManager handles mapping of audio datastreams of objects to URLs
+ * in audio repository.
  *
- * @author Martin Řehánek <Martin.Rehanek at mzk.cz>
+ * @author Martin Řehánek <rehan at mzk.cz>
  */
-public interface RepositoryUrlCache {
+public interface RepositoryUrlManager {
 
     /**
-     * Returns url to repository by audio stream id.
+     * Returns URL (in audio repository) of given datastream of object. If no
+     * such object or it's datastream exists, null is returned.
      *
-     * @param id audio stream id (cache key)
-     * @return url from cache or null if not found (cached value)
+     * @param id object and audio version identifier
+     * @return URL URL to repisotory or null if no such object or datastream is
+     * found.
+     * @throws IOException
      */
-    public URL getUrl(AudioStreamId id);
+    URL getAudiostreamRepositoryUrl(AudioStreamId id) throws IOException;
 
     /**
-     * Stores url to repository by audio stream id.
-     *
-     * @param id cache key
-     * @param url cache value
+     * Release resources.
      */
-    public void storeUrl(AudioStreamId id, URL url);
-
-    /**
-     * Releases all allocated resources, closes connections etc.
-     */
-    public void close();
+    void close();
 }

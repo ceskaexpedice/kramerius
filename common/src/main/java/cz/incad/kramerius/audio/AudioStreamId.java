@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.audio;
+package cz.incad.kramerius.audio;
 
 import java.io.Serializable;
 import java.util.regex.Pattern;

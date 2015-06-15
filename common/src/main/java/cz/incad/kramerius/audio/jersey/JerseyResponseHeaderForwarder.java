@@ -14,11 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.audio;
+package cz.incad.kramerius.audio.jersey;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+
+import cz.incad.kramerius.audio.ResponseHeaderForwarder;
 
 /**
  * Forwarder forwards (copies) headers from repository's response to audio proxy
@@ -26,10 +30,10 @@ import org.apache.http.HttpResponse;
  *
  * @author Martin Řehánek <Martin.Rehanek at mzk.cz>
  */
-public class ResponseHeaderForwarder {
+public class JerseyResponseHeaderForwarder  implements ResponseHeaderForwarder{
 
     private final HttpResponse repositoryResponse;
-    private final HttpServletResponse proxyResponse;
+    private final ResponseBuilder proxyResponse;
 
     /**
      * Initializes Forwarder.
@@ -38,7 +42,7 @@ public class ResponseHeaderForwarder {
      * @param proxyResponse response from proxy to client
      *
      */
-    public ResponseHeaderForwarder(HttpResponse repositoryResponse, HttpServletResponse proxyResponse) {
+    public JerseyResponseHeaderForwarder(HttpResponse repositoryResponse, ResponseBuilder proxyResponse) {
         this.repositoryResponse = repositoryResponse;
         this.proxyResponse = proxyResponse;
     }
@@ -55,7 +59,7 @@ public class ResponseHeaderForwarder {
         Header header = repositoryResponse.getFirstHeader(headerName);
         if (header != null) {
             //System.err.println("found response header " + header.getName() + ": " + header.getValue());
-            proxyResponse.setHeader(header.getName(), header.getValue());
+            proxyResponse.header(header.getName(), header.getValue());
             return header.getValue();
         }
         return null;

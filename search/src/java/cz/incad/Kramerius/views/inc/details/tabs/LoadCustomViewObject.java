@@ -19,19 +19,22 @@ package cz.incad.Kramerius.views.inc.details.tabs;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
+
 import cz.incad.Kramerius.I18NServlet;
-import cz.incad.Kramerius.Initializable;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.XSLService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.UnicodeUtil;
 import cz.incad.kramerius.utils.XMLUtils;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.xml.sax.SAXException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;

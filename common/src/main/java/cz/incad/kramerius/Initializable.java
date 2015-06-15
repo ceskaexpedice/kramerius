@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius;
+package cz.incad.kramerius;
 
 /**
  * Implementation of this interface can be initialized after injection

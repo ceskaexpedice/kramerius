@@ -38,8 +38,8 @@ import antlr.TokenStreamException;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.Kramerius.Initializable;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.DCConent;

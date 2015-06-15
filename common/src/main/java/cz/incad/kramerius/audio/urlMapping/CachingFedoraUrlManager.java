@@ -14,19 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.audio.urlMapping;
+package cz.incad.kramerius.audio.urlMapping;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import cz.incad.Kramerius.Initializable;
-import cz.incad.Kramerius.audio.AudioStreamId;
-import cz.incad.Kramerius.audio.XpathEvaluator;
+
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.Initializable;
+import cz.incad.kramerius.audio.AudioStreamId;
+import cz.incad.kramerius.audio.XpathEvaluator;
+
 import org.w3c.dom.Document;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;

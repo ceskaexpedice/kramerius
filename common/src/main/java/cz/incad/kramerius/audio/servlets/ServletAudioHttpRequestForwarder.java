@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.audio;
+package cz.incad.kramerius.audio.servlets;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,48 +23,39 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.StreamingOutput;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+
+import cz.incad.kramerius.audio.AbstractAudioHttpRequestForwarder;
+import cz.incad.kramerius.audio.AudioHttpRequestForwarder;
+import cz.incad.kramerius.audio.GetRequestHeaderForwarder;
 
 /**
  *
  * @author Martin Řehánek <Martin.Rehanek at mzk.cz>
  */
-public class AudioHttpRequestForwarder {
+public class ServletAudioHttpRequestForwarder extends AbstractAudioHttpRequestForwarder<Void> implements AudioHttpRequestForwarder<Void> {
 
-    private static final Logger LOGGER = Logger.getLogger(AudioHttpRequestForwarder.class.getName());
-    private static final String CONNECTION_RESET = "Connection reset";
-    private static final String BROKEN_PIPE = "Broken pipe";
-    private static DefaultHttpClient httpClient = initClient();
-    private static int BUFFER_SIZE = 10240;
-    private final HttpServletResponse proxyToClientResponse;
-    private final HttpServletRequest clientToProxyRequest;
+    private static final Logger LOGGER = Logger.getLogger(ServletAudioHttpRequestForwarder.class.getName());
+    
+    final HttpServletResponse proxyToClientResponse;
+    final HttpServletRequest clientToProxyRequest;
 
-    private static DefaultHttpClient initClient() {
-        ThreadSafeClientConnManager manager = new ThreadSafeClientConnManager();
-        return new DefaultHttpClient(manager);
-    }
-
-    public static void destroy() {
-        if (httpClient != null) {
-            httpClient.getConnectionManager().shutdown();
-        }
-    }
-
-    public AudioHttpRequestForwarder(HttpServletRequest clientToProxyRequest, HttpServletResponse proxyToClientResponse) {
+    public ServletAudioHttpRequestForwarder(HttpServletRequest clientToProxyRequest, HttpServletResponse proxyToClientResponse) {
         this.clientToProxyRequest = clientToProxyRequest;
         this.proxyToClientResponse = proxyToClientResponse;
     }
 
-    public void forwardGetRequest(URL url) throws IOException, URISyntaxException {
+    public Void forwardGetRequest(URL url) throws IOException, URISyntaxException {
         LOGGER.log(Level.INFO, "forwarding {0}", url);
         HttpGet proxyToRepositoryRequest = new HttpGet(url.toURI());
         forwardSelectedRequestHeaders(clientToProxyRequest, proxyToRepositoryRequest);
@@ -74,9 +65,13 @@ public class AudioHttpRequestForwarder {
         forwardSelectedResponseHeaders(repositoryToProxyResponse, proxyToClientResponse);
         forwardResponseCode(repositoryToProxyResponse, proxyToClientResponse);
         forwardData(repositoryToProxyResponse.getEntity().getContent(), proxyToClientResponse.getOutputStream());
+        return null;
     }
+    
+    
+    
 
-    public void forwardHeadRequest(URL url) throws IOException, URISyntaxException {
+    public Void forwardHeadRequest(URL url) throws IOException, URISyntaxException {
         LOGGER.log(Level.INFO, "forwarding {0}", url);
         HttpHead repositoryRequest = new HttpHead(url.toURI());
         forwardSelectedRequestHeaders(clientToProxyRequest, repositoryRequest);
@@ -85,10 +80,11 @@ public class AudioHttpRequestForwarder {
         //printRepositoryResponseHeaders(repositoryResponse);
         forwardSelectedResponseHeaders(repositoryResponse, proxyToClientResponse);
         forwardResponseCode(repositoryResponse, proxyToClientResponse);
+        return null;
     }
 
     private void forwardSelectedResponseHeaders(HttpResponse repositoryResponse, HttpServletResponse clientResponse) {
-        ResponseHeaderForwarder forwarder = new ResponseHeaderForwarder(repositoryResponse, clientResponse);
+        ServletResponseHeaderForwarder forwarder = new ServletResponseHeaderForwarder(repositoryResponse, clientResponse);
         forwarder.forwardHeaderIfPresent("Content-Range");
         forwarder.forwardHeaderIfPresent("Content-Type");
         forwarder.forwardHeaderIfPresent("Content-Length");
@@ -111,6 +107,7 @@ public class AudioHttpRequestForwarder {
         forwarder.forwardHeaderIfPresent("Accept");
     }
 
+    
     private void forwardData(InputStream input, ServletOutputStream output) {
         try {
             byte[] buffer = new byte[BUFFER_SIZE];
