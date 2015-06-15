@@ -140,24 +140,38 @@ public class ItemResource {
                         return builder.build();
                         
                     } else {
-                        // TODO: change it !
-                        final InputStream is = this.fedoraAccess.getDataStream(pid,
-                                dsid);
                         String mimeTypeForStream = this.fedoraAccess
                                 .getMimeTypeForStream(pid, dsid);
-                        /*
-                        StreamingOutput stream = new StreamingOutput() {
-                            public void write(OutputStream output)
-                                    throws IOException, WebApplicationException {
-                                try {
-                                    IOUtils.copyStreams(is, output);
-                                } catch (Exception e) {
-                                    throw new WebApplicationException(e);
+
+                        class _StreamHeadersObserver implements StreamHeadersObserver {
+                            ResponseBuilder respBuilder = null;
+                            @Override
+                            public void observeHeaderFields(int statusCode,
+                                    Map<String, List<String>> headerFields) {
+                                respBuilder = Response.status(statusCode);
+                                Set<String> keys = headerFields.keySet();
+                                for (String k : keys) {
+                                    List<String> vals = headerFields.get(k);
+                                    for (String val : vals) {
+                                        respBuilder.header(k, val);
+                                    }
                                 }
                             }
-                        }'*/
-                        return Response.ok().type(mimeTypeForStream)
-                                .build();
+
+                            public ResponseBuilder getBuider() {
+                                return this.respBuilder;
+                            }
+                        }
+                        
+                        _StreamHeadersObserver observer = new _StreamHeadersObserver();
+                        this.fedoraAccess.observeStreamHeaders(pid, dsid,observer);
+
+                        if (observer.getBuider() != null) {
+                            return observer.getBuider().type(mimeTypeForStream).build();
+                        } else {
+                            return Response.ok().type(mimeTypeForStream)
+                                    .build();
+                        }
                     }
                 } else
                     throw new PIDNotFound("cannot find stream " + dsid);

@@ -18,11 +18,14 @@ package cz.incad.kramerius;
 
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
+
 import javax.xml.xpath.XPathExpressionException;
+
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.ObjectFactory;
@@ -318,6 +321,9 @@ public interface FedoraAccess {
      */
     public Set<String> getPids(String pid) throws IOException;
 
+    
+    
+    
     /**
      * Returns data from datastream
      *
@@ -328,6 +334,16 @@ public interface FedoraAccess {
      */
     public InputStream getDataStream(String pid, String datastreamName) throws IOException;
 
+    /**
+     * For observe HTTP headers
+     * @param pid Requested pid
+     * @param datastreamName Data stream name
+     * @param streamObserver Header fileds observer
+     * @throws IOException
+     */
+    public void observeStreamHeaders(String pid, String datastreamName, StreamHeadersObserver streamObserver) throws IOException;
+
+    
     /**
      * Returns xml containing datastream data
      *

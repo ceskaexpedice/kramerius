@@ -865,6 +865,27 @@ public class FedoraAccessImpl implements FedoraAccess {
         return retval;
     }
 
+    
+    
+    public void observeStreamHeaders(String pid, String datastreamName, StreamHeadersObserver streamObserver) throws IOException {
+        try {
+            pid = makeSureObjectPid(pid);
+            HttpURLConnection con = referencedDataStream(pid, datastreamName);
+            if (con == null) {
+                String streamLocation =  configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
+                con = (HttpURLConnection) openConnection(streamLocation, configuration.getFedoraUser(), configuration.getFedoraPass());
+            }
+            con.connect();
+            int statusCode = con.getResponseCode();
+            Map<String, List<String>> headerFields = con.getHeaderFields();
+            streamObserver.observeHeaderFields(statusCode, headerFields);
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
+    }
+    
+    
+    
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         try {
@@ -883,6 +904,7 @@ public class FedoraAccessImpl implements FedoraAccess {
                 String streamLocation =  configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
                 con = (HttpURLConnection) openConnection(streamLocation, configuration.getFedoraUser(), configuration.getFedoraPass());
             }
+            
             con.connect();
             if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 InputStream thumbInputStream = con.getInputStream();
