@@ -783,22 +783,25 @@ public class SolrOperations {
     private void checkIntegrity() throws Exception {
         String[] models = config.getStringArray("fedora.topLevelModels");
         for (String model : models) {
-            checkIntegrityByModel(model, 0);
+            checkIntegrityByModel(model);
         }
         commit();
     }
 
     private void checkIntegrityByModel(String model) throws Exception {
-        checkIntegrityByModel(model, 0);
+        int offset = 0;
+        int numHits = 200;
+        while(checkIntegrityByModel(model, offset, numHits)){
+            offset += numHits;
+        }
         commit();
     }
 
-    private void checkIntegrityByModel(String model, int offset) throws Exception {
+    private boolean checkIntegrityByModel(String model, int offset, int numHits) throws Exception {
         logger.log(Level.INFO, "checkIntegrityByModel. model: {0}; offset: {1}", new String[]{model, Integer.toString(offset)});
         if (model == null || model.length() < 1) {
-            return;
+            return false;
         }
-        int numHits = 200;
         String PID;
         String pid_path;
         String urlStr = config.getString("solrHost") + "/select/?q=model_path:" + model + "*&fl=PID,pid_path&start="
@@ -824,16 +827,9 @@ public class SolrOperations {
                 logger.log(Level.INFO, PID + " doesn't exist. Deleting...");
                 deletePid(PID);
             }
-//            try {
-//                fedoraOperations.fa.getAPIM().getObjectXML(PID);
-//            } catch (Exception e) {
-//                logger.log(Level.INFO, PID + " doesn't exist. Deleting...", e);
-//                deleteDocument(pid_path);
-//            }
         }
-        if (nodeList.getLength() > 0) {
-            checkIntegrityByModel(model, offset + numHits);
-        }
+        return (nodeList.getLength() > 0);
+        
     }
 
     private void reindexCollection(String collection) throws Exception{
