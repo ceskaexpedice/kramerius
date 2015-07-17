@@ -25,9 +25,11 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.pdf.SimplePDFService;
 import cz.incad.kramerius.pdf.impl.FirstPageAsImagePDFServiceImpl;
 import cz.incad.kramerius.pdf.impl.FirstPagePDFServiceImpl;
 import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
+import cz.incad.kramerius.pdf.impl.SimplePDFServiceImpl;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 
 public class PDFModule extends AbstractModule {
@@ -39,6 +41,7 @@ public class PDFModule extends AbstractModule {
         bind(FirstPagePDFService.class).annotatedWith(Names.named(FirstPagePDFService.FirstPageType.TEXT.name())).to(FirstPagePDFServiceImpl.class).in(Scopes.SINGLETON);
         bind(FirstPagePDFService.class).annotatedWith(Names.named(FirstPagePDFService.FirstPageType.IMAGE.name())).to(FirstPageAsImagePDFServiceImpl.class).in(Scopes.SINGLETON);
 
+        bind(SimplePDFService.class).to(SimplePDFServiceImpl.class);
     }
 
     

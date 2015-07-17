@@ -429,6 +429,25 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
     </process>
+    
+    <!-- Parametrized apply moving wall to subtree -->
+    <process>
+        <id>parametrizedapplymw</id>
+        <description>parametrized apply moving wall</description>
+        <!-- spoustena trida -->
+        <mainClass>cz.cas.lib.knav.ParametrizedApplyMovingWall</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+
+        <templates>
+            <input class="cz.cas.lib.knav.templates.ParametrizedApplyMWTemplate"></input>
+        </templates>
+        
+    </process>
+    
 
     <!-- iterate over models -->
     <process>
@@ -439,6 +458,19 @@
         <errOs>lrErr</errOs>
         <parameters>applymw ["$pid$"]</parameters>
         <securedaction>aggregate</securedaction>
+    </process>
+
+    <!-- iterate over models -->
+    <process>
+        <id>parametrized_iterated_appliedmw</id>
+        <description>Iterate over models and starts subprocesses</description>
+        <mainClass>cz.cas.lib.knav.ParametrizedIterateRepoMovingWall</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>aggregate</securedaction>
+        <templates>
+            <input class="cz.cas.lib.knav.templates.ParametrizedIterateRepoApplyMWTemplate"></input>
+        </templates>
     </process>
 
     <!-- iterate over models -->
@@ -460,6 +492,8 @@
         <errOs>lrErr</errOs>
         <securedaction>reindex</securedaction>
     </process>
+
+
 
 
 </processes>

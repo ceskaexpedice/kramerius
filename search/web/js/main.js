@@ -123,87 +123,83 @@ function PDF() {
 	this.previous = null;
 	
 	this.waitDialog = null;
-	
-	this.deviceSelection = {
-			"standard" : function() {
-				$("#pdfsettings_ereader").hide();
-				this.devconf = null;
-			},
-			"ereader" : function() {
-				$("#pdfsettings_ereader").show();
-				// change this ?? 
-				pdf.onFormatChange();
-			}
-	};
 
-	
-	this.rectangleSelections = {
-		// a4 format 
-		"a4": function() {
-			return { 
-				"pageSize":[595,842],
-				"fontsSettings": {
-					"logoFont": {
-						"style": PDF.PDF_FONT_STANDARD,
-						"size": 48
-					},
-					"infFont": {
-						"style": PDF.PDF_FONT_BOLD,
-						"size": 14
-					}
-				}
-			}
-		},
-		"a5": function() {
-			return {
-				"pageSize":[420,595],
-				"fontsSettings": {
-					"logoFont": {
-						"style": PDF.PDF_FONT_STANDARD,
-						"size": 48
-					},
-					"infFont": {
-						"style": PDF.PDF_FONT_BOLD,
-						"size": 14
-					}
-				}
-			};
-		}	
-	};
-
-
-	this.rectangle = null;
 }
 
+PDF.prototype.initConf = function() {
+	if (!this.apiPDFSettings) {
+		$.get("api/v5.0/pdf", bind(function(data) {
+			this.apiPDFSettings = data;
+		},this));
+	}
+}
+
+
+PDF.prototype.downloadFile = function(url) {
+	var xhr = new XMLHttpRequest(); 
+	xhr.open('GET', url, true); 
+	xhr.responseType = "blob";
+	xhr.onreadystatechange = bind(function () { 
+		console.log("dialog "+this.waitDialog );
+		if (xhr.readyState == 4) {
+			var name = (function() {
+				var date = new Date();
+				return ""+date.getFullYear()+""+date.getDate()+""+date.getMonth()+"_"+date.getHours()+""+date.getMinutes()+""+date.getSeconds()+".pdf";
+			})();			
+			var blob = xhr.response;
+			var burl = window.URL.createObjectURL(blob);
+			var ref = $('<a/>', {
+				id:'_pdf_download_bloblink',
+				href:burl,
+				download:name,
+				style:"display:none"
+			});		
+			ref.text("click to download");	
+			$("#waitPdf").append(ref);
+
+			// JQuery issue, the code: 
+			// $("#_pdf_download_bloblink").trigger('click');
+			// doesn't work
+
+			$("#_pdf_download_bloblink").get(0).click();			
+			this.waitDialog.dialog('close');	
+		}
+	},this);
+	xhr.send(null);
+}
 
 PDF.prototype.renderPDF = function() {
 	var u = null;
 	var selected = $("#pdf input:checked");
 	if (selected.length >= 1) {
 		var pidsstring = selected.val();
-		var id = selected.attr("id"); id = id.substring(0, id.length - "_radio".length);
+		var id = selected.attr("id");  id = id.substring(0, id.length - "_radio".length);
 		if (id == "selection") {
 			var selectedPids = pidsstring.slice(1,pidsstring.length-1).split(",");
-			selectedPids = map(function(elm) {
-				return {model:'',pid:elm.trim() }	
-			},selectedPids);
-			u = urlWithPids("pdf?action=SELECTION&pids=",selectedPids);
+			var reducedString = reduce(function(base, element,status) {
+				if (!status.first) {
+					base=base+",";
+				}
+				return base+element.trim();
+			},"",selectedPids);
+			u ="api/v5.0/pdf/selection?pids="+reducedString;
 		} else {
 			var selectedPids = pidsstring.slice(1,pidsstring.length-1).split(",");
 			var howMany = parseInt($("#"+id+"_input").val());
-			u = "pdf?action=PARENT&pidFrom="+selectedPids[0]+"&howMany="+howMany;
+
+			if (this.apiPDFSettings.pdfMaxRange === "unlimited") {
+				u = "api/v5.0/pdf/parent?pid="+selectedPids[0];
+			} else {
+				u = "api/v5.0/pdf/parent?pid="+selectedPids[0]+"&number="+howMany;
+			}
 		}
-		u = u +"&redirectURL="+ escape(window.location.href);
-
-		if (this.devconf) {
-			var rectangle = this.devconf["pageSize"];
-			var logoFont = this.devconf["fontsSettings"]["logoFont"];
-			var infFont = this.devconf["fontsSettings"]["infFont"];
-			u += "&rect="+rectangle[0]+","+rectangle[1]+"&logo={"+logoFont["style"]+";"+logoFont["size"]+"}&info={"+infFont["style"]+";"+infFont["size"]+"}&firstpageType=IMAGES";
-		}
-		
+		// device, IMAGE,TEXT
+		u = u +"&pageType=" + $("#pdfsettings input[name=device]:checked").val();		
+		// page format
+		u = u +"&format=" + $( "#pdfsettings_ereader option:selected" ).val();;		
 
 
+	
 		if (this.waitDialog) {
 			this.waitDialog.dialog('open');
 		} else {
@@ -214,55 +210,44 @@ PDF.prototype.renderPDF = function() {
 						'<tr><td align="center" id="waitPdf_message">'+dictionary['pdf.waitDialog.message']+'</td></tr>'+
 			    	'</table>'+
 				'</div>'+
-			'</div>')
-		    this.waitDialog = $('#waitPdf').dialog({
+			'</div>');
+		    	this.waitDialog = $('#waitPdf').dialog({
 		    	width:400,
 		    	height:270,
 		    	modal:true,
 		    	title: dictionary["generatePdfTitle"],
-                buttons:[{
+	                buttons:[{
 		                     text: dictionary['common.close'],
 		                     click: bind(function() {
 		                    	this.dialog.dialog("close");
 		                     },this)
-                     }
-                ]
+                     	}]
 		    });
 		}
 		
-		
-		$.get(u, bind(function(data) {
-			this.waitDialog.dialog("close");
-			var obj = eval('(' + data + ')');
-			if ("errorType" in obj) {
-				window.location.href = obj.redirect+"?redirectURL="+encodeURIComponent(obj.returnUrl);
-			} else {
-				window.location.href = 'pdf?action=FILE&pdfhandle='+obj.pdfhandle;
-			}
-		},this));
-		
-	} else {
-		 throw new Error("No pdf option selected !");
+	
+		this.downloadFile(u);
 	}
 }
 
 PDF.prototype.generate = function(objects) {
 	this.devconf = null;
+	this.initConf();
 	
 	this.structs = objects;
 	var urlDialog=urlWithPids("inc/_pdf_dialog.jsp?pids=",objects);
 	$.get(urlDialog, bind(function(data){
 
 		if (this.dialog) {
-	    		this.dialog.dialog('open');
-    	} else {
-            $(document.body).append('<div id="pdf"></div>')
-            this.dialog = $('#pdf').dialog({
-                width:600,
-                height:500,
-                modal:true,
-                title: dictionary["generatePdfTitle"],
-                buttons:[
+		    		this.dialog.dialog('open');
+		    	} else {
+		            $(document.body).append('<div id="pdf"></div>')
+			            this.dialog = $('#pdf').dialog({
+			            width:600,
+			            height:500,
+			            modal:true,
+			            title: dictionary["generatePdfTitle"],
+			            buttons:[
                          {
                              text: dictionary['pdf.dialog.button.generate'],
                              click: bind(function() {
@@ -290,15 +275,19 @@ PDF.prototype.generate = function(objects) {
 
 
 
-
+//TODO: On keyup -> checkup
 PDF.prototype.onKeyup=function(id,type,pidsstring) {
 	var val = $("#"+id+"_input").val();
 	if (!isNaN(val)) {
-		var n=parseInt($("#"+id+"_input").val());;
-		if (n <= k4Settings.pdf.generatePdfMaxRange) {
-			$("#"+id+"_error").text("");
+		var n=parseInt($("#"+id+"_input").val());
+		if (this.apiPDFSettings.pdfMaxRange !== "unlimited") {
+			if (n <= apiPDFSettings.pdfMaxRange) {
+				$("#"+id+"_error").text("");
+			} else {
+				$("#"+id+"_error").text(dictionary["pdf.validationError.toomuch"]);
+			}
 		} else {
-			$("#"+id+"_error").text(dictionary["pdf.validationError.toomuch"]);
+				$("#"+id+"_error").text("");
 		}
 	} else {
 		$("#"+id+"_error").text(dictionary["pdf.validationError.nan"]);
@@ -316,7 +305,8 @@ PDF.prototype.onChange = function(id,type,pidsstring) {
  	$("#"+id).addClass("pdfSelected");
 }
 
-/** zmena nastaveni (Desktop | Reader ) */
+/*
+
 PDF.prototype.onSettingsChange = function(type) {
 	if(this.deviceSelection[type]) {
 		var invf = this.deviceSelection[type];
@@ -331,16 +321,18 @@ PDF.prototype.onFormatChange = function() {
 		this.devconf = invf.call(this);
 	}
 }
+*/
 
 /** PDF object */
 var pdf = new PDF();
 
 // font constants
+/*
 PDF.PDF_FONT_STANDARD = 0;
 PDF.PDF_FONT_ITALIC = 1;
 PDF.PDF_FONT_BOLD = 2;
 PDF.PDF_FONT_BOLDITALIC = 3;
-
+*/
 
 /** Print object */
 function Print() {

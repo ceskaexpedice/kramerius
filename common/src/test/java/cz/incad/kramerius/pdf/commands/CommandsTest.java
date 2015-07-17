@@ -38,7 +38,6 @@ import cz.incad.kramerius.utils.XMLUtils;
 
 public class CommandsTest {
     
-    
     @Test
     public void testCommands() throws ParserConfigurationException, SAXException, IOException, InstantiationException, IllegalAccessException {
         InputStream stream = CommandsTest.class.getResourceAsStream("commands.xml");
@@ -48,12 +47,13 @@ public class CommandsTest {
         cmnds.load(document.getDocumentElement(), cmnds);
         
         List<ITextCommand> commands = cmnds.getCommands();
-        Assert.assertTrue(commands.size() == 4);
+        Assert.assertTrue(commands.size() == 5);
 
         Assert.assertEquals(commands.get(0).getClass(), Paragraph.class);
         Assert.assertEquals(commands.get(1).getClass(), Line.class);
         Assert.assertEquals(commands.get(2).getClass(), cz.incad.kramerius.pdf.commands.List.class);
         Assert.assertEquals(commands.get(3).getClass(), Image.class);
+        Assert.assertEquals(commands.get(4).getClass(), Image.class);
     }
     
     
@@ -69,6 +69,7 @@ public class CommandsTest {
             expected.add(Paragraph.class.getName());
             expected.add(Line.class.getName());
             expected.add(cz.incad.kramerius.pdf.commands.List.class.getName());
+            expected.add(Image.class.getName());
             expected.add(Image.class.getName());
         }
         Assert.assertEquals(expected, clzNames);
@@ -109,6 +110,7 @@ public class CommandsTest {
             expected.add(Text.class.getName());
 
             expected.add(Image.class.getName());
+            expected.add(Image.class.getName());
         }
 
         Assert.assertEquals(expected, processesed);
@@ -147,6 +149,7 @@ public class CommandsTest {
 
             expected.add(cz.incad.kramerius.pdf.commands.List.class.getName());
 
+            expected.add(Image.class.getName());
             expected.add(Image.class.getName());
 
             expected.add(ITextCommands.class.getName());

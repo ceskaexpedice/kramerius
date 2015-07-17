@@ -47,7 +47,7 @@ public class ApplyMovingWallTest {
         EasyMock.expect(configuration.containsKey("mwprocess.model.periodical.wall")).andReturn(false);
         EasyMock.replay(sa,configuration);
         
-        int configuredWall = ApplyMovingWall.configuredWall(sa, "uuid:045b1250-7e47-11e0-add1-000d606f5dc6", configuration);
+        int configuredWall = ApplyMWUtils.configuredWall(sa, "uuid:045b1250-7e47-11e0-add1-000d606f5dc6", configuration);
         Assert.assertTrue(configuredWall == 70);
     }
 
@@ -66,7 +66,7 @@ public class ApplyMovingWallTest {
         EasyMock.expect(configuration.getInt("mwprocess.model.periodical.wall")).andReturn(20);
         EasyMock.replay(sa,configuration);
         
-        int configuredWall = ApplyMovingWall.configuredWall(sa, "uuid:045b1250-7e47-11e0-add1-000d606f5dc6", configuration);
+        int configuredWall = ApplyMWUtils.configuredWall(sa, "uuid:045b1250-7e47-11e0-add1-000d606f5dc6", configuration);
         Assert.assertTrue(configuredWall == 20);
     }
     
@@ -81,13 +81,13 @@ public class ApplyMovingWallTest {
     }
     @Test
     public void testFlags() {
-        Assert.assertTrue(ApplyMovingWall.detectChange(false, null));
-        Assert.assertTrue(ApplyMovingWall.detectChange(true, null));
-        Assert.assertTrue(ApplyMovingWall.detectChange(false, "policy:public"));
-        Assert.assertTrue(ApplyMovingWall.detectChange(true, "policy:private"));
+        Assert.assertTrue(ApplyMWUtils.detectChange(false, null));
+        Assert.assertTrue(ApplyMWUtils.detectChange(true, null));
+        Assert.assertTrue(ApplyMWUtils.detectChange(false, "policy:public"));
+        Assert.assertTrue(ApplyMWUtils.detectChange(true, "policy:private"));
 
-        Assert.assertFalse(ApplyMovingWall.detectChange(false, "policy:private"));
-        Assert.assertFalse(ApplyMovingWall.detectChange(true, "policy:public"));
+        Assert.assertFalse(ApplyMWUtils.detectChange(false, "policy:private"));
+        Assert.assertFalse(ApplyMWUtils.detectChange(true, "policy:public"));
 
     }
     

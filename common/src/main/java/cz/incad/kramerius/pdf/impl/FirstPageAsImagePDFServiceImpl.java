@@ -35,7 +35,7 @@ import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfWriter;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.PDFContext;
 import cz.incad.kramerius.pdf.utils.pdf.DocumentUtils;
@@ -54,11 +54,11 @@ public class FirstPageAsImagePDFServiceImpl extends AbstractPDFRenderSupport imp
 
     
     @Override
-    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os,String[] pids,  String i18nServlet, FontMap fontMap) {
+    public void selection(PreparedDocument rdoc, OutputStream os,String[] pids, FontMap fontMap) {
         try {
 
 
-            File pdfFile = writeSelectionToPDF(rdoc, pids,  i18nServlet, fontMap);
+            File pdfFile = writeSelectionToPDF(rdoc, pids, fontMap);
             BufferedImage image = KrameriusImageSupport.readImage(pdfFile.toURI().toURL(), ImageMimeType.PDF, 0);
             LOGGER.fine("Original first page file :"+pdfFile.getAbsolutePath());
             
@@ -75,7 +75,7 @@ public class FirstPageAsImagePDFServiceImpl extends AbstractPDFRenderSupport imp
         }
     }
 
-    public void insertImage(AbstractRenderedDocument rdoc, OutputStream os, File imageFile) throws DocumentException, IOException, MalformedURLException, BadElementException {
+    public void insertImage(PreparedDocument rdoc, OutputStream os, File imageFile) throws DocumentException, IOException, MalformedURLException, BadElementException {
         Document doc = DocumentUtils.createDocument(rdoc);
 
         PdfWriter writer = PdfWriter.getInstance(doc, os);
@@ -87,24 +87,24 @@ public class FirstPageAsImagePDFServiceImpl extends AbstractPDFRenderSupport imp
         os.flush();
     }
 
-    File writeSelectionToPDF(AbstractRenderedDocument rdoc, String[] pids, String i18nServlet, FontMap fontMap) throws IOException, FileNotFoundException {
+    File writeSelectionToPDF(PreparedDocument rdoc, String[] pids,  FontMap fontMap) throws IOException, FileNotFoundException {
         FileOutputStream pdfFos = null;
         try {
             File tmpFile = File.createTempFile("firstpage", "pdf");
             pdfFos = new FileOutputStream(tmpFile);
-            this.textPDFService.generateFirstPageForSelection(rdoc, pdfFos, pids, i18nServlet, fontMap);
+            this.textPDFService.selection(rdoc, pdfFos, pids, fontMap);
             return tmpFile;
         } finally {
             if (pdfFos != null) pdfFos.close();
         }
     }
 
-    public File writeParentToPDF(AbstractRenderedDocument rdoc,ObjectPidsPath path,  String i18nServlet, FontMap fontMap) throws IOException, FileNotFoundException {
+    public File writeParentToPDF(PreparedDocument rdoc,ObjectPidsPath path,   FontMap fontMap) throws IOException, FileNotFoundException {
         FileOutputStream pdfFos = null;
         try {
             File tmpFile = File.createTempFile("firstpage", "pdf");
             pdfFos = new FileOutputStream(tmpFile);
-            this.textPDFService.generateFirstPageForParent(rdoc, pdfFos,path,i18nServlet, fontMap);
+            this.textPDFService.parent(rdoc, pdfFos,path, fontMap);
             return tmpFile;
         } finally {
             if (pdfFos != null) pdfFos.close();
@@ -112,9 +112,9 @@ public class FirstPageAsImagePDFServiceImpl extends AbstractPDFRenderSupport imp
     }
 
     @Override
-    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path,  String i18nServlet, FontMap fontMap) {
+    public void parent(PreparedDocument rdoc, OutputStream os, ObjectPidsPath path,  FontMap fontMap) {
         try {
-            File pdfFile =writeParentToPDF(rdoc, path, i18nServlet, fontMap);
+            File pdfFile =writeParentToPDF(rdoc, path, fontMap);
             BufferedImage image = KrameriusImageSupport.readImage(pdfFile.toURI().toURL(), ImageMimeType.PDF, 0);
             
             File imageFile = File.createTempFile("image", ImageMimeType.PNG.getDefaultFileExtension());

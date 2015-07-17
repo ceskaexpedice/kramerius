@@ -19,7 +19,7 @@ package cz.incad.kramerius.pdf;
 import java.io.OutputStream;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 
 /**
@@ -46,7 +46,7 @@ public interface FirstPagePDFService {
      * @param i18nServlet I18N servlet 
      * @param fontMap Prepared FontMap object
      */
-    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os, String[] pids,  String i18nServlet, FontMap fontMap);
+    public void selection(PreparedDocument rdoc, OutputStream os, String[] pids,  FontMap fontMap);
     
     /**
      * Generate first pdf page for title 
@@ -57,6 +57,6 @@ public interface FirstPagePDFService {
      * @param i18nServlet I18N servlet 
      * @param fontMap Prepared FontMap object
      */
-    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path,String i18nServlet, FontMap fontMap);
+    public void parent(PreparedDocument rdoc, OutputStream os, ObjectPidsPath path, FontMap fontMap);
     
 }

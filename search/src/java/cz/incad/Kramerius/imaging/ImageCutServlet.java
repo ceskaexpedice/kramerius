@@ -39,7 +39,7 @@ public class ImageCutServlet extends AbstractImageServlet {
             if (pid != null) {
                 pid = this.fedoraAccess.findFirstViewablePid(pid);
                 BufferedImage bufferedImage = super.rawFullImage(pid,req,0);
-                BufferedImage subImage = simpleSubImage(bufferedImage, req,  pid);
+                BufferedImage subImage = partOfImage(bufferedImage, req,  pid);
                 KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), resp.getOutputStream());
             } else {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -51,7 +51,7 @@ public class ImageCutServlet extends AbstractImageServlet {
         }
     }
 
-    public static BufferedImage simpleSubImage(BufferedImage bufferedImage, HttpServletRequest req,
+    public static BufferedImage partOfImage(BufferedImage bufferedImage, HttpServletRequest req,
             String pid) throws MalformedURLException, IOException, JSONException, XPathExpressionException {
         
         //BufferedImage bufferedImage = super.rawFullImage(pid,req,0);
@@ -61,21 +61,16 @@ public class ImageCutServlet extends AbstractImageServlet {
         String heightperct = req.getParameter("height");
         String widthperct = req.getParameter("width");
         
-        int width = bufferedImage.getWidth();
-        int height = bufferedImage.getHeight();
         
-        int xoffset =(int) (width * Double.parseDouble(xperct));
-        int yoffset = (int)(height * Double.parseDouble(yperct));
-        
-        int cwidth = (int)(width * Double.parseDouble(widthperct));
-        int cheight = (int)(height * Double.parseDouble(heightperct));
-        
-        
-        BufferedImage subImage = bufferedImage.getSubimage(Math.max(xoffset,0), Math.max(yoffset,0), Math.min(cwidth, width - xoffset) , Math.min(cheight, height - yoffset));
-        return subImage;
-    }
-    
+        double xPerctDouble = Double.parseDouble(xperct);
+        double yPerctDouble = Double.parseDouble(yperct);
 
+        double widthPerctDouble = Double.parseDouble(widthperct);
+        double heightPerctDouble = Double.parseDouble(heightperct);
+
+        return KrameriusImageSupport.partOfImage(bufferedImage, xPerctDouble, yPerctDouble,
+                widthPerctDouble, heightPerctDouble);
+    }
 
     @Override
     public ScalingMethod getScalingMethod() {

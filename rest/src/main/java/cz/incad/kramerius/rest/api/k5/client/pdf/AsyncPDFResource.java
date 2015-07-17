@@ -40,6 +40,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
 import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
@@ -49,6 +50,8 @@ import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
+
 
 @Path("/v5.0/asyncpdf")
 public class AsyncPDFResource  extends AbstractPDFResource{
@@ -103,84 +106,87 @@ public class AsyncPDFResource  extends AbstractPDFResource{
     }
 
 
-    @GET
-    @Path("parent")
-    @Produces({ "application/json"})
-    public Response parent(@QueryParam("pid") String pid,
-            @QueryParam("number") String number,
-            @QueryParam("firstPageType") @DefaultValue("TEXT") String pageType,
-            @QueryParam("format") String format) {
-        boolean acquired = false;
-        try {
-            acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
-            if (acquired) {
-                try {
-                    String imgServletUrl = ApplicationURL
-                            .applicationURL(this.requestProvider.get())
-                            + "/img";
-                    if ((configuration.getApplicationURL() != null)
-                            && (!configuration.getApplicationURL().equals(""))) {
-                        imgServletUrl = configuration.getApplicationURL()
-                                + "img";
-                    }
-                    String i18nUrl = ApplicationURL
-                            .applicationURL(this.requestProvider.get())
-                            + "/i18n";
-                    if ((configuration.getApplicationURL() != null)
-                            && (!configuration.getApplicationURL().equals(""))) {
-                        i18nUrl = configuration.getApplicationURL() + "i18n";
-                    }
-                    AbstractPDFResource.FirstPage fp = pageType != null ? AbstractPDFResource.FirstPage
-                            .valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
-                    if (number == null || number.trim().equals(""))
-                        number  = "" + (Integer.parseInt(number) - 1);
-                    AbstractPDFResource.checkNumber(number);
-
-                    File f = null;
-                    if (fp == AbstractPDFResource.FirstPage.IMAGES) {
-                        f = parent(pid, number, this.imageFirstPage,
-                                this.service, solrAccess, documentService,
-                                imgServletUrl, i18nUrl, format);
-                    } else {
-                        f = parent(pid, number, this.textFirstPage,
-                                this.service, solrAccess, documentService,
-                                imgServletUrl, i18nUrl, format);
-                    }
-
-                    //final File fileToDelete = f;
-                    JSONObject outputJSON = outputJSON(f);
-
-                    return Response.ok().entity(outputJSON.toString()).build();
-                } catch (NumberFormatException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new GenericApplicationException(e.getMessage());
-                } catch (COSVisitorException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new GenericApplicationException(e.getMessage());
-                } catch (FileNotFoundException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new GenericApplicationException(e.getMessage());
-                } catch (DocumentException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new GenericApplicationException(e.getMessage());
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new GenericApplicationException(e.getMessage());
-                } catch (ProcessSubtreeException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new GenericApplicationException(e.getMessage());
-                } catch (JSONException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new GenericApplicationException(e.getMessage());
-                }
-            } else {
-                throw new PDFResourceNotReadyException("not ready");
-
-            }
-
-        } finally {
-            if (acquired)
-                PDFExlusiveGenerateSupport.PDF_SEMAPHORE.release();
-        }
-    }
+//    @GET
+//    @Path("parent")
+//    @Produces({ "application/json"})
+//    public Response parent(@QueryParam("pid") String pid,
+//            @QueryParam("number") String number,
+//            @QueryParam("firstPageType") @DefaultValue("TEXT") String pageType,
+//            @QueryParam("format") String format) {
+//        boolean acquired = false;
+//        try {
+//            acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
+//            if (acquired) {
+//                try {
+//                    String imgServletUrl = ApplicationURL
+//                            .applicationURL(this.requestProvider.get())
+//                            + "/img";
+//                    if ((configuration.getApplicationURL() != null)
+//                            && (!configuration.getApplicationURL().equals(""))) {
+//                        imgServletUrl = configuration.getApplicationURL()
+//                                + "img";
+//                    }
+//                    String i18nUrl = ApplicationURL
+//                            .applicationURL(this.requestProvider.get())
+//                            + "/i18n";
+//                    if ((configuration.getApplicationURL() != null)
+//                            && (!configuration.getApplicationURL().equals(""))) {
+//                        i18nUrl = configuration.getApplicationURL() + "i18n";
+//                    }
+//                    AbstractPDFResource.FirstPage fp = pageType != null ? AbstractPDFResource.FirstPage
+//                            .valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
+//                            
+//                    int pages = Integer.MAX_VALUE;
+//                    if ((number != null) && (!number.trim().equals(""))) {
+//                        pages = ConfigurationUtils.checkNumber(number);
+//                    }
+//
+//
+//                    File f = null;
+//                    if (fp == AbstractPDFResource.FirstPage.IMAGES) {
+//                        f = parent(pid, pages, this.imageFirstPage,
+//                                this.service, solrAccess, documentService,
+//                                imgServletUrl, i18nUrl, format);
+//                    } else {
+//                        f = parent(pid, pages, this.textFirstPage,
+//                                this.service, solrAccess, documentService,
+//                                imgServletUrl, i18nUrl, format);
+//                    }
+//
+//                    //final File fileToDelete = f;
+//                    JSONObject outputJSON = outputJSON(f);
+//
+//                    return Response.ok().entity(outputJSON.toString()).build();
+//                } catch (NumberFormatException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                    throw new GenericApplicationException(e.getMessage());
+//                } catch (COSVisitorException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                    throw new GenericApplicationException(e.getMessage());
+//                } catch (FileNotFoundException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                    throw new GenericApplicationException(e.getMessage());
+//                } catch (DocumentException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                    throw new GenericApplicationException(e.getMessage());
+//                } catch (IOException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                    throw new GenericApplicationException(e.getMessage());
+//                } catch (ProcessSubtreeException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                    throw new GenericApplicationException(e.getMessage());
+//                } catch (JSONException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                    throw new GenericApplicationException(e.getMessage());
+//                }
+//            } else {
+//                throw new PDFResourceNotReadyException("not ready");
+//
+//            }
+//
+//        } finally {
+//            if (acquired)
+//                PDFExlusiveGenerateSupport.PDF_SEMAPHORE.release();
+//        }
+//    }
 }

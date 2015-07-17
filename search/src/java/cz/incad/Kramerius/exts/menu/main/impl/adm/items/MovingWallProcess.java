@@ -16,7 +16,7 @@ public class MovingWallProcess extends AbstractMainMenuItem implements AdminMenu
     @Override
     public String getRenderedItem() throws IOException {
         return renderMainMenuItem(
-                "javascript:movingwallOverRepo(); javascript:hideAdminMenu();",
+                "javascript:parametrizedProcess.open('parametrized_iterated_appliedmw'); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.mw.title", false);
     }
 

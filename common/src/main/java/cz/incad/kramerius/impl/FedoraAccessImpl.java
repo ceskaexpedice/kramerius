@@ -865,8 +865,6 @@ public class FedoraAccessImpl implements FedoraAccess {
         return retval;
     }
 
-    
-    
     public void observeStreamHeaders(String pid, String datastreamName, StreamHeadersObserver streamObserver) throws IOException {
         try {
             pid = makeSureObjectPid(pid);
