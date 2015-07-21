@@ -131,13 +131,13 @@
     
     <hr></hr>
     
-    <div id="pdfsettings">
+    <div id="pdfsettings" style="display:none">
+         <input type="radio" id="standard" name="device" checked="checked"   value="TEXT" >
+         <view:msg>pdf.typeofreader.standard</view:msg></input>     
+         <input type="radio" id="device" name="device"   value="IMAGE"> 
+         <view:msg>pdf.typeofreader.ebook</view:msg> </input>     
+    </div>
     
-     <input type="radio" id="standard" name="device" checked="checked"   value="TEXT" >
-     <view:msg>pdf.typeofreader.standard</view:msg></input>     
-     <input type="radio" id="device" name="device"   value="IMAGE"> 
-     <view:msg>pdf.typeofreader.ebook</view:msg> </input>     
-     
      <div id="pdfsettings_ereader">
          <div style="padding: 5px;">
           <div>

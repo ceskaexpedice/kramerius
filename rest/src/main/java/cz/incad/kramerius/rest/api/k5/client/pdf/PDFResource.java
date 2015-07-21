@@ -380,7 +380,7 @@ public class PDFResource extends AbstractPDFResource  {
                     throw new GenericApplicationException(e.getMessage());
                 } catch (OutOfRangeException e1) {
                     LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                    throw new GenericApplicationException(e1.getMessage());
+                    throw new PDFResourceBadRequestException(e1.getMessage());
                  }
             } else {
                 throw new PDFResourceNotReadyException("not ready");

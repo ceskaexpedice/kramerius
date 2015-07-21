@@ -27,7 +27,7 @@ public class PDFResourceNotReadyException extends AbstractRestJSONException {
     public static final Logger LOGGER = Logger.getLogger(PDFResourceNotReadyException.class.getName());
     
     public PDFResourceNotReadyException(String message) {
-        super(message,HttpServletResponse.SC_BAD_REQUEST);
+        super(message,HttpServletResponse.SC_CONFLICT);
         LOGGER.warning("Returning ");
     }
 }
