@@ -35,6 +35,12 @@
         padding: 0;
         line-height: 16px;
     }
+    
+    #context_items_selection li{
+        line-height: 18px;
+        
+    }
+    
 
     #contextMenu li>span{
         width: 16px;
@@ -58,7 +64,7 @@
         list-style-type: none;
         margin: 0;
         padding: 0;
-        line-height: 16px;
+        line-height: 18px;
     }
 
     #reindex li>span{
@@ -666,9 +672,11 @@
           var t = "";
           for(var i=0; i<pids.length; i++){
             var id = pids[i];
+            //var label = $(jq(id)+">div>a>label").html();
+            var label = $(jq("cm_" + id)+">label").html();
             t += '<li>';
             t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
-            t += '<label>'+$(jq(id)+">div>a>label").html()+'</label></li>';
+            t += '<label>'+label+'</label></li>';
 
           }
           $("#reindex>div.allowed").html(t);
@@ -699,7 +707,8 @@
           if(pids.length==1){
               var pidpath = getPidPath(pids[0]);
               var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-              var title = $(jq(pids[0])+">div>a>label").text();
+              //var title = $(jq(pids[0])+">div>a>label").text();
+              var title = $(jq("cm_" + pids[0])+">label").text();
               var escapedTitle = replaceAll(title, ',', '');
               escapedTitle = replaceAll(escapedTitle, '\n', '');
               escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
@@ -709,7 +718,8 @@
               for(var i=0; i<pids.length; i++){
                   var pidpath = getPidPath(pids[i]);
                   var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                  var title = $(jq(pids[i])+">div>a>label").text();
+                  //var title = $(jq(pids[i])+">div>a>label").text();
+                  var title = $(jq("cm_" + pids[i])+">label").text();
                   var escapedTitle = replaceAll(title, ',', '');
                   escapedTitle = replaceAll(escapedTitle, '\n', '');
                   escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
