@@ -581,95 +581,71 @@ RegisterUser.prototype.emailCheck = function() {
 }
 
 RegisterUser.prototype.register = function() {
-    $
-            .get(
-                    "inc/_register_new_user.jsp",
-                    bind(
-                            function(data) {
-                                if (this.dialog) {
-                                    this.dialog.dialog('open');
-                                } else {
-                                    $(document.body).append(
-                                            '<div id="registerUser"></div>');
-
-                                    this.dialog = $('#registerUser')
-                                            .dialog(
-                                                    {
-                                                        width : 600,
-                                                        height : 550,
-                                                        modal : true,
-                                                        title : dictionary["registeruser.title"],
-                                                        buttons : [
-                                                                // create button
-                                                                {
-                                                                    text : dictionary['common.create'],
-                                                                    click : bind(
-                                                                            function() {
-                                                                                // validation...
-                                                                                if (regUserValidate
-                                                                                        .validate()) {
-                                                                                    var data = regUserValidate
-                                                                                            .grabData();
-
-                                                                                    $
-                                                                                            .ajax({
-                                                                                                type : "POST",
-                                                                                                url : "users?action=registernew",
-                                                                                                data : {
-                                                                                                    'loginName' : data.loginName,
-                                                                                                    'email' : data.email,
-                                                                                                    'password' : data.pswd,
-                                                                                                    'name' : data.name,
-                                                                                                    'captcha' : data.captcha
-                                                                                                },
-                                                                                                contentType : "application/x-www-form-urlencoded;charset=UTF-8",
-                                                                                                dataType : "json",
-                                                                                                success : bind(
-                                                                                                        function() {
-                                                                                                            this
-                                                                                                                    .emailCheck();
-                                                                                                        },
-                                                                                                        this),
-                                                                                                error : bind(
-                                                                                                        function(
-                                                                                                                data) {
-                                                                                                            var dataObject = eval('('
-                                                                                                                    + data.responseText
-                                                                                                                    + ')');
-                                                                                                            if (dataObject
-                                                                                                                    && dataObject.error == 'bad_captcha') {
-                                                                                                                this
-                                                                                                                        .badCaptcha();
-                                                                                                            }
-                                                                                                        },
-                                                                                                        this)
-
-                                                                                            });
-
-                                                                                    this.dialog
-                                                                                            .dialog("close");
-                                                                                }
-                                                                            },
-                                                                            this)
-
-                                                                },
-
-                                                                {
-                                                                    text : dictionary['common.close'],
-                                                                    click : function() {
-                                                                        $(this)
-                                                                                .dialog(
-                                                                                        "close");
+    $.get("inc/_register_new_user.jsp",
+            bind(function(data) {
+                    if (this.dialog) {
+                        this.dialog.dialog('open');
+                    } else {
+                        $(document.body).append('<div id="registerUser"></div>');
+                        this.dialog = $('#registerUser').dialog(
+                                {
+                                    width : 600,
+                                    height : 550,
+                                    modal : true,
+                                    title : dictionary["registeruser.title"],
+                                    buttons : [
+                                    // create button
+                                    {
+                                        text : dictionary['common.create'],
+                                        click : bind(function() {
+                                                    // validation...
+                                                    var resultFunc = bind(function(result) {
+                                                                if (result) {
+                                                                    console.log("result is :"+result);
+                                                                    var data = regUserValidate.grabData();
+                                                                    $.ajax({    type : "POST",
+                                                                                url : "users?action=registernew",
+                                                                                data : {
+                                                                                    'loginName' : data.loginName,
+                                                                                    'email' : data.email,
+                                                                                    'password' : data.pswd,
+                                                                                    'name' : data.name,
+                                                                                    'captcha' : data.captcha
+                                                                                },
+                                                                                contentType : "application/x-www-form-urlencoded;charset=UTF-8",
+                                                                                dataType : "json",
+                                                                                success : bind(function() {
+                                                                                            this.emailCheck();
+                                                                                          },this),
+                                                                                error : bind(function(data) {
+                                                                                            var dataObject = eval('('
+                                                                                                    + data.responseText
+                                                                                                    + ')');
+                                                                                            if (dataObject
+                                                                                                    && dataObject.error == 'bad_captcha') {
+                                                                                                this.badCaptcha();
+                                                                                            }
+                                                                                        },this)
+                                                                        });
+                                                                        this.dialog.dialog("close");
                                                                     }
-                                                                }
+                                                            }, this);
 
-                                                        ]
-                                                    });
+                                                            regUserValidate.validate(resultFunc);
+                                                        },this)
+                                                    },
+                                                    {
+                                                        text : dictionary['common.close'],
+                                                        click : function() {
+                                                                $(this).dialog("close");
+                                                                    }
+                                                    }
+                                                ]
+                                        });
                                 }
 
                                 $("#registerUser").html(data);
-                            }, this));
-
+        },this));
 }
 
 var registerUser = new RegisterUser();
