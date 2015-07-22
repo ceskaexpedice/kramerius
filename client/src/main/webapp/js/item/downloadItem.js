@@ -120,15 +120,19 @@ DownloadItem.prototype.init = function() {
 DownloadItem.prototype.open = function() {
     cleanWindow();
     divopen("#download");
+
     var doptions = K5.gui.downloadoptions.ctx.actions;
+
     var select = $('<select/>');
-    select.change(function() {
-        var message = K5.gui.selected.download.selectedMessage();
-        if (message != null) {
-            $("#download_action_message").text(message);
+    select.change(function(item) {
+        var selAction = K5.gui.selected.download.selectAction();
+        if (selAction && selAction.object.message) {
+            var tMess = selAction.object.message();
+            $("#download_action_message").text(tMess);
         } else {
             $("#download_action_message").text("");
         }
+
     });
     var options = _.map(doptions, function(a) {
         if (a.object.enabled()) {
@@ -138,7 +142,7 @@ DownloadItem.prototype.open = function() {
                     "elem":optHtml
             };
             if (a.object["message"]) {
-                option["message"] = a.object["message"];
+                option["message"] = a.object.message();
             }
             return option;
         } else return null;
@@ -163,6 +167,7 @@ DownloadItem.prototype.open = function() {
     } else {
         $("#download_action_message").text("");
     }
+
     $("#download_options").html(select);
 }
 

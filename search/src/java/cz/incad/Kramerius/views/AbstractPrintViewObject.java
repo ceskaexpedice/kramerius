@@ -291,6 +291,11 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
 
         public abstract boolean isInvalidOption();
 
+        public boolean isOffPDFCheck() {
+            boolean turnOff = KConfiguration.getInstance().getConfiguration().getBoolean("turnOffPdfCheck");
+            return turnOff;
+        }
+        
     }
 
 
@@ -313,11 +318,12 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
 
         @Override
         public boolean isInvalidOption() {
-            boolean check = KConfiguration.getInstance().getConfiguration().getBoolean("turnOffPdfCheck");
-            if (check) return true;
+            boolean turnOff = KConfiguration.getInstance().getConfiguration().getBoolean("turnOffPdfCheck");
+            if (turnOff) return false; // valid
             int maxPage = KConfiguration.getInstance().getConfiguration().getInt("generatePdfMaxRange");
             return getPids().size() > maxPage;
         }   
+        
     }
 
     public class MasterRadioItem extends RadioItem {

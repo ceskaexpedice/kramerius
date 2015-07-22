@@ -16,7 +16,7 @@ public class ApplyMovingWallItem extends AbstractContextMenuItem implements Admi
 
     @Override
     public String getRenderedItem() throws IOException {
-        return super.renderContextMenuItem("javascript:applyMovingWall();", "administrator.menu.applymw");
+        return super.renderContextMenuItem("javascript:parametrizedProcess.open('parametrizedapplymw');", "administrator.menu.applymw");
     }
 
     

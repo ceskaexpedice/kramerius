@@ -367,4 +367,21 @@ public class KrameriusImageSupport {
         REPLICATE, AREA_AVERAGING, BILINEAR, BICUBIC, NEAREST_NEIGHBOR, BILINEAR_STEPPED, BICUBIC_STEPPED, NEAREST_NEIGHBOR_STEPPED
     }
 
+    public  static BufferedImage partOfImage(BufferedImage bufferedImage,
+            double xPerctDouble, double yPerctDouble, double widthPerctDouble,
+            double heightPerctDouble) {
+        int width = bufferedImage.getWidth();
+        int height = bufferedImage.getHeight();
+    
+        int xoffset =(int) (width * xPerctDouble);
+        int yoffset = (int)(height * yPerctDouble);
+        
+        int cwidth = (int)(width * widthPerctDouble);
+        int cheight = (int)(height * heightPerctDouble);
+        
+        
+        BufferedImage subImage = bufferedImage.getSubimage(Math.max(xoffset,0), Math.max(yoffset,0), Math.min(cwidth, width - xoffset) , Math.min(cheight, height - yoffset));
+        return subImage;
+    }
+
 }

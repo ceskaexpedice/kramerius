@@ -5,6 +5,7 @@ package cz.incad.kramerius.pdf;
  * Interface represents signal for pdf processing algorithm which means that new file should be created
  * @author pavels
  */
+@Deprecated
 public interface Break {
     
     /**

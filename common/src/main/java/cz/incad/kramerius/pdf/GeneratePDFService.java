@@ -8,7 +8,7 @@ import com.lowagie.text.DocumentException;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.pdf.impl.ImageFetcher;
 import cz.incad.kramerius.pdf.impl.OutputStreams;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
@@ -53,10 +53,10 @@ public interface GeneratePDFService {
 	public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException;
 	
 	
-	public void generateCustomPDF(AbstractRenderedDocument doc, /*String parentUUID,*/ OutputStream os, FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
+	public void generateCustomPDF(PreparedDocument doc, /*String parentUUID,*/ OutputStream os, FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
 
 	
-	public AbstractRenderedDocument generateCustomPDF( AbstractRenderedDocument doc,  OutputStream os, Break brk,   FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
+	public PreparedDocument generateCustomPDF( PreparedDocument doc,  OutputStream os, Break brk,   FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
 
 	
 	

@@ -458,17 +458,25 @@ PrintTitle.prototype = {
         }
 }
 
-function PDFTitle() {}
+function PDFTitle() {
+    this.ctx = {};
+    $.getJSON("api/pdf", _.bind(function(conf) {
+        this.ctx["conf"] = conf;
+    },this));
+}
+
 PDFTitle.prototype = {
         'doAction':function() {
                 cleanWindow();
-                K5.outputs.pdf.asyncTitle(K5.api.ctx.item.selected);
+                //K5.outputs.pdf.asyncTitle(K5.api.ctx.item.selected);
+                K5.outputs.pdf.title(K5.api.ctx.item.selected);
         },
-        
-        
         'message' :function() {
-            if (K5.outputs.pdf.isLimitDefined()) {
-                return "Maximalni pocet stranek :"+K5.outputs.pdf.limit(); 
+            this.ctx.conf
+            if (this.ctx && this.ctx.conf) { 
+                if (this.ctx.conf.pdfMaxRange !== "unlimited") {
+                    return "Maximalni pocet stranek :"+this.ctx.conf.pdfMaxRange; 
+                }
             } else return null;
         },
 
@@ -477,7 +485,6 @@ PDFTitle.prototype = {
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
                     if ((!_isAudio()) && (!_isPDF())) {
-
                         var children = K5.api.ctx.item[selected]["children"];
                         if (children) {
                             var pages = _.reduce(children, function(memo, value, index) {

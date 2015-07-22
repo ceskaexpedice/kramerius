@@ -92,6 +92,7 @@ public class IOUtils {
         }
     }
 
+    
     public static void saveToFile(String data, File file) throws IOException {
         FileOutputStream fos = null;
         try {
@@ -100,6 +101,30 @@ public class IOUtils {
         } finally {
             if (fos != null)
                 fos.close();
+        }
+    }
+    public static void saveToFile(InputStream data, File file) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            copyStreams(data, fos);
+        } finally {
+            if (fos != null)
+                fos.close();
+        }
+    }
+
+    public static void saveToFile(InputStream data, File file, boolean closeInput) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            copyStreams(data, fos);
+        } finally {
+            if (fos != null)
+                tryClose(fos);
+            if (closeInput) {
+                tryClose(data);
+            }
         }
     }
 
@@ -124,6 +149,20 @@ public class IOUtils {
         } finally {
             if (is != null)
                 is.close();
+        }
+
+    }
+    public static byte[] bos(InputStream is, boolean closeInput) throws IOException {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            copyStreams(is, bos);
+            return bos.toByteArray();
+        } finally {
+            if (is != null) {
+                if (closeInput) {
+                    is.close();
+                }
+            }
         }
 
     }

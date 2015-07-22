@@ -72,7 +72,7 @@ public class PrintPDFServlet extends GuiceServlet {
                 try {
                     pid = fa.findFirstViewablePid(pid);
                     BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), fa, 0);
-                    BufferedImage subImage = ImageCutServlet.simpleSubImage(bufferedImage, req,  pid);
+                    BufferedImage subImage = ImageCutServlet.partOfImage(bufferedImage, req,  pid);
                     KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), os);
                 } catch (XPathExpressionException e) {
                     LOGGER.severe(e.getMessage());
