@@ -54,6 +54,10 @@
     #contextMenu .scope>span{
         font-weight: bold;
     }
+    
+    #metaData{
+        height: calc(100% - 3px);
+    }
 
 
     #reindex ul{
@@ -148,6 +152,10 @@
 </scrd:loggedusers>
 
 <script  src="js/localprint/localprint.js" language="javascript" type="text/javascript"></script>
+<script  src="js/underscore-min.js" language="javascript" type="text/javascript"></script>
+<link href="js/prettify.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="js/prettify.js"></script>
+<script src="js/mods.js" type="text/javascript" ></script>
 <script type="text/javascript">
     
     var policyPublic = ${policyPublic};
@@ -343,6 +351,30 @@
         $.get(url, function(data){
             $('#metaData').html(data);
             $('#mods-full').tabs();
+            
+            $('#mods-xml>pre').addClass('lang-html');
+            $('#mods-xml>pre').addClass('prettyprint');
+            $('#mods-xml>pre').css('border', 'none');
+            prettyPrint();
+            
+            /*
+            var modsid = "mods_"+pid;
+            var e = $('<div class="modsxml"></div>');
+            //elem.append(e);
+
+            var div = $('<div style="display:block;" />');
+            div.attr("id", modsid);
+
+            div.append(e);
+            
+            var xmlData = $('#mods-xml>pre').text();
+
+            var modsXml = new ModsXml(e);
+            modsXml.loadXmlFromString(xmlData, e, function(){});
+            modsXml.renderTree();
+            modsXml.expand();
+            $('#mods-xml').append(div);
+            */
         });
     }
 
