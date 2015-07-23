@@ -33,7 +33,7 @@ public class AudioStreamId implements Serializable {
     private final String pid;
     private final AudioFormat format;
 
-    private AudioStreamId(String pid, AudioFormat format) {
+    public AudioStreamId(String pid, AudioFormat format) {
         this.pid = pid;
         this.format = format;
     }
