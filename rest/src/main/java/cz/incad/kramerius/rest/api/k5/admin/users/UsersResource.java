@@ -50,6 +50,7 @@ import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
+import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.CreateException;
 import cz.incad.kramerius.rest.api.exceptions.DeleteException;
 import cz.incad.kramerius.rest.api.exceptions.UpdateException;
@@ -276,6 +277,12 @@ public class UsersResource {
                 if (!uOptions.containsKey("password")) {
                     throw new IllegalStateException("expecting password key");
                 }
+                
+                User userByLName = this.userManager.findUserByLoginName(user.getLoginname());
+                if (userByLName != null) {
+                    throw new BadRequestException("user with login name '"+user.getLoginname()+"'");
+                }
+                
                 String pswd = uOptions.getString("password");
                 this.userManager.insertUser(user, pswd);
                 this.userManager.activateUser(user);
