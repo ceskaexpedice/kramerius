@@ -1167,7 +1167,7 @@ li.public:before{
 
 
 #viewer div.container div.arrow svg  {
-    opacity:0.2;
+    opacity:0.5;
 }
 #viewer div.container div.arrow svg:hover  {
     opacity:1;
