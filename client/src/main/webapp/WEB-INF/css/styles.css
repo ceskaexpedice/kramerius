@@ -462,13 +462,13 @@ li.public:before{
 
 
 #facets{
-    left:inherit;
-    right: -460px; 
-    top:35px;
-    height: 500px;
     overflow: auto;
     font-size: 1.2em;
-    width: auto;
+    width: 350px;
+    float: right;
+    position: relative;
+    top: 0;
+    left: 0;
 }
 
 #facets.pin .pin{
@@ -1391,12 +1391,15 @@ li.public:before{
     overflow: auto;
     display:block;
     height: auto;
+    width: calc(100% - 380px); /* 380px facets width */
+    float: left;
 }
 
 #search_results .search_result{
     display:inline-block;
     overflow: hidden;
     position:relative;
+    width: 25%;
 }
 
 #search_results .search_result .collapsed{
@@ -1438,6 +1441,10 @@ li.public:before{
 
 #search_results .as_row div.thumb > div.info{
     max-width: 100%;
+}
+
+#search_results .search_result div.thumb{
+    width: 100%;
 }
 
 .search_result div.thumb{

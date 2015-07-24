@@ -145,7 +145,9 @@ Results.prototype = {
     srResize: function() {
         var h = window.innerHeight - $('#header').height() - $('#footer').height();
         $('#search_results').css('height', h);
-        $('#search_results_docs').css('height', h - $('#search_results_header').height() - 5);
+        var h2 = h - $('#search_results_header').height() - 5;
+        $('#search_results_docs').css('height', h2);
+        $('#facets').css('height', h2);
     },
     setRowStyle: function() {
         $('.search_result').addClass('as_row');
