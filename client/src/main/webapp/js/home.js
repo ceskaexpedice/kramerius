@@ -67,12 +67,21 @@ HomeEffects.prototype = {
             he.selBand(this);
         }, this));
 
-        $('#buttons').mouseenter(function() {
+        $('#buttons>div.button').mouseenter(_.partial(function(he) {
+            he.selBand(this);
             $("#band").animate({'bottom': 41}, 200);
-        });
+        }, this));
         $('#band').mouseleave(function() {
             $("#band").animate({'bottom': -147}, 200);
+            $('#buttons>div.button').removeClass('sel');
         });
+        
+        //podle #153 mame otevrene "vybrane" a po 5 sec schovame
+        $("#band").animate({'bottom': 41}, 200);
+        setTimeout(function() {
+            $("#band").animate({'bottom': -147}, 200);
+            $('#buttons>div.button').removeClass('sel');
+        }.bind(this), 5000);
         
         /* Komentovane podle issue 199
          * 

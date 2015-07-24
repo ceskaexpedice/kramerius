@@ -1286,12 +1286,13 @@ li.public:before{
     padding: 3px;
     width: 33%;
     color: white;
-    font-size: 1.4em;
+    font-size: 1.6em;
     cursor:pointer;
 }
 
 #buttons div.sel{
     font-weight: bold;
+    color: yellow;
 }
 
 #buttons div.button:hover{
