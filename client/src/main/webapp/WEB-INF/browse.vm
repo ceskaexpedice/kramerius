@@ -7,7 +7,7 @@
     <div class="letters"><div class="scroll"><ul></ul></div></div>
     <div class="results">
         
-        <div class="typ titles"><h3>$i18n.browse.titles</h3><ul></ul>#parse("waiting.vm")</div>
-        <div class="typ authors"><h3>$i18n.browse.authors</h3><ul></ul>#parse("waiting.vm")</div>
+        <div class="typ titles"><h3>$i18n.browse.titles</h3>#parse("waiting.vm")<ul></ul></div>
+        <div class="typ authors"><h3>$i18n.browse.authors</h3>#parse("waiting.vm")<ul></ul></div>
     </div>
 </div>

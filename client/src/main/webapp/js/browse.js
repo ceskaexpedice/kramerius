@@ -54,26 +54,30 @@ Browse.prototype = {
         var val = this.input.val();
         var hash = window.location.hash;
         if(hash.length > 1 && val !== hash.substring(1)){
-            if(val.length >= 3){
+            if(val.length >= 1){
                 window.location.hash = val.toUpperCase();
             }
         }
     },
     processHash: function() {
         var hash = window.location.hash;
+        var letter = "A";
         if (hash.length > 1) {
-            this.sectionsScroll.parent().show();
             hash = hash.substring(1);
-            var letter = hash.substring(0,1);
+            letter = hash.substring(0,1);
             if(hash.startsWith('CH')){
                 letter = hash.substring(0,2);
             }
-            this.selectedLetter = hash;
-            this.loadLetter();
-            this.lettersDiv.find(".button").removeClass("sel");
-            var el = this.lettersDiv.find('.button[data-key="' + letter + '"]');
-            el.addClass("sel");
+            
         }
+        
+        this.selectedLetter = letter;
+        this.sectionsScroll.parent().show();
+
+        this.loadLetter();
+        this.lettersDiv.find(".button").removeClass("sel");
+        var el = this.lettersDiv.find('.button[data-key="' + letter + '"]');
+        el.addClass("sel");
     },
     loadLetter: function(){
         this.titlesList.empty();
