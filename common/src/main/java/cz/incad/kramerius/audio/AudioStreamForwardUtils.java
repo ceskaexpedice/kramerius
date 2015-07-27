@@ -43,9 +43,8 @@ public class AudioStreamForwardUtils {
     
     
     
-    public static ResponseBuilder GET(HttpServletRequest request,
+    public static ResponseBuilder GET(AudioStreamId id, HttpServletRequest request,
             ResponseBuilder builder, SolrAccess solrAccess, User user, IsActionAllowed actionAllowed, RepositoryUrlManager urlManager) throws IOException {
-        AudioStreamId id = AudioStreamId.fromPathInfo(request.getPathInfo());
         LOGGER.info(id.toString());
         if (canBeRead(id.getPid(), solrAccess, user, actionAllowed)) {
             try {
@@ -68,11 +67,8 @@ public class AudioStreamForwardUtils {
     
     }
     
-    public static void GET(HttpServletRequest request,
+    public static void GET(AudioStreamId id, HttpServletRequest request,
             HttpServletResponse response, SolrAccess solrAccess, User user, IsActionAllowed actionAllowed, RepositoryUrlManager urlManager) throws IOException, ServletException {
-        //TODO: tune logging levels (staci vetsinou FINE)
-        LOGGER.log(Level.INFO, "GET {0}", request.getPathInfo());
-        AudioStreamId id = AudioStreamId.fromPathInfo(request.getPathInfo());
         LOGGER.info(id.toString());
         if (canBeRead(id.getPid(), solrAccess, user, actionAllowed)) {
             try {
@@ -93,10 +89,8 @@ public class AudioStreamForwardUtils {
         }
     }
 
-    public static void HEAD(HttpServletRequest request,
+    public static void HEAD(AudioStreamId id, HttpServletRequest request,
             HttpServletResponse response, SolrAccess solrAccess, User user, IsActionAllowed actionAllowed, RepositoryUrlManager urlManager) throws IOException, ServletException {
-        LOGGER.log(Level.INFO, "HEAD {0}", request.getPathInfo());
-        AudioStreamId id = AudioStreamId.fromPathInfo(request.getPathInfo());
         LOGGER.info(id.toString());
         if (canBeRead(id.getPid(),solrAccess, user, actionAllowed)) {
             try {
@@ -117,10 +111,8 @@ public class AudioStreamForwardUtils {
         }
     }
 
-    public static ResponseBuilder HEAD(HttpServletRequest request,
+    public static ResponseBuilder HEAD(AudioStreamId id, HttpServletRequest request,
             ResponseBuilder builder, SolrAccess solrAccess, User user, IsActionAllowed actionAllowed, RepositoryUrlManager urlManager) throws IOException {
-        LOGGER.log(Level.INFO, "HEAD {0}", request.getPathInfo());
-        AudioStreamId id = AudioStreamId.fromPathInfo(request.getPathInfo());
         LOGGER.info(id.toString());
         if (canBeRead(id.getPid(),solrAccess, user, actionAllowed)) {
             try {
