@@ -105,7 +105,7 @@ function _leftNavigationArrow() {
     }, this));
 
     icon.click(_.bind(function() {
-        K5.gui.selected.prev();
+        //K5.gui.selected.prev();
     }, this));
     return leftArrowContainerDiv;
 }
@@ -128,7 +128,7 @@ function _rightNavigationArrow() {
 
 
     icon.click(function() {
-        K5.gui.selected.next();
+        //K5.gui.selected.next();
     });
 
     return rightArrowContainerDiv;

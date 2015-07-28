@@ -291,6 +291,7 @@ ItemThumbs.prototype = {
     thumbCurWidth: 0,
     thumbCurHeight: 0,
     setCurThumbSize: function(w, h) {
+        return;
         if(w > this.thumbCurWidth || (h > this.thumbCurHeight && this.thumbCurHeight !== this.thumbMaxHeight)){
             //this.thumbCurWidth = Math.min(w, this.thumbMaxWidth);
             this.thumbCurWidth = w;
@@ -304,7 +305,7 @@ ItemThumbs.prototype = {
         }
     },
     setDimensions: function() {
-        
+        return;
         $('#viewer li.thumb').css('width', this.thumbMaxWidth).css('height', this.thumbMaxHeight);
         
     },
@@ -325,7 +326,7 @@ ItemThumbs.prototype = {
             if (itemths.imgHeight * relation > itemths.imgWidth) {
                 $(img).css("top", (itemths.thumbHeight - itemths.imgHeight)/2);
                 if(w > itemths.imgWidth){
-                    $(img).css("width", "calc(100% - 8px)");
+                    //$(img).css("width", "calc(100% - 8px)");
                     //$(img).attr("width", Math.min(w, itemths.imgWidth));
                 }else{
 //                    $(img).css("width", w);
@@ -333,7 +334,7 @@ ItemThumbs.prototype = {
             } else {
                 var finalh = Math.min(h, itemths.imgHeight);
 //                    $(img).attr("height", finalh);
-                    $(img).css("height", "calc(100% - 8px)");
+                    //$(img).css("height", "calc(100% - 8px)");
                     $(img).css("top", (itemths.thumbHeight - finalh)/2);
 //                if(h > itemths.imgHeight){
 //                    
@@ -356,7 +357,8 @@ ItemThumbs.prototype = {
         thumb.css('width', this.thumbWidth + "px");
         thumb.css('height', this.thumbHeight + "px");
         img.click(function() {
-            K5.api.gotoDisplayingItemPage(pid, $("#q").val());
+            var histDeep = getHistoryDeep() + 1;
+            K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
         });
 
         var title = '<span class="title">' + K5.i18n.translatable('fedora.model.' + this.thumbs[index].model) + " " + this.thumbs[index].title + '</span>';

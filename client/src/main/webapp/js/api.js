@@ -431,7 +431,7 @@ ClientAPIDev.prototype = {
         } else {
             href += "?";
         }
-        href += "page=doc#" + pid;
+            href += "page=doc#" + pid;
         window.location.assign(href);
     },
 

@@ -92,6 +92,7 @@
     
 <div id="item_menu" style="display:none;">
 
+<div class="small prev translate_title" data-ctx="all" data-key="buttons.back" title="$i18n.buttons.outofdocument" onclick="backToResults();" >#parse("svg/docout.svg")</div>
 
     <div class="small parent translate_title" data-ctx="parent" data-key="buttons.parent" title="$i18n.buttons.parent" onclick="K5.gui.selected.parent();" >#parse("svg/parent.svg")</div>
 

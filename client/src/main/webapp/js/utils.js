@@ -280,3 +280,29 @@ if (typeof String.prototype.endsWith != 'function') {
         };
 }
 
+function getHistoryDeep(){
+    
+    var hash = window.location.hash;
+    var histDeep = 0;
+    if (hash.length > 1) {
+        hash = hash.substring(1);
+        var parts = hash.split(";");
+        if(parts.length>1){
+            histDeep = parseInt(parts[1]);
+        }
+    }
+    return histDeep;
+}
+
+function backToResults(){
+    var hash = window.location.hash;
+    var histDeep = 0;
+    if (hash.length > 1) {
+        hash = hash.substring(1);
+        var parts = hash.split(";");
+        if(parts.length>1){
+            histDeep = parseInt(parts[1]);
+        }
+    }
+    window.history.go(-(histDeep+1));
+}
