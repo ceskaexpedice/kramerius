@@ -91,7 +91,7 @@ public class AudioProxyServlet extends GuiceServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        AudioStreamForwardUtils.GET(request, response, this.solrAccess, this.userProvider.get(),this.actionAllowed, this.urlManager);
+        AudioStreamForwardUtils.GET(AudioStreamId.fromPathInfo(request.getPathInfo()), request, response, this.solrAccess, this.userProvider.get(),this.actionAllowed, this.urlManager);
     }
 
     /**
@@ -105,7 +105,7 @@ public class AudioProxyServlet extends GuiceServlet {
      */
     @Override
     protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        AudioStreamForwardUtils.HEAD(request, response,this.solrAccess, this.userProvider.get(),this.actionAllowed, this.urlManager);
+        AudioStreamForwardUtils.HEAD(AudioStreamId.fromPathInfo(request.getPathInfo()), request, response,this.solrAccess, this.userProvider.get(),this.actionAllowed, this.urlManager);
     }
 
     /**

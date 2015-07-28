@@ -4,7 +4,9 @@ import com.google.inject.*;
 import com.google.inject.name.*;
 
 import cz.incad.kramerius.*;
+import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardUtils;
+import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.rest.api.exceptions.*;
 import cz.incad.kramerius.rest.api.k5.client.*;
@@ -21,7 +23,6 @@ import net.sf.json.*;
 
 import org.w3c.dom.*;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -136,7 +137,8 @@ public class ItemResource {
                         HttpServletRequest request = this.requestProvider.get();
                         User user = this.userProvider.get();
 
-                        ResponseBuilder builder = AudioStreamForwardUtils.HEAD(request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
+                        AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
+                        ResponseBuilder builder = AudioStreamForwardUtils.HEAD(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
                         return builder.build();
                         
                     } else {
@@ -206,8 +208,8 @@ public class ItemResource {
 
                         HttpServletRequest request = this.requestProvider.get();
                         User user = this.userProvider.get();
-
-                        ResponseBuilder builder = AudioStreamForwardUtils.GET(request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
+                        AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
+                        ResponseBuilder builder = AudioStreamForwardUtils.GET(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
                         return builder.build();
                         
                     } else {
