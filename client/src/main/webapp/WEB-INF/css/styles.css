@@ -174,7 +174,7 @@ body * {
     width: 100%;
 }
 #search_box input{
-    font-size: 2.2em;
+    font-size: 1.2em;
     background: rgba(255, 255, 255, 0.9);
     border: 0px solid #0e70b3;
     width: 95%;
@@ -1387,7 +1387,7 @@ li.public:before{
 }
 
 #search_results_docs{
-    text-align: center;
+    /*text-align: center;*/
     overflow: auto;
     display:block;
     height: auto;
@@ -1456,16 +1456,19 @@ li.public:before{
 
 .search_result div.thumb>div.img{
     float:left;
+    width: 50%;
+    /*overflow: hidden;*/
 }
 .search_result div.thumb>div.img>img{
     max-height: 128px;
+    max-width: 100%;
 }
 
 
 .search_result div.thumb>div.info{
     margin: 0 0 0 5px;
     display:inline-block;
-    max-width:140px;
+    width:45%;
     height: 136px;
     text-align: left;
 }
