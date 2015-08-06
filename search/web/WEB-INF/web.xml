@@ -24,6 +24,7 @@
         <filter-name>cors</filter-name>
         <url-pattern>/api/*</url-pattern>
         <url-pattern>/zoomify/*</url-pattern>
+        <url-pattern>/iiif/*</url-pattern>
     </filter-mapping>
 
     <!-- mod_proxy filter; doesnt work in krameriusdemo don't know why (logout doesn't work)
@@ -176,6 +177,11 @@
     <servlet>
         <servlet-name>zoomifyServlet</servlet-name>
         <servlet-class>cz.incad.Kramerius.imaging.ZoomifyServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>iiifServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.imaging.IiifServlet</servlet-class>
     </servlet>
 
 	<!-- private content servlet -->
@@ -388,6 +394,11 @@
     <servlet-mapping>
         <servlet-name>zoomifyServlet</servlet-name>
         <url-pattern>/zoomify/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>iiifServlet</servlet-name>
+        <url-pattern>/iiif/*</url-pattern>
     </servlet-mapping>
 
 	<servlet-mapping>
