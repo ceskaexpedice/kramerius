@@ -62,7 +62,10 @@ div.modsxml ul li span.nodeAttrs button.killAttr      {background-position:-34px
 div.modsxml ul li span.nodeValue        {color:#eeeeee;}
 div.modsxml ul li span.nodeValue strong {color:#ffffff;}
 
-div.modsxml ul li ul.nodeCore li p.nodeValue                    {font-style:italic; padding:0; margin:0; margin-left:4px; color:#dddddd;}
+div.modsxml ul li ul.nodeCore li p.nodeValue                    {
+    font-style:italic; padding:0; margin:0; margin-left:4px; color:#dddddd;
+    word-break: break-word;
+}
 div.modsxml ul li ul.nodeCore li p.nodeValue:hover              {color:#ffffff; }
 div.modsxml ul li ul.nodeCore li p.nodeValue span.noValue       {color:#dddddd;}
 div.modsxml ul li ul.nodeCore li p.nodeValue:hover span.noValue {color:#dddddd; }

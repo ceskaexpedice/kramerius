@@ -666,12 +666,14 @@ li.public:before{
 
 /** searchinside section */
 #viewer .searchinside{
-        width: $params.get("menu.dialogs.width");
-        height: 9em;
-        background-color: $params.activeColor;
-        z-index: 43;
-        left: 260px; 
-        color: white;
+    width: $params.get("menu.dialogs.width");
+    height: 9em;
+    background-color: $params.activeColor;
+    z-index: 43;
+    left: 37%;
+    color: white;
+    top: calc(50% - 9em);
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
 }
 
 #viewer .searchinside .triangle {
@@ -732,17 +734,30 @@ li.public:before{
 
 
 
+
+#viewer>div.container{
+    position:relative;
+    left: 0px;
+    top: 0px;
+    background-color: #F5F5F5;
+    width: calc(100% - 340px);
+    height: calc(100% - 70px);    
+    overflow: auto;
+    float: left;
+}
+
 /** metadata section */
-#viewer .infobox{
-    /*top: -500px; */
-        width:63%;
-        height: 22em;
-        max-height: calc(100% - 120px);
-        background-color: $params.activeColor;
-        z-index: 43;
-        left: 225px; /* ?? */
-        color: white;
-        font-size: 1.5em;
+#viewer>div.infobox{
+    position:relative;
+    width:340px;
+    height: calc(100% - 70px);   
+    padding: 0;
+    top:0px;
+    background-color: $params.activeColor;
+    float: right;
+    left:0;
+    color: white;
+    font-size: 1.4em;
 }
 
 .infobox div.right{
@@ -891,16 +906,6 @@ li.public:before{
     display: inline-block;
 }
 
-#viewer>div.container{
-    position:absolute;
-    left: 0px;
-    top: 0px;
-    background-color: #F5F5F5;
-    width: 100%;
-    height: calc(100% - 70px);    
-    overflow: auto;
-}
-
 #viewer img.plain{
     position:absolute; 
 }
@@ -952,10 +957,6 @@ li.public:before{
     fill: $params.get("svg.fill.hover"); 
     stroke:$params.get("svg.stroke.hover"); 
     opacity: 1;
-}
-
-#viewer div.container{
-    margin-top: 60px;
 }
 
 #viewer ul.container{
@@ -1058,10 +1059,10 @@ li.public:before{
 #viewer div.context{
     padding-top: 1px;
     overflow: auto;
-    max-height: calc(100% - 40px);
+    max-height: calc(100% - 90px);
 }
 
-#viewer div.context h2{
+#viewer div.infobox h2{
     padding: 5px;
     font-size: 1.1em;
     margin: 0;
