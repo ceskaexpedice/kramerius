@@ -3,7 +3,7 @@
 <div id="browse">
 
 <!-- waiting div -->
-    <div class="input"><input type="text" class="browse" /></div>
+    <div class="input"><input type="text" class="browse" placeholder="$i18n.browse.placeholder" /></div>
     <div class="letters"><div class="scroll"><ul></ul></div></div>
     <div class="results">
         
