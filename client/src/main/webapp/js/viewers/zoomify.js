@@ -10,7 +10,7 @@ function Zoomify(appl, selector) {
         var v = K5.api.ctx.item.selected;
         this.url = K5.api.ctx.item[v].zoom.url;
 
-        var jqSel = (selector || '#viewer>div.container');        
+        var jqSel = (selector || '#viewer>div.container>div.ol');        
         this.elem = $(jqSel);
 
         

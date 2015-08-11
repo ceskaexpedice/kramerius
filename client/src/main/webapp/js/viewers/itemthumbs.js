@@ -1,7 +1,7 @@
 function ItemThumbs(appl, elem) {
     this.application = (appl || K5);
 
-    var jqSel = (elem || '#viewer>div.container');        
+    var jqSel = (elem || '#viewer>div.container>div.thumbs');        
     this.elem = $(jqSel);
 
     this.init();

@@ -75,12 +75,12 @@ function _eventProcess(pid) {
             K5.gui.selected.download.cleanDialog();
         }
         
-        $("#viewer>div.loading").show();
+        $("#viewer>div.container>div.loading").show();
     }
 
     var okfunc = _.bind(function() {
         
-        $("#viewer>div.loading").hide();
+        $("#viewer>div.container>div.loading").hide();
 
         var instance = K5.gui["viewers"].instantiate(viewer.object);        
         K5.gui["selected"] = mixInto(new ItemSupport(K5), instance);
@@ -245,13 +245,22 @@ ItemSupport.prototype = {
 
 
     renderContext: function() {
-        $(".context").remove();
+        $("#metadata>div.full").empty();
         var pid = K5.api.ctx["item"]["selected"];
         var data = K5.api.ctx["item"][pid];
 
         this.itemContext = data.context[0];
         var contextDiv = $("<div/>", {class: "context"});
-        contextDiv.append('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
+        var titleH = $('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
+        
+        var model = K5.api.ctx["item"][pid]['model'];
+        model = K5.i18n.ctx.dictionary["fedora.model." + model];
+        $('.mtd_footer .prev').attr('title', K5.i18n.ctx.dictionary["buttons.prev"] + " " + model);
+        $('.mtd_footer .prev').data('key', K5.i18n.ctx.dictionary["buttons.prev"] + " " + model);
+        $('.mtd_footer .next').attr('title', K5.i18n.ctx.dictionary["buttons.next"] + " " + model);
+        $('.mtd_footer .next').data('key', K5.i18n.ctx.dictionary["buttons.nex"] + " " + model);
+        
+        //contextDiv.append('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
         for (var i = 0; i < this.itemContext.length; i++) {
             var p = this.itemContext[i].pid;
             var div = $('<div/>');
@@ -260,7 +269,8 @@ ItemSupport.prototype = {
             contextDiv.append(div);
             
         }
-        contextDiv.insertBefore("#metadata");
+        $("#metadata>div.full").append(titleH);
+        $("#metadata>div.full").append(contextDiv);
         this.renderDonator();
     },
 
