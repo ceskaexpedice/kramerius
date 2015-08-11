@@ -234,6 +234,8 @@ body * {
     padding: 5px;
     vertical-align: top;
     position:relative;
+    
+    cursor: pointer;
 }
 .thumb img{
     box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px 0px;
@@ -983,6 +985,8 @@ li.public:before{
     border: solid 2px transparent;
     min-height:128px;
     min-width:90px;
+    
+    cursor: pointer;
 }
 
 #viewer li.thumb .thumb_info{
@@ -1453,6 +1457,8 @@ li.public:before{
     margin:5px;
     padding:5px;
     float:left;
+    
+    cursor: pointer;
 }
 
 .search_result div.thumb>div.img{
