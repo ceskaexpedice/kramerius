@@ -53,17 +53,19 @@ Browse.prototype = {
     doSuggest: function(){
         var val = this.input.val();
         var hash = window.location.hash;
-        if(hash.length > 1 && val !== hash.substring(1)){
-            if(val.length >= 1){
+        if(val.length >= 1){
+            //if(hash.length > 1 && val !== hash.substring(1)){
                 window.location.hash = val.toUpperCase();
-            }
+            //}
         }
     },
     processHash: function() {
         var hash = window.location.hash;
         var letter = "A";
+        this.hash = "A";
         if (hash.length > 1) {
             hash = hash.substring(1);
+            this.hash = hash;
             letter = hash.substring(0,1);
             if(hash.startsWith('CH')){
                 letter = hash.substring(0,2);
@@ -83,7 +85,7 @@ Browse.prototype = {
         this.titlesList.empty();
         this.getTitles(0);
         this.authorsList.empty();
-        this.getAuthors(this.selectedLetter, true);
+        this.getAuthors(this.hash, true);
     },
     getAuthors: function(start, include){
         var q = "terms.fl=browse_autor&terms.limit="+this.rowsPerRequest+"&terms.lower.incl="+include+"&terms.sort=index&terms.lower=" + start;
@@ -118,7 +120,7 @@ Browse.prototype = {
     },
     getTitles: function(start){
         var q = "sort=" + this.browseField + " asc&rows=" + this.rowsPerRequest + "&start=" + start +
-                "&q=" + this.browseField + ":[\"" + this.selectedLetter + " *\" TO *]" +
+                "&q=" + this.browseField + ":[\"" + this.hash + " *\" TO *]" +
                 "&fl=PID,dc.title,dc.creator,datum_str";
         if(K5.indexConfig){
             q += "&fq=";
