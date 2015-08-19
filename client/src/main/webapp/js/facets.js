@@ -23,6 +23,9 @@ Facets.prototype = {
             var facet = $(this).data("facet");
             facets.removeFilter(facet, val);
         }, this));
+        
+        K5.i18n.k5translate("div.used");
+        
         this.show(1000);
     },
     addContextButtons: function() {
