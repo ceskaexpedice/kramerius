@@ -1,4 +1,6 @@
-<div class="right small" title="$i18n.buttons.search" onclick="K5.gui.dosearch();" >#parse("svg/lupa.svg")</div>
+#if(!$params.page || $params.page == 'home')
+<div class="right small" title="$i18n.buttons.search" onclick="$('#search_form').submit();" >#parse("svg/lupa.svg")</div>
+#end
 <div id="search_box">
 
 <form id="search_form" name="search_form" action="?page=search" method="get">
