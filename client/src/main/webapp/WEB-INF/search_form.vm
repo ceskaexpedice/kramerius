@@ -1,4 +1,6 @@
+<div class="right small" title="$i18n.buttons.search" onclick="K5.gui.dosearch();" >#parse("svg/lupa.svg")</div>
 <div id="search_box">
+
 <form id="search_form" name="search_form" action="?page=search" method="get">
     <input id="q" name="q" placeholder="$i18n.query.placeholder" value="$!esc.html(${params.q})" />
     <input type="hidden" name="page" value="search" />
@@ -7,7 +9,6 @@
     #foreach($filter in $search.usedFilters.entrySet())   
         <input class="facet" type="hidden" name="$filter.key" value="$esc.html($filter.value)" />
     #end
-
 
 </form>
 </div>

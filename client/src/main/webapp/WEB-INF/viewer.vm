@@ -57,7 +57,7 @@
         <div id="searchinside_container" class="dialogs_content">  
             <input type="text" id="searchinside_q" style="float:left;width: 90%;" />
 
-            <div class="small" title="$i18n.buttons.hide" onclick="K5.gui.selected.dosearch();" >#parse("svg/lupa.svg")</div>
+            <div class="small" title="$i18n.buttons.search" onclick="K5.gui.selected.dosearch();" >#parse("svg/lupa.svg")</div>
         </div>
 
         <div class="searchinside_footer dialogs_footer">
