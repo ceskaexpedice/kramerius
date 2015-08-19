@@ -29,7 +29,4 @@
     <div class="unused"></div>
 </div>
 
-<div id="facets_menu" style="display:none;">
-    <div class="small translate_title" data-key="buttons.showFacets" title="$i18n.buttons.showFacets" onclick="K5.gui.facets.show();" >#parse("svg/filter.svg")</div>
-</div>
 <script src="js/facets.js" type="text/javascript" ></script>
