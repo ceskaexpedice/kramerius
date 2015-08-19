@@ -1,13 +1,16 @@
 <div id="facets" class="infobox">
-    <div class="right">
-        <div class="small" onclick="K5.gui.facets.hide();" >#parse("svg/close.svg")</div>
-    </div>
+    
 #*
     <div class="icon-filter"></div>
         <div class="icon icon-pin" onclick="togglePin()"></div>
     </div>
 *#
+#if($search.usedFilters.entrySet().size() > 0)
+    <div class="right">
+        <div class="small" onclick="K5.gui.facets.removeAllFilters();" >#parse("svg/close.svg")</div>
+    </div>
     <h2>#translatable("facets.used")</h2>
+    
         #foreach($filter in $search.usedFilters.entrySet())   
         <div class="used">
             <a href="" data-key="$esc.html($filter.value)" data-facet="$filter.key" class="res" >
@@ -21,6 +24,7 @@
             </a>
         </div>
         #end
+#end
     <hr />
     <div class="unused"></div>
 </div>

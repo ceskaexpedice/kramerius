@@ -31,13 +31,17 @@ Facets.prototype = {
     },
     addFilter: function(facet, val) {
         //window.location.href = window.location.search + "&" + facet + "=" + val;
-        var input = $("<input>", {type: "hidden", value: val, name: facet});
+        var input = $("<input>", {type: "hidden", value: val, name: facet, class: "facet"});
         $("#search_form").append(input);
         $("#start").val("0");
         $("#search_form").submit();
     },
     removeFilter: function(facet, val) {
         $("input[name='" + facet + "']").remove();
+        $("#search_form").submit();
+    },
+    removeAllFilters: function() {
+        $("#search_form input.facet").remove();
         $("#search_form").submit();
     },
     hide: function() {
