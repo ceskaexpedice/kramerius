@@ -18,6 +18,7 @@ function Browse(application, elem) {
 
 Browse.prototype = {
     letters: ["0","A","B","C","Č","D","E","F","G","H","CH","I","J","K","L","M","N","O","P","Q","R","Ř","S","Š","T","U","V","W","X","Y","Z","Ž"],
+    
     ctx: {},
     _init: function() {
         this.rowsPerRequest = 200;
@@ -72,6 +73,7 @@ Browse.prototype = {
             }
             
         }
+        this.hash = this.replaceChars(this.hash);
         
         this.selectedLetter = letter;
         this.sectionsScroll.parent().show();
@@ -118,7 +120,19 @@ Browse.prototype = {
             }
         }, this), "application/json");
     },
+    replaceChars: function(s){
+        var ret = s;
+        $.ajax({
+            type: 'GET',
+            url: "utfsort.vm?term=" + s,
+            async:false
+          }).success(function(data){
+              ret = data;
+          });
+        return ret;
+    },
     getTitles: function(start){
+        
         var q = "sort=" + this.browseField + " asc&rows=" + this.rowsPerRequest + "&start=" + start +
                 "&q=" + this.browseField + ":[\"" + this.hash + " *\" TO *]" +
                 "&fl=PID,dc.title,dc.creator,datum_str";
@@ -174,6 +188,7 @@ Browse.prototype = {
     },
     renderLetters: function() {
             $.each(this.letters, _.bind(function(idx, letterDisp) {
+                console.log(letterDisp);
                 var letter = letterDisp;
                 if(letter === "0"){
                     letter = "!";
