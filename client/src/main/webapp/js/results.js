@@ -26,6 +26,7 @@ K5.eventsHandler.addHandler(function(type, configuration) {
 });
 
 var Results = function(elem) {
+    
     this.elem = elem;
     this._init();
 };
@@ -35,9 +36,13 @@ Results.prototype = {
         if (this.resultsLoaded)
             return;
         this.addContextButtons();
-        $("#search_results").resize(_.bind(function() {
-            this.srResize();
+        
+        K5.eventsHandler.addHandler(_.bind(function(type, data) {
+            if (type === "window/resized") {
+                this.srResize();
+            }
         }, this));
+
         this.getDocs();
         var hash = window.location.hash;
         if (hash.length > 1) {
@@ -147,7 +152,7 @@ Results.prototype = {
         $('#search_results').css('height', h);
         var h2 = h - $('#search_results_header').height() - 5;
         $('#search_results_docs').css('height', h2);
-        $('#facets').css('height', h2);
+        $('#facets').css('height', h2 - 30); //30 = 2x15 padding 
     },
     setRowStyle: function() {
         $('.search_result').addClass('as_row');
