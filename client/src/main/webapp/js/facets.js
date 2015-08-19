@@ -17,7 +17,7 @@ Facets.prototype = {
         this.addContextButtons();
         var facets = this.data.facet_counts.facet_fields;
         this.render($("#facets>div.unused"), facets);
-        $("#facets div.used>a.res").click(_.partial(function(facets, event) {
+        $("#facets div.used").click(_.partial(function(facets, event) {
             event.preventDefault();
             var val = $(this).data("key");
             var facet = $(this).data("facet");

@@ -12,8 +12,9 @@
     <h2>#translatable("facets.used")</h2>
     
         #foreach($filter in $search.usedFilters.entrySet())   
-        <div class="used">
-            <a href="" data-key="$esc.html($filter.value)" data-facet="$filter.key" class="res" >
+        <div class="used" style="clear: both;" data-key="$esc.html($filter.value)" data-facet="$filter.key">
+            <div style="float:left; margin-top: -5px;" class="small" >#parse("svg/x.svg")</div>
+            <a href="" class="res" >
             #if($filter.key == "collection")
                 #translatable("facet.$filter.key") : #transCol("$filter.value")
             #elseif($filter.key == "fedora.model")
