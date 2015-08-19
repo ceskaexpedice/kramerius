@@ -17,7 +17,7 @@ function Browse(application, elem) {
 }
 
 Browse.prototype = {
-    letters: ["!","A","B","C","Č","D","E","F","G","H","CH","I","J","K","L","M","N","O","P","Q","R","Ř","S","Š","T","U","V","W","X","Y","Z","Ž"],
+    letters: ["0","A","B","C","Č","D","E","F","G","H","CH","I","J","K","L","M","N","O","P","Q","R","Ř","S","Š","T","U","V","W","X","Y","Z","Ž"],
     ctx: {},
     _init: function() {
         this.rowsPerRequest = 200;
@@ -173,14 +173,18 @@ Browse.prototype = {
         window.location.hash = letter;
     },
     renderLetters: function() {
-            $.each(this.letters, _.bind(function(idx, letter) {
+            $.each(this.letters, _.bind(function(idx, letterDisp) {
+                var letter = letterDisp;
+                if(letter === "0"){
+                    letter = "!";
+                }
                 var div = $('<li/>', {class: 'button', "data-key": letter});
                 div.click(_.bind(function() {
                     this.letterClick(letter);
                 }, this));
                 
                 var spine = $('<div/>', {class: 'spine'});
-                spine.append(letter);
+                spine.append(letterDisp);
                 div.append(spine);
                 $(this.lettersDiv).append(div);
             }, this));
