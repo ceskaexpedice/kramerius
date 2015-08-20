@@ -64,7 +64,7 @@ BreadCrumbs.prototype = {
         var item_ctx = item.context[0];
         for(var i=0; i<item_ctx.length; i++){
             if(i > 0){
-                this.elem.append('<div class="sep"> :: </div>');
+                this.elem.append('<div class="ui-icon ui-icon-triangle-1-e"> :: </div>');
             }
             var cpid = item_ctx[i].pid;
             var span = $('<div/>', {class: "link", id: "bc_"+cpid});
