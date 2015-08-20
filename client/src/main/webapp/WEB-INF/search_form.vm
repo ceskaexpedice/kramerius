@@ -11,6 +11,12 @@
     #foreach($filter in $search.usedFilters.entrySet())   
         <input class="facet" type="hidden" name="$filter.key" value="$esc.html($filter.value)" />
     #end
+    #if(!$params.page || $params.page == 'home')
+        <div style="margin-top: 5px;">
+        <label for="dostupnost">#translatable("only.public")</label>
+        <input style="width: 20px;" class="facet" type="checkbox" id="dostupnost" name="dostupnost" value="public">
+        </div>
+    #end
 
 </form>
 </div>
