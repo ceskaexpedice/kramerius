@@ -1230,7 +1230,18 @@ li.public:before{
     background-position: 40%;
 }
 
+#home .infobox{
+    overflow: hidden;
+    height: 60%;
+    opacity: 1;
+    left: 105px;
+}
 
+#home .home_text{
+    overflow: auto;
+    height: calc(100% - 40px);
+    width: 100%;
+}
 
 #pidinfo{
     position:absolute;
