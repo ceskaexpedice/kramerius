@@ -1436,26 +1436,29 @@ li.public:before{
     display:inline-block;
 }
 
-#search_results .as_row{
+#search_results.as_row .search_result{
     display:block;
     width: 100%;
 }
 
 
-#search_results .as_row div.full{
+#search_results.as_row .search_result div.full{
     display:inline-block;
 }
 
-#search_results .as_row div.short{
+#search_results.as_row .search_result div.short{
     display:none;
 }
 
 
-#search_results .as_row div.thumb{
+#search_results.as_row .search_result div.thumb{
     width: 100%;
 }
+#search_results.as_row .search_result div.thumb div.img{
+    width: auto;
+}
 
-#search_results .as_row div.thumb > div.info{
+#search_results.as_row .search_result div.thumb > div.info{
     max-width: 100%;
 }
 

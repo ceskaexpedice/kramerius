@@ -155,8 +155,8 @@ Results.prototype = {
         $('#facets').css('height', h2 - 30); //30 = 2x15 padding 
     },
     setRowStyle: function() {
-        $('.search_result').addClass('as_row');
-        $('.as_row>div.thumb>div.info').each(function() {
+        $('#search_results').addClass('as_row');
+        $('.as_row>.search_result>div.thumb>div.info').each(function() {
             var w = $(this).parent().width() - $(this).prev().width() - 20;
             $(this).css('width', w);
         });
@@ -176,7 +176,7 @@ Results.prototype = {
         $("#search_results_header>div.totals>span.total").text(numFound);
     },
     setThumbsStyle: function() {
-        $('.search_result').removeClass('as_row');
+        $('#search_results').removeClass('as_row');
         $('.search_result>div.thumb>div.info').css('width', '');
         window.location.hash = "asthumb";
     }
