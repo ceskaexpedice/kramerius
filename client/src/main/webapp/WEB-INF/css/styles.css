@@ -1554,6 +1554,16 @@ li.public:before{
     border-right: 1px solid rgba(0,0,0,0.3);
 }
 
+
+#browse .results .titles li.policy span.title{
+    border-left: 3px solid $params.get("policy.private.color");
+    padding-left: 2px;
+}
+
+#browse .results .titles li.public span.title{
+    border-left: 3px solid $params.get("policy.public.color");;
+}
+
 #browse .results .typ ul{
     overflow:auto;
     height: calc(100% - 35px);

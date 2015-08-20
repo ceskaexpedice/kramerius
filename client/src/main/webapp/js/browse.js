@@ -105,6 +105,8 @@ Browse.prototype = {
                     var q = "&author=\"" + $(this).parent().data("author") + "\""; 
                     K5.api.gotoResultsPage(q);
                 });
+                
+        
                 div.append(title);
                 this.authorsList.append(div);
             }
@@ -135,7 +137,7 @@ Browse.prototype = {
         
         var q = "sort=" + this.browseField + " asc&rows=" + this.rowsPerRequest + "&start=" + start +
                 "&q=" + this.browseField + ":[\"" + this.hash + " *\" TO *]" +
-                "&fl=PID,dc.title,dc.creator,datum_str";
+                "&fl=PID,dc.title,dc.creator,datum_str,dostupnost";
         if(K5.indexConfig){
             q += "&fq=";
             var models = K5.indexConfig.browse.models;
@@ -153,7 +155,7 @@ Browse.prototype = {
             var arr = data.response.docs;
             for (var i = 0; i < arr.length; i++) {
                 var doc = arr[i];
-                var div = $('<li/>', {class: 'res'});
+                var div = $('<li/>', {class: 'res policy'});
                 div.data("pid", doc.PID);
                 var title = $('<span class="title">' + doc['dc.title'] + '</span>');
                 title.click(function() {
@@ -166,6 +168,12 @@ Browse.prototype = {
                 if (doc['datum_str']) {
                     div.append('<div>' + doc['datum_str'] + '</div>');
                 }
+                
+                if (doc['dostupnost']) {
+                    div.addClass(doc['dostupnost']);
+                    div.attr("title", doc['dostupnost']);
+                }
+                
                 this.titlesList.append(div);
             }
             //this.resizeResults();
