@@ -1546,12 +1546,15 @@ li.public:before{
 #browse .results .typ{
     float:left;
     width: calc(50% - 10px);
+    height: 100%
 }
+
 #browse .results .authors{
     float:right;
 }
 #browse .results .titles{
     border-right: 1px solid rgba(0,0,0,0.3);
+    
 }
 
 
@@ -1587,6 +1590,7 @@ li.public:before{
     padding: 4px;
     margin: 4px;
     text-align: center;
+    cursor: pointer;
 }
 
 #browse .letters>.scroll>ul>li{
