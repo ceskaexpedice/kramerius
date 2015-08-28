@@ -2,17 +2,17 @@
 
 Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub ( https://github.com/ceskaexpedice/kramerius/releases/latest )
 
-(pro napojení na vývojové práce ČDK je vyžadována verze 4.8 a vyšší),
+Pro zapojení do České diitální knihovny je vyžadována verze 5.
 
 ----
 
-#Kramerius 4 
+#Systém Kramerius 
 
 je softwarové řešení pro zpřístupnění digitálních dokumentů. Primárně je určen pro digitalizované knihovní sbírky, monografie a periodika. Využit může být ke zpřístupnění dalších typů dokumentů např. map, hudebnin a starých tisků, případně částí dokumentů jako jsou články a kapitoly. Systém je vhodný také pro tzv. digital born dokumenty, tedy dokumenty, které vznikly v elektronické podobě. Kramerius je průběžně upravován tak, aby struktura metadat odpovídala standardům vyhlašovaným Národní knihovnou České republiky. Systém poskytuje rozhraní pro přístup koncových uživatelů, zajišťující vyhledávání v metadatech a v plných textech, generování vícestránkových PDF dokumentů z vybraných stran, vytváření virtuálních sbírek a další operace nad uloženou sbírkou digitálních dokumentů.
 
-Aktuální verze 4 je vyvíjena a průběžně publikována od roku 2009. Navazuje funkčností na předchozí verzi systému Kramerius končící označením 3.3.1. Nově je jako jádro systému použit open source repozitář [Fedora](http://www.fedora-commons.org). Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
+Aktuální verze 5 je vychází koncepčně z verze 4, která byla vyvíjena a průběžně publikována od roku 2009. Navazuje funkčností na předchozí verzi systému Kramerius končící označením 3.3.1. Od verze 4 je jako jádro systému použit open source repozitář [Fedora](http://www.fedora-commons.org). Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
 
-Uživatelské rozhraní je přístupné ve většině moderních webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer.
+Uživatelské rozhraní je přístupné ve většině současných webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer.
 
 
 ##Vývojový tým
@@ -21,7 +21,7 @@ Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Mo
 
 Členové vývojového týmu:
 KNAV - M. Lhoták, M. Duda, I. Šlapáková; 
-NK ČR – P. Uhlíř, K. Kříž, T. Foltýn, J. Polišenský; 
+NK ČR – P. Uhlíř, T. Foltýn, J. Polišenský; 
 MZK – P. Švástová, P. Žabička, M. Řehánek; 
 NTK – J. Řihák, M. Janíček; 
 NLK – F. Kříž; 
@@ -46,7 +46,7 @@ V předchozích letech byl vývoj systému Kramerius průběžně financován z 
 
 
 ##Instalace
-Instalační balík je k dispozici v sekci Releases na adrese https://github.com/ceskaexpedice/kramerius/releases/latest . Starší verze Krameria 4 vydané před přesunutím vývoje na GitHub jsou stále k dispozici na původním umístění na Google Code (https://code.google.com/p/kramerius/downloads/list)
+Instalační balík je k dispozici v sekci Releases na adrese https://github.com/ceskaexpedice/kramerius/releases/latest . Starší verze Krameria vydané před přesunutím vývoje na GitHub jsou stále k dispozici na původním umístění na Google Code (https://code.google.com/p/kramerius/downloads/list)
 
 Kompletní dokumentace k aktuální verzi je v sekci Wiki.
 
@@ -54,7 +54,7 @@ Kompletní dokumentace k aktuální verzi je v sekci Wiki.
 ##Komunikace
 Hlášení o chybách a požadavky na novou funkcionalitu zadávejte pomocí formuláře New Issue v sekci Issues. 
 
-Při požadavku na přidání vlastní funkcionality do standardní distribuce systému Kramerius4 prosím kontaktujte administrátory projektu. Jednodušší změny v rámci existujících modulů bude možné řešit připravením pull requestu, složitější úpravy bude třeba řešit individuálně.
+Při požadavku na přidání vlastní funkcionality do standardní distribuce systému Kramerius prosím kontaktujte administrátory projektu. Jednodušší změny v rámci existujících modulů bude možné řešit připravením pull requestu, složitější úpravy bude třeba řešit individuálně.
 
 
 Mailová konference pro administrátory systému Kramerius: kramerius@lib.cas.cz
@@ -81,3 +81,8 @@ SPRÁVA SYSTÉMU
 Správa a dohled instalovaného systému může být zajištěna na základě individuální dohody. http://www.unidata.cz/ nebo http://www.incad.cz
 
 Instalaci a správu systému mohou, vzhledem k licenci pod kterou je systém vyvíjen, zajišťovat i jiné subjekty.
+
+LICENCE
+
+Systém Kramerius je vyvíjen pod licencí GNU GPL v3 http://www.gnu.org/licenses/gpl-3.0.en.html
+
