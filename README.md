@@ -2,7 +2,7 @@
 
 Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub ( https://github.com/ceskaexpedice/kramerius/releases/latest )
 
-Pro zapojení do České diitální knihovny je vyžadována verze 5.
+Pro zapojení do České digitální knihovny je vyžadována verze 5.
 
 ----
 
@@ -16,7 +16,7 @@ Uživatelské rozhraní je přístupné ve většině současných webových pro
 
 ##Licence
 
-Systém Kramerius je vyvíjen pod licencí GNU GPL v3 http://www.gnu.org/licenses/gpl-3.0.en.html
+Systém Kramerius je open source řešení, které je vyvíjeno pod licencí GNU GPL v3. http://www.gnu.org/licenses/gpl-3.0.en.html
 
 ##Vývojový tým
 
