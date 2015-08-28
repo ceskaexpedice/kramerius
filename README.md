@@ -14,6 +14,9 @@ Aktuální verze 5 je vychází koncepčně z verze 4, která byla vyvíjena a p
 
 Uživatelské rozhraní je přístupné ve většině současných webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer.
 
+##Licence
+
+Systém Kramerius je vyvíjen pod licencí GNU GPL v3 http://www.gnu.org/licenses/gpl-3.0.en.html
 
 ##Vývojový tým
 
@@ -81,8 +84,4 @@ SPRÁVA SYSTÉMU
 Správa a dohled instalovaného systému může být zajištěna na základě individuální dohody. http://www.unidata.cz/ nebo http://www.incad.cz
 
 Instalaci a správu systému mohou, vzhledem k licenci pod kterou je systém vyvíjen, zajišťovat i jiné subjekty.
-
-LICENCE
-
-Systém Kramerius je vyvíjen pod licencí GNU GPL v3 http://www.gnu.org/licenses/gpl-3.0.en.html
 
