@@ -16,7 +16,7 @@ Uživatelské rozhraní je přístupné ve většině současných webových pro
 
 ##Licence
 
-Systém Kramerius je open source řešení, které je vyvíjeno pod licencí GNU GPL v3. http://www.gnu.org/licenses/gpl-3.0.en.html
+Kramerius je open source systém, který je vyvíjen pod licencí GNU GPL v3. http://www.gnu.org/licenses/gpl-3.0.en.html
 
 ##Vývojový tým
 
