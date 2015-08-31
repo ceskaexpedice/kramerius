@@ -77,7 +77,7 @@ Instalační postup a konfigurace systému jsou popsány na Wiki.
 
 Službu instalace lze také objednat na http://www.unidata.cz/system-kramerius
 
-Distribuovanou instalaci u společnosti Incad, která zajišťuje vývoj K4 http://www.incad.cz
+Distribuovanou instalaci u společnosti Incad, která zajišťuje analytické a programátorské práce http://www.incad.cz
 
 SPRÁVA SYSTÉMU
 
