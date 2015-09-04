@@ -234,22 +234,26 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         InputStream inputStream = null;
         try {
             HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(urlString, "", "");
-            
-            inputStream = con.getInputStream();
-            String contentType = con.getContentType();
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            copyStreams(inputStream, bos);
-            copyStreams(new ByteArrayInputStream(bos.toByteArray()),
-                    resp.getOutputStream());
+            int responseCode = con.getResponseCode();
+            resp.setStatus(responseCode);
+            if (responseCode == 200) {
+                inputStream = con.getInputStream();
+                String contentType = con.getContentType();
 
-            resp.setContentType(contentType);
-            String headerFiled = con.getHeaderField("Cache-Control");
-            String lamodif = con.getHeaderField("Last-Modified");
-            
-            resp.setHeader("Cache-Control", headerFiled);
-            resp.setHeader("Last-Modified", lamodif);
-            
-            resp.setHeader("Access-Control-Allow-Origin", "*");
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                copyStreams(inputStream, bos);
+                copyStreams(new ByteArrayInputStream(bos.toByteArray()),
+                        resp.getOutputStream());
+
+                resp.setContentType(contentType);
+                String headerFiled = con.getHeaderField("Cache-Control");
+                String lamodif = con.getHeaderField("Last-Modified");
+
+
+                resp.setHeader("Cache-Control", headerFiled);
+                resp.setHeader("Last-Modified", lamodif);
+                resp.setHeader("Access-Control-Allow-Origin", "*");
+            }
             
             
         } finally {

@@ -93,6 +93,9 @@ public class ZoomDecorate extends AbstractDisplayDecorate {
                         String appUrl = ApplicationURL.applicationURL(this.requestProvider.get())
                               .toString() + (zoomType.equals("zoomify") ? "/zoomify/" : "/deepZoom/");
                     	jsonObject.put("zoom", zoom(pid, zoomType, appUrl));
+                        String iiifUrl = ApplicationURL.applicationURL(this.requestProvider.get())
+                                .toString() + "/iiif/";
+                        jsonObject.put("iiif", iiifUrl + pid);
                     }
                 }
             }
