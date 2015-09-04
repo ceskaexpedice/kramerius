@@ -247,7 +247,7 @@ public class ExtendedFields {
             Document doc = fa.getDC(root_pid);
 //            root_title = StringEscapeUtils.escapeXml(DCUtils.titleFromDC(doc));
 //            root_title_cache.put(root_pid, root_title);
-            xPathStr = prefix + "dc:title/text()";
+            xPathStr = "//dc:title/text()";
             expr = xpath.compile(xPathStr);
             Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
             if (node != null) {
