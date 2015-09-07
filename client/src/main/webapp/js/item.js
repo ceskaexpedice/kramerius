@@ -68,13 +68,14 @@ function _eventProcess(pid) {
     var data = K5.api.ctx["item"][pid];
     var viewer = K5.gui["viewers"].select(data);
 
+    
+    
     K5.api.ctx["item"]["selected"] = pid;
     if (K5.gui.selected) {
         K5.gui.selected.clearContainer();
         if (K5.gui.selected.download) {
             K5.gui.selected.download.cleanDialog();
         }
-        
         $("#viewer>div.container>div.loading").show();
     }
 
@@ -88,6 +89,11 @@ function _eventProcess(pid) {
         K5.gui["selected"].open();
 
         K5.gui["selected"]["ctx"] = {};    
+
+        if (K5.gui["selected"].containsLeftStructure && K5.gui["selected"].containsLeftStructure()) {
+            K5.gui["selected-left"] =  new LeftThumbs();        
+            K5.gui["selected-left"].init();
+        }
 
         K5.gui.selected["disabledDisplay"] = false;
     });
@@ -103,13 +109,24 @@ function _eventProcess(pid) {
         K5.gui["selected"] = mixInto(new ItemSupport(K5), instance);
         K5.gui["selected"].initItemSupport();
         K5.gui["selected"].open();
-
+        
+        if (K5.gui["selected"].containsLeftStructure && K5.gui["selected"].containsLeftStructure()) {
+            K5.gui["selected-left"] =  new LeftThumbs();        
+            K5.gui["selected-left"].init();
+        }
+        
         K5.gui.selected["disabledDisplay"] = true;
     });
 
     K5.gui["viewers"].forbiddenCheck(viewer.object,okfunc,failfunc); 
-        
+    
 
+
+    
+    
+    
+    //thumbViewer.open();
+    
     function _metadatainit() {
             $("#metadata").hide();
             if (data.model === "page") {

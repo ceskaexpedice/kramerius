@@ -483,3 +483,7 @@ Zoomify.prototype.selectionEndNotif = function() {
     $("#options").show();
 }
 
+
+Zoomify.prototype.containsLeftStructure = function() {
+    return true;
+}

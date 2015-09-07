@@ -468,3 +468,7 @@ ZoomifyStaticImage.prototype.selectionStartNotif = function() {
 ZoomifyStaticImage.prototype.selectionEndNotif = function() {
     $("#options").show();
 }
+
+ZoomifyStaticImage.prototype.containsLeftStructure = function() {
+    return true;
+}
