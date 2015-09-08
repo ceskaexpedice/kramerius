@@ -23,14 +23,6 @@
             "object":"DownloadPage"
         },
 
-/*
-        {
-            "name":"printpart",
-            "i18nkey":"ctx.actions.printpart",
-            "object":"PrintPartItem"
-        },
-*/
-
     
         {
             "name":"titleprint",
