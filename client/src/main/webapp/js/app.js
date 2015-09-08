@@ -356,6 +356,10 @@ function Application() {
                         case 39: // right
                         K5.eventsHandler.trigger("application/keys/right",[]);
                         break;
+                        
+                        case 27: // escape. Close dialogs
+                        divclose();
+                        break;
 
 
                         default: return; // exit this handler for other keys

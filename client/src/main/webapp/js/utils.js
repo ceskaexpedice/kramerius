@@ -240,6 +240,17 @@ function divopen(elm) {
         $(elm).show();        
 }
 
+
+
+/**
+ * Open window defined by element selector
+ * @function divopen
+ * @static
+ */
+function divclose() {
+    $(".showing").hide();     
+}
+
 /**
  * Close window defined by element selector
  * @function close
