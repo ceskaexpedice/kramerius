@@ -737,6 +737,12 @@ li.public:before{
 
 
 
+#viewer>div.container>.loading{
+    position:absolute;
+    width: 100%;
+    z-index: 100;
+}
+
 #viewer>div.container{
     position:relative;
     left: 0px;
@@ -744,7 +750,7 @@ li.public:before{
     background-color: #F5F5F5;
     width: calc(100% - 340px);
     height: calc(100% - 70px);    
-    overflow: auto;
+    overflow: hidden;
     float: left;
 }
 
@@ -976,9 +982,10 @@ li.public:before{
 
 #viewer li.thumb{
     list-style: none;
+    vertical-align: text-top;
     /*float:left;*/
     display: inline-block;
-    margin: 8px;
+    margin: 7px;
     text-align: center;
     position:relative;
     background-color: $params.thumbBackground;
@@ -987,6 +994,12 @@ li.public:before{
     min-width:90px;
     
     cursor: pointer;
+}
+
+
+
+#viewer li.thumb .tt_text{
+    margin: 3px 0;
 }
 
 #viewer li.thumb .thumb_info{
@@ -1004,6 +1017,11 @@ li.public:before{
     white-space: nowrap;
 }
 
+
+
+#viewer li.selected{
+    background-color: wheat;
+}
 
 #viewer li.hit{
     border: solid 2px $params.hitColor;
@@ -1140,8 +1158,8 @@ li.public:before{
 /** viewer options - rotate, fit, plus, minus */
 #viewer  div.options {
     position:absolute;
-    top:20px;
-    left:80px;
+    top:2px;
+    left:5px;
     z-index:34;
     color: rgba(180, 180, 180, 0.4);
     background-color: $params.activeColor;

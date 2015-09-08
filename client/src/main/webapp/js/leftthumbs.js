@@ -34,6 +34,7 @@ LeftThumbs.prototype = {
         this.container = $('<ul/>');
         this.container.addClass('container');
         this.elem.append(this.container);
+        this.elem.css("width", "350px");
         this.width = this.elem.width() - this.containerMargin * 2;
         this.height = this.elem.height() - this.containerMargin * 2;
         this.hits = {};
@@ -55,13 +56,13 @@ LeftThumbs.prototype = {
             }
         }, this));
 
-        this.elem.mousewheel(_.bind(function(event) {
-            if (event.deltaX !== 0) {
-                this.doScroll(event.deltaX);
-            } else {
-                this.doScroll(-event.deltaY);
-            }
-        }, this));
+//        this.elem.mousewheel(_.bind(function(event) {
+//            if (event.deltaX !== 0) {
+//                this.doScroll(event.deltaX);
+//            } else {
+//                this.doScroll(-event.deltaY);
+//            }
+//        }, this));
         
         
     
@@ -81,7 +82,9 @@ LeftThumbs.prototype = {
         });
     },
     getThumbs: function() {
+        console.log("jsem tady");
         this.thumbs = [];
+        this.container.empty();
         this.thloaded = -1;
         this.setLoading(true);
         $("#viewer>div.loading").show();
@@ -107,60 +110,19 @@ LeftThumbs.prototype = {
             }
             $("#viewer>div.loading").hide();
             this.getHits();
-
+            this.scrollToSelected();
             
         }, this));
 
         this.contentGenerated = true;
 
     },
-    /*
-    dosearch: function(q) {
-        var q = $("#searchinside_q").val();
-        console.log("query is "+q);
-        if (q !== null && q !== $("#q").val()) {
-            console.log("searching");
-            this.setLoading(true);
-            $("#q").val(q);
-            this.hits = {};
-            $('li.hit').each(function() {
-                $(this).tooltip("option", "content", $(this).data("tt"));
-            });
-            $('li.chit').each(function() {
-                $(this).tooltip("option", "content", $(this).data("tt"));
-            });
-            $('li.thumb').removeClass("hit chit");
-            this.getHits();
-        }
-        cleanWindow();
+    scrollToSelected: function(){
+        var li = $("li.selected");
+        this.container.parent().animate({
+            scrollTop: li.offset().top
+        }, 1000);
     },
-    */
-    
-//    search: function() {
-//        $("#searchinside_q").val($("#q").val());
-//        var th = this;
-//        $("#searchinside").dialog({
-//            resizable: false,
-//            modal: true,
-//            height: 75,
-//            position: {of: $("#contextbuttons>div.search"), my: "left top", at: "left bottom"},
-//
-////            buttons: {
-////                "OK": function() {
-////                    th.dosearch();
-////                    //$(this).dialog("close");
-////                },
-////                Cancel: function() {
-////                    $(this).dialog("close");
-////                }
-////            },
-//
-//            focus: function() {
-//                $("#searchinside_q").focus();
-//                $("#searchinside_q").select();
-//            }
-//        });
-//    },
     getHits: function() {
         if ($("#q").val() == "") {
             return;
@@ -203,7 +165,7 @@ LeftThumbs.prototype = {
                     for (var j = 0; j < hl[pid].text_ocr.length; j++) {
                         hltext += '<div class="hl">' + hl[pid].text_ocr[j] + '</div>';
                     }
-                    $(this).tooltip("option", "content", tt + hltext);
+//                    $(this).tooltip("option", "content", tt + hltext);
                     break;
                 } else if (pid_path.indexOf(lipid) > -1) {
                     $(this).addClass('chit');
@@ -243,6 +205,8 @@ LeftThumbs.prototype = {
     },
     checkScroll: function(){
         var fit = this.elem.height() < this.elem.parent().height - 40;
+        
+            this.elem.css("height", "100%");
         
         if (fit) {
             this.elem.css("overflow", "hidden");
@@ -375,23 +339,17 @@ LeftThumbs.prototype = {
         this.container.append(thumb);
 
         thumb.append(img);
-        var infoDiv = $('<div/>', {class: "thumb_info"});
-        infoDiv.append(title);
-        thumb.append(infoDiv);
+        thumb.append(tt);
         
         thumb.addClass('policy');
         if (this.thumbs[index].policy) {
             thumb.addClass(this.thumbs[index].policy);
         }
+        
+        if(pid === K5.api.ctx["item"]["selected"].split(";")[0]){
+            thumb.addClass('selected');
+        }
 
-        thumb.tooltip({
-            content: tt,
-            //position: {my: "left top", at: "left bottom+6"},
-            position: {my: "left top", at: "left top"},
-            open: function(event, ui) {
-                K5.i18n.k5translate($(ui.tooltip[0]));
-            }
-        });
         this.container.append(thumb);
     },
     getDetails: function(json, info) {

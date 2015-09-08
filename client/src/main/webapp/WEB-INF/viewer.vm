@@ -10,8 +10,8 @@
         <!-- waiting div -->
         #parse("waiting.vm")
         <div class="error">Error</div>
-        <div class="thumbs"></div>
-        <div class="ol"></div>
+        <div class="thumbs" style="float:left;"></div>
+        <div class="ol" style="width: calc(100% - 350px); float:right;position:relative;"></div>
     </div> 
     
     <!-- metadata panel -->

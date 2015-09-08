@@ -30,6 +30,7 @@ ItemThumbs.prototype = {
         this.container = $('<ul/>');
         this.container.addClass('container');
         this.elem.append(this.container);
+        this.elem.css("width", "100%");
         this.width = this.elem.width() - this.containerMargin * 2;
         this.height = this.elem.height() - this.containerMargin * 2;
         this.hits = {};
@@ -372,23 +373,24 @@ ItemThumbs.prototype = {
         this.container.append(thumb);
 
         thumb.append(img);
-        var infoDiv = $('<div/>', {class: "thumb_info"});
-        infoDiv.append(title);
-        thumb.append(infoDiv);
+//        var infoDiv = $('<div/>', {class: "thumb_info"});
+//        infoDiv.append(title);
+//        thumb.append(infoDiv);
+        thumb.append(tt);
         
         thumb.addClass('policy');
         if (this.thumbs[index].policy) {
             thumb.addClass(this.thumbs[index].policy);
         }
 
-        thumb.tooltip({
-            content: tt,
-            //position: {my: "left top", at: "left bottom+6"},
-            position: {my: "left top", at: "left top"},
-            open: function(event, ui) {
-                K5.i18n.k5translate($(ui.tooltip[0]));
-            }
-        });
+//        thumb.tooltip({
+//            content: tt,
+//            //position: {my: "left top", at: "left bottom+6"},
+//            position: {my: "left top", at: "left top"},
+//            open: function(event, ui) {
+//                K5.i18n.k5translate($(ui.tooltip[0]));
+//            }
+//        });
         this.container.append(thumb);
     },
     getDetails: function(json, info) {

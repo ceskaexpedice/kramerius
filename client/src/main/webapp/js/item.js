@@ -1,4 +1,6 @@
 
+/* global K5, _ */
+
 /**
  * Register listener -> Create viewer 
  */
@@ -92,7 +94,7 @@ function _eventProcess(pid) {
 
         if (K5.gui["selected"].containsLeftStructure && K5.gui["selected"].containsLeftStructure()) {
             K5.gui["selected-left"] =  new LeftThumbs();        
-            K5.gui["selected-left"].init();
+            //K5.gui["selected-left"].init();
         }
 
         K5.gui.selected["disabledDisplay"] = false;
@@ -112,7 +114,7 @@ function _eventProcess(pid) {
         
         if (K5.gui["selected"].containsLeftStructure && K5.gui["selected"].containsLeftStructure()) {
             K5.gui["selected-left"] =  new LeftThumbs();        
-            K5.gui["selected-left"].init();
+            //K5.gui["selected-left"].init();
         }
         
         K5.gui.selected["disabledDisplay"] = true;
@@ -406,7 +408,7 @@ ItemSupport.prototype = {
                     return (value.selected) ? index : memo;
                 }, -1);
                 if (index < arr.length - 2) {
-                    var nextPid = arr[index + 1].pid
+                    var nextPid = arr[index + 1].pid;
                     var histDeep = getHistoryDeep() + 1;
                     K5.api.gotoItemPage(nextPid + ";" + histDeep, $("#q").val());
                 }

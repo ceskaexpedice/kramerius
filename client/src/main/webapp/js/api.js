@@ -404,8 +404,12 @@ ClientAPIDev.prototype = {
             if (data.length == 1) {
                 this.searchItemAndExploreChildren(data[0].pid, whenready);
             } else {
-                if (whenready)
-                    whenready.apply(null, [ pid ]);
+                if(data.length>0 && data[0].datanode){
+                    this.searchItemAndExploreChildren(data[0].pid, whenready);
+                }else{
+                    if (whenready)
+                        whenready.apply(null, [ pid ]);
+                }
             }
         }, this));
     },

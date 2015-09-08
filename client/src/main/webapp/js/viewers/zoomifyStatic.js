@@ -11,7 +11,7 @@ function ZoomifyStaticImage(appl, selector) {
         
         this.url = this.makeStaticURL(this.application.api.ctx["item"]["selected"]);
         
-        var jqSel = (selector || '#viewer>div.container');        
+        var jqSel = (selector || '#viewer>div.container>div.ol');        
         this.elem = $(jqSel);
         
         this._tmpimage = new Image();

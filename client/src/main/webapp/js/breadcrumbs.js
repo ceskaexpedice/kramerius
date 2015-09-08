@@ -73,7 +73,7 @@ BreadCrumbs.prototype = {
             span.click(function(){
                 var cpid = $(this).data("pid");
                 var histDeep = getHistoryDeep() + 1;
-                K5.api.gotoItemPage(cpid + ";" + histDeep, $("#q").val());
+                K5.api.gotoDisplayingItemPage(cpid + ";" + histDeep, $("#q").val());
             });
             this.elem.append(span);
             
