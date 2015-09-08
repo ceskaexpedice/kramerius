@@ -31,8 +31,6 @@
                     <div class="small translate_title" data-ctx="favorite" data-key="buttons.addtofavorite"  title="$i18n.buttons.addtofavorite" onclick="K5.authentication.askForAppendToProfile();" >#parse("svg/addfavorite.svg")</div>
                     <div class="small translate_title" data-ctx="notfavorite" data-key="buttons.removefromfavorite"  title="$i18n.buttons.removefromfavorite" onclick="K5.authentication.askForRemoveFromProfile();" >#parse("svg/removefavorite.svg")</div>
 
-    
-
 <!--
                     <div class="button" onclick="cleanWindow();">#translatable('common.close')</div>
 -->
@@ -93,14 +91,9 @@
 
 <div class="small prev translate_title" data-ctx="all" data-key="buttons.back" title="$i18n.buttons.outofdocument" onclick="backToResults();" >#parse("svg/docout.svg")</div>
 
-    
-    
-
     <div class="small pin translate_title" data-ctx="all" id="vwr_ctx_actions" data-key="buttons.actions" title="$i18n.buttons.actions" onclick="K5.gui.selected.toggleActions();" style="display:none">#parse("svg/actions.svg")</div>
 
     <div class="small pin translate_title" data-ctx="all"  id="vwr_ctx_pin" style="display:none" data-key="buttons.pin" title="$i18n.buttons.pin" onclick="K5.gui.selected.togglePin();" >#parse("svg/pin.svg")</div>
-    
-
     
 </div>
 
