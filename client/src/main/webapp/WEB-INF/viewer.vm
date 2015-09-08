@@ -20,10 +20,18 @@
         <div class="mtd_footer dialogs_footer">
             <div class="right">
                 <div class="buttons">
+                    <div class="small parent translate_title" data-ctx="parent" data-key="buttons.parent" title="$i18n.buttons.parent" onclick="K5.gui.selected.parent();" >#parse("svg/parent.svg")</div>
                     <div class="small prev translate_title" data-ctx="thumbs" data-key="buttons.prev" title="$i18n.buttons.prev" onclick="K5.gui.selected.prev();" >#parse("svg/arrowleft.svg")</div>
                     <div class="small next translate_title" data-ctx="thumbs" data-key="buttons.next" title="$i18n.buttons.next" onclick="K5.gui.selected.next();" >#parse("svg/arrowright.svg")</div>
                     <div class="small search translate_title" data-ctx="thumbs" id="vwr_ctx_searchinside" data-key="searchinside.dialog" title="$i18n.searchinside.dialog" onclick="K5.gui.selected.searchInside();" >#parse("svg/lupa.svg")</div>
                     <div class="small info translate_title" data-ctx="all" id="vwr_ctx_metadata" data-key="buttons.showinfo" title="$i18n.buttons.showinfo" onclick="K5.gui.selected.toggleInfo();" >#parse("svg/info.svg")</div>
+                    <div class="small translate_title" data-ctx="share" id="vwr_ctx_share" data-key="buttons.share" title="$i18n.buttons.share" onclick="K5.gui.selected.shares.open();" >#parse("svg/share.svg")</div>
+                    <div class="small translate_title" data-ctx="download" id="vwr_ctx_download" data-key="buttons.download" title="$i18n.buttons.download" onclick="K5.gui.selected.download.open();" >#parse("svg/download.svg")</div>
+
+                    <div class="small translate_title" data-ctx="favorite" data-key="buttons.addtofavorite"  title="$i18n.buttons.addtofavorite" onclick="K5.authentication.askForAppendToProfile();" >#parse("svg/addfavorite.svg")</div>
+                    <div class="small translate_title" data-ctx="notfavorite" data-key="buttons.removefromfavorite"  title="$i18n.buttons.removefromfavorite" onclick="K5.authentication.askForRemoveFromProfile();" >#parse("svg/removefavorite.svg")</div>
+
+    
 
 <!--
                     <div class="button" onclick="cleanWindow();">#translatable('common.close')</div>
@@ -85,20 +93,13 @@
 
 <div class="small prev translate_title" data-ctx="all" data-key="buttons.back" title="$i18n.buttons.outofdocument" onclick="backToResults();" >#parse("svg/docout.svg")</div>
 
-    <div class="small parent translate_title" data-ctx="parent" data-key="buttons.parent" title="$i18n.buttons.parent" onclick="K5.gui.selected.parent();" >#parse("svg/parent.svg")</div>
-
+    
     
 
     <div class="small pin translate_title" data-ctx="all" id="vwr_ctx_actions" data-key="buttons.actions" title="$i18n.buttons.actions" onclick="K5.gui.selected.toggleActions();" style="display:none">#parse("svg/actions.svg")</div>
 
     <div class="small pin translate_title" data-ctx="all"  id="vwr_ctx_pin" style="display:none" data-key="buttons.pin" title="$i18n.buttons.pin" onclick="K5.gui.selected.togglePin();" >#parse("svg/pin.svg")</div>
     
-
-    <div class="small translate_title" data-ctx="share" id="vwr_ctx_share" data-key="buttons.share" title="$i18n.buttons.share" onclick="K5.gui.selected.shares.open();" >#parse("svg/share.svg")</div>
-    <div class="small translate_title" data-ctx="download" id="vwr_ctx_download" data-key="buttons.download" title="$i18n.buttons.download" onclick="K5.gui.selected.download.open();" >#parse("svg/download.svg")</div>
-
-    <div class="small translate_title" data-ctx="favorite" data-key="buttons.addtofavorite"  title="$i18n.buttons.addtofavorite" onclick="K5.authentication.askForAppendToProfile();" >#parse("svg/addfavorite.svg")</div>
-    <div class="small translate_title" data-ctx="notfavorite" data-key="buttons.removefromfavorite"  title="$i18n.buttons.removefromfavorite" onclick="K5.authentication.askForRemoveFromProfile();" >#parse("svg/removefavorite.svg")</div>
 
     
 </div>
