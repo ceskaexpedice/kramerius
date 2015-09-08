@@ -278,6 +278,11 @@ function escapeSolrChars(value){
 }
 
 
+function removeHistoryPostfix(url) {
+    var arr = url.split(";");
+    return arr[0];
+}
+
 /** prototypes */
 if (typeof String.prototype.startsWith != 'function') {
         String.prototype.startsWith = function (str){

@@ -26,8 +26,9 @@ PDFSupport.prototype= {
 
         page:function(pid) {
             var selected = K5.api.ctx.item.selected; 
-            var itm = K5.api.ctx.item[selected];
-            window.open("pdfforward/pdf/selection?pids="+ selected,"_blank");
+            //var itm = K5.api.ctx.item[selected];
+            var page = removeHistoryPostfix(K5.api.ctx.item.selected);
+            window.open("pdfforward/pdf/selection?pids="+ page,"_blank");
         }, 
 
         asyncTitle:function(pid) {

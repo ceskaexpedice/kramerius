@@ -141,7 +141,8 @@ PDFOnePage.prototype = {
                 cleanWindow();
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
-                K5.outputs.pdf.page(K5.api.ctx.item.selected);
+                var page = removeHistoryPostfix(K5.api.ctx.item.selected);
+                K5.outputs.pdf.page(page);
         },
 
         'enabled': function() {
@@ -196,7 +197,7 @@ PrintPartPage.prototype = {
                 }
                 var sel = K5.api.ctx.item.selected;
                 var itm = K5.api.ctx.item[sel];
-                ntab("?page=printpart&item="+itm.pid);
+                ntab("?page=printpart&item="+removeHistoryPostfix(itm.pid));
         },
 
         'enabled': function() {
@@ -371,6 +372,8 @@ PrintPartItem.prototype = {
                 setTimeout(function() {
 
                         $("#header").hide();
+                        $("#metadata").hide();
+                        $(".thumbs").hide();
                         
                         if (K5.gui.selected.fit) {
                             K5.gui.selected.fit();
@@ -457,6 +460,8 @@ PrintTitle.prototype = {
                 }
         }
 }
+
+
 
 function PDFTitle() {
     this.ctx = {};
