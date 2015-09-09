@@ -392,7 +392,7 @@ LeftThumbs.prototype = {
                 detFull = details.title + " " + details.partNumber;
                 detShort = details.title + " " + details.partNumber;
             } else if (model === "page") {
-                detFull = K5.i18n.translatable('mods.page.partType.' + details.type);
+                detFull = "&nbsp;" +  K5.i18n.translatable('mods.page.partType.' + details.type);
                 detShort = K5.i18n.translatable('mods.page.partType.' + details.type);
             } else {
                 detFull = details;
