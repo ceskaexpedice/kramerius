@@ -1500,7 +1500,7 @@ li.public:before{
 
 .search_result div.thumb>div.img{
     float:left;
-    width: 50%;
+    max-width: 50%;
     /*overflow: hidden;*/
 }
 .search_result div.thumb>div.img>img{
