@@ -768,6 +768,11 @@ li.public:before{
     font-size: 1.4em;
 }
 
+
+#viewer>div.infobox .full{
+    height: calc(100% - 45px);
+}
+
 .infobox div.right{
     position: absolute;
     float:right;
@@ -1081,7 +1086,7 @@ li.public:before{
 #viewer div.context{
     padding-top: 1px;
     overflow: auto;
-    max-height: calc(100% - 90px);
+    max-height: calc(100% - 35px);
 }
 
 #viewer div.infobox h2{

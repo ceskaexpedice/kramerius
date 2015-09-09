@@ -260,11 +260,11 @@ Result.prototype = {
         var modeltag;
         if ((this.collapsed && this.collapsed > 1)) {
             linkpid = doc['root_pid'];
-            var key = 'common.documents.plural_1';
+            var key = 'common.hits.plural_1';
             if (this.collapsed > 4) {
-                key = 'common.documents.plural_2';
+                key = 'common.hits.plural_2';
             } else {
-                key = 'common.documents.plural_1';
+                key = 'common.hit.plural_1';
             }
             var tx = K5.i18n.translatable(key);
             modeltag = '<div class="collapsed">' + this.collapsed + ' ' + tx + ' ' + K5.i18n.translatable('model.locativ.' + typtitulu) + '</div>';

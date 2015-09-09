@@ -1,3 +1,5 @@
+/* global K5, _ */
+
 /**
  * Left panel thumbs 
  */
@@ -82,7 +84,6 @@ LeftThumbs.prototype = {
         });
     },
     getThumbs: function() {
-        console.log("jsem tady");
         this.thumbs = [];
         this.container.empty();
         this.thloaded = -1;
@@ -124,7 +125,7 @@ LeftThumbs.prototype = {
         }, 1000);
     },
     getHits: function() {
-        if ($("#q").val() == "") {
+        if ($("#q").val() === "") {
             return;
         }
         if (jQuery.isEmptyObject(this.hits)) {
@@ -325,7 +326,8 @@ LeftThumbs.prototype = {
         thumb.css('height', this.thumbHeight + "px");
         img.click(function() {
             var histDeep = getHistoryDeep() + 1;
-            K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
+            //K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
+            window.location.hash = pid + ";" + histDeep;
         });
 
         var title = '<span class="title">' + K5.i18n.translatable('fedora.model.' + this.thumbs[index].model) + " " + this.thumbs[index].title + '</span>';

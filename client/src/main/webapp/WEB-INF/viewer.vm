@@ -11,7 +11,7 @@
         #parse("waiting.vm")
         <div class="error">Error</div>
         <div class="thumbs" style="float:left;"></div>
-        <div class="ol" style="width: calc(100% - 350px); float:right;position:relative;"></div>
+        <div class="ol" style="width: calc(100% - 350px); float:right;position:relative;height:100%;"></div>
     </div> 
     
     <!-- metadata panel -->
