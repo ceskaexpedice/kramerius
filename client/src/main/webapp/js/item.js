@@ -93,7 +93,12 @@ function _eventProcess(pid) {
         K5.gui["selected"]["ctx"] = {};    
 
         if (K5.gui["selected"].containsLeftStructure && K5.gui["selected"].containsLeftStructure()) {
-            K5.gui["selected-left"] =  new LeftThumbs();        
+            if(typeof K5.gui["selected-left"] != 'undefined'){
+                K5.gui["selected-left"].process();   
+            }else{
+                K5.gui["selected-left"] =  new LeftThumbs();   
+            }
+                 
             //K5.gui["selected-left"].init();
         }
 
@@ -113,7 +118,11 @@ function _eventProcess(pid) {
         K5.gui["selected"].open();
         
         if (K5.gui["selected"].containsLeftStructure && K5.gui["selected"].containsLeftStructure()) {
-            K5.gui["selected-left"] =  new LeftThumbs();        
+            if(typeof K5.gui["selected-left"] != 'undefined'){
+                K5.gui["selected-left"].process();   
+            }else{
+                K5.gui["selected-left"] =  new LeftThumbs();   
+            }
             //K5.gui["selected-left"].init();
         }
         

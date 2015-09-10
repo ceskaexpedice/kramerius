@@ -58,6 +58,24 @@ LeftThumbs.prototype = {
             }
         }, this));
     },
+    process: function(){
+        var pid = K5.api.ctx["item"]["selected"].split(";")[0];
+        if(this.currentPidSelected !== pid){
+            this.currentPidSelected = pid;
+            var elem = $("#viewer .thumb[data-pid='" + pid + "']");
+            if(elem.length > 0){
+                $("#viewer .thumb").removeClass("selected");
+                $("#viewer .tt_text").removeClass("selected");
+                var idx = elem.index();
+                elem.addClass('selected');
+                var tt = elem.parent().next().find("td:eq("+idx+ ")");
+                tt.addClass('selected');
+                this.scrollToSelected();
+            }else{
+                this.getThumbs();
+            }
+        }
+    },
     addContextButtons: function() {
         _ctxbuttonsrefresh("thumbs");
     },
@@ -77,7 +95,7 @@ LeftThumbs.prototype = {
         this.thloaded = -1;
         this.setLoading(true);
         $("#viewer>div.loading").show();
-        
+        this.currentPidSelected = K5.api.ctx["item"]["selected"].split(";")[0];
         K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], _.bind(function(data) {
             
             var dd = [];
@@ -115,8 +133,9 @@ LeftThumbs.prototype = {
     },
     scrollToSelected: function(){
         var sel = $($(".thumbs .selected")[0]).parent();
+        var currentPos = this.container.parent().scrollTop();
         this.container.parent().animate({
-            scrollTop: sel.position().top
+            scrollTop: sel.position().top + currentPos
         }, 1000);
     },
     getHits: function() {
@@ -284,19 +303,24 @@ LeftThumbs.prototype = {
         }
         
         thumb.click(function() {
-            var histDeep = getHistoryDeep() + 1;
-            //K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
-            window.location.hash = pid + ";" + histDeep;
+            if(itemths.currentPidSelected !== pid){
+                var histDeep = getHistoryDeep() + 1;
+                //K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
+                window.location.hash = pid + ";" + histDeep;
+            }
         });
         tt.click(function() {
-            var histDeep = getHistoryDeep() + 1;
-            //K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
-            window.location.hash = pid + ";" + histDeep;
+            if(itemths.currentPidSelected !== pid){
+                var histDeep = getHistoryDeep() + 1;
+                //K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
+                window.location.hash = pid + ";" + histDeep;
+            }
         });
 
         rowImg.append(thumb);
         rowText.append(tt);
     },
+    
     getDetails: function(json, info) {
         var model = json["model"];
         var details = json["details"];
