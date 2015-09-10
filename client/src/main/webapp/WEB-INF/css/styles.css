@@ -978,12 +978,17 @@ li.public:before{
     padding: 0;
 }
 
+#viewer .thumbs{
+    overflow: auto;
+    height: 100%;
+}
 #viewer table.container{
     margin: 0;
     padding: 0;
     width: 100%;
     font-size: 1em;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 #viewer table.container tr{
@@ -998,18 +1003,18 @@ li.public:before{
 
 #viewer table.container td{
     margin: 0;
-    padding: 2px;
+    padding: 4px;
     width: 33%;
     text-align: center;
-    border: 1px solid $params.bodyBackground;
+    border: 3px solid $params.bodyBackground;
 }
 
 #viewer table.container tr.img td{
-    border-width: 2px 2px 0 2px;
+    border-bottom-width:0;
 }
 
 #viewer table.container tr.txt td{
-    border-width: 0 2px 2px 2px;
+    border-top-width: 0;
     
 }
 
