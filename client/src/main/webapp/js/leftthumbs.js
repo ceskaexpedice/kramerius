@@ -31,9 +31,9 @@ LeftThumbs.prototype = {
     maxInfoLength: 100,
     init: function() {
 
-        $("ul.container").remove();
+        $("table.container").remove();
 
-        this.container = $('<ul/>');
+        this.container = $('<table/>');
         this.container.addClass('container');
         this.elem.append(this.container);
         this.elem.css("width", "350px");
@@ -57,18 +57,6 @@ LeftThumbs.prototype = {
                 this.dosearch();
             }
         }, this));
-
-//        this.elem.mousewheel(_.bind(function(event) {
-//            if (event.deltaX !== 0) {
-//                this.doScroll(event.deltaX);
-//            } else {
-//                this.doScroll(-event.deltaY);
-//            }
-//        }, this));
-        
-        
-    
-
     },
     addContextButtons: function() {
         _ctxbuttonsrefresh("thumbs");
@@ -103,15 +91,22 @@ LeftThumbs.prototype = {
             
             this.thloaded = 0;
             this.setDimensions();
+            var rowImg;
+            var rowText;
             for (var i = 0; i < this.thumbs.length; i++) {
-                this.addThumb(i);
+                if(i%3 === 0){
+                    rowImg = $('<tr/>', {class: 'img'});
+                    rowText = $('<tr/>', {class: 'txt'});
+                    this.container.append(rowImg);
+                    this.container.append(rowText);
+                }
+                this.addThumb(rowImg, rowText, i);
             }
             if (this.thumbs.length === 0) {
                 this.setLoading(false);
             }
             $("#viewer>div.loading").hide();
             this.getHits();
-            this.scrollToSelected();
             
         }, this));
 
@@ -119,9 +114,9 @@ LeftThumbs.prototype = {
 
     },
     scrollToSelected: function(){
-        var li = $("li.selected");
+        var sel = $($(".thumbs .selected")[0]).parent();
         this.container.parent().animate({
-            scrollTop: li.offset().top
+            scrollTop: sel.position().top
         }, 1000);
     },
     getHits: function() {
@@ -202,6 +197,7 @@ LeftThumbs.prototype = {
         if (this.thloaded >= this.thumbs.length) {
             this.setLoading(false);
             this.checkScroll();
+            this.scrollToSelected();
         }
     },
     checkScroll: function(){
@@ -215,44 +211,7 @@ LeftThumbs.prototype = {
             this.elem.css("overflow", "auto");
         }
     },
-    setDimensions2: function() {
-        this.width = this.elem.width() - this.containerMargin * 2;
-        var marginTop = 40;
-        this.height = this.elem.height() - this.containerMargin * 2 - marginTop;
-        this.relation = 128.0 / 96.0;
-        this.relation = 96.0 / 128.0;
-        var minGridCols = Math.floor(this.width / this.thumbMinWidth);
-        var fit = true;
-        var numThumbs = this.thumbs.length;
-
-        var gridCols = Math.round(Math.sqrt((numThumbs * this.relation * this.width) / (this.height)));
-        if (gridCols > minGridCols) {
-            gridCols = minGridCols;
-            fit = false;
-        }
-        if (gridCols === 0) {
-            gridCols = 1;
-        }
-        var gridRows = Math.round(numThumbs / gridCols);
-        if (gridRows * gridCols < numThumbs) {
-            gridRows = gridRows + 1;
-        }
-
-        this.cellWidth = Math.floor((this.width - this.thumbMargin * 2 - this.thumbBorder * 2) / gridCols);
-        if (fit) {
-            this.cellHeight = (this.height) / gridRows;
-            this.elem.css("overflow", "hidden");
-        } else {
-            this.cellHeight = this.cellWidth * this.relation;
-            this.elem.css("overflow", "auto");
-        }
-        this.thumbWidth = this.cellWidth - this.thumbMargin * 2 - this.thumbBorder * 2;
-        this.thumbHeight = Math.max(this.thumbMinHeight, this.cellHeight - this.thumbMargin * 2 - this.thumbBorder * 2);
-        
-        this.imgWidth = this.thumbWidth - this.imgMargin * 2 - this.thumbBorder * 2;
-        this.imgHeight = this.thumbHeight - this.imgMargin * 2 - this.thumbBorder * 2;
-
-    },
+    
     
     thumbMaxWidth: 96,
     thumbMaxHeight: 128,
@@ -277,7 +236,7 @@ LeftThumbs.prototype = {
         $('#viewer li.thumb').css('width', this.thumbMaxWidth).css('height', this.thumbMaxHeight);
         
     },
-    addThumb: function(index) {
+    addThumb: function(rowImg, rowText, index) {
         var pid = this.thumbs[index].pid ? this.thumbs[index].pid : this.thumbs[index].PID;
 
         var imgsrc = 'api/item/' + pid + '/thumb';
@@ -286,32 +245,9 @@ LeftThumbs.prototype = {
         var itemths = this;
         image.onload = function() {
             $(img).attr("src", imgsrc);
-        
             var w = this.naturalWidth;
             var h = this.naturalHeight;
             itemths.setCurThumbSize(w, h);
-            var relation = w / h;
-            if (itemths.imgHeight * relation > itemths.imgWidth) {
-                $(img).css("top", (itemths.thumbHeight - itemths.imgHeight)/2);
-                if(w > itemths.imgWidth){
-                    //$(img).css("width", "calc(100% - 8px)");
-                    //$(img).attr("width", Math.min(w, itemths.imgWidth));
-                }else{
-//                    $(img).css("width", w);
-                }
-            } else {
-                var finalh = Math.min(h, itemths.imgHeight);
-//                    $(img).attr("height", finalh);
-                    //$(img).css("height", "calc(100% - 8px)");
-                    $(img).css("top", (itemths.thumbHeight - finalh)/2);
-//                if(h > itemths.imgHeight){
-//                    
-//                }else{
-//                    $(img).css("top", (finalh - h)/2);
-//                }
-            }
-
-        
             itemths.checkLoading();
         };
         image.onerror = function() {
@@ -319,29 +255,23 @@ LeftThumbs.prototype = {
             itemths.checkLoading();
         };
         image.src = imgsrc;
-        var thumb = $('<li/>', {class: 'thumb', 'data-pid': pid});
+        
+        var thumb = $('<td/>', {class: 'thumb', 'data-pid': pid});
         thumb.attr("title", this.thumbs[index].title);
 
         thumb.css('width', this.thumbWidth + "px");
         thumb.css('height', this.thumbHeight + "px");
-        img.click(function() {
-            var histDeep = getHistoryDeep() + 1;
-            //K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
-            window.location.hash = pid + ";" + histDeep;
-        });
 
         var title = '<span class="title">' + K5.i18n.translatable('fedora.model.' + this.thumbs[index].model) + " " + this.thumbs[index].title + '</span>';
         var info = {short: "", full: ""};
         this.getDetails(this.thumbs[index], info);
         thumb.data("pid", pid);
-        //var tt = '<img src="' + imgsrc + '" style="float:left;margin-right:4px;" /><div class="tt_text">' + title + info.full + '</div>';
-        var tt = '<div class="tt_text">' + title + info.full + '</div>';
+        
+        var tt = $('<td class="tt_text">' + title + info.full + '</div>');
         
         thumb.data("tt", tt);
-        this.container.append(thumb);
 
         thumb.append(img);
-        thumb.append(tt);
         
         thumb.addClass('policy');
         if (this.thumbs[index].policy) {
@@ -350,9 +280,22 @@ LeftThumbs.prototype = {
         
         if(pid === K5.api.ctx["item"]["selected"].split(";")[0]){
             thumb.addClass('selected');
+            tt.addClass('selected');
         }
+        
+        thumb.click(function() {
+            var histDeep = getHistoryDeep() + 1;
+            //K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
+            window.location.hash = pid + ";" + histDeep;
+        });
+        tt.click(function() {
+            var histDeep = getHistoryDeep() + 1;
+            //K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
+            window.location.hash = pid + ";" + histDeep;
+        });
 
-        this.container.append(thumb);
+        rowImg.append(thumb);
+        rowText.append(tt);
     },
     getDetails: function(json, info) {
         var model = json["model"];
@@ -392,7 +335,7 @@ LeftThumbs.prototype = {
                 detFull = details.title + " " + details.partNumber;
                 detShort = details.title + " " + details.partNumber;
             } else if (model === "page") {
-                detFull = "&nbsp;" +  K5.i18n.translatable('mods.page.partType.' + details.type);
+                detFull = K5.i18n.translatable('mods.page.partType.' + details.type);
                 detShort = K5.i18n.translatable('mods.page.partType.' + details.type);
             } else {
                 detFull = details;
