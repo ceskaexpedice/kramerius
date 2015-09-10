@@ -1011,6 +1011,7 @@ li.public:before{
 
 #viewer table.container tr.img td{
     border-bottom-width:0;
+    vertical-align: middle;
 }
 
 #viewer table.container tr.txt td{

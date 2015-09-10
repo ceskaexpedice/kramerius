@@ -291,6 +291,7 @@ ItemSupport.prototype = {
         $("#metadata>div.full").append(titleH);
         $("#metadata>div.full").append(contextDiv);
         this.renderDonator();
+        contextDiv.height($("#metadata>div.full").height() - titleH.height() - 10);
     },
 
     renderDonator: function(){
