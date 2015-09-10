@@ -421,12 +421,12 @@ ClientAPIDev.prototype = {
     gotoDisplayingItemPage : function(hash, q) {
         var parts = hash.split(";");
         var pid = parts[0];
-        var historyDeep = "";
+        var remainder = "";
         if(parts.length > 1){
-            historyDeep = ";" + parts[1];
+            remainder = hash.substring(pid.length);
         }
         this.searchItemAndExploreChildren(pid, _.bind(function(data) {
-            this.gotoItemPage(data + historyDeep, q);
+            this.gotoItemPage(data + remainder, q);
         }, this));
     },
 

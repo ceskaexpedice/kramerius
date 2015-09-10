@@ -322,3 +322,19 @@ function backToResults(){
     }
     window.history.go(0 - histDeep - 1);
 }
+
+function hashParser(){
+    var hash = window.location.hash;
+    var parts = hash.split(";");
+    var ret = {};
+    ret.pid = parts[0];
+    for(var i = 1; i<parts.length; i++){
+        var part = parts[i].split("=");
+        if(part.length>1){
+            ret[part[0]] = part[1];
+        }else{
+            ret["key"+i] = part[0];
+        }
+    }
+    return ret;
+}

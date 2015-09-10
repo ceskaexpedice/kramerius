@@ -63,7 +63,10 @@ LeftThumbs.prototype = {
         if(this.currentPidSelected !== pid){
             this.currentPidSelected = pid;
             var elem = $("#viewer .thumb[data-pid='" + pid + "']");
-            if(elem.length > 0){
+            if(this.currentModelSelected !== hashParser().model){
+                this.currentModelSelected = hashParser().model;
+                this.init();
+            }else if(elem.length > 0){
                 $("#viewer .thumb").removeClass("selected");
                 $("#viewer .tt_text").removeClass("selected");
                 var idx = elem.index();
@@ -72,7 +75,7 @@ LeftThumbs.prototype = {
                 tt.addClass('selected');
                 this.scrollToSelected();
             }else{
-                this.getThumbs();
+                this.init();
             }
         }
     },
@@ -95,13 +98,21 @@ LeftThumbs.prototype = {
         this.thloaded = -1;
         this.setLoading(true);
         $("#viewer>div.loading").show();
+        
         this.currentPidSelected = K5.api.ctx["item"]["selected"].split(";")[0];
+        var hash = hashParser();
+        this.currentModelSelected = hash.model;
         K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], _.bind(function(data) {
             
             var dd = [];
             _.each(data, function(objectForPath) { 
+                var path = objectForPath.path;
+                var lastModel = path[path.length - 2].model;
+                
                 _.each(objectForPath.siblings, function(thumb) {
-                    dd.push(thumb);
+                    if(!hash.hasOwnProperty("model") || lastModel === hash.model){
+                        dd.push(thumb);
+                    }
                 });
             });
             
@@ -257,6 +268,8 @@ LeftThumbs.prototype = {
     },
     addThumb: function(rowImg, rowText, index) {
         var pid = this.thumbs[index].pid ? this.thumbs[index].pid : this.thumbs[index].PID;
+        var model = this.thumbs[index].model;
+        var datanode = this.thumbs[index].datanode;
 
         var imgsrc = 'api/item/' + pid + '/thumb';
         var img = $('<img/>', {src: "images/empty.gif"});
@@ -285,6 +298,7 @@ LeftThumbs.prototype = {
         var info = {short: "", full: ""};
         this.getDetails(this.thumbs[index], info);
         thumb.data("pid", pid);
+        thumb.data("model", model);
         
         var tt = $('<td class="tt_text">' + title + info.full + '</div>');
         
@@ -305,15 +319,25 @@ LeftThumbs.prototype = {
         thumb.click(function() {
             if(itemths.currentPidSelected !== pid){
                 var histDeep = getHistoryDeep() + 1;
-                //K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
-                window.location.hash = pid + ";" + histDeep;
+                if(datanode){
+                    var m = "";
+                    if(hashParser().model){
+                        m = ";model=" + hashParser().model;
+                    }
+                    window.location.hash = pid + ";" + histDeep  + m;
+                }else{
+                    K5.api.gotoDisplayingItemPage(pid + ";" + histDeep  + ";model=" + model, $("#q").val());
+                }
             }
         });
         tt.click(function() {
             if(itemths.currentPidSelected !== pid){
                 var histDeep = getHistoryDeep() + 1;
-                //K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
-                window.location.hash = pid + ";" + histDeep;
+                if(datanode){
+                    window.location.hash = pid + ";" + histDeep  + ";model=" + model;
+                }else{
+                    K5.api.gotoDisplayingItemPage(pid + ";" + histDeep  + ";model=" + model, $("#q").val());
+                }
             }
         });
 

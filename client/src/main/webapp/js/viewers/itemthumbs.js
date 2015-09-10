@@ -25,7 +25,7 @@ ItemThumbs.prototype = {
     maxInfoLength: 100,
     init: function() {
 
-        $("ul.container").remove();
+        this.elem.empty();
 
         this.container = $('<ul/>');
         this.container.addClass('container');
@@ -312,6 +312,7 @@ ItemThumbs.prototype = {
     },
     addThumb: function(index) {
         var pid = this.thumbs[index].pid ? this.thumbs[index].pid : this.thumbs[index].PID;
+        var model = this.thumbs[index].model;
 
         var imgsrc = 'api/item/' + pid + '/thumb';
         var img = $('<img/>', {src: "images/empty.gif"});
@@ -359,7 +360,7 @@ ItemThumbs.prototype = {
         thumb.css('height', this.thumbHeight + "px");
         img.click(function() {
             var histDeep = getHistoryDeep() + 1;
-            K5.api.gotoDisplayingItemPage(pid + ";" + histDeep, $("#q").val());
+            K5.api.gotoDisplayingItemPage(pid + ";" + histDeep  + ";model=" + model, $("#q").val());
         });
 
         var title = '<span class="title">' + K5.i18n.translatable('fedora.model.' + this.thumbs[index].model) + " " + this.thumbs[index].title + '</span>';

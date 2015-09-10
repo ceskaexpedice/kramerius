@@ -106,7 +106,7 @@ function _eventProcess(pid) {
     });
     var failfunc = _.bind(function() {
 
-        $("#viewer>div.loading").hide();
+        $("#viewer div.loading").hide();
 
         var nviewer = K5.gui["viewers"].findByName('forbidden');
         var instance = K5.gui["viewers"].instantiate(nviewer.object);        
@@ -389,7 +389,7 @@ ItemSupport.prototype = {
         if (this.itemContext.length > 1) {
             var parentPid = itemContext[itemContext.length - 2].pid;
             var histDeep = getHistoryDeep() + 1;
-            K5.api.gotoItemPage(parentPid + ";" + histDeep, $("#q").val());
+            K5.api.gotoDisplayingItemPage(parentPid + ";" + histDeep, $("#q").val());
         }
     },
     /**
