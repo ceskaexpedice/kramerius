@@ -237,7 +237,7 @@ function Application() {
                     var s= K5.i18n.translatable('mods.page.partType.' + details.type);
                     info.full = s;
                     info.short = s;
-                    info.min = K5.i18n.translatable('common.page') + " " + json.title + " " + s + ""  ;
+                    info.min = K5.i18n.translatable('common.page') + " " + json.title + " " + s + " "  ;
                 } else {
                     info.full = details;
                     info.short = details;
