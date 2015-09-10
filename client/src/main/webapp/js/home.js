@@ -4,17 +4,17 @@ K5.eventsHandler.addHandler(function(type, data) {
     }
 
     if (type === "api/feed/newest") {
-        K5.gui.currasels["newest"] = new Carousel("#rows>div.latest", {"json": K5.api.ctx.feed.newest});
+        K5.gui.currasels["newest"] = new Carousel("#yearRows>div.latest", {"json": K5.api.ctx.feed.newest});
         K5.gui.currasels["newest"].setName("newest");
     }
 
     if (type === "api/feed/mostdesirable") {
-        K5.gui.currasels["mostdesirable"] = new Carousel("#rows>div.popular", {"json": K5.api.ctx.feed.mostdesirable});
+        K5.gui.currasels["mostdesirable"] = new Carousel("#yearRows>div.popular", {"json": K5.api.ctx.feed.mostdesirable});
         K5.gui.currasels["mostdesirable"].setName("mostdesirable");
     }
 
     if (type === "api/feed/cool") {
-        K5.gui.currasels["cool"] = new Carousel("#rows>div.cool", {"json": K5.api.ctx.feed.cool});
+        K5.gui.currasels["cool"] = new Carousel("#yearRows>div.cool", {"json": K5.api.ctx.feed.cool});
         K5.gui.currasels["cool"].setName("cool");
         if (K5.gui.home) {
                 K5.gui.home.displayBackground();
@@ -30,7 +30,7 @@ K5.eventsHandler.addHandler(function(type, data) {
                         return  obj; 
                 });
                 var data = {'data':mapped};
-                K5.gui.currasels["profilefavorites"] = new Carousel("#rows>div.profilefavorites", {"json": data}, true);
+                K5.gui.currasels["profilefavorites"] = new Carousel("#yearRows>div.profilefavorites", {"json": data}, true);
                 K5.gui.currasels["profilefavorites"].setName("profilefavorites");
         }  
         */
@@ -172,9 +172,9 @@ HomeEffects.prototype = {
     selBand: function(obj) {
         $('#buttons>div.button').removeClass('sel');
 
-        $("#rows>div.row").hide();
+        $("#yearRows>div.row").hide();
         $(obj).addClass('sel');
         var div = $(obj).data("row");
-        $("#rows>div." + div).show();
+        $("#yearRows>div." + div).show();
     }
 };

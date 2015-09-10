@@ -418,9 +418,15 @@ ClientAPIDev.prototype = {
      * Search first pid to display and navigate browser to  this item.
      * @method
      */
-    gotoDisplayingItemPage : function(pid, q) {
+    gotoDisplayingItemPage : function(hash, q) {
+        var parts = hash.split(";");
+        var pid = parts[0];
+        var historyDeep = "";
+        if(parts.length > 1){
+            historyDeep = ";" + parts[1];
+        }
         this.searchItemAndExploreChildren(pid, _.bind(function(data) {
-            this.gotoItemPage(data, q);
+            this.gotoItemPage(data + historyDeep, q);
         }, this));
     },
 
