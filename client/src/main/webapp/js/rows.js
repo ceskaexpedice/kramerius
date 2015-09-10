@@ -12,7 +12,7 @@ var YearRows = function(elem, options) {
     console.log(this.maxYear);
     this.init();
     var th = this;
-    $(this.elem).bind("yearChanged", function(event, params) {
+    $(".years").bind("yearChanged", function(event, params) {
         var y = parseInt(params.year);
         if(y + th.maxBands > th.maxYear){
             y = th.maxYear - th.maxBands + 1;
@@ -87,7 +87,7 @@ YearRows.prototype = {
         if (h < 1) {
             h = $(document).height();
         }
-        $('#rows').css('height', h - $('#header').height() - $('#canvasda').height());
+        $('#yearRows').css('height', h - $('#header').height() - $('#canvasda').height());
         this.bottomArrow.css({"top": this.$elem.height() - 50, left: 3});
 
     },

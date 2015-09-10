@@ -55,9 +55,9 @@ K5.eventsHandler.addHandler(function(type, configuration) {
                     }
 
                 }
-                var th = new YearRows('#rows', {maxYear: maxYear, minYear: minYear});
+                var th = new YearRows('#yearRows', {maxYear: maxYear, minYear: minYear});
                 var da = new Da('#canvasda', ja);
-                $("#rows").bind("wresize", function() {
+                $("#yearRows").bind("wresize", function() {
                     th.onResize();
                 });
                 da.render();

@@ -320,5 +320,5 @@ function backToResults(){
             histDeep = parseInt(parts[1]);
         }
     }
-    window.history.go(-(histDeep+1));
+    window.history.go(0 - histDeep - 1);
 }

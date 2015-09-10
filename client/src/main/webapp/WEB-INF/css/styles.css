@@ -184,7 +184,7 @@ body * {
     background: rgba(255, 255, 255, 1);
 }
 
-#rows  div.scroll { 
+#yearRows  div.scroll { 
     overflow:hidden;
     width:100%; 
     height:100%;
@@ -193,7 +193,7 @@ body * {
 }
 
 
-#rows .row{
+#yearRows .row{
     overflow:hidden;
     margin: 15px 0 10px 0;
     position: relative;
@@ -203,30 +203,30 @@ body * {
 
 }
 
-#rows .row:hover{
+#yearRows .row:hover{
     /*box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px 0px;*/
 }
 
-#rows .row .container{
+#yearRows .row .container{
     position: absolute;
     top: 0;
     left:0;
 }
-#rows .row div.scroll { 
+#yearRows .row div.scroll { 
     overflow:hidden;
     width:100%; 
     height:146px;
     position: relative;
 
 }
-#rows  ul { 
+#yearRows  ul { 
     white-space: nowrap;
     height: 140px;
     margin: 0 0 0 34px;
     padding: 0;
 }
 
-#rows li.thumb{
+#yearRows li.thumb{
     white-space: normal;
     display: inline-block;
     list-style:none;
@@ -250,7 +250,7 @@ body * {
     -webkit-transform: translate(-2px,-2px); /* Safari and Chrome */
 
 }
-#rows li.thumb>div.img{
+#yearRows li.thumb>div.img{
     float: left;
 }
 .thumb>div.info{
@@ -321,23 +321,23 @@ li.public:before{
     font-style:italic;
 }
 
-#rows div.button{
+#yearRows div.button{
     top: 20px;
     z-index: 20;
     position: absolute;
 }
 
 
-#rows .button .svg-icon{
+#yearRows .button .svg-icon{
     /* fill: $params.get("svg.fill.hover"); 
     opacity: 0.2; */
 }
-#rows .button:hover .svg-icon{
+#yearRows .button:hover .svg-icon{
     fill: $params.get("svg.fill.hover"); 
     opacity: 1;
 }
 
-#rows div.arrow{
+#yearRows div.arrow{
     background-color: rgba(0, 0, 0, 0.2);
     position: absolute;
     top: 50px;
@@ -347,7 +347,7 @@ li.public:before{
 }
 
 
-#rows div.arrow{
+#yearRows div.arrow{
     height:36px; 
     width:36px; 
     border:2px solid rgba(0, 0, 0, 0.2);
@@ -355,7 +355,7 @@ li.public:before{
     -webkit-border-radius:40px;
     -moz-border-radius:40px;}
 
-#rows div.arrow:before{
+#yearRows div.arrow:before{
     content:'';     
     height:0; 
     width:0; 
@@ -368,7 +368,7 @@ li.public:before{
     left:14px;
 }
 
-#rows div.arrow:hover{
+#yearRows div.arrow:hover{
     background:#333; border-radius:40px;-webkit-border-radius:40px;-moz-border-radius:40px;
 
 
@@ -379,7 +379,7 @@ li.public:before{
 
 }
 
-#rows div.arrow:hover:before{
+#yearRows div.arrow:hover:before{
     content:''; 
     height:0; 
     width:0; 
@@ -391,7 +391,7 @@ li.public:before{
     top:8px; 
     left:14px;}
 
-#rows div.arrowLeft{
+#yearRows div.arrowLeft{
     left: 24px;
 
     -webkit-transform: rotate(180deg);
@@ -401,7 +401,7 @@ li.public:before{
 
 }
 
-#rows div.arrowLeft:hover{
+#yearRows div.arrowLeft:hover{
 
     transform: translate(-2px,-2px);
     -ms-transform: translate(-2px,-2px); /* IE 9 */
@@ -414,10 +414,10 @@ li.public:before{
 
 }
 
-#rows div.arrowRight{
+#yearRows div.arrowRight{
     right: 25px;
 }
-#rows div.rowtitle{
+#yearRows div.rowtitle{
     background-color: #aaaaaa;
     color: #ffffff;
     text-align: center;
@@ -440,7 +440,7 @@ li.public:before{
 
 }
 
-#rows div.total{
+#yearRows div.total{
     background-color: #aaaaaa;
     color: #ffffff;
     text-align: center;
@@ -1032,7 +1032,6 @@ li.public:before{
 }
 
 #viewer li.thumb{
-    width: calc(33% - 10px);
     list-style: none;
     vertical-align: text-top;
     /*float:left;*/
@@ -1379,21 +1378,21 @@ li.public:before{
     border-color: rgba(255, 255, 255, 1);
 }
 
-#band #rows .row{
+#band #yearRows .row{
     margin: 0;
 }
 /* end home */
 
 /* collections */
 
-#rows{
+#yearRows{
     height:100%;
 }
-#rows .row{
+#yearRows .row{
     background-color: $params.rowBackground;
     position:relative;
 }
-#rows .row li.thumb{
+#yearRows .row li.thumb{
     background-color: $params.thumbBackground;
 }
 
@@ -1551,7 +1550,7 @@ li.public:before{
 
 
 .search_result div.thumb>div.info{
-    margin: 0 0 0 5px;
+    margin: 0 0 0 9px;
     display:inline-block;
     width:45%;
     height: 136px;
