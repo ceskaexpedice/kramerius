@@ -26,7 +26,8 @@ PrintSupport.prototype= {
 
         page:function(pid) {
             var selected = K5.api.ctx.item.selected; 
-            window.open('print?pids='+selected,'_blank');
+            var page = removeHistoryPostfix(K5.api.ctx.item.selected);
+            window.open('print?pids='+page,'_blank');
         }, 
 
         

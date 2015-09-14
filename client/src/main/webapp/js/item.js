@@ -106,7 +106,7 @@ function _eventProcess(pid) {
     });
     var failfunc = _.bind(function() {
 
-        $("#viewer div.loading").hide();
+        $("#viewer>div.container>div.loading").hide();
 
         var nviewer = K5.gui["viewers"].findByName('forbidden');
         var instance = K5.gui["viewers"].instantiate(nviewer.object);        

@@ -411,10 +411,12 @@ function PrintPage() {}
 PrintPage.prototype = {
         'doAction':function() {
             cleanWindow();
-            K5.outputs.print.page(K5.api.ctx.item.selected);
+            var page = removeHistoryPostfix(K5.api.ctx.item.selected);
+            K5.outputs.print.page(page);
     },
     'enabled': function() {
             var selected = K5.api.ctx.item.selected; 
+
             var itm = K5.api.ctx.item[selected];
             if (!itm['forbidden']) {
                 if ((!_isAudio()) && (!_isPDF())) {
@@ -431,7 +433,8 @@ function PrintTitle() {}
 PrintTitle.prototype = {
         'doAction':function() {
                 cleanWindow();
-                K5.outputs.print.title(K5.api.ctx.item.selected);
+                var page = removeHistoryPostfix(K5.api.ctx.item.selected);
+                K5.outputs.print.title(page);
         },
         
         'enabled': function() {

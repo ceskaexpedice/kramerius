@@ -213,13 +213,14 @@ LeftThumbs.prototype = {
             this.checkScroll();
         }.bind(this), 200);
     },
+    
     setLoading: function(loading) {
         if (loading) {
-            //$("#viewer>div.loading").show();
-            $("#viewer").css("cursor", "progress");
+            $("#viewer>div.loading").show();
+            //$("#viewer").css("cursor", "progress");
         } else {
-            //$("#viewer>div.loading").hide();
-            $("#viewer").css("cursor", "default");
+            $("#viewer>div.loading").hide();
+            //$("#viewer").css("cursor", "default");
         }
     },
     checkLoading: function() {
