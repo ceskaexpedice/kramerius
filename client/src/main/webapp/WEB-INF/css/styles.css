@@ -2718,6 +2718,17 @@ div.download {
     top:0;
 }
 
+#download_container ul {
+   list-style-type: none;
+
+}
+
+#download_container ul li span {
+   font-size: 1.2em;
+   position: relative;
+   top: -2px;
+}
+
 
 #download_container label {
     margin-left: 5px; 
