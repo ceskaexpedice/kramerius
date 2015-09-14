@@ -237,6 +237,8 @@ ItemThumbs.prototype = {
         if (this.thloaded >= this.thumbs.length) {
             this.setLoading(false);
             this.checkScroll();
+            var max = Math.max($("#viewer li.thumb img").width());
+            $("#viewer li.thumb").css("width", max + 40);
         }
     },
     checkScroll: function(){
@@ -360,7 +362,7 @@ ItemThumbs.prototype = {
         thumb.css('height', this.thumbHeight + "px");
         img.click(function() {
             var histDeep = getHistoryDeep() + 1;
-            K5.api.gotoDisplayingItemPage(pid + ";" + histDeep  + ";model=" + model, $("#q").val());
+            K5.api.gotoDisplayingItemPage(pid + ";" + histDeep  + ";pmodel=" + model, $("#q").val());
         });
 
         var title = '<span class="title">' + K5.i18n.translatable('fedora.model.' + this.thumbs[index].model) + " " + this.thumbs[index].title + '</span>';
