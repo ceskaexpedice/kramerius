@@ -62,9 +62,10 @@ LeftThumbs.prototype = {
         var pid = K5.api.ctx["item"]["selected"].split(";")[0];
         if(this.currentPidSelected !== pid){
             this.currentPidSelected = pid;
+            var hash = hashParser();
             var elem = $("#viewer .thumb[data-pid='" + pid + "']");
-            if(this.currentParentModel !== hashParser().pmodel){
-                this.currentParentModel = hashParser().pmodel;
+            if(this.currentParentModel !== hash.pmodel && hash.hasOwnProperty("pmodel")){
+                this.currentParentModel = hash.pmodel;
                 this.init();
             }else if(elem.length > 0){
                 $("#viewer .thumb").removeClass("selected");
@@ -101,7 +102,14 @@ LeftThumbs.prototype = {
         
         this.currentPidSelected = K5.api.ctx["item"]["selected"].split(";")[0];
         var hash = hashParser();
-        this.currentParentModel = hash.pmodel;
+        
+        
+        if(hash.hasOwnProperty("pmodel")){
+            this.currentParentModel = hash.pmodel;
+        }else{
+            this.currentParentModel = null;
+        }
+        
         K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], _.bind(function(data) {
             
             var dd = [];
@@ -331,8 +339,12 @@ LeftThumbs.prototype = {
         if(this.currentPidSelected !== pid){
             var hash = hashParser();
             var histDeep = getHistoryDeep() + 1;
+            var pmodel = "";
+            if(hash.hasOwnProperty("pmodel")){
+                ";pmodel=" + hash.pmodel;
+            }
             if(datanode){
-                window.location.hash = pid + ";" + histDeep  + ";pmodel=" + hash.pmodel;
+                window.location.hash = pid + ";" + histDeep  + pmodel;
             }else{
                 K5.api.gotoDisplayingItemPage(pid + ";" + histDeep  + ";pmodel=" + model, $("#q").val());
             }
@@ -376,8 +388,10 @@ LeftThumbs.prototype = {
                 detFull = details.title + " " + details.partNumber;
                 detShort = details.title + " " + details.partNumber;
             } else if (model === "page") {
-                detFull = K5.i18n.translatable('mods.page.partType.' + details.type);
-                detShort = K5.i18n.translatable('mods.page.partType.' + details.type);
+                // dateils type muze byt frontPage nebo FrontPage
+                var loc = details.type.substring(0,1).toUpperCase() + details.type.substring(1);
+                detFull = K5.i18n.translatable('mods.page.partType.' + loc);
+                detShort = K5.i18n.translatable('mods.page.partType.' + loc);
             } else {
                 detFull = details;
                 detShort = details;

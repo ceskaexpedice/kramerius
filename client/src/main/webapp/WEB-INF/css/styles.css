@@ -1007,6 +1007,7 @@ li.public:before{
     width: 33%;
     text-align: center;
     border: 3px solid $params.bodyBackground;
+    word-wrap: break-word;
 }
 
 #viewer table.container tr.img td{

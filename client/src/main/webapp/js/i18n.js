@@ -58,8 +58,14 @@ I18N.prototype= {
                     for(var i=0; i< data.length; i++){
                         this.ctx['dictionary'][data[i].pid] = data[i].descs[lang];
                     }
-                    if (whenready != null) whenready.apply(null, [data]);
-                    this.application.eventsHandler.trigger("i18n/dictionary",data);
+                    
+                    $.getJSON("api/sources", _.bind(function(data) {
+                        for(var i=0; i< data.length; i++){
+                            this.ctx['dictionary'][data[i].pid] = data[i].descs[lang];
+                        }
+                        if (whenready != null) whenready.apply(null, [data]);
+                        this.application.eventsHandler.trigger("i18n/dictionary",data);
+                    },this));
                 },this));
 	    },this));
 	},

@@ -263,8 +263,6 @@ Result.prototype = {
             var key = 'common.hits.plural_1';
             if (this.collapsed > 4) {
                 key = 'common.hits.plural_2';
-            } else {
-                key = 'common.hit.plural_1';
             }
             var tx = K5.i18n.translatable(key);
             modeltag = '<div class="collapsed">' + this.collapsed + ' ' + tx + ' ' + K5.i18n.translatable('model.locativ.' + typtitulu) + '</div>';

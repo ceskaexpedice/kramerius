@@ -110,6 +110,28 @@ ClientAPIDev.prototype = {
     },
 
     /**
+     * Request for sources
+     * @param {requestCallback} whenready  - Callback handling responses.
+     * @method
+     */
+    askForSources : function(whenready) {
+        $.getJSON("api/sources", _.bind(function(data) {
+            var collections = {};
+            for (var i = 0; i < data.length; i++) {
+                var pid = data[i].pid;
+                collections[pid] = {
+                    "cs" : data[i].descs.cs,
+                    "en" : data[i].descs.en
+                };
+            }
+            this.ctx["vc"] = collections;
+            if (whenready)
+                whenready.apply(null, [ data ]);
+            this.application.eventsHandler.trigger("api/sources", data);
+        }, this));
+    },
+
+    /**
      * Solr search request
      * @param {string} query - Query.
      * @param {requestCallback} whenready  - Callback handling responses.
