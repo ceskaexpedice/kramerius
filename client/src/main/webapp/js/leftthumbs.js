@@ -63,8 +63,8 @@ LeftThumbs.prototype = {
         if(this.currentPidSelected !== pid){
             this.currentPidSelected = pid;
             var elem = $("#viewer .thumb[data-pid='" + pid + "']");
-            if(this.currentModelSelected !== hashParser().model){
-                this.currentModelSelected = hashParser().model;
+            if(this.currentParentModel !== hashParser().pmodel){
+                this.currentParentModel = hashParser().pmodel;
                 this.init();
             }else if(elem.length > 0){
                 $("#viewer .thumb").removeClass("selected");
@@ -101,7 +101,7 @@ LeftThumbs.prototype = {
         
         this.currentPidSelected = K5.api.ctx["item"]["selected"].split(";")[0];
         var hash = hashParser();
-        this.currentModelSelected = hash.model;
+        this.currentParentModel = hash.pmodel;
         K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], _.bind(function(data) {
             
             var dd = [];
@@ -110,7 +110,7 @@ LeftThumbs.prototype = {
                 var lastModel = path[path.length - 2].model;
                 
                 _.each(objectForPath.siblings, function(thumb) {
-                    if(!hash.hasOwnProperty("model") || lastModel === hash.model){
+                    if(!hash.hasOwnProperty("model") || lastModel === hash.pmodel){
                         dd.push(thumb);
                     }
                 });
@@ -317,34 +317,26 @@ LeftThumbs.prototype = {
         }
         
         thumb.click(function() {
-            if(itemths.currentPidSelected !== pid){
-                var histDeep = getHistoryDeep() + 1;
-                if(datanode){
-                    var m = "";
-                    if(hashParser().model){
-                        m = ";model=" + hashParser().model;
-                    }
-                    window.location.hash = pid + ";" + histDeep  + m;
-                }else{
-                    K5.api.gotoDisplayingItemPage(pid + ";" + histDeep  + ";model=" + model, $("#q").val());
-                }
-            }
+            itemths.navigate(pid, datanode, model);
         });
         tt.click(function() {
-            if(itemths.currentPidSelected !== pid){
-                var histDeep = getHistoryDeep() + 1;
-                if(datanode){
-                    window.location.hash = pid + ";" + histDeep  + ";model=" + model;
-                }else{
-                    K5.api.gotoDisplayingItemPage(pid + ";" + histDeep  + ";model=" + model, $("#q").val());
-                }
-            }
+            itemths.navigate(pid, datanode, model);
         });
 
         rowImg.append(thumb);
         rowText.append(tt);
     },
-    
+    navigate: function(pid, datanode, model){
+        if(this.currentPidSelected !== pid){
+            var hash = hashParser();
+            var histDeep = getHistoryDeep() + 1;
+            if(datanode){
+                window.location.hash = pid + ";" + histDeep  + ";pmodel=" + hash.pmodel;
+            }else{
+                K5.api.gotoDisplayingItemPage(pid + ";" + histDeep  + ";pmodel=" + model, $("#q").val());
+            }
+        }
+    },
     getDetails: function(json, info) {
         var model = json["model"];
         var details = json["details"];
