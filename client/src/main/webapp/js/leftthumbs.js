@@ -10,13 +10,13 @@ function LeftThumbs(appl, elem) {
     this.elem = $(jqSel);
 
     this.init();
-    /*
+    
     this.application.eventsHandler.addHandler(_.bind(function(type, data) {
-        if (type === "window/resized") {
-            this.resized();
+        if (type === "app/searchInside") {
+            this.dosearch(data);
         }
     }, this));
-    */
+    
     this.contentGenerated = false;
 }
 
@@ -111,14 +111,14 @@ LeftThumbs.prototype = {
         }
         
         K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], _.bind(function(data) {
-            
+            var nomodel = this.currentParentModel === null;
             var dd = [];
             _.each(data, function(objectForPath) { 
                 var path = objectForPath.path;
                 var lastModel = path[path.length - 2].model;
                 
                 _.each(objectForPath.siblings, function(thumb) {
-                    if(!hash.hasOwnProperty("model") || lastModel === hash.pmodel){
+                    if(lastModel === hash.pmodel || nomodel){
                         dd.push(thumb);
                     }
                 });
@@ -157,6 +157,25 @@ LeftThumbs.prototype = {
             scrollTop: sel.position().top + currentPos
         }, 1000);
     },
+    dosearch: function(q) {
+        var q = $("#searchinside_q").val();
+        console.log("query is "+q);
+        if (q !== null && q !== $("#q").val()) {
+            this.setLoading(true);
+            $("#q").val(q);
+            this.hits = {};
+            $('td.hit').removeClass("hit");
+            $('td.hit').each(function() {
+                $(this).tooltip("option", "content", $(this).data("tt"));
+            });
+            $('td.chit').each(function() {
+                $(this).tooltip("option", "content", $(this).data("tt"));
+            });
+            $('td.thumb').removeClass("hit chit");
+            this.getHits();
+        }
+        cleanWindow();
+    },
     getHits: function() {
         if ($("#q").val() === "") {
             return;
@@ -166,7 +185,7 @@ LeftThumbs.prototype = {
             var root_pid = K5.api.ctx["item"][pid].root_pid;
             var pid_path = "";
             var context = K5.api.ctx["item"][pid].context[0];
-            for (var i = 0; i < context.length; i++) {
+            for (var i = 0; i < context.length-1; i++) {
                 pid_path += context[i].pid + "/";
             }
             var q = "q=" + $("#q").val() + "&rows=5000&fq=pid_path:" + pid_path.replace(/:/g, "\\:") + "*";
@@ -185,7 +204,7 @@ LeftThumbs.prototype = {
     setHitClass: function() {
         var hits = this.hits;
         var hl = this.highlighting;
-        $('li.thumb').each(function() {
+        $('td.thumb').each(function() {
             for (var i = 0; i < hits.length; i++) {
                 var pid = hits[i].pid ? hits[i].pid : hits[i].PID;
                 var pid_path = hits[i].pid_path[0];
@@ -193,7 +212,8 @@ LeftThumbs.prototype = {
                 var lipid = $(this).data("pid").toString();
                 if ($(this).data("pid") === pid) {
                     $(this).addClass('hit');
-                    var tt = $(this).data("tt");
+                    var tt = $(this).parent().next().find("td:eq("+$(this).index()+ ")");
+                    tt.addClass('hit');
 
                     var hltext = "";
                     for (var j = 0; j < hl[pid].text_ocr.length; j++) {
@@ -338,15 +358,14 @@ LeftThumbs.prototype = {
     navigate: function(pid, datanode, model){
         if(this.currentPidSelected !== pid){
             var hash = hashParser();
+            hash.pid = pid;
             var histDeep = getHistoryDeep() + 1;
-            var pmodel = "";
-            if(hash.hasOwnProperty("pmodel")){
-                ";pmodel=" + hash.pmodel;
-            }
+            hash.hist = histDeep;
             if(datanode){
-                window.location.hash = pid + ";" + histDeep  + pmodel;
+                window.location.hash = jsonToHash(hash);
             }else{
-                K5.api.gotoDisplayingItemPage(pid + ";" + histDeep  + ";pmodel=" + model, $("#q").val());
+                hash.pmodel = model;
+                K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
             }
         }
     },
@@ -403,12 +422,6 @@ LeftThumbs.prototype = {
         info.short += '<div class="details">' +  detShort + '</div>';
         info.full += '<div class="details">' + detFull + '</div>';
 
-    },
-    clearContainer: function() {
-        $("ul.container").remove();
-
-        //this.topArrow.remove();
-        //this.bottomArrow.remove();
     }
 };
 

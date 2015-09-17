@@ -116,7 +116,7 @@ ItemThumbs.prototype = {
 
     },
     dosearch: function(q) {
-        var q = $("#searchinside_q").val();
+        
         console.log("query is "+q);
         if (q !== null && q !== $("#q").val()) {
             console.log("searching");
@@ -361,8 +361,14 @@ ItemThumbs.prototype = {
         thumb.css('width', this.thumbWidth + "px");
         thumb.css('height', this.thumbHeight + "px");
         img.click(function() {
+            var hash = hashParser();
+            hash.pid = pid;
             var histDeep = getHistoryDeep() + 1;
-            K5.api.gotoDisplayingItemPage(pid + ";" + histDeep  + ";pmodel=" + model, $("#q").val());
+            hash.hist = histDeep;
+            
+            hash.pmodel = model;
+            K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
+            
         });
 
         var title = '<span class="title">' + K5.i18n.translatable('fedora.model.' + this.thumbs[index].model) + " " + this.thumbs[index].title + '</span>';
@@ -400,6 +406,9 @@ ItemThumbs.prototype = {
         var model = json["model"];
         var details = json["details"];
         var root_title = json["root_title"];
+        if(root_title == null){
+            root_title = json.title;
+        }
         var detFull = "";
         var detShort = "";
         if (details) {

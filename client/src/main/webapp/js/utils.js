@@ -284,57 +284,66 @@ function removeHistoryPostfix(url) {
 }
 
 /** prototypes */
-if (typeof String.prototype.startsWith != 'function') {
+if (typeof String.prototype.startsWith !== 'function') {
         String.prototype.startsWith = function (str){
-                return this.slice(0, str.length) == str;
+                return this.slice(0, str.length) === str;
         };
 }
 
-if (typeof String.prototype.endsWith != 'function') {
+if (typeof String.prototype.endsWith !== 'function') {
         String.prototype.endsWith = function (str){
-                return this.slice(-str.length) == str;
+                return this.slice(-str.length) === str;
         };
 }
 
 function getHistoryDeep(){
     
-    var hash = window.location.hash;
-    var histDeep = 0;
-    if (hash.length > 1) {
-        hash = hash.substring(1);
-        var parts = hash.split(";");
-        if(parts.length>1){
-            histDeep = parseInt(parts[1]);
-        }
+    var hash = hashParser();
+    if (hash.hasOwnProperty("hist")) {
+        return parseInt(hash.hist);
+    }else{
+        return 0;
     }
-    return histDeep;
 }
 
 function backToResults(){
-    var hash = window.location.hash;
-    var histDeep = 0;
-    if (hash.length > 1) {
-        hash = hash.substring(1);
-        var parts = hash.split(";");
-        if(parts.length>1){
-            histDeep = parseInt(parts[1]);
-        }
-    }
+    var histDeep = getHistoryDeep();
     window.history.go(0 - histDeep - 1);
 }
 
 function hashParser(){
     var hash = window.location.hash;
-    var parts = hash.split(";");
-    var ret = {};
-    ret.pid = parts[0];
-    for(var i = 1; i<parts.length; i++){
-        var part = parts[i].split("=");
-        if(part.length>1){
-            ret[part[0]] = part[1];
-        }else{
-            ret["key"+i] = part[0];
+    if(hash.length > 1){
+        var parts = hash.substring(1).split(";");
+        var ret = {};
+        ret.pid = parts[0];
+        for(var i = 1; i<parts.length; i++){
+            var part = parts[i].split("=");
+            if(part.length>1){
+                ret[part[0]] = part[1];
+            }else{
+                ret["key"+i] = part[0];
+            }
         }
+        return ret;
+    }else{
+        return {};
     }
-    return ret;
+}
+
+function jsonToHash(json){
+    var hash = "";
+    if(json.hasOwnProperty("pid")){
+        hash = json.pid;
+    }
+    
+    if(json.hasOwnProperty("hist")){
+        hash += ";hist=" + json.hist;
+    }
+    
+    if(json.hasOwnProperty("pmodel")){
+        hash += ";pmodel=" + json.pmodel;
+    }
+    
+    return hash;
 }

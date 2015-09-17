@@ -58,23 +58,37 @@ BreadCrumbs.prototype = {
     },
     refresh: function(pid){
         this.elem.html("");
-        //console.log(K5.gui["selected"]);
-        //var pid = K5.api.ctx["item"]["selected"];
         var item = K5.api.ctx["item"][pid];
-        var item_ctx = item.context[0];
+        var hash = hashParser();
+        var idx = 0;
+        if(hash.hasOwnProperty("pmodel") && item.context.length > 1){
+            for(var c=0; c<item.context.length; c++){
+                var ctx = item.context[c];
+                if(ctx.length>1 && ctx[ctx.length-2].model === hash.pmodel){
+                    idx = c;
+                    break;
+                }
+            }
+        }
+        
+        var item_ctx = item.context[idx];
         for(var i=0; i<item_ctx.length; i++){
             if(i > 0){
                 this.elem.append('<div class="ui-icon ui-icon-triangle-1-e"> :: </div>');
             }
             var cpid = item_ctx[i].pid;
-            var span = $('<div/>', {class: "link", id: "bc_"+cpid});
+            var span = $('<div/>', {id: "bc_"+cpid});
             span.data("pid", cpid);
-            
-            span.click(function(){
-                var cpid = $(this).data("pid");
-                var histDeep = getHistoryDeep() + 1;
-                K5.api.gotoDisplayingItemPage(cpid + ";" + histDeep, $("#q").val());
-            });
+            span.data("model", item_ctx[i].model);
+            if(cpid !== hash.pid){
+                span.addClass('link')
+                span.click(function(){
+                    var cpid = $(this).data("pid");
+                    var model = $(this).data("model");
+                    var histDeep = getHistoryDeep() + 1;
+                    K5.api.gotoDisplayingItemPage(cpid + ";hist=" + histDeep + ";pmodel=" + $(this).data("model"), $("#q").val());
+                });
+            }
             this.elem.append(span);
             
             if(K5.api.ctx["item"][cpid]){

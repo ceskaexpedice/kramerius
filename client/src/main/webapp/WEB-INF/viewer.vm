@@ -23,6 +23,7 @@
 <!--
                     <div class="small parent translate_title" data-ctx="parent" data-key="buttons.parent" title="$i18n.buttons.parent" onclick="K5.gui.selected.parent();" >#parse("svg/parent.svg")</div>
 -->
+                    <div class="small back translate_title" data-ctx="all" data-key="buttons.back" title="$i18n.buttons.outofdocument" onclick="backToResults();" >#parse("svg/docout.svg")</div>
                     <div class="small prev translate_title" data-ctx="all" data-key="buttons.prev" title="$i18n.buttons.prev" onclick="K5.gui.selected.prev();" >#parse("svg/arrowleft.svg")</div>
                     <div class="small next translate_title" data-ctx="all" data-key="buttons.next" title="$i18n.buttons.next" onclick="K5.gui.selected.next();" >#parse("svg/arrowright.svg")</div>
                     <div class="small search translate_title" data-ctx="all" id="vwr_ctx_searchinside" data-key="searchinside.dialog" title="$i18n.searchinside.dialog" onclick="K5.gui.selected.searchInside();" >#parse("svg/lupa.svg")</div>
@@ -93,7 +94,7 @@
     
 <div id="item_menu" style="display:none;">
 
-<div class="small prev translate_title" data-ctx="all" data-key="buttons.back" title="$i18n.buttons.outofdocument" onclick="backToResults();" >#parse("svg/docout.svg")</div>
+
 
     <div class="small pin translate_title" data-ctx="all" id="vwr_ctx_actions" data-key="buttons.actions" title="$i18n.buttons.actions" onclick="K5.gui.selected.toggleActions();" style="display:none">#parse("svg/actions.svg")</div>
 

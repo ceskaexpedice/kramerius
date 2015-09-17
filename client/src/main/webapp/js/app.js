@@ -247,7 +247,7 @@ function Application() {
                 
                     info.short = " ";
                     info.full = " ";
-                    info.min = root_title;
+                    info.min =  json["title"];
             }
         };
 
