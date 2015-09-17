@@ -427,8 +427,11 @@ ItemSupport.prototype = {
             }, -1);
             if (index <= arr.length - 2) {
                 var nextPid = arr[index + 1].pid;
+                var hash = hashParser();
+                hash.pid = nextPid;
                 var histDeep = getHistoryDeep() + 1;
-                K5.api.gotoItemPage(nextPid + ";hist=" + histDeep, $("#q").val());
+                hash.hist = histDeep;
+                K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
             }
         } else {
             K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
@@ -438,8 +441,11 @@ ItemSupport.prototype = {
                 }, -1);
                 if (index < arr.length - 2) {
                     var nextPid = arr[index + 1].pid;
+                    var hash = hashParser();
+                    hash.pid = nextPid;
                     var histDeep = getHistoryDeep() + 1;
-                    K5.api.gotoItemPage(nextPid + ";hist=" + histDeep, $("#q").val());
+                    hash.hist = histDeep;
+                    K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
                 }
             });
         }
@@ -461,8 +467,11 @@ ItemSupport.prototype = {
             }, -1);
             if (index > 0) {
                 var prevPid = arr[index - 1].pid;
-                    var histDeep = getHistoryDeep() + 1;
-                    K5.api.gotoItemPage(prevPid + ";hist=" + histDeep, $("#q").val());
+                var hash = hashParser();
+                hash.pid = prevPid;
+                var histDeep = getHistoryDeep() + 1;
+                hash.hist = histDeep;
+                K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
             }
 
         } else {
@@ -473,8 +482,11 @@ ItemSupport.prototype = {
                 }, -1);
                 if (index > 0) {
                     var prevPid = arr[index - 1].pid;
+                    var hash = hashParser();
+                    hash.pid = prevPid;
                     var histDeep = getHistoryDeep() + 1;
-                    K5.api.gotoItemPage(prevPid + ";hist=" + histDeep, $("#q").val());
+                    hash.hist = histDeep;
+                    K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
                 }
             });
         }
