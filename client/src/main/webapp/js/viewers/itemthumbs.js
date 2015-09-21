@@ -315,6 +315,7 @@ ItemThumbs.prototype = {
     addThumb: function(index) {
         var pid = this.thumbs[index].pid ? this.thumbs[index].pid : this.thumbs[index].PID;
         var model = this.thumbs[index].model;
+        var datanode = this.thumbs[index].datanode;
 
         var imgsrc = 'api/item/' + pid + '/thumb';
         var img = $('<img/>', {src: "images/empty.gif"});
@@ -365,8 +366,11 @@ ItemThumbs.prototype = {
             hash.pid = pid;
             var histDeep = getHistoryDeep() + 1;
             hash.hist = histDeep;
-            
-            hash.pmodel = model;
+            if(datanode){
+                //hash.pmodel = model;
+            }else{
+                hash.pmodel = model;
+            }
             K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
             
         });

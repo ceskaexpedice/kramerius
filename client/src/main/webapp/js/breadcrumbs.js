@@ -83,10 +83,11 @@ BreadCrumbs.prototype = {
             if(cpid !== hash.pid){
                 span.addClass('link')
                 span.click(function(){
-                    var cpid = $(this).data("pid");
-                    var model = $(this).data("model");
-                    var histDeep = getHistoryDeep() + 1;
-                    K5.api.gotoDisplayingItemPage(cpid + ";hist=" + histDeep + ";pmodel=" + $(this).data("model"), $("#q").val());
+                    var hash2 = hashParser();
+                    hash2.pid = $(this).data("pid");
+                    hash2.pmodel = $(this).data("model");
+                    hash2.hist = getHistoryDeep() + 1;
+                    K5.api.gotoDisplayingItemPage(jsonToHash(hash2), $("#q").val());
                 });
             }
             this.elem.append(span);
