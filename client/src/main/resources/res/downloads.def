@@ -1,7 +1,7 @@
 [
         {
             "name":"onepagepdf",
-            "i18nkey":"ctx.actions.pdftitle",
+            "i18nkey":"ctx.actions.onepagepdf",
             "object":"PDFOnePage"
         },
 
@@ -12,9 +12,21 @@
         },
 
         {
+            "name":"siblingstitlepdf",
+            "i18nkey":"ctx.actions.generatepdf",
+            "object":"PDFSiblingsTitle"
+        },
+
+        {
             "name":"onepageprint",
-            "i18nkey":"ctx.actions.printtitle",
+            "i18nkey":"ctx.actions.printonepage",
             "object":"PrintPage"
+        },
+
+        {
+            "name":"siblingstitleprint",
+            "i18nkey":"ctx.actions.printtitle",
+            "object":"PrintSiblings"
         },
 
         {

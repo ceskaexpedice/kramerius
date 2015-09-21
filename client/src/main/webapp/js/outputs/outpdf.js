@@ -48,8 +48,6 @@ PDFSupport.prototype= {
                 var number = Math.min(this.ctx.configuration.pdf.limit-1,pages.length);
                 $(".opacityloading").show();
                 
-                
-                
                 $.getJSON("pdfforward/pdf/parent?pid="+ pid+"&number="+number, _.bind(function(data) {
                     $(".opacityloading").hide();
                     var handle = data["handle"];
@@ -162,58 +160,79 @@ PDFSupport.prototype= {
             }
             
         },
+
+        siblings: function(pid) {
+            $.getJSON("api/pdf", _.bind(function(conf) {
+                var itm = K5.api.ctx.item[pid];
+                var sData = itm.siblings;
+                if (sData.length > 0) {
+                    var sPath = sData[0].path;
+
+                    if (!conf.resourceBusy) {
+                        var parent = sPath[sPath.length-2];
+                        if (conf.pdfMaxRange === "unlimited") {
+                            window.open("pdfforward/pdf/parent?pid="+ parent.pid,"_blank");
+                        } else {
+                            //var max = Math.min(pages.length, parseInt(conf.pdfMaxRange));
+                            var pages = _.reduce(sData[0].siblings, function(memo, value, ctx) {
+                                if (!memo.enabled) { memo.enabled = value.selected; }
+                                
+                                if (value["model"] === "page") {
+                                    if (memo.enabled) {
+                                        memo.data.push(value.pid);
+                                    }
+                                    if (memo.data.length >=  parseInt(conf.pdfMaxRange)) {
+                                        memo.enabled = false;
+                                    }
+                                }
+                                return memo;
+                            }, {"data":[],"enabled":false});
+                            
+                            var string = _.reduce(pages.data, function(memo, value, ctx) {
+                                if (ctx > 0) {
+                                    memo = memo+",";
+                                }
+                                memo = memo +value;
+                                return memo;
+                            }, "");
+                            
+                            window.open("pdfforward/pdf/selection?pids="+string,"_blank");
+                        }
+                    } else {
+                        // zobrazeni busy..
+                    }
+     
+                    
+                }
+                /*
+                var itm = K5.api.ctx.item[pid];
+                var children = itm.children;
+
+                var pages = _.reduce(children, function(memo, value, index) {
+                    if (value["model"] === "page") {
+                        memo.push(value);
+                    }
+                    return memo;
+                }, []);
+
+                if (!conf.resourceBusy) {
+                    console.log("conf is :"+conf);
+                    if (conf.pdfMaxRange === "unlimited") {
+                        window.open("pdfforward/pdf/parent?pid="+ pid,"_blank");
+                    } else {
+                        var val = Math.min(pages.length, parseInt(conf.pdfMaxRange));
+                        window.open("pdfforward/pdf/parent?pid="+ pid+"&number="+val,"_blank");
+                    }
+                } else {
+                    // zobrazeni busy..
+                }*/
+                
+            },this));
+            
+        },
         
         title: function(pid) {
-            function _file() {
-                
-            }
-//            PDF.prototype.downloadFile = function(url) {
-//                var xhr = new XMLHttpRequest();
-//                xhr.open('GET', url, true);
-//                xhr.responseType = "blob";
-//                xhr.onreadystatechange = bind(function() {
-//                    console.log("dialog " + this.waitDialog);
-//                    if (xhr.readyState == 4) {
-//                        if (xhr.status == 200) {
-//                            var name = (function() {
-//                                var date = new Date();
-//                                return "" + date.getFullYear() + "" + date.getDate() + ""
-//                                        + date.getMonth() + "_" + date.getHours() + ""
-//                                        + date.getMinutes() + "" + date.getSeconds() + ".pdf";
-//                            })();
-//                            var blob = xhr.response;
-//                            var burl = window.URL.createObjectURL(blob);
-//                            var ref = $('<a/>', {
-//                                id : '_pdf_download_bloblink',
-//                                href : burl,
-//                                download : name,
-//                                style : "display:none"
-//                            });
-//                            ref.text("click to download");
-//                            $("#waitPdf").append(ref);
-//
-//                            // JQuery issue, the code:
-//                            // $("#_pdf_download_bloblink").trigger('click');
-//                            // doesn't work
-//
-//                            $("#_pdf_download_bloblink").get(0).click();
-//                            this.waitDialog.dialog('close');
-//                        } else if (xhr.status == 400) {
-//                            this.waitDialog.dialog('close');
-//                            this.showPagesValidationError();
-//                        } else if (xhr.status == 409) {
-//                            this.waitDialog.dialog('close');
-//                            this.showPagesValidationError();
-//                        }
-//                    }
-//                }, this);
-//                xhr.send(null);
-//            }
-
-            
             $.getJSON("api/pdf", _.bind(function(conf) {
-                //this.ctx.configuration["pdf"] = data;
-                
                 var itm = K5.api.ctx.item[pid];
                 var children = itm.children;
 

@@ -31,6 +31,17 @@ PrintSupport.prototype= {
         }, 
 
         
+        siblings: function(pid) {
+            var itm = K5.api.ctx.item[pid];
+            var sData = itm.siblings;
+
+            if (sData.length > 0) {
+                var sPath = sData[0].path;
+                var parent = sPath[sPath.length-2];
+                window.open('print?parentPid='+parent.pid,'_blank');
+            }
+        },
+
         title: function(pid) {
             window.open('print?parentPid='+pid,'_blank');
         }

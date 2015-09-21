@@ -269,6 +269,11 @@ function Application() {
                         this.i18n.askForDictionary(configuration["language"],configuration["country"]);
                 }
 
+                if (configuration["conf"]["i18n"]) {
+                    var i18nconf = configuration["conf"]["i18n"];
+                    this.i18n.initConfiguration(i18nconf);
+                }
+
                 if (configuration["page"]) {
                     this.gui.page=configuration["page"];
                 }
@@ -284,6 +289,7 @@ function Application() {
                         K5.api.askForPopular();
                         K5.api.askForCool();
                 }
+
 
                 if (configuration["conf"]["pdf"]) {
                     K5.outputs.pdf.initConfiguration(configuration["conf"]["pdf"]);

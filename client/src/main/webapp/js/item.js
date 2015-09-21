@@ -51,7 +51,9 @@ K5.eventsHandler.addHandler(function(type, configuration) {
     }
 
     if (type === "window/resized") {
-        K5.gui["selected"].wresized();
+        if (K5.gui["selected"]) {
+            K5.gui["selected"].wresized();
+        }
     }
 
     // changes in context buttons

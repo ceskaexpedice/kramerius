@@ -125,7 +125,7 @@ DownloadItem.prototype.open = function() {
     var doptions = K5.gui.downloadoptions.ctx.actions;
 
     var select = $('<ul/>');
-    /*
+    
     select.change(function(item) {
         var selAction = K5.gui.selected.download.selectAction();
         if (selAction && selAction.object.message) {
@@ -135,7 +135,7 @@ DownloadItem.prototype.open = function() {
             $("#download_action_message").text("");
         }
 
-    })*/;
+    });
     
     var options = _.map(doptions, function(a, context) {
         if (a.object.enabled()) {

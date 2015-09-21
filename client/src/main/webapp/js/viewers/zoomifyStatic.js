@@ -160,6 +160,7 @@ ZoomifyStaticImage.prototype.open = function() {
         
 
                 this.map.on('moveend',function() {
+                    /*
                     var curpage = K5.gui.selected.currentPage();
                     if (curpage[2] < 0) {
                         K5.gui.selected.next();
@@ -168,7 +169,8 @@ ZoomifyStaticImage.prototype.open = function() {
                     var wdth = $("#map").width();
                     if (curpage[0] > wdth) {
                         K5.gui.selected.prev();
-                    } 
+                    }*/
+                    
                 });
 
                 this.map.on('postrender', _.bind(function(evt) {

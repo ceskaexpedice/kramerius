@@ -155,7 +155,8 @@ PDFOnePage.prototype = {
                 } else {
                         return false;
                 }
-        }
+        },
+        "group":  "PDF"
 }
 
 
@@ -179,7 +180,8 @@ DownloadPage.prototype = {
                 } else {
                         return false;
                 }
-        }
+        },
+        "group": "RAW"
 }
 
 /**
@@ -210,7 +212,9 @@ PrintPartPage.prototype = {
                 } else {
                         return false;
                 }
-       }
+       },
+       "group": "PDF"
+
 }
 
 
@@ -226,7 +230,7 @@ PrintPartItem.prototype = {
         'doAction':function() {
                 cleanWindow();
                 $('#viewer>div.container')
-                       .append('<div id="overlay">'+
+                       .append('<div id="overlay" style="border:2px solid gray">'+
                                 '<div id="okButton" class="small"></div>'+
                                 '<div id="cancelButton" class="small"></div>'+
 
@@ -235,7 +239,6 @@ PrintPartItem.prototype = {
                                 '<div id="right-top" class="point  between"></div>'+
                                 '<div id="left-bottom" class="point  between"></div>'+
                                 '<div id="right-bottom" class="point  between"></div>'+
-
                         '</div>'); 
 
                 $("#okButton").load("svg.vm?svg=ok");
@@ -247,8 +250,9 @@ PrintPartItem.prototype = {
                 $("#left-bottom").load("svg.vm?svg=bottomleft");
                 $("#right-bottom").load("svg.vm?svg=bottomright");
 
-                
                 $("#cancelButton").click(function() {
+                        //restore container width
+                        K5.gui.selected.edit.selection.restoreWidth();
 
                         var rect = [];
                         rect.push(K5.gui.selected.edit.selection.x1);
@@ -260,8 +264,9 @@ PrintPartItem.prototype = {
                         K5.eventsHandler.trigger("gui/item/crop/stop",rect);
 
                         $("#overlay").remove();
-
                         $("#header").show();
+                        
+                        
                         K5.gui.selected.showLeftrightbuttons();
 
 
@@ -375,6 +380,7 @@ PrintPartItem.prototype = {
                         $("#metadata").hide();
                         $(".thumbs").hide();
                         
+                        
                         if (K5.gui.selected.fit) {
                             K5.gui.selected.fit();
                         }
@@ -388,6 +394,7 @@ PrintPartItem.prototype = {
 
                         K5.gui.selected["edit"]= {};
                         K5.gui.selected.edit.selection = new SelectObject(K5);
+                        K5.gui.selected.edit.selection.changeAndStoreWidth();
                         K5.gui.selected.edit.selection.page();
                                 
                 },200);
@@ -402,7 +409,9 @@ PrintPartItem.prototype = {
                 } else {
                         return false;
                 }
-        }
+        },
+        "group": "PDF"
+
 }
 
 
@@ -425,8 +434,34 @@ PrintPage.prototype = {
             } else {
                     return false;
             }
-    }
+    },
+    "group": "PRINT"
 }
+
+
+function PrintSiblings() {}
+PrintSiblings.prototype = {
+        'doAction':function() {
+                cleanWindow();
+                //var page = removeHistoryPostfix(K5.api.ctx.item.selected);
+                var v = K5.api.ctx.item.selected;
+                K5.outputs.print.siblings(v);
+        },
+        
+        'enabled': function() {
+            var selected = K5.api.ctx.item.selected; 
+            var itm = K5.api.ctx.item[selected];
+            if (!itm['forbidden']) {
+                if ((!_isAudio()) && (!_isPDF())) {
+                    return K5.api.ctx.item[selected].datanode; 
+                } else return false;
+            } else {
+                    return false;
+            }
+        },
+        "group": "PRINT"
+}
+
 
 function PrintTitle() {}
 
@@ -461,9 +496,48 @@ PrintTitle.prototype = {
                 } else {
                         return false;
                 }
-        }
+        },
+        "group": "PRINT"
 }
 
+
+
+
+function PDFSiblingsTitle() {
+    this.ctx = {};
+    $.getJSON("api/pdf", _.bind(function(conf) {
+        this.ctx["conf"] = conf;
+    },this));
+    this.dialog = null;
+}
+
+PDFSiblingsTitle.prototype = {
+        'doAction':function() {
+                cleanWindow();
+                var v = K5.api.ctx.item.selected;
+                K5.outputs.pdf.siblings(v);
+        },
+        'message' :function() {
+            if (this.ctx && this.ctx.conf) { 
+                if (this.ctx.conf.pdfMaxRange !== "unlimited") {
+                    return "Maximalni pocet stranek limitovan na:"+this.ctx.conf.pdfMaxRange+". Tiskne se od aktualne vybrane."; 
+                }
+            } else return null;
+        },
+
+        'enabled': function() {
+            var selected = K5.api.ctx.item.selected; 
+
+            var itm = K5.api.ctx.item[selected];
+            if (!itm['forbidden']) {
+                if ((!_isAudio()) && (!_isPDF())) {
+                    return K5.api.ctx.item[selected].datanode; 
+                } else return false;
+            } else {
+                    return false;
+            }
+        }
+}
 
 
 function PDFTitle() {
@@ -512,7 +586,9 @@ PDFTitle.prototype = {
                 } else {
                         return false;
                 }
-        }
+        },
+        "group": "PDF"
+
 }
 
 
@@ -548,7 +624,8 @@ DownloadOCR.prototype = {
                 } else {
                         return false;
                 }
-        }
+        },
+        "group": "RAW"
 }
 
 
@@ -556,7 +633,7 @@ function _socialUrl() {
         var ind = window.location.href.indexOf("index.vm");
         var v = window.location.href.substring(0, ind+"index.vm".length)+"?page=doc#!"+K5.api.ctx.item.selected;
         v = encodeURIComponent(v);
-        return v;                        
+        return v;
 }
 
 function GooglePlusShare() {}
