@@ -440,15 +440,13 @@ ClientAPIDev.prototype = {
      * Search first pid to display and navigate browser to  this item.
      * @method
      */
-    gotoDisplayingItemPage : function(hash, q) {
-        var parts = hash.split(";");
-        var pid = parts[0];
-        var remainder = "";
-        if(parts.length > 1){
-            remainder = hash.substring(pid.length);
-        }
+    gotoDisplayingItemPage : function(newhash, q) {
+        var hash = hashParser(newhash);
+        var pid = hash.pid;
+        
         this.searchItemAndExploreChildren(pid, _.bind(function(data) {
-            this.gotoItemPage(data + remainder, q);
+            hash.pid = data;
+            this.gotoItemPage(jsonToHash(hash), q);
         }, this));
     },
 

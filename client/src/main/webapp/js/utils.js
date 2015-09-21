@@ -311,16 +311,24 @@ function backToResults(){
     window.history.go(0 - histDeep - 1);
 }
 
-function hashParser(){
-    var hash = window.location.hash;
+function hashParser(hash){
+    if(!hash){
+        hash = window.location.hash;
+    }else if(!hash.startsWith("#")){
+        hash = "#" + hash;
+    }
     if(hash.length > 1){
-        var parts = hash.substring(1).split(";");
+        hash = hash.startsWith("#!") ? hash.substring(2) : hash.substring(1);
+        var parts = hash.split(";");
         var ret = {};
-        ret.pid = parts[0];
-        for(var i = 1; i<parts.length; i++){
+        //ret.pid = parts[0];
+        for(var i = 0; i<parts.length; i++){
             var part = parts[i].split("=");
             if(part.length>1){
                 ret[part[0]] = part[1];
+            }else if(i===0){
+                // je to prvni a bez =
+                ret.pid = parts[0];
             }else{
                 ret["key"+i] = part[0];
             }
@@ -333,17 +341,24 @@ function hashParser(){
 
 function jsonToHash(json){
     var hash = "";
-    if(json.hasOwnProperty("pid")){
-        hash = json.pid;
-    }
     
-    if(json.hasOwnProperty("hist")){
-        hash += ";hist=" + json.hist;
+    $.each(json, function(item, val){
+        hash += ";"+item+"=" + val;
+    });
+//    
+//    if(json.hasOwnProperty("pid")){
+//        hash = json.pid;
+//    }
+//    
+//    if(json.hasOwnProperty("hist")){
+//        hash += ";hist=" + json.hist;
+//    }
+//    
+//    if(json.hasOwnProperty("pmodel")){
+//        hash += ";pmodel=" + json.pmodel;
+//    }
+    if(hash.length>1){
+        hash = hash.substring(1);
     }
-    
-    if(json.hasOwnProperty("pmodel")){
-        hash += ";pmodel=" + json.pmodel;
-    }
-    
     return hash;
 }

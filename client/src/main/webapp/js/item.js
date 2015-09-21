@@ -27,8 +27,9 @@ K5.eventsHandler.addHandler(function(type, configuration) {
     }
     if (type === "widow/url/hash") {
         if (K5.gui.page && K5.gui.page ==="doc") {
-            var phash = location.hash;
-            var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
+//            var phash = location.hash;
+//            var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
+            var pid = hashParser().pid;
             if (K5.api.ctx.item && K5.api.ctx.item[pid]) {
                 if (K5.api.ctx.item[pid].pid) {
                         var data = K5.api.ctx.item[pid];
@@ -61,8 +62,9 @@ K5.eventsHandler.addHandler(function(type, configuration) {
 
 });
 
-var phash = location.hash;
-var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
+//var phash = location.hash;
+//var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
+var pid = hashParser().pid;
 if (pid) K5.api.askForItem(pid);
 
 var maxwidth = $('html').css('max-width');

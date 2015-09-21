@@ -28,6 +28,7 @@ K5.eventsHandler.addHandler(function(type, configuration) {
 var Results = function(elem) {
     
     this.elem = elem;
+    this.displayStyle = "display";
     this._init();
 };
 
@@ -44,9 +45,9 @@ Results.prototype = {
         }, this));
 
         this.getDocs();
-        var hash = window.location.hash;
-        if (hash.length > 1) {
-            if (hash.substring(1) === "asrow")
+        var hash = hashParser();
+        if (hash.hasOwnProperty(this.displayStyle) > 1) {
+            if (hash[this.displayStyle] === "asrow")
                 this.setRowStyle();
         }
         this.touchStart = 0;
@@ -160,7 +161,9 @@ Results.prototype = {
             var w = $(this).parent().width() - $(this).prev().width() - 20;
             $(this).css('width', w);
         });
-        window.location.hash = "asrow";
+        var hash = hashParser();
+        hash[this.displayStyle] = "asrow";
+        window.location.hash = jsonToHash(hash);
     },
     setHeader: function(numFound) {
         var key = 'common.title.plural_2';
@@ -178,7 +181,10 @@ Results.prototype = {
     setThumbsStyle: function() {
         $('#search_results').removeClass('as_row');
         $('.search_result>div.thumb>div.info').css('width', '');
-        window.location.hash = "asthumb";
+        
+        var hash = hashParser();
+        hash[this.displayStyle] = "asthumb";
+        window.location.hash = jsonToHash(hash);
     }
 };
 
@@ -333,7 +339,10 @@ Result.prototype = {
 
 
         thumb.click(function() {
-            K5.api.gotoDisplayingItemPage(linkpid, $("#q").val());
+            var hash = hashParser();
+            hash.pid = linkpid;
+            //hash.pmodel = typtitulu;
+            K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
         });
 
     },
