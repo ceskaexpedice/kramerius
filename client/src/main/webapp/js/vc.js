@@ -311,14 +311,15 @@ VirtualCollection.prototype = {
             var shortTitle = title;
             var creator = "";
             var maxLength = 90;
+            var showTooltip = false;
             if (shortTitle.length > maxLength) {
                 shortTitle = shortTitle.substring(0, maxLength) + "...";
+                showTooltip = true;
             }
             if (docs[i]["dc.creator"]) {
                 creator = '<div class="autor">' + docs[i]["dc.creator"] + '</div>';
             }
             title = '<div class="title">' + title + '</div>';
-            thumb.attr("title", title + creator);
             thumb.data("pid", pid);
             this.container.append(thumb);
             var policy = $('<div/>', {class: 'policy'});
@@ -327,10 +328,13 @@ VirtualCollection.prototype = {
             }
             thumb.append(policy);
 
-            thumb.tooltip({
-                content: title + creator,
-                position: {my: "left bottom-10", at: "right-100 bottom"}
-            });
+            if(showTooltip){
+                thumb.attr("title", title + creator);
+                thumb.tooltip({
+                    content: title + creator,
+                    position: {my: "left bottom-10", at: "right-100 bottom"}
+                });
+            }
             thumb.click(function() {
                 K5.api.gotoDisplayingItemPage($(this).data('pid'));
             });
