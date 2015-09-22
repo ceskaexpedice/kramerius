@@ -16,6 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* global K5 */
+
 K5.eventsHandler.addHandler(function(type, configuration) {
     if (type === "widow/url/hash") {
         if (K5.gui["da"]) {
@@ -36,7 +38,7 @@ K5.eventsHandler.addHandler(function(type, configuration) {
         }
 
     }
-    if (type == "i18n/dictionary") {
+    if (type === "i18n/dictionary") {
         $(document).prop('title', K5.i18n.ctx.dictionary['application.title'] + ". " + K5.i18n.ctx.dictionary['common.timeline']);
         if (!K5.gui["da"]) {
             var rowsImpl = true;
@@ -45,8 +47,8 @@ K5.eventsHandler.addHandler(function(type, configuration) {
                 var maxYear = 0;
                 var minYear = 3000;
                 for (var i = 0; i < ja.length; i++) {
-                    year = parseInt(ja[i]);
-                    val = parseInt(ja[++i]);
+                    var year = parseInt(ja[i]);
+                    var val = parseInt(ja[++i]);
                     var curDate = new Date();
                     var curYear = curDate.getFullYear();
                     if (year > 1000 && year <= curYear) {
