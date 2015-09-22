@@ -1,7 +1,7 @@
 function ItemThumbs(appl, elem) {
     this.application = (appl || K5);
 
-    var jqSel = (elem || '#viewer>div.container');        
+    var jqSel = (elem || '#viewer>div.container>div.thumbs');        
     this.elem = $(jqSel);
 
     this.init();
@@ -18,17 +18,19 @@ ItemThumbs.prototype = {
     relation: 1.3, // height/width
     thumbMargin: 4,
     thumbBorder: 2,
-    thumbMinWidth: 56,
+    thumbMinWidth: 90,
+    thumbMinHeight: 128,
     imgMargin: 2,
     containerMargin: 1,
     maxInfoLength: 100,
     init: function() {
 
-        $("ul.container").remove();
+        this.elem.empty();
 
         this.container = $('<ul/>');
         this.container.addClass('container');
         this.elem.append(this.container);
+        this.elem.css("width", "100%");
         this.width = this.elem.width() - this.containerMargin * 2;
         this.height = this.elem.height() - this.containerMargin * 2;
         this.hits = {};
@@ -114,7 +116,7 @@ ItemThumbs.prototype = {
 
     },
     dosearch: function(q) {
-        var q = $("#searchinside_q").val();
+        
         console.log("query is "+q);
         if (q !== null && q !== $("#q").val()) {
             console.log("searching");
@@ -214,10 +216,10 @@ ItemThumbs.prototype = {
         setTimeout(function() {
             this.width = this.elem.width();
             this.height = this.elem.height() - this.containerTop - this.containerMargin * 2;
-            this.setDimensions();
+            //this.setDimensions();
             $("#viewer li.thumb").css('width', this.thumbWidth + "px");
             $("#viewer li.thumb").css('height', this.thumbHeight + "px");
-            $("#viewer li.thumb img").attr("height", this.imgHeight);
+            //$("#viewer li.thumb img").attr("height", this.imgHeight);
             this.checkScroll();
         }.bind(this), 200);
     },
@@ -235,6 +237,8 @@ ItemThumbs.prototype = {
         if (this.thloaded >= this.thumbs.length) {
             this.setLoading(false);
             this.checkScroll();
+            var max = Math.max($("#viewer li.thumb img").width());
+            $("#viewer li.thumb").css("width", max + 40);
         }
     },
     checkScroll: function(){
@@ -246,7 +250,7 @@ ItemThumbs.prototype = {
             this.elem.css("overflow", "auto");
         }
     },
-    setDimensions: function() {
+    setDimensions2: function() {
         this.width = this.elem.width() - this.containerMargin * 2;
         var marginTop = 40;
         this.height = this.elem.height() - this.containerMargin * 2 - marginTop;
@@ -278,13 +282,40 @@ ItemThumbs.prototype = {
             this.elem.css("overflow", "auto");
         }
         this.thumbWidth = this.cellWidth - this.thumbMargin * 2 - this.thumbBorder * 2;
-        this.thumbHeight = this.cellHeight - this.thumbMargin * 2 - this.thumbBorder * 2;
+        this.thumbHeight = Math.max(this.thumbMinHeight, this.cellHeight - this.thumbMargin * 2 - this.thumbBorder * 2);
+        
         this.imgWidth = this.thumbWidth - this.imgMargin * 2 - this.thumbBorder * 2;
         this.imgHeight = this.thumbHeight - this.imgMargin * 2 - this.thumbBorder * 2;
 
     },
+    
+    thumbMaxWidth: 96,
+    thumbMaxHeight: 128,
+    thumbCurWidth: 0,
+    thumbCurHeight: 0,
+    setCurThumbSize: function(w, h) {
+        return;
+        if(w > this.thumbCurWidth || (h > this.thumbCurHeight && this.thumbCurHeight !== this.thumbMaxHeight)){
+            //this.thumbCurWidth = Math.min(w, this.thumbMaxWidth);
+            this.thumbCurWidth = w;
+            this.thumbCurHeight = Math.min(h, this.thumbMaxHeight);
+            this.thumbWidth = this.thumbCurWidth + 8;
+            this.thumbHeight = this.thumbCurHeight + 8;
+            this.imgWidth = this.thumbWidth - this.imgMargin * 2 - this.thumbBorder * 2;
+            this.imgHeight = this.thumbHeight - this.imgMargin * 2 - this.thumbBorder * 2;
+            
+            this.resized();
+        }
+    },
+    setDimensions: function() {
+        return;
+        $('#viewer li.thumb').css('width', this.thumbMaxWidth).css('height', this.thumbMaxHeight);
+        
+    },
     addThumb: function(index) {
         var pid = this.thumbs[index].pid ? this.thumbs[index].pid : this.thumbs[index].PID;
+        var model = this.thumbs[index].model;
+        var datanode = this.thumbs[index].datanode;
 
         var imgsrc = 'api/item/' + pid + '/thumb';
         var img = $('<img/>', {src: "images/empty.gif"});
@@ -292,26 +323,32 @@ ItemThumbs.prototype = {
         var itemths = this;
         image.onload = function() {
             $(img).attr("src", imgsrc);
+        
             var w = this.naturalWidth;
             var h = this.naturalHeight;
+            itemths.setCurThumbSize(w, h);
             var relation = w / h;
             if (itemths.imgHeight * relation > itemths.imgWidth) {
+                $(img).css("top", (itemths.thumbHeight - itemths.imgHeight)/2);
                 if(w > itemths.imgWidth){
-                    $(img).attr("width", Math.min(w, itemths.imgWidth));
+                    //$(img).css("width", "calc(100% - 8px)");
+                    //$(img).attr("width", Math.min(w, itemths.imgWidth));
                 }else{
-                    $(img).css("width", w);
-                    $(img).css("top", (itemths.imgWidth-w)/2);
+//                    $(img).css("width", w);
                 }
             } else {
-                if(h > itemths.imgHeight){
-                    $(img).attr("height", Math.min(h, itemths.imgHeight));
-                    
-                }else{
-                    $(img).css("height", Math.min(h, itemths.imgHeight));
-                    $(img).css("top", (itemths.imgHeight - h)/2);
-                }
+                var finalh = Math.min(h, itemths.imgHeight);
+//                    $(img).attr("height", finalh);
+                    //$(img).css("height", "calc(100% - 8px)");
+                    $(img).css("top", (itemths.thumbHeight - finalh)/2);
+//                if(h > itemths.imgHeight){
+//                    
+//                }else{
+//                    $(img).css("top", (finalh - h)/2);
+//                }
             }
 
+        
             itemths.checkLoading();
         };
         image.onerror = function() {
@@ -325,47 +362,64 @@ ItemThumbs.prototype = {
         thumb.css('width', this.thumbWidth + "px");
         thumb.css('height', this.thumbHeight + "px");
         img.click(function() {
-            K5.api.gotoDisplayingItemPage(pid, $("#q").val());
+            var hash = hashParser();
+            hash.pid = pid;
+            var histDeep = getHistoryDeep() + 1;
+            hash.hist = histDeep;
+            if(datanode){
+                //hash.pmodel = model;
+            }else{
+                hash.pmodel = model;
+            }
+            K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
+            
         });
 
-        var title = '<span class="title">' + this.thumbs[index].title + '</span>';
+        var title = '<span class="title">' + K5.i18n.translatable('fedora.model.' + this.thumbs[index].model) + " " + this.thumbs[index].title + '</span>';
         var info = {short: "", full: ""};
         this.getDetails(this.thumbs[index], info);
         thumb.data("pid", pid);
-        var tt = '<img src="' + imgsrc + '" style="float:left;margin-right:4px;" /><div class="tt_text">' + title + info.full + '</div>';
+        //var tt = '<img src="' + imgsrc + '" style="float:left;margin-right:4px;" /><div class="tt_text">' + title + info.full + '</div>';
+        var tt = '<div class="tt_text">' + title + info.full + '</div>';
+        
         thumb.data("tt", tt);
         this.container.append(thumb);
 
         thumb.append(img);
-        var infoDiv = $('<div/>', {class: "thumb_info"});
-        infoDiv.append(title);
-        thumb.append(infoDiv);
+//        var infoDiv = $('<div/>', {class: "thumb_info"});
+//        infoDiv.append(title);
+//        thumb.append(infoDiv);
+        thumb.append(tt);
         
         thumb.addClass('policy');
         if (this.thumbs[index].policy) {
             thumb.addClass(this.thumbs[index].policy);
         }
 
-        thumb.tooltip({
-            content: tt,
-            position: {my: "left top", at: "left bottom+6"},
-            open: function(event, ui) {
-                K5.i18n.k5translate($(ui.tooltip[0]));
-            }
-        });
+//        thumb.tooltip({
+//            content: tt,
+//            //position: {my: "left top", at: "left bottom+6"},
+//            position: {my: "left top", at: "left top"},
+//            open: function(event, ui) {
+//                K5.i18n.k5translate($(ui.tooltip[0]));
+//            }
+//        });
         this.container.append(thumb);
     },
     getDetails: function(json, info) {
         var model = json["model"];
         var details = json["details"];
         var root_title = json["root_title"];
+        if(root_title == null){
+            root_title = json.title;
+        }
         var detFull = "";
         var detShort = "";
         if (details) {
 
             if (model === "periodicalvolume") {
 
-                detShort = root_title.substring(0, this.maxInfoLength) +
+                detShort = "<div>" + root_title.substring(0, this.maxInfoLength) + "</div>" +
                         K5.i18n.translatable('field.datum') + ": " + details.year + " ";
                 if (details.volumeNumber) {
                     detShort += K5.i18n.translatable('mods.periodicalvolumenumber') + " " + details.volumeNumber;
@@ -403,7 +457,7 @@ ItemThumbs.prototype = {
             return "";
         }
 
-        info.short += '<div class="details">' + detShort + '</div>';
+        info.short += '<div class="details">' +  detShort + '</div>';
         info.full += '<div class="details">' + detFull + '</div>';
 
     },

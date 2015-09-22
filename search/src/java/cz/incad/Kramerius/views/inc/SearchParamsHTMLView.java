@@ -37,12 +37,11 @@ import javax.servlet.http.HttpSession;
 
 
 
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
-
-import cz.incad.Kramerius.Initializable;
 import cz.incad.Kramerius.users.ProfilePrepareUtils;
+import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.json.JSONUtils;

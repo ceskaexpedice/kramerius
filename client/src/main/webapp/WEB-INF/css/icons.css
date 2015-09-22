@@ -5,6 +5,7 @@
 #set( 
     $params = {
         "svg.stroke"            :  "rgba(174, 207, 229, 1)",
+        "svg.strokeDark"        :  "rgba(0, 30, 60, 1)",
         "svg.stroke.hover"      :  "white",
         "svg.fill"              :  "none",
         "svg.fill.hover"        :  "rgba(0, 30, 60, 0.9)"
@@ -96,6 +97,11 @@ svg  .svg-icon{
     stroke-linecap:round;
     stroke-linejoin:round;
 }
+
+.dark svg  .svg-icon{
+    stroke:$params.get("svg.strokeDark"); 
+}
+
 svg  circle.svg-icon{
     stroke-width: 4; 
 }

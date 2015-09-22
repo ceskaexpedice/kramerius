@@ -5,13 +5,11 @@
 <body>
 
 #parse("profile.vm")
-#parse("logingoptions.vm")
 
-#parse("header.vm")
+#parse("help_header.vm")
 $texts.clienthelp
 
 #parse("footer.vm")
-#parse("small/small.vm")
 
 </body>
 </html>

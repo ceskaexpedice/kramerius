@@ -110,6 +110,28 @@ ClientAPIDev.prototype = {
     },
 
     /**
+     * Request for sources
+     * @param {requestCallback} whenready  - Callback handling responses.
+     * @method
+     */
+    askForSources : function(whenready) {
+        $.getJSON("api/sources", _.bind(function(data) {
+            var collections = {};
+            for (var i = 0; i < data.length; i++) {
+                var pid = data[i].pid;
+                collections[pid] = {
+                    "cs" : data[i].descs.cs,
+                    "en" : data[i].descs.en
+                };
+            }
+            this.ctx["vc"] = collections;
+            if (whenready)
+                whenready.apply(null, [ data ]);
+            this.application.eventsHandler.trigger("api/sources", data);
+        }, this));
+    },
+
+    /**
      * Solr search request
      * @param {string} query - Query.
      * @param {requestCallback} whenready  - Callback handling responses.
@@ -404,8 +426,12 @@ ClientAPIDev.prototype = {
             if (data.length == 1) {
                 this.searchItemAndExploreChildren(data[0].pid, whenready);
             } else {
-                if (whenready)
-                    whenready.apply(null, [ pid ]);
+                if(data.length>0 && data[0].datanode){
+                    this.searchItemAndExploreChildren(data[0].pid, whenready);
+                }else{
+                    if (whenready)
+                        whenready.apply(null, [ pid ]);
+                }
             }
         }, this));
     },
@@ -414,9 +440,13 @@ ClientAPIDev.prototype = {
      * Search first pid to display and navigate browser to  this item.
      * @method
      */
-    gotoDisplayingItemPage : function(pid, q) {
+    gotoDisplayingItemPage : function(newhash, q) {
+        var hash = hashParser(newhash);
+        var pid = hash.pid;
+        
         this.searchItemAndExploreChildren(pid, _.bind(function(data) {
-            this.gotoItemPage(data, q);
+            hash.pid = data;
+            this.gotoItemPage(jsonToHash(hash), q);
         }, this));
     },
 
@@ -431,7 +461,7 @@ ClientAPIDev.prototype = {
         } else {
             href += "?";
         }
-        href += "page=doc#" + pid;
+            href += "page=doc#" + pid;
         window.location.assign(href);
     },
 

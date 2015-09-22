@@ -23,6 +23,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import org.xml.sax.SAXException;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
@@ -83,14 +85,18 @@ public class SearchResource {
     @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
     public Response selectXML(@Context UriInfo uriInfo) {
         try {
-
             MultivaluedMap<String, String> queryParameters = uriInfo
                     .getQueryParameters();
             StringBuilder builder = new StringBuilder();
             Set<String> keys = queryParameters.keySet();
             for (String k : keys) {
                 for (String v : queryParameters.get(k)) {
-                    builder.append(k + "=" + URLEncoder.encode(v, "UTF-8"));
+                    if (k.equals("fl")) {
+                        checkFieldSettings(v);
+                    }
+                    String value = URLEncoder.encode(v, "UTF-8");
+                    value = checkHighlightValues(k, value);
+                    builder.append(k + "=" + value);
                     builder.append("&");
                 }
             }
@@ -124,6 +130,35 @@ public class SearchResource {
         }
     }
 
+    private void checkFieldSettings(String value) {
+        List<String> filters = Arrays.asList(KConfiguration.getInstance().getAPISolrFilter());
+        String[] vals = value.split(",");
+        for (String v : vals) {
+            if (filters.contains(v)) throw new BadRequestException("requesting filtering field");
+        }
+    }
+    
+    private String checkHighlightValues(String v, String value) {
+        if (v.equals("hl.fragsize")) {
+            try {
+                int confVal = KConfiguration.getInstance().getConfiguration().getInt("api.search.highlight.defaultfragsize", 20);
+                int maxVal = KConfiguration.getInstance().getConfiguration().getInt("api.search.highlight.maxfragsize", 120);
+                int val = Integer.parseInt(value);
+                if (val == 0) {
+                    val = confVal;
+                } else if (val > maxVal) {
+                    val = confVal;
+                }
+                return ""+val;
+            } catch (NumberFormatException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                return value;
+            }
+        } else {
+            return value;
+        }
+    }
+
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response selectJSON(@Context UriInfo uriInfo) {
@@ -135,7 +170,12 @@ public class SearchResource {
             Set<String> keys = queryParameters.keySet();
             for (String k : keys) {
                 for (String v : queryParameters.get(k)) {
-                    builder.append(k + "=" + URLEncoder.encode(v, "UTF-8"));
+                    if (k.equals("fl")) {
+                        checkFieldSettings(v);
+                    }
+                    String value = URLEncoder.encode(v, "UTF-8");
+                    value = checkHighlightValues(k, value);
+                    builder.append(k + "=" + value);
                     builder.append("&");
                 }
             }
@@ -152,7 +192,8 @@ public class SearchResource {
             
             return Response.ok().entity(jsonObject.toString()).build();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 

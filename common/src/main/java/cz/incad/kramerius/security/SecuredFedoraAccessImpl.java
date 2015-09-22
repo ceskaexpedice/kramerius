@@ -37,6 +37,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
@@ -208,6 +209,14 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
                 || FedoraUtils.MP3_STREAM.equals(streamName)
                 || FedoraUtils.WAV_STREAM.equals(streamName)
                 || FedoraUtils.OGG_STREAM.equals(streamName);
+    }
+
+    
+    
+    @Override
+    public void observeStreamHeaders(String pid, String datastreamName,
+            StreamHeadersObserver streamObserver) throws IOException {
+        this.rawAccess.observeStreamHeaders(pid, datastreamName, streamObserver);
     }
 
     @Override

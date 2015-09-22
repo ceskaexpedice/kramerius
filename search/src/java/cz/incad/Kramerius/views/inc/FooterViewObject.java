@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Level;
 
-import cz.incad.Kramerius.Initializable;
+import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.utils.IOUtils;
 
 /**

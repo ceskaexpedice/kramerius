@@ -56,10 +56,11 @@ public class SolrRightsFlag extends AbstractItemDecorator {
                 if (indexDoc == null) {
                     indexDoc = this.solrMemo.askForIndexDocument(pid);
                 }
-                
-                String dostupnost = SOLRUtils.value(indexDoc, "dostupnost", String.class);
-                if (dostupnost != null) {
-                    jsonObject.put("policy", dostupnost);
+                if (indexDoc != null) {
+                    String dostupnost = SOLRUtils.value(indexDoc, "dostupnost", String.class);
+                    if (dostupnost != null) {
+                        jsonObject.put("policy", dostupnost);
+                    }
                 }
                 
             } catch (IOException e) {

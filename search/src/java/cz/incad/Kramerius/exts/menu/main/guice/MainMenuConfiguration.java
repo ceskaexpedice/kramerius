@@ -34,6 +34,7 @@ import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ImportMonographs;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ImportPeriodicals;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MetadataEditor;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MovingWallProcess;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.NDKMetsImport;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedConvert;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedImport;
@@ -86,6 +87,7 @@ public class MainMenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(CriteriaEditor.class);
         adminItems.addBinding().to(VirtualCollectionsAdministration.class);
         adminItems.addBinding().to(MetadataEditor.class);
+        adminItems.addBinding().to(MovingWallProcess.class);
 
 
         adminItems.addBinding().to(Enumerator.class);

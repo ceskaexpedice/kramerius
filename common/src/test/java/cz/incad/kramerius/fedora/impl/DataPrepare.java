@@ -18,6 +18,7 @@ package cz.incad.kramerius.fedora.impl;
 
 import static org.easymock.EasyMock.expect;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -163,6 +164,12 @@ public class DataPrepare {
             relsExt(fa, pid);
         }        
     }
+    public static void narodniListyImgFull(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
+        for (int i = 0; i < NARODNI_LISTY.length; i++) {
+            String pid = NARODNI_LISTY[i];
+            imgFull(fa, pid);
+        }        
+    }
 
     public static void drobnustkyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
         for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
@@ -181,6 +188,17 @@ public class DataPrepare {
         expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true)).anyTimes();
     }
 
+    public static void imgFull(FedoraAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
+        PIDParser pidParser = new PIDParser(pid);
+        pidParser.objectPid();
+        String objectId = pidParser.getObjectId();
+        
+        String path = "/cz/incad/kramerius/fedora/res/"+objectId+".jpg";
+        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
+        byte[] bytes = IOUtils.bos(resStream, true);
+        expect(fa.getImageFULL(pid)).andReturn(new ByteArrayInputStream(bytes)).anyTimes();
+    }
+
     public static void narodniListyIMGFULL(FedoraAccess fa) throws IOException, LexerException {
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
             String pid = NARODNI_LISTY[i];
@@ -193,6 +211,56 @@ public class DataPrepare {
             } else {
                 expect(fa.isImageFULLAvailable(NARODNI_LISTY[i])).andReturn(false).anyTimes();
                 
+            }
+        }
+        
+    }
+
+    public static void narodniListyIMGFULLMimeType(FedoraAccess fa) throws IOException, LexerException {
+        for (int i = 0; i < NARODNI_LISTY.length; i++) {
+            String pid = NARODNI_LISTY[i];
+            String model = MODELS_MAPPING.get(pid);
+            PIDParser parser = new PIDParser(model);
+            parser.disseminationURI();
+            String objectId = parser.getObjectId();
+            if (objectId.equals("page")) {
+                expect(fa.getMimeTypeForStream(NARODNI_LISTY[i], "IMG_FULL")).andReturn("image/jpeg").anyTimes();
+                
+            }
+        }
+    }
+
+    public static void narodniListyIMGFULLData(FedoraAccess fa) throws IOException, LexerException {
+        for (int i = 0; i < NARODNI_LISTY.length; i++) {
+            String pid = NARODNI_LISTY[i];
+            String model = MODELS_MAPPING.get(pid);
+            PIDParser parser = new PIDParser(model);
+            parser.disseminationURI();
+            String objectId = parser.getObjectId();
+            if (objectId.equals("page")) {
+                expect(fa.getMimeTypeForStream(NARODNI_LISTY[i], "IMG_FULL")).andReturn("image/jpeg").anyTimes();
+                
+            }
+        }
+    }
+
+    public static void main(String[] args) throws LexerException, IOException {
+        downloadNarodniListy();
+    }
+    public static void downloadNarodniListy() throws LexerException, IOException {
+        String template = "http://kramerius.mzk.cz/search/img?uuid=%s&stream=IMG_PREVIEW&action=GETRAW";
+        for (int i = 0; i < NARODNI_LISTY.length; i++) {
+            String pid = NARODNI_LISTY[i];
+            String model = MODELS_MAPPING.get(pid);
+            PIDParser parser = new PIDParser(model);
+            parser.disseminationURI();
+            String objectId = parser.getObjectId();
+            if (objectId.equals("page")) {
+                URL url = new URL(String.format(template, pid));
+                File file = new File(System.getProperty("user.home")+File.separator+"tmp"+File.separator+pid.substring("uuid:".length())+".jpg");
+                System.out.println("Saving file:"+file.getAbsolutePath());
+                file.createNewFile();
+                IOUtils.saveToFile(url.openStream(), file,true);
             }
         }
         
@@ -297,71 +365,6 @@ public class DataPrepare {
 //    uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6
 
     
-    public static void main(String[] args) throws IOException, LexerException {
-        String[] pids = new String[] {
-                // periodikum - Narodni listy
-                "uuid:ae876087-435d-11dd-b505-00145e5790ea",
-                // volume
-              "uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6",
-
-              // item - cisla
-              "uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6",
-              "uuid:983a4660-938d-11dc-913a-000d606f5dc6",
-              "uuid:53255e00-938a-11dc-8b44-000d606f5dc6",
-                 
-                // stranky prvniho cisla
-                "uuid:b38eba10-91f6-11dc-9eec-000d606f5dc6",
-                "uuid:94a3ed60-92d6-11dc-beb4-000d606f5dc6",
-                "uuid:b3987e10-91f6-11dc-96f6-000d606f5dc6",
-                "uuid:94a3ed60-92d6-11dc-93df-000d606f5dc6",
-                "uuid:b3a21b00-91f6-11dc-b8b2-000d606f5dc6",
-                "uuid:94a68570-92d6-11dc-be5a-000d606f5dc6",
-                "uuid:b3ab42c0-91f6-11dc-b83a-000d606f5dc6",
-                "uuid:94a8f670-92d6-11dc-9104-000d606f5dc6",
-                "uuid:b3d89450-91f6-11dc-98d0-000d606f5dc6",
-                "uuid:94b4b640-92d6-11dc-b0a2-000d606f5dc6",
-                "uuid:b3e23140-91f6-11dc-a406-000d606f5dc6",
-                "uuid:94b74e50-92d6-11dc-8465-000d606f5dc6",
-                "uuid:b3ebce30-91f6-11dc-812e-000d606f5dc6",
-                "uuid:94b9bf50-92d6-11dc-82e2-000d606f5dc6",
-                "uuid:b3f2fa20-91f6-11dc-9cd2-000d606f5dc6",
-                "uuid:94bbe230-92d6-11dc-924c-000d606f5dc6",
-              
-                
-                "uuid:b3b4dfb0-91f6-11dc-8f6a-000d606f5dc6",
-                "uuid:94ab8e80-92d6-11dc-8d2c-000d606f5dc6",
-                "uuid:b3bc0ba0-91f6-11dc-b29a-000d606f5dc6",
-                "uuid:94ad8a50-92d6-11dc-96c7-000d606f5dc6",
-                "uuid:b3c5a890-91f6-11dc-aaef-000d606f5dc6",
-                "uuid:94b02260-92d6-11dc-be98-000d606f5dc6",
-                "uuid:b3cf6c90-91f6-11dc-93a2-000d606f5dc6",
-                "uuid:94b2ba70-92d6-11dc-a884-000d606f5dc6",
-                
-                
-                "uuid:b4204bb0-91f6-11dc-8258-000d606f5dc6",
-                "uuid:94ccab10-92d6-11dc-b58e-000d606f5dc6",
-                "uuid:b4297370-91f6-11dc-878b-000d606f5dc6",
-                "uuid:94cf1c10-92d6-11dc-bb1b-000d606f5dc6",
-                "uuid:b4307850-91f6-11dc-9b9d-000d606f5dc6",
-                "uuid:94d1b420-92d6-11dc-8e76-000d606f5dc6",
-        };
-        for (int i = 0; i < pids.length; i++) {
-            String pid = pids[i];
-            URL url = new URL("http://vmkramerius:8080/fedora/objects/"+pid+"/datastreams/RELS-EXT/content");
-            InputStream stream = url.openConnection().getInputStream();
-            PIDParser pidParser = new PIDParser(pid);
-            pidParser.objectPid();
-            
-            File file = new File(pidParser.getObjectId()+".xml");
-            file.createNewFile();
-            FileOutputStream fos = new FileOutputStream(file);
-
-            IOUtils.copyStreams(stream, fos);
-            
-            fos.close();
-        }
-
-    }
 
     
     public static Map<String, String> MODELS_MAPPING = new HashMap<String, String>();

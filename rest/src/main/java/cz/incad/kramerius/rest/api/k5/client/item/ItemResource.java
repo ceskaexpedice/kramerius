@@ -2,7 +2,12 @@ package cz.incad.kramerius.rest.api.k5.client.item;
 
 import com.google.inject.*;
 import com.google.inject.name.*;
+
 import cz.incad.kramerius.*;
+import cz.incad.kramerius.audio.AudioFormat;
+import cz.incad.kramerius.audio.AudioStreamForwardUtils;
+import cz.incad.kramerius.audio.AudioStreamId;
+import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.rest.api.exceptions.*;
 import cz.incad.kramerius.rest.api.k5.client.*;
 import cz.incad.kramerius.rest.api.k5.client.item.exceptions.*;
@@ -13,14 +18,16 @@ import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.service.*;
 import cz.incad.kramerius.service.replication.*;
 import cz.incad.kramerius.utils.*;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.pid.*;
 import net.sf.json.*;
+
 import org.w3c.dom.*;
 
 import javax.servlet.http.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -47,7 +54,10 @@ public class ItemResource {
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
-
+    
+    @Inject
+    Provider<HttpServletResponse> responseProvider;
+    
     @Inject
     JSONDecoratorsAggregate decoratorsAggregate;
 
@@ -60,6 +70,14 @@ public class ItemResource {
 
     @Inject
     ReplicationService replicationService;
+
+    @Inject
+    Provider<User> userProvider;
+
+    // only for audio streams
+    @Inject
+    RepositoryUrlManager urlManager;
+
     
     @GET
     @Path("{pid}/foxml")
@@ -96,6 +114,80 @@ public class ItemResource {
             throw new PIDNotFound("cannot foxml for  " + pid);
         }
     }
+
+
+    @HEAD
+    @Path("{pid}/streams/{dsid}")
+    public Response streamHead(@PathParam("pid") String pid,
+            @PathParam("dsid") String dsid) {
+        checkPid(pid);
+        try {
+            checkPid(pid);
+            if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
+                if (!PIDSupport.isComposedPID(pid)) {
+
+                    // audio streams - bacause of support rage in headers
+                    if (FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
+                        String mimeTypeForStream = this.fedoraAccess
+                                .getMimeTypeForStream(pid, dsid);
+
+                        ResponseBuilder responseBuilder = Response.ok();
+                        responseBuilder = responseBuilder.type(mimeTypeForStream);
+
+                        HttpServletRequest request = this.requestProvider.get();
+                        User user = this.userProvider.get();
+
+                        AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
+                        ResponseBuilder builder = AudioStreamForwardUtils.HEAD(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
+                        return builder.build();
+                        
+                    } else {
+                        String mimeTypeForStream = this.fedoraAccess
+                                .getMimeTypeForStream(pid, dsid);
+
+                        class _StreamHeadersObserver implements StreamHeadersObserver {
+                            ResponseBuilder respBuilder = null;
+                            @Override
+                            public void observeHeaderFields(int statusCode,
+                                    Map<String, List<String>> headerFields) {
+                                respBuilder = Response.status(statusCode);
+                                Set<String> keys = headerFields.keySet();
+                                for (String k : keys) {
+                                    List<String> vals = headerFields.get(k);
+                                    for (String val : vals) {
+                                        respBuilder.header(k, val);
+                                    }
+                                }
+                            }
+
+                            public ResponseBuilder getBuider() {
+                                return this.respBuilder;
+                            }
+                        }
+                        
+                        _StreamHeadersObserver observer = new _StreamHeadersObserver();
+                        this.fedoraAccess.observeStreamHeaders(pid, dsid,observer);
+
+                        if (observer.getBuider() != null) {
+                            return observer.getBuider().type(mimeTypeForStream).build();
+                        } else {
+                            return Response.ok().type(mimeTypeForStream)
+                                    .build();
+                        }
+                    }
+                } else
+                    throw new PIDNotFound("cannot find stream " + dsid);
+            } else {
+                throw new PIDNotFound("cannot find stream " + dsid);
+            }
+        } catch (IOException e) {
+            throw new PIDNotFound(e.getMessage());
+        } catch (SecurityException e) {
+            throw new ActionNotAllowed(e.getMessage());
+        }
+        
+        
+    }    
     
     @GET
     @Path("{pid}/streams/{dsid}")
@@ -105,22 +197,39 @@ public class ItemResource {
             checkPid(pid);
             if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
                 if (!PIDSupport.isComposedPID(pid)) {
-                    final InputStream is = this.fedoraAccess.getDataStream(pid,
-                            dsid);
-                    String mimeTypeForStream = this.fedoraAccess
-                            .getMimeTypeForStream(pid, dsid);
-                    StreamingOutput stream = new StreamingOutput() {
-                        public void write(OutputStream output)
-                                throws IOException, WebApplicationException {
-                            try {
-                                IOUtils.copyStreams(is, output);
-                            } catch (Exception e) {
-                                throw new WebApplicationException(e);
+
+                    // audio streams - bacause of support rage in headers
+                    if (FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
+                        String mimeTypeForStream = this.fedoraAccess
+                                .getMimeTypeForStream(pid, dsid);
+
+                        ResponseBuilder responseBuilder = Response.ok();
+                        responseBuilder = responseBuilder.type(mimeTypeForStream);
+
+                        HttpServletRequest request = this.requestProvider.get();
+                        User user = this.userProvider.get();
+                        AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
+                        ResponseBuilder builder = AudioStreamForwardUtils.GET(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
+                        return builder.build();
+                        
+                    } else {
+                        final InputStream is = this.fedoraAccess.getDataStream(pid,
+                                dsid);
+                        String mimeTypeForStream = this.fedoraAccess
+                                .getMimeTypeForStream(pid, dsid);
+                        StreamingOutput stream = new StreamingOutput() {
+                            public void write(OutputStream output)
+                                    throws IOException, WebApplicationException {
+                                try {
+                                    IOUtils.copyStreams(is, output);
+                                } catch (Exception e) {
+                                    throw new WebApplicationException(e);
+                                }
                             }
-                        }
-                    };
-                    return Response.ok().entity(stream).type(mimeTypeForStream)
-                            .build();
+                        };
+                        return Response.ok().entity(stream).type(mimeTypeForStream)
+                                .build();
+                    }
                 } else
                     throw new PIDNotFound("cannot find stream " + dsid);
             } else {

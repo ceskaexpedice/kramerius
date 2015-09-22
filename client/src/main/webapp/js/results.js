@@ -26,7 +26,9 @@ K5.eventsHandler.addHandler(function(type, configuration) {
 });
 
 var Results = function(elem) {
+    
     this.elem = elem;
+    this.displayStyle = "display";
     this._init();
 };
 
@@ -35,13 +37,17 @@ Results.prototype = {
         if (this.resultsLoaded)
             return;
         this.addContextButtons();
-        $("#search_results").resize(_.bind(function() {
-            this.srResize();
+        
+        K5.eventsHandler.addHandler(_.bind(function(type, data) {
+            if (type === "window/resized") {
+                this.srResize();
+            }
         }, this));
+
         this.getDocs();
-        var hash = window.location.hash;
-        if (hash.length > 1) {
-            if (hash.substring(1) === "asrow")
+        var hash = hashParser();
+        if (hash.hasOwnProperty(this.displayStyle) > 1) {
+            if (hash[this.displayStyle] === "asrow")
                 this.setRowStyle();
         }
         this.touchStart = 0;
@@ -145,15 +151,19 @@ Results.prototype = {
     srResize: function() {
         var h = window.innerHeight - $('#header').height() - $('#footer').height();
         $('#search_results').css('height', h);
-        $('#search_results_docs').css('height', h - $('#search_results_header').height() - 5);
+        var h2 = h - $('#search_results_header').height() - 5;
+        $('#search_results_docs').css('height', h2);
+        $('#facets').css('height', h2 - 30); //30 = 2x15 padding 
     },
     setRowStyle: function() {
-        $('.search_result').addClass('as_row');
-        $('.as_row>div.thumb>div.info').each(function() {
+        $('#search_results').addClass('as_row');
+        $('.as_row>.search_result>div.thumb>div.info').each(function() {
             var w = $(this).parent().width() - $(this).prev().width() - 20;
             $(this).css('width', w);
         });
-        window.location.hash = "asrow";
+        var hash = hashParser();
+        hash[this.displayStyle] = "asrow";
+        window.location.hash = jsonToHash(hash);
     },
     setHeader: function(numFound) {
         var key = 'common.title.plural_2';
@@ -169,9 +179,12 @@ Results.prototype = {
         $("#search_results_header>div.totals>span.total").text(numFound);
     },
     setThumbsStyle: function() {
-        $('.search_result').removeClass('as_row');
+        $('#search_results').removeClass('as_row');
         $('.search_result>div.thumb>div.info').css('width', '');
-        window.location.hash = "asthumb";
+        
+        var hash = hashParser();
+        hash[this.displayStyle] = "asthumb";
+        window.location.hash = jsonToHash(hash);
     }
 };
 
@@ -253,11 +266,9 @@ Result.prototype = {
         var modeltag;
         if ((this.collapsed && this.collapsed > 1)) {
             linkpid = doc['root_pid'];
-            var key = 'common.documents.plural_1';
+            var key = 'common.hits.plural_1';
             if (this.collapsed > 4) {
-                key = 'common.documents.plural_2';
-            } else {
-                key = 'common.documents.plural_1';
+                key = 'common.hits.plural_2';
             }
             var tx = K5.i18n.translatable(key);
             modeltag = '<div class="collapsed">' + this.collapsed + ' ' + tx + ' ' + K5.i18n.translatable('model.locativ.' + typtitulu) + '</div>';
@@ -328,7 +339,10 @@ Result.prototype = {
 
 
         thumb.click(function() {
-            K5.api.gotoDisplayingItemPage(linkpid, $("#q").val());
+            var hash = hashParser();
+            hash.pid = linkpid;
+            //hash.pmodel = typtitulu;
+            K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
         });
 
     },

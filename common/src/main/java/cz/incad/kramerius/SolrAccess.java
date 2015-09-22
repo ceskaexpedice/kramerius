@@ -18,6 +18,7 @@ package cz.incad.kramerius;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 
@@ -74,7 +75,25 @@ public interface SolrAccess {
      */
     public ObjectModelsPath[] getPathOfModels(String pid) throws IOException;
 
+    /**
+     * Wrapper allows to return ObjectPidPaths and ObjectModelsPath in one response
+     * Example:
+     * <pre>
+     * <code>
+     *  Map<String,Object> solrData = getObjects("uuid:xxx");
+     *
+     *  ObjectModelsPath[] objectsPaths = (ObjectModelsPath[])solrData.get(ObjectModelsPath.class.getName());
+     *  ObjectPidsPath[] objectsPaths = (ObjectPidsPath[])solrData.get(ObjectPidsPath.class.getName());
+     *  
+     * </code>
+     * </pre>
+     * @param pid Requesting pid
+     * @return
+     * @throws IOException
+     */
+    public Map<String, AbstractObjectPath[]> getPaths(String pid) throws IOException;
 
+    
     public Document request(String req) throws IOException;
     
     public InputStream request(String req, String type) throws IOException;

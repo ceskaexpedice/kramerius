@@ -1,3 +1,5 @@
+/* global K5, _ */
+
 K5.eventsHandler.addHandler(function(type, configuration) {
     if (type === "results/loaded") {
         if(!K5.gui["facets"]){
@@ -17,12 +19,15 @@ Facets.prototype = {
         this.addContextButtons();
         var facets = this.data.facet_counts.facet_fields;
         this.render($("#facets>div.unused"), facets);
-        $("#facets div.used>a.res").click(_.partial(function(facets, event) {
+        $("#facets div.used").click(_.partial(function(facets, event) {
             event.preventDefault();
             var val = $(this).data("key");
             var facet = $(this).data("facet");
             facets.removeFilter(facet, val);
         }, this));
+        
+        K5.i18n.k5translate("div.used");
+        
         this.show(1000);
     },
     addContextButtons: function() {
@@ -30,14 +35,17 @@ Facets.prototype = {
         $("#contextbuttons").append(text);
     },
     addFilter: function(facet, val) {
-        //window.location.href = window.location.search + "&" + facet + "=" + val;
-        var input = $("<input>", {type: "hidden", value: val, name: facet});
+        var input = $("<input>", {type: "hidden", value: val, name: facet, class: "facet"});
         $("#search_form").append(input);
         $("#start").val("0");
         $("#search_form").submit();
     },
     removeFilter: function(facet, val) {
         $("input[name='" + facet + "']").remove();
+        $("#search_form").submit();
+    },
+    removeAllFilters: function() {
+        $("#search_form input.facet").remove();
         $("#search_form").submit();
     },
     hide: function() {

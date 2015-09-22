@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -174,12 +175,19 @@ public class XMLUtils {
             if (curElm.getNodeName().equals(nodeName)) {
                 return curElm;
             }
+            List<Node> nodesToProcess = new ArrayList<Node>();
+
             NodeList childNodes = curElm.getChildNodes();
             for (int i = 0, ll = childNodes.getLength(); i < ll; i++) {
                 Node item = childNodes.item(i);
                 if (item.getNodeType() == Node.ELEMENT_NODE) {
-                    stack.push((Element) item);
+                    //stack.push((Element) item);
+                    nodesToProcess.add(item);
                 }
+            }
+            Collections.reverse(nodesToProcess);
+            for (Node node : nodesToProcess) {
+                stack.push((Element) node);
             }
         }
         return null;
@@ -200,16 +208,24 @@ public class XMLUtils {
             if ((curElm.getLocalName().equals(localName)) && (namespacesAreSame(curElm.getNamespaceURI(), namespace))) {
                 return curElm;
             }
+            List<Node> nodesToProcess = new ArrayList<Node>();
             NodeList childNodes = curElm.getChildNodes();
             for (int i = 0, ll = childNodes.getLength(); i < ll; i++) {
                 Node item = childNodes.item(i);
                 if (item.getNodeType() == Node.ELEMENT_NODE) {
-                    stack.push((Element) item);
+                    nodesToProcess.add(item);
                 }
+            }
+            // because of stack
+            Collections.reverse(nodesToProcess);
+            for (Node node : nodesToProcess) {
+                stack.push((Element) node);
+                
             }
         }
         return null;
     }
+
 
     
     public static Element findElement(Element topElm, ElementsFilter filter) {
@@ -220,12 +236,19 @@ public class XMLUtils {
             if (filter.acceptElement(curElm)) {
                 return curElm;
             }
+
+            List<Node> nodesToProcess = new ArrayList<Node>();
             NodeList childNodes = curElm.getChildNodes();
             for (int i = 0, ll = childNodes.getLength(); i < ll; i++) {
                 Node item = childNodes.item(i);
                 if (item.getNodeType() == Node.ELEMENT_NODE) {
-                    stack.push((Element) item);
+                    //stack.push((Element) item);
+                    nodesToProcess.add(item);
                 }
+            }
+            Collections.reverse(nodesToProcess);
+            for (Node node : nodesToProcess) {
+                stack.push((Element)node);
             }
         }
         return null;

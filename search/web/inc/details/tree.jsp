@@ -389,6 +389,7 @@
         
         function renderNode(id, d){
             if(d.length>0){
+                $(jq(id)+">ul").remove();
                 $(jq(id)).append(d);
                 if($(jq(id)+">ul").html()==null || $(jq(id)+">ul").html().trim().length==0){
                     $(jq(id)+">ul").hide();

@@ -245,8 +245,15 @@ public class ExtendedFields {
             root_title = root_title_cache.get(root_pid);
         } else {
             Document doc = fa.getDC(root_pid);
-            root_title = StringEscapeUtils.escapeXml(DCUtils.titleFromDC(doc));
-            root_title_cache.put(root_pid, root_title);
+//            root_title = StringEscapeUtils.escapeXml(DCUtils.titleFromDC(doc));
+//            root_title_cache.put(root_pid, root_title);
+            xPathStr = "//dc:title/text()";
+            expr = xpath.compile(xPathStr);
+            Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
+            if (node != null) {
+                root_title = StringEscapeUtils.escapeXml(node.getNodeValue());
+                root_title_cache.put(root_pid, root_title);
+            }
         }
     }
 
@@ -314,6 +321,8 @@ public class ExtendedFields {
             } else if (datumStr.matches("\\d\\d--")) {  //Datum muze byt typu 18--
                 datum_begin = datumStr.substring(0, 2) + "00";
                 datum_end = datumStr.substring(0, 2) + "99";
+            } else if (datumStr.matches("\\d\\d-\\d\\d\\.\\d\\d\\d\\d")) {  //Datum muze byt typu 11-12.1946
+                rok = datumStr.split("\\.")[1].trim();
             } else if (datumStr.matches("\\d\\d\\.-\\d\\d\\.\\d\\d\\.\\d\\d\\d\\d")) {  //Datum muze byt typu 19.-20.03.1890
                 
                 String end = datumStr.split("-")[1].trim();

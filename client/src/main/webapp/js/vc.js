@@ -12,7 +12,7 @@ var VirtualCollections = function(application) {
 
             this.resizediv();
 
-            $("#rows").bind("wresize", function() {
+            $("#yearRows").bind("wresize", function() {
                 K5.gui.vc.resizediv();
             });
 
@@ -38,7 +38,7 @@ VirtualCollections.prototype = {
 
         /** check wheather html contains necessary elements */
         check: function() {
-                var expecting = ["#rows", "#foot"];                
+                var expecting = ["#yearRows", "#foot"];                
                 $.each(expecting,_.bind(function(index,value) {
                         var size = $(value).size();
                         if (size <= 0)  {
@@ -51,17 +51,17 @@ VirtualCollections.prototype = {
         init: function() {
                 {
                         this.ctx.elements["scroll"] =  $('<div/>', {class: 'scroll'});
-                        $("#rows").append(this.ctx.elements["scroll"]);
+                        $("#yearRows").append(this.ctx.elements["scroll"]);
 
                         this.ctx.elements["topArrow"] = $('<div>', {class: 'medium button'});
                         this.ctx.elements["topArrow"].css({left: 3});
                         this.ctx.elements["topArrow"].load("svg.vm?svg=arrowtop");
-                        $("#rows").append(this.ctx.elements["topArrow"]);
+                        $("#yearRows").append(this.ctx.elements["topArrow"]);
 
                         this.ctx.elements["bottomArrow"] = $('<div>', {class: 'medium button'});
                         this.ctx.elements["bottomArrow"].css({"top": "initial", bottom: 36, left: 3});
                         this.ctx.elements["bottomArrow"].load("svg.vm?svg=arrowbottom");
-                        $("#rows").append(this.ctx.elements["bottomArrow"]);
+                        $("#yearRows").append(this.ctx.elements["bottomArrow"]);
                 }
 
                 // top arrow click
@@ -81,7 +81,6 @@ VirtualCollections.prototype = {
                     $.each(K5.api.ctx.vc, _.bind(function(item) {
                         var div = $('<div>', {class: 'row'});
                         this.ctx.elements.scroll.append(div);
-                        console.log("creating new virtual collection object "+item);
                         this.addVc(item, div);
                     },this));
 	        } else {
@@ -93,7 +92,7 @@ VirtualCollections.prototype = {
 
         doScroll: function(dx){
                 var speed = 500;
-                var finalPos = dx * 0.8 * $("#rows").height() +  this.ctx.elements.scroll.scrollTop();
+                var finalPos = dx * 0.8 * $("#yearRows").height() +  this.ctx.elements.scroll.scrollTop();
                 this.ctx.elements.scroll.animate({scrollTop:finalPos}, speed);
                 this.checkArrows();
         },
@@ -135,7 +134,7 @@ VirtualCollections.prototype = {
                     h = $(document).height();
                 }
                 if(console) console.log("height =="+$('#footer').offset().top);
-                $('#rows').css('height', $('#footer').offset().top - $('#header').height());
+                $('#yearRows').css('height', $('#footer').offset().top - $('#header').height());
         },
 
         /** append element wich can be localided */    
@@ -205,7 +204,9 @@ VirtualCollection.prototype = {
 
         this.titleBand = $('<div>', {class: 'rowtitle'});
         this.$elem.append(this.titleBand);
-        this.titleBand.append(vctranslatable(this.pid, K5.api.ctx.vc, K5.i18n.ctx.language));
+        //this.titleBand.append(vctranslatable(this.pid, K5.api.ctx.vc, K5.i18n.ctx.language));
+        this.titleBand.append(K5.i18n.translatable(this.pid));
+        
 
         var obj = this;
         this.titleBand.click(function() {
@@ -297,6 +298,10 @@ VirtualCollection.prototype = {
     },
     render: function() {
         var docs = this.docs.docs;
+        if(docs.length === 0){
+            this.$elem.hide();
+            return;
+        }
         for (var i = 0; i < docs.length; i++) {
             var pid = docs[i]["PID"];
             var imgsrc = "api/item/" + pid + "/thumb";// + this.thumbHeight;
@@ -306,14 +311,15 @@ VirtualCollection.prototype = {
             var shortTitle = title;
             var creator = "";
             var maxLength = 90;
+            var showTooltip = false;
             if (shortTitle.length > maxLength) {
                 shortTitle = shortTitle.substring(0, maxLength) + "...";
+                showTooltip = true;
             }
             if (docs[i]["dc.creator"]) {
                 creator = '<div class="autor">' + docs[i]["dc.creator"] + '</div>';
             }
             title = '<div class="title">' + title + '</div>';
-            thumb.attr("title", title + creator);
             thumb.data("pid", pid);
             this.container.append(thumb);
             var policy = $('<div/>', {class: 'policy'});
@@ -322,10 +328,13 @@ VirtualCollection.prototype = {
             }
             thumb.append(policy);
 
-            thumb.tooltip({
-                content: title + creator,
-                position: {my: "left bottom-10", at: "right-100 bottom"}
-            });
+            if(showTooltip){
+                thumb.attr("title", title + creator);
+                thumb.tooltip({
+                    content: title + creator,
+                    position: {my: "left bottom-10", at: "right-100 bottom"}
+                });
+            }
             thumb.click(function() {
                 K5.api.gotoDisplayingItemPage($(this).data('pid'));
             });

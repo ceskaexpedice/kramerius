@@ -38,7 +38,7 @@ public class FeederSolrAuthorDecorate extends AbstractFeederDecorator {
                 doc = this.memo.askForIndexDocument(pid);
             }
             if (doc != null) {
-                List<String> authors = SOLRUtils.array(doc, "dc.creator", String.class);
+                List<String> authors = SOLRUtils.narray(doc, "dc.creator", String.class);
                 if (authors != null && !authors.isEmpty()) {
                     jsonObject.put("author", authors);
                 }

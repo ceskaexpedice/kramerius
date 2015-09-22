@@ -25,15 +25,19 @@ public class Image extends AbstractITextCommand implements ITextCommand {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Image.class.getName());
     
     private String pid;
+    private String file;
     
     @Override
     public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
         if (elm.getNodeName().equals("image")) {
+            String file = elm.getAttribute("file");
             String pid = elm.getAttribute("pid");
             if ((pid != null) && (!pid.equals(""))) {
                 this.pid = pid;
+            } else if ((file != null) && (!file.equals(""))) {
+                this.file = file;
             } else {
-                LOGGER.log(Level.WARNING, "cannot load image component. No pid "); 
+                LOGGER.log(Level.WARNING, "cannot load image component. No pid, no file "); 
             }
         } else {
            LOGGER.log(Level.WARNING, "cannot load image component. No image elm."); 
@@ -50,7 +54,9 @@ public class Image extends AbstractITextCommand implements ITextCommand {
     }
 
 
-
+    public String getFile() {
+        return this.file;
+    }
 
     public String getPid() {
         return pid;

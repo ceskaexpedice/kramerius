@@ -42,6 +42,7 @@ import cz.incad.Kramerius.security.userscommands.get.NewRoleHtml;
 import cz.incad.Kramerius.security.userscommands.get.PublicUserActivation;
 import cz.incad.Kramerius.security.userscommands.get.ShowRolesHtml;
 import cz.incad.Kramerius.security.userscommands.get.UsersJSAutocomplete;
+import cz.incad.Kramerius.security.userscommands.get.ValidationUserName;
 import cz.incad.Kramerius.security.userscommands.post.CreateRole;
 import cz.incad.Kramerius.security.userscommands.post.DeleteRole;
 import cz.incad.Kramerius.security.userscommands.post.RegisterPublicUser;
@@ -166,7 +167,8 @@ public class UsersServlet extends GuiceServlet {
 //        hintallgroups(HintAllGroupsTable.class),
 //        /** zobrazeni prav */
 //        userjsautocomplete(UsersJSAutocomplete.class),
-        
+
+        validUserName(ValidationUserName.class),
         activation(PublicUserActivation.class);
 
         private Class<? extends ServletCommand> commandClass;

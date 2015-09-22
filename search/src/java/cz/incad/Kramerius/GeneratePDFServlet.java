@@ -39,9 +39,11 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
-import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.pdf.OutOfRangeException;
+import cz.incad.kramerius.pdf.SimplePDFService;
 import cz.incad.kramerius.pdf.impl.ImageFetcher;
 import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
@@ -66,9 +68,9 @@ public class GeneratePDFServlet extends GuiceServlet {
     public static final String HOW_MANY = "howMany";
     public static final String PATH = "path";
 
-    @Inject
-    GeneratePDFService service;
-
+    @Inject 
+    SimplePDFService simplePDFService;
+    
     @Inject
     @Named("TEXT")
     FirstPagePDFService textFirstPage;
@@ -108,31 +110,34 @@ public class GeneratePDFServlet extends GuiceServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException {
         boolean acquired = false;
-        try {
-            acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
-            if (acquired) {
-                try {
-                    renderPDF(req, resp);
-                } catch (MalformedURLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                } catch (ProcessSubtreeException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            } else {
-                try {
-                    LOGGER.fine("sending error to client");
-                    renderErrorServerBusy(req, resp);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            }
-
-        } finally {
-            if (acquired)
-                PDFExlusiveGenerateSupport.PDF_SEMAPHORE.release();
-        }
+//        try {
+//            
+//            this.getServletContext().getNamedDispatcher("").forward(req, resp);
+//            
+//            acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
+//            if (acquired) {
+//                try {
+//                    renderPDF(req, resp);
+//                } catch (MalformedURLException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                } catch (IOException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                } catch (ProcessSubtreeException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                }
+//            } else {
+//                try {
+//                    LOGGER.fine("sending error to client");
+//                    renderErrorServerBusy(req, resp);
+//                } catch (IOException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                }
+//            }
+//
+//        } finally {
+//            if (acquired)
+//                PDFExlusiveGenerateSupport.PDF_SEMAPHORE.release();
+//        }
     }
 
     static void renderGenericError(HttpServletRequest req,
@@ -170,40 +175,40 @@ public class GeneratePDFServlet extends GuiceServlet {
 
     public void renderPDF(HttpServletRequest req, HttpServletResponse resp)
             throws MalformedURLException, IOException, ProcessSubtreeException {
-        try {
-            String imgServletUrl = ApplicationURL.applicationURL(req) + "/img";
-            if ((configuration.getApplicationURL() != null)
-                    && (!configuration.getApplicationURL().equals(""))) {
-                imgServletUrl = configuration.getApplicationURL() + "img";
-            }
-            String i18nUrl = ApplicationURL.applicationURL(req) + "/i18n";
-            if ((configuration.getApplicationURL() != null)
-                    && (!configuration.getApplicationURL().equals(""))) {
-                i18nUrl = configuration.getApplicationURL() + "i18n";
-            }
-
-            String action = req.getParameter("action");
-            String imagesOnly = req.getParameter("firstpageType");
-
-            FirstPage fp = (imagesOnly != null && (!imagesOnly.trim()
-                    .equals(""))) ? FirstPage.valueOf(imagesOnly)
-                    : FirstPage.TEXT;
-            if (fp == FirstPage.IMAGES) {
-                Action.valueOf(action).renderPDF(req, resp,
-                        this.imageFirstPage, this.service, this.solrAccess,
-                        this.documentService, "", imgServletUrl, i18nUrl);
-            } else {
-                Action.valueOf(action).renderPDF(req, resp, this.textFirstPage,
-                        this.service, this.solrAccess, this.documentService,
-                        "", imgServletUrl, i18nUrl);
-            }
-        } catch (Exception e) {
-            try {
-                renderGenericError(req, resp);
-            } catch (ServletException e1) {
-                LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-            }
-        }
+//        try {
+//            String imgServletUrl = ApplicationURL.applicationURL(req) + "/img";
+//            if ((configuration.getApplicationURL() != null)
+//                    && (!configuration.getApplicationURL().equals(""))) {
+//                imgServletUrl = configuration.getApplicationURL() + "img";
+//            }
+//            String i18nUrl = ApplicationURL.applicationURL(req) + "/i18n";
+//            if ((configuration.getApplicationURL() != null)
+//                    && (!configuration.getApplicationURL().equals(""))) {
+//                i18nUrl = configuration.getApplicationURL() + "i18n";
+//            }
+//
+//            String action = req.getParameter("action");
+//            String imagesOnly = req.getParameter("firstpageType");
+//
+//            FirstPage fp = (imagesOnly != null && (!imagesOnly.trim()
+//                    .equals(""))) ? FirstPage.valueOf(imagesOnly)
+//                    : FirstPage.TEXT;
+//            if (fp == FirstPage.IMAGES) {
+//                Action.valueOf(action).renderPDF(req, resp,
+//                        this.imageFirstPage, this.service, this.solrAccess,
+//                        this.documentService, "", imgServletUrl, i18nUrl);
+//            } else {
+//                Action.valueOf(action).renderPDF(req, resp, this.textFirstPage,
+//                        this.service, this.solrAccess, this.documentService,
+//                        "", imgServletUrl, i18nUrl);
+//            }
+//        } catch (Exception e) {
+//            try {
+//                renderGenericError(req, resp);
+//            } catch (ServletException e1) {
+//                LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+//            }
+//        }
     }
 
     public enum FirstPage {
@@ -220,6 +225,8 @@ public class GeneratePDFServlet extends GuiceServlet {
                     GeneratePDFService pdfService, SolrAccess solrAccess,
                     DocumentService documentService, String titlePage,
                     String imgServletUrl, String i18nUrl) {
+
+                
                 List<File> filesToDelete = new ArrayList<File>();
                 FileOutputStream generatedPDFFos = null;
                 try {
@@ -254,7 +261,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 
                         FontMap fMap = new FontMap(pdfService.fontsFolder());
 
-                        AbstractRenderedDocument rdoc = documentService
+                        PreparedDocument rdoc = documentService
                                 .buildDocumentFromSelection((String[]) params
                                         .toArray(new String[params.size()]),
                                         irects);
@@ -262,9 +269,9 @@ public class GeneratePDFServlet extends GuiceServlet {
                                 + (System.currentTimeMillis() - start) + " ms ");
 
                         start = System.currentTimeMillis();
-                        firstPagePDFService.generateFirstPageForSelection(rdoc,
+                        firstPagePDFService.selection(rdoc,
                                 fpageFos, (String[]) params
-                                        .toArray(new String[params.size()]),i18nUrl, fMap);
+                                        .toArray(new String[params.size()]), fMap);
                         LOGGER.fine("generating first page takes "
                                 + (System.currentTimeMillis() - start) + " ms ");
 
@@ -418,7 +425,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                         // request.getParameter(LOGO_FONT), FontMap.BIG_FONT),
                         // request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
 
-                        AbstractRenderedDocument rdoc = documentService
+                        PreparedDocument rdoc = documentService
                                 .buildDocumentAsFlat(path, pid,
                                         Integer.parseInt(howMany), irects);
                         if (rdoc.getPages().isEmpty()) {
@@ -427,8 +434,8 @@ public class GeneratePDFServlet extends GuiceServlet {
                                     irects);
                         }
 
-                        firstPagePDFService.generateFirstPageForParent(rdoc,
-                                fpageFos, path,  i18nUrl, fmap);
+                        firstPagePDFService.parent(rdoc,
+                                fpageFos, path,   fmap);
 
                         pdfService.generateCustomPDF(rdoc, bodyTmpFos, fmap,
                                 imgServletUrl, i18nUrl, ImageFetcher.WEB);
@@ -486,6 +493,24 @@ public class GeneratePDFServlet extends GuiceServlet {
                         LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     }
                 } catch (ServletException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    try {
+                        renderGenericError(request, response);
+                    } catch (ServletException e1) {
+                        LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    } catch (IOException e1) {
+                        LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    }
+                } catch (NumberFormatException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    try {
+                        renderGenericError(request, response);
+                    } catch (ServletException e1) {
+                        LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    } catch (IOException e1) {
+                        LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    }
+                } catch (OutOfRangeException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     try {
                         renderGenericError(request, response);
