@@ -3,6 +3,7 @@
 #parse("html_header.vm")
 <body>
 <div class="small">
+#parse("svg/toggleview.svg")
 #parse("svg/docout.svg")
 #parse("svg/parent.svg")
 
@@ -36,6 +37,7 @@
 
 </div>
 <div class="big" >
+#parse("svg/toggleview.svg")
 #parse("svg/docout.svg")
 #parse("svg/parent.svg")
 #parse("svg/arrowleft.svg")
@@ -72,6 +74,7 @@
 
 </div>
 <div>
+#parse("svg/toggleview.svg")
 #parse("svg/docout.svg")
 #parse("svg/parent.svg")
 #parse("svg/arrowleft.svg")
