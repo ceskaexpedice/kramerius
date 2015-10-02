@@ -495,6 +495,11 @@ ItemSupport.prototype = {
             });
         }
     },
+    toggleView: function(){
+        $("#viewer .thumb img").toggle();
+        $("svg.toggle .line").toggle();
+        $("svg.toggle .img").toggle();
+    },
         
     /**
      * Toggle info panel
