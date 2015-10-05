@@ -55,6 +55,7 @@
                             <xsl:value-of select="$bundle/value[@key='filter.maintitle']"/>
                         </span>:&#160;
                         <span class="value">
+                            <xsl:value-of select="mods:titleInfo/mods:nonSort" />&#160;
                             <xsl:value-of select="mods:titleInfo/mods:title" />
                         </span>
             
