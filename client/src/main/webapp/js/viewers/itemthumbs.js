@@ -123,12 +123,12 @@ ItemThumbs.prototype = {
             this.setLoading(true);
             $("#q").val(q);
             this.hits = {};
-            $('li.hit').each(function() {
-                $(this).tooltip("option", "content", $(this).data("tt"));
-            });
-            $('li.chit').each(function() {
-                $(this).tooltip("option", "content", $(this).data("tt"));
-            });
+//            $('li.hit').each(function() {
+//                $(this).tooltip("option", "content", $(this).data("tt"));
+//            });
+//            $('li.chit').each(function() {
+//                $(this).tooltip("option", "content", $(this).data("tt"));
+//            });
             $('li.thumb').removeClass("hit chit");
             this.getHits();
         }
@@ -201,7 +201,7 @@ ItemThumbs.prototype = {
                     for (var j = 0; j < hl[pid].text_ocr.length; j++) {
                         hltext += '<div class="hl">' + hl[pid].text_ocr[j] + '</div>';
                     }
-                    $(this).tooltip("option", "content", tt + hltext);
+//                    $(this).tooltip("option", "content", tt + hltext);
                     break;
                 } else if (pid_path.indexOf(lipid) > -1) {
                     $(this).addClass('chit');
