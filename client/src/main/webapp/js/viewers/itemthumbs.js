@@ -116,7 +116,7 @@ ItemThumbs.prototype = {
 
     },
     dosearch: function(q) {
-        
+        var q = $("#searchinside_q").val();
         console.log("query is "+q);
         if (q !== null && q !== $("#q").val()) {
             console.log("searching");
