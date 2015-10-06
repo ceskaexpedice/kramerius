@@ -414,7 +414,9 @@ ClientAPIDev.prototype = {
      * @param {requestCallback} okFunc  - Message has been sent callback.
      * @param {requestCallback} failFunc  - Something wrong callback.
      */
-    searchItemAndExploreChildren : function(pid, whenready) {
+    searchItemAndExploreChildren : function(hash, whenready) {
+        var pid =  hash.pid;
+        
         $.getJSON("api/item/" + pid + "/children", _.bind(function(data) {
             if (!this.isKeyReady("item")) {
                 this.ctx["item"] = {};
@@ -424,13 +426,17 @@ ClientAPIDev.prototype = {
             }
             this.ctx["item"][pid]['children'] = data;
             if (data.length == 1) {
-                this.searchItemAndExploreChildren(data[0].pid, whenready);
+                hash.pid = data[0].pid;
+                hash.pmodel = data[0].model;
+                this.searchItemAndExploreChildren(hash, whenready);
             } else {
                 if(data.length>0 && data[0].datanode){
-                    this.searchItemAndExploreChildren(data[0].pid, whenready);
+                    hash.pid = data[0].pid;
+                    this.searchItemAndExploreChildren(hash, whenready);
                 }else{
+                    
                     if (whenready)
-                        whenready.apply(null, [ pid ]);
+                        whenready.apply(null, [hash]);
                 }
             }
         }, this));
@@ -444,9 +450,9 @@ ClientAPIDev.prototype = {
         var hash = hashParser(newhash);
         var pid = hash.pid;
         
-        this.searchItemAndExploreChildren(pid, _.bind(function(data) {
-            hash.pid = data;
-            this.gotoItemPage(jsonToHash(hash), q);
+        this.searchItemAndExploreChildren(hash, _.bind(function(data) {
+            //hash.pid = data;
+            this.gotoItemPage(jsonToHash(data), q);
         }, this));
     },
 
