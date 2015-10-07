@@ -240,7 +240,9 @@ ZoomifyStaticImage.prototype.addContextButtons=  function() {
 
 
 ZoomifyStaticImage.prototype.relativePosition = function() {
-        return $("#map").position();        
+        // return $("#map").position();        
+        return $("#map").offset();
+
 }
 
 ZoomifyStaticImage.prototype.rotateLeft = function() {

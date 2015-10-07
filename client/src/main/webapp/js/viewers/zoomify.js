@@ -326,13 +326,13 @@ Zoomify.prototype.currentPage=function() {
         var x1ideal = mapCenter[0]- (currentSize[0]/2);   
         var y1ideal = mapCenter[1]- (currentSize[1]/2);   
 
-        $('#viewer>div.container').append('<div id="idealcenter" style="border:2px solid red;position:absolute;">');
+        //$('#viewer>div.container').append('<div id="idealcenter" style="border:2px solid red;position:absolute;">');
         //return [x1real, y1real, x2real, y2real];
 
-        $("#idealcenter").css('left',(x1ideal+100)+"px");
-        $("#idealcenter").css('top',(y1ideal+100)+'px');
-        $("#idealcenter").css('width',"200px");
-        $("#idealcenter").css('height',"200px");
+        //$("#idealcenter").css('left',(x1ideal+100)+"px");
+        //$("#idealcenter").css('top',(y1ideal+100)+'px');
+        //$("#idealcenter").css('width',"200px");
+        //$("#idealcenter").css('height',"200px");
 
         
         // realny obrazek na obrazovce
@@ -420,7 +420,8 @@ Zoomify.prototype.fit = function() {
 
 
 Zoomify.prototype.relativePosition = function() {
-        return $("#map").position();        
+        //return $("#map").position();
+    return $("#map").offset();
 }
 
 
