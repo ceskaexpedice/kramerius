@@ -160,7 +160,7 @@ ItemThumbs.prototype = {
         });
     },
     getHits: function() {
-        if ($("#q").val() == "") {
+        if ($("#q").val() === "" && !isAdvancedSearch()) {
             return;
         }
         if (jQuery.isEmptyObject(this.hits)) {
@@ -171,9 +171,16 @@ ItemThumbs.prototype = {
             for (var i = 0; i < context.length; i++) {
                 pid_path += context[i].pid + "/";
             }
-            var q = "q=" + $("#q").val() + "&rows=5000&fq=pid_path:" + pid_path.replace(/:/g, "\\:") + "*";
+            var fq = setAdvSearch();
+            var q = "";
+            if($("#q").val() !== ""){
+                q += "q=" + $("#q").val();
+            }else if(fq !== ""){
+                q = "q=*:*";
+            }
+            q += "&rows=5000&fq=pid_path:" + pid_path.replace(/:/g, "\\:") + "*";
             var hl = "&hl=true&hl.fl=text_ocr&hl.mergeContiguous=true&hl.snippets=2";
-            K5.api.askForSolr(q + hl, _.bind(function(data) {
+            K5.api.askForSolr(q + hl + fq, _.bind(function(data) {
                 console.log("Hits: " + data.response.numFound);
                 //console.log(JSON.stringify(data));
                 this.hits = data.response.docs;

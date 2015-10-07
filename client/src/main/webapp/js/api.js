@@ -446,13 +446,13 @@ ClientAPIDev.prototype = {
      * Search first pid to display and navigate browser to  this item.
      * @method
      */
-    gotoDisplayingItemPage : function(newhash, q) {
+    gotoDisplayingItemPage : function(newhash) {
         var hash = hashParser(newhash);
         var pid = hash.pid;
         
         this.searchItemAndExploreChildren(hash, _.bind(function(data) {
             //hash.pid = data;
-            this.gotoItemPage(jsonToHash(data), q);
+            this.gotoItemPage(jsonToHash(data), true);
         }, this));
     },
 
@@ -460,14 +460,14 @@ ClientAPIDev.prototype = {
      * Navigate browser to concrete item 
      * @method
      */
-    gotoItemPage : function(pid, q) {
+    gotoItemPage : function(pid, withParams) {
         var href = "";
-        if (q !== undefined) {
-            href += "?q=" + q + "&";
+        if (withParams) {
+            $('#search_form input[name="page"]').val("doc")
+            href += "?" + $("#search_form").serialize() + "#" + pid;
         } else {
-            href += "?";
-        }
             href += "page=doc#" + pid;
+        }
         window.location.assign(href);
     },
 
