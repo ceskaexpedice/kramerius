@@ -1538,6 +1538,28 @@ li.public:before{
     width: 100%;
 }
 
+#search_results .search_result div.collections{
+    margin-right: 2px;
+    float: left;
+}
+
+
+#search_results .search_result div.collections span.ui-icon{
+    float: right;    
+}
+
+#search_results .search_result div.collections div.cols{
+    position: absolute;
+    bottom: 26px;
+    width: 230px;
+    display: none;
+    padding: 4px;
+    
+    -moz-box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
+}
+
 .search_result div.thumb{
     background-color: rgba(0, 30, 60, 0.1);
     margin:5px;
