@@ -30,6 +30,12 @@
         },
 
         {
+            "name":"partitem",
+            "i18nkey":"ctx.actions.printpart",
+            "object":"PrintPartItem"
+        },
+
+        {
             "name":"download",
             "i18nkey":"ctx.actions.downloadoriginal",
             "object":"DownloadPage"
