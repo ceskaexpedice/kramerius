@@ -7,13 +7,14 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
-import cz.incad.Kramerius.audio.AudioLifeCycleHook;
-import cz.incad.Kramerius.audio.urlMapping.CachingFedoraUrlManager;
-import cz.incad.Kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.audio.AudioLifeCycleHook;
+import cz.incad.kramerius.audio.urlMapping.CachingFedoraUrlManager;
+import cz.incad.kramerius.audio.urlMapping.MockUrlManager;
+import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;

@@ -1,31 +1,38 @@
 <div id="facets" class="infobox">
-    <div class="right">
-        <div class="small" onclick="K5.gui.facets.hide();" >#parse("svg/close.svg")</div>
-    </div>
+    
 #*
     <div class="icon-filter"></div>
         <div class="icon icon-pin" onclick="togglePin()"></div>
     </div>
 *#
+#if($search.usedFilters.entrySet().size() > 0)
+    <div class="right">
+        <div class="small" onclick="K5.gui.facets.removeAllFilters();" >#parse("svg/close.svg")</div>
+    </div>
     <h2>#translatable("facets.used")</h2>
+    
         #foreach($filter in $search.usedFilters.entrySet())   
-        <div class="used">
-            <a href="" data-key="$esc.html($filter.value)" data-facet="$filter.key" class="res" >
+        <div class="used" style="clear: both;" data-key="$esc.html($filter.value)" data-facet="$filter.key">
+            <div style="float:left; margin-top: -5px;" class="small" >#parse("svg/x.svg")</div>
             #if($filter.key == "collection")
+                <a href="" class="res" data-key="$filter.value">
                 #translatable("facet.$filter.key") : #transCol("$filter.value")
             #elseif($filter.key == "fedora.model")
+                <a href="" class="res" data-key="fedora.model.$filter.value">
                 #translatable("facet.$filter.key") : #translatable("fedora.model.$filter.value")
+            #elseif($filter.key == "dostupnost")
+                <a href="" class="res" data-key="dostupnost.$filter.value">
+                #translatable("facet.$filter.key") : #translatable("dostupnost.$filter.value")
             #else
+                <a href="" class="res" data-key="$filter.value">
                 #translatable("facet.$filter.key") : $filter.value
             #end
             </a>
         </div>
         #end
+#end
     <hr />
     <div class="unused"></div>
 </div>
 
-<div id="facets_menu" style="display:none;">
-    <div class="small translate_title" data-key="buttons.showFacets" title="$i18n.buttons.showFacets" onclick="K5.gui.facets.show();" >#parse("svg/filter.svg")</div>
-</div>
 <script src="js/facets.js" type="text/javascript" ></script>

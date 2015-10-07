@@ -116,6 +116,7 @@
     <script  src="js/cmn/cmn.js" language="javascript" type="text/javascript"></script>
     <script  src="js/json2.js" language="javascript" type="text/javascript"></script>
 
+
      <c:if test="${gplus.buttonEnabled}">
         <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
         {

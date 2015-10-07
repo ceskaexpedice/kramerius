@@ -114,9 +114,9 @@ form(importDirectory,importRootDirectory,  startIndexer, updateExisting, bundle)
     $endif$
     <br>
     $if(updateExisting)$
-        <input type="checkbox" id="updateExisting" name="updateExisting" value="updateExisting" checked>$bundle.("import.updateExisting")$</input>
+        <input type="checkbox" style="display:none" id="updateExisting" name="updateExisting" value="updateExisting" checked />
     $else$
-        <input type="checkbox" id="updateExisting" name="updateExisting" value="updateExisting">$bundle.("import.updateExisting")$</input>
+        <input type="checkbox" style="display:none" id="updateExisting" name="updateExisting" value="updateExisting" />
     $endif$
 </fieldset>
 

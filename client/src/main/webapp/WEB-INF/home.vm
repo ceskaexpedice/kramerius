@@ -5,12 +5,14 @@
 <div id="home">
     <div class="infobox showing">
         #parse("search_form.vm")
-        $texts.k5info
+        <div class="home_text">
+        $texts.default_intro
+        </div>
     </div>
     <div id="pidinfo"></div>
         
     <div id="band">
-        <div id="rows">
+        <div id="yearRows">
             <div class="row cool">
             </div>
             <div class="row latest" style="display:none;">

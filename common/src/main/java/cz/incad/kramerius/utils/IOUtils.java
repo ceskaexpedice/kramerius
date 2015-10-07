@@ -1,22 +1,10 @@
 package cz.incad.kramerius.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.logging.Level;
-
-import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
 
 public class IOUtils {
 
@@ -104,6 +92,7 @@ public class IOUtils {
         }
     }
 
+    
     public static void saveToFile(String data, File file) throws IOException {
         FileOutputStream fos = null;
         try {
@@ -112,6 +101,30 @@ public class IOUtils {
         } finally {
             if (fos != null)
                 fos.close();
+        }
+    }
+    public static void saveToFile(InputStream data, File file) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            copyStreams(data, fos);
+        } finally {
+            if (fos != null)
+                fos.close();
+        }
+    }
+
+    public static void saveToFile(InputStream data, File file, boolean closeInput) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            copyStreams(data, fos);
+        } finally {
+            if (fos != null)
+                tryClose(fos);
+            if (closeInput) {
+                tryClose(data);
+            }
         }
     }
 
@@ -139,11 +152,25 @@ public class IOUtils {
         }
 
     }
+    public static byte[] bos(InputStream is, boolean closeInput) throws IOException {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            copyStreams(is, bos);
+            return bos.toByteArray();
+        } finally {
+            if (is != null) {
+                if (closeInput) {
+                    is.close();
+                }
+            }
+        }
+
+    }
 
     public static File checkDirectory(String name) {
         File directory = new File(name);
         if (!directory.exists() || !directory.isDirectory()) {
-            if (!directory.mkdir()) {
+            if (!directory.mkdirs()) {
                 LOGGER.severe("Folder doesn't exist and can't be created: "
                         + directory.getAbsolutePath());
                 throw new RuntimeException(
@@ -166,6 +193,27 @@ public class IOUtils {
         }
     }
 
+    public static void tryClose(Reader reader) {
+        try {
+            if (reader != null) {
+                reader.close();
+            }
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static void tryClose(Writer writer) {
+        try {
+            if (writer != null) {
+                writer.close();
+            }
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    
     public static void tryClose(InputStream is) {
         try {
             if (is != null) {

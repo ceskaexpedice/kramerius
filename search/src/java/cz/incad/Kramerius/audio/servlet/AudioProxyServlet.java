@@ -18,20 +18,21 @@ package cz.incad.Kramerius.audio.servlet;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import cz.incad.Kramerius.audio.AudioHttpRequestForwarder;
-import cz.incad.Kramerius.audio.AudioStreamId;
-import cz.incad.Kramerius.audio.urlMapping.RepositoryUrlManager;
+
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.audio.AudioStreamForwardUtils;
+import cz.incad.kramerius.audio.AudioStreamId;
+import cz.incad.kramerius.audio.servlets.ServletAudioHttpRequestForwarder;
+import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
+
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,13 +53,16 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AudioProxyServlet extends GuiceServlet {
 
+    private static final Logger LOGGER = Logger.getLogger(AudioProxyServlet.class.getName());
+
 	@Inject
     IsActionAllowed actionAllowed;
     @Inject
     SolrAccess solrAccess;
     @Inject
     Provider<User> userProvider;
-    private static final Logger LOGGER = Logger.getLogger(AudioProxyServlet.class.getName());
+    
+
     @Inject
     RepositoryUrlManager urlManager;
 
@@ -72,7 +76,7 @@ public class AudioProxyServlet extends GuiceServlet {
     public void destroy() {
         LOGGER.log(Level.INFO, "shutting down {0}", AudioProxyServlet.class.getName());
         urlManager.close();
-        AudioHttpRequestForwarder.destroy();
+        ServletAudioHttpRequestForwarder.destroy();
     }
 
     /**
@@ -87,37 +91,7 @@ public class AudioProxyServlet extends GuiceServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        //TODO: tune logging levels (staci vetsinou FINE)
-        LOGGER.log(Level.INFO, "GET {0}", request.getPathInfo());
-        AudioStreamId id = AudioStreamId.fromPathInfo(request.getPathInfo());
-        LOGGER.info(id.toString());
-        if (canBeRead(id.getPid())) {
-            try {
-                URL url = urlManager.getAudiostreamRepositoryUrl(id);
-                if (url == null) {
-                    throw new ServletException("url for id " + id.toString() + " is null");
-                }
-                LOGGER.info(url.toString());
-                //appendTestHeaders(response, id, url); //testovaci hlavicky
-                AudioHttpRequestForwarder forwarder = new AudioHttpRequestForwarder(request, response);
-                forwarder.forwardGetRequest(url);
-            } catch (URISyntaxException ex) {
-                Logger.getLogger(AudioProxyServlet.class.getName()).log(Level.SEVERE, null, ex);
-                throw new ServletException(ex);
-            }
-        } else {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        }
-    }
-
-    private boolean canBeRead(String pid) throws IOException {
-        ObjectPidsPath[] paths = solrAccess.getPath(pid);
-        for (ObjectPidsPath pth : paths) {
-            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth)) {
-                return true;
-            }
-        }
-        return false;
+        AudioStreamForwardUtils.GET(AudioStreamId.fromPathInfo(request.getPathInfo()), request, response, this.solrAccess, this.userProvider.get(),this.actionAllowed, this.urlManager);
     }
 
     /**
@@ -131,27 +105,7 @@ public class AudioProxyServlet extends GuiceServlet {
      */
     @Override
     protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        LOGGER.log(Level.INFO, "HEAD {0}", request.getPathInfo());
-        AudioStreamId id = AudioStreamId.fromPathInfo(request.getPathInfo());
-        LOGGER.info(id.toString());
-        if (canBeRead(id.getPid())) {
-            try {
-                URL url = urlManager.getAudiostreamRepositoryUrl(id);
-                if (url == null) {
-                    throw new ServletException("url for id " + id.toString() + " is null");
-                }
-                LOGGER.info(url.toString());
-                //appendTestHeaders(response, id, url); //testovaci hlavicky
-                AudioHttpRequestForwarder forwarder = new AudioHttpRequestForwarder(request, response);
-                forwarder.forwardHeadRequest(url);
-            } catch (URISyntaxException ex) {
-                Logger.getLogger(AudioProxyServlet.class.getName()).log(Level.SEVERE, null, ex);
-                throw new ServletException(ex);
-            }
-        } else {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        }
+        AudioStreamForwardUtils.HEAD(AudioStreamId.fromPathInfo(request.getPathInfo()), request, response,this.solrAccess, this.userProvider.get(),this.actionAllowed, this.urlManager);
     }
 
     /**

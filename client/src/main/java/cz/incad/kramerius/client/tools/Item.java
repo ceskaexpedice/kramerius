@@ -63,7 +63,7 @@ public class Item {
 
     private String getUrl(String url) throws IOException {
         LOGGER.info("requesting url " + host + pid + url);
-        InputStream inputStream = RESTHelper.inputStream(host + pid + url, new HashMap<String, String>());
+        InputStream inputStream = RESTHelper.inputStream(host + pid + url, this.req, new HashMap<String, String>());
         StringWriter sw = new StringWriter();
         org.apache.commons.io.IOUtils.copy(inputStream, sw, "UTF-8");
         return sw.toString();

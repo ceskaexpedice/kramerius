@@ -19,12 +19,14 @@ package cz.incad.Kramerius.audio.servlet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-import cz.incad.Kramerius.audio.XpathEvaluator;
+
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.audio.XpathEvaluator;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import net.sf.json.JSONObject;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -34,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;

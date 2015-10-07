@@ -153,10 +153,13 @@
         $("#dali").remove();
     }else{
         resizeAll();
-        
+        $("#dadiv").bind("yearChanged", function(event, params){
+            daYearClicked(params);
+        });
     }
     translateCollections();
     getExtInfo();
+    fixRootTitleApi();
     getCollapsedPolicy();
     $('.loading_docs').hide();
     
@@ -165,6 +168,7 @@
             var id = $('#docs_content .more_docs').attr('id');
             if(isScrolledIntoView($('#'+id), $('#docs_content>div.content'))){
                 getMoreDocs(id);
+                
             }
         }
     });
@@ -450,6 +454,7 @@
             $(jq(id)).html(data);
             $(jq(id)).removeClass('more_docs');
             getExtInfo();
+            fixRootTitleApi();
             $('.loading_docs').hide();
             translateCollections();
             checkHeight(offset);
@@ -460,6 +465,7 @@
             });
 </scrd:loggedusers>
             setColumnsWidth();
+            getCollapsedPolicy();
         });
     }
     
@@ -523,5 +529,34 @@
               $(jq("res_"+root_pid)+" div.uncollapsed").html(xml);
               $(jq("res_"+root_pid)+" div.uncollapsed").scrollTop(0);
           });
+    }
+    
+    function fixRootTitle(){
+        $(".search_result").each(function(){
+            if(!$(this).hasClass('fixed')){
+                var root_pid = $(this).find('input.root_pid').val();
+                var res_id = $(this).attr("id");
+                var url =  "inc/results/rootTitle.jsp?root=" + root_pid;
+                $.get(url, function(data) {
+                    $(jq(res_id)+' a>b').text(data);
+                    $(jq(res_id)).addClass('fixed');
+                });
+            }
+        });
+    }
+    
+    <view:kconfig var="apipoint" key="api.point" />
+    function fixRootTitleApi(){
+        $(".search_result").each(function(){
+            if(!$(this).hasClass('fixed')){
+                var root_pid = $(this).find('input.root_pid').val();
+                var res_id = $(this).attr("id");
+                var url =  "${apipoint}/item/" + root_pid;
+                $.getJSON(url, function(data) {
+                    $(jq(res_id)+' a>b').text(data.title);
+                    $(jq(res_id)).addClass('fixed');
+                });
+            }
+        });
     }
 </script>

@@ -136,8 +136,8 @@
             });
             
             $('#item_tree li>div>input').live('click', function(){
-                var id = "tv_" + $(this).parent().parent().attr('id');
-                $(jq(id)).next("input").attr("checked", $(this).is(":checked"));
+                var id = $(this).parent().parent().attr('id');
+                $('#tv.viewer').trigger('selectedDocsChanged', [id, $(this).is(":checked")]);
             });
             $('#rightMenuBox').tabs({
                 show: function(event, ui){
@@ -378,6 +378,7 @@
         
         function renderNode(id, d){
             if(d.length>0){
+                $(jq(id)+">ul").remove();
                 $(jq(id)).append(d);
                 if($(jq(id)+">ul").html()==null || $(jq(id)+">ul").html().trim().length==0){
                     $(jq(id)+">ul").hide();

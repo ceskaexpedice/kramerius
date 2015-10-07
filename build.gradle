@@ -17,7 +17,7 @@
 
 println "Building K4; please read BUILD-README.txt"
 
-apply plugin: 'distribution' // -> generate distributions
+//apply plugin: 'distribution' // -> generate distributions
 apply plugin: 'java' // -> generate javadoc
 
 
@@ -32,15 +32,15 @@ configurations {
 
 dependencies {
         // editor dependency
-        editors group: "cz.incad.kramerius", name: "editor", version: "5.0.0-SNAPSHOT", ext: "war"
+        editors group: "cz.incad.kramerius", name: "editor", version: "5.1.0", ext: "war"
         // rightseditor dependency
-        editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.0.0-SNAPSHOT", ext: "war"
+        editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.0", ext: "war"
 }
 
 
 
 
-
+/*
 distributions {
         // main distribution        
         main {
@@ -59,7 +59,7 @@ distributions {
                         from {'security-core/build/libs'}
                 }
         }
-}
+}*/
 
 
 repositories {
@@ -86,7 +86,7 @@ subprojects {
 
          
          group='cz.incad.kramerius'
-         version='5.0.2'
+         version='5.2.0'
          
          sourceCompatibility = 1.6
          targetCompatibility= 1.6
@@ -182,10 +182,9 @@ subprojects {
 }
 
 
-
-
+// disabled distributions
+/*
 task zipAllJavadocs(type: Zip) {
-        //only from this project 
         String[] _spr = ["common","fedora-api","security-core","rest","search"];
         description "create javadocs for ${_spr} and zip it"
         baseName "kramerius-javadoc"
@@ -202,5 +201,5 @@ task zipAllJavadocs(type: Zip) {
 [distZip, distTar, installDist].each() { 
   it.dependsOn('clean',':search:build', 'zipAllJavadocs')
 };
-
+*/
 

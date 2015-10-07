@@ -28,7 +28,15 @@
                     <field><xsl:attribute name="name"><xsl:value-of  select="@name"/></xsl:attribute><xsl:value-of select="." /></field>
                 </xsl:for-each>
                 <xsl:for-each select="date">
-                    <field><xsl:attribute name="name"><xsl:value-of  select="@name"/></xsl:attribute><xsl:value-of select="." /></field>
+                    <xsl:choose>
+                        <xsl:when test="@name = 'datum'">
+                        <!-- FIX DATUM 1970-01-01 -->
+                            <field name="datum"><xsl:value-of select="exts:fixDatum(../str[@name='datum_str'])" /></field>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <field><xsl:attribute name="name"><xsl:value-of  select="@name"/></xsl:attribute><xsl:value-of select="." /></field>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:for-each>
                 <xsl:for-each select="bool">
                     <field><xsl:attribute name="name"><xsl:value-of  select="@name"/></xsl:attribute><xsl:value-of select="." /></field>

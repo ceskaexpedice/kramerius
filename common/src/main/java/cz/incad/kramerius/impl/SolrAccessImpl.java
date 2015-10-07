@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.impl;
 
+import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -23,15 +24,19 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.utils.solr.SolrUtils;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SolrAccessImpl implements SolrAccess {
 
@@ -123,17 +128,60 @@ public class SolrAccessImpl implements SolrAccess {
         if (SpecialObjects.isSpecialObject(pid)) return new ObjectModelsPath[] { ObjectModelsPath.REPOSITORY_PATH};
         try {
             Document doc = getSolrDataDocument(pid);
-            List<String> disected = SolrUtils.disectModelPaths(doc);
-            ObjectModelsPath[] paths = new ObjectModelsPath[disected.size()];
-            for (int i = 0; i < paths.length; i++) {
-                paths[i] = new ObjectModelsPath(disected.get(i));
-            }
-            return paths;
+            return getPathOfModels(doc);
         } catch (XPathExpressionException e) {
             throw new IOException(e);
        }
     }
+
+    private ObjectModelsPath[] getPathOfModels(Document doc)
+            throws XPathExpressionException {
+        List<String> disected = SolrUtils.disectModelPaths(doc);
+        ObjectModelsPath[] paths = new ObjectModelsPath[disected.size()];
+        for (int i = 0; i < paths.length; i++) {
+            String[] models = disected.get(i).split("/");
+            paths[i] = new ObjectModelsPath(models);
+        }
+        return paths;
+    }
     
+
+    @Override
+    public Map<String, AbstractObjectPath[]> getPaths(String pid)
+            throws IOException {
+        PIDParser parser;
+        try {
+            parser = new PIDParser(pid);
+            parser.objectPid();
+            
+            if (parser.isDatastreamPid()) {
+                throw new IllegalArgumentException(" datastream is is unsupported ");
+            }
+        } catch (LexerException e1) {
+            throw new IOException(e1);
+        }
+        try {
+            if (SpecialObjects.isSpecialObject(pid)) {
+                Map<String, AbstractObjectPath[]> map = new HashMap<String, AbstractObjectPath[]>();
+                map.put(ObjectPidsPath.class.getName(), new ObjectPidsPath[] {ObjectPidsPath.REPOSITORY_PATH});
+                map.put(ObjectModelsPath.class.getName(), new ObjectModelsPath[] {ObjectModelsPath.REPOSITORY_PATH});
+                return map;
+            } else {
+                Map<String, AbstractObjectPath[]> map = new HashMap<String, AbstractObjectPath[]>();
+                Document doc = getSolrDataDocument(pid);
+                ObjectModelsPath[] pathsOfModels = getPathOfModels(doc);
+                map.put(ObjectModelsPath.class.getName(), pathsOfModels);
+                
+
+                ObjectPidsPath[] paths = getPath(parser.isDatastreamPid() ? parser.getDataStream() : null, doc);
+                map.put(ObjectPidsPath.class.getName(), paths);
+
+                return map;
+            }
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
+        }
+    }
 
     public Document request(String req) throws IOException {
 		try {

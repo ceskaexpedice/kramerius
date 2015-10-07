@@ -48,7 +48,7 @@ public class UserImpl implements User {
 
     @Override
     public String getFirstName() {
-        return this.firstName;
+        return this.firstName==null ? "" : this.firstName;
     }
 
     public void setFirstName(String fname) {
@@ -61,7 +61,7 @@ public class UserImpl implements User {
     
     @Override
     public String getSurname() {
-        return this.surName;
+        return this.surName==null ? "" : this.surName;
     }
 
     @Override

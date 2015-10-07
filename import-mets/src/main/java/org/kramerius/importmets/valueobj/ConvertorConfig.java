@@ -5,6 +5,7 @@ import org.kramerius.importmets.MetsConvertor;
 
 import javax.xml.bind.Marshaller;
 import java.sql.Connection;
+import java.util.Calendar;
 
 /**
  * Konfigurace konvertoru
@@ -24,6 +25,19 @@ public class ConvertorConfig {
     private boolean defaultVisibility = false;
     
     private String contract;
+
+
+    /**
+     * holder for imageserver subfolder file path, filled when the property convert.imageServerDirectorySubfolders is true
+     */
+
+    private String imgTreePath = "";
+
+    /**
+     * holder for imageserver subfolder URL corresponding to treePath
+     */
+
+    private String imgTreeUrl = "";
     
     
     private Connection dbConnection;
@@ -90,6 +104,26 @@ public class ConvertorConfig {
 		return contract;
 	}
 
+    public void setImgTree(){
+        Calendar now = Calendar.getInstance();
+        int intyear = now.get(Calendar.YEAR);
+        int intmonth = now.get(Calendar.MONTH)+1;
+        int intday = now.get(Calendar.DAY_OF_MONTH);
+        String year =  String.format("%04d", intyear);
+        String month =  String.format("%02d", intmonth);
+        String day =  String.format("%02d", intday);
+        imgTreePath = System.getProperty("file.separator")+year+System.getProperty("file.separator")+month+System.getProperty("file.separator")+day;
+        imgTreeUrl = "/"+year+"/"+month+"/"+day;
+
+    }
+
+    public String getImgTreePath() {
+        return imgTreePath;
+    }
+
+    public String getImgTreeUrl() {
+        return imgTreeUrl;
+    }
 
 
 	

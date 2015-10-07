@@ -54,9 +54,13 @@
                 
                 //selected configurations 
                 "conf": {
+                    "i18n" :{
+                        #if(!$conf.getBoolean('cdkSources'))
+                            "cdkSources":$conf.getString('cdkSources')
+                         #end
+                    },
                     "pdf":{
-
-                        #if($conf.getString('generatePdfMaxRange') && !$conf.getBoolean('turnOffPdfCheck'))
+                        #if(!$conf.getBoolean('turnOffPdfCheck'))
                             "limit":$conf.getString('generatePdfMaxRange')
                          #end
 

@@ -51,7 +51,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.AbstractPage;
-import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.commands.ITextCommands;
 import cz.incad.kramerius.pdf.commands.render.RenderPDF;
@@ -128,7 +128,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
 
     @Override
-    public void generateFirstPageForSelection(AbstractRenderedDocument rdoc, OutputStream os, String[] pids, String i18nServlet, FontMap fontMap) {
+    public void selection(PreparedDocument rdoc, OutputStream os, String[] pids,  FontMap fontMap) {
         try {
 
             Document doc = DocumentUtils.createDocument(rdoc);
@@ -156,7 +156,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         }
     }
 
-    void renderFromTemplate(AbstractRenderedDocument rdoc,Document doc, FontMap fontMap, StringReader reader) throws IOException, InstantiationException, IllegalAccessException, ParserConfigurationException, SAXException {
+    void renderFromTemplate(PreparedDocument rdoc,Document doc, FontMap fontMap, StringReader reader) throws IOException, InstantiationException, IllegalAccessException, ParserConfigurationException, SAXException {
         ITextCommands cmnds = new ITextCommands();
         cmnds.load(XMLUtils.parseDocument(reader).getDocumentElement(), cmnds);
 
@@ -164,7 +164,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         render.render(doc, cmnds);
     }
 
-    String templateSelection(AbstractRenderedDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
+    String templateSelection(PreparedDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
         StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
@@ -282,7 +282,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         vals.addAll(list);
     }
 
-    String templateParent(AbstractRenderedDocument rdoc, ObjectPidsPath path) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException {
+    String templateParent(PreparedDocument rdoc, ObjectPidsPath path) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
         StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
@@ -348,7 +348,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         return templateText;
     }
 
-    void pagesInParentPdf(AbstractRenderedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
+    void pagesInParentPdf(PreparedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
         // tistene stranky
         List<AbstractPage> pages = rdoc.getPages();
         if (pages.size() == 1) {
@@ -359,7 +359,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
     
     
-    void pagesInSelectiontPdf(AbstractRenderedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
+    void pagesInSelectiontPdf(PreparedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
         // tistene stranky
         List<AbstractPage> pages = rdoc.getPages();
         if (pages.size() == 1) {
@@ -425,9 +425,8 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
 
     @Override
-    public void generateFirstPageForParent(AbstractRenderedDocument rdoc, OutputStream os, ObjectPidsPath path,  String i18nServlet, FontMap fontMap) {
+    public void parent(PreparedDocument rdoc, OutputStream os, ObjectPidsPath path,   FontMap fontMap) {
         try {
-            processMods(path.getLeaf());
 
             Document doc = DocumentUtils.createDocument(rdoc);
 

@@ -96,6 +96,9 @@ public class SOLRUtils {
     public static <T> T value(final Element doc, final String attributeName,
             Class<T> clz) {
         final String expectedTypeName = SOLR_TYPE_NAMES.get(clz);
+        if (doc == null) {
+            throw new IllegalArgumentException("element must not be null");
+        }
         List<Element> elms = XMLUtils.getElements(doc,
                 new XMLUtils.ElementsFilter() {
 

@@ -20,6 +20,7 @@ import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -92,7 +93,9 @@ public class MovingWallTest {
         Assert.assertEquals(evaluated, EvaluatingResult.FALSE);
     }
 
-    
+
+
+
     public EvaluatingResult mw(String movingWallFromGUI, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)

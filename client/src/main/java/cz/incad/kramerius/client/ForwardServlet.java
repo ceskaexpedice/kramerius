@@ -263,18 +263,14 @@ public class ForwardServlet extends HttpServlet {
             
             InputStream inputStream = null;
             if (user != null) {
-                
-                fileDisposition(req, resp);
-                
-//                private static final String READ_TIMEOUT_KEY = "readTimeout";
-//                private static final String CON_TIMEOUT_KEY = "conTimeout";
 
+                fileDisposition(req, resp);
                 RESTHelper.fillResponse(replaceURL, user.getUserName(),
-                        user.getPassword(), resp, req, settings);
+                        user.getPassword(), req,resp, settings);
             } else {
                 fileDisposition(req, resp);
                 RESTHelper.fillResponse(replaceURL, null,
-                        null, resp, req, settings);
+                        null, req, resp, settings);
             }
         } catch (InstantiationException  e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -319,6 +315,5 @@ public class ForwardServlet extends HttpServlet {
     private static enum SupportedMethods {
         PUT, GET, POST, DELETE;
     }
-    
     
 }

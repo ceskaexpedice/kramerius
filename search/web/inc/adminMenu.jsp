@@ -175,6 +175,14 @@ function convert() {
  
 }
 
+function movingwallOverRepo() {
+    /*
+    showConfirmDialog(dictionary['administrator.dialogs.mw.confirm'], function(){
+        noParamsProcess('iterated_appliedmw');
+    });
+    */
+}
+
 function impor() {
     showConfirmDialog(dictionary['administrator.dialogs.import.confirm'], function(){
         noParamsProcess('import');

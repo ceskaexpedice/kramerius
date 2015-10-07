@@ -94,19 +94,16 @@
                 </script>
                 </c:if>            
                 <div style="font-size: small;font-family:monospace; margin-left: 10px;">
-
-                <div id="${item.id}_option" ${item.checked ? "style='display:block'" : "style='display:none'"} style="display:none">
- 
+	                <div id="${item.id}_option" ${item.checked ? "style='display:block'" : "style='display:none'"} style="display:none">
                       <span id="${item.id}_error" style="color: red;"></span>
- 
-                  <div>
-                        <table>
-                        <tr><td><view:msg>pdf.numberOfPages</view:msg></td> </tr>
-                        <tr><td>
-                        <input name="pdfSelection" id="${item.id}_input" type="text" onkeyup="pdf.onKeyup('${item.id}', '${item.type}','${item.pids}');" value="${pdfView.maxNumberOfPages}" size="4"></input>
-                        </td> </tr>
-                        </table> 
-                  </div>
+                        <div id="${item.id}_numberPagesConf" ${item.offPDFCheck ? "style='display:none'" : "style='display:block'" }>
+                          <table>
+                           <tr><td><view:msg>pdf.numberOfPages</view:msg></td> </tr>
+                           <tr><td>
+                              <input name="pdfSelection" id="${item.id}_input" type="text" onkeyup="pdf.onKeyup('${item.id}', '${item.type}','${item.pids}');" value="${pdfView.maxNumberOfPages}" size="4"></input>
+                           </td> </tr>
+                         </table> 
+                        </div>
               </div>
               </div>
             
@@ -134,19 +131,20 @@
     
     <hr></hr>
     
-    <div id="pdfsettings">
+    <div id="pdfsettings" style="display:none">
+         <input type="radio" id="standard" name="device" checked="checked"   value="TEXT" >
+         <view:msg>pdf.typeofreader.standard</view:msg></input>     
+         <input type="radio" id="device" name="device"   value="IMAGE"> 
+         <view:msg>pdf.typeofreader.ebook</view:msg> </input>     
+    </div>
     
-     <input type="radio" id="standard" name="device" checked="checked"   value="desktop" onclick="pdf.onSettingsChange('standard')" >
-     <view:msg>pdf.typeofreader.standard</view:msg></input>     
-     <input type="radio" id="device" name="device"   value="ereader" onclick="pdf.onSettingsChange('ereader')"> 
-     <view:msg>pdf.typeofreader.ebook</view:msg> </input>     
-     
-     <div id="pdfsettings_ereader" style="display: none">
+     <div id="pdfsettings_ereader">
          <div style="padding: 5px;">
           <div>
-            <select onchange="pdf.onFormatChange();">
-                <option selected="selected" value="a4"><view:msg>pdf.typeofreader.ebook.format.a4</view:msg></option>
-                <option value="a5"><view:msg>pdf.typeofreader.ebook.format.a5</view:msg></option>
+            <select>
+                <option selected="selected" value="A4"><view:msg>pdf.typeofreader.ebook.format.a4</view:msg></option>
+                <option value="A5"><view:msg>pdf.typeofreader.ebook.format.a5</view:msg></option>
+                <option value="A3"><view:msg>pdf.typeofreader.ebook.format.a3</view:msg></option>
             </select>    
          </div>
          </div>

@@ -17,13 +17,28 @@
     </div>
     <div id="contextbuttons" class="contextbuttons">
     </div>
+#if($params.page && $params.page != 'home')
+    <div class="form" style="display: inline-block;
+        position: relative; width:350px;
+        top: -8;
+        left: 80px;">
+    #parse("search_form.vm")
+    </div>
 
+    <div style="position: relative;
+        left: 65px;
+        display: inline-block;
+        margin-top: 0px;
+        cursor: pointer;">
+        <div class="small" style="display: inline-block;" onclick="$('#search_form').submit();">#parse("svg/lupa_simple.svg")</div>
+    </div>
+#end
     <div class="right" id="largedisplay">
         #if(!$logControl.logged)
             <div class="button" onclick="K5.authentication.options()">#translatable('application.login')</div>
         #end
 
-        <div class="button" onclick="link('$conf.getString('k5client.help')')" >#translatable('application.help')</div>
+        <div class="button" onclick="link('$conf.getString('k5client.help')', 'help')" >#translatable('application.help')</div>
 
         #if($logControl.logged)
             <div class="button" onclick="K5.authentication.profileDisplay.toggle()"><span>$logControl.loggedName</span></div>
