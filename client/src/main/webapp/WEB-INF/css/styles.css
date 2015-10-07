@@ -1891,7 +1891,7 @@ li.public:before{
 
 #prfl_content_favorites {
         height: calc(100% - 18em);  
-        overflow-y: scroll; 
+        overflow-y: auto; 
         overflow-x:auto;
 }
 
@@ -2826,6 +2826,16 @@ div.download_footer  .buttons div.sel{
     border-color: rgba(255, 255, 255, 1);
     font-weight: bold;
 }
+
+#download_options a {
+  font-weight: bold;
+  padding: 0;
+  margin: 0;
+  margin-left: 4px;
+  color: #eeeeee;
+  text-decoration: none;
+}
+
 
 /** end of dialog download */
 

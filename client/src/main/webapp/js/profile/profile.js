@@ -10,27 +10,39 @@ function ProfileDisplay(app) {
 ProfileDisplay.prototype = {
         
         dirtyFlag:false,        
-
+        
+        // for homepage
+        visibleHomeSearch: false,
+        
         /**
          * Open profile dialog
          * @method
          */
         open:function() {
-                var user = K5.authentication.ctx.user;
-                $("#prfl_text").text(user["firstname"] +' @ '+ user["surname"]) ;
-                this.refreshButtons();
-                this.profileContent();
-                cleanWindow();
-                divopen("#prfl_dialog");
+            
+            if (K5.gui.page === "home") {
+                // check homepage search
+                this.visibleHomeSearch =  $("#home div.infobox").is(":visible"); 
+            }
+
+            var user = K5.authentication.ctx.user;
+            $("#prfl_text").text(user["firstname"] +'  '+ user["surname"]) ;
+            this.refreshButtons();
+            this.profileContent();
+            cleanWindow();
+            divopen("#prfl_dialog");
         },    
 
         close: function() {
-                cleanWindow();
+            cleanWindow();
+            if ((K5.gui.page === "home") && (this.visibleHomeSearch)){
+                divopen("#home div.infobox");
+            }
         },
 
         toggle: function() {
-                if (!visible("#prfl_dialog")) this.open();
-                else this.close();
+            if (!visible("#prfl_dialog")) this.open();
+            else this.close();
         },  
 
 

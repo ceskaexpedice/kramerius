@@ -143,12 +143,16 @@ DownloadItem.prototype.open = function() {
             
             var divHtml  = $('<div/>');
             
-            var optHtml =$('<input/>', {'value': a.name, 'type':'radio','name':'action','data-key': a.i18nkey});
+            var optHtml =$('<input/>', {'value': a.name, 'type':'radio','name':'action'});
             divHtml.append(optHtml);
 
             var transSpan = K5.i18n.translatable(a.i18nkey);
-            divHtml.append(transSpan);
 
+            var aHrefFunction = "javascript:(function() { $('#download_options ul li input[value=\""+a.name+"\"]').prop('checked', true); K5.gui.selected.download.doAction();}) ();";
+            var aHref = $('<a/>', {'href': aHrefFunction,'data-key': a.i18nkey});
+            aHref.append(transSpan);
+            
+            divHtml.append(aHref);
             liHtml.append(divHtml);
             var option = {
                     "elem":liHtml
