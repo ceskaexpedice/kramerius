@@ -56,6 +56,9 @@ BreadCrumbs.prototype = {
     init: function() {
 
     },
+    renderItem: function(cpid){
+        
+    },
     refresh: function(pid){
         this.elem.html("");
         var item = K5.api.ctx["item"][pid];
@@ -92,15 +95,15 @@ BreadCrumbs.prototype = {
             }
             this.elem.append(span);
             
-            if(K5.api.ctx["item"][cpid]){
+            if(K5.api.ctx["item"][cpid] && K5.api.ctx["item"][cpid].hasOwnProperty('title')){
                 var info = {short: "", full: ""};
                 K5.proccessDetails(K5.api.ctx["item"][cpid], info);
-                $(jq("bc_"+cpid)).append(info.min);
+                $(jq("bc_"+cpid)).html(info.min);
             }else{
 		var info = {short: "", full: ""};
                 K5.api.askForItemContextData(cpid, _.partial(function(p, data){
 		  K5.proccessDetails(data, info);
-		  $(jq("bc_"+p)).append(info.min);
+		  $(jq("bc_"+p)).html(info.min);
 		}, cpid));
             }
         }
