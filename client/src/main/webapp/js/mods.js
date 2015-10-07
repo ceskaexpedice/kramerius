@@ -261,9 +261,15 @@ ModsXml.prototype = {
                 nodeAttrs = this._getEditableAttributesHtml(node),
                 //nodeValueStr = (nodeValue) ? nodeValue : "<span class='noValue'>" + _message["noTextValue"] + "</span>";
                 nodeValueStr = (nodeValue) ? '<li class="last"><p class="nodeValue">' + nodeValue + '</p></li>' : '';
+                
+                
+        var attrs = "";
+        for (var i = 0; i < node.attributes.length; i++) {
+            attrs += ' x' + node.attributes[i].name + '="' + node.attributes[i].value + '" ';
+        }
         var nodeHtml = "";
         if (this._isCommentNode(node)) { // display comment node
-            nodeHtml = '<li class="node comment ' + state + (isLast ? ' last' : '') + '" nodeIndex="' + nodeIndex + '">' +
+            nodeHtml = '<li class="node fullmods comment ' + state + (isLast ? ' last' : '') + '" nodeIndex="' + nodeIndex + '" '+ attrs +'>' +
                     '<div class="hitarea' + (isLast ? ' last' : '') + '"/>' +
                     '<span class="nodeName">comment</span>' +
                     '<ul class="nodeCore">' +
@@ -273,7 +279,7 @@ ModsXml.prototype = {
                     '</li>';
         }
         else { // display regular node
-            nodeHtml = '<li class="node ' + node.nodeName + ' ' + state + (isLast ? ' last' : '') + '" nodeIndex="' + nodeIndex + '">' +
+            nodeHtml = '<li class="node fullmods ' + node.localName + ' ' + state + (isLast ? ' last' : '') + '" nodeIndex="' + nodeIndex + '" '+ attrs +'>' +
                     '<div class="hitarea' + (isLast ? ' last' : '') + '"/>' +
                     '<span class="nodeName">' + node.nodeName + '</span>' + nodeAttrs +
                     '<ul class="nodeCore">' +

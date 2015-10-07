@@ -95,5 +95,27 @@ div.modsxml span.comment {
 }
 
 
+/* xpath pro male zobrazeni */
+li.fullmods {
+    display: none;
+}
+
+
+
+div.modsxml li.mods, div.modsxml li.modsCollection,
+div.modsxml li.mods li.identifier,
+div.modsxml li.mods li.titleInfo, div.modsxml li.mods li.titleInfo li.title,
+div.modsxml li.mods li.titleInfo li.nonSort,
+div.modsxml li.mods li.titleInfo li.subTitle,
+li.part li.detail[xtype = "volume"] li.number,
+li.name[xtype= "personal"],
+li.name[xtype= "personal"] li.role,
+li.name[xtype= "personal"] li.namePart
+{
+    display: list-item;
+}
+
+
+
 /* fix for IE6 */
 * html .hitarea {display:inline; float:none;}
