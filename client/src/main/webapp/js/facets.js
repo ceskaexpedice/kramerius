@@ -1,3 +1,5 @@
+/* global K5, _ */
+
 K5.eventsHandler.addHandler(function(type, configuration) {
     if (type === "results/loaded") {
         if(!K5.gui["facets"]){
@@ -33,7 +35,6 @@ Facets.prototype = {
         $("#contextbuttons").append(text);
     },
     addFilter: function(facet, val) {
-        //window.location.href = window.location.search + "&" + facet + "=" + val;
         var input = $("<input>", {type: "hidden", value: val, name: facet, class: "facet"});
         $("#search_form").append(input);
         $("#start").val("0");

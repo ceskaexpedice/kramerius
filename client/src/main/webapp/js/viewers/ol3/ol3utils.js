@@ -261,6 +261,7 @@ function _optionspane() {
 
         li.append(div);
         if (func) {
+            jQuery(div).mousedown(function(e){ e.preventDefault(); });
             div.click(func);
         }
 

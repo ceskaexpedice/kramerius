@@ -34,11 +34,11 @@
     
     <xsl:param name="RELS_EXT_INDEX" select="''"/>
     <xsl:variable name="generic" select="exts:new()" />
-
+    
     <xsl:variable name="PID" select="/foxml:digitalObject/@PID"/>
     <xsl:variable name="title" 
     select="translate(normalize-space(/foxml:digitalObject/foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:title/text()),'&#xA;','')"/>
-    
+
     <xsl:variable name="MODEL" 
     select="substring(/foxml:digitalObject/foxml:datastream[@CONTROL_GROUP='X' and @ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/fedora-model:hasModel/@rdf:resource, 19)" />
     
@@ -100,7 +100,9 @@
                     </xsl:otherwise>
                 </xsl:choose>
                 <field name="dc.title" boost="2.0"><xsl:value-of select="$title"/></field>
-                <field name="title_sort" ><xsl:value-of select="exts:prepareCzech($generic, $title)"/></field>
+                <xsl:variable name="modsTitle"
+                    select="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods/mods:titleInfo[not(@*)]/mods:title" />
+                <field name="title_sort" ><xsl:value-of select="exts:prepareCzech($generic, $modsTitle)"/></field>
         
                 <xsl:for-each select="foxml:datastream/foxml:datastreamVersion[last()]/foxml:xmlContent/oai_dc:dc/dc:creator">
                     <field name="dc.creator" boost="1.5">
