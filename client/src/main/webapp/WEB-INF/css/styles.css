@@ -1095,7 +1095,7 @@ li.public:before{
     -moz-border-radius:4px;
     border-color: $params.hitColor;
 }
-#viewer .chit{
+#viewer li.chit{
     border: solid 2px $params.chitColor;
 }
 
