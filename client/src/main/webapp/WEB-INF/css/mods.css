@@ -23,7 +23,20 @@ div.modsxml ul{
     margin: 0;
 }
 div.modsxml ul li                     {margin-bottom:0; padding-bottom:0;list-style: none;}
-div.modsxml ul li.node:hover>span.nodeName         {text-decoration: underline;}
+
+
+
+#metadata div.context span.nodeName{
+    cursor: default;
+}
+
+
+
+#metadata div.modsxml ul li.node:hover>span.nodeName{         
+text-decoration: none;
+}
+
+
 div.modsxml ul li input,
 
 
