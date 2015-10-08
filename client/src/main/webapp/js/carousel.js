@@ -24,8 +24,16 @@ Carousel.prototype = {
     panelHeight: 138,
     init: function(){
         
-        this.rightArrow = $('<div>', {class: 'arrow arrowRight'});
-        this.leftArrow = $('<div>', {class: 'arrow arrowLeft'});
+        //this.rightArrow = $('<div>', {class: 'arrow arrowRight'});
+        this.rightArrow = $('<div>', {class: 'medium button'});
+        this.rightArrow.css({right: "25px", top: 50});
+        this.rightArrow.load("svg.vm?svg=arrowright");
+        
+        //this.leftArrow = $('<div>', {class: 'arrow arrowLeft'});
+        this.leftArrow = $('<div>', {class: 'medium button'});
+        this.leftArrow.css({left: "24px", top: "50px"});
+        this.leftArrow.load("svg.vm?svg=arrowleft");
+        
         this.$elem.append(this.leftArrow);
         this.$elem.append(this.rightArrow);
         
