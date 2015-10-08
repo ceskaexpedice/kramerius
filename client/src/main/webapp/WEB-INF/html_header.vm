@@ -55,9 +55,7 @@
                 //selected configurations 
                 "conf": {
                     "i18n" :{
-                        #if(!$conf.getBoolean('cdkSources'))
-                            "cdkSources":$conf.getString('cdkSources')
-                         #end
+                        "cdkSources":$conf.getString('cdkSources')
                     },
                     "pdf":{
                         #if(!$conf.getBoolean('turnOffPdfCheck'))
