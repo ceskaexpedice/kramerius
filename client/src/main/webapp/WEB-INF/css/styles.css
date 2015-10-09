@@ -1095,7 +1095,7 @@ li.public:before{
     -moz-border-radius:4px;
     border-color: $params.hitColor;
 }
-#viewer .chit{
+#viewer li.chit{
     border: solid 2px $params.chitColor;
 }
 
@@ -1536,6 +1536,28 @@ li.public:before{
 
 #search_results .search_result div.thumb{
     width: 100%;
+}
+
+#search_results .search_result div.collections{
+    margin-right: 2px;
+    float: left;
+}
+
+
+#search_results .search_result div.collections span.ui-icon{
+    float: right;    
+}
+
+#search_results .search_result div.collections div.cols{
+    position: absolute;
+    bottom: 26px;
+    width: 230px;
+    display: none;
+    padding: 4px;
+    
+    -moz-box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
 }
 
 .search_result div.thumb{

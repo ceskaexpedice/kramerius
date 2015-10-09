@@ -362,3 +362,16 @@ function jsonToHash(json){
     }
     return hash;
 }
+
+function isAdvancedSearch(){
+    return $("#search_form input.facet").length > 0
+}
+
+function setAdvSearch(){
+        var fq = "";
+        $("#search_form input.facet").each(function(item){
+            fq += $(this).data("fq");
+        });
+        return fq;
+
+    }

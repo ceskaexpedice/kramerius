@@ -500,6 +500,9 @@ ItemSupport.prototype = {
         $("svg.toggle .line").toggle();
         $("svg.toggle .img").toggle();
     },
+    toogleModsView: function(){
+        $("div.modsxml li.node").toggleClass("fullmods");
+    },
         
     /**
      * Toggle info panel

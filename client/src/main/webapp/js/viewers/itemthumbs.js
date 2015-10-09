@@ -116,19 +116,19 @@ ItemThumbs.prototype = {
 
     },
     dosearch: function(q) {
-        
+        var q = $("#searchinside_q").val();
         console.log("query is "+q);
         if (q !== null && q !== $("#q").val()) {
             console.log("searching");
             this.setLoading(true);
             $("#q").val(q);
             this.hits = {};
-            $('li.hit').each(function() {
-                $(this).tooltip("option", "content", $(this).data("tt"));
-            });
-            $('li.chit').each(function() {
-                $(this).tooltip("option", "content", $(this).data("tt"));
-            });
+//            $('li.hit').each(function() {
+//                $(this).tooltip("option", "content", $(this).data("tt"));
+//            });
+//            $('li.chit').each(function() {
+//                $(this).tooltip("option", "content", $(this).data("tt"));
+//            });
             $('li.thumb').removeClass("hit chit");
             this.getHits();
         }
@@ -160,7 +160,7 @@ ItemThumbs.prototype = {
         });
     },
     getHits: function() {
-        if ($("#q").val() == "") {
+        if ($("#q").val() === "" && !isAdvancedSearch()) {
             return;
         }
         if (jQuery.isEmptyObject(this.hits)) {
@@ -171,9 +171,16 @@ ItemThumbs.prototype = {
             for (var i = 0; i < context.length; i++) {
                 pid_path += context[i].pid + "/";
             }
-            var q = "q=" + $("#q").val() + "&rows=5000&fq=pid_path:" + pid_path.replace(/:/g, "\\:") + "*";
+            var fq = setAdvSearch();
+            var q = "";
+            if($("#q").val() !== ""){
+                q += "q=" + $("#q").val();
+            }else if(fq !== ""){
+                q = "q=*:*";
+            }
+            q += "&rows=5000&fq=pid_path:" + pid_path.replace(/:/g, "\\:") + "*";
             var hl = "&hl=true&hl.fl=text_ocr&hl.mergeContiguous=true&hl.snippets=2";
-            K5.api.askForSolr(q + hl, _.bind(function(data) {
+            K5.api.askForSolr(q + hl + fq, _.bind(function(data) {
                 console.log("Hits: " + data.response.numFound);
                 //console.log(JSON.stringify(data));
                 this.hits = data.response.docs;
@@ -201,7 +208,7 @@ ItemThumbs.prototype = {
                     for (var j = 0; j < hl[pid].text_ocr.length; j++) {
                         hltext += '<div class="hl">' + hl[pid].text_ocr[j] + '</div>';
                     }
-                    $(this).tooltip("option", "content", tt + hltext);
+//                    $(this).tooltip("option", "content", tt + hltext);
                     break;
                 } else if (pid_path.indexOf(lipid) > -1) {
                     $(this).addClass('chit');

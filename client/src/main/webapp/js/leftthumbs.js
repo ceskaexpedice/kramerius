@@ -151,7 +151,11 @@ LeftThumbs.prototype = {
 
     },
     scrollToSelected: function(){
+        
         var sel = $($(".thumbs .selected")[0]).parent();
+        if(!sel){
+            return;
+        }
         var currentPos = this.container.parent().scrollTop();
         this.container.parent().animate({
             scrollTop: sel.position().top + currentPos

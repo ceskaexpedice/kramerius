@@ -221,8 +221,29 @@ public class Search {
         }
         return "";
     }
+    
+    public String getAdvFilter(String param) throws UnsupportedEncodingException {
+        return advFilter(param, getFieldFromParam(param));
+    }
+    
+    public String getFieldFromParam(String param) {
+        
+        if("title".equals(param)){
+            return fieldsConfig.getMappedField("title");
+        }else if("author".equals(param)){
+            return fieldsConfig.getMappedField("autor");
+        }else if("fedora_model".equals(param)){
+            return fieldsConfig.getMappedField("fedora_model");
+        }else if("udc".equals(param)){
+            return "mdt";
+        }else if("ddc".equals(param)){
+            return "ddt";
+        }else {
+            return param;
+        }
+    }
 
-    private String getAdvSearch() throws UnsupportedEncodingException {
+    public String getAdvSearch() throws UnsupportedEncodingException {
 
         StringBuilder res = new StringBuilder();
         res.append(advFilter("title", fieldsConfig.getMappedField("title")));
