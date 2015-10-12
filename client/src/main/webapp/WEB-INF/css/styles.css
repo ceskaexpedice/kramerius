@@ -484,6 +484,25 @@ li.public:before{
     display: none;
 }
 
+#facets .moreButton{
+    cursor: pointer;
+}
+
+#facets .range .sel{
+    text-align:center;
+    margin-bottom:16px;
+}
+
+#facets .range .go{
+    float: right;
+    font-size: 0.8em;
+}
+
+#facets .range .slid{
+    margin:0px 10px;
+}
+
+
 #facets a{
     color:inherit;
     text-decoration: inherit;

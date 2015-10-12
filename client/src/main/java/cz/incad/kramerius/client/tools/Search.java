@@ -238,7 +238,11 @@ public class Search {
     private String advFilter(String param, String field) throws UnsupportedEncodingException {
         String p = req.getParameter(param);
         if (p != null && !p.equals("")) {
-            return "&fq=" + field + ":" + URLEncoder.encode(StringUtils.escapeQueryChars(p), "UTF-8");
+            if("rok".equals(param)){
+                return "&fq=" + field + ":" + URLEncoder.encode(p, "UTF-8");
+            }else{
+                return "&fq=" + field + ":" + URLEncoder.encode(StringUtils.escapeQueryChars(p), "UTF-8");
+            }
         }
         return "";
     }
