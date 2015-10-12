@@ -27,6 +27,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,6 +57,7 @@ public class Search {
     private IndexConfig fieldsConfig;
 
     private String facets;
+    private String otherParams = "";
     private final String groupedParams = "&group.field=root_pid&group.type=normal&group.threshold=1"
             + "&group.facet=false&group=true&group.truncate=true&group.ngroups=true";
     private final String hlParams = "&hl=true&hl.fl=text_ocr&hl.mergeContiguous=true&hl.snippets=2";
@@ -75,6 +77,23 @@ public class Search {
                 facets += "&facet.field=" + fs.getString(i);
             }
                     
+            
+            
+            JSONObject others = fieldsConfig.getJSON().getJSONObject("otherParams");
+            Iterator keys = others.keys();
+            while (keys.hasNext()) {
+                String key = (String) keys.next();
+                Object val = others.get(key);
+                otherParams += "&" + key + "=" + val;
+//                if (val instanceof Integer) {
+//                    query.set(key, (Integer) val);
+//                } else if (val instanceof String) {
+//                    query.set(key, (String) val);
+//                } else if (val instanceof Boolean) {
+//                    query.set(key, (Boolean) val);
+//                }
+
+            }
 //            facets = "&facet.mincount=1&facet.field=" + 
 //                    fieldsConfig.getMappedField("model_path") + 
 //                    "&facet.field=keywords&facet.field=collection&facet.field=dostupnost";
@@ -140,6 +159,7 @@ public class Search {
                     + facets
                     + getSort()
                     + getFilters()
+                    + otherParams
                     + hlParams;
             return new JSONObject(getJSON(url));
         } catch (IOException ex) {
@@ -168,6 +188,7 @@ public class Search {
                     + getSort()
                     + getFilters()
                     + groupedParams
+                    + otherParams
                     + hlParams;
             return new JSONObject(getJSON(url));
         } catch (IOException ex) {
