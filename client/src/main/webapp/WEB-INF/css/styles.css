@@ -503,15 +503,33 @@ li.public:before{
 }
 
 
+#facets div.res{
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 #facets a{
+    width: 80%;
     color:inherit;
     text-decoration: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#facets div.res a span.translate{
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #facets span.count{
     float:right;
     text-decoration: inherit;
-    margin-left: 40px;
+    margin-left: 4px;
 }
 
 #facets .res:hover{
@@ -801,6 +819,9 @@ li.public:before{
 
 #viewer .infobox div.right .small{
     display: inline-block;
+}
+#viewer .infobox div.right .back{
+    margin-right: 0.8em;
 }
 
 #viewer .infobox h4{

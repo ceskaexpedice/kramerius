@@ -9,16 +9,21 @@
     width="100"
     height="100"
     viewBox="0 0 100 100"
-    class="plus"
+    class="docout"
 >
 
     <circle cx="50" cy="50" r="38" class="svg-icon"  />
+<!--
 
+    <rect x="45" y="40" height="30" width="20" class="svg-icon" style="stroke-width: 0.5em" />
+-->
 
-    <rect x="35" y="30" height="40" width="30" class="svg-icon" style="stroke-width: 0.5em" />
-
-
+    <path d="M 35 40 l 10 -10"  class="svg-icon nofill"  fill="none"/>
+    <path d="M 35 40 l 10 10"  class="svg-icon nofill"  fill="none"/>
+    <path id="out" d="M 35 40 q 30 -5 25 30"  style="fill:none" class="svg-icon nofill"   fill="none"/>
+<!--    
     <line x1="20" y1="45" x2="25" y2="50" class="svg-icon" />
     <line x1="20" y1="45" x2="25" y2="40" class="svg-icon" />
     <line x1="20" y1="45" x2="55" y2="45" class="svg-icon" />
+-->
 </svg>
