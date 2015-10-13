@@ -240,6 +240,8 @@ public class Search {
         if (p != null && !p.equals("")) {
             if("rok".equals(param)){
                 return "&fq=" + field + ":" + URLEncoder.encode(p, "UTF-8");
+            }else if("dostupnost".equals(param) && p.equals("none")){
+                return "&fq=-dostupnost:" + URLEncoder.encode("['' TO *]", "UTF-8");
             }else{
                 return "&fq=" + field + ":" + URLEncoder.encode(StringUtils.escapeQueryChars(p), "UTF-8");
             }

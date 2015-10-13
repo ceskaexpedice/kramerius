@@ -35,6 +35,9 @@ Facets.prototype = {
         $("#contextbuttons").append(text);
     },
     addFilter: function(facet, val) {
+        if(val === ""){
+            val = "none";
+        }
         var input = $("<input>", {type: "hidden", value: val, name: facet, class: "facet"});
         $("#search_form").append(input);
         $("#start").val("0");
