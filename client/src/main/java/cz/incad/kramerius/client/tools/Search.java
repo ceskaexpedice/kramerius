@@ -70,15 +70,13 @@ public class Search {
             host = KConfiguration.getInstance().getConfiguration().getString("k4.host");
             apipoint = KConfiguration.getInstance().getConfiguration().getString("api.point");
             fieldsConfig = IndexConfig.getInstance();
-            
+
             facets = "&facet.mincount=1";
             JSONArray fs = fieldsConfig.getJSON().getJSONArray("facets");
-            for(int i = 0; i<fs.length(); i++){
+            for (int i = 0; i < fs.length(); i++) {
                 facets += "&facet.field=" + fs.getString(i);
             }
-                    
-            
-            
+
             JSONObject others = fieldsConfig.getJSON().getJSONObject("otherParams");
             Iterator keys = others.keys();
             while (keys.hasNext()) {
@@ -97,7 +95,6 @@ public class Search {
 //            facets = "&facet.mincount=1&facet.field=" + 
 //                    fieldsConfig.getMappedField("model_path") + 
 //                    "&facet.field=keywords&facet.field=collection&facet.field=dostupnost";
-            
 
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -105,15 +102,15 @@ public class Search {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
-    
-    public String getMappings(){
+
+    public String getMappings() {
         return fieldsConfig.getMappings();
     }
 
     private String getJSON(String url) throws IOException {
 
         LOGGER.log(Level.INFO, "requesting url {0}", url);
-        InputStream inputStream = RESTHelper.inputStream(url, "application/json",this.req, new HashMap<String, String>());
+        InputStream inputStream = RESTHelper.inputStream(url, "application/json", this.req, new HashMap<String, String>());
         StringWriter sw = new StringWriter();
         org.apache.commons.io.IOUtils.copy(inputStream, sw, "UTF-8");
         return sw.toString();
@@ -121,9 +118,9 @@ public class Search {
 
     public JSONArray getDaJSON() {
         try {
-            String url = apipoint + "/search" + 
-                    "?q=*:*&rows=0&facet=true&facet.field=rok&facet.mincount=1&f.rok.facet.sort=false&f.rok.facet.limit=-1" +
-                    "&group=true&group.main=true&group.truncate=true&group.ngroups=true&group.field=root_pid&group.format=simple";
+            String url = apipoint + "/search"
+                    + "?q=*:*&rows=0&facet=true&facet.field=rok&facet.mincount=1&f.rok.facet.sort=false&f.rok.facet.limit=-1"
+                    + "&group=true&group.main=true&group.truncate=true&group.ngroups=true&group.field=root_pid&group.format=simple";
             return new JSONObject(getJSON(url))
                     .getJSONObject("facet_counts")
                     .getJSONObject("facet_fields").getJSONArray("rok");
@@ -236,36 +233,40 @@ public class Search {
     }
 
     private String advFilter(String param, String field) throws UnsupportedEncodingException {
-        String p = req.getParameter(param);
-        if (p != null && !p.equals("")) {
-            if("rok".equals(param)){
-                return "&fq=" + field + ":" + URLEncoder.encode(p, "UTF-8");
-            }else if("dostupnost".equals(param) && p.equals("none")){
+        String[] p = req.getParameterValues(param);
+        if (p != null) {
+            if ("rok".equals(param)) {
+                return "&fq=" + field + ":" + URLEncoder.encode(p[0], "UTF-8");
+            } else if ("dostupnost".equals(param) && p[0].equals("none")) {
                 return "&fq=-dostupnost:" + URLEncoder.encode("['' TO *]", "UTF-8");
-            }else{
-                return "&fq=" + field + ":" + URLEncoder.encode(StringUtils.escapeQueryChars(p), "UTF-8");
+            } else {
+                String fq = "";
+                for (String p1 : p) {
+                    fq += "&fq=" + field + ":" + URLEncoder.encode(StringUtils.escapeQueryChars(p1), "UTF-8");
+                }
+                return fq;
             }
         }
         return "";
     }
-    
+
     public String getAdvFilter(String param) throws UnsupportedEncodingException {
         return advFilter(param, getFieldFromParam(param));
     }
-    
+
     public String getFieldFromParam(String param) {
-        
-        if("title".equals(param)){
+
+        if ("title".equals(param)) {
             return fieldsConfig.getMappedField("title");
-        }else if("author".equals(param)){
+        } else if ("author".equals(param)) {
             return fieldsConfig.getMappedField("autor");
-        }else if("fedora_model".equals(param)){
+        } else if ("fedora_model".equals(param)) {
             return fieldsConfig.getMappedField("fedora_model");
-        }else if("udc".equals(param)){
+        } else if ("udc".equals(param)) {
             return "mdt";
-        }else if("ddc".equals(param)){
+        } else if ("ddc".equals(param)) {
             return "ddt";
-        }else {
+        } else {
             return param;
         }
     }
@@ -294,22 +295,22 @@ public class Search {
 
     }
 
-    private void usedFilter(Map<String, String> map, String param) {
-        String p = req.getParameter(param);
+    private void usedFilter(Map<String, String[]> map, String param) {
+        String[] p = req.getParameterValues(param);
         if (p != null && !p.equals("")) {
             map.put(param, p);
         }
     }
 
-    private void usedFilter(Map<String, String> map, String param, String field) {
-        String p = req.getParameter(param);
-        if (p != null && !p.equals("")) {
+    private void usedFilter(Map<String, String[]> map, String param, String field) {
+        String[] p = req.getParameterValues(param);
+        if (p != null) {
             map.put(param, p);
         }
     }
 
-    public Map<String, String> getUsedFilters() {
-        Map<String, String> map = new HashMap<String, String>();
+    public Map<String, String[]> getUsedFilters() {
+        Map<String, String[]> map = new HashMap<String, String[]>();
         usedFilter(map, "title", fieldsConfig.getMappedField("title"));
         usedFilter(map, "author", fieldsConfig.getMappedField("autor"));
         usedFilter(map, "udc", "mdt");
@@ -324,15 +325,16 @@ public class Search {
         return map;
     }
 
-    private String getBoost(String q){
+    private String getBoost(String q) {
         String ret = "";
-        ret = "&defType=edismax&qf=text+" + 
-                fieldsConfig.getMappedField("title") + "^4.0+" + 
-                fieldsConfig.getMappedField("autor") + "^1.5&bq=(level:0)^4.5" +
-                "&bq=" + fieldsConfig.getMappedField("dostupnost") + ":\"public\"^1.2" +
-                "&pf=text^10";
+        ret = "&defType=edismax&qf=text+"
+                + fieldsConfig.getMappedField("title") + "^4.0+"
+                + fieldsConfig.getMappedField("autor") + "^1.5&bq=(level:0)^4.5"
+                + "&bq=" + fieldsConfig.getMappedField("dostupnost") + ":\"public\"^1.2"
+                + "&pf=text^10";
         return ret;
     }
+
     private String getFilters() throws UnsupportedEncodingException {
         String res = getAdvSearch();
         String[] fqs = req.getParameterValues("fq");
@@ -349,9 +351,13 @@ public class Search {
     }
 
     private String getCollectionFilter() {
-        String col = req.getParameter("collection");
-        if (col != null && !col.equals("")) {
-            return "&fq=collection:\"" + StringUtils.escapeQueryChars(col) + "\"";
+        String[] cols = req.getParameterValues("collection");
+        if (cols != null) {
+            String fq = "";
+            for(String col:cols){
+                fq += "&fq=collection:\"" + StringUtils.escapeQueryChars(col) + "\"";
+            }
+            return fq;
         }
         return "";
     }
