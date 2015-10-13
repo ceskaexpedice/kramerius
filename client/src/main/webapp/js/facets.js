@@ -59,6 +59,17 @@ Facets.prototype = {
         }
 
     },
+    isUsed: function(facet, val){
+        var ret = false;
+        $("input[name='" + facet + "']").each(function () {
+            if ($(this).val() === val) {
+                ret = true;
+                return;
+            }
+        });
+        
+        return ret;
+    },
     removeFilter: function (facet, val) {
 
         $("input[name='" + facet + "']").each(function () {
@@ -89,6 +100,10 @@ Facets.prototype = {
         }
     },
     addFacetValue: function (div, key, val, count, more) {
+        
+        if(this.isUsed(key, val)){
+            return;
+        }
         var div2 = $('<div/>', {class: 'res'});
         var a = $('<a/>', {class: 'res'});
 
