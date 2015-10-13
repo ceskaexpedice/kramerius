@@ -126,6 +126,10 @@ I18N.prototype= {
             return t;
         },
         
+        hasKey: function(key){
+            return this.ctx.dictionary.hasOwnProperty(key);
+        },
+        
         translatableElm:function(key, elmId) {
                 var t = this.ctx.dictionary[key]? this.ctx.dictionary[key]: key;
                 $(elmId).attr('data-key',key);

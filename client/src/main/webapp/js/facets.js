@@ -118,7 +118,9 @@ Facets.prototype = {
             div2.addClass("more");
         }
         if (key === "collection") {
-            //a.addClass("vc");
+            if(!K5.i18n.hasKey(val)){
+                return;
+            }
             a.html(K5.i18n.translatable(val));
             //a.text(arr[i]);
         } else if (key === "typ_titulu" || key === "fedora.model" || key === "model_path") {
@@ -183,8 +185,9 @@ Facets.prototype = {
         var root_models = {};
         $.each(json, function (key, arr) {
             if (arr.length > 2) {
-                var div = $('<div/>', {class: 'facet range'});
+                var div = $('<div/>', {class: 'facet'});
                 if (key === "rok") {
+                    div.addClass("range");
                     div.html("<h3>" + K5.i18n.translatable('facet.' + key) + "</h3>");
                     obj.prepend(div);
                     var min = parseInt(arr[0]);
