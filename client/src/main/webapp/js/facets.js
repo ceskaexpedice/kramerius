@@ -42,12 +42,19 @@ Facets.prototype = {
     },
     addRokFilter: function(){
         var selid = "#sel_rok";
-        var val = '[' + $(selid).data("from") + ' TO ' + $(selid).data("to") + ']';
+        var min = $(selid).data("from");
+        var max = $(selid).data("to");
+        if(parseInt(min) && parseInt(max) && min <= max){
+            var val = '[' + min + ' TO ' + max + ']';
+
+            var input = $("<input>", {type: "hidden", value: val, name: 'rok', class: "facet"});
+            $("#search_form").append(input);
+            $("#start").val("0");
+            $("#search_form").submit();
+        }else{
+            alert("Invalid values");
+        }
         
-        var input = $("<input>", {type: "hidden", value: val, name: 'rok', class: "facet"});
-        $("#search_form").append(input);
-        $("#start").val("0");
-        $("#search_form").submit();
     },
     removeFilter: function(facet, val) {
         $("input[name='" + facet + "']").remove();
