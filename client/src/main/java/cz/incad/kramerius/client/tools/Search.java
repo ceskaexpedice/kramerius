@@ -102,6 +102,13 @@ public class Search {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
+    
+    private boolean isHome(){
+        String p = req.getParameter("page");
+        LOGGER.log(Level.INFO, "page {0}", p);
+        return (p==null || "home".equals(p));
+        
+    }
 
     public String getMappings() {
         return fieldsConfig.getMappings();
@@ -134,12 +141,29 @@ public class Search {
     }
 
     public JSONObject getResults() {
-        if (isFilterByType() || !KConfiguration.getInstance().getConfiguration().getBoolean("search.query.collapsed", true)) {
+        if(isHome()){
+            return getHome();
+        }else if (isFilterByType() || !KConfiguration.getInstance().getConfiguration().getBoolean("search.query.collapsed", true)) {
             return getUngrouped();
         } else {
             return getGrouped();
         }
     }
+    
+
+    public JSONObject getHome() {
+        try {
+            String url = apipoint + "/search" + "?q=*:*&wt=json&facet=true&rows=0&facet.field=model_path&facet.field=collection&facet.field=dostupnost";
+            return new JSONObject(getJSON(url));
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+            return null;
+        } catch (JSONException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+
 
     public JSONObject getUngrouped() {
         try {
