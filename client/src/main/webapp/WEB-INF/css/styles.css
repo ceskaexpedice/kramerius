@@ -1371,6 +1371,7 @@ li.public:before{
     /* background-color: $params.activeColor; */
     color: $params.textColor;
     font-weight: bold;
+    background-color: $params.inactiveColor;
 }
 #pidinfo>div.a:hover{
     text-decoration: underline;
@@ -1425,7 +1426,7 @@ li.public:before{
 
 #buttons div.sel{
     font-weight: bold;
-    color: yellow;
+    text-decoration: underline;
 }
 
 #buttons div.button:hover{
