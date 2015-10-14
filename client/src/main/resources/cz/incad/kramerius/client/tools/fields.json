@@ -8,8 +8,6 @@
     },
     "facets":["model_path", "keywords", "collection", "dostupnost"],
     "otherParams":{
-        "stats":"true",
-        "stats.field":"rok"
     },
     "browse":{
         "models": ["monograph","periodical","article"]
