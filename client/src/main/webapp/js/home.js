@@ -168,14 +168,15 @@ HomeEffects.prototype = {
             }.bind(this), 3000);
             
             */
+
+            this.backgroundDisplayed = true;
         }, this);
 
-        image.onerror = function() {
-            //th.loaded++;
-        };
+        image.onerror = _.bind(function() {
+            this.displayBackground();
+            this.backgroundDisplayed = false;
+        }, this);
         image.src = src;
-
-        this.backgroundDisplayed = true;
     },
     selBand: function(obj) {
         $('#buttons>div.button').removeClass('sel');
