@@ -45,7 +45,7 @@
         #end
     
         <div class="button select">
-            <select id="langSelector" onchange="K5.i18n.askForDictionary( $('#langSelector option:selected').data('lang'), $('#langSelector option:selected').data('country') )">
+            <select id="langSelector" onchange="K5.i18n.changeLanguage( $('#langSelector option:selected').data('lang'), $('#langSelector option:selected').data('country') )">
                 <option #if($i18n.language == 'cs')selected="selected" #end  data-lang="cs" data-country="CZ">cs</option>
                 <option #if($i18n.language == 'en')selected="selected" #end data-lang="en" data-country="EN">en</option>
             </select>

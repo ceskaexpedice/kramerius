@@ -3,7 +3,9 @@
 #end
 <div id="search_box">
 <form id="search_form" name="search_form" action="?page=search" method="get">
-    <input id="q" name="q" placeholder="$i18n.query.placeholder" value="$!esc.html(${params.q})" />
+    <input id="q" name="q" class="translate_placeholder"
+        data-key="query.placeholder" placeholder="$i18n.query.placeholder" 
+        value="$!esc.html(${params.q})" />
     <input type="hidden" name="page" value="search" />
     <input type="hidden" name="start" id="start" value="$!{params.start}" />
     <input type="hidden" name="rows" id="rows" value="$!{params.rows}" />
