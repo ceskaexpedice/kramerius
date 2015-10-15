@@ -100,9 +100,8 @@ Results.prototype = {
             $('#search_results_docs .more_docs').remove();
             var json = jQuery.parseJSON(data);
             K5.eventsHandler.trigger("results/loaded", json);
-            var numFound = this.loadDocs(json);
+            this.loadDocs(json);
             if (!this.resultsLoaded) {
-                this.setHeader(numFound);
                 this.srResize();
             }
             $('.opacityloading').hide();
@@ -153,7 +152,7 @@ Results.prototype = {
             $(this).children("div.cols").hide();
         });
 
-        return numFound;
+        this.setHeader(numFound);
     },
     addContextButtons: function() {
         var text = $("#results_menu").html();
