@@ -484,15 +484,52 @@ li.public:before{
     display: none;
 }
 
+#facets .moreButton{
+    cursor: pointer;
+}
+
+#facets .range .sel{
+    text-align:center;
+    margin-bottom:16px;
+}
+
+#facets .range .go{
+    float: right;
+    font-size: 0.8em;
+}
+
+#facets .range .slid{
+    margin:0px 10px;
+}
+
+
+#facets div.res{
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 #facets a{
+    width: 80%;
     color:inherit;
     text-decoration: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#facets div.res a span.translate{
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #facets span.count{
     float:right;
     text-decoration: inherit;
-    margin-left: 40px;
+    margin-left: 4px;
 }
 
 #facets .res:hover{
@@ -782,6 +819,9 @@ li.public:before{
 
 #viewer .infobox div.right .small{
     display: inline-block;
+}
+#viewer .infobox div.right .back{
+    margin-right: 0.8em;
 }
 
 #viewer .infobox h4{
@@ -1298,6 +1338,10 @@ li.public:before{
     top: 0px;
     width: 100%;
     height: 100%;    
+}
+
+#home div.img{
+    
     background-repeat: no-repeat;
     background-position: 40%;
 }
@@ -1306,7 +1350,8 @@ li.public:before{
     overflow: hidden;
     height: 60%;
     opacity: 1;
-    left: 105px;
+    left: 75px;
+    top: 75px;
 }
 
 #home .home_text{
@@ -1318,14 +1363,15 @@ li.public:before{
 #pidinfo{
     position:absolute;
     right: 20px;
-    bottom:100px;
+    bottom:10px;
     padding: 10px;
-    max-width: 300px;
+    max-width: 500px;
     text-align: center;
     text-shadow: 0 0 5px #000;
     /* background-color: $params.activeColor; */
     color: $params.textColor;
     font-weight: bold;
+    background-color: $params.inactiveColor;
 }
 #pidinfo>div.a:hover{
     text-decoration: underline;
@@ -1380,7 +1426,7 @@ li.public:before{
 
 #buttons div.sel{
     font-weight: bold;
-    color: yellow;
+    text-decoration: underline;
 }
 
 #buttons div.button:hover{

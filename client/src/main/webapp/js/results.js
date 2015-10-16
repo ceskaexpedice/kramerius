@@ -94,15 +94,16 @@ Results.prototype = {
     },
     getDocs: function() {
         $('.opacityloading').show();
+        this.srResize();
         $.get("raw_results.vm?" + $("#search_form").serialize(), _.bind(function(data) {
             //console.log(data);
             $('#search_results_docs .more_docs').remove();
             var json = jQuery.parseJSON(data);
+            K5.eventsHandler.trigger("results/loaded", json);
             var numFound = this.loadDocs(json);
             if (!this.resultsLoaded) {
                 this.setHeader(numFound);
                 this.srResize();
-                K5.eventsHandler.trigger("results/loaded", json);
             }
             $('.opacityloading').hide();
             this.resultsLoaded = true;
