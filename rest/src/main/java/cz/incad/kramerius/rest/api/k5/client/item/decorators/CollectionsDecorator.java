@@ -23,6 +23,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -31,16 +34,12 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.rest.api.k5.client.utils.RELSEXTDecoratorUtils;
-import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
-import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 public class CollectionsDecorator extends AbstractItemDecorator {
 
@@ -82,7 +81,7 @@ public class CollectionsDecorator extends AbstractItemDecorator {
 			Map<String, Object> runtimeContext) {
 		
 		try {
-			if (jsonObject.containsKey("pid")) {
+			if (jsonObject.has("pid")) {
 				String pid = jsonObject.getString("pid");
 				if (!PIDSupport.isComposedPID(pid)) {
 					Document relsExtDoc = RELSEXTDecoratorUtils.getRELSEXTPidDocument(pid, context, this.fedoraAccess);
@@ -94,7 +93,7 @@ public class CollectionsDecorator extends AbstractItemDecorator {
 							try {
 								PIDParser pidParser = new PIDParser(collectionPid);
 								pidParser.disseminationURI();
-								collectionsJSON.add(pidParser.getObjectPid());
+								collectionsJSON.put(pidParser.getObjectPid());
 							} catch (LexerException e) {
 								LOGGER.severe("cannot parse collection pid "+collectionPid);
 								LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -105,7 +104,11 @@ public class CollectionsDecorator extends AbstractItemDecorator {
 				}
 			}
 		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            throw new GenericApplicationException(e.getMessage());
+		} catch (JSONException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            throw new GenericApplicationException(e.getMessage());
 		}
 		
 	}

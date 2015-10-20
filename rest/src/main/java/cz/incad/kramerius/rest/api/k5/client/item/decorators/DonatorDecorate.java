@@ -7,8 +7,8 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
-import net.sf.json.JSONObject;
-
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
@@ -16,6 +16,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.rest.api.k5.client.utils.RELSEXTDecoratorUtils;
 import cz.incad.kramerius.utils.RelsExtHelper;
@@ -64,8 +65,13 @@ public class DonatorDecorate  extends AbstractItemDecorator{
             }
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         }
         
     }

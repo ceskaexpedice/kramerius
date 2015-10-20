@@ -17,28 +17,21 @@
 package cz.incad.kramerius.rest.api.k5.client.item.decorators;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.w3c.dom.Document;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 
-import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
-import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
+import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-
-import java.util.ArrayList;
-
-import net.sf.json.JSONArray;
 
 /**
  * Doplni titulky z indexu
@@ -71,15 +64,19 @@ public class ItemSolrTitleDecorate extends AbstractItemDecorator {
             if (doc != null) {
                 String title = SOLRUtils.value(doc, "dc.title", String.class);
                 if (title != null) {
-                    jsonObject.put("title", title);
+                    jsonObject.put("title", ItemResourceUtils.preventAutomaticConversion(title));
                 }
                 String root_title = SOLRUtils.value(doc, "root_title", String.class);
                 if (root_title != null) {
-                    jsonObject.put("root_title", root_title);
+                    jsonObject.put("root_title", ItemResourceUtils.preventAutomaticConversion(root_title));
                 }
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
@@ -88,5 +85,7 @@ public class ItemSolrTitleDecorate extends AbstractItemDecorator {
 		TokenizedPath tpath = super.itemContext(tokenize(context));
 		return tpath.isParsed() ;
     }
+    
 
+    
 }

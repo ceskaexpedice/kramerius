@@ -8,9 +8,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.sf.json.JSONObject;
-
 import org.easymock.EasyMock;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -20,8 +20,6 @@ import com.google.inject.Provider;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.CollectionsDecoratorTest;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.ReplicatedFromDecorator;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.ZoomDecorate;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -29,7 +27,7 @@ public class ZoomDecoratorTest {
 
 
 	@Test
-	public void testDecorateZoomify() throws ParserConfigurationException, SAXException, IOException {
+	public void testDecorateZoomify() throws ParserConfigurationException, SAXException, IOException, JSONException {
 		URL res = CollectionsDecoratorTest.class.getResource("rels-ext2.xml");
 		Document document = XMLUtils.parseDocument(res.openStream(), true);
 		
@@ -75,7 +73,7 @@ public class ZoomDecoratorTest {
 
 
 	@Test
-	public void testDecorateDeepzoom() throws ParserConfigurationException, SAXException, IOException {
+	public void testDecorateDeepzoom() throws ParserConfigurationException, SAXException, IOException, JSONException {
 		URL res = CollectionsDecoratorTest.class.getResource("rels-ext2.xml");
 		Document document = XMLUtils.parseDocument(res.openStream(), true);
 		

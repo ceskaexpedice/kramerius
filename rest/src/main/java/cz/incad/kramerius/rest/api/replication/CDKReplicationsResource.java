@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,9 +24,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -105,7 +104,7 @@ public class CDKReplicationsResource {
                                 new ArrayList<String>());
                 JSONArray jsonArr = new JSONArray();
                 for (VirtualCollection vc : vcs) {
-                    jsonArr.add(virtualCollectionTOJSON(vc));
+                    jsonArr.put(virtualCollectionTOJSON(vc));
                 }
                 return Response.ok().entity(jsonArr.toString()).build();
             } catch (Exception e) {
@@ -117,7 +116,7 @@ public class CDKReplicationsResource {
     }
 
 
-    public static JSONObject virtualCollectionTOJSON(VirtualCollection vc) {
+    public static JSONObject virtualCollectionTOJSON(VirtualCollection vc) throws JSONException {
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("pid", vc.getPid());
         jsonObj.put("label", vc.getLabel());
@@ -281,6 +280,8 @@ public class CDKReplicationsResource {
         } catch (FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '" + pid + "'");
         } catch (IOException e) {
+            throw new ReplicateException(e);
+        } catch (JSONException e) {
             throw new ReplicateException(e);
         }
     }

@@ -24,7 +24,8 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -145,7 +146,7 @@ public class AbstractSearchParamsViews {
     public String getSearchResultsRows() {
         return KConfiguration.getInstance().getProperty("search.results.rows", "20");
     }
-    public String getSortingFromProfile() {
+    public String getSortingFromProfile() throws JSONException {
         UserProfile profile = this.userProfileManager.getProfile(this.userProvider.get());
         JSONObject jsonData = profile.getJSONData();
         JSONObject results = (JSONObject) jsonData.get("results");

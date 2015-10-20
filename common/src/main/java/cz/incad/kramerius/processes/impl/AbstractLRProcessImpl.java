@@ -36,7 +36,6 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public abstract class AbstractLRProcessImpl implements LRProcess {
@@ -123,7 +122,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     }
 
     @Override
-    public void startMe(boolean wait, String krameriusAppLib,
+    public void startMe(boolean wait, String krameriusAppLib, 
             String... additionalJarFiles) {
         try {
             File processWorkingDir = processWorkingDirectory();
@@ -141,6 +140,10 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
 
             command.add("-D" + ProcessStarter.MAIN_CLASS_KEY + "="
                     + this.definition.getMainClass());
+
+//            command.add("-D" + IsActionAllowedFromRequest.X_IP_FORWARD + "="
+//                    + remoteAddr);
+
             command.add("-D" + ProcessStarter.UUID_KEY + "=" + this.uuid);
             command.add("-D" + ProcessStarter.TOKEN_KEY + "="
                     + this.getGroupToken());

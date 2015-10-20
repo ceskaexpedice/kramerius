@@ -22,23 +22,17 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.w3c.dom.Document;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 
-import net.sf.json.JSONObject;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
-import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-
-import java.util.ArrayList;
-
-import net.sf.json.JSONArray;
 
 public class SolrContextDecorate extends AbstractItemDecorator {
 
@@ -82,9 +76,9 @@ public class SolrContextDecorate extends AbstractItemDecorator {
                                 JSONObject jo = new JSONObject();
                                 jo.put("pid", pids[j]);
                                 jo.put("model", models[j]);
-                                ja.add(jo);
+                                ja.put(jo);
                             }
-                            jaContext.add(ja);
+                            jaContext.put(ja);
                         }
                         jsonObject.put("context", jaContext);
                     }
@@ -92,6 +86,10 @@ public class SolrContextDecorate extends AbstractItemDecorator {
                 }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
