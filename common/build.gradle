@@ -18,8 +18,7 @@ dependencies {
 
     compile 'javax.servlet:servlet-api:2.5'
     
-    //compile 'org.json:json:20090211'
-    compile 'org.json:json:20150729'
+    compile 'org.json:json:20140107'
 
     compile 'commons-codec:commons-codec:1.5'
     compile 'org.apache.pdfbox:pdfbox:1.8.2'
