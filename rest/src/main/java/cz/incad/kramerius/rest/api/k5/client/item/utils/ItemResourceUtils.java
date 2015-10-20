@@ -175,15 +175,7 @@ public class ItemResourceUtils {
      * @return
      */
     public static String preventAutomaticConversion(String value) {
-        StringBuilder builder = new StringBuilder();
-        value = value.trim();
-        if (array(value)) {
-            builder.append('"').append(value).append('"');
-            return builder.toString();
-        } else if (isNumber(value)) {
-            builder.append('"').append(value).append('"');
-            return builder.toString();
-        } else return value;
+        return value;
     }
 
 }
