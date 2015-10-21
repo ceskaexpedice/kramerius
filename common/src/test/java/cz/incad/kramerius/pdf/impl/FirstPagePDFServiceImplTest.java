@@ -19,7 +19,6 @@ package cz.incad.kramerius.pdf.impl;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -27,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.PropertyResourceBundle;
@@ -40,12 +38,10 @@ import javax.xml.xpath.XPathExpressionException;
 import junit.framework.Assert;
 
 import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
 import org.junit.Test;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.google.inject.AbstractModule;
@@ -56,7 +52,6 @@ import com.google.inject.name.Names;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfWriter;
 
-import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
@@ -71,6 +66,7 @@ import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.commands.ITextCommands;
 import cz.incad.kramerius.pdf.commands.render.RenderPDF;
+import cz.incad.kramerius.pdf.impl.FirstPagePDFServiceImpl.DetailItem;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
@@ -641,6 +637,20 @@ public class FirstPagePDFServiceImplTest {
         Assert.assertTrue(diff.toString(),diff.similar());
     }
 
+    
+    
+    @Test
+    public void testEscapingInPrepareViewObject() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
+        DetailItem item = new FirstPagePDFServiceImpl.DetailItem("Hlavni nazev", "Svět ledu & ohně: oficiální dějiny Západozemí a Hry o trůny");
+        Assert.assertEquals("Svět ledu &amp; ohně: oficiální dějiny Západozemí a Hry o trůny", item.getValue());
+        FirstPagePDFServiceImpl.FirstPageViewObject viewObject = new FirstPagePDFServiceImpl.FirstPageViewObject();
+
+        viewObject.setConditionUsage("<& >");
+        Assert.assertEquals("&lt;&amp; &gt;", viewObject.getConditionUsage());
+        
+        viewObject.setDitigalLibrary("\" <& >");
+        Assert.assertEquals("&quot; &lt;&amp; &gt;", viewObject.getDitigalLibrary());
+    }
 
 
 
