@@ -189,8 +189,7 @@ HomeEffects.prototype = {
     setSizes: function(){
         $("#home div.container").show();
         var h = window.innerHeight - $('#header').height() - $('#footer').height() - $('#buttons').height();
-        var h2 = $('#header').height();
-        $("#home div.container").css("top", h2);
+        
         $('#facets').css('top', 0);
         $('#facets').css('overflow', 'auto');
         $('#facets').css('left', 0);

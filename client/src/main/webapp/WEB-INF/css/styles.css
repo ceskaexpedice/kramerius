@@ -75,7 +75,7 @@ body * {
 
 
 #header{
-    position: absolute;
+    position: relative;
     height: 40px;
     width: 100%;
     color: rgba(180, 180, 180, 0.4);
@@ -941,7 +941,6 @@ li.public:before{
     position:relative;
     height: 20px;
     margin-left: 10px;
-    margin-top: 40px;
     display: table;
     font-size: 1.2em;
     overflow:hidden;
