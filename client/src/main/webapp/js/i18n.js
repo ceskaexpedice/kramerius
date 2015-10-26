@@ -75,8 +75,10 @@ I18N.prototype= {
                         this.ctx['dictionary'][data[i].pid] = data[i].descs[lang];
                     }
                     $.getJSON("api/sources", _.bind(function(data) {
+                        this.ctx['linkToSources'] = {};
                         for(var i=0; i< data.length; i++){
                             this.ctx['dictionary'][data[i].pid] = data[i].descs[lang];
+                            this.ctx['linkToSources'][data[i].pid] = data[i].url;
                         }
                         if (whenready != null) whenready.apply(null, [data]);
                         this.application.eventsHandler.trigger("i18n/dictionary",data);
