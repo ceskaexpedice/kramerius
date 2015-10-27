@@ -20,7 +20,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -48,13 +49,13 @@ public class HeadView {
         } else return 2;
     }
     
-    public int getProfileColumns() {
+    public int getProfileColumns() throws JSONException {
         User user = this.userProvider.get();
         UserProfile profile = this.userProfileManager.getProfile(user);
         JSONObject jsonData = profile.getJSONData();
     
         JSONObject results = (JSONObject) jsonData.get("results");
-        if (results != null && results.containsKey("columns")) {
+        if (results != null && results.has("columns")) {
             int retval = results.getInt("columns");
             return retval;
         } else return 2; // default

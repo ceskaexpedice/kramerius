@@ -22,15 +22,15 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import net.sf.json.JSONObject;
-import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
-import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
@@ -51,8 +51,8 @@ public class HandleDecorate extends AbstractItemDecorator {
     @Override
     public void decorate(JSONObject jsonObject, Map<String, Object> context) {
         if (containsPidInJSON(jsonObject)) {
-            String pidFromJSON = getPidFromJSON(jsonObject);
             try {
+                String pidFromJSON = getPidFromJSON(jsonObject);
                 PIDParser pidParser = new PIDParser(pidFromJSON);
                 pidParser.objectPid();
                 pidParser.getObjectId();
@@ -65,6 +65,10 @@ public class HandleDecorate extends AbstractItemDecorator {
                 }
             } catch (LexerException e) {
                 LOGGER.log(Level.WARNING,e.getMessage(),e);
+                throw new GenericApplicationException(e.getMessage());
+            } catch (JSONException e) {
+                LOGGER.log(Level.WARNING,e.getMessage(),e);
+                throw new GenericApplicationException(e.getMessage());
             }
         }
     }

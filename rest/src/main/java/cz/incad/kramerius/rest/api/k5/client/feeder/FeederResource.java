@@ -1,7 +1,6 @@
 package cz.incad.kramerius.rest.api.k5.client.feeder;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
@@ -12,13 +11,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -29,20 +30,16 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.users.UserProfileManager;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 @Path("/v5.0/feed")
 public class FeederResource {
@@ -139,13 +136,13 @@ public class FeederResource {
                         JSONObject mdis = JSONUtils.pidAndModelDesc(pid,
                                 uriString, this.solrMemo,
                                 this.decoratorsAggregate, uriString);
-                        jsonArray.add(mdis);
+                        jsonArray.put(mdis);
                     } catch (IOException ex) {
                         LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                         JSONObject error = new JSONObject();
                         error.put("pid", pid);
                         error.put("exception", ex.getMessage());
-                        jsonArray.add(error);
+                        jsonArray.put(error);
                     }
                 }
             }
@@ -154,6 +151,8 @@ public class FeederResource {
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             throw new GenericApplicationException(ex.getMessage());
+        } catch (JSONException e) {
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
@@ -168,40 +167,52 @@ public class FeederResource {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        List alist = KConfiguration.getInstance().getConfiguration().getList("search.home.tab.custom.uuids");
-        JSONObject jsonObject = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-        if (!alist.isEmpty()) {
-            for (Object p : alist) {
-                String pid = p.toString();
-                if (!pid.trim().equals("")) {
-                    try {
-                        String uriString = UriBuilder
-                                .fromResource(FeederResource.class)
-                                .path("custom").build(pid).toString();
-                        JSONObject mdis = JSONUtils.pidAndModelDesc(pid.toString(), 
-                                uriString, this.solrMemo, this.decoratorsAggregate, uriString);
+        try {
+            List alist = KConfiguration.getInstance().getConfiguration().getList("search.home.tab.custom.uuids");
+            JSONObject jsonObject = new JSONObject();
+            JSONArray jsonArray = new JSONArray();
+            if (!alist.isEmpty()) {
+                for (Object p : alist) {
+                    String pid = p.toString();
+                    if (!pid.trim().equals("")) {
+                        try {
+                            String uriString = UriBuilder
+                                    .fromResource(FeederResource.class)
+                                    .path("custom").build(pid).toString();
+                            JSONObject mdis = JSONUtils.pidAndModelDesc(pid.toString(), 
+                                    uriString, this.solrMemo, this.decoratorsAggregate, uriString);
 
-                        //object with different model or policy is skipped
-                        if (documentType != null && !documentType.equals(mdis.get("model"))) {
+                            //object with different model or policy is skipped
+                            if (documentType != null && !documentType.equals(mdis.get("model"))) {
+                                    continue;
+                                }
+                            if (!"all".equals(policy) && !policy.equals(mdis.get("policy"))) {
                                 continue;
                             }
-                        if (!"all".equals(policy) && !policy.equals(mdis.get("policy"))) {
-                            continue;
+                            jsonArray.put(mdis);
+                        } catch (Exception e) {
+                            exception(jsonArray, p, e);
                         }
-                        jsonArray.add(mdis);
-                    } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                        JSONObject error = new JSONObject();
-                        error.put("pid", p);
-                        error.put("exception", e.getMessage());
-                        jsonArray.add(error);
                     }
                 }
             }
+            jsonObject.put("data", jsonArray);
+            return Response.ok().entity(jsonObject.toString()).build();
+        } catch (JSONException e) {
+            throw new GenericApplicationException(e.getMessage());
         }
-        jsonObject.put("data", jsonArray);
-        return Response.ok().entity(jsonObject.toString()).build();
+    }
+
+    private void exception(JSONArray jsonArray, Object p, Exception e) {
+        try {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            JSONObject error = new JSONObject();
+            error.put("pid", p);
+            error.put("exception", e.getMessage());
+            jsonArray.put(error);
+        } catch (JSONException e1) {
+            throw new GenericApplicationException(e1.getMessage());
+        }
     }
     
     @GET
@@ -212,36 +223,37 @@ public class FeederResource {
             @QueryParam("offset") Integer offset,
             @QueryParam("type") String documentType) {
         // "http://localhost:8080/search/inc/home/mostDesirables-rss.jsp"
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("rss",
-                ApplicationURL.applicationURL(requestProvider.get())
-                        + "/inc/home/mostDesirables-rss.jsp");
-        if (limit == null) {
-            limit = LIMIT;
-        }
-        if (offset == null) {
-            offset = 0;
-        }
-        List<String> mostDesirable = this.mostDesirable.getMostDesirable(limit, offset, documentType);
-        JSONArray jsonArray = new JSONArray();
-        for (String pid : mostDesirable) {
-            try {
-                String uriString = UriBuilder
-                        .fromResource(FeederResource.class)
-                        .path("mostdesirable").build(pid).toString();
-                JSONObject mdis = JSONUtils.pidAndModelDesc(pid, 
-                        uriString, this.solrMemo, this.decoratorsAggregate, uriString);
-                jsonArray.add(mdis);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                JSONObject error = new JSONObject();
-                error.put("pid", pid);
-                error.put("exception", e.getMessage());
-                jsonArray.add(error);
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("rss",
+                    ApplicationURL.applicationURL(requestProvider.get())
+                            + "/inc/home/mostDesirables-rss.jsp");
+            if (limit == null) {
+                limit = LIMIT;
             }
+            if (offset == null) {
+                offset = 0;
+            }
+            List<String> mostDesirable = this.mostDesirable.getMostDesirable(limit, offset, documentType);
+            JSONArray jsonArray = new JSONArray();
+            for (String pid : mostDesirable) {
+                try {
+                    String uriString = UriBuilder
+                            .fromResource(FeederResource.class)
+                            .path("mostdesirable").build(pid).toString();
+                    JSONObject mdis = JSONUtils.pidAndModelDesc(pid, 
+                            uriString, this.solrMemo, this.decoratorsAggregate, uriString);
+                    jsonArray.put(mdis);
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    exception(jsonArray, pid, e);
+                }
+            }
+            jsonObject.put("data", jsonArray);
+            return Response.ok().entity(jsonObject.toString()).build();
+        } catch (JSONException e) {
+            throw new GenericApplicationException(e.getMessage());
         }
-        jsonObject.put("data", jsonArray);
-        return Response.ok().entity(jsonObject.toString()).build();
     }
     
 }

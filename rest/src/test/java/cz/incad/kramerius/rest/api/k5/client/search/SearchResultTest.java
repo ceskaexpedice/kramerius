@@ -19,12 +19,10 @@ package cz.incad.kramerius.rest.api.k5.client.search;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Stack;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -37,28 +35,26 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
-import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 public class SearchResultTest {
 
     @Test
-    public void testParsedJSON() throws IOException {
+    public void testParsedJSON() throws IOException, JSONException {
         URL urlRes = SearchResultTest.class.getResource("search_group.json");
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         IOUtils.copyStreams(urlRes.openStream(), bos);
@@ -68,9 +64,9 @@ public class SearchResultTest {
         stack.push(changed);
         while(!stack.isEmpty()) {
             JSONObject popped = stack.pop();
-            Set keys = popped.keySet();
-            for (Object kobj : keys) {
-                String key = (String) kobj;
+            Iterator keys2 = popped.keys();
+            for (Iterator iterator = popped.keys(); iterator.hasNext();) {
+                String key = (String) iterator.next();
                 Object obj = popped.get(key);
                 Assert.assertFalse(obj.equals("text"));
                 Assert.assertFalse(obj.equals("text_ocr"));
@@ -80,12 +76,15 @@ public class SearchResultTest {
                 }
                 if (obj instanceof JSONArray) {
                     JSONArray arr = (JSONArray) obj;
-                    for (Object arrObj : arr) {
+                    for (int i = 0,ll=arr.length(); i < ll; i++) {
+                        Object arrObj = arr.get(i);
                         if (arrObj instanceof JSONObject) {
                             stack.push((JSONObject) arrObj);
                         }
+                        
                     }
                 }
+                
             }
         }
     }
@@ -223,26 +222,28 @@ public class SearchResultTest {
     }
 
     @Test
-    public void testRepairMasterPID() {
+    public void testRepairMasterPID() throws JSONException {
         String str = "{\"PID\":\"uuid:5bb0280c-3146-060f-6b75-045d7d9648c3/@1\",\"fedora.model\":\"article\",\"dc.title\":\"Contents\",\"title_sort\":\"CONTENTS\",\"status\":\"Active\",\"handle\":\"\",\"created_date\":\"2013-09-13T23:50:10.599Z\",\"modified_date\":\"2014-01-28T14:55:11.475Z\",\"dostupnost\":\"private\",\"issn\":\"\",\"mdt\":\"\",\"ddt\":\"\",\"img_full_mime\":\"application/pdf\",\"viewable\":true,\"rels_ext_index\":0,\"root_title\":\"Contents\",\"root_pid\":\"uuid:5bb0280c-3146-060f-6b75-045d7d9648c3\",\"level\":0,\"datum_str\":\"\",\"datum\":\"1970-01-01T01:00:00Z\",\"virtual\":false,\"datum_begin\":0,\"pages_count\":0,\"rok\":0,\"datum_end\":0,\"dc.identifier\":[\"uuid:5bb0280c-3146-060f-6b75-045d7d9648c3\",\"5bb0280c-3146-060f-6b75-045d7d9648c3\"],\"pid_path\":[\"uuid:5bb0280c-3146-060f-6b75-045d7d9648c3\"],\"parent_pid\":[\"uuid:5bb0280c-3146-060f-6b75-045d7d9648c3\"],\"language\":[\"eng\"],\"model_path\":[\"article\"],\"document_type\":[\"article\"]}";
-        JSONObject jsonObj = JSONObject.fromObject(str);
+        JSONObject jsonObj = new JSONObject(str);
         SearchResource.changeMasterPidInJSON(jsonObj);
-        Assert.assertTrue(jsonObj.containsKey("PID"));
+        Assert.assertTrue(jsonObj.has("PID"));
         Assert.assertTrue(jsonObj.getString("PID").equals(
                 "uuid:5bb0280c-3146-060f-6b75-045d7d9648c3@1"));
     }
 
     @Test
-    public void testRepairPathsPID() {
+    public void testRepairPathsPID() throws JSONException {
         String str = "{\"PID\":\"uuid:5bb0280c-3146-060f-6b75-045d7d9648c3\",\"fedora.model\":\"article\",\"dc.title\":\"Contents\",\"title_sort\":\"CONTENTS\",\"status\":\"Active\",\"handle\":\"\",\"created_date\":\"2013-09-13T23:50:10.599Z\",\"modified_date\":\"2014-01-28T14:55:11.475Z\",\"dostupnost\":\"private\",\"issn\":\"\",\"mdt\":\"\",\"ddt\":\"\",\"img_full_mime\":\"application/pdf\",\"viewable\":true,\"rels_ext_index\":0,\"root_title\":\"Contents\",\"root_pid\":\"uuid:5bb0280c-3146-060f-6b75-045d7d9648c3\",\"level\":0,\"datum_str\":\"\",\"datum\":\"1970-01-01T01:00:00Z\",\"virtual\":false,\"datum_begin\":0,\"pages_count\":0,\"rok\":0,\"datum_end\":0,\"dc.identifier\":[\"uuid:5bb0280c-3146-060f-6b75-045d7d9648c3\",\"5bb0280c-3146-060f-6b75-045d7d9648c3\"],\"pid_path\":[\"uuid:5bb0280c-3146-060f-6b75-045d7d9648c3/@1\"],\"parent_pid\":[\"uuid:5bb0280c-3146-060f-6b75-045d7d9648c3\"],\"language\":[\"eng\"],\"model_path\":[\"article\"],\"document_type\":[\"article\"]}";
-        JSONObject jsonObj = JSONObject.fromObject(str);
+        JSONObject jsonObj = new JSONObject(str);
         SearchResource.replacePidsInJSON(jsonObj);
         JSONArray jsonArray = jsonObj.getJSONArray("pid_path");
-        for (Object object : jsonArray) {
+        for (int i = 0,ll=jsonArray.length(); i < ll; i++) {
+            Object object = jsonArray.get(i);
             if (object instanceof String) {
                 String arrayVal = (String) object;
                 Assert.assertFalse(arrayVal.contains("/"));
             }
+            
         }
     }
 

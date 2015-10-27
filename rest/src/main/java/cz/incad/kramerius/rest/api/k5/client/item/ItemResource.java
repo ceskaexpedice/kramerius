@@ -1,37 +1,74 @@
 package cz.incad.kramerius.rest.api.k5.client.item;
 
-import com.google.inject.*;
-import com.google.inject.name.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import cz.incad.kramerius.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriBuilderException;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
+
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.ProcessSubtreeException;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardUtils;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
-import cz.incad.kramerius.rest.api.exceptions.*;
-import cz.incad.kramerius.rest.api.k5.client.*;
-import cz.incad.kramerius.rest.api.k5.client.item.exceptions.*;
-import cz.incad.kramerius.rest.api.k5.client.item.utils.*;
-import cz.incad.kramerius.rest.api.k5.client.utils.*;
-import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
+import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowedXML;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
+import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
+import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
+import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
+import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.service.*;
-import cz.incad.kramerius.service.replication.*;
-import cz.incad.kramerius.utils.*;
-import cz.incad.kramerius.utils.pid.*;
-import net.sf.json.*;
-
-import org.w3c.dom.*;
-
-import javax.servlet.http.*;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.ResponseBuilder;
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.logging.*;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.service.ReplicateException;
+import cz.incad.kramerius.service.ReplicationService;
+import cz.incad.kramerius.service.replication.FormatType;
+import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
  * Item endpoint
@@ -273,6 +310,8 @@ public class ItemResource {
             return Response.ok().entity(jsonObject.toString()).build();
         } catch (IOException e) {
             throw new PIDNotFound(e.getMessage());
+        } catch (JSONException e1) {
+            throw new GenericApplicationException(e1.getMessage());
         }
     }
 
@@ -291,6 +330,8 @@ public class ItemResource {
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             return Response.ok().entity("{}").build();
+        } catch (JSONException e) {
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
@@ -311,21 +352,24 @@ public class ItemResource {
             JSONArray sibsList = new JSONArray();
             for (ObjectPidsPath onePath : paths) {
                 // metadata decorator
-                sibsList.add(siblings(pid, onePath));
+                sibsList.put(siblings(pid, onePath));
             }
             return Response.ok().entity(sibsList.toString()).build();
 
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-            return Response.ok().entity("{}").build();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         } catch (ProcessSubtreeException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return Response.ok().entity("{}").build();
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
-    private JSON siblings(String pid, ObjectPidsPath onePath)
-            throws ProcessSubtreeException, IOException {
+    private JSONObject siblings(String pid, ObjectPidsPath onePath)
+            throws ProcessSubtreeException, IOException, JSONException {
 
         String parentPid = null;
         List<String> children = new ArrayList<String>();
@@ -346,7 +390,7 @@ public class ItemResource {
             p = PIDSupport.convertToK4Type(p);
             JSONObject jsonObject = JSONUtils.pidAndModelDesc(p,
                     uriString,this.solrMemoization, this.decoratorsAggregate, uriString);
-            pathArray.add(jsonObject);
+            pathArray.put(jsonObject);
         }
         object.put("path", pathArray);
         JSONArray jsonArray = new JSONArray();
@@ -359,7 +403,7 @@ public class ItemResource {
             JSONObject jsonObject = JSONUtils.pidAndModelDesc(p, uriString, this.solrMemoization, this.decoratorsAggregate, uriString);
 
             jsonObject.put("selected", p.equals(pid));
-            jsonArray.add(jsonObject);
+            jsonArray.put(jsonObject);
         }
         object.put("siblings", jsonArray);
         return object;
@@ -519,6 +563,9 @@ public class ItemResource {
             }
         } catch (IOException e) {
             throw new PIDNotFound("pid not found '" + pid + "'");
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
