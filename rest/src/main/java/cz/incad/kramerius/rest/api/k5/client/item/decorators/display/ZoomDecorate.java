@@ -24,17 +24,16 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import net.sf.json.JSONObject;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.rest.api.k5.client.utils.RELSEXTDecoratorUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
@@ -63,7 +62,7 @@ public class ZoomDecorate extends AbstractDisplayDecorate {
         return ZOOM_KEY;
     }
 
-    JSONObject zoom(String vpid, String confObject, String appUrl) {
+    JSONObject zoom(String vpid, String confObject, String appUrl) throws JSONException {
         //String zoomType = KConfiguration.getInstance().getProperty("zoom.viewer","zoomify");
 //        String appUrl = ApplicationURL.applicationURL(this.requestProvider.get())
 //                .toString() + (zoomType.equals("zoomify") ? "/zoomify/" : "/deepZoom/");
@@ -101,8 +100,13 @@ public class ZoomDecorate extends AbstractDisplayDecorate {
             }
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 

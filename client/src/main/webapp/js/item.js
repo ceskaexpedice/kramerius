@@ -81,7 +81,7 @@ function _eventProcess(pid) {
     
     
     K5.api.ctx["item"]["selected"] = pid;
-    if (K5.gui.selected) {
+    if (K5.gui.hasOwnProperty('selected') && K5.gui.selected !== null) {
         K5.gui.selected.clearContainer();
         if (K5.gui.selected.download) {
             K5.gui.selected.download.cleanDialog();
@@ -232,6 +232,34 @@ ItemSupport.prototype = {
         var root_title = K5.api.ctx["item"][pid].root_title;
         $(document).prop('title', K5.i18n.ctx.dictionary['application.title'] + ". " + root_title);
         this.renderContext();
+    },
+    
+    maximize:function(){
+        if(K5.gui["maximized"]){
+            this.restore();
+        }else{
+            //$("#header").hide();
+            $("#metadata").hide();
+            $(".thumbs").hide();
+            $("#viewer>div.breadcrumbs").hide();
+            $("#viewer>div.container").css("width", "100%");
+            $("#viewer div.ol").css("width", "100%");
+            K5.gui["maximized"] = true;
+            this.clearContainer();
+            this.open();
+        }
+    },
+    
+    restore:function(){
+        //$("#header").show();
+        $("#metadata").show();
+        $(".thumbs").show();
+        $("#viewer>div.breadcrumbs").show();
+        $("#viewer>div.container").css("width", "calc(100% - 340px)");
+        $("#viewer div.ol").css("width", "calc(100% - 350px)");
+        K5.gui["maximized"] = false;
+        this.clearContainer();
+        this.open();
     },
     
     addContextButtons: function() {

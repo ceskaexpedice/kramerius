@@ -22,9 +22,11 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +46,9 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.bouncycastle.jce.provider.JCEBlockCipher.DES;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -57,17 +61,11 @@ import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
-import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
-import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-import java.net.URLEncoder;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 @Path("/v5.0/search")
 public class SearchResource {
@@ -194,6 +192,9 @@ public class SearchResource {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
@@ -291,18 +292,19 @@ public class SearchResource {
     }
 
     public static JSONObject changeJSONResult(String rawString, String context, List<JSONDecorator> decs)
-            throws UnsupportedEncodingException {
+            throws UnsupportedEncodingException, JSONException {
 
         //List<JSONDecorator> decs = this.jsonDecoratorAggregates.getDecorators();
         List<JSONArray> docsArrays = new ArrayList<JSONArray>();
         
-        JSONObject resultJSONObject = JSONObject.fromObject(rawString);
+        JSONObject resultJSONObject = new JSONObject(rawString);
         Stack<JSONObject> prcStack = new Stack<JSONObject>();
         prcStack.push(resultJSONObject);
         while(!prcStack.isEmpty()) {
             JSONObject popped = prcStack.pop();
-            Set keys = popped.keySet();
-            for (Object kobj : keys) {
+            //Iterator keys = popped.keys();
+            for (Iterator keys = popped.keys(); keys.hasNext();) {
+                Object kobj = (Object) keys.next();
                 String key = (String) kobj;
                 Object obj = popped.get(key);
                 boolean docsKey = key.equals("docs");
@@ -314,18 +316,21 @@ public class SearchResource {
                 }
                 if (obj instanceof JSONArray) {
                     JSONArray arr = (JSONArray) obj;
-                    for (Object arrObj : arr) {
+                    for (int i = 0,ll=arr.length(); i < ll; i++) {
+                        Object arrObj = arr.get(i);
                         if (arrObj instanceof JSONObject) {
                             prcStack.push((JSONObject) arrObj);
                         }
+                        
                     }
                 }
+                
             }
         }
 
         for (JSONArray docs : docsArrays) {
-            for (Object obj : docs) {
-                JSONObject docJSON = (JSONObject) obj;
+            for (int i = 0,ll=docs.length(); i < ll; i++) {
+                JSONObject docJSON = (JSONObject) docs.get(i);
                 // check master pid
                 changeMasterPidInJSON(docJSON);
 
@@ -343,7 +348,7 @@ public class SearchResource {
     }
 
     public static void decorators(String context, List<JSONDecorator> decs,
-            JSONObject docJSON) {
+            JSONObject docJSON) throws JSONException {
         // decorators
         Map<String, Object> runtimeCtx = new HashMap<String, Object>();
         for (JSONDecorator d : decs) {
@@ -359,13 +364,13 @@ public class SearchResource {
         }
     }
 
-    public static void replacePidsInJSON(JSONObject jsonObj) {
+    public static void replacePidsInJSON(JSONObject jsonObj) throws JSONException {
         // repair results
         String[] apiReplace = KConfiguration.getInstance().getAPIPIDReplace();
         for (String k : apiReplace) {
             if (k.equals("PID"))
                 continue; // already replaced
-            if (jsonObj.containsKey(k)) {
+            if (jsonObj.has(k)) {
                 Object object = jsonObj.get(k);
                 if (object instanceof String) {
                     String s = jsonObj.getString(k);
@@ -376,13 +381,13 @@ public class SearchResource {
                 } else if (object instanceof JSONArray) {
                     JSONArray jsonArr = (JSONArray) object;
                     JSONArray newJSONArray = new JSONArray();
-                    int size = jsonArr.size();
+                    int size = jsonArr.length();
                     for (int i = 0; i < size; i++) {
                         Object sObj = jsonArr.get(i);
                         if (sObj instanceof String) {
                             String s = (String) sObj;
                             s = s.replace("/@", "@");
-                            newJSONArray.add(s);
+                            newJSONArray.put(s);
 
                         } else {
                             LOGGER.warning("skipping object type '"
@@ -402,14 +407,14 @@ public class SearchResource {
         // filter
         String[] filters = KConfiguration.getInstance().getAPISolrFilter();
         for (String filterKey : filters) {
-            if (jsonObj.containsKey(filterKey)) {
+            if (jsonObj.has(filterKey)) {
                 jsonObj.remove(filterKey);
             }
         }
     }
 
-    public static void changeMasterPidInJSON(JSONObject jsonObj) {
-        if (jsonObj.containsKey("PID")) {
+    public static void changeMasterPidInJSON(JSONObject jsonObj) throws JSONException {
+        if (jsonObj.has("PID")) {
             // pid contains '/' char
             String pid = jsonObj.getString("PID");
             if (pid.contains("/")) {

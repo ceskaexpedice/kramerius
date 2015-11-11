@@ -21,7 +21,6 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.plaf.basic.BasicSliderUI.ActionScroller;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -29,13 +28,15 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -84,13 +85,16 @@ public class ClientRightsResource {
 			return Response.ok().entity(object.toString()).build();
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-			return Response.ok().entity("{}").build();
-		}
+			throw new GenericApplicationException(e.getMessage());
+		} catch (JSONException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            throw new GenericApplicationException(e.getMessage());
+        }
 	}
 
 
 	private void fullPath(String actionNames, String pid, String stream,
-			ObjectPidsPath[] paths, JSONObject object) {
+			ObjectPidsPath[] paths, JSONObject object) throws JSONException {
 
 		StringTokenizer tokenizer = new StringTokenizer(actionNames,",");
 		while(tokenizer.hasMoreTokens()) {
@@ -107,7 +111,7 @@ public class ClientRightsResource {
 
 
 	private void onePath(String actionNames, String pid, String stream,
-			ObjectPidsPath[] paths, JSONObject object) {
+			ObjectPidsPath[] paths, JSONObject object) throws JSONException {
 		StringTokenizer tokenizer = new StringTokenizer(actionNames,",");
 		while(tokenizer.hasMoreTokens()) {
 			String token = tokenizer.nextToken();
@@ -121,19 +125,19 @@ public class ClientRightsResource {
 	}
 	
 
-	private JSONArray allowedFor(JSONArray jsonArr, String action,ObjectPidsPath path, boolean[] flags) {
+	private JSONArray allowedFor(JSONArray jsonArr, String action,ObjectPidsPath path, boolean[] flags) throws JSONException {
 		JSONObject pathSon = new JSONObject();
 
 		String[] fromRootToLeaf = path.getPathFromRootToLeaf();
 		for (int i = 0; i < fromRootToLeaf.length; i++) {
 			pathSon.put(fromRootToLeaf[i], flags[i]);
 		}
-		jsonArr.add(pathSon);
+		jsonArr.put(pathSon);
 
 		return jsonArr;
 	}
 
-	private JSONObject allowedFor(JSONObject jsonObj, String action,boolean flag) {
+	private JSONObject allowedFor(JSONObject jsonObj, String action,boolean flag) throws JSONException {
 		jsonObj.put(action, flag);
 		return jsonObj;
 	}

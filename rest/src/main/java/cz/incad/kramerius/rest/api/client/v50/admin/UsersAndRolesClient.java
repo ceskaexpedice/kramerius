@@ -16,13 +16,10 @@
  */
 package cz.incad.kramerius.rest.api.client.v50.admin;
 
-import java.util.Arrays;
-
-import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -58,8 +55,9 @@ public class UsersAndRolesClient {
     /**
      * Vytvoreni uzivatele
      * @return
+     * @throws JSONException 
      */
-    public static String createUser() {
+    public static String createUser() throws JSONException {
     	Client c = Client.create();
 
         WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/users");

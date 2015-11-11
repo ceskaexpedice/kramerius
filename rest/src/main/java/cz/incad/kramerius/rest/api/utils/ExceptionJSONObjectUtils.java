@@ -22,7 +22,9 @@ package cz.incad.kramerius.rest.api.utils;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 /**
  * @author pavels
@@ -38,21 +40,30 @@ public class ExceptionJSONObjectUtils {
      * Returns json object contains message key
      * @param mess 
      * @return
+     * @throws JSONException 
      */
-    public static JSONObject fromMessage(String mess, int statuscode) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(MESSAGE_KEY, mess);
-        jsonObject.put(STATUS_CODE_KEY, statuscode);
-        return jsonObject;
+    public static JSONObject fromMessage(String mess, int statuscode)  {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(MESSAGE_KEY, mess);
+            jsonObject.put(STATUS_CODE_KEY, statuscode);
+            return jsonObject;
+        } catch (JSONException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
-    public static JSONObject fromMessage(String mess, int statuscode, Exception ex) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(MESSAGE_KEY, mess);
-        jsonObject.put(STATUS_CODE_KEY, statuscode);
-        StringWriter strWriter = new StringWriter();
-        ex.printStackTrace(new PrintWriter(strWriter));
-        jsonObject.put(CAUSE_KEY, strWriter.toString());
-        return jsonObject;
+    public static JSONObject fromMessage(String mess, int statuscode, Exception ex)  {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(MESSAGE_KEY, mess);
+            jsonObject.put(STATUS_CODE_KEY, statuscode);
+            StringWriter strWriter = new StringWriter();
+            ex.printStackTrace(new PrintWriter(strWriter));
+            jsonObject.put(CAUSE_KEY, strWriter.toString());
+            return jsonObject;
+        } catch (JSONException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 }

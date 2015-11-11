@@ -7,7 +7,7 @@ dependencies {
     compile project(':fedora-api')
     compile project(':common') 
    
-    compile 'org.json:json:20090211'
+    //compile 'org.json:json:20090211'
     compile 'org.apache.solr:solr-solrj:4.6.0'
 
 }

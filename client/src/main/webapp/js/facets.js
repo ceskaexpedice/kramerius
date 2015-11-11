@@ -61,7 +61,7 @@ Facets.prototype = {
     },
     isUsed: function(facet, val){
         var ret = false;
-        $("input[name='" + facet + "']").each(function () {
+        $("input[name='" + facet + "'][type='hidden']").each(function () {
             if ($(this).val() === val) {
                 ret = true;
                 return;
