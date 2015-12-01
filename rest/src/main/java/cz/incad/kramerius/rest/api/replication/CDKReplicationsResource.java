@@ -274,7 +274,7 @@ public class CDKReplicationsResource {
                 char[] encoded = Base64Coder.encode(bytes);
                 JSONObject jsonObj = new JSONObject();
                 jsonObj.put("raw", new String(encoded));
-                return Response.ok().entity(jsonObj).build();
+                return Response.ok().entity(jsonObj.toString()).build();
             } else
                 throw new ActionNotAllowed("action is not allowed");
         } catch (FileNotFoundException e) {

@@ -124,7 +124,7 @@ public class ReplicationsResource {
                     jsonObj.put("date", dcConent.getDate());
                     jsonObj.put("handle", appURL+"handle/"+pid);
 
-                    return Response.ok().entity(jsonObj).build();
+                    return Response.ok().entity(jsonObj.toString()).build();
                 } else throw new ObjectNotFound("cannot find pid '"+pid+"'");
             }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
@@ -224,7 +224,7 @@ public class ReplicationsResource {
                 char[] encoded = Base64Coder.encode(bytes);
                 JSONObject jsonObj = new JSONObject();
                 jsonObj.put("raw", new String(encoded));
-                return Response.ok().entity(jsonObj).build();
+                return Response.ok().entity(jsonObj.toString()).build();
             }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");

@@ -133,7 +133,7 @@ public class RightsResource {
                 		int rid = this.rightsManager.insertRight(r);
                 		Right nr = this.rightsManager.findRightById(rid);
                 		URI uri = UriBuilder.fromResource(RightsResource.class).path("{id}").build(nr.getId());
-                		return Response.created(uri).entity(rightsToJSON(nr)).build();
+                		return Response.created(uri).entity(rightsToJSON(nr).toString()).build();
                 	} catch (IllegalArgumentException e) {
                 		throw new GenericApplicationException(e.getMessage(), e);
                 	} catch (UriBuilderException e) {
@@ -168,7 +168,7 @@ public class RightsResource {
 					try {
                         this.rightsManager.updateRight(r);
                         Right nr = this.rightsManager.findRightById(r.getId());
-                        return Response.ok().entity(rightsToJSON(nr)).build();
+                        return Response.ok().entity(rightsToJSON(nr).toString()).build();
                     } catch (JSONException e) {
                         throw new GenericApplicationException(e.getMessage(), e);
                     }
@@ -192,7 +192,7 @@ public class RightsResource {
 			Right r = this.rightsManager.findRightById(Integer.parseInt(id));
 			if (r != null) {
 				try {
-                    return Response.ok().entity(rightsToJSON(r)).build();
+                    return Response.ok().entity(rightsToJSON(r).toString()).build();
                 } catch (JSONException e) {
                     throw new GenericApplicationException(e.getMessage(), e);
                 }
@@ -262,7 +262,7 @@ public class RightsResource {
                         this.rightsManager.deleteRightCriteriumParams(id2);
                         JSONObject jsonObject = paramToJSON(params);
                         jsonObject.put("deleted", true);
-                        return Response.ok().entity(jsonObject).build();
+                        return Response.ok().entity(jsonObject.toString()).build();
                     } catch (JSONException e) {
                         throw new GenericApplicationException(e.getMessage(), e);
                     }
@@ -289,7 +289,7 @@ public class RightsResource {
 				RightCriteriumParams[] p = this.rightsManager.findAllParams();
 				for (RightCriteriumParams rp : p) {
 					if (rp.getId() == id)  {
-						return Response.ok().entity(paramToJSON(rp)).build();
+						return Response.ok().entity(paramToJSON(rp).toString()).build();
 					}
 				}
 				throw new GenericApplicationException("cannot find created params '"+id+"'");

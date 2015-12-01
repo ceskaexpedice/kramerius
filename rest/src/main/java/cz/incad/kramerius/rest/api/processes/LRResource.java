@@ -217,7 +217,6 @@ public class LRResource {
                         List<String> params = new ArrayList<String>();
                         for (int i = 0,ll=array.length(); i < ll; i++) {
                             params.add(array.getString(i));
-                            
                         }
                         newProcess.setParameters(params);
                         newProcess.setUser(user);
@@ -339,8 +338,12 @@ public class LRResource {
                         lrProcess.stopMe();
                         lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
                         LRProcess nLrProcess = lrProcessManager.getLongRunningProcess(uuid);
-                        if (nLrProcess != null) return  Response.ok().entity(lrPRocessToJSONObject(nLrProcess)).build();
-                        else throw new NoProcessFound("cannot find process "+uuid);
+                        if (nLrProcess != null) {
+                            String jsonRepre = lrPRocessToJSONObject(nLrProcess).toString();
+                            
+                            Response build = Response.ok().entity(jsonRepre).build();
+                            return  build;
+                        } else throw new NoProcessFound("cannot find process "+uuid);
                     } catch (JSONException e) {
                         throw new GenericApplicationException(e.getMessage());
                     }
@@ -364,6 +367,9 @@ public class LRResource {
     public String delete(@PathParam("uuid")String uuid){
 
         LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
+        if (lrPRocess == null) {
+            throw new NoProcessFound("cannot find process"+uuid);
+        }
         String loggedUserKey = findLoggedUserKey();
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
@@ -437,7 +443,7 @@ public class LRResource {
                     ByteArrayOutputStream ber = new ByteArrayOutputStream();
                     IOUtils.copyStreams(er, ber);
                     jsonObj.put("serr", new String(Base64Coder.encode(ber.toByteArray())));
-                    return Response.ok().entity(jsonObj).build();
+                    return Response.ok().entity(jsonObj.toString()).build();
                 } else  throw new NoProcessFound("process not found "+uuid);
             } catch (FileNotFoundException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -487,7 +493,7 @@ public class LRResource {
                         }
                         jsonObject.put("children", array);
                     }
-                    return Response.ok().entity(jsonObject).build();
+                    return Response.ok().entity(jsonObject.toString()).build();
                 } catch (JSONException e) {
                     throw new GenericApplicationException(e.getMessage());
                 }
@@ -576,7 +582,7 @@ public class LRResource {
                         }
                         retList.put(ent);
                     }
-                    return Response.ok().entity(retList).build();
+                    return Response.ok().entity(retList.toString()).build();
                 } catch (JSONException e) {
                     throw new GenericApplicationException(e.getMessage());
                 }
@@ -709,5 +715,5 @@ public class LRResource {
     public SecuredActions securedAction(String def, LRProcessDefinition definition) {
         return definition.getSecuredAction() != null ? SecuredActions.findByFormalName(definition.getSecuredAction()) : SecuredActions.findByFormalName(def);
     }
-
+    
 }
