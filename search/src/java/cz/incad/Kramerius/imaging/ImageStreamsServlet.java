@@ -17,7 +17,8 @@
 package cz.incad.Kramerius.imaging;
 
 import static cz.incad.kramerius.utils.IOUtils.copyStreams;
-import static cz.incad.utils.IKeys.*;
+import static cz.incad.utils.IKeys.PID_PARAMETER;
+import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -29,25 +30,19 @@ import java.util.logging.Level;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
 import cz.incad.Kramerius.AbstractImageServlet;
-import cz.incad.Kramerius.AbstractImageServlet.OutputFormats;
-import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.imaging.utils.FileNameUtils;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraIOException;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 
 /**
@@ -266,6 +261,8 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                 }
 
                 String mimeType = fedoraAccess.getMimeTypeForStream(pid, stream);
+                ImageMimeType loadedMimeType = ImageMimeType.loadFromMimeType(mimeType);
+
                 resp.setContentType(mimeType);
                 imageStreamsServlet.setDateHaders(pid, stream, resp);
                 imageStreamsServlet.setResponseCode(pid, stream, req, resp);
@@ -279,8 +276,13 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                         fileNameFromRelsExt = "uknown";
                     }
                     if (fileNameFromRelsExt.indexOf('.') > 0) {
-                    	fileNameFromRelsExt = fileNameFromRelsExt.substring(0, fileNameFromRelsExt.lastIndexOf('.'));
+                        fileNameFromRelsExt = fileNameFromRelsExt.substring(0, fileNameFromRelsExt.lastIndexOf('.'));
                     }
+                    
+                    if (loadedMimeType != null) {
+                        fileNameFromRelsExt=fileNameFromRelsExt+"."+loadedMimeType.getDefaultFileExtension();
+                    }
+    
                     resp.setHeader("Content-disposition", "attachment; filename=" + fileNameFromRelsExt);
                 }
                 

@@ -20,6 +20,7 @@ import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -66,6 +67,7 @@ import cz.incad.kramerius.service.replication.FormatType;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -411,7 +413,7 @@ public class ItemResource {
 
     @GET
     @Path("{pid}/full")
-    public Response full(@PathParam("pid") String pid) {
+    public Response full(@PathParam("pid") String pid, @QueryParam("asFile")String asFile) {
         try {
             checkPid(pid);
             if (PIDSupport.isComposedPID(pid)) {
@@ -425,13 +427,25 @@ public class ItemResource {
                         + "/img?pid="
                         + fpid
                         + "&stream=IMG_FULL&action=TRANSCODE&page=" + rpage;
+                
+                if (StringUtils.isAnyString(asFile)) {
+                    suri = suri +"&asFile=true";
+                }
                 URI uri = new URI(suri);
+                
                 return Response.temporaryRedirect(uri).build();
             } else {
+                
                 String suri = ApplicationURL
                         .applicationURL(this.requestProvider.get())
                         + "/img?pid=" + pid + "&stream=IMG_FULL&action=GETRAW";
+                
+                if (StringUtils.isAnyString(asFile)) {
+                    suri = suri +"&asFile=true";
+                }
+
                 URI uri = new URI(suri);
+                
                 return Response.temporaryRedirect(uri).build();
             }
         } catch (URISyntaxException e) {
