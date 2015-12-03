@@ -19,6 +19,8 @@
         "policy.public.color"   : "#00dd00",
         "policy.private.color"  :"#dd0000",
 
+        "linkColor"             : "white",
+
 
         "hitColor"              :  "rgba(0, 30, 60, 0.7)",
 
@@ -43,6 +45,10 @@ body {
     overflow: hidden;
     position: relative;
     height:100%;    
+}
+
+a{
+    color: $params.linkColor;
 }
 
 /*
