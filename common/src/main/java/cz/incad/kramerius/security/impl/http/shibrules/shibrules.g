@@ -35,10 +35,8 @@ class ShibRuleParser extends Parser;
     }
 }
 
-    shibRules returns[ShibRules rules]
-    {rules = new ShibRules(); 
-    MatchRule rule;}:
-    (rule=matchRule {rules.addRule(rule);})+;
+    shibRules returns[ShibRules rules] {rules = new ShibRules();  MatchRule rule;}: (rule=matchRule {rules.addRule(rule);})+;
+
     
     matchRule returns[MatchRule rule]
     { rule = null;  ExpressionsBody b;}:
@@ -96,7 +94,6 @@ CURLYL_BRACKET:'{';
 CURLYR_BRACKET:'}';
 
 COMMA: ',';
-
 
 EQUAL    : '=';
 

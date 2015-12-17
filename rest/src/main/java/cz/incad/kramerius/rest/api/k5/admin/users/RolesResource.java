@@ -21,7 +21,6 @@ import static cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.transform
 
 import java.net.URI;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -41,14 +39,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.CreateException;
 import cz.incad.kramerius.rest.api.exceptions.DeleteException;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.FormalNamesMapping;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Role;
@@ -63,8 +65,6 @@ import cz.incad.kramerius.utils.database.Offset;
 import cz.incad.kramerius.utils.database.Ordering;
 import cz.incad.kramerius.utils.database.SQLFilter;
 import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 
 /**
@@ -99,14 +99,18 @@ public class RolesResource {
     @Path("{id:[0-9]+}")
     @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
     public Response role(@PathParam("id") String roleId) {
-    	if (permit(this.userProvider.get())) {
-    		Role role = this.userManager.findRole(Integer.parseInt(roleId));
-    		if (role != null) {
-    			return Response.ok().entity(roleToJSON(role).toString()).build();
-    		} else throw new ObjectNotFound("cannot find role '"+roleId+"'");
-    	} else {
-    		throw new ActionNotAllowed("not allowed");
-    	}
+    	try {
+            if (permit(this.userProvider.get())) {
+            	Role role = this.userManager.findRole(Integer.parseInt(roleId));
+            	if (role != null) {
+            		return Response.ok().entity(roleToJSON(role).toString()).build();
+            	} else throw new ObjectNotFound("cannot find role '"+roleId+"'");
+            } else {
+            	throw new ActionNotAllowed("not allowed");
+            }
+        } catch (JSONException e) {
+            throw new GenericApplicationException(e.getMessage());
+        }
     }
 
     
@@ -121,30 +125,34 @@ public class RolesResource {
             @QueryParam("typefordering") @DefaultValue("ASC")String typeofordering) {
 
     	if (permit(this.userProvider.get())) {
-        	Offset offset = null;
-        	if (StringUtils.isAnyString(filterOffset)) {
-        		offset = new Offset(filterOffset, filterResultSize);
-        	}
-        	Ordering ordering = null;
-        	if (StringUtils.isAnyString(filterOffset)) {
-        		ordering = new Ordering("group_id","gname").select(transform(FNAMES,filterOrdering));
-        	}
-        	TypeOfOrdering type = null;
-        	if (StringUtils.isAnyString(typeofordering)) {
-        		type = TypeOfOrdering.valueOf(typeofordering);
-        	}
-        	
-            Map<String, String> filterMap = new HashMap<String, String>(); {
-                if (StringUtils.isAnyString(filterName)) filterMap.put(transform(FNAMES, "name"), filterName);
-            };
-            SQLFilter filter = simpleFilter(filterMap, TYPES);
+        	try {
+                Offset offset = null;
+                if (StringUtils.isAnyString(filterOffset)) {
+                	offset = new Offset(filterOffset, filterResultSize);
+                }
+                Ordering ordering = null;
+                if (StringUtils.isAnyString(filterOffset)) {
+                	ordering = new Ordering("group_id","gname").select(transform(FNAMES,filterOrdering));
+                }
+                TypeOfOrdering type = null;
+                if (StringUtils.isAnyString(typeofordering)) {
+                	type = TypeOfOrdering.valueOf(typeofordering);
+                }
+                
+                Map<String, String> filterMap = new HashMap<String, String>(); {
+                    if (StringUtils.isAnyString(filterName)) filterMap.put(transform(FNAMES, "name"), filterName);
+                };
+                SQLFilter filter = simpleFilter(filterMap, TYPES);
 
-            JSONArray jsonArray = new JSONArray();
-            List<Role> roles = this.userManager.filterRoles(ordering,type,offset,filter);
-            for (Role r : roles) {
-            	jsonArray.add(roleToJSON(r));
-    		}
-        	return Response.ok().entity(jsonArray.toString()).build();
+                JSONArray jsonArray = new JSONArray();
+                List<Role> roles = this.userManager.filterRoles(ordering,type,offset,filter);
+                for (Role r : roles) {
+                    jsonArray.put(roleToJSON(r));
+                }
+                return Response.ok().entity(jsonArray.toString()).build();
+            } catch (JSONException e) {
+                throw new GenericApplicationException(e.getMessage());
+            }
     	} else {
     		throw new ActionNotAllowed("not allowed");
     	}
@@ -157,14 +165,18 @@ public class RolesResource {
     public Response delete(@PathParam("id")String id){
     	if (permit(this.userProvider.get())) {
         	try {
-				Role r = this.userManager.findRole(Integer.parseInt(id));
-				if (r != null) {
-					this.userManager.removeRole(r);
-	                return Response.ok().entity(roleToJSON(r).toString()).build();
-				} else throw new ObjectNotFound("cannot find role '"+id+"'");
-			} catch (SQLException e) {
-        		throw new DeleteException(e.getMessage());
-			}
+                try {
+                	Role r = this.userManager.findRole(Integer.parseInt(id));
+                	if (r != null) {
+                		this.userManager.removeRole(r);
+                        return Response.ok().entity(roleToJSON(r).toString()).build();
+                	} else throw new ObjectNotFound("cannot find role '"+id+"'");
+                } catch (SQLException e) {
+                	throw new DeleteException(e.getMessage());
+                }
+            } catch (JSONException e) {
+                throw new GenericApplicationException(e.getMessage());
+            }
     	} else {
     		throw new ActionNotAllowed("not allowed");    		
     	}
@@ -174,7 +186,7 @@ public class RolesResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(JSONObject uOptions) {
+    public Response create(JSONObject uOptions) throws JSONException {
     	if (permit(this.userProvider.get())) {
         	try {
     			Role role = createRoleFromJSON(uOptions);
@@ -187,14 +199,14 @@ public class RolesResource {
     	} else throw new ActionNotAllowed("not allowed");
     }
 
-	public static JSONObject roleToJSON(Role role) {
+	public static JSONObject roleToJSON(Role role) throws JSONException {
 		JSONObject json = new JSONObject();
 		json.put("name", role.getName());
 		json.put("id", role.getId());
 		return json;
 	}
 
-	public static Role createRoleFromJSON(JSONObject uOptions) {
+	public static Role createRoleFromJSON(JSONObject uOptions) throws JSONException {
 		int id = uOptions.getInt("id");
 		String gname = uOptions.getString("name");
 		Role r = new RoleImpl(id, gname, -1);

@@ -16,7 +16,8 @@
  */
 package cz.incad.kramerius.users;
 
-import net.sf.json.JSONObject;
+import org.json.JSONObject;
+
 
 /**
  * Represents users profile

@@ -94,15 +94,15 @@ Results.prototype = {
     },
     getDocs: function() {
         $('.opacityloading').show();
+        this.srResize();
         $.get("raw_results.vm?" + $("#search_form").serialize(), _.bind(function(data) {
             //console.log(data);
             $('#search_results_docs .more_docs').remove();
             var json = jQuery.parseJSON(data);
-            var numFound = this.loadDocs(json);
+            K5.eventsHandler.trigger("results/loaded", json);
+            this.loadDocs(json);
             if (!this.resultsLoaded) {
-                this.setHeader(numFound);
                 this.srResize();
-                K5.eventsHandler.trigger("results/loaded", json);
             }
             $('.opacityloading').hide();
             this.resultsLoaded = true;
@@ -142,7 +142,17 @@ Results.prototype = {
             var start = parseInt(res.responseHeader.params.rows) + parseInt(res.responseHeader.params.start);
             $("#search_results_docs").append('<div class="more_docs" data-start="' + start + '">more...</div>');
         }
-        return numFound;
+        
+        
+            
+        $("div.collections").mouseenter(function(){
+            $(this).children("div.cols").show();
+        });
+        $("div.collections").mouseleave(function(){
+            $(this).children("div.cols").hide();
+        });
+
+        this.setHeader(numFound);
     },
     addContextButtons: function() {
         var text = $("#results_menu").html();
@@ -263,7 +273,7 @@ Result.prototype = {
 //        }
         var fedora_model = doc[fieldMappings.fedora_model];
         var typtitulu = doc["model_path"][0].split("/")[0];
-        var modeltag;
+        var modeltag = $('<div class="collapsed">');
         if ((this.collapsed && this.collapsed > 1)) {
             linkpid = doc['root_pid'];
             var key = 'common.hits.plural_1';
@@ -271,12 +281,12 @@ Result.prototype = {
                 key = 'common.hits.plural_2';
             }
             var tx = K5.i18n.translatable(key);
-            modeltag = '<div class="collapsed">' + this.collapsed + ' ' + tx + ' ' + K5.i18n.translatable('model.locativ.' + typtitulu) + '</div>';
+            modeltag.append(this.collapsed + ' ' + tx + ' ' + K5.i18n.translatable('model.locativ.' + typtitulu));
         } else if (fedora_model === typtitulu) {
-            modeltag = '<div class="collapsed">' + K5.i18n.translatable('fedora.model.' + typtitulu) + '</div>';
+            modeltag.append(K5.i18n.translatable('fedora.model.' + typtitulu));
         } else {
-            modeltag = '<div class="collapsed">' + K5.i18n.translatable('fedora.model.' + fedora_model) + ' ' +
-                    K5.i18n.translatable('model.locativ.' + typtitulu) + '</div>';
+            modeltag.append(K5.i18n.translatable('fedora.model.' + fedora_model) + ' ' +
+                    K5.i18n.translatable('model.locativ.' + typtitulu));
         }
 
 //        info.short += modeltag;
@@ -332,6 +342,18 @@ Result.prototype = {
                 },
                 position: {my: "left top", at: "right top"}
             });
+        }
+        
+        if(doc.hasOwnProperty("collection") && doc.collection.length>0){
+            var collTag  = $("<div/>", {class: "collections"});
+            collTag.append('<span class="ui-icon ui-icon-folder-open">collections</span>');
+            var collDiv = $('<div class="cols shadow-bottom ui-widget ui-widget-content">');
+            for(var i=0; i< doc.collection.length; i++){
+                collDiv.append('<div class="collection">' + K5.i18n.translatable(doc.collection[i]) + '</div>');
+            }
+
+            collTag.append(collDiv);
+            modeltag.prepend(collTag);
         }
 
         thumb.append(modeltag);

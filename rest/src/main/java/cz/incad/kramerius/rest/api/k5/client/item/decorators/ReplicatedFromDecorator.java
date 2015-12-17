@@ -23,24 +23,22 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.rest.api.k5.client.utils.RELSEXTDecoratorUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class ReplicatedFromDecorator extends AbstractItemDecorator {
 
@@ -91,7 +89,7 @@ public class ReplicatedFromDecorator extends AbstractItemDecorator {
             Map<String, Object> runtimeContext) {
 
         try {
-            if (jsonObject.containsKey("pid")) {
+            if (jsonObject.has("pid")) {
                 String pid = jsonObject.getString("pid");
                 if (!PIDSupport.isComposedPID(pid)) {
                     Document relsExtDoc = RELSEXTDecoratorUtils
@@ -102,7 +100,7 @@ public class ReplicatedFromDecorator extends AbstractItemDecorator {
                         JSONArray replicatedJSON = new JSONArray();
                         for (Element colElm : replicated) {
                             String rep = colElm.getTextContent();
-                            replicatedJSON.add(rep);
+                            replicatedJSON.put(rep);
                         }
                         jsonObject.put("replicatedFrom", replicatedJSON);
                     }
@@ -110,8 +108,13 @@ public class ReplicatedFromDecorator extends AbstractItemDecorator {
             }
         } catch (DOMException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 

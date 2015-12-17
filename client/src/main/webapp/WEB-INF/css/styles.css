@@ -19,6 +19,8 @@
         "policy.public.color"   : "#00dd00",
         "policy.private.color"  :"#dd0000",
 
+        "linkColor"             : "white",
+
 
         "hitColor"              :  "rgba(0, 30, 60, 0.7)",
 
@@ -43,6 +45,10 @@ body {
     overflow: hidden;
     position: relative;
     height:100%;    
+}
+
+a{
+    color: $params.linkColor;
 }
 
 /*
@@ -75,7 +81,7 @@ body * {
 
 
 #header{
-    position: absolute;
+    position: relative;
     height: 40px;
     width: 100%;
     color: rgba(180, 180, 180, 0.4);
@@ -484,15 +490,52 @@ li.public:before{
     display: none;
 }
 
+#facets .moreButton{
+    cursor: pointer;
+}
+
+#facets .range .sel{
+    text-align:center;
+    margin-bottom:16px;
+}
+
+#facets .range .go{
+    float: right;
+    font-size: 0.8em;
+}
+
+#facets .range .slid{
+    margin:0px 10px;
+}
+
+
+#facets div.res{
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 #facets a{
+    width: 80%;
     color:inherit;
     text-decoration: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#facets div.res a span.translate{
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #facets span.count{
     float:right;
     text-decoration: inherit;
-    margin-left: 40px;
+    margin-left: 4px;
 }
 
 #facets .res:hover{
@@ -783,6 +826,9 @@ li.public:before{
 #viewer .infobox div.right .small{
     display: inline-block;
 }
+#viewer .infobox div.right .back{
+    margin-right: 0.8em;
+}
 
 #viewer .infobox h4{
     margin-top:0;;
@@ -901,7 +947,6 @@ li.public:before{
     position:relative;
     height: 20px;
     margin-left: 10px;
-    margin-top: 40px;
     display: table;
     font-size: 1.2em;
     overflow:hidden;
@@ -1095,7 +1140,7 @@ li.public:before{
     -moz-border-radius:4px;
     border-color: $params.hitColor;
 }
-#viewer .chit{
+#viewer li.chit{
     border: solid 2px $params.chitColor;
 }
 
@@ -1298,6 +1343,10 @@ li.public:before{
     top: 0px;
     width: 100%;
     height: 100%;    
+}
+
+#home div.img{
+    
     background-repeat: no-repeat;
     background-position: 40%;
 }
@@ -1306,7 +1355,8 @@ li.public:before{
     overflow: hidden;
     height: 60%;
     opacity: 1;
-    left: 105px;
+    left: 75px;
+    top: 75px;
 }
 
 #home .home_text{
@@ -1318,14 +1368,15 @@ li.public:before{
 #pidinfo{
     position:absolute;
     right: 20px;
-    bottom:100px;
+    bottom:10px;
     padding: 10px;
-    max-width: 300px;
+    max-width: 500px;
     text-align: center;
     text-shadow: 0 0 5px #000;
     /* background-color: $params.activeColor; */
     color: $params.textColor;
     font-weight: bold;
+    background-color: $params.inactiveColor;
 }
 #pidinfo>div.a:hover{
     text-decoration: underline;
@@ -1380,7 +1431,7 @@ li.public:before{
 
 #buttons div.sel{
     font-weight: bold;
-    color: yellow;
+    text-decoration: underline;
 }
 
 #buttons div.button:hover{
@@ -1536,6 +1587,28 @@ li.public:before{
 
 #search_results .search_result div.thumb{
     width: 100%;
+}
+
+#search_results .search_result div.collections{
+    margin-right: 2px;
+    float: left;
+}
+
+
+#search_results .search_result div.collections span.ui-icon{
+    float: right;    
+}
+
+#search_results .search_result div.collections div.cols{
+    position: absolute;
+    bottom: 26px;
+    width: 230px;
+    display: none;
+    padding: 4px;
+    
+    -moz-box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
 }
 
 .search_result div.thumb{
@@ -1891,7 +1964,7 @@ li.public:before{
 
 #prfl_content_favorites {
         height: calc(100% - 18em);  
-        overflow-y: scroll; 
+        overflow-y: auto; 
         overflow-x:auto;
 }
 
@@ -2826,6 +2899,16 @@ div.download_footer  .buttons div.sel{
     border-color: rgba(255, 255, 255, 1);
     font-weight: bold;
 }
+
+#download_options a {
+  font-weight: bold;
+  padding: 0;
+  margin: 0;
+  margin-left: 4px;
+  color: #eeeeee;
+  text-decoration: none;
+}
+
 
 /** end of dialog download */
 

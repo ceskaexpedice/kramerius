@@ -36,6 +36,12 @@ K5.eventsHandler.addHandler(function(type, data) {
         */
         K5.gui.home = new HomeEffects(K5);
     }
+    if (type === "i18n/dictionary") {
+        if(!K5.gui.home){
+            K5.gui.home = new HomeEffects(K5);
+        }
+        K5.gui.home.getDocs();
+    }
 });
 
 
@@ -49,11 +55,12 @@ function HomeEffects(application) {
 HomeEffects.prototype = {
     ctx: {},
     _init: function() {
+        
+        this.setSizes();
         if (K5.gui.currasels["cool"]) {
                 this.displayBackground();
         }
         this.infoHidden = false;
-        
         if (isTouchDevice()) {
             $("#buttons").swipe({
                 swipeUp: function(event, direction, distance, duration, fingerCount) {
@@ -132,9 +139,10 @@ HomeEffects.prototype = {
         var src = 'api/item/' + pid + '/full';
 
         image.onload = _.bind(function() {
-            $("#home").css("background-image", "url(" + src + ")");
+            
+            $("#home div.img").css("background-image", "url(" + src + ")");
             this.showInfo();
-            $("#home").animate({'backgroundPosition': '50%'}, 600);
+            $("#home div.img").animate({'backgroundPosition': '50%'}, 600);
             
             
             var a = $("<div/>", {class: "a"});
@@ -160,14 +168,15 @@ HomeEffects.prototype = {
             }.bind(this), 3000);
             
             */
+
+            this.backgroundDisplayed = true;
         }, this);
 
-        image.onerror = function() {
-            //th.loaded++;
-        };
+        image.onerror = _.bind(function() {
+            this.displayBackground();
+            this.backgroundDisplayed = false;
+        }, this);
         image.src = src;
-
-        this.backgroundDisplayed = true;
     },
     selBand: function(obj) {
         $('#buttons>div.button').removeClass('sel');
@@ -176,5 +185,23 @@ HomeEffects.prototype = {
         $(obj).addClass('sel');
         var div = $(obj).data("row");
         $("#yearRows>div." + div).show();
-    }
+    },
+    setSizes: function(){
+        $("#home div.container").show();
+        var h = window.innerHeight - $('#header').height() - $('#footer').height() - $('#buttons').height();
+        
+        $('#facets').css('top', 0);
+        $('#facets').css('overflow', 'auto');
+        $('#facets').css('left', 0);
+        $('#home div.container').css('height', h); //30 = 2x15 padding 
+
+        $('#facets').css('height', "100%");
+        
+    },
+    getDocs: function() {
+        $.get("raw_results.vm?page=home", _.bind(function(data) {
+            var json = jQuery.parseJSON(data);
+            K5.eventsHandler.trigger("results/loaded", json);
+        }, this));
+    },
 };

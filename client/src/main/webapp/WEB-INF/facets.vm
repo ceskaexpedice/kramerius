@@ -11,19 +11,26 @@
     </div>
     <h2>#translatable("facets.used")</h2>
     
-        #foreach($filter in $search.usedFilters.entrySet())   
-        <div class="used" style="clear: both;" data-key="$esc.html($filter.value)" data-facet="$filter.key">
+        #foreach($filters in $search.usedFilters.entrySet())  
+        #foreach($filter in $filters.value)   
+        <div class="used" style="clear: both;" data-key="$esc.html($filter)" data-facet="$filters.key">
             <div style="float:left; margin-top: -5px;" class="small" >#parse("svg/x.svg")</div>
-            <a href="" class="res" >
-            #if($filter.key == "collection")
-                #translatable("facet.$filter.key") : #transCol("$filter.value")
-            #elseif($filter.key == "fedora.model")
-                #translatable("facet.$filter.key") : #translatable("fedora.model.$filter.value")
+            #if($filters.key == "collection")
+                <a href="" class="res" data-key="$filter">
+                #translatable("facet.$filters.key") : #transCol("$filter")
+            #elseif($filters.key == "fedora.model")
+                <a href="" class="res" data-key="fedora.model.$filter">
+                #translatable("facet.$filters.key") : #translatable("fedora.model.$filter")
+            #elseif($filters.key == "dostupnost")
+                <a href="" class="res" data-key="dostupnost.$filter">
+                #translatable("facet.$filters.key") : #translatable("dostupnost.$filter")
             #else
-                #translatable("facet.$filter.key") : $filter.value
+                <a href="" class="res" data-key="$filter">
+                #translatable("facet.$filters.key") : $filter
             #end
             </a>
         </div>
+        #end
         #end
 #end
     <hr />

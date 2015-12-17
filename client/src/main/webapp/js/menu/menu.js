@@ -230,7 +230,7 @@ PrintPartItem.prototype = {
         'doAction':function() {
                 cleanWindow();
                 $('#viewer>div.container')
-                       .append('<div id="overlay" style="border:2px solid gray">'+
+                       .append('<div id="overlay">'+
                                 '<div id="okButton" class="small"></div>'+
                                 '<div id="cancelButton" class="small"></div>'+
 
@@ -251,8 +251,9 @@ PrintPartItem.prototype = {
                 $("#right-bottom").load("svg.vm?svg=bottomright");
 
                 $("#cancelButton").click(function() {
-                        //restore container width
-                        K5.gui.selected.edit.selection.restoreWidth();
+                        $("#header").show();
+                        $("#metadata").show();
+                        $(".thumbs").show();
 
                         var rect = [];
                         rect.push(K5.gui.selected.edit.selection.x1);
@@ -277,6 +278,11 @@ PrintPartItem.prototype = {
 
                 $("#okButton").click(function() {
                         // select selection
+                    
+                        $("#header").show();
+                        $("#metadata").show();
+                        $(".thumbs").show();
+
                         var rect = [];
 
                         rect.push(K5.gui.selected.edit.selection.x1);
@@ -394,7 +400,9 @@ PrintPartItem.prototype = {
 
                         K5.gui.selected["edit"]= {};
                         K5.gui.selected.edit.selection = new SelectObject(K5);
-                        K5.gui.selected.edit.selection.changeAndStoreWidth();
+                        
+                        //K5.gui.selected.edit.selection.changeAndStoreWidth();
+                        
                         K5.gui.selected.edit.selection.page();
                                 
                 },200);

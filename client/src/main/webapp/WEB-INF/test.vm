@@ -23,6 +23,7 @@
 #parse("svg/markline-left.svg")
 #parse("svg/markline-right.svg")
 #parse("svg/arrow2d.svg")
+#parse("svg/maximize.svg")
 #parse("svg/fit.svg")
 #parse("svg/lupa.svg")
 #parse("svg/hit.svg")
@@ -75,6 +76,7 @@
 </div>
 <div>
 #parse("svg/toggleview.svg")
+#parse("svg/maximize.svg")
 #parse("svg/docout.svg")
 #parse("svg/parent.svg")
 #parse("svg/arrowleft.svg")

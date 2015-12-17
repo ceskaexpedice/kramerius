@@ -13,7 +13,7 @@
 
         {
             "name":"siblingstitlepdf",
-            "i18nkey":"ctx.actions.generatepdf",
+            "i18nkey":"ctx.actions.pdftitle",
             "object":"PDFSiblingsTitle"
         },
 
@@ -27,6 +27,12 @@
             "name":"siblingstitleprint",
             "i18nkey":"ctx.actions.printtitle",
             "object":"PrintSiblings"
+        },
+
+        {
+            "name":"partitem",
+            "i18nkey":"ctx.actions.printpart",
+            "object":"PrintPartItem"
         },
 
         {

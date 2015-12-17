@@ -39,12 +39,12 @@ function RegUserValidate() {
 RegUserValidate.prototype.validateLoginNames = function(previousResults, resultFunc) {
     var lname = $('#regUserLoginName').val();
     $.get("users?action=validUserName&uname="+lname, function(data) {
-        if (!data.invalid) {
+        if (!data.valid) {
             $("#regUserLoginName_error").html(dictionary['registeruser.errormessages.loginnamexist']);
         } else {
             $("#regUserLoginName_error").html("");
         }
-        resultFunc.call(previousResults && data.valid);
+        resultFunc.call(null,previousResults && data.valid);
     });
 }
 

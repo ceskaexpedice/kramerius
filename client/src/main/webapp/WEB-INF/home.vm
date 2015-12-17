@@ -1,15 +1,22 @@
 
 <script src="resources/js/carousel.js" type="text/javascript" ></script>
 <script src="resources/js/home.js" type="text/javascript" ></script>
-
+<script type="text/javascript">
+    var fieldMappings = $search.mappings;
+</script>
 <div id="home">
+    <div class="container" style="position:relative; width: 100%;overflow:hidden;display: none;">
+        <div class="img" style="position:relative; float:left; width: calc(100% - 380px);height: 100%;">
+            <div id="pidinfo"></div>
+        </div>
+        #parse("facets.vm")
+    </div>
     <div class="infobox showing">
         #parse("search_form.vm")
         <div class="home_text">
         $texts.default_intro
         </div>
     </div>
-    <div id="pidinfo"></div>
         
     <div id="band">
         <div id="yearRows">

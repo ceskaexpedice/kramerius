@@ -24,27 +24,22 @@ import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.security.utils.PasswordDigest;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
-import cz.incad.kramerius.virtualcollections.VirtualCollection.CollectionDescription;
 import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
-
-import javax.ws.rs.PathParam;
 
 @Path("/v5.0/vc")
 public class ClientVirtualCollections {
@@ -92,7 +87,7 @@ public class ClientVirtualCollections {
                             new ArrayList<String>());
             JSONArray jsonArr = new JSONArray();
             for (VirtualCollection vc : vcs) {
-                jsonArr.add(VirtualCollectionsResource
+                jsonArr.put(VirtualCollectionsResource
                         .virtualCollectionTOJSON(vc));
             }
             return Response.ok().entity(jsonArr.toString()).build();

@@ -23,7 +23,20 @@ div.modsxml ul{
     margin: 0;
 }
 div.modsxml ul li                     {margin-bottom:0; padding-bottom:0;list-style: none;}
-div.modsxml ul li.node:hover>span.nodeName         {text-decoration: underline;}
+
+
+
+#metadata div.context span.nodeName{
+    cursor: default;
+}
+
+
+
+#metadata div.modsxml ul li.node:hover>span.nodeName{         
+text-decoration: none;
+}
+
+
 div.modsxml ul li input,
 
 
@@ -93,6 +106,28 @@ div.modsxml span.comment {
     font-weight:bold; 
     color:#999;
 }
+
+
+/* xpath pro male zobrazeni */
+li.fullmods {
+    display: none;
+}
+
+
+
+div.modsxml li.mods, div.modsxml li.modsCollection,
+div.modsxml li.mods li.identifier,
+div.modsxml li.mods li.titleInfo, div.modsxml li.mods li.titleInfo li.title,
+div.modsxml li.mods li.titleInfo li.nonSort,
+div.modsxml li.mods li.titleInfo li.subTitle,
+li.part li.detail[xtype = "volume"] li.number,
+li.name[xtype= "personal"],
+li.name[xtype= "personal"] li.role,
+li.name[xtype= "personal"] li.namePart
+{
+    display: list-item;
+}
+
 
 
 /* fix for IE6 */

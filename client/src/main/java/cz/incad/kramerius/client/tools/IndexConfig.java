@@ -42,6 +42,10 @@ public class IndexConfig {
         return _sharedInstance;
     }
     
+    public synchronized static void resetInstance() {
+        _sharedInstance = null;
+    }
+    
     public IndexConfig() throws IOException, JSONException{
         String path = System.getProperty("user.home")+File.separator+".kramerius4" + File.separator + "k5client" + File.separator + "fields.json";
 //        File f = new File(path);
