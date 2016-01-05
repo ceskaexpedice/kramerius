@@ -204,7 +204,7 @@
             img.load(function(){$(elem).removeClass('inactive')});
             $(elem).append(img);
             var dost = $('<div>', {class: 'dost'});
-            var p = isPrivate(uuid);
+            var p = isPrivate(ext_uuid);
             if(p && !policyPublic){
                 dost.append('<img src="img/lock.png" />');
             }else if(!p && policyPublic){
@@ -226,6 +226,7 @@
     }
     
     function focusThumb(id, elem){
+        if($(elem).length === 0) return;
         var l = $(elem).offset().left - $('#tv_container').offset().left + $('#tv_container').scrollLeft() - $('#tv_container').width()/2 ;
 
         $('#tv_container').scrollLeft(l);

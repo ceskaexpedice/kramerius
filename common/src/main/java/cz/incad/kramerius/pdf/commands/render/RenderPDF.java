@@ -16,10 +16,18 @@
  */
 package cz.incad.kramerius.pdf.commands.render;
 
+import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.writeImageToStream;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.logging.Level;
 
+import com.lowagie.text.BadElementException;
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -31,40 +39,38 @@ import com.lowagie.text.TextElementArray;
 import com.lowagie.text.pdf.HyphenationAuto;
 import com.lowagie.text.pdf.draw.LineSeparator;
 
+import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.pdf.commands.AbstractITextCommand.Hyphenation;
 import cz.incad.kramerius.pdf.commands.ITextCommand;
 import cz.incad.kramerius.pdf.commands.ITextCommandProcessListener;
 import cz.incad.kramerius.pdf.commands.ITextCommands;
+import cz.incad.kramerius.pdf.commands.Image;
 import cz.incad.kramerius.pdf.commands.Line;
 import cz.incad.kramerius.pdf.commands.List;
 import cz.incad.kramerius.pdf.commands.ListItem;
+import cz.incad.kramerius.pdf.commands.PageBreak;
 import cz.incad.kramerius.pdf.commands.Paragraph;
 import cz.incad.kramerius.pdf.commands.Text;
 import cz.incad.kramerius.pdf.commands.TextsArray;
 import cz.incad.kramerius.pdf.commands.lists.GreekList;
 import cz.incad.kramerius.pdf.commands.lists.RomanList;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
 public class RenderPDF   {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(RenderPDF.class.getName());
-    
 
     private FontMap fontMap;
-    
-    
+
     public RenderPDF(FontMap fontMap) {
         super();
         this.fontMap = fontMap;
     }
 
-
-
     public Font getFont(String formalName) {
         return this.fontMap.getRegistredFont(formalName);
     }
-
-
 
     public void render(final com.lowagie.text.Document pdfDoc , ITextCommands commands) {
         commands.process(new Processor(pdfDoc));
@@ -126,6 +132,41 @@ public class RenderPDF   {
         
     }
     
+    
+    class NullElement implements Element {
+
+        @Override
+        public ArrayList getChunks() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean isContent() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public boolean isNestable() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public boolean process(ElementListener arg0) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public int type() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+    }
+    
+    
     class Processor implements ITextCommandProcessListener {
         
         private Document pdfDoc;
@@ -141,6 +182,8 @@ public class RenderPDF   {
         @Override
         public void after(ITextCommand iTextCommand) {
             Element self = this.createdElm.pop();
+            if (self instanceof NullElement) return ;
+            
             if (!this.createdElm.isEmpty()) {
                 Element parent = this.createdElm.peek();
                 
@@ -153,7 +196,8 @@ public class RenderPDF   {
         @Override
         public void before(ITextCommand iTextCommand) {
             if (!(iTextCommand instanceof ITextCommands)) {
-                this.createdElm.push(this.create(iTextCommand));
+                Element created = this.create(iTextCommand);
+                this.createdElm.push(created);
             }            
         }
         
@@ -256,8 +300,56 @@ public class RenderPDF   {
                         1, 100, null, Element.ALIGN_CENTER, -2);
                 return line;
                 
+            } else if (cmd instanceof PageBreak) {
+                pdfDoc.newPage();
+                return new NullElement();
+            } else if (cmd instanceof Image) {
+
+                try {
+                    Image cmdImage = (Image) cmd;
+                    String pid = cmdImage.getPid();
+                    String file = cmdImage.getFile();
+                    com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
+                 
+                    Float ratio = ratio(pdfDoc, 1.0f, img);
+
+                    int fitToPageWidth = (int) (img.getWidth() * ratio);
+                    int fitToPageHeight = (int) (img.getHeight() * ratio);
+
+                    int offsetX = ((int) pdfDoc.getPageSize().getWidth() - fitToPageWidth) / 2;
+                    int offsetY = ((int) pdfDoc.getPageSize().getHeight() - fitToPageHeight) / 2;
+
+                    img.scaleAbsoluteHeight(ratio * img.getHeight());
+
+                    img.scaleAbsoluteWidth(ratio * img.getWidth());
+                    img.setAbsolutePosition((offsetX), pdfDoc.getPageSize().getHeight()
+                            - offsetY - (ratio * img.getHeight()));
+
+                    return img;
+                } catch (BadElementException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                } catch (MalformedURLException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+                return new NullElement();
+
             } else throw new UnsupportedOperationException("unsupported");
         }
+    }
+
+    public static Float ratio(Document document, float percentage,
+            com.lowagie.text.Image img) {
+        Float wratio = document.getPageSize().getWidth()
+                / img.getWidth();
+        Float hratio = document.getPageSize().getHeight()
+                / img.getHeight();
+        Float ratio = Math.min(wratio, hratio);
+        if (percentage != 1.0) {
+            ratio = ratio * percentage;
+        }
+        return ratio;
     }
 
 }

@@ -12,8 +12,9 @@ DownloadItem.prototype.selectedMessage = function(act) {
 }
 
 DownloadItem.prototype.selectAction = function() {
-    var v = $("#download_options select option:selected").val();
+    var v = $("#download_options ul li input:checked").val();
     var doptions = K5.gui.downloadoptions.ctx.actions;
+   
     var reduced = _.reduce(doptions, function(memo, itm){ 
         if (memo  == null) {
             if (itm.name === v) return itm; 
@@ -120,25 +121,44 @@ DownloadItem.prototype.init = function() {
 DownloadItem.prototype.open = function() {
     cleanWindow();
     divopen("#download");
+
     var doptions = K5.gui.downloadoptions.ctx.actions;
-    var select = $('<select/>');
-    select.change(function() {
-        var message = K5.gui.selected.download.selectedMessage();
-        if (message != null) {
-            $("#download_action_message").text(message);
+
+    var select = $('<ul/>');
+    
+    select.change(function(item) {
+        var selAction = K5.gui.selected.download.selectAction();
+        if (selAction && selAction.object.message) {
+            var tMess = selAction.object.message();
+            $("#download_action_message").text(tMess);
         } else {
             $("#download_action_message").text("");
         }
+
     });
-    var options = _.map(doptions, function(a) {
+    
+    var options = _.map(doptions, function(a, context) {
         if (a.object.enabled()) {
-            var optHtml =$('<option/>', {'value': a.name,'data-key': a.i18nkey});
-            optHtml.html(K5.i18n.translatable(a.i18nkey));
+            var liHtml = $('<li/>');
+            
+            var divHtml  = $('<div/>');
+            
+            var optHtml =$('<input/>', {'value': a.name, 'type':'radio','name':'action'});
+            divHtml.append(optHtml);
+
+            var transSpan = K5.i18n.translatable(a.i18nkey);
+
+            var aHrefFunction = "javascript:(function() { $('#download_options ul li input[value=\""+a.name+"\"]').prop('checked', true); K5.gui.selected.download.doAction();}) ();";
+            var aHref = $('<a/>', {'href': aHrefFunction,'data-key': a.i18nkey});
+            aHref.append(transSpan);
+            
+            divHtml.append(aHref);
+            liHtml.append(divHtml);
             var option = {
-                    "elem":optHtml
+                    "elem":liHtml
             };
             if (a.object["message"]) {
-                option["message"] = a.object["message"];
+                option["message"] = a.object.message();
             }
             return option;
         } else return null;
@@ -157,12 +177,16 @@ DownloadItem.prototype.open = function() {
         return memo;
     }, null);
 
+    var input = first.elem.find('input');
+    input.prop('checked', true);
+
     var message = first["message"];
     if ((message) && (message != null)) {
         $("#download_action_message").text(message);
     } else {
         $("#download_action_message").text("");
     }
+
     $("#download_options").html(select);
 }
 

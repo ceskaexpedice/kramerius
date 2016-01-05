@@ -64,6 +64,12 @@ public class FedoraUtils {
        add(BIBLIO_MODS_STREAM);
     }};
 
+    public static List<String> AUDIO_STREAMS = new ArrayList<String>(){{
+        add(OGG_STREAM);
+        add(MP3_STREAM);
+        add(WAV_STREAM);
+     }};
+
     /** Stream for fedora internal use */
     public static List<String> FEDORA_INTERNAL_STREAMS = new ArrayList<String>(){{
         add(RELS_EXT_STREAM);

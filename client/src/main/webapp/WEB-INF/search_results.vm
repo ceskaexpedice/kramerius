@@ -8,9 +8,7 @@
 <div id="search_results" class="resizable">
         <div id="search_results_header">
             <div class="totals"><span class="total"></span> <span class="totaltext translate" data-key=""></span></div>
-            <div class="form">
-            #parse("search_form.vm")
-            </div>
+            
             <div class="right small">
             </div>
         </div>

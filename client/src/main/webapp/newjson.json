@@ -1,0 +1,169 @@
+[{
+        "pid": "vc:54940333-8f1d-4d24-ba3b-ac042a38a949",
+        "label": "\"vc:54940333-8f1d-4d24-ba3b-ac042a38a949\"",
+        "canLeave": true,
+        "descs": {
+            "en": "First world war",
+            "cs": "První světová válka"
+        }
+    }, {
+        "pid": "vc:b465fb1c-07e7-4443-bb6b-d9df7649b4fc",
+        "label": "\"vc:b465fb1c-07e7-4443-bb6b-d9df7649b4fc\"",
+        "canLeave": true,
+        "descs": {
+            "en": "ELAG proceedings",
+            "cs": "Sborníky ELAG"
+        }
+    }, {
+        "pid": "vc:4c96b19f-6822-498e-80cb-753960a3e2a7",
+        "label": "\"vc:4c96b19f-6822-498e-80cb-753960a3e2a7\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Academia books",
+            "cs": "Knihy Academia"
+        }
+    }, {
+        "pid": "vc:c281e9a3-5a65-4700-b8c0-3da6c7b102c3",
+        "label": "\"vc:c281e9a3-5a65-4700-b8c0-3da6c7b102c3\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Maps",
+            "cs": "Mapy"
+        }
+    }, {
+        "pid": "vc:28f02d07-663f-4dee-843b-cbe74978b1e8",
+        "label": "\"vc:28f02d07-663f-4dee-843b-cbe74978b1e8\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Historical documents",
+            "cs": "Historické dokumenty"
+        }
+    }, {
+        "pid": "vc:6c323045-d869-4d65-928d-3d52f34440a0",
+        "label": "\"vc:6c323045-d869-4d65-928d-3d52f34440a0\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Masaryk Museum",
+            "cs": "Masarykovo muzeum"
+        }
+    }, {
+        "pid": "vc:4c5da0c5-9475-4589-ba3b-a44bc7c2b2e5",
+        "label": "\"vc:4c5da0c5-9475-4589-ba3b-a44bc7c2b2e5\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Sheet Music",
+            "cs": "Hudebniny"
+        }
+    }, {
+        "pid": "vc:22287fbe-3a32-4b1e-973b-9a01d1bef212",
+        "label": "\"vc:22287fbe-3a32-4b1e-973b-9a01d1bef212\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Rajhrad",
+            "cs": "Rajhrad"
+        }
+    }, {
+        "pid": "vc:de968df1-cd9b-48f9-88e4-14bf9e83be79",
+        "label": "\"vc:de968df1-cd9b-48f9-88e4-14bf9e83be79\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Year of Reconciliation",
+            "cs": "Rok smíření"
+        }
+    }, {
+        "pid": "vc:9784fefa-4ba8-4d6d-a4fc-85174d12aa23",
+        "label": "\"vc:9784fefa-4ba8-4d6d-a4fc-85174d12aa23\"",
+        "canLeave": true,
+        "descs": {
+            "en": " World War I",
+            "cs": "První světová válka"
+        }
+    }, {
+        "pid": "vc:ee921c09-798e-4796-ad4c-ac78eb1d0827",
+        "label": "\"vc:ee921c09-798e-4796-ad4c-ac78eb1d0827\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Regional Museum in Mikulov",
+            "cs": "Regionální muzeum v Mikulově"
+        }
+    }, {
+        "pid": "vc:8801a26b-fba1-439d-be85-09043baf58f2",
+        "label": "\"vc:8801a26b-fba1-439d-be85-09043baf58f2\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Crafts and Skills",
+            "cs": "Řemesla a dovednosti"
+        }
+    }, {
+        "pid": "vc:452d77e3-22e7-49de-8dbe-7e431af6cb91",
+        "label": "\"vc:452d77e3-22e7-49de-8dbe-7e431af6cb91\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Vineculture",
+            "cs": "Vinařství"
+        }
+    }, {
+        "pid": "vc:49330998-bef0-41b0-aa74-d39c91ad82df",
+        "label": "\"vc:49330998-bef0-41b0-aa74-d39c91ad82df\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Comeniana",
+            "cs": "Komeniana"
+        }
+    }, {
+        "pid": "vc:2947a0ac-143b-4ede-adb4-f4a496685ebf",
+        "label": "\"vc:2947a0ac-143b-4ede-adb4-f4a496685ebf\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Brno Regional Museum",
+            "cs": "Muzeum Brněnska"
+        }
+    }, {
+        "pid": "vc:09634936-ea35-4f39-9bbb-bb92453948ac",
+        "label": "\"vc:09634936-ea35-4f39-9bbb-bb92453948ac\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Compulsory Reading ",
+            "cs": "Povinná četba"
+        }
+    }, {
+        "pid": "vc:05fe1cb5-1055-41da-9c82-1c60507e403b",
+        "label": "\"vc:05fe1cb5-1055-41da-9c82-1c60507e403b\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Masonic Literature",
+            "cs": "Zednářská literatura"
+        }
+    }, {
+        "pid": "vc:9eb85860-f6ee-4ea2-9e85-7c5232a9e96e",
+        "label": "\"vc:9eb85860-f6ee-4ea2-9e85-7c5232a9e96e\"",
+        "canLeave": true,
+        "descs": {
+            "en": "EOD",
+            "cs": "EOD"
+        }
+    }, {
+        "pid": "vc:98859247-7400-4f29-9312-45cb24e56723",
+        "label": "\"vc:98859247-7400-4f29-9312-45cb24e56723\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Academia",
+            "cs": "Academia"
+        }
+    }, {
+        "pid": "vc:bfbfcb6c-149c-482a-bf77-ebcb923128ba",
+        "label": "\"vc:bfbfcb6c-149c-482a-bf77-ebcb923128ba\"",
+        "canLeave": true,
+        "descs": {
+            "en": "ANL",
+            "cs": "ANL"
+        }
+    }, {
+        "pid": "vc:52e9443b-2510-4ebc-a7a4-8104378e4bae",
+        "label": "\"vc:52e9443b-2510-4ebc-a7a4-8104378e4bae\"",
+        "canLeave": true,
+        "descs": {
+            "en": "Atlases",
+            "cs": "Atlasy"
+        }
+    }]

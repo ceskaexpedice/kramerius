@@ -110,6 +110,28 @@ ClientAPIDev.prototype = {
     },
 
     /**
+     * Request for sources
+     * @param {requestCallback} whenready  - Callback handling responses.
+     * @method
+     */
+    askForSources : function(whenready) {
+        $.getJSON("api/sources", _.bind(function(data) {
+            var collections = {};
+            for (var i = 0; i < data.length; i++) {
+                var pid = data[i].pid;
+                collections[pid] = {
+                    "cs" : data[i].descs.cs,
+                    "en" : data[i].descs.en
+                };
+            }
+            this.ctx["vc"] = collections;
+            if (whenready)
+                whenready.apply(null, [ data ]);
+            this.application.eventsHandler.trigger("api/sources", data);
+        }, this));
+    },
+
+    /**
      * Solr search request
      * @param {string} query - Query.
      * @param {requestCallback} whenready  - Callback handling responses.
@@ -392,7 +414,9 @@ ClientAPIDev.prototype = {
      * @param {requestCallback} okFunc  - Message has been sent callback.
      * @param {requestCallback} failFunc  - Something wrong callback.
      */
-    searchItemAndExploreChildren : function(pid, whenready) {
+    searchItemAndExploreChildren : function(hash, whenready) {
+        var pid =  hash.pid;
+        
         $.getJSON("api/item/" + pid + "/children", _.bind(function(data) {
             if (!this.isKeyReady("item")) {
                 this.ctx["item"] = {};
@@ -402,10 +426,18 @@ ClientAPIDev.prototype = {
             }
             this.ctx["item"][pid]['children'] = data;
             if (data.length == 1) {
-                this.searchItemAndExploreChildren(data[0].pid, whenready);
+                hash.pid = data[0].pid;
+                hash.pmodel = data[0].model;
+                this.searchItemAndExploreChildren(hash, whenready);
             } else {
-                if (whenready)
-                    whenready.apply(null, [ pid ]);
+                if(data.length>0 && data[0].datanode){
+                    hash.pid = data[0].pid;
+                    this.searchItemAndExploreChildren(hash, whenready);
+                }else{
+                    
+                    if (whenready)
+                        whenready.apply(null, [hash]);
+                }
             }
         }, this));
     },
@@ -414,9 +446,13 @@ ClientAPIDev.prototype = {
      * Search first pid to display and navigate browser to  this item.
      * @method
      */
-    gotoDisplayingItemPage : function(pid, q) {
-        this.searchItemAndExploreChildren(pid, _.bind(function(data) {
-            this.gotoItemPage(data, q);
+    gotoDisplayingItemPage : function(newhash) {
+        var hash = hashParser(newhash);
+        var pid = hash.pid;
+        
+        this.searchItemAndExploreChildren(hash, _.bind(function(data) {
+            //hash.pid = data;
+            this.gotoItemPage(jsonToHash(data), true);
         }, this));
     },
 
@@ -424,14 +460,14 @@ ClientAPIDev.prototype = {
      * Navigate browser to concrete item 
      * @method
      */
-    gotoItemPage : function(pid, q) {
+    gotoItemPage : function(pid, withParams) {
         var href = "";
-        if (q !== undefined) {
-            href += "?q=" + q + "&";
+        if (withParams) {
+            $('#search_form input[name="page"]').val("doc")
+            href += "?" + $("#search_form").serialize() + "#" + pid;
         } else {
-            href += "?";
+            href += "page=doc#" + pid;
         }
-        href += "page=doc#" + pid;
         window.location.assign(href);
     },
 

@@ -45,6 +45,7 @@ dependencies {
     compile project(':import-mets')
     compile project(':security-core')
     compile project(':rest')
+    compile project(':mw-process')
 
     compile 'javax.servlet:jstl:1.1.2'   
     compile 'taglibs:standard:1.1.2'   
@@ -59,8 +60,6 @@ dependencies {
     compile "org.slf4j:log4j-over-slf4j:${slf4jversion}"
     compile "org.slf4j:slf4j-jdk14:${slf4jversion}"
 
-    compile 'net.sf.ehcache:ehcache:2.6.0'
-    compile 'org.apache.httpcomponents:httpclient:4.3.2'
     compile 'net.sf.json-lib:json-lib:2.4:jdk15'
 }
 

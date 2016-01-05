@@ -1,0 +1,15 @@
+description "MovingWall process"
+
+dependencies {
+    compile project(':common') 
+    compile project(':security-core')
+    compile project(':indexer')
+
+    compile 'commons-codec:commons-codec:1.5'
+}
+
+
+
+
+
+

@@ -14,7 +14,7 @@ import com.google.inject.Provider;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-import cz.incad.Kramerius.Initializable;
+import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;

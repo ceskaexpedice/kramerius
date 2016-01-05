@@ -1,14 +1,38 @@
 [
         {
             "name":"onepagepdf",
-            "i18nkey":"ctx.actions.pdftitle",
+            "i18nkey":"ctx.actions.onepagepdf",
             "object":"PDFOnePage"
         },
 
         {
+            "name":"titlepdf",
+            "i18nkey":"ctx.actions.pdftitle",
+            "object":"PDFTitle"
+        },
+
+        {
+            "name":"siblingstitlepdf",
+            "i18nkey":"ctx.actions.pdftitle",
+            "object":"PDFSiblingsTitle"
+        },
+
+        {
             "name":"onepageprint",
-            "i18nkey":"ctx.actions.printtitle",
+            "i18nkey":"ctx.actions.printonepage",
             "object":"PrintPage"
+        },
+
+        {
+            "name":"siblingstitleprint",
+            "i18nkey":"ctx.actions.printtitle",
+            "object":"PrintSiblings"
+        },
+
+        {
+            "name":"partitem",
+            "i18nkey":"ctx.actions.printpart",
+            "object":"PrintPartItem"
         },
 
         {
@@ -17,17 +41,6 @@
             "object":"DownloadPage"
         },
 
-        {
-            "name":"printpart",
-            "i18nkey":"ctx.actions.printpart",
-            "object":"PrintPartItem"
-        },
-
-        {
-            "name":"titlepdf",
-            "i18nkey":"ctx.actions.pdftitle",
-            "object":"PDFTitle"
-        },
     
         {
             "name":"titleprint",

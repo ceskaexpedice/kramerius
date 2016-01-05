@@ -21,6 +21,7 @@ include	'static-export'
 include	'rest'
 include	'search' 
 include 'client'
+include 'mw-process'
 	
 
 // filter property -DremoveProjs=projectA,projectB,..

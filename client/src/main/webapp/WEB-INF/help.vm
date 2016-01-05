@@ -1,0 +1,15 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+#parse("html_header.vm")
+<body>
+
+#parse("profile.vm")
+
+#parse("help_header.vm")
+$texts.clienthelp
+
+#parse("footer.vm")
+
+</body>
+</html>

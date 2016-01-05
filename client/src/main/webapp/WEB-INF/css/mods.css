@@ -23,7 +23,20 @@ div.modsxml ul{
     margin: 0;
 }
 div.modsxml ul li                     {margin-bottom:0; padding-bottom:0;list-style: none;}
-div.modsxml ul li.node:hover>span.nodeName         {text-decoration: underline;}
+
+
+
+#metadata div.context span.nodeName{
+    cursor: default;
+}
+
+
+
+#metadata div.modsxml ul li.node:hover>span.nodeName{         
+text-decoration: none;
+}
+
+
 div.modsxml ul li input,
 
 
@@ -33,14 +46,17 @@ div.modsxml ul.nodeCore{
 
 div.modsxml ul li span.nodeName{
     padding:1px; 
-    font-weight:bold; 
+    font-style:italic; 
     color:white; 
 }
 div.modsxml ul li span.nodeName:before{
     content: attr(data-before);
 }
 
-div.modsxml ul li.comment span.nodeName     {color:#dddddd; font-style:italic;}
+div.modsxml ul li.comment span.nodeName     {
+    color:#dddddd; 
+    font-style:italic;
+}
 
 div.modsxml ul li span.nodeAttrs{
     padding:1px; 
@@ -53,16 +69,31 @@ div.modsxml ul li span.nodeAttrs:after{
     font-weight:bold; 
     color:#eeeeee; 
 }
-div.modsxml ul li span.nodeAttrs span.singleAttr      {margin-left:8px;}
-div.modsxml ul li span.nodeAttrs span.attrValue       {font-style:italic; color:#dddddd;}
-div.modsxml ul li span.nodeAttrs span.attrValue:hover {color:#ffffff; }
-div.modsxml ul li span.nodeAttrs button.killAttr      {background-position:-34px -194px;}
+div.modsxml ul li span.nodeAttrs span.singleAttr      {
+    margin-left:8px;
+}
+div.modsxml ul li span.nodeAttrs span.attrValue       {
+    
+    font-weight:bold; 
+    color:#dddddd;}
+div.modsxml ul li span.nodeAttrs span.attrValue:hover {
+    color:#ffffff; 
+}
+div.modsxml ul li span.nodeAttrs button.killAttr      {
+    background-position:-34px -194px;
+}
 
 
 div.modsxml ul li span.nodeValue        {color:#eeeeee;}
 div.modsxml ul li span.nodeValue strong {color:#ffffff;}
 
-div.modsxml ul li ul.nodeCore li p.nodeValue                    {font-style:italic; padding:0; margin:0; margin-left:4px; color:#dddddd;}
+div.modsxml ul li ul.nodeCore li p.nodeValue   {
+    
+    font-weight:bold; 
+    padding:0; margin:0; margin-left:4px;
+    color:#eeeeee;
+    word-break: break-word;
+}
 div.modsxml ul li ul.nodeCore li p.nodeValue:hover              {color:#ffffff; }
 div.modsxml ul li ul.nodeCore li p.nodeValue span.noValue       {color:#dddddd;}
 div.modsxml ul li ul.nodeCore li p.nodeValue:hover span.noValue {color:#dddddd; }
@@ -71,7 +102,32 @@ div.modsxml ul li ul.nodeCore li a.addChild                     {margin-left:4px
 
 
 
-div.modsxml span.comment {font-style:italic; color:#999;}
+div.modsxml span.comment {
+    font-weight:bold; 
+    color:#999;
+}
+
+
+/* xpath pro male zobrazeni */
+li.fullmods {
+    display: none;
+}
+
+
+
+div.modsxml li.mods, div.modsxml li.modsCollection,
+div.modsxml li.mods li.identifier,
+div.modsxml li.mods li.titleInfo, div.modsxml li.mods li.titleInfo li.title,
+div.modsxml li.mods li.titleInfo li.nonSort,
+div.modsxml li.mods li.titleInfo li.subTitle,
+li.part li.detail[xtype = "volume"] li.number,
+li.name[xtype= "personal"],
+li.name[xtype= "personal"] li.role,
+li.name[xtype= "personal"] li.namePart
+{
+    display: list-item;
+}
+
 
 
 /* fix for IE6 */

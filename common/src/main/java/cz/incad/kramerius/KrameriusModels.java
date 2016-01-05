@@ -23,7 +23,16 @@ public enum KrameriusModels {
     DONATOR("donator"),
     ARTICLE("article"),
     SUPPLEMENT("supplement"),
-    PICTURE("picture");
+    PICTURE("picture"),
+    COLLECTION("collection"),
+    GRAPHIC("graphic"),
+    MANUSCRIPT("manuscript"),
+    MAP("map"),
+    REPOSITORY("repository"),
+    SHEETMUSIC("sheetmusic"),
+    SOUNDRECORDING("soundrecording"),
+    SOUNDUNIT("soundunit"),
+    TRACK("track");
 
     private KrameriusModels(String value) {
 		this.value = value;

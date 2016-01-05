@@ -17,6 +17,8 @@
 package cz.incad.kramerius.rest.api.k5.client.item.decorators;
 
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -29,9 +31,13 @@ import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class HandleDecorate extends AbstractItemDecorator {
 
+    public static final Logger LOGGER = Logger.getLogger(HandleDecorate.class.getName());
+    
     private static final String KEY = "HREF";
 
     @Inject
@@ -45,10 +51,21 @@ public class HandleDecorate extends AbstractItemDecorator {
     @Override
     public void decorate(JSONObject jsonObject, Map<String, Object> context) {
         if (containsPidInJSON(jsonObject)) {
-            String str = ApplicationURL.applicationURL(
-                    this.requestProvider.get()).toString()
-                    + "/handle/" + getPidFromJSON(jsonObject);
-            JSONUtils.link(jsonObject, "handle", str);
+            String pidFromJSON = getPidFromJSON(jsonObject);
+            try {
+                PIDParser pidParser = new PIDParser(pidFromJSON);
+                pidParser.objectPid();
+                pidParser.getObjectId();
+                String namespaceId = pidParser.getNamespaceId();
+                if (namespaceId.equals("uuid")) {
+                    String str = ApplicationURL.applicationURL(
+                            this.requestProvider.get()).toString()
+                            + "/handle/" + pidFromJSON;
+                    JSONUtils.link(jsonObject, "handle", str);
+                }
+            } catch (LexerException e) {
+                LOGGER.log(Level.WARNING,e.getMessage(),e);
+            }
         }
     }
 

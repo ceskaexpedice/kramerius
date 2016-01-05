@@ -68,23 +68,25 @@ public class PeriodicalItemDecorate extends AbstractDetailDecorator {
                 if (doc == null)
                     doc = this.memo.askForIndexDocument(pid);
 
-                List<String> array = SOLRUtils.array(doc, "details",
-                        String.class);
-                if (!array.isEmpty()) {
-                    String[] details = super.details(array.get(0));
-                    JSONObject detailsJSONObject = new JSONObject();
+                if (doc != null) {
+                    List<String> array = SOLRUtils.array(doc, "details",
+                            String.class);
+                    if (!array.isEmpty()) {
+                        String[] details = super.details(array.get(0));
+                        JSONObject detailsJSONObject = new JSONObject();
 
-                    if (details.length > 1) {
-                        detailsJSONObject.put("issueNumber", details[1]);
-                    }
-                    if (details.length > 2) {
-                        detailsJSONObject.put("date", details[2]);
-                    }
-                    if (details.length > 3) {
-                        detailsJSONObject.put("partNumber", details[3]);
-                    }
-                    if (detailsJSONObject.keySet().size() > 0) {
-                        jsonObject.put("details", detailsJSONObject);
+                        if (details.length > 1) {
+                            detailsJSONObject.put("issueNumber", details[1]);
+                        }
+                        if (details.length > 2) {
+                            detailsJSONObject.put("date", details[2]);
+                        }
+                        if (details.length > 3) {
+                            detailsJSONObject.put("partNumber", details[3]);
+                        }
+                        if (detailsJSONObject.keySet().size() > 0) {
+                            jsonObject.put("details", detailsJSONObject);
+                        }
                     }
                 }
             } catch (IOException e) {

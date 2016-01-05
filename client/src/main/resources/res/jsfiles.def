@@ -33,6 +33,7 @@
     "resources/js/item/messages.js",
 
     "resources/js/viewers/itemthumbs.js",
+    "resources/js/leftthumbs.js",
 
     "resources/js/viewers/ol3/ol3utils.js",
     "resources/js/viewers/alto/alto.js",

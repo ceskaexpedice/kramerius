@@ -42,8 +42,12 @@ public class IndexConfig {
         return _sharedInstance;
     }
     
+    public synchronized static void resetInstance() {
+        _sharedInstance = null;
+    }
+    
     public IndexConfig() throws IOException, JSONException{
-        String path = System.getProperty("user.home")+File.separator+".kramerius4" + File.separator + "k5indexer" + File.separator + "fields.json";
+        String path = System.getProperty("user.home")+File.separator+".kramerius4" + File.separator + "k5client" + File.separator + "fields.json";
 //        File f = new File(path);
 //        if (!f.exists() || !f.canRead()) {
 //            f = FileUtils.toFile(IndexConfig.class.getResource("/cz/incad/kramerius/client/tools/fields.json"));

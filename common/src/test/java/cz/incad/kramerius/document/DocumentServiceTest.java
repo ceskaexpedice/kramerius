@@ -17,30 +17,25 @@
 package cz.incad.kramerius.document;
 
 import static junit.framework.Assert.assertEquals;
-import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import javax.xml.crypto.Data;
 import javax.xml.parsers.ParserConfigurationException;
 
 import junit.framework.Assert;
 
+import org.apache.http.pool.ConnFactory;
 import org.easymock.EasyMock;
 import org.junit.Test;
 import org.xml.sax.SAXException;
@@ -58,17 +53,17 @@ import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.impl.DocumentServiceImpl;
 import cz.incad.kramerius.document.model.AbstractPage;
-import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.document.model.OutlineItem;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class DocumentServiceTest {
 
@@ -99,59 +94,14 @@ public class DocumentServiceTest {
     
     // vytvori dokument od urciteho pidu
     @Test
-    public void testDocumentServiceFromPid() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException {
-        
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+    public void testDocumentServiceFromPid() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException, OutOfRangeException {
+        Injector injector = _DocumentServiceTestPrepare.prepareInjector("20",true);
 
-        Locale locale = Locale.getDefault();
-        
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(),acLog)
-        .addMockedMethod("getFedoraDescribeStream")
-        .addMockedMethod("getRelsExt")
-        .addMockedMethod("isImageFULLAvailable")
-        .addMockedMethod("getDC")
-        .addMockedMethod("getBiblioMods")
-        .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
-        .createMock();
-        
-        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
-        
-        DataPrepare.drobnustkyRelsExt(fa33);
-        DataPrepare.drobnustkyWithIMGFULL(fa33);
-        DataPrepare.drobnustkyDCS(fa33);
-        DataPrepare.drobnustkyMODS(fa33);
-        
-        Set<String> keySet = MODELS_MAPPING.keySet();
-        for (String key : keySet) {
-            String model = MODELS_MAPPING.get(key);
-            PIDParser pidParser = new PIDParser(model);
-            pidParser.disseminationURI();
-            String modelK4Name  = pidParser.getObjectId();
-            EasyMock.expect(fa33.getKrameriusModelName(key)).andReturn(modelK4Name).anyTimes();
-        }
-        
- 
-        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-        
- 
-        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        Set<String> keys = PATHS_MAPPING.keySet();
-        for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { PATHS_MAPPING.get(key)}).anyTimes();
-        }
-        
-        replay(fa33, solrAccess, bundleService,acLog);
-        
-        Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService,solrAccess));
-        
         DocumentService docService = injector.getInstance(DocumentService.class);
-        AbstractRenderedDocument doc = docService.buildDocumentAsFlat(PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]), "uuid:4a7ec660-af36-11dd-a782-000d606f5dc6", 3, new int[]{300,300});
+        PreparedDocument doc = docService.buildDocumentAsFlat(PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]), "uuid:4a7ec660-af36-11dd-a782-000d606f5dc6", 3, new int[]{300,300});
+        
         List<AbstractPage> pages = doc.getPages();
         Assert.assertTrue(pages.size() == 3);
-        
 
         String[] relsExtOrder = new String[] {
                 "uuid:4a7ec660-af36-11dd-a782-000d606f5dc6",
@@ -163,59 +113,52 @@ public class DocumentServiceTest {
             Assert.assertEquals(pid, page.getUuid());
         }   
     }
-    
-    
-    // vytovori cely dokument od prvniho pidu
-    @Test
-    public void testDocumentServiceFromPid2() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
 
-        Locale locale = Locale.getDefault();
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(),acLog)
-        .addMockedMethod("getFedoraDescribeStream")
-        .addMockedMethod("getRelsExt")
-        .addMockedMethod("isImageFULLAvailable")
-        .addMockedMethod("getDC")
-        .addMockedMethod("getBiblioMods")
-        .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
-        .createMock();
-        
-        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
-        
-        DataPrepare.drobnustkyRelsExt(fa33);
-        DataPrepare.drobnustkyWithIMGFULL(fa33);
-        DataPrepare.drobnustkyDCS(fa33);
-        DataPrepare.drobnustkyMODS(fa33);
-        
-        
-        
-        Set<String> keySet = MODELS_MAPPING.keySet();
-        for (String key : keySet) {
-            String model = MODELS_MAPPING.get(key);
-            PIDParser pidParser = new PIDParser(model);
-            pidParser.disseminationURI();
-            String modelK4Name  = pidParser.getObjectId();
-            EasyMock.expect(fa33.getKrameriusModelName(key)).andReturn(modelK4Name).anyTimes();
-        }
-        
- 
-        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
- 
-        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        Set<String> keys = PATHS_MAPPING.keySet();
-        for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { PATHS_MAPPING.get(key)}).anyTimes();
-        }
-        
-        replay(fa33, solrAccess, bundleService, acLog);
-        
-        Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService,solrAccess));
+
+    @Test
+    public void testDocumentServiceFromPid3() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException, OutOfRangeException {
+        Injector injector = _DocumentServiceTestPrepare.prepareInjector("20",true);
         
         DocumentService docService = injector.getInstance(DocumentService.class);
-        AbstractRenderedDocument doc = docService.buildDocumentAsFlat(PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]), "uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6", 20, new int[]{300,300});
+        PreparedDocument doc = docService.buildDocumentAsFlat(PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]), "uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6", 20, new int[]{300,300});
+        List<AbstractPage> pages = doc.getPages();
+        Assert.assertTrue(pages.size() == 16);
+
+        String[] relsExtOrder = new String[] {
+
+                "uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6",
+                "uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6",
+                "uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6",
+                "uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6",
+
+                "uuid:43101770-b03b-11dd-8673-000d606f5dc6",
+                "uuid:4a7ec660-af36-11dd-a782-000d606f5dc6",
+                "uuid:4314ab50-b03b-11dd-89db-000d606f5dc6",
+                "uuid:4a80c230-af36-11dd-ace4-000d606f5dc6",
+
+                "uuid:43171c50-b03b-11dd-b0c2-000d606f5dc6",
+                "uuid:4a835a40-af36-11dd-b951-000d606f5dc6",
+                "uuid:4319b460-b03b-11dd-83ca-000d606f5dc6",
+                "uuid:4a85f250-af36-11dd-8535-000d606f5dc6",
+                "uuid:431e4840-b03b-11dd-8818-000d606f5dc6",
+
+                "uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6",
+                "uuid:4320e050-b03b-11dd-9b4a-000d606f5dc6",
+                "uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6"
+        };
+        for (int i = 0; i < relsExtOrder.length; i++) {
+            AbstractPage page = pages.get(i);
+            String pid = relsExtOrder[i];
+            Assert.assertEquals(pid, page.getUuid());
+        }   
+    }
+    // vytovori cely dokument od prvniho pidu
+    @Test
+    public void testDocumentServiceFromPid2() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException, OutOfRangeException {
+        Injector injector = _DocumentServiceTestPrepare.prepareInjector("20",false);
+        
+        DocumentService docService = injector.getInstance(DocumentService.class);
+        PreparedDocument doc = docService.buildDocumentAsFlat(PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]), "uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6", 20, new int[]{300,300});
         List<AbstractPage> pages = doc.getPages();
         Assert.assertTrue(pages.size() == 16);
 
@@ -248,55 +191,54 @@ public class DocumentServiceTest {
         }   
     }
 
-    // vytvori cely dokument.. 
+
+
+    // vytvori cely dokument..  omezeny pocet stranek
     @Test
-    public void testDocumentServiceFromNonPagePid() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
-
-        Locale locale = Locale.getDefault();
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(),acLog)
-        .addMockedMethod("getFedoraDescribeStream")
-        .addMockedMethod("getRelsExt")
-        .addMockedMethod("isImageFULLAvailable")
-        .addMockedMethod("getDC")
-        .addMockedMethod("getBiblioMods")
-        .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
-        .createMock();
-        
-        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
-        
-        DataPrepare.drobnustkyRelsExt(fa33);
-        DataPrepare.drobnustkyWithIMGFULL(fa33);
-        DataPrepare.drobnustkyDCS(fa33);
-        DataPrepare.drobnustkyMODS(fa33);
-
-        Set<String> keySet = MODELS_MAPPING.keySet();
-        for (String key : keySet) {
-            String model = MODELS_MAPPING.get(key);
-            PIDParser pidParser = new PIDParser(model);
-            pidParser.disseminationURI();
-            String modelK4Name  = pidParser.getObjectId();
-            EasyMock.expect(fa33.getKrameriusModelName(key)).andReturn(modelK4Name).anyTimes();
-        }
-        
- 
-        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
- 
-        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        Set<String> keys = PATHS_MAPPING.keySet();
-        for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { PATHS_MAPPING.get(key)}).anyTimes();
-        }
-        
-        replay(fa33, solrAccess, bundleService,acLog);
-        
-        Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService,solrAccess));
+    public void testDocumentServiceFromNonPagePidReducedPages() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException, OutOfRangeException {
+        Injector injector = _DocumentServiceTestPrepare.prepareInjector("20", false);
         
         DocumentService docService = injector.getInstance(DocumentService.class);
-        AbstractRenderedDocument doc = docService.buildDocumentAsFlat(PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]),DataPrepare.DROBNUSTKY_PIDS[0], 20, new int[]{300,300});
+        PreparedDocument doc = docService.buildDocumentAsFlat(PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]),DataPrepare.DROBNUSTKY_PIDS[0], 2, new int[]{300,300});
+        List<AbstractPage> pages = doc.getPages();
+        Assert.assertTrue(pages.size() == 2);
+
+        String[] relsExtOrder = new String[] {
+
+                "uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6",
+                "uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6",
+                "uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6",
+                "uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6",
+
+                "uuid:43101770-b03b-11dd-8673-000d606f5dc6",
+                "uuid:4a7ec660-af36-11dd-a782-000d606f5dc6",
+                "uuid:4314ab50-b03b-11dd-89db-000d606f5dc6",
+                "uuid:4a80c230-af36-11dd-ace4-000d606f5dc6",
+
+                "uuid:43171c50-b03b-11dd-b0c2-000d606f5dc6",
+                "uuid:4a835a40-af36-11dd-b951-000d606f5dc6",
+                "uuid:4319b460-b03b-11dd-83ca-000d606f5dc6",
+                "uuid:4a85f250-af36-11dd-8535-000d606f5dc6",
+                "uuid:431e4840-b03b-11dd-8818-000d606f5dc6",
+
+                "uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6",
+                "uuid:4320e050-b03b-11dd-9b4a-000d606f5dc6",
+                "uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6"
+        };
+        for (int i = 0; i < 2; i++) {
+            AbstractPage page = pages.get(i);
+            String pid = relsExtOrder[i];
+            Assert.assertEquals(pid, page.getUuid());
+        }   
+    }
+
+    // vytvori cely dokument.. 
+    @Test
+    public void testDocumentServiceFromNonPagePid() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException, OutOfRangeException {
+        Injector injector = _DocumentServiceTestPrepare.prepareInjector("20", false);
+        
+        DocumentService docService = injector.getInstance(DocumentService.class);
+        PreparedDocument doc = docService.buildDocumentAsFlat(PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]),DataPrepare.DROBNUSTKY_PIDS[0], 20, new int[]{300,300});
         List<AbstractPage> pages = doc.getPages();
         Assert.assertTrue(pages.size() == 16);
 
@@ -332,63 +274,13 @@ public class DocumentServiceTest {
     // vytvori dokument od urciteho pidu
     @Test
     public void testDocumentServiceTreeFromPid() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
-
-        Locale locale = Locale.getDefault();
-        
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(),acLog)
-        .addMockedMethod("getFedoraDescribeStream")
-        .addMockedMethod("getRelsExt")
-        .addMockedMethod("isImageFULLAvailable")
-        .addMockedMethod("getDC")
-        .addMockedMethod("getBiblioMods")
-        .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
-        .createMock();
-        
-        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
-        
-        DataPrepare.drobnustkyRelsExt(fa33);
-        DataPrepare.drobnustkyWithIMGFULL(fa33);
-        DataPrepare.drobnustkyDCS(fa33);
-        DataPrepare.drobnustkyMODS(fa33);
-        
-        Set<String> keySet = MODELS_MAPPING.keySet();
-        for (String key : keySet) {
-            String model = MODELS_MAPPING.get(key);
-            PIDParser pidParser = new PIDParser(model);
-            pidParser.disseminationURI();
-            String modelK4Name  = pidParser.getObjectId();
-            EasyMock.expect(fa33.getKrameriusModelName(key)).andReturn(modelK4Name).anyTimes();
-        }
-        
- 
-        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-        
- 
-        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        Set<String> keys = PATHS_MAPPING.keySet();
-        for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { PATHS_MAPPING.get(key)}).anyTimes();
-        }
-        
-        replay(fa33, solrAccess, bundleService,acLog);
-        
-        Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService,solrAccess));
+        Injector injector = _DocumentServiceTestPrepare.prepareInjector("20",false);
         
         DocumentService docService = injector.getInstance(DocumentService.class);
         ObjectPidsPath path = PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]);
-        AbstractRenderedDocument doc = docService.buildDocumentAsTree(path, path.getLeaf(), new int[]{300,300});
+        PreparedDocument doc = docService.buildDocumentAsTree(path, path.getLeaf(), new int[]{300,300});
         
         String model = doc.getModel();
-
-        System.out.println(doc.getDocumentTitle());
-        System.out.println(doc.getFirstPage());
-        System.out.println(doc.getUuid());
-        
-        System.out.println(model);
         List<AbstractPage> pages = doc.getPages();
         for (AbstractPage page : pages) {
             System.out.println(page);
@@ -418,34 +310,3 @@ public class DocumentServiceTest {
 }
 
 
-class _Module extends AbstractModule {
-
-    private Locale locale;
-    private FedoraAccess fedoraAccess;
-    private ResourceBundleService resourceBundleService;
-    private SolrAccess solrAccess;
-    
-    
-    
-    public _Module(Locale locale, FedoraAccess fedoraAccess, ResourceBundleService resourceBundleService, SolrAccess solrAccess) {
-        super();
-        this.locale = locale;
-        this.fedoraAccess = fedoraAccess;
-        this.resourceBundleService = resourceBundleService;
-        this.solrAccess = solrAccess;
-    }
-
-    @Override
-    protected void configure() {
-        bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(this.fedoraAccess);
-        bind(SolrAccess.class).toInstance(this.solrAccess);
-        bind(ResourceBundleService.class).toInstance(this.resourceBundleService);
-        
-        bind(DocumentService.class).to(DocumentServiceImpl.class);
-    }
-    
-    @Provides
-    public Locale getLocale() {
-        return this.locale;
-    }
-}

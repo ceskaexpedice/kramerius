@@ -62,8 +62,17 @@
     </div>
     <div style="clear:both;display:block;"></div>
 </div>
-
+<view:kconfig var="apipoint" key="api.point" defaultValue="api/v5.0" />
 <script type="text/javascript">
+    function fixPageTitle(){
+        var appTitle = '<fmt:message bundle="${lctx}">application.title</fmt:message>. ';
+        var root_pid = '<x:out select="$doc/response/result/doc/str[@name='root_pid']" />';
+        var url =  "${apipoint}/item/" + root_pid;
+        $.get(url, function(data) {
+            document.title = appTitle + data.title;
+        }); 
+    }
+    
     var viewerOptions = { deepZoomGenerated:false, 
                           deepZoomCofigurationEnabled:false, 
                           mimeType:'', 
@@ -74,7 +83,7 @@
     };
     var sp;
     $(document).ready(function(){
-        
+        fixPageTitle();
         var w = $("#split").height() +
             $(window).height() -
             $("#main").height() - 

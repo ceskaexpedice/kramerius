@@ -175,6 +175,11 @@ public class MetsConvertor {
         config.setDefaultVisibility(defaultVisibility);
 
         config.setContract(packageid);
+
+        if ( KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerDirectorySubfolders", false)){
+            config.setImgTree();
+        }
+
         int l=5;
         try{
             l=KConfiguration.getInstance().getConfiguration().getInt("contractNo.length");

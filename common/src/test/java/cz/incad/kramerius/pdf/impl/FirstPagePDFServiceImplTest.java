@@ -63,11 +63,12 @@ import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.impl.DocumentServiceImpl;
-import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.commands.ITextCommands;
 import cz.incad.kramerius.pdf.commands.render.RenderPDF;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
@@ -191,7 +192,7 @@ public class FirstPagePDFServiceImplTest {
 
 
     @Test
-    public void testGenerateParent_DROBNUSTKY() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException {
+    public void testGenerateParent_DROBNUSTKY() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException, OutOfRangeException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         //hyph-country="CZ" hyph-lang="cs"
         Locale locale = new Locale("cs","CZ");
@@ -230,12 +231,12 @@ public class FirstPagePDFServiceImplTest {
         DocumentService docService = injector.getInstance(DocumentService.class);
 
         // vytvoreny dokument
-        AbstractRenderedDocument renderedDocument = docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]), DataPrepare.DROBNUSTKY_PIDS[0], 20, null);
+        PreparedDocument renderedDocument = docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]), DataPrepare.DROBNUSTKY_PIDS[0], 20, null);
         Assert.assertNotNull(renderedDocument.getPages().size() > 0);
 
         // vygenerovana xml pro itext
         String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateParent(renderedDocument, DataPrepare.PATHS_MAPPING.get( DataPrepare.DROBNUSTKY_PIDS[0]));
-
+        
         Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
 
         InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("drobnustky_parent_first_page.xml");
@@ -252,7 +253,7 @@ public class FirstPagePDFServiceImplTest {
     }
 
     @Test
-    public void testGenerateParent_DROBNUSTKYPage() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException {
+    public void testGenerateParent_DROBNUSTKYPage() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException, OutOfRangeException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
 
@@ -300,7 +301,7 @@ public class FirstPagePDFServiceImplTest {
         DocumentService docService = injector.getInstance(DocumentService.class);
 
         // vytvoreny dokument
-        AbstractRenderedDocument renderedDocument = docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[2]), DataPrepare.DROBNUSTKY_PIDS[2], 20, null);
+        PreparedDocument renderedDocument = docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[2]), DataPrepare.DROBNUSTKY_PIDS[2], 20, null);
         Assert.assertNotNull(renderedDocument.getPages().size() > 0);
 
         // vygenerovana xml pro itext
@@ -323,7 +324,7 @@ public class FirstPagePDFServiceImplTest {
 
 
     @Test
-    public void testGenerateSelection_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
+    public void testGenerateSelection_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
 
@@ -401,7 +402,7 @@ public class FirstPagePDFServiceImplTest {
         };
 
         // vytvoreny dokument
-        AbstractRenderedDocument renderedDocument =
+        PreparedDocument renderedDocument =
             docService.buildDocumentFromSelection(pids, null);
             //docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
         Assert.assertNotNull(renderedDocument.getPages().size() > 0);
@@ -425,7 +426,7 @@ public class FirstPagePDFServiceImplTest {
     }
 
     @Test
-    public void testGenerateParent_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
+    public void testGenerateParent_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
 
@@ -492,7 +493,7 @@ public class FirstPagePDFServiceImplTest {
         String pid = "uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6";
 
         // vytvoreny dokument
-        AbstractRenderedDocument renderedDocument =
+        PreparedDocument renderedDocument =
             docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
         Assert.assertNotNull(renderedDocument.getPages().size() > 0);
 
@@ -535,7 +536,7 @@ public class FirstPagePDFServiceImplTest {
 
 
     @Test
-    public void testGenerateSelection_NarodniListyDrobnustky() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException {
+    public void testGenerateSelection_NarodniListyDrobnustky() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
 
@@ -618,7 +619,7 @@ public class FirstPagePDFServiceImplTest {
         };
 
         // vytvoreny dokument
-        AbstractRenderedDocument renderedDocument =
+        PreparedDocument renderedDocument =
             docService.buildDocumentFromSelection(pids, null);
             //docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
         Assert.assertNotNull(renderedDocument.getPages().size() > 0);
