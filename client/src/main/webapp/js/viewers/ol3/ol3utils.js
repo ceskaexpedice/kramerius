@@ -268,6 +268,10 @@ function _optionspane() {
         return div;
     }
     
+    icondiv(li(ul),"options_maximize","maximize","buttons.maximize",K5.i18n.ctx.dictionary["buttons.maximize"], function() {
+        K5.gui.selected.maximize();
+    });
+    
     icondiv(li(ul),"options_fit","fit","buttons.fit",K5.i18n.ctx.dictionary["buttons.fit"], function() {
         K5.gui.selected.fit();
     });

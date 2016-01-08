@@ -1,12 +1,12 @@
 package cz.incad.kramerius.rest.api.k5.client.feedback;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import cz.incad.kramerius.service.Mailer;
-import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.rmi.ServerException;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -19,13 +19,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.rmi.ServerException;
-import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
+import cz.incad.kramerius.service.Mailer;
+import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Created by Jan Holman on 22.5.15.
@@ -54,16 +57,16 @@ public class FeedbackResource {
             String url = "";
             String text = "";
             String email = "";
-            if (data.containsKey("pid")) {
+            if (data.has("pid")) {
                 pid = data.getString("pid");
             }
-            if (data.containsKey("url")) {
+            if (data.has("url")) {
                 url = data.getString("url");
             }
-            if (data.containsKey("text")) {
+            if (data.has("text")) {
                 text = data.getString("text");
             }
-            if (data.containsKey("email")) {
+            if (data.has("email")) {
                 email = data.getString("email");
             }
 

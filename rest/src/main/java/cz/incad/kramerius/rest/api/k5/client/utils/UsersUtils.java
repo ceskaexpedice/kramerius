@@ -19,8 +19,10 @@ package cz.incad.kramerius.rest.api.k5.client.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import cz.incad.kramerius.rest.api.k5.admin.users.RolesResource;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
@@ -28,7 +30,7 @@ import cz.incad.kramerius.security.impl.UserImpl;
 
 public class UsersUtils {
 
-    public static JSONObject userToJSON(User user) {
+    public static JSONObject userToJSON(User user) throws JSONException {
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("lname", user.getLoginname());
         jsonObj.put("firstname", user.getFirstName());
@@ -40,29 +42,29 @@ public class UsersUtils {
         if (roles != null) {
             for (Role r : roles) {
                 JSONObject json = RolesResource.roleToJSON(r);
-                jsonArr.add(json);
+                jsonArr.put(json);
             }
             jsonObj.put("roles", jsonArr);
         }
         return jsonObj;
     }
 
-    public static User createUserFromJSON(JSONObject uOptions) {
+    public static User createUserFromJSON(JSONObject uOptions) throws JSONException {
         String lname = uOptions.getString("lname");
         String fname = uOptions.getString("firstname");
         String sname = uOptions.getString("surname");
 
         int id = -1;
-        if (uOptions.containsKey("id")) {
+        if (uOptions.has("id")) {
             uOptions.getInt("id");
         }
 
         UserImpl u = new UserImpl(id, fname, sname, lname, -1);
-        if (uOptions.containsKey("roles")) {
+        if (uOptions.has("roles")) {
             List<Role> rlist = new ArrayList<Role>();
             JSONArray jsonArr = uOptions.getJSONArray("roles");
-            for (Object obj : jsonArr) {
-                JSONObject jsonObj = (JSONObject) obj;
+            for (int i = 0,ll=jsonArr.length(); i < ll; i++) {
+                JSONObject jsonObj = (JSONObject) jsonArr.getJSONObject(i);
                 rlist.add(RolesResource.createRoleFromJSON(jsonObj));
             }
             u.setGroups(rlist.toArray(new Role[rlist.size()]));

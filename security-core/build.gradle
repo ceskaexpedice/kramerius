@@ -16,7 +16,7 @@ sourceSets {
 
 
 dependencies {
-    compile 'org.json:json:20090211'
+    compile 'org.json:json:20140107'
     compile 'commons-codec:commons-codec:1.5'
 
 }

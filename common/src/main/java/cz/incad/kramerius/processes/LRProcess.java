@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Properties;
 
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
 
 /**
  * Represents one running process

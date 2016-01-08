@@ -7,10 +7,6 @@ public class OutOfRangeException extends Exception {
         super();
     }
 
-    public OutOfRangeException(String message, Throwable cause,
-            boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 
     public OutOfRangeException(String message, Throwable cause) {
         super(message, cause);

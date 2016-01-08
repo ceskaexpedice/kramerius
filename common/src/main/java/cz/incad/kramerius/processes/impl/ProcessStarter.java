@@ -34,7 +34,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -45,6 +44,7 @@ import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.logging.LoggingLoader;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
+import cz.incad.kramerius.security.impl.http.IsActionAllowedFromRequest;
 
 /**
  * Process starting point 
@@ -81,6 +81,8 @@ public class ProcessStarter {
         try {
 
             String mainClass = System.getProperty(MAIN_CLASS_KEY);
+            String forwardIP = System.getProperty(IsActionAllowedFromRequest.X_IP_FORWARD);
+            
             outStream = createPrintStream(System.getProperty(SOUT_FILE));
             errStream = createPrintStream(System.getProperty(SERR_FILE));
             System.setErr(errStream);

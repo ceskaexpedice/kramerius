@@ -22,11 +22,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.security.User;
 
 //TODO: delete
@@ -39,15 +41,19 @@ public class AuthenticationResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response auth() {
-		User user = provider.get();
-		if (user != null) {
-			JSONObject jsonObj = new JSONObject();
-			jsonObj.put("loginname", user.getLoginname());
-			jsonObj.put("firstname", user.getFirstName());
-			jsonObj.put("surname", user.getSurname());
-			return Response.ok().entity(jsonObj.toString()).build();
-		} else {
-			return Response.ok().entity(new JSONObject().toString()).build();
-		}
+		try {
+            User user = provider.get();
+            if (user != null) {
+            	JSONObject jsonObj = new JSONObject();
+            	jsonObj.put("loginname", user.getLoginname());
+            	jsonObj.put("firstname", user.getFirstName());
+            	jsonObj.put("surname", user.getSurname());
+            	return Response.ok().entity(jsonObj.toString()).build();
+            } else {
+            	return Response.ok().entity(new JSONObject().toString()).build();
+            }
+        } catch (JSONException e) {
+            throw new GenericApplicationException(e.getMessage());
+        }
 	}
 }

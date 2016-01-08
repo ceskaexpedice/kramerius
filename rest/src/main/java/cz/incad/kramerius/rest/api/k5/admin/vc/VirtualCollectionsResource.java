@@ -19,9 +19,9 @@ package cz.incad.kramerius.rest.api.k5.admin.vc;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,8 +36,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -88,9 +89,9 @@ public class VirtualCollectionsResource {
                 VirtualCollection vc = findVirtualCollection(this.fedoraAccess,
                         createdPID);
                 if (vc != null) {
-                    String label = jsonObj.containsKey("label") ? jsonObj
+                    String label = jsonObj.has("label") ? jsonObj
                             .getString("label") : "nolabel";
-                    boolean canLeaveFlag = jsonObj.containsKey("canLeave") ? jsonObj
+                    boolean canLeaveFlag = jsonObj.has("canLeave") ? jsonObj
                             .getBoolean("canLeave") : false;
                     VirtualCollectionsManager.modify(createdPID, label,
                             canLeaveFlag, fedoraAccess);
@@ -100,11 +101,13 @@ public class VirtualCollectionsResource {
                         if (jsonObj.has("descs")) {
                             Map<String, String> map = new HashMap<String, String>();
                             JSONObject descs = jsonObj.getJSONObject("descs");
-                            Set keys = descs.keySet();
-                            for (Object k : keys) {
+                            for (Iterator keys = descs.keys(); keys
+                                    .hasNext();) {
+                                String k = (String) keys.next();
                                 map.put(k.toString(),
                                         descs.getString(k.toString()));
                             }
+
                             VirtualCollectionsManager.modifyTexts(
                                     newVc.getPid(), fedoraAccess, map);
                             // new lookup
@@ -121,6 +124,8 @@ public class VirtualCollectionsResource {
                 }
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new GenericApplicationException(e.getMessage());
+            } catch (JSONException e) {
                 throw new GenericApplicationException(e.getMessage());
             }
         } else
@@ -140,15 +145,18 @@ public class VirtualCollectionsResource {
                     
                     String label = jsonObj.getString("label");
                     boolean canLeaveFlag = jsonObj.getBoolean("canLeave");
-                    VirtualCollectionsManager.modify(pid, label, canLeaveFlag,
-                            fedoraAccess);
+	    VirtualCollectionsManager.modify(pid, label, canLeaveFlag,
+		    fedoraAccess);
                     if (jsonObj.has("descs")) {
                         Map<String, String> map = new HashMap<String, String>();
                         JSONObject descs = jsonObj.getJSONObject("descs");
-                        Set keys = descs.keySet();
-                        for (Object k : keys) {
+                     
+                        for (Iterator keys = descs.keys(); keys
+                                .hasNext();) {
+                            String k = (String) keys.next();
                             map.put(k.toString(), descs.getString(k.toString()));
                         }
+                        
                         VirtualCollectionsManager.modifyTexts(pid,
                                 fedoraAccess, map);
                     }
@@ -163,6 +171,8 @@ public class VirtualCollectionsResource {
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw new GenericApplicationException(e.getMessage());
+            } catch (JSONException e) {
+                throw new GenericApplicationException(e.getMessage());
             }
         } else
             throw new ActionNotAllowed("action is not allowed");
@@ -176,14 +186,18 @@ public class VirtualCollectionsResource {
             VirtualCollection vc = findVirtualCollection(this.fedoraAccess, pid);
             if (vc != null && (!this.cdkResFilter.isFiltered(vc.getPid()))) {
                 try {
-                    VirtualCollectionsManager
-                            .deleteWOIndexer(pid, fedoraAccess);
-                } catch (Exception e) {
+                    try {
+                        VirtualCollectionsManager
+                                .deleteWOIndexer(pid, fedoraAccess);
+                    } catch (Exception e) {
+                        throw new GenericApplicationException(e.getMessage());
+                    }
+                    JSONObject jsonObj = virtualCollectionTOJSON(vc);
+                    jsonObj.put("deleted", true);
+                    return Response.ok().entity(jsonObj.toString()).build();
+                } catch (JSONException e) {
                     throw new GenericApplicationException(e.getMessage());
                 }
-                JSONObject jsonObj = virtualCollectionTOJSON(vc);
-                jsonObj.put("deleted", true);
-                return Response.ok().entity(jsonObj.toString()).build();
             } else {
                 throw new ObjectNotFound("cannot find vc '" + pid + "'");
             }
@@ -229,9 +243,9 @@ public class VirtualCollectionsResource {
                 JSONArray jsonArr = new JSONArray();
                 for (VirtualCollection vc : vcs) {
                     if (!this.cdkResFilter.isFiltered(vc.getPid())) {
-                        jsonArr.add(virtualCollectionTOJSON(vc));
+                        jsonArr.put(virtualCollectionTOJSON(vc));
                     }
-                }
+               }
                 return Response.ok().entity(jsonArr.toString()).build();
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -241,7 +255,7 @@ public class VirtualCollectionsResource {
             throw new ActionNotAllowed("action is not allowed");
     }
 
-    public static JSONObject virtualCollectionTOJSON(VirtualCollection vc) {
+    public static JSONObject virtualCollectionTOJSON(VirtualCollection vc) throws JSONException {
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("pid", vc.getPid());
         jsonObj.put("label", vc.getLabel());
