@@ -75,6 +75,10 @@ public class VirtualCollectionViewObject {
         return VirtualCollectionsManager.getVirtualCollections(this.fedoraAccess, languageCodes());
     }
     
+    public List<VirtualCollection> getVirtualCollectionsFromFedora() throws Exception {
+        return VirtualCollectionsManager.getVirtualCollectionsFromFedora(this.fedoraAccess, languageCodes());
+    }
+    
     public List<VirtualCollection> getVirtualCollectionsLocale() throws Exception {
         Locale locale = this.localeProvider.get();
         ArrayList<String> l = new ArrayList<String>();
