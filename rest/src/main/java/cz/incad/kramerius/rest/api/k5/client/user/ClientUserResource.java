@@ -125,6 +125,6 @@ public class ClientUserResource {
         UserProfile profile = this.userProfileManager.getProfile(user);
         profile.setJSONData(rawdata);
         this.userProfileManager.saveProfile(user, profile);
-        return Response.ok().entity(profile).build();
+        return Response.ok().entity(profile.getJSONData().toString()).build();
     }
 }
