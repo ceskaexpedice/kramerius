@@ -229,7 +229,7 @@ function _optionspaneUnlocked(dkey) {
     $.get("svg.vm?svg=unlock",function(data) {
         $("#options_lock").html(data);            
     });
-    if (lockDataKey) {
+    if (dkey) {
         $("#options_lock").attr("data-key",dkey);
         $("#options_lock").attr("title",K5.i18n.ctx.dictionary[dkey]);
     }
