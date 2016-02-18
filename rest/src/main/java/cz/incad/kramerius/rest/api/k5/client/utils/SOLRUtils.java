@@ -130,7 +130,7 @@ public class SOLRUtils {
                     }
                 });
         for (Element e : elms) {
-            ret.add(value(elms.get(0).getTextContent(), clz));
+            ret.add(value(e.getTextContent(), clz));
         }
         return ret;
     }
@@ -142,7 +142,6 @@ public class SOLRUtils {
         List<T> ret = new ArrayList<T>();
         List<Element> elms = XMLUtils.getElements(doc,
                 new XMLUtils.ElementsFilter() {
-
                     @Override
                     public boolean acceptElement(Element element) {
                         return (element.getNodeName().equals("arr")
