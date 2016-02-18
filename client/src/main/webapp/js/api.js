@@ -464,9 +464,9 @@ ClientAPIDev.prototype = {
         var href = "";
         if (withParams) {
             $('#search_form input[name="page"]').val("doc")
-            href += "?" + $("#search_form").serialize() + "#" + pid;
+            href += "index.vm?" + $("#search_form").serialize() + "#" + pid;
         } else {
-            href += "page=doc#" + pid;
+            href += "index.vm?page=doc#" + pid;
         }
         window.location.assign(href);
     },
