@@ -229,7 +229,7 @@ function _optionspaneUnlocked(dkey) {
     $.get("svg.vm?svg=unlock",function(data) {
         $("#options_lock").html(data);            
     });
-    if (lockDataKey) {
+    if (dkey) {
         $("#options_lock").attr("data-key",dkey);
         $("#options_lock").attr("title",K5.i18n.ctx.dictionary[dkey]);
     }
@@ -250,7 +250,8 @@ function _optionspane() {
         if (datakey) {
             div.attr("data-key",datakey);
         }
-
+        div.addClass("translate_title");
+        
         if (title) {
             div.attr("title",title);
         }
@@ -276,11 +277,11 @@ function _optionspane() {
         K5.gui.selected.fit();
     });
 
-    icondiv(li(ul),"options_rotate_left","rotateleft","buttons.fit",K5.i18n.ctx.dictionary["buttons.rotateleft"],function() {
+    icondiv(li(ul),"options_rotate_left","rotateleft","buttons.rotateleft",K5.i18n.ctx.dictionary["buttons.rotateleft"],function() {
         K5.gui.selected.rotateLeft();
     });
     
-    icondiv(li(ul),"options_rotate_right","rotateright","buttons.fit",K5.i18n.ctx.dictionary["buttons.rotateright"],function() {
+    icondiv(li(ul),"options_rotate_right","rotateright","buttons.rotateright",K5.i18n.ctx.dictionary["buttons.rotateright"],function() {
         K5.gui.selected.rotateRight();
     });
 

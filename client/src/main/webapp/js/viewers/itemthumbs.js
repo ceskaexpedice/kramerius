@@ -180,7 +180,7 @@ ItemThumbs.prototype = {
             }
             q += "&rows=5000&fq=pid_path:" + pid_path.replace(/:/g, "\\:") + "*";
             var hl = "&hl=true&hl.fl=text_ocr&hl.mergeContiguous=true&hl.snippets=2";
-            K5.api.askForSolr(q + hl + fq, _.bind(function(data) {
+            K5.api.askForSolr(q + hl, _.bind(function(data) {
                 console.log("Hits: " + data.response.numFound);
                 //console.log(JSON.stringify(data));
                 this.hits = data.response.docs;
