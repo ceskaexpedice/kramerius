@@ -123,7 +123,7 @@
                 results.push({
                     "message":"missing repeatedpassword field", //I18N,
                     "validated": false,
-                    "ident":"#registration_error_differentpasswords"
+                    "ident":"#registration_ error_differentpasswords"
                 });
             } else {
                 results.push({

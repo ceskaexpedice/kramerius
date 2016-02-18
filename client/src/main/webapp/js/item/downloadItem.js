@@ -55,7 +55,7 @@ DownloadItem.prototype.init = function() {
     
     function _message() {
         var optionsdiv = $("<div/>");
-        var span = $("<span/>",{"id":"download_action_message"});
+        var span = $("<span/>",{"id":"download_action_message", "class":"translate","data-key":"downloads.message"});
         optionsdiv.append(span);
         return optionsdiv;
     }
