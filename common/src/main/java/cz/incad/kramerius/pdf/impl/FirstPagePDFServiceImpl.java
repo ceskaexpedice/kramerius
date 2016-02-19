@@ -37,6 +37,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -234,6 +235,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         fpvo.setGeneratedItems(new GeneratedItem[] {itm});
 
         template.setAttribute("viewinfo", fpvo);
+        
         String templateText = template.toString();
         
         return templateText;
@@ -460,7 +462,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
 
     // Reprezentuje objekt do sablony pro zobrazeni
-    class FirstPageViewObject {
+    static class FirstPageViewObject {
 
         private String ditigalLibrary;
         private String conditionUsage;
@@ -474,7 +476,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
 
         
         public String getDitigalLibrary() {
-            return ditigalLibrary;
+            return StringEscapeUtils.escapeXml(this.ditigalLibrary);
         }
 
         public void setDitigalLibrary(String ditigalLibrary) {
@@ -482,7 +484,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         }
 
         public String getConditionUsage() {
-            return conditionUsage;
+            return StringEscapeUtils.escapeXml(conditionUsage);
         }
 
         public void setConditionUsage(String conditionUsage) {
@@ -490,7 +492,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         }
 
         public String getConditionUsageText() {
-            return conditionUsageText;
+            return StringEscapeUtils.escapeXml(conditionUsageText);
         }
 
         public void setConditionUsageText(String conditionUsageText) {
@@ -498,7 +500,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         }
 
         public String getPdfContainsTitle() {
-            return pdfContainsTitle;
+            return StringEscapeUtils.escapeXml(pdfContainsTitle);
         }
 
         public void setPdfContainsTitle(String pdfContainsTitle) {
@@ -536,7 +538,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
 
     // reprezentuje generovanou polozku
-    class GeneratedItem {
+    static class GeneratedItem {
 
         private DetailItem[] detailItems = new DetailItem[0];
 
@@ -558,7 +560,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
 
 
-    class DetailItem {
+    static class DetailItem {
 
         private String key;
         private String value;
@@ -570,11 +572,11 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         }
 
         public String getKey() {
-            return key;
+            return StringEscapeUtils.escapeXml(key);
         }
 
         public String getValue() {
-            return value;
+            return StringEscapeUtils.escapeXml(value);
         }
     }
 }

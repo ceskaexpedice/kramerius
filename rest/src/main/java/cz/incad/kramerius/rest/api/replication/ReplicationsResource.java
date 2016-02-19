@@ -26,20 +26,18 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 import biz.sourcecode.base64Coder.Base64Coder;
@@ -55,7 +53,6 @@ import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.document.model.utils.DCContentUtils;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.rest.api.utils.ExceptionJSONObjectUtils;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -119,20 +116,22 @@ public class ReplicationsResource {
                     if (!appURL.endsWith("/")) appURL += "/";
 
                     JSONObject jsonObj = new JSONObject();
-                    jsonObj.put("identifiers", JSONArray.fromObject(dcConent.getIdentifiers()));
-                    jsonObj.put("publishers", JSONArray.fromObject(dcConent.getPublishers()));
-                    jsonObj.put("creators", JSONArray.fromObject(dcConent.getCreators()));
+                    jsonObj.put("identifiers", new JSONArray(dcConent.getIdentifiers()));
+                    jsonObj.put("publishers", new JSONArray(dcConent.getPublishers()));
+                    jsonObj.put("creators", new JSONArray(dcConent.getCreators()));
                     jsonObj.put("title", dcConent.getTitle());
                     jsonObj.put("type", dcConent.getType());
                     jsonObj.put("date", dcConent.getDate());
                     jsonObj.put("handle", appURL+"handle/"+pid);
 
-                    return Response.ok().entity(jsonObj).build();
+                    return Response.ok().entity(jsonObj.toString()).build();
                 } else throw new ObjectNotFound("cannot find pid '"+pid+"'");
             }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");
         } catch (IOException e) {
+            throw new ReplicateException(e);
+        } catch (JSONException e) {
             throw new ReplicateException(e);
         }
     }
@@ -225,11 +224,13 @@ public class ReplicationsResource {
                 char[] encoded = Base64Coder.encode(bytes);
                 JSONObject jsonObj = new JSONObject();
                 jsonObj.put("raw", new String(encoded));
-                return Response.ok().entity(jsonObj).build();
+                return Response.ok().entity(jsonObj.toString()).build();
             }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");
         } catch (IOException e) {
+            throw new ReplicateException(e);
+        } catch (JSONException e) {
             throw new ReplicateException(e);
         }
     }

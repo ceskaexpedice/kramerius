@@ -1,7 +1,6 @@
 package cz.incad.kramerius.client;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -9,8 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Base64;
 
 import cz.incad.kramerius.client.cache.SimpleJSONResultsCache;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.utils.IOUtils;
 
 public class RESTHelper {
@@ -223,6 +219,14 @@ public class RESTHelper {
             List<String> list = headerFields.get(expiresKey);
             for (String val : list) {
                 resp.setHeader(expiresKey, val);
+            }
+        }
+        
+        String contentDisp = "Content-disposition";
+        if (headerFields.containsKey(contentDisp)) {
+            List<String> list = headerFields.get(contentDisp);
+            for (String val : list) {
+                resp.setHeader(contentDisp, val);
             }
         }
     }

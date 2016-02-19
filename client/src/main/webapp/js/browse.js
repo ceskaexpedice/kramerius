@@ -157,7 +157,11 @@ Browse.prototype = {
                 var doc = arr[i];
                 var div = $('<li/>', {class: 'res policy'});
                 div.data("pid", doc.PID);
-                var title = $('<span class="title">' + doc['dc.title'] + '</span>');
+                var dcTitle = doc['dc.title'];
+                if(dcTitle.length === 0){
+                    dcTitle = K5.i18n.translatable("dctitle.none");
+                }
+                var title = $('<span class="title">' + dcTitle + '</span>');
                 title.click(function() {
                     K5.api.gotoDisplayingItemPage($(this).parent().data("pid"));
                 });

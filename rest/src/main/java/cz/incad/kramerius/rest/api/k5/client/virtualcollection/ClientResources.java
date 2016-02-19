@@ -18,8 +18,9 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONObject;
+import org.json.JSONArray;
+
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -86,7 +87,7 @@ public class ClientResources {
                     VirtualCollection vc = VirtualCollectionsResource
                             .findVirtualCollection(this.fedoraAccess, pid);
                     if (vc != null) {
-                        jsonArr.add(resourceTOJSON(this.fedoraAccess, vc));
+                        jsonArr.put(resourceTOJSON(this.fedoraAccess, vc));
                     }
                 }
             }

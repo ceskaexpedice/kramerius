@@ -36,7 +36,9 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 import cz.incad.kramerius.security.Role;
@@ -237,27 +239,35 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
 
     public Locale localeFromProfile(User user) {
-        UserProfile profile = this.userProfileManager.getProfile(user);
-        String lang =  "";
-        
-        if (profile != null && profile.getJSONData().containsKey("client_locale")){
-            lang = profile.getJSONData().getString("client_locale");
-        } else{
-            return null;
+        try {
+            UserProfile profile = this.userProfileManager.getProfile(user);
+            String lang =  "";
+            
+            if (profile != null && profile.getJSONData().has("client_locale")){
+                lang = profile.getJSONData().getString("client_locale");
+            } else{
+                return null;
+            }
+            final Locale foundLocale = this.textsService.findLocale(lang);
+            return foundLocale;
+        } catch (JSONException e) {
+            throw new IllegalStateException(e.getMessage());
         }
-        final Locale foundLocale = this.textsService.findLocale(lang);
-        return foundLocale;
     }
 
     public String getColumnsFromProfile(User user) {
-        UserProfile profile = this.userProfileManager.getProfile(user);
-        if (profile.getJSONData().containsKey("results")) {
-            JSONObject results = profile.getJSONData().getJSONObject("results");
-            if (results.containsKey("columns")) {
-                return results.getString("columns");
+        try {
+            UserProfile profile = this.userProfileManager.getProfile(user);
+            if (profile.getJSONData().has("results")) {
+                JSONObject results = profile.getJSONData().getJSONObject("results");
+                if (results.has("columns")) {
+                    return results.getString("columns");
+                }
             }
+            return "2";
+        } catch (JSONException e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
-        return "2";
     }
 
 

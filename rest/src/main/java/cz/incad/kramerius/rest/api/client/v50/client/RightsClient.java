@@ -22,7 +22,8 @@ import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -73,9 +74,9 @@ public class RightsClient {
 	}
 
 	
-	public static void main(String[] args) {
-		JSONObject jsonObj = JSONObject.fromObject(globalRights());
-		Iterator actions = jsonObj.keySet().iterator();
+	public static void main(String[] args) throws JSONException {
+		JSONObject jsonObj = new JSONObject(globalRights());
+		Iterator actions = jsonObj.keys();
 		System.out.println("Right for user "+DEFAULT_NAME);
 		while(actions.hasNext()) {
 			String act = (String) actions.next();
@@ -84,8 +85,8 @@ public class RightsClient {
 		
 		String pid = "uuid:045b1250-7e47-11e0-add1-000d606f5dc6";
 		System.out.println("Right for user "+DEFAULT_NAME+" and for object pid "+pid);
-		jsonObj = JSONObject.fromObject(concreteObjects(Arrays.asList("read","administrate"), pid));
-		actions = jsonObj.keySet().iterator();
+		jsonObj = new JSONObject(concreteObjects(Arrays.asList("read","administrate"), pid));
+		actions = jsonObj.keys();
 		while(actions.hasNext()) {
 			String act = (String) actions.next();
 			System.out.println("\t'"+act+"' = "+jsonObj.getBoolean(act));
