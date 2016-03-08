@@ -161,12 +161,8 @@ PDF.prototype.downloadFile = function(url) {
         console.log("dialog " + this.waitDialog);
         if (xhr.readyState == 4) {
             if (xhr.status == 200) {
-                var name = (function() {
-                    var date = new Date();
-                    return "" + date.getFullYear() + "" + date.getDate() + ""
-                            + date.getMonth() + "_" + date.getHours() + ""
-                            + date.getMinutes() + "" + date.getSeconds() + ".pdf";
-                })();
+                var date = new Date();
+                var name = "" + date.getFullYear() + "" + date.getDate() + "" + date.getMonth() + "_" + date.getHours() + "" + date.getMinutes() + "" + date.getSeconds()+"_"+date.getMilliseconds()+ ".pdf";
                 var blob = xhr.response;
                 var burl = window.URL.createObjectURL(blob);
                 var ref = $('<a/>', {
@@ -176,14 +172,14 @@ PDF.prototype.downloadFile = function(url) {
                     style : "display:none"
                 });
                 ref.text("click to download");
+
+                $("#_pdf_download_bloblink" ).remove();
                 $("#waitPdf").append(ref);
 
-                // JQuery issue, the code:
-                // $("#_pdf_download_bloblink").trigger('click');
-                // doesn't work
-
                 $("#_pdf_download_bloblink").get(0).click();
+                
                 this.waitDialog.dialog('close');
+
             } else if (xhr.status == 400) {
                 this.waitDialog.dialog('close');
                 this.showPagesValidationError();

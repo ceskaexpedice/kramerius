@@ -82,8 +82,8 @@ PersistentURL.prototype = {
                 cleanWindow();
                 divopen("#viewer div.persistents");
                 var sel = K5.api.ctx.item.selected;
-                var itm = K5.api.ctx.item[sel];
-                $("#persisturl").val(itm.handle.href);
+		var handleurl = window.location.protocol+"//"+window.location.host+"/client/handle/"+sel;
+                $("#persisturl").val(handleurl);
                 $("#persisturl").select();
         },
         'enabled': function() {

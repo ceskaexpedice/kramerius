@@ -136,13 +136,15 @@ public class SolrAccessImpl implements SolrAccess {
 
     private ObjectModelsPath[] getPathOfModels(Document doc)
             throws XPathExpressionException {
-        List<String> disected = SolrUtils.disectModelPaths(doc);
-        ObjectModelsPath[] paths = new ObjectModelsPath[disected.size()];
-        for (int i = 0; i < paths.length; i++) {
-            String[] models = disected.get(i).split("/");
-            paths[i] = new ObjectModelsPath(models);
+        synchronized(doc) {
+            List<String> disected = SolrUtils.disectModelPaths(doc);
+            ObjectModelsPath[] paths = new ObjectModelsPath[disected.size()];
+            for (int i = 0; i < paths.length; i++) {
+                String[] models = disected.get(i).split("/");
+                paths[i] = new ObjectModelsPath(models);
+            }
+            return paths;
         }
-        return paths;
     }
     
 
@@ -214,6 +216,4 @@ public class SolrAccessImpl implements SolrAccess {
 			throw new IOException(e);
 		}
     }
-
-
 }

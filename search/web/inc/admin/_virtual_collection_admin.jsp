@@ -51,7 +51,7 @@
     <th><view:msg>administrator.dialogs.virtualcollections.canLeave</view:msg></th>
         <th></th>
     </thead>
-    <c:forEach var="col" items="${cols.virtualCollections}">
+    <c:forEach var="col" items="${cols.virtualCollectionsFromFedora}">
         <tr id="vc_${col.pid}">
             <td>${col.pid}</td>
             <c:forEach items="${buttons.languageItems}" var="langitm">

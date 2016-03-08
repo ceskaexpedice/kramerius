@@ -50,9 +50,9 @@
 
 <form id="login_form" name="login_form">
     <label>#translatable('login.username'):</label>
-    <input id="username" name="username" placeholder="#i18nval('login.username.placeholder')" value="" />
+    <input class="translate_placeholder" data-key="login.username.placeholder" id="username" name="username" placeholder="#i18nval('login.username.placeholder')" value="" />
     <label>#translatable('login.password'):</label>
-    <input id="password" name="password" placeholder="#i18nval('login.password.placeholder')" value="" type="password" />
+    <input class="translate_placeholder" data-key="login.password.placeholder" id="password" name="password" placeholder="#i18nval('login.password.placeholder')" value="" type="password" />
 </form>
 
 <span>

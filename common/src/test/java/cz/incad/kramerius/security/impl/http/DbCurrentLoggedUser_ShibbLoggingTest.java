@@ -43,7 +43,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.name.Named;
-import com.sun.security.auth.UserPrincipal;
 
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Role;
