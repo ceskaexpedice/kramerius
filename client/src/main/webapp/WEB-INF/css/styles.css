@@ -2434,9 +2434,6 @@ li.public:before{
     border-color: rgba(255, 255, 255, 1);
 }
 
-#login {
-    color: rgba(180, 180, 180, 0.4);
-}
 #login a {
     color: inherit;
     text-decoration: none;
