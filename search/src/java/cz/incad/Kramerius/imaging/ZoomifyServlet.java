@@ -50,6 +50,7 @@ import com.google.inject.Provider;
 
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.Kramerius.imaging.utils.ZoomChangeFromReplicated;
+import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
@@ -92,6 +93,9 @@ public class ZoomifyServlet extends AbstractImageServlet {
     
     @Inject
     SolrAccess solrAccess;
+    
+    @Inject
+    MostDesirable mostDesirable;
 
     
     @Override
@@ -160,6 +164,8 @@ public class ZoomifyServlet extends AbstractImageServlet {
     	
     	setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
+        mostDesirable.saveAccess(pid, new java.util.Date());
+
         String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
         if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
             try {

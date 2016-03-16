@@ -18,42 +18,26 @@
 <%@page import="cz.incad.kramerius.utils.FedoraUtils"%>
 <%@page import="cz.incad.kramerius.FedoraAccess"%>
 <%@page import="cz.incad.kramerius.utils.conf.KConfiguration"%>
-<%
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view"%>
 
-	Injector ctxInj = (Injector)application.getAttribute(Injector.class.getName());
-        KConfiguration kconfig = ctxInj.getProvider(KConfiguration.class).get();
-        pageContext.setAttribute("kconfig", kconfig);
-	pageContext.setAttribute("lrProcessManager",ctxInj.getInstance(LRProcessManager.class));
-	pageContext.setAttribute("dfManager",ctxInj.getInstance(DefinitionManager.class));
-	
-	LocalizationContext lctx= ctxInj.getProvider(LocalizationContext.class).get();
-	pageContext.setAttribute("lctx", lctx);
+<view:kconfig var="kConfigSolrHost" key="solrHost" />
 
-        FedoraAccess fedoraAccess = ctxInj.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("securedFedoraAccess")));
 
-	List<String> uuids = (List<String>)ctxInj.getInstance(MostDesirable.class).getMostDesirable(18, 0, null);
-        Iterator it = uuids.iterator();
-        
-        String itemUrl;
-        String path = "";
-        for(String pid :uuids){
-            //itemUrl = "./item.jsp?pid="+ pi + "&pid_path=" + uuid + "&path=" + path;
-            //imagePid = "thumb?uuid=" + FedoraUtils.findFirstPagePid("uuid:" + pid);
-            pageContext.setAttribute("uuid", pid);
-    %>
-    <c:url var="url" value="${kconfig.solrHost}/select/" >
+<view:object name="mostDesirableViewObject" clz="cz.incad.Kramerius.views.inc.MostDesirableViewObject"></view:object>
+
+<c:forEach items="${mostDesirableViewObject.pids}" var="uuid" varStatus="status">
+    <c:url var="url" value="${kConfigSolrHost}/select/" >
         <c:param name="q" value="PID:\"${uuid}\"" />
     </c:url>
-
-<c:catch var="exceptions"> 
-    <c:import url="${url}" var="xml" charEncoding="UTF-8" />
-</c:catch>
-<c:choose>
-    <c:when test="${exceptions != null}">
-        <c:out value="${exceptions}" />
-        <c:out value="${xml}" />
-    </c:when>
-    <c:otherwise>
+    <c:catch var="exceptions"> 
+        <c:import url="${url}" var="xml" charEncoding="UTF-8" />
+     </c:catch>
+     <c:choose>
+        <c:when test="${exceptions != null}">
+            <c:out value="${exceptions}" />
+            <c:out value="${xml}" />
+        </c:when>
+        <c:otherwise>
         <x:parse var="doc" xml="${xml}"  />
         
          <x:forEach varStatus="status" select="$doc/response/result/doc">
@@ -67,7 +51,9 @@
             </div>
         </x:forEach>
         
-    </c:otherwise>
-</c:choose>
-<%}%>
+     </c:otherwise>
+    </c:choose>
+
+ </c:forEach>
+
 <div ><a href="inc/home/mostDesirables-rss.jsp"><span class="ui-icon ui-icon-signal-diag"></span></a></div>
