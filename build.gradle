@@ -15,9 +15,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+plugins {
+        id 'com.gradle.build-receipt' version '1.0'
+}
+
+buildReceiptLicense {
+    agreementUrl = 'https://gradle.com/terms-of-service'
+    agree = 'yes'
+}
+
 println "Building K4; please read BUILD-README.txt"
 
-//apply plugin: 'distribution' // -> generate distributions
+apply plugin: 'distribution' // -> generate distributions
 apply plugin: 'java' // -> generate javadoc
 
 
@@ -40,7 +49,6 @@ dependencies {
 
 
 
-/*
 distributions {
         // main distribution        
         main {
@@ -59,7 +67,7 @@ distributions {
                         from {'security-core/build/libs'}
                 }
         }
-}*/
+}
 
 
 repositories {
@@ -178,12 +186,15 @@ subprojects {
 
          }
 
+	tasks.withType(Javadoc) {
+		options.addStringOption('Xdoclint:none', '-quiet')	
+	}	
+
         build.finalizedBy 'install'
 }
 
 
 // disabled distributions
-/*
 task zipAllJavadocs(type: Zip) {
         String[] _spr = ["common","fedora-api","security-core","rest","search"];
         description "create javadocs for ${_spr} and zip it"
@@ -199,7 +210,22 @@ task zipAllJavadocs(type: Zip) {
 }
 
 [distZip, distTar, installDist].each() { 
-  it.dependsOn('clean',':search:build', 'zipAllJavadocs')
+  it.dependsOn('clean',':search:build')
 };
 
-*/
+[distZip, distTar, installDist].each() { 
+	gradle.taskGraph.whenReady {taskGraph ->
+	    if (taskGraph.hasTask(it)) {
+  		it.dependsOn(zipAllJavadocs)
+	    }
+	}
+};
+
+
+
+/*
+[distZip, distTar, installDist].each() { 
+  it.dependsOn(zipAllJavadocs)
+};*/
+
+
