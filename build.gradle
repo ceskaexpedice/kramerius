@@ -53,6 +53,7 @@ distributions {
         // main distribution        
         main {
                 contents {
+                        from {'client/build/libs'}
                         from {'search/build/libs'}
                         from {'security-core/build/libs'}
                         from configurations.editors
@@ -60,9 +61,11 @@ distributions {
                 }
         }
 
+
         // patch distribution        
         patch {
                 contents {
+                        from {'client/build/libs'}
                         from {'search/build/libs'}
                         from {'security-core/build/libs'}
                 }
@@ -94,7 +97,7 @@ subprojects {
 
          
          group='cz.incad.kramerius'
-         version='5.3.1'
+         version='5.3.2'
          
          sourceCompatibility = 1.6
          targetCompatibility= 1.6
@@ -209,23 +212,9 @@ task zipAllJavadocs(type: Zip) {
                 
 }
 
-[distZip, distTar, installDist].each() { 
-  it.dependsOn('clean',':search:build')
+[distZip, distTar, installDist,patchDistZip,patchDistTar].each() { 
+  it.dependsOn('clean',':search:build',':client:build')
 };
 
-[distZip, distTar, installDist].each() { 
-	gradle.taskGraph.whenReady {taskGraph ->
-	    if (taskGraph.hasTask(it)) {
-  		it.dependsOn(zipAllJavadocs)
-	    }
-	}
-};
-
-
-
-/*
-[distZip, distTar, installDist].each() { 
-  it.dependsOn(zipAllJavadocs)
-};*/
 
 
