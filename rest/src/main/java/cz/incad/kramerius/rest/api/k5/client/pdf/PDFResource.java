@@ -181,6 +181,8 @@ public class PDFResource extends AbstractPDFResource  {
                 if (pid != null) {
                     File fileToDelete = null;
                     try {
+                        this.mostDesirable.saveAccess(pid, new Date());
+
                         pid = this.fedoraAccess.findFirstViewablePid(pid);
                         BufferedImage bufImage = KrameriusImageSupport.readImage(pid,FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
 
@@ -254,6 +256,10 @@ public class PDFResource extends AbstractPDFResource  {
                     String[] pids = pidsParam.split(",");
                     // max number test
                     ConfigurationUtils.checkNumber(pids);
+                    for (String p : pids) {
+                        this.mostDesirable.saveAccess(p, new Date());
+                    }
+
                     Rectangle formatRect = formatRect(format);
                     final File generatedPDF = super.selection(pids, formatRect, fp);
                     final InputStream fis = new FileInputStream(generatedPDF);
@@ -327,6 +333,8 @@ public class PDFResource extends AbstractPDFResource  {
             acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
             if (acquired) {
                 try {
+
+                    this.mostDesirable.saveAccess(pid, new Date());
 
                     AbstractPDFResource.FirstPage fp = pageType != null ? AbstractPDFResource.FirstPage
                             .valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;

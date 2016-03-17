@@ -528,7 +528,9 @@ PDFSiblingsTitle.prototype = {
         'message' :function() {
             if (this.ctx && this.ctx.conf) { 
                 if (this.ctx.conf.pdfMaxRange !== "unlimited") {
-                    return "Maximalni pocet stranek limitovan na:"+this.ctx.conf.pdfMaxRange+". Tiskne se od aktualne vybrane."; 
+		    var f = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.1'];
+		    var s = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.2'];
+                    return f+this.ctx.conf.pdfMaxRange+s; 
                 }
             } else return null;
         },
@@ -565,7 +567,9 @@ PDFTitle.prototype = {
             this.ctx.conf
             if (this.ctx && this.ctx.conf) { 
                 if (this.ctx.conf.pdfMaxRange !== "unlimited") {
-                    return "Maximalni pocet stranek :"+this.ctx.conf.pdfMaxRange; 
+		    var f = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.1'];
+		    var s = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.2'];
+                    return f+this.ctx.conf.pdfMaxRange; 
                 }
             } else return null;
         },

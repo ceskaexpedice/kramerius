@@ -130,9 +130,9 @@ DownloadItem.prototype.open = function() {
         var selAction = K5.gui.selected.download.selectAction();
         if (selAction && selAction.object.message) {
             var tMess = selAction.object.message();
-            $("#download_action_message").text(tMess);
+            $("#download_action_message").html(tMess);
         } else {
-            $("#download_action_message").text("");
+            $("#download_action_message").html("");
         }
 
     });

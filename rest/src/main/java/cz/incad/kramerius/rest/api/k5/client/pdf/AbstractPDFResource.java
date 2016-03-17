@@ -31,6 +31,7 @@ import com.lowagie.text.Rectangle;
 
 import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
@@ -98,6 +99,9 @@ public class AbstractPDFResource {
     @Inject
     SimplePDFService simplePdfService;
 
+    
+    @Inject
+    MostDesirable mostDesirable;
     
     
     @GET
