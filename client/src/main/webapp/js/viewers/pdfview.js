@@ -64,7 +64,8 @@ PDFView.prototype.open = function() {
         object.attr("data",href);
         object.attr("width","100%");
         object.attr("height","100%");
-
+        object.css({ 'position':  'absolute'});
+        
         pdfContainer.append(object);
 
         this.container.append(pdfContainer);

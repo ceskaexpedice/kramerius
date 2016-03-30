@@ -170,7 +170,11 @@ ClientAPIDev.prototype = {
      * @method
      */
     askForItem : function(pid, whenready) {
-        $.getJSON("api/item/" + pid, _.bind(function(data) {
+        // check page ?? Do it better
+    	if (pid && pid.split("@").length > 1) {
+    		pid = pid.split("@")[0];
+    	}
+    	$.getJSON("api/item/" + pid, _.bind(function(data) {
             if (!this.isKeyReady("item")) {
                 this.ctx["item"] = {};
             }
