@@ -10,10 +10,8 @@
             <div>
                 <h3>#translatable('common.favorites')</h3>
             </div>
-
             <div id="prfl_content_favorites">
             </div>
-
         </div>
 
         <div class="prfl_footer">
@@ -27,6 +25,8 @@
 
             <div class="left">
                 <div class="buttons">
+                    <!-- only k5 provider ?? -->
+                    <div class="button" onclick="link('?page=changepswd');">#translatable('application.changepswd')</div>
                     <div class="button" onclick="K5.authentication.logoutAndRedirect('index.vm');">#translatable('application.logout')</div>
                 </div>
             </div>

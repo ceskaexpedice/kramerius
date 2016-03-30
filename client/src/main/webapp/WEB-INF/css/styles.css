@@ -936,6 +936,38 @@ li.public:before{
 /** end of loginbox section */
 
 
+/** changepswd section */
+.changepswdbox {
+    position:absolute; 
+    top: 50px;
+    left: 90px;
+
+    width: 50%;
+    border:0px solid rgba(0, 0, 0, 0.3);
+    color: $params.textColor;
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+    font-size: 1.5em;
+    padding: 15px;
+    background-color: $params.activeColor;
+}
+
+.changepswdbox:hover{
+    background-color: $params.activeColor;
+}
+
+#changepswd div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+}
+
+#changepswd div.button:hover{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+}
+
+/** end of changepswd section */
+
 #viewer .pages{
     top: 50px;
 }

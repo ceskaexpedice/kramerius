@@ -45,7 +45,6 @@
 </style>
 
 <div id="login_box">
-<span>
 
 
 <form id="login_form" name="login_form">
@@ -55,7 +54,6 @@
     <input class="translate_placeholder" data-key="login.password.placeholder" id="password" name="password" placeholder="#i18nval('login.password.placeholder')" value="" type="password" />
 </form>
 
-<span>
 
     <script type="text/javascript">
     
@@ -94,9 +92,7 @@
         <a href="javascript:__loginbutton()">#translatable('login.button')</a>
     </div>
 
-<div id="login_box_error" class="login_error" style="display:none">#translatable('login.error')</span>
+<div id="login_box_error" class="login_error" style="display:none">#translatable('login.error')
 </div>
 
-
-</span>
 </div>
