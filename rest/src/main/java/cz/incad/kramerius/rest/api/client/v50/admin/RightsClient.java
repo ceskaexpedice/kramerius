@@ -147,7 +147,7 @@ public class RightsClient {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("action", "read");
 		jsonObj.put("pid", "uuid:1");
-		jsonObj.put("role", new JSONObject(UsersAndRolesClient.role("3")));
+		jsonObj.put("role", new JSONObject(UsersAndRolesClient.role(3)));
 		
 		System.out.println(jsonObj);
 		
@@ -170,7 +170,7 @@ public class RightsClient {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("action", "read");
 		jsonObj.put("pid", "uuid:1");
-		jsonObj.put("role", new JSONObject(UsersAndRolesClient.role("3")));
+		jsonObj.put("role", new JSONObject(UsersAndRolesClient.role(3)));
 		
 		JSONObject critJSON = new JSONObject();
 		critJSON.put("qname", critqname);

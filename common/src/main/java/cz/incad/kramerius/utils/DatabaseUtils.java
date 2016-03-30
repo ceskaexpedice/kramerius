@@ -46,8 +46,6 @@ public class DatabaseUtils {
         }
     }
     
-    
-
     public static void tryClose(Connection c) {
         try {
             c.close();

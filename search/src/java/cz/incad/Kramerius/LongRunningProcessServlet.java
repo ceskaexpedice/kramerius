@@ -18,6 +18,7 @@ import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.params.ParamsLexer;
@@ -150,7 +151,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         newProcess.setUser(user);
         newProcess.setLoggedUserKey(loggedUserKey);
         newProcess.setParameters(Arrays.asList(params));
-        newProcess.planMe(paramsMapping);
+        newProcess.planMe(paramsMapping, IPAddressUtils.getRemoteAddress(request, KConfiguration.getInstance().getConfiguration()));
         return newProcess;
     }
 

@@ -234,7 +234,13 @@ public class UsersResource {
                         JSONArray roles = uOptions.getJSONArray("roles");
                         List<String>rList = new ArrayList<String>();
                         for (int i = 0,ll=roles.length(); i < ll; i++) {
-                            rList.add(roles.getString(i));
+                            Object object = roles.get(i);
+                            if (object instanceof String) {
+                                rList.add(roles.getString(i));
+                            } else if (object instanceof JSONObject) {
+                                JSONObject jsonObj = (JSONObject) object;
+                                rList.add(jsonObj.getString("name"));
+                            }
                         }
                         
                         this.userManager.changeRoles(u, rList);
