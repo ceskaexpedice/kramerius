@@ -413,7 +413,9 @@ PrintPartItem.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
+                    if ((!_isAudio()) && (!_isPDF())) {
                         return K5.api.ctx.item[selected].datanode; 
+                    } else return false;
                 } else {
                         return false;
                 }
