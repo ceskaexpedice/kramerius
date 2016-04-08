@@ -179,7 +179,7 @@ public class DisplayObjectsView extends AbstractRightsView {
             return (SecuredActions[]) secList.toArray(new SecuredActions[secList.size()]);
             
         } else {
-            return new SecuredActions[] {READ,ADMINISTRATE,EXPORT_K4_REPLICATIONS};
+            return new SecuredActions[] {READ,ADMINISTRATE,EXPORT_K4_REPLICATIONS, SecuredActions.SHOW_CLIENT_PRINT_MENU, SecuredActions.SHOW_CLIENT_PDF_MENU, SecuredActions.PDF_RESOURCE};
         }
     }
     

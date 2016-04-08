@@ -52,6 +52,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
 
+@Deprecated
 public class GeneratePDFServlet extends GuiceServlet {
 
     // stores handle for pdf
@@ -110,34 +111,6 @@ public class GeneratePDFServlet extends GuiceServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException {
         boolean acquired = false;
-//        try {
-//            
-//            this.getServletContext().getNamedDispatcher("").forward(req, resp);
-//            
-//            acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
-//            if (acquired) {
-//                try {
-//                    renderPDF(req, resp);
-//                } catch (MalformedURLException e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//                } catch (IOException e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//                } catch (ProcessSubtreeException e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//                }
-//            } else {
-//                try {
-//                    LOGGER.fine("sending error to client");
-//                    renderErrorServerBusy(req, resp);
-//                } catch (IOException e) {
-//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//                }
-//            }
-//
-//        } finally {
-//            if (acquired)
-//                PDFExlusiveGenerateSupport.PDF_SEMAPHORE.release();
-//        }
     }
 
     static void renderGenericError(HttpServletRequest req,
@@ -175,40 +148,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 
     public void renderPDF(HttpServletRequest req, HttpServletResponse resp)
             throws MalformedURLException, IOException, ProcessSubtreeException {
-//        try {
-//            String imgServletUrl = ApplicationURL.applicationURL(req) + "/img";
-//            if ((configuration.getApplicationURL() != null)
-//                    && (!configuration.getApplicationURL().equals(""))) {
-//                imgServletUrl = configuration.getApplicationURL() + "img";
-//            }
-//            String i18nUrl = ApplicationURL.applicationURL(req) + "/i18n";
-//            if ((configuration.getApplicationURL() != null)
-//                    && (!configuration.getApplicationURL().equals(""))) {
-//                i18nUrl = configuration.getApplicationURL() + "i18n";
-//            }
-//
-//            String action = req.getParameter("action");
-//            String imagesOnly = req.getParameter("firstpageType");
-//
-//            FirstPage fp = (imagesOnly != null && (!imagesOnly.trim()
-//                    .equals(""))) ? FirstPage.valueOf(imagesOnly)
-//                    : FirstPage.TEXT;
-//            if (fp == FirstPage.IMAGES) {
-//                Action.valueOf(action).renderPDF(req, resp,
-//                        this.imageFirstPage, this.service, this.solrAccess,
-//                        this.documentService, "", imgServletUrl, i18nUrl);
-//            } else {
-//                Action.valueOf(action).renderPDF(req, resp, this.textFirstPage,
-//                        this.service, this.solrAccess, this.documentService,
-//                        "", imgServletUrl, i18nUrl);
-//            }
-//        } catch (Exception e) {
-//            try {
-//                renderGenericError(req, resp);
-//            } catch (ServletException e1) {
-//                LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-//            }
-//        }
+
     }
 
     public enum FirstPage {
@@ -244,10 +184,6 @@ public class GeneratePDFServlet extends GuiceServlet {
                             .parseInt(KConfiguration.getInstance().getProperty(
                                     "generatePdfMaxRange"));
                     if (tbool || size) {
-                        // PDFFontConfigBean configBean =
-                        // fontConfigParams(fontConfigParams(null,
-                        // request.getParameter(LOGO_FONT), FontMap.BIG_FONT),
-                        // request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
 
                         File tmpFile = File.createTempFile("body", "pdf");
                         filesToDelete.add(tmpFile);
@@ -420,10 +356,6 @@ public class GeneratePDFServlet extends GuiceServlet {
 
                         int[] irects = srect(srect);
 
-                        // PDFFontConfigBean configBean =
-                        // fontConfigParams(fontConfigParams(null,
-                        // request.getParameter(LOGO_FONT), FontMap.BIG_FONT),
-                        // request.getParameter(INF_FONT), FontMap.NORMAL_FONT);
 
                         PreparedDocument rdoc = documentService
                                 .buildDocumentAsFlat(path, pid,

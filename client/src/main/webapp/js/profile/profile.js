@@ -248,6 +248,7 @@ ProfileDisplay.prototype = {
                             }
                             K5.eventsHandler.trigger("application/menu/ctxchanged", null);
                     }, this);
+
                     var postok = _.bind(function() { 
                         K5.authentication.askForProfileRequest(refresh); 
                     }, this);
