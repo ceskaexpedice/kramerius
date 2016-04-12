@@ -304,6 +304,33 @@ ClientAPIDev.prototype = {
      * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
+    askForRights : function(pid, actions, whenready) {
+        var actions = _.reduce(actions, function(memo, value, index) {
+            if (index > 0) {
+                memo = memo + ",";
+            }
+            memo = memo + value;
+            return memo;
+        }, "");
+        $.getJSON("api/rights?pid=" + pid + "&actions="+actions, _.bind(function(data) {
+            if (!this.isKeyReady("item")) {
+               this.ctx["item"] = {};
+            }
+            if (!this.isKeyReady("item/" + pid)) {
+               this.ctx["item"][pid] = {};
+            }
+            this.ctx["item"][pid]['rights'] = data;
+            if (whenready)
+                whenready.apply(null, [ data ]);
+        }, this));
+    },
+
+    /**
+     * Requesting children from concrete pid
+     * @param {string} pid - Pid of object.
+     * @param {requestCallback} whenready  - Callback handling responses.
+     * @method
+     */
     askForItemChildren : function(pid, whenready) {
         $.getJSON("api/item/" + pid + "/children", _.bind(function(data) {
             if (!this.isKeyReady("item")) {

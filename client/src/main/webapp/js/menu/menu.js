@@ -149,6 +149,15 @@ PDFOnePage.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
+                    if (itm['rights']) {
+                        var flag = itm['rights']['read'] && 
+                                   itm['rights']['pdf_resource'] && 
+                                   itm['rights']['show_client_pdf_menu'] && 
+                                   itm['rights']['show_client_print_menu']; 
+                        if (!flag) {
+                           return false;
+                        }
+                    }
                     if ((!_isAudio()) && (!_isPDF())) {
                         return K5.api.ctx.item[selected].datanode; 
                     } else return false;
@@ -413,6 +422,15 @@ PrintPartItem.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
+                    if (itm['rights']) {
+                        var flag = itm['rights']['read'] && 
+                                   itm['rights']['pdf_resource'] && 
+                                   itm['rights']['show_client_pdf_menu'] && 
+                                   itm['rights']['show_client_print_menu']; 
+                        if (!flag) {
+                           return false;
+                        }
+                    }
                     if ((!_isAudio()) && (!_isPDF())) {
                         return K5.api.ctx.item[selected].datanode; 
                     } else return false;
@@ -435,9 +453,17 @@ PrintPage.prototype = {
     },
     'enabled': function() {
             var selected = K5.api.ctx.item.selected; 
-
             var itm = K5.api.ctx.item[selected];
             if (!itm['forbidden']) {
+                if (itm['rights']) {
+                    var flag = itm['rights']['read'] && 
+                               itm['rights']['pdf_resource'] && 
+                               itm['rights']['show_client_pdf_menu'] && 
+                               itm['rights']['show_client_print_menu']; 
+                    if (!flag) {
+                       return false;
+                    }
+                }
                 if ((!_isAudio()) && (!_isPDF())) {
                     return K5.api.ctx.item[selected].datanode; 
                 } else return false;
@@ -462,6 +488,15 @@ PrintSiblings.prototype = {
             var selected = K5.api.ctx.item.selected; 
             var itm = K5.api.ctx.item[selected];
             if (!itm['forbidden']) {
+                if (itm['rights']) {
+                    var flag = itm['rights']['read'] && 
+                               itm['rights']['pdf_resource'] && 
+                               itm['rights']['show_client_pdf_menu'] && 
+                               itm['rights']['show_client_print_menu']; 
+                    if (!flag) {
+                       return false;
+                    }
+                }
                 if ((!_isAudio()) && (!_isPDF())) {
                     return K5.api.ctx.item[selected].datanode; 
                 } else return false;
@@ -486,6 +521,17 @@ PrintTitle.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
+                 
+                    if (itm['rights']) {
+                        var flag = itm['rights']['read'] && 
+                                   itm['rights']['pdf_resource'] && 
+                                   itm['rights']['show_client_pdf_menu'] && 
+                                   itm['rights']['show_client_print_menu']; 
+                        if (!flag) {
+                           return false;
+                        }
+                    }
+ 
                     if ((!_isAudio()) && (!_isPDF())) {
                         var children = K5.api.ctx.item[selected]["children"];
                         if (children) {
@@ -542,6 +588,16 @@ PDFSiblingsTitle.prototype = {
 
             var itm = K5.api.ctx.item[selected];
             if (!itm['forbidden']) {
+                if (itm['rights']) {
+                    var flag = itm['rights']['read'] && 
+                               itm['rights']['pdf_resource'] && 
+                               itm['rights']['show_client_pdf_menu'] && 
+                               itm['rights']['show_client_print_menu']; 
+                    if (!flag) {
+                       return false;
+                    }
+                }
+
                 if ((!_isAudio()) && (!_isPDF())) {
                     return K5.api.ctx.item[selected].datanode; 
                 } else return false;
@@ -566,11 +622,11 @@ PDFTitle.prototype = {
                 K5.outputs.pdf.title(K5.api.ctx.item.selected);
         },
         'message' :function() {
-            this.ctx.conf
+            //this.ctx.conf
             if (this.ctx && this.ctx.conf) { 
                 if (this.ctx.conf.pdfMaxRange !== "unlimited") {
-		    var f = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.1'];
-		    var s = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.2'];
+                var f = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.1'];
+                var s = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.2'];
                     return f+this.ctx.conf.pdfMaxRange; 
                 }
             } else return null;
@@ -580,6 +636,15 @@ PDFTitle.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
+                    if (itm['rights']) {
+                        var flag = itm['rights']['read'] && 
+                                   itm['rights']['pdf_resource'] && 
+                                   itm['rights']['show_client_pdf_menu'] && 
+                                   itm['rights']['show_client_print_menu']; 
+                        if (!flag) {
+                           return false;
+                        }
+                    }
                     if ((!_isAudio()) && (!_isPDF())) {
                         var children = K5.api.ctx.item[selected]["children"];
                         if (children) {
