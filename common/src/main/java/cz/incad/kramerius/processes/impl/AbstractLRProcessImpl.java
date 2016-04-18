@@ -36,6 +36,7 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public abstract class AbstractLRProcessImpl implements LRProcess {
@@ -62,7 +63,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     private String loginname;
     private String firstname;
     private String surname;
-
+    
     private User user;
     private String loggedUserKey;
 
@@ -71,9 +72,12 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     private boolean masterProcess;
 
     private List<String> parameters = new ArrayList<String>();
-
     private Properties parametersMapping = new Properties();
 
+    private String ipAddress;
+    
+    
+    
     public AbstractLRProcessImpl(LRProcessDefinition definition,
             LRProcessManager manager, KConfiguration configuration) {
         super();
@@ -113,10 +117,11 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
         return this.startTime;
     }
 
-    public void planMe(Properties paramsMapping) {
+    public void planMe(Properties paramsMapping, String ipAddress) {
         this.state = States.PLANNED;
+        this.ipAddress = ipAddress;
         this.setPlannedTime(System.currentTimeMillis());
-
+        
         manager.registerLongRunningProcess(this, getLoggedUserKey(),
                 paramsMapping);
     }
@@ -141,8 +146,8 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
             command.add("-D" + ProcessStarter.MAIN_CLASS_KEY + "="
                     + this.definition.getMainClass());
 
-//            command.add("-D" + IsActionAllowedFromRequest.X_IP_FORWARD + "="
-//                    + remoteAddr);
+            command.add("-D" + IPAddressUtils.X_IP_FORWARD + "="
+                    + this.ipAddress);
 
             command.add("-D" + ProcessStarter.UUID_KEY + "=" + this.uuid);
             command.add("-D" + ProcessStarter.TOKEN_KEY + "="
@@ -473,4 +478,15 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     public void setFinishedTime(long finishedtime) {
         this.finishedTime = finishedtime;
     }
+
+    @Override
+    public String getPlannedIPAddress() {
+        return this.ipAddress;
+    }
+
+    @Override
+    public void setPlannedIPAddress(String ipAddr) {
+        this.ipAddress = ipAddr;
+    }
+    
 }

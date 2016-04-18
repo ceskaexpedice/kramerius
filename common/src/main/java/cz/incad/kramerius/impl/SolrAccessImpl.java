@@ -216,4 +216,20 @@ public class SolrAccessImpl implements SolrAccess {
 			throw new IOException(e);
 		}
     }
+
+    @Override
+    public Document getSolrDataDocmentsByParentPid(String parentPid, String offset) throws IOException {
+        if (SpecialObjects.isSpecialObject(parentPid)) return null;
+        try {
+            PIDParser parser  = new PIDParser(parentPid);
+            parser.objectPid();
+            return SolrUtils.getSolrDataInternalOffset(SolrUtils.PARENT_QUERY+"\""+parentPid+"\"", offset);
+        } catch (ParserConfigurationException e) {
+            throw new IOException(e);
+        } catch (SAXException e) {
+            throw new IOException(e);
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
+    }
 }

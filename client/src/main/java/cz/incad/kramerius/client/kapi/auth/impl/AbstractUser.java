@@ -49,4 +49,7 @@ public abstract class AbstractUser implements User {
         return this.userProvider;
     }
 
+    protected void updatePassword(String pswd) {
+        this.userPassword = pswd;
+    }    
 }

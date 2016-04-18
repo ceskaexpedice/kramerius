@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
@@ -31,11 +32,13 @@ import com.lowagie.text.Rectangle;
 
 import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
+import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
@@ -44,6 +47,10 @@ import cz.incad.kramerius.pdf.SimplePDFService;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -99,6 +106,15 @@ public class AbstractPDFResource {
     SimplePDFService simplePdfService;
 
     
+    @Inject
+    MostDesirable mostDesirable;
+    
+    
+    @Inject
+    IsActionAllowed actionAllowed;
+    
+    @Inject
+    Provider<User> userProvider;
     
     @GET
     @Path("conf")
@@ -123,8 +139,8 @@ public class AbstractPDFResource {
     public File selection(String[] pids, Rectangle rect,FirstPage fp) throws DocumentException, IOException, ProcessSubtreeException, OutOfRangeException, COSVisitorException {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
 
-        //int[] irects = srect(srect);
         PreparedDocument rdoc = documentService.buildDocumentFromSelection(pids, new int[] {(int)rect.getWidth(), (int)rect.getHeight()});
+        checkRenderedPDFDoc(rdoc);
 
         File parentFile = null;
         File firstPageFile = null;
@@ -174,6 +190,8 @@ public class AbstractPDFResource {
         try {
             
             PreparedDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, n, new int[] {(int)rect.getWidth(), (int)rect.getHeight()});
+            checkRenderedPDFDoc(rdoc);
+            
             
             parentFile = File.createTempFile("body", "pdf");
             FileOutputStream bodyTmpFos = new FileOutputStream(parentFile);
@@ -198,6 +216,16 @@ public class AbstractPDFResource {
             throw new PDFResourceBadRequestException(e.getMessage());
         } finally {
             saveDeleteFile(parentFile, firstPageFile);
+        }
+    }
+
+
+    private void checkRenderedPDFDoc(PreparedDocument rdoc) throws IOException {
+        List<AbstractPage> pages = rdoc.getPages();
+        for (AbstractPage apage : pages) {
+            if (this.canBeRenderedAsPDF(apage.getUuid())) {
+                throw new  SecurityException("");
+            }
         }
     }
 
@@ -269,20 +297,6 @@ public class AbstractPDFResource {
         return path;
     }
 
-    /*
-    static int[] srect(String srect) {
-        int[] rect = null;
-        if (srect != null) {
-            String[] arr = srect.split(",");
-            if (arr.length == 2) {
-                rect = new int[2];
-                rect[0] = Integer.parseInt(arr[0]);
-                rect[1] = Integer.parseInt(arr[1]);
-            }
-        }
-        return rect;
-    }*/
-
     static void mergeToOutput(OutputStream fos, File bodyFile,
             File firstPageFile) throws IOException, COSVisitorException {
         PDFMergerUtility utility = new PDFMergerUtility();
@@ -292,16 +306,20 @@ public class AbstractPDFResource {
         utility.mergeDocuments();
     }
 
-    public static void main(String[] args) throws IllegalArgumentException, IllegalAccessException {
-        Field[] fields = PageSize.class.getFields();
-        for (Field field : fields) {
-            if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
-                String name = field.getName();
-                Object value = field.get(null);
-                System.out.println(""+name+" : "+value);
+    
+
+    private boolean canBeRenderedAsPDF(String pid) throws IOException {
+        ObjectPidsPath[] paths = solrAccess.getPath(pid);
+        for (ObjectPidsPath pth : paths) {
+            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth)) {
+                return true;
             }
         }
+        return false;
     }
+
+
+ 
     
     
 }

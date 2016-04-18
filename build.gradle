@@ -15,9 +15,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+plugins {
+        id 'com.gradle.build-receipt' version '1.0'
+}
+
+buildReceiptLicense {
+    agreementUrl = 'https://gradle.com/terms-of-service'
+    agree = 'yes'
+}
+
 println "Building K4; please read BUILD-README.txt"
 
-//apply plugin: 'distribution' // -> generate distributions
+apply plugin: 'distribution' // -> generate distributions
 apply plugin: 'java' // -> generate javadoc
 
 
@@ -40,11 +49,11 @@ dependencies {
 
 
 
-/*
 distributions {
         // main distribution        
         main {
                 contents {
+                        from {'client/build/libs'}
                         from {'search/build/libs'}
                         from {'security-core/build/libs'}
                         from configurations.editors
@@ -52,14 +61,16 @@ distributions {
                 }
         }
 
+
         // patch distribution        
         patch {
                 contents {
+                        from {'client/build/libs'}
                         from {'search/build/libs'}
                         from {'security-core/build/libs'}
                 }
         }
-}*/
+}
 
 
 repositories {
@@ -86,7 +97,7 @@ subprojects {
 
          
          group='cz.incad.kramerius'
-         version='5.3.1'
+         version='5.3.2'
          
          sourceCompatibility = 1.6
          targetCompatibility= 1.6
@@ -178,12 +189,15 @@ subprojects {
 
          }
 
+	tasks.withType(Javadoc) {
+		options.addStringOption('Xdoclint:none', '-quiet')	
+	}	
+
         build.finalizedBy 'install'
 }
 
 
 // disabled distributions
-/*
 task zipAllJavadocs(type: Zip) {
         String[] _spr = ["common","fedora-api","security-core","rest","search"];
         description "create javadocs for ${_spr} and zip it"
@@ -198,8 +212,9 @@ task zipAllJavadocs(type: Zip) {
                 
 }
 
-[distZip, distTar, installDist].each() { 
-  it.dependsOn('clean',':search:build', 'zipAllJavadocs')
+[distZip, distTar, installDist,patchDistZip,patchDistTar].each() { 
+  it.dependsOn('clean',':search:build',':client:build')
 };
 
-*/
+
+

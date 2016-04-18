@@ -16,6 +16,8 @@
  */
 package cz.incad.kramerius.processes.database;
 
+import static cz.incad.kramerius.database.cond.ConditionsInterpretHelper.versionCondition;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -61,6 +63,9 @@ public class ProcessDatabaseInitializator {
                     alterProcessTableAuthToken(connection);
                     alterProcessTableProcess2TokenAuthToken(connection);
                 }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","IP_ADDR")) {
+                    alterProcessTableIPADDR(connection);
+                }
             } else if ((v.equals("5.0.0")) || (v.equals("5.1.0")))  {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","BATCH_STATUS")) {
                     alterProcessTableBatchState(connection);
@@ -76,6 +81,9 @@ public class ProcessDatabaseInitializator {
                     alterProcessTableAuthToken(connection);
                     alterProcessTableProcess2TokenAuthToken(connection);
                 }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","IP_ADDR")) {
+                    alterProcessTableIPADDR(connection);
+                }
             } else if (v.equals("5.1.0"))  {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","FINISHED")) {
                     alterProcessTableFinished(connection);
@@ -87,6 +95,9 @@ public class ProcessDatabaseInitializator {
                     alterProcessTableAuthToken(connection);
                     alterProcessTableProcess2TokenAuthToken(connection);
                 }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","IP_ADDR")) {
+                    alterProcessTableIPADDR(connection);
+                }
             } else if (v.equals("5.2.0"))  {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","TOKEN_ACTIVE")) {
                     alterProcessTableTokenActive(connection);
@@ -95,10 +106,20 @@ public class ProcessDatabaseInitializator {
                     alterProcessTableAuthToken(connection);
                     alterProcessTableProcess2TokenAuthToken(connection);
                 }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","IP_ADDR")) {
+                    alterProcessTableIPADDR(connection);
+                }
             } else if (v.equals("5.3.0"))  {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","AUTH_TOKEN")) {
                     alterProcessTableAuthToken(connection);
                     alterProcessTableProcess2TokenAuthToken(connection);
+                }
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","IP_ADDR")) {
+                    alterProcessTableIPADDR(connection);
+                }
+            } else if (versionCondition(v, ">", "5.3.0"))  {
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES","IP_ADDR")) {
+                    alterProcessTableIPADDR(connection);
                 }
             }
         } catch (SQLException e) {
@@ -106,6 +127,17 @@ public class ProcessDatabaseInitializator {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
+    }
+
+    private static void alterProcessTableIPADDR(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+                "ALTER TABLE PROCESSES ADD COLUMN IP_ADDR VARCHAR(255);");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
     }
 
     /** No version defined in db */
@@ -147,6 +179,9 @@ public class ProcessDatabaseInitializator {
         if (!DatabaseUtils.columnExists(connection, "PROCESSES","AUTH_TOKEN")) {
             alterProcessTableAuthToken(connection);
             alterProcessTableProcess2TokenAuthToken(connection);
+        }
+        if (!DatabaseUtils.columnExists(connection, "PROCESSES","IP_ADDR")) {
+            alterProcessTableIPADDR(connection);
         }
     }
 

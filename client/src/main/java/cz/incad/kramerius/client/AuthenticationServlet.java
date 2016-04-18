@@ -46,6 +46,7 @@ import cz.incad.kramerius.client.kapi.auth.CallUserController;
 import cz.incad.kramerius.client.kapi.auth.ClientUser;
 import cz.incad.kramerius.client.kapi.auth.ProfileDelegator;
 import cz.incad.kramerius.client.kapi.auth.User;
+import cz.incad.kramerius.client.kapi.auth.User.UserProvider;
 import cz.incad.kramerius.client.kapi.auth.impl.CallUserControllerImpl;
 import cz.incad.kramerius.client.socialauth.OpenIDSupport;
 import cz.incad.kramerius.client.socialauth.ShibbolethSupport;
@@ -161,6 +162,47 @@ public class AuthenticationServlet extends HttpServlet {
                 }
             }
         },
+
+        savepass {
+
+            @Override
+            public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
+                String npass = req.getParameter("pswd");
+                String oldpass = req.getParameter("opswd");
+                
+                CallUserController callUserController = (cz.incad.kramerius.client.kapi.auth.CallUserController) req.getSession(true).getAttribute(CallUserController.KEY);
+                if (callUserController != null) {
+                    ClientUser clientCaller = callUserController.getClientCaller();
+                    // only k5 client
+                    String callerPassword = clientCaller.getPassword();
+                    if (callerPassword.equals(oldpass)) {
+                        UserProvider userProvider = clientCaller.getUserProvider();
+                        if (userProvider.equals(UserProvider.K5)) {
+                            // 
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("pswd", npass);
+                            String nprof = post(remoteAddr, jsonObject, clientCaller.getUserName(), clientCaller.getPassword());
+                            if (nprof != null) {
+                                synchronized(this) {
+                                    clientCaller.updatePassword(npass);
+                                    CallUserController.clearCredentials(clientCaller.getUserName());
+                                    CallUserController.credentialsTable(clientCaller.getUserName(),npass);
+                                }
+                            }
+                            resp.getWriter().write(nprof);
+                            resp.setContentType("application/json");
+                            resp.setStatus(HttpServletResponse.SC_OK);
+                        } else {
+                            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                        }
+                    } else {
+                        resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
+                }
+            }
+            
+        },
+
         
         profile {
             @Override
@@ -288,6 +330,7 @@ public class AuthenticationServlet extends HttpServlet {
                 resp.getWriter().write(returned);
             }
         },
+        
         
         profile {
             @Override

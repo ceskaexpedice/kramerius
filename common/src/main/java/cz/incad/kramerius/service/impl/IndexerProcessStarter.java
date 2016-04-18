@@ -4,6 +4,7 @@ import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.BasicAuthenticationFilter;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import java.io.UnsupportedEncodingException;
@@ -57,6 +58,10 @@ public class IndexerProcessStarter {
                 String pwd = System.getProperties().getProperty(PSWD_TOKEN);
                 BasicAuthenticationFilter.encodeUserAndPass(clientRequest, uname, pwd);
             }
+            if (System.getProperties().containsKey(IPAddressUtils.X_IP_FORWARD)) {
+                clientRequest.getHeaders().add(IPAddressUtils.X_IP_FORWARD, System.getProperty(IPAddressUtils.X_IP_FORWARD));
+            }
+            
             return getNext().handle(clientRequest);
         }
     }
