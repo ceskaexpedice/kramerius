@@ -19,7 +19,6 @@ package cz.incad.kramerius.client;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,23 +33,18 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import biz.sourcecode.base64Coder.Base64Coder;
-
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.api.client.config.ClientConfig;
 
+import biz.sourcecode.base64Coder.Base64Coder;
 import cz.incad.kramerius.client.kapi.auth.AdminUser;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
 import cz.incad.kramerius.client.kapi.auth.ClientUser;
 import cz.incad.kramerius.client.kapi.auth.ProfileDelegator;
-import cz.incad.kramerius.client.kapi.auth.User;
 import cz.incad.kramerius.client.kapi.auth.User.UserProvider;
 import cz.incad.kramerius.client.kapi.auth.impl.CallUserControllerImpl;
 import cz.incad.kramerius.client.socialauth.OpenIDSupport;
-import cz.incad.kramerius.shib.utils.ShibbolethSupport;
-import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
