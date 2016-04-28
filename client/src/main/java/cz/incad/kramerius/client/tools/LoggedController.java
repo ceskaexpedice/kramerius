@@ -26,6 +26,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.velocity.tools.generic.ValueParser;
 
+import cz.incad.kramerius.auth.shibb.utils.ShibbolethUtils;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
 import cz.incad.utils.StringUtils;
 
@@ -100,5 +101,9 @@ public class LoggedController {
         }
     }
 
+    
+    public boolean isUnderShibbolethSession() {
+        return ShibbolethUtils.isShibbolethSessionIsStored(this.req);
+    }
     
 }

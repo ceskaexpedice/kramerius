@@ -49,10 +49,10 @@ import cz.incad.kramerius.client.kapi.auth.User;
 import cz.incad.kramerius.client.kapi.auth.User.UserProvider;
 import cz.incad.kramerius.client.kapi.auth.impl.CallUserControllerImpl;
 import cz.incad.kramerius.client.socialauth.OpenIDSupport;
-import cz.incad.kramerius.client.socialauth.ShibbolethSupport;
-import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
+import cz.incad.kramerius.shib.utils.ShibbolethSupport;
 import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
 
 /**
@@ -86,7 +86,6 @@ public class AuthenticationServlet extends HttpServlet {
             String password, String returned) throws JSONException,
             ConfigurationException {
         CallUserController contr = (CallUserController) req.getSession(true).getAttribute(CallUserController.KEY);
-
         if (contr == null) {
             contr = new CallUserControllerImpl();
             req.getSession().setAttribute(CallUserController.KEY, contr);
@@ -149,7 +148,6 @@ public class AuthenticationServlet extends HttpServlet {
                     if (callUserController != null) {
                         ProfileDelegator profileDelegator = callUserController.getProfileDelegator();
                         String njsonRepre = post(remoteAddr+"/profile", jsonObject, profileDelegator.getUserName(), profileDelegator.getPassword());
-                        System.out.println(njsonRepre);
                         resp.setContentType("application/json");
                         resp.getWriter().write(jsonObject.toString());
                         //((CallUserControllerImpl)callUserController).setProfileJSONReprestation(new JSONObject(returned));
@@ -253,27 +251,6 @@ public class AuthenticationServlet extends HttpServlet {
             public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
                 OpenIDSupport oidSupport = new OpenIDSupport();
                 oidSupport.login(req, resp);
-            }
-        },
-        
-        shibbLoginRedirect {
-            @Override
-            public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
-                try {
-                    ShibbolethSupport shibbSupport = new ShibbolethSupport();
-                    shibbSupport.provideRedirection(req,resp);
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                }
-            }
-            
-        },
-        
-        shibbLogin {
-            @Override
-            public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
-                ShibbolethSupport shibbolethSupport = new ShibbolethSupport();
-                shibbolethSupport.login(req, resp);
             }
         },
         

@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.brickred.socialauth.Profile;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,13 +15,14 @@ import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
+import cz.incad.kramerius.auth.UsersWrapper;
 import cz.incad.kramerius.client.kapi.auth.AdminUser;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
-import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
+import cz.incad.kramerius.security.utils.UserUtils;
+import cz.incad.kramerius.utils.BasicAuthenticationFilter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ProviderUsersUtils {
-
 
     static JSONArray getUser(HttpServletRequest req, UsersWrapper w)
             throws ConfigurationException, JSONException {
@@ -45,7 +45,7 @@ public class ProviderUsersUtils {
         return jsonArr;
     }
 
-    
+
     // create user
     public static String createUser(HttpServletRequest req, UsersWrapper w,
             String password) throws JSONException, ConfigurationException {
@@ -61,8 +61,8 @@ public class ProviderUsersUtils {
     
         JSONObject object = new JSONObject();
         object.put("lname", w.getCalculatedName());
-        object.put("firstname", w.getProperty(UsersWrapper.FIRST_NAME_KEY));
-        object.put("surname", w.getProperty(UsersWrapper.LAST_NAME_KEY));
+        object.put("firstname", w.getProperty(UserUtils.FIRST_NAME_KEY));
+        object.put("surname", w.getProperty(UserUtils.LAST_NAME_KEY));
         object.put("password", password);
     
         r.addFilter(new BasicAuthenticationFilter(adminCaller.getUserName(),
@@ -132,5 +132,4 @@ public class ProviderUsersUtils {
             OpenIDSupport.LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
-
 }

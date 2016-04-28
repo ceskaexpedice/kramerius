@@ -162,8 +162,8 @@ function Application() {
          * @member
          */
         this.serverLog = function(simplemess) {
-                $.get("log?message="+simplemess,function(data) { });
-        };        
+           $.get("log?message="+simplemess,function(data) { });
+        };
 
 
         

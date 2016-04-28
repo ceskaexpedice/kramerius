@@ -32,11 +32,11 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
 import cz.incad.kramerius.client.utils.ApiCallsHelp;
 import cz.incad.kramerius.service.impl.ResourceBundleServiceImpl.ResourceClassLoader;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
 public class BundlesApplicationSingleton {
 

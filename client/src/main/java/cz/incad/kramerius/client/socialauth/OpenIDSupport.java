@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.jms.IllegalStateException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -40,12 +41,15 @@ import org.brickred.socialauth.util.SocialAuthUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
 import cz.incad.kramerius.client.AuthenticationServlet;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
-import cz.incad.kramerius.client.tools.GeneratePasswordUtils;
+import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.utils.StringUtils;
+
+import cz.incad.kramerius.auth.UsersWrapper;
 
 public class OpenIDSupport {
 
@@ -136,9 +140,9 @@ public class OpenIDSupport {
 
         @Override
         public String getProperty(String key) {
-            if (key.equals(UsersWrapper.FIRST_NAME_KEY)) {
+            if (key.equals(UserUtils.FIRST_NAME_KEY)) {
                 return p.getFirstName();
-            } else if (key.equals(UsersWrapper.LAST_NAME_KEY)) {
+            } else if (key.equals(UserUtils.LAST_NAME_KEY)) {
                 return p.getLastName();
             } else  return null;
         }
@@ -146,6 +150,7 @@ public class OpenIDSupport {
     
     public void provideRedirection(HttpServletRequest req,
             HttpServletResponse resp) throws Exception {
+
         AuthenticationServlet.createCaller(req, null, null, null);
         Profile profile = getProfile(req.getSession(), req, resp);
         OpenIdUserWrapper owrap = new OpenIdUserWrapper(profile);
@@ -167,6 +172,7 @@ public class OpenIDSupport {
                             .getJSONObject(0).toString());
             caller.getClientCaller().updateInformation(profile.getFirstName(),
                     profile.getLastName());
+            
         }
         resp.sendRedirect("index.vm");
     }

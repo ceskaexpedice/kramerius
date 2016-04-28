@@ -23,11 +23,20 @@
             </div>
 
             <div class="left">
+#if(!$logControl.underShibbolethSession)
                 <div class="buttons">
+#if(!$logControl.underShibbolethSession)
                     <!-- only k5 provider ?? -->
                     <div class="button" onclick="link('?page=changepswd');">#translatable('application.changepswd')</div>
+#end
+
+#if(!$logControl.underShibbolethSession)
+                    <!-- shib remove -->
                     <div class="button" onclick="K5.authentication.logoutAndRedirect('index.vm');">#translatable('application.logout')</div>
+#end
+
                 </div>
+#end
             </div>
         </div>
 </div>

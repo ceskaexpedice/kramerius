@@ -122,7 +122,7 @@ subprojects {
          	 compile "org.slf4j:jcl-over-slf4j:${slf4jversion}"
          	 
          	 //junit to all subprojects
-         	 testCompile "junit:junit:4.1"
+         	 testCompile "junit:junit:4.4"
          	 testCompile "org.easymock:easymock:3.0"
                 
          }

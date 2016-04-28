@@ -53,8 +53,8 @@ import cz.incad.kramerius.client.forward.DefaultModify;
 import cz.incad.kramerius.client.forward.URLPathModify;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
 import cz.incad.kramerius.client.kapi.auth.User;
-import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 import cz.incad.utils.IOUtils;
 import cz.incad.utils.StringUtils;
 

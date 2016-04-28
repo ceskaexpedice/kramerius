@@ -770,7 +770,7 @@ public class DatabaseUserManager implements UserManager {
             StringTemplate template = ST_GROUP.getInstanceOf("updatePassword");
             String sql = template.toString();
             new JDBCUpdateTemplate(connection, true).executeUpdate(sql,
-                    user.getId(), digested);
+                     digested,user.getId());
         } catch (NoSuchAlgorithmException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (UnsupportedEncodingException e) {
