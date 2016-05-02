@@ -201,17 +201,6 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
-
-
-    public boolean isShibKeyDefined() {
-        HttpSession session = this.provider.get().getSession();
-        Object shibKey = session.getAttribute(SHIB_USER_KEY);
-        if ((shibKey != null) && (shibKey.equals("true"))) {
-            return true;
-        } else return false;
-    }
-
-
     public void storeLoggedUser(User user,  Map<String, Object> additionalValues) {
         try {
             HttpSession session = this.provider.get().getSession();

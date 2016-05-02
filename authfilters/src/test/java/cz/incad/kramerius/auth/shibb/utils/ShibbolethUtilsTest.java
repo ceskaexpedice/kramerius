@@ -28,6 +28,8 @@ import org.easymock.IAnswer;
 import org.junit.Assert;
 import org.junit.Test;
 
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUtils;
+
 public class ShibbolethUtilsTest {
 
     Hashtable<String, String> shibTable = new Hashtable<String, String>();

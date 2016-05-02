@@ -1,6 +1,7 @@
 package cz.incad.kramerius.client.socialauth;
 
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
@@ -15,7 +16,7 @@ import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.auth.UsersWrapper;
+import cz.incad.kramerius.auth.thirdparty.UsersWrapper;
 import cz.incad.kramerius.client.kapi.auth.AdminUser;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
 import cz.incad.kramerius.security.utils.UserUtils;
@@ -24,6 +25,9 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ProviderUsersUtils {
 
+    public static Logger LOGGER = Logger.getLogger(ProviderUsersUtils.class.getName());
+    
+    
     static JSONArray getUser(HttpServletRequest req, UsersWrapper w)
             throws ConfigurationException, JSONException {
         Client c = Client.create();
@@ -99,11 +103,11 @@ public class ProviderUsersUtils {
                     .entity(object.toString(), MediaType.APPLICATION_JSON)
                     .put(String.class);
         } catch (UniformInterfaceException e) {
-            OpenIDSupport.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (ClientHandlerException  e) {
-            OpenIDSupport.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (JSONException e) {
-            OpenIDSupport.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
@@ -127,9 +131,9 @@ public class ProviderUsersUtils {
                     .type(MediaType.APPLICATION_JSON).delete(String.class);
     
         } catch (ClientHandlerException e) {
-            OpenIDSupport.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (UniformInterfaceException e) {
-            OpenIDSupport.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 }

@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 
 import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
-import cz.incad.kramerius.auth.shibb.utils.ShibbolethUtils;
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUtils;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

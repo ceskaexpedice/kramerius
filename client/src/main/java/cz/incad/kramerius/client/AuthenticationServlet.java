@@ -38,6 +38,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 
 import biz.sourcecode.base64Coder.Base64Coder;
+import cz.incad.kramerius.auth.thirdparty.social.SocialAuthFilter;
 import cz.incad.kramerius.client.kapi.auth.AdminUser;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
 import cz.incad.kramerius.client.kapi.auth.ClientUser;
@@ -45,6 +46,7 @@ import cz.incad.kramerius.client.kapi.auth.ProfileDelegator;
 import cz.incad.kramerius.client.kapi.auth.User.UserProvider;
 import cz.incad.kramerius.client.kapi.auth.impl.CallUserControllerImpl;
 import cz.incad.kramerius.client.socialauth.OpenIDSupport;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
@@ -120,7 +122,7 @@ public class AuthenticationServlet extends HttpServlet {
         try {
             String authUrl = KConfiguration.getInstance().getConfiguration().getString("api.point")+"/user";
             aAction.perform(authUrl, req, resp);
-        } catch (JSONException  e) {
+        } catch (Exception  e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
@@ -226,25 +228,27 @@ public class AuthenticationServlet extends HttpServlet {
         
     public static enum AuthenticationActions {
         
-        socialLoginRedirect {
-
-            @Override
-            public void perform(String remoteAddr, HttpServletRequest req,HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
-                try {
-                    OpenIDSupport oidSupport = new OpenIDSupport();
-                    oidSupport.provideRedirection(req,resp);
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                }
-            }
-        },
-        
+//        socialLoginRedirect {
+//
+//            @Override
+//            public void perform(String remoteAddr, HttpServletRequest req,HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
+//                try {
+//                    OpenIDSupport oidSupport = new OpenIDSupport();
+//                    oidSupport.provideRedirection(req,resp);
+//                } catch (Exception e) {
+//                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+//                }
+//            }
+//        },
+//        
         socialLogin {
 
             @Override
-            public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
-                OpenIDSupport oidSupport = new OpenIDSupport();
-                oidSupport.login(req, resp);
+            public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+                String provider = req.getParameter("provider");
+                String applicationCotext = ApplicationURL.applicationURL(req);
+                String redirectUrl =  applicationCotext + "/index.vm";
+                SocialAuthFilter.loginReqests(req, resp, provider, redirectUrl);
             }
         },
         
@@ -322,6 +326,6 @@ public class AuthenticationServlet extends HttpServlet {
             }
             
         };
-        public abstract void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException;
+        public abstract void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws Exception;
     }
 }

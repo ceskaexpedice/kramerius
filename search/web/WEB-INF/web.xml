@@ -4,7 +4,7 @@
     <!-- basicauthentication filter -->
     <filter>
         <filter-name>basic</filter-name>
-        <filter-class>cz.incad.Kramerius.security.basicauth.AuthFilter</filter-class>
+        <filter-class>cz.incad.kramerius.auth.basic.AuthFilter</filter-class>
         <init-param>
             <param-name>realm</param-name>
             <param-value>Protected</param-value>
@@ -41,7 +41,7 @@
     <!--  thrid party authentication -->
     <filter>
         <filter-name>thirdpartyauthfilter</filter-name>
-        <filter-class>cz.incad.kramerius.auth.shibb.internal.InternalShibbolethAuthFilter</filter-class>
+        <filter-class>cz.incad.kramerius.auth.thirdparty.shibb.internal.InternalShibbolethAuthFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>thirdpartyauthfilter</filter-name>
