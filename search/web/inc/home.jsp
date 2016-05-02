@@ -39,11 +39,7 @@
         resizeAll();
     });
     $(document).ready(function(){
-        //resizeAll();
         setTimeout(resizeAll, 1000);
-        //$.get("inc/dac.jsp", function(data){
-            //$("#dadiv").html(data);
-        //});
         $("#dadiv").bind("yearChanged", function(event, params){
             daYearClicked(params);
         })
@@ -56,11 +52,6 @@
             $("#footer").outerHeight(true);
         $("#intro>div.ui-tabs-panel").css("height", w);
         $("#homedabox>div.ui-tabs-panel").css("height", w);
-        //if($("#content-resizable").length>0){
-        //    w = w -35;
-        //    $("#content-resizable").css("height", w);
-        //    resizeDateAxisContent();
-        //}
     }
 </script>
 

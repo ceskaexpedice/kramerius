@@ -821,6 +821,7 @@ li.public:before{
     position: absolute;
     float:right;
     right: 10px;
+    cursor: hand;
 }
 
 #viewer .infobox div.right .small{
