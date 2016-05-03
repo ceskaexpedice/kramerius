@@ -616,6 +616,7 @@ public class DatabaseUserManager implements UserManager {
         });
 
         Role[] roles = user.getGroups();
+        
         for (final Role role : roles) {
             commands.add(new JDBCCommand() {
 
@@ -857,9 +858,11 @@ public class DatabaseUserManager implements UserManager {
                         .getInstanceOf("disassociateRole");
                 String sql = template.toString();
                 Role[] roles = user.getGroups();
-                for (Role r : roles) {
-                    new JDBCUpdateTemplate(con, false).executeUpdate(sql,
-                            user.getId(), r.getId());
+                if (roles != null) {
+                    for (Role r : roles) {
+                        new JDBCUpdateTemplate(con, false).executeUpdate(sql,
+                                user.getId(), r.getId());
+                    }
                 }
                 return getPreviousResult();
             }

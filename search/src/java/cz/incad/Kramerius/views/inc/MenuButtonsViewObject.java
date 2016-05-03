@@ -50,6 +50,19 @@ public class MenuButtonsViewObject {
         else return "";
     }
 
+    public boolean isUnderShibbolethSession() {
+        HttpServletRequest req = this.requestProvider.get();
+        return ShibbolethUtils.isUnderShibbolethSession(req);
+    }
+    
+    public boolean getShibbLogoutEnabled() {
+        HttpServletRequest req = this.requestProvider.get();
+        if (ShibbolethUtils.isUnderShibbolethSession(req)) {
+            return KConfiguration.getInstance().getConfiguration().getBoolean("security.shib.logout.enabled",false);
+        }
+        return true;
+    }
+
 
     public String getShibbLogout() {
         HttpServletRequest req = this.requestProvider.get();

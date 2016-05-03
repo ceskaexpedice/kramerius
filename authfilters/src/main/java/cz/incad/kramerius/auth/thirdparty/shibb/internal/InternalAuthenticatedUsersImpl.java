@@ -32,6 +32,7 @@ public class InternalAuthenticatedUsersImpl extends ShibAuthenticatedUsers {
     @Override
     protected String updateExistingUser(String userName, ShibbolethUserWrapper w) throws SQLException {
         User u = this.usersManager.findUserByLoginName(userName);
+        
         UserUtils.associateGroups(u, this.usersManager);
         UserUtils.associateCommonGroup(u, this.usersManager);
         String password = GeneratePasswordUtils.generatePswd();
@@ -52,12 +53,13 @@ public class InternalAuthenticatedUsersImpl extends ShibAuthenticatedUsers {
     @Override
     protected String createNewUser(String user, ShibbolethUserWrapper w)
             throws JSONException, ConfigurationException, SQLException {
-        UserImpl u = new UserImpl(-1, w.getProperty(UserUtils.FIRST_NAME_KEY),
+        User u = new UserImpl(-1, w.getProperty(UserUtils.FIRST_NAME_KEY),
                 w.getProperty(UserUtils.LAST_NAME_KEY), w.getCalculatedName(), -1);
         String password = GeneratePasswordUtils.generatePswd();
         List<String> roles = w.getRoles();
         this.usersManager.insertUser(u, password);
         this.usersManager.activateUser(u);
+        u = this.usersManager.findUserByLoginName(w.getCalculatedName());
         if (roles.size() > 0) {
             this.usersManager.changeRoles(u, roles);
         }
