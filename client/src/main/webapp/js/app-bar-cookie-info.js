@@ -14,7 +14,7 @@ function checkCookieInfo() {
 
 // set cookie
 function setCookieInfo() {
-  $.cookie(cookieName, true);
+  $.cookie(cookieName, true, { expires: 730 });
   $('#app-bar-cookie-info').removeClass('app-visible');
 }
 

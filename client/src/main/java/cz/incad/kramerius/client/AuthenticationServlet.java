@@ -45,7 +45,6 @@ import cz.incad.kramerius.client.kapi.auth.ClientUser;
 import cz.incad.kramerius.client.kapi.auth.ProfileDelegator;
 import cz.incad.kramerius.client.kapi.auth.User.UserProvider;
 import cz.incad.kramerius.client.kapi.auth.impl.CallUserControllerImpl;
-import cz.incad.kramerius.client.socialauth.OpenIDSupport;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
