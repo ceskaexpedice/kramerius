@@ -69,7 +69,7 @@ public class AbstractPDFResource {
 
     @Inject
     @Named("IMAGE")
-    FirstPagePDFService imageFirstPage;
+    FirstPagePDFService imageFirstPage  ;
 
     @Inject
     @Named("securedFedoraAccess")
@@ -223,58 +223,12 @@ public class AbstractPDFResource {
     private void checkRenderedPDFDoc(PreparedDocument rdoc) throws IOException {
         List<AbstractPage> pages = rdoc.getPages();
         for (AbstractPage apage : pages) {
-            if (this.canBeRenderedAsPDF(apage.getUuid())) {
+            if (!this.canBeRenderedAsPDF(apage.getUuid())) {
                 throw new  SecurityException("");
             }
         }
     }
 
-//    static File selection(FirstPagePDFService firstPagePDFService,
-//            GeneratePDFService pdfService, DocumentService documentService,
-//            String imgServletUrl, String i18nUrl, String[] pids, String srect)
-//            throws IOException, FileNotFoundException, DocumentException,
-//            ProcessSubtreeException, COSVisitorException {
-//
-//        
-//        File tmpFile = null;
-//        File fpage = null;
-//
-//        try {
-//            List<File> filesToDelete = new ArrayList<File>();
-//            FileOutputStream generatedPDFFos = null;
-//
-//            tmpFile = File.createTempFile("body", "pdf");
-//            filesToDelete.add(tmpFile);
-//            FileOutputStream bodyTmpFos = new FileOutputStream(tmpFile);
-//            fpage = File.createTempFile("head", "pdf");
-//            filesToDelete.add(fpage);
-//            FileOutputStream fpageFos = new FileOutputStream(fpage);
-//
-//            int[] irects = srect(srect);
-//
-//            FontMap fMap = new FontMap(pdfService.fontsFolder());
-//
-//            PreparedDocument rdoc = documentService
-//                    .buildDocumentFromSelection(pids, irects);
-//
-//            firstPagePDFService.selection(rdoc, fpageFos, pids,
-//                    i18nUrl, fMap);
-//
-//            pdfService.generateCustomPDF(rdoc, bodyTmpFos, fMap, imgServletUrl,
-//                    i18nUrl, ImageFetcher.WEB);
-//
-//            bodyTmpFos.close();
-//            fpageFos.close();
-//
-//            File generatedPDF = File.createTempFile("rendered", "pdf");
-//            generatedPDFFos = new FileOutputStream(generatedPDF);
-//
-//            mergeToOutput(generatedPDFFos, tmpFile, fpage);
-//            return generatedPDF;
-//        } finally {
-//            saveDeleteFile(tmpFile, fpage);
-//        }
-//    }
 
     private static void saveDeleteFile(File ... files) {
         for (File f : files) {
