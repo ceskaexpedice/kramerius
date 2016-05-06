@@ -46,11 +46,7 @@
         resizeAll();
     });
     $(document).ready(function(){
-        //resizeAll();
         setTimeout(resizeAll, 1000);
-        //$.get("inc/dac.jsp", function(data){
-            //$("#dadiv").html(data);
-        //});
         $("#dadiv").bind("yearChanged", function(event, params){
             daYearClicked(params);
         })

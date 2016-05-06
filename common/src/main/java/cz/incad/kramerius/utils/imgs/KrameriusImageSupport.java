@@ -105,6 +105,7 @@ public class KrameriusImageSupport {
             InputStream stream = url.openStream();
             try {
                 if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdf.loadNonSeq", false)){
+                    //PDDocument.load
                     document = PDDocument.loadNonSeq(stream, null);
                 }else{
                     document = PDDocument.load(stream);

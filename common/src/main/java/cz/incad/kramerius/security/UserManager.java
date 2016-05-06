@@ -280,6 +280,8 @@ public interface UserManager {
     public void activateUser(User user) throws SQLException;
     
     
+    public boolean validatePassword(int userId, String pswd);
+    
     /**
      * Find public role
      * @return

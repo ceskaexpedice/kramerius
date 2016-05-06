@@ -70,19 +70,27 @@ ChangePswd.prototype.form=function() {
 	$('#changePswd_wait').hide();
 }
 ChangePswd.prototype.postChangedPswd=function() {
-	$.post("users?action=savenewpswd", { nswpd:$("#pswd").val()},
+     var xhr = $.post("users?action=savenewpswd", { nswpd:$("#pswd").val(),opswd:$("#oldpswd").val()},
         bind(function (data,textStatus) {
                 if (textStatus =="success") {
                         this.dialog.dialog("close"); 
                         $("#changePswd").remove();
                 } else {
-                	$('#changePswd_form').show();
-                	$('#changePswd_wait').hide();
-
-                	$("#checkPswdStatus").css('color','red');
+                    $('#changePswd_form').show();
+                    $('#changePswd_wait').hide();
+                    $("#checkPswdStatus").css('color','red');
+                    $("#checkPswdStatus").show();
                     $("#checkPswdStatus").text(dictionary['rights.changepswd.nochangepswd']);
                 }
         },this));
+     
+     xhr.fail(function (jqXHR, textStatus, errorThrown) {
+         $('#changePswd_form').show();
+         $('#changePswd_wait').hide();
+         $("#checkPswdStatus").css('color','red');
+         $("#checkPswdStatus").show();
+         $("#checkPswdStatus").text(dictionary['rights.changepswd.nochangepswd']);
+     });
 }
 
 

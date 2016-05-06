@@ -1,0 +1,94 @@
+<style>
+
+#changepswd{
+    z-index: 3;
+    top:2px;
+    left: 2px;
+    width: 100%;
+}
+
+#changepswdbox input{
+    font-size: 2.2em;
+    background: rgba(255, 255, 255, 0.9);
+    border: 0px solid #0e70b3;
+    width: 100%;
+}
+
+#changepswdbox input:hover{
+    background: rgba(255, 255, 255, 1);
+}
+
+
+#changepswdbox div.alternatives ul{
+    margin-top:0px;
+}
+
+
+#changepswdbox div.alternatives{
+    border-top:1px solid white;
+    margin-top:1em;
+}
+
+#changepswdbox div.alternatives ul {
+    padding-left:0px;
+    margin-top:.3em;
+}
+
+#changepswdbox div.alternatives li {
+    display:inline-block;
+}
+
+.login_error {
+    color:red;
+}
+</style>
+
+<script type="text/javascript">
+        function __changepswdbutton() {
+            var oldpass = $("#opassword1").val();
+            var npass =  $("#npassword1").val();
+            var npass2 = $("#npassword2").val();
+            if (npass === npass2) {
+               K5.authentication.changePassAndRedirect(oldpass,npass, 'index.vm?page=changepswd_success', 'index.vm?page=changepswd&error=true&type=badoldpass'); 
+            } else {
+               window.location.assign('index.vm?page=changepswd&error=true&type=badnewpass');
+	        }
+        }
+        
+        $( document ).ready( function() {
+            var err = getParameterByName("error");
+            if (err === "true") {
+                var type =  getParameterByName("type");
+				
+                $("#changepswdbox_error_"+type).show();
+            }
+        });
+        
+</script>
+
+<div id="changepswd">
+    <div class="changepswdbox">
+
+        <div>
+            <h3> #translatable('changepswd.display') </h3>
+        </div>
+        
+        <div id="changepswdbox">
+          <form id="changepswd_form" name="changepswd_form">
+          <label>#translatable('changepswd.oldpassword'):</label>
+          <input class="translate_placeholder" data-key="changepswd.oldpassword.placeholder" id="opassword1" name="password1" placeholder="#i18nval('changepswd.oldpassword.placeholder')" value="" type="password"/>
+          <label>#translatable('changepswd.newpassword'):</label>
+          <input class="translate_placeholder" data-key="changepswd.newpassword.placeholder" id="npassword1" name="password2" placeholder="#i18nval('changepswd.newpassword.placeholder')" value="" type="password" />
+          <label>#translatable('changepswd.repeatnewpassword'):</label>
+          <input class="translate_placeholder" data-key="changepswd.repeatnewpassword.placeholder" id="npassword2" name="npassword" placeholder="#i18nval('changepswd.repeatnewpassword.placeholder')" value="" type="password" />
+          </form>
+        </div>
+
+        <div class="button" onclick="__changepswdbutton()">
+           #translatable('changepswd.button')
+        </div>
+
+      <div id="changepswdbox_error_badoldpass" class="login_error" style="display:none">#translatable('changepswd.error.2')</div>
+      <div id="changepswdbox_error_badnewpass" class="login_error" style="display:none">#translatable('changepswd.error.1')</div>
+    </div>
+</div>

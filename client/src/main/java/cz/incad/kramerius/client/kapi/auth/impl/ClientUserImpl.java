@@ -42,4 +42,9 @@ public class ClientUserImpl extends AbstractUser implements ClientUser {
         this.firstName = fname;
         this.surname = sname;
     }
+
+    @Override
+    public void updatePassword(String pswd) {
+        super.updatePassword(pswd);
+    }
 }

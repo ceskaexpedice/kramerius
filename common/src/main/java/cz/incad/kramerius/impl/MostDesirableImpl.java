@@ -67,8 +67,6 @@ public class MostDesirableImpl implements MostDesirable {
         }
     }
 
-    
-
 
     @Override
     public void saveAccess(String uuid, Date date) {

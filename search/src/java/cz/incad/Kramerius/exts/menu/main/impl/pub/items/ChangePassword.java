@@ -25,7 +25,7 @@ import com.google.inject.Provider;
 
 import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMainMenuItem;
-import cz.incad.kramerius.shib.utils.ShibbolethUtils;
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUtils;
 
 public class ChangePassword extends AbstractMainMenuItem implements PublicMainMenuItem {
 

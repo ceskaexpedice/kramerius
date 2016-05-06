@@ -3,10 +3,8 @@
     "//fonts.googleapis.com/css?family=Exo+2:400,700",
     "//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css",
 
-
+     "css/app-bar-cookie-info.css",
     "jplayer/skin/blue.monday/jplayer.blue.monday.css",
-
-    
 
     "resources/css/selector.css",
     "resources/css/styles.css",

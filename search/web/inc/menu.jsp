@@ -36,14 +36,17 @@
         
         <!-- logout - only for logged -->
         <scrd:loggedusers>
-            <c:choose>
-                <c:when test="${empty buttons.shibbLogout}">
-                            <a href="logout.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
-                </c:when>
-                <c:otherwise>
-                            <a href="${buttons.shibbLogout}"><view:msg>application.logout</view:msg></a>
-                </c:otherwise>
-            </c:choose>
+            
+            <c:if test="${buttons.underShibbolethSession == false}">
+                   <a href="logout.jsp?redirectURL=${searchFormViewObject.requestedAddress}"><fmt:message bundle="${lctx}">application.logout</fmt:message></a>
+            </c:if>
+            
+            <c:if test="${buttons.underShibbolethSession == true}">
+                <c:if test="${buttons.shibbLogout}">
+                     <a href="${buttons.shibbLogout}"><view:msg>application.logout</view:msg></a>
+                </c:if>
+           </c:if>
+            
         </scrd:loggedusers>
 
 <a href="javascript:showHelp('<c:out value="${param.language}" />');"><view:msg>application.help</view:msg>

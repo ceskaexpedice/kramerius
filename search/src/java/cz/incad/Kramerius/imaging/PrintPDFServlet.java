@@ -47,6 +47,7 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 public class PrintPDFServlet extends GuiceServlet {
 
     public static Logger LOGGER = Logger.getLogger(PrintPDFServlet.class.getName());
+
     
     
     public static enum Page {
@@ -129,13 +130,15 @@ public class PrintPDFServlet extends GuiceServlet {
             String pageSize = req.getParameter("pagesize");
             String imgop = req.getParameter("imgop");
 
-            Document document = new Document(Page.valueOf(pageSize).getRect());
-            ServletOutputStream sos = resp.getOutputStream();
-            PdfWriter.getInstance(document, sos);
-            document.open();
 
             if (StringUtils.isAnyString(pid)) {
-                if (canBeRead(pid)) {
+                if (canBeRead(pid) && canBeRenderedAsPDF(pid)) {
+
+                    Document document = new Document(Page.valueOf(pageSize).getRect());
+                    ServletOutputStream sos = resp.getOutputStream();
+                    PdfWriter.getInstance(document, sos);
+                    document.open();
+
                     
                     File renderedFile = File.createTempFile("local", "print");
                     filesToDelete.add(renderedFile);
@@ -150,6 +153,7 @@ public class PrintPDFServlet extends GuiceServlet {
                             document.getPageSize().getHeight() - document.topMargin()
                                     - document.bottomMargin());
                     document.add(image);
+                    document.close();
                     
                 } else {
                     resp.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -157,10 +161,20 @@ public class PrintPDFServlet extends GuiceServlet {
             } else {
                 String[] pds = pids.split(",");
                 boolean canBeRendered = false;
+                boolean canBePDFRendered = false;
                 for (int i = 0; i < pds.length; i++) {
                     if (!canBeRendered) canBeRendered = canBeRead(pds[i]);
                 }
-                if (canBeRendered) {
+                for (int i = 0; i < pds.length; i++) {
+                    if (!canBePDFRendered) canBePDFRendered = canBeRenderedAsPDF(pds[i]);
+                }
+                if (canBeRendered && canBePDFRendered) {
+
+                    Document document = new Document(Page.valueOf(pageSize).getRect());
+                    ServletOutputStream sos = resp.getOutputStream();
+                    PdfWriter.getInstance(document, sos);
+                    document.open();
+
                     for (int i = 0; i < pds.length; i++) {
                         File nfile = File.createTempFile("local", "print");
                         filesToDelete.add(nfile);
@@ -181,11 +195,11 @@ public class PrintPDFServlet extends GuiceServlet {
                             document.newPage();
                         }
                     }
+                    document.close();
                 } else {
                     resp.sendError(HttpServletResponse.SC_FORBIDDEN);
                 }
             }
-            document.close();
         } catch (BadElementException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (DocumentException e) {
@@ -203,6 +217,16 @@ public class PrintPDFServlet extends GuiceServlet {
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
         for (ObjectPidsPath pth : paths) {
             if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean canBeRenderedAsPDF(String pid) throws IOException {
+        ObjectPidsPath[] paths = solrAccess.getPath(pid);
+        for (ObjectPidsPath pth : paths) {
+            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth)) {
                 return true;
             }
         }

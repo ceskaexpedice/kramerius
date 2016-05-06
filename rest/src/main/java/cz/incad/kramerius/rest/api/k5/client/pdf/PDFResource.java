@@ -52,12 +52,16 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfWriter;
 
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
 import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
+import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -183,7 +187,12 @@ public class PDFResource extends AbstractPDFResource  {
                     try {
                         this.mostDesirable.saveAccess(pid, new Date());
 
+                        
+//                        if (this.actionAllowed.isActionAllowed(SecuredActions.PDF_RESOURCE, pid,)) {
+//                            
+//                        }
                         pid = this.fedoraAccess.findFirstViewablePid(pid);
+                        
                         BufferedImage bufImage = KrameriusImageSupport.readImage(pid,FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
 
                         double xPerctDouble = Double.parseDouble(xpos);
@@ -254,8 +263,10 @@ public class PDFResource extends AbstractPDFResource  {
                             .valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
 
                     String[] pids = pidsParam.split(",");
+                    
                     // max number test
                     ConfigurationUtils.checkNumber(pids);
+                    
                     for (String p : pids) {
                         this.mostDesirable.saveAccess(p, new Date());
                     }
@@ -301,6 +312,9 @@ public class PDFResource extends AbstractPDFResource  {
                 } catch (DocumentException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
+                } catch(SecurityException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    throw new ActionNotAllowed(e.getMessage());
                 }
             } else {
                 throw new PDFResourceNotReadyException("not ready");
@@ -389,7 +403,10 @@ public class PDFResource extends AbstractPDFResource  {
                 } catch (OutOfRangeException e1) {
                     LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     throw new PDFResourceBadRequestException(e1.getMessage());
-                 }
+                } catch (SecurityException e1) {
+                    LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    throw new ActionNotAllowed(e1.getMessage());
+                }
             } else {
                 throw new PDFResourceNotReadyException("not ready");
             }
@@ -464,4 +481,6 @@ public class PDFResource extends AbstractPDFResource  {
         }
         return formatRect;
     }
+    
+
 }

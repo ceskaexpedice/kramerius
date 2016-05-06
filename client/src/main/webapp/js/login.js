@@ -134,7 +134,27 @@ AuthenticationSupport.prototype = {
                 });
         },
         
+
+        /**
+         * Sends logout request and delete context informations
+         * @method
+         */
+        askForChangePswd:function(oldpass, npass, successFunction, failFunction) {
+                $.ajax({
+                        dataType: "json",
+                        "method":"POST",
+                        'url': 'authentication?action=savepass',
+                        data: {
+                             'pswd':npass,
+                             'opswd':oldpass
+                        },
+                        "dataType": "json",
+                        success: successFunction,
+                        error : failFunction
+                });
+        },
         
+
 
         /** 
          * Sends login request and store user informations
@@ -212,7 +232,6 @@ AuthenticationSupport.prototype = {
                 if (K5.gui.page === 'home') {
                     $("div.infobox").show();
                 }
-                
             },this);
             
             var v = $("div.logoptions").is(":visible");
@@ -240,13 +259,25 @@ AuthenticationSupport.prototype = {
             }
         },
 
+        /**
+         * Change pswd
+         */
+        changePassAndRedirect: function(oldpass, npass, successUrl, errorUrl) {
+            var logged = K5.authentication.isKeyReady("logged");
+            if (logged) {
+                K5.authentication.askForChangePswd(oldpass,npass, function() {
+                    window.location.assign(successUrl);
+                }, function() {
+                    window.location.assign(errorUrl);
+                }); 
+            } 
+        },
+        
         storeFavoritesToSession:function() {
             K5.api.storeToSession("loginActions",this.ctx.session);
         },
 
-        changePassword: function(npass) {
-        },
-
+        
         /** 
          * Perform logout action and redirect
          * @method

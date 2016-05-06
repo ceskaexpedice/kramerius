@@ -94,24 +94,32 @@ public enum SecuredActions {
     /** Akce NDK Mets import */
     NDK_METS_IMPORT("ndk_mets_import"),
 
-    /** Akce umozni zobrazit administratorskou cast menu */
-    DISPLAY_ADMIN_MENU("display_admin_menu"),
-    
     /** aggregate process */
     AGGREGATE_PROCESSES("aggregate"),
-
-    /** show statistics */
-    SHOW_STATISTICS("show_statictics"),
 
     /** sorting  */
     SORT("sort"),
 
-    /** print  */
+    /** page info */
+    SHOW_ALTERNATIVE_INFO_TEXT("show_alternative_info_text"),
+
+    /** Akce umozni zobrazit administratorskou cast menu */
+    DISPLAY_ADMIN_MENU("display_admin_menu"),
+
+    /** show statistics item */
+    SHOW_STATISTICS("show_statictics"),
+
+    /** show print admin menu item  */
     SHOW_PRINT_MENU("show_print_menu"),
 
-    /** page info */
-    SHOW_ALTERNATIVE_INFO_TEXT("show_alternative_info_text");
+    SHOW_CLIENT_PRINT_MENU("show_client_print_menu"),
 
+    /** show pdf menu item  */
+    SHOW_CLIENT_PDF_MENU("show_client_pdf_menu"),
+    
+    /** pdf resource */
+    PDF_RESOURCE("pdf_resource");
+    
     private String formalName;
   
     private SecuredActions(String formalName) {

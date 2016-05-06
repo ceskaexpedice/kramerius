@@ -260,6 +260,60 @@
         }
         $('#contextMenu>div.scope').removeClass('selected');
         $(jq(id)).addClass('selected');
+        
+        if ($('#context_items_active>li').size() > 0) {
+            _checkMenuItems();
+        }
+    }
+    
+    function _checkMenuItems() {
+        var pids = getAffectedPids();
+        pids = map(function(pid) { 
+            var divided = pid.split("_");            
+            return divided[1];
+        }, pids);
+        
+        var actions = [];
+        $("#contextMenuList>li[data-action]").each(function(i, v) { 
+            var act = $(v).data('action');
+            if ($.inArray( act, actions ) < 0) {
+               actions.push(act);
+            }
+        });
+
+        var pidString = reduce(function(base, element, status) {
+            if (!status.first) {
+               base = base + "&";
+            }
+            return base + "pid="+element.trim();
+         }, "", pids);
+
+         var actsString = reduce(function(base, element, status) {
+             if (!status.first) {
+                base = base + "&";
+             }
+             return base + "actions="+element.trim();
+          }, "", actions);
+         
+         $.each(actions, function(i,v) {
+             $.get("isActionAllowed?action="+v+"&"+pidString,bind(function(data) {
+                 var flag = true;
+                 for(var pid in data) {
+                   var f = data[pid];
+                   flag = f & flag;
+                 }
+                 var elms = $("#contextMenuList>li[data-action]");
+                 elms.each(function(k,p) {
+                     if ($(p).data('action') === v) {
+                         if (flag) {
+                             $(p).css('display','block');
+                         } else {
+                             $(p).css('display','none');
+                         }
+                     }
+                 });
+             },this));
+         });
     }
     
     function isPrivate(id){

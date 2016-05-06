@@ -425,9 +425,11 @@ LeftThumbs.prototype = {
                 detShort = details.title + " " + details.partNumber;
             } else if (model === "page") {
                 // dateils type muze byt frontPage nebo FrontPage
-                var loc = details.type.substring(0,1).toUpperCase() + details.type.substring(1);
-                detFull = K5.i18n.translatable('mods.page.partType.' + loc);
-                detShort = K5.i18n.translatable('mods.page.partType.' + loc);
+                if(details.hasOwnProperty('type')){
+                  var loc = details.type.substring(0,1).toUpperCase() + details.type.substring(1);
+                  detFull = K5.i18n.translatable('mods.page.partType.' + loc);
+                  detShort = K5.i18n.translatable('mods.page.partType.' + loc);
+                }
             } else {
                 detFull = details;
                 detShort = details;

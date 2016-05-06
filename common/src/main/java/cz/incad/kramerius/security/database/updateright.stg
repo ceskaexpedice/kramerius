@@ -132,3 +132,21 @@ updateUserEntities() ::=<<
     CREATE UNIQUE INDEX LOGINNAME_IDX ON USER_ENTITY (LOGINNAME);
 >>
 
+updateShowItems() ::=<<
+    insert into right_entity (right_id, uuid, "action", group_id)
+        select nextval('right_id_sequence'),'uuid:1','show_client_print_menu',group_id 
+        from group_entity
+        where gname='common_users';
+
+    insert into right_entity (right_id, uuid, "action", group_id)
+        select nextval('right_id_sequence'),'uuid:1','show_client_pdf_menu',group_id 
+        from group_entity
+        where gname='common_users';
+
+    insert into right_entity (right_id, uuid, "action", group_id)
+        select nextval('right_id_sequence'),'uuid:1','pdf_resource',group_id 
+        from group_entity
+        where gname='common_users';
+
+>>
+
