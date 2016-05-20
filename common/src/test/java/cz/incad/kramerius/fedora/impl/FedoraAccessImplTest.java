@@ -43,6 +43,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessStackAware;
 import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.impl.AbstractFedoraAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -57,7 +58,7 @@ public class FedoraAccessImplTest {
     public void testIsFullthumbnailAvailableWithPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
 
-        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
+        AbstractFedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
         .addMockedMethod("getFedoraDataStreamsList")
@@ -80,7 +81,7 @@ public class FedoraAccessImplTest {
     public void testIsFullThumbnailAvailableWithoutPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
 
-        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
+        AbstractFedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
         .addMockedMethod("getFedoraDataStreamsList")
@@ -102,7 +103,7 @@ public class FedoraAccessImplTest {
     public void testIsFullImageAvailableWithPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
 
-        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
+        AbstractFedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
         .addMockedMethod("getFedoraDataStreamsList")
@@ -124,7 +125,7 @@ public class FedoraAccessImplTest {
     @Test
     public void testIsFullImageAvailableWithoutPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
-        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
+        AbstractFedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
         .addMockedMethod("getFedoraDataStreamsList")

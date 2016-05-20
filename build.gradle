@@ -97,7 +97,7 @@ subprojects {
 
          
          group='cz.incad.kramerius'
-         version='5.3.3'
+         version='5.3.3-POC'
          
          sourceCompatibility = 1.6
          targetCompatibility= 1.6

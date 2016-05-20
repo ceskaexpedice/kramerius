@@ -289,29 +289,24 @@ public class ItemResource {
             checkPid(pid);
             JSONObject jsonObject = new JSONObject();
             if (!PIDSupport.isComposedPID(pid)) {
-                Document datastreams = this.fedoraAccess
-                        .getFedoraDataStreamsListAsDocument(pid);
-                Element documentElement = datastreams.getDocumentElement();
-                List<Element> elms = XMLUtils.getElements(documentElement);
-                for (Element e : elms) {
+                List<Map<String,String>> streamsOfObject = this.fedoraAccess.getStreamsOfObject(pid);
+                
+                for (Map<String, String> stream : streamsOfObject) {
+                    String dsiId =stream.get("dsid");
+                    String label = stream.get("label");
+                    String mimeType = stream.get("mimeType");
                     JSONObject streamObj = new JSONObject();
-                    String dsiId = e.getAttribute("dsid");
 
                     if (FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsiId))
                         continue;
-
-                    String label = e.getAttribute("label");
                     streamObj.put("label", label);
-
-                    String mimeType = e.getAttribute("mimeType");
                     streamObj.put("mimeType", mimeType);
-
                     jsonObject.put(dsiId, streamObj);
+                    
+                    
                 }
             }
             return Response.ok().entity(jsonObject.toString()).build();
-        } catch (IOException e) {
-            throw new PIDNotFound(e.getMessage());
         } catch (JSONException e1) {
             throw new GenericApplicationException(e1.getMessage());
         }

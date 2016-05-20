@@ -19,7 +19,9 @@ package cz.incad.kramerius.security;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -334,4 +336,15 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public Document getFedoraDataStreamsListAsDocument(String pid) throws IOException {
         return rawAccess.getFedoraDataStreamsListAsDocument(pid);
     }
+
+    public Date getStreamLastmodifiedFlag(String pid, String stream) throws IOException {
+        return rawAccess.getStreamLastmodifiedFlag(pid, stream);
+    }
+
+    @Override
+    public List<Map<String, String>> getStreamsOfObject(String pid) {
+        return rawAccess.getStreamsOfObject(pid);
+    }
+    
+    
 }

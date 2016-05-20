@@ -4,15 +4,9 @@
  */
 package cz.incad.kramerius.utils;
 
-/**
- *
- * @author incad
- */
-
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,11 +24,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import java.util.Set;
 
 public class FedoraUtils {
 
@@ -264,5 +254,14 @@ public class FedoraUtils {
     public static String getVersionCompatibilityPrefix(String fedoraVersion) {
         return fedoraVersion.substring(0,3).replace('.', '_');
     }
+
+
+    public static final DateFormat[] XSD_DATE_FORMATS = {
+    new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S'Z'"),
+    new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+    new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S"),
+    new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
+    new SafeSimpleDateFormat("yyyy-MM-dd'Z'"),
+    new SafeSimpleDateFormat("yyyy-MM-dd") };
     
 }

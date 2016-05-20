@@ -22,6 +22,7 @@ import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.kahadb.util.ByteArrayInputStream;
 import org.w3c.dom.Document;
 
 import cz.incad.Kramerius.AbstractImageServlet;
@@ -286,8 +288,11 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                     resp.setHeader("Content-disposition", "attachment; filename=" + fileNameFromRelsExt);
                 }
                 
-                copyStreams(is, resp.getOutputStream());
-                
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                copyStreams(is, bos);
+                byte[] arr = bos.toByteArray();
+                System.out.println("byte array is "+arr.length);
+                copyStreams(new ByteArrayInputStream(arr), resp.getOutputStream());
             }
         };
         

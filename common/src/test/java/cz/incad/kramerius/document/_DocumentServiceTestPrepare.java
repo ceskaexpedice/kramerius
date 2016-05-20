@@ -23,6 +23,7 @@ import com.google.inject.Injector;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
+import cz.incad.kramerius.impl.AbstractFedoraAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
@@ -37,7 +38,7 @@ public class _DocumentServiceTestPrepare {
             LexerException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = Locale.getDefault();
-        FedoraAccessImpl fa33 = _DocumentServiceTestPrepare.prepareFedoraAccess(acLog);
+        AbstractFedoraAccess fa33 = _DocumentServiceTestPrepare.prepareFedoraAccess(acLog);
         ResourceBundleService bundleService = _DocumentServiceTestPrepare.prepareBundleService(locale);
         SolrAccess solrAccess = _DocumentServiceTestPrepare.prepareSolrAccess();
     
@@ -65,7 +66,7 @@ public class _DocumentServiceTestPrepare {
         return solrAccess;
     }
 
-    public static FedoraAccessImpl prepareFedoraAccess(StatisticsAccessLog acLog)
+    public static AbstractFedoraAccess prepareFedoraAccess(StatisticsAccessLog acLog)
             throws NoSuchMethodException, IOException,
             ParserConfigurationException, SAXException, LexerException {
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)

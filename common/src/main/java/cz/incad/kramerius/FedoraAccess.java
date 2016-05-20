@@ -18,10 +18,15 @@ package cz.incad.kramerius;
 
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
+import cz.incad.kramerius.utils.XMLUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -419,5 +424,32 @@ public interface FedoraAccess {
      */
     Document getFedoraDataStreamsListAsDocument(String pid) throws IOException;
 
+    Date getStreamLastmodifiedFlag(String pid, String stream) throws IOException;
     
+    List<Map<String, String>> getStreamsOfObject(String pid);
+    
+//    private Date lastModified(String pid, String stream) throws IOException {
+//        Date date = null;
+//        Document streamProfile = fedoraAccess.getStreamProfile(pid, stream);
+//
+//        Element elm = XMLUtils.findElement(streamProfile.getDocumentElement(),
+//                "dsCreateDate",
+//                FedoraNamespaces.FEDORA_MANAGEMENT_NAMESPACE_URI);
+//        if (elm != null) {
+//            String textContent = elm.getTextContent();
+//            for (DateFormat df : XSD_DATE_FORMATS) {
+//                try {
+//                    date = df.parse(textContent);
+//                    break;
+//                } catch (ParseException e) {
+//                    //
+//                }
+//            }
+//        }
+//        if (date == null) {
+//            date = new Date();
+//        }
+//        return date;
+//    }
+
 }

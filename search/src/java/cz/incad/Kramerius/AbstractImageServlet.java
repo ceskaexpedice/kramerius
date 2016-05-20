@@ -50,17 +50,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
-import cz.incad.utils.SafeSimpleDateFormat;
 
 public abstract class AbstractImageServlet extends GuiceServlet {
-
-    protected static final DateFormat[] XSD_DATE_FORMATS = {
-            new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S'Z'"),
-            new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
-            new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S"),
-            new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
-            new SafeSimpleDateFormat("yyyy-MM-dd'Z'"),
-            new SafeSimpleDateFormat("yyyy-MM-dd") };
 
     /**
 	 * 
@@ -174,27 +165,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     }
 
     private Date lastModified(String pid, String stream) throws IOException {
-        Date date = null;
-        Document streamProfile = fedoraAccess.getStreamProfile(pid, stream);
-
-        Element elm = XMLUtils.findElement(streamProfile.getDocumentElement(),
-                "dsCreateDate",
-                FedoraNamespaces.FEDORA_MANAGEMENT_NAMESPACE_URI);
-        if (elm != null) {
-            String textContent = elm.getTextContent();
-            for (DateFormat df : XSD_DATE_FORMATS) {
-                try {
-                    date = df.parse(textContent);
-                    break;
-                } catch (ParseException e) {
-                    //
-                }
-            }
-        }
-        if (date == null) {
-            date = new Date();
-        }
-        return date;
+        return this.fedoraAccess.getStreamLastmodifiedFlag(pid, stream);
     }
 
     protected void setResponseCode(String pid, String streamName,

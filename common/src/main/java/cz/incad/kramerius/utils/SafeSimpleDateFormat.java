@@ -1,4 +1,4 @@
-package cz.incad.utils;
+package cz.incad.kramerius.utils;
 
 import java.text.FieldPosition;
 import java.text.ParseException;

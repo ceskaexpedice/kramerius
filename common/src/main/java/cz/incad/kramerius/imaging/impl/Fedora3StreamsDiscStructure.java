@@ -96,10 +96,11 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
     @Override
     public Path getUUIDFile(String uuid,  String rootPath) throws IOException {
         try {
-            Document profile = fedoraAccess.getStreamProfile("uuid:"+uuid, FedoraUtils.IMG_FULL_STREAM);
-            Date dateFromProfile = disectCreateDate(this.xpaths, profile, fedoraAccess.getFedoraVersion());
+            Date dateFromFedora = this.fedoraAccess.getStreamLastmodifiedFlag("uuid:"+uuid, FedoraUtils.IMG_FULL_STREAM);
+//            Document profile = fedoraAccess.getStreamProfile("uuid:"+uuid, FedoraUtils.IMG_FULL_STREAM);
+//            Date dateFromProfile = disectCreateDate(this.xpaths, profile, fedoraAccess.getFedoraVersion());
             Calendar calendar = Calendar.getInstance();
-            calendar.setTime(dateFromProfile);
+            calendar.setTime(dateFromFedora);
             
             List<String> relativeDataStreamPath = Arrays.asList(
                     ""+calendar.get(Calendar.YEAR),
@@ -120,13 +121,9 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
             template.setAttribute("sep", File.separator);
             template.setAttribute("uuid", uuid);
             String filePath = template.toString();
-            
-            
+
             return new DirPathImpl(new File(rootDir, filePath), null);
-        } catch (XPathExpressionException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-            throw new IOException(e);
-        } catch (DatatypeConfigurationException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
             throw new IOException(e);
         }
