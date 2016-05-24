@@ -1,5 +1,7 @@
 package cz.incad.kramerius.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import javax.jms.IllegalStateException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.utils.IOUtils;
 import org.fcrepo.client.FedoraDatastream;
 import org.fcrepo.client.FedoraException;
 import org.fcrepo.client.FedoraObject;
@@ -121,7 +124,10 @@ public class FCRepo4AccessImpl extends AbstractFedoraAccess {
             FedoraObject object = this.repo.getObject(restPid(pid));
             FedoraDatastream datastream = this.repo.getDatastream(object.getPath()+"/"+datastreamName);
             InputStream iStream = datastream.getContent();
-            return iStream;
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(iStream, true,bos,true);
+
+            return new ByteArrayInputStream(bos.toByteArray());
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
