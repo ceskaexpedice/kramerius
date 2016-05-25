@@ -3,11 +3,16 @@
 /**
  * Left panel thumbs 
  */
-function LeftThumbs(appl, elem) {
+
+
+
+function LeftThumbs(appl, elem, settings) {
     this.application = (appl || K5);
 
-    var jqSel = (elem || '#viewer>div.container>div.thumbs');        
+    var jqSel = (elem || '#viewer>div.container>div.thumbs');
     this.elem = $(jqSel);
+
+    this.settings = ( settings || null );
 
     this.init();
     
@@ -113,16 +118,23 @@ LeftThumbs.prototype = {
         K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], _.bind(function(data) {
             var nomodel = this.currentParentModel === null;
             var dd = [];
-            _.each(data, function(objectForPath) { 
+            _.each(data, _.bind(function(objectForPath) { 
                 var path = objectForPath.path;
                 var lastModel = path[path.length - 2].model;
                 
-                _.each(objectForPath.siblings, function(thumb) {
-                    if(lastModel === hash.pmodel || nomodel){
-                        dd.push(thumb);
+                _.each(objectForPath.siblings, _.bind(function(thumb) {
+                    if (this.settings && this.settings.selector) {
+                        if (this.settings.selector.call(null, thumb)) {
+                            dd.push(thumb);
+                        }
+                    } else {
+                        // no selector defined
+                        if(lastModel === hash.pmodel || nomodel){
+                            dd.push(thumb);
+                        }
                     }
-                });
-            });
+                }, this));
+            },this));
             
             this.thumbs = dd;
             
@@ -441,6 +453,14 @@ LeftThumbs.prototype = {
         info.short += '<div class="details">' +  detShort + '</div>';
         info.full += '<div class="details">' + detFull + '</div>';
 
+    },
+
+    setSettings: function(settinssObject) {
+        this.settings = settinssObject;
+    },
+
+    getSettings: function (settingsObject) {
+        return this.settings;
     }
 };
 

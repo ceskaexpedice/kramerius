@@ -77,3 +77,39 @@ PDFView.prototype.isEnabled= function(data) {
         var pdf = data["pdf"];
         return  (datanode  &&  pdf);
 }
+
+
+PDFView.prototype.forbiddenCheck = function(okFunc, failFunc) {
+        var v = K5.api.ctx.item.selected;
+        K5.api.askForRights(v,["read"], function(data){
+                if (data.read) {
+                        okFunc.apply(null, []);
+                } else {
+                        failFunc.apply(null, []);
+                }
+        });
+
+}
+
+PDFView.prototype.containsLeftStructure = function() {
+        var selected = K5.api.ctx["item"].selected;
+        if (K5.api.ctx["item"] && K5.api.ctx["item"][selected]) {
+                return K5.api.ctx["item"][selected]["model"] === "article";
+        }
+        return false;
+}
+
+PDFView.prototype.leftStructureSettings = function() {
+        if (this.containsLeftStructure()) {
+                return {
+                        "selector":function(thumb) {
+                                if (thumb && thumb.model && (thumb.model === "article" || thumb.model === "page")) {
+                                        return true;
+
+                                }
+                        }
+                }
+        } else return null;
+}
+
+
