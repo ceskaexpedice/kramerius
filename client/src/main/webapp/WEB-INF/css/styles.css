@@ -1102,6 +1102,10 @@ li.public:before{
     border:2px green solid;     
 }
 
+#viewer table.container tr.img td.chit img {
+    border:2px green solid;
+}
+
 #viewer table.container tr.txt td.hit{
     border-top-width: 0;
     

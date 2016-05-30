@@ -180,12 +180,19 @@ LeftThumbs.prototype = {
             this.setLoading(true);
             $("#q").val(q);
             this.hits = {};
+            var data  = this.textOcr;
             $('td.hit').removeClass("hit");
             $('td.hit').each(function() {
-                $(this).tooltip("option", "content", $(this).data("tt"));
+                var pid = $(this).data('pid');
+                if (data[pid]) {
+                    $(this).tooltip("option", "content", $(this).data("tt"));
+                }
             });
             $('td.chit').each(function() {
-                $(this).tooltip("option", "content", $(this).data("tt"));
+                var pid = $(this).data('pid');
+                if (data[pid]) {
+                    $(this).tooltip("option", "content", $(this).data("tt"));
+                }
             });
             $('td.thumb').removeClass("hit chit");
             this.getHits(true);
@@ -233,6 +240,7 @@ LeftThumbs.prototype = {
     setHitClass: function() {
         var hits = this.hits;
         var hl = this.highlighting;
+        var data = {};
         $('td.thumb').each(function() {
             for (var i = 0; i < hits.length; i++) {
                 var pid = hits[i].pid ? hits[i].pid : hits[i].PID;
@@ -245,10 +253,14 @@ LeftThumbs.prototype = {
                     tt.addClass('hit');
 
                     var hltext = "";
-                    for (var j = 0; j < hl[pid].text_ocr.length; j++) {
-                        hltext += '<div class="hl">' + hl[pid].text_ocr[j] + '</div>';
+                    if (hl[pid].text_ocr) {
+                        for (var j = 0; j < hl[pid].text_ocr.length; j++) {
+                            hltext += '<div class="hl">' + hl[pid].text_ocr[j] + '</div>';
+                        }
+                        data[pid] = true;
+                    } else {
+                        data[pid] = false;
                     }
-//                    $(this).tooltip("option", "content", tt + hltext);
                     break;
                 } else if (pid_path.indexOf(lipid) > -1) {
                     $(this).addClass('chit');
@@ -256,6 +268,7 @@ LeftThumbs.prototype = {
                 }
             }
         });
+        this.textOcr = data;
         this.setLoading(false);
     },
     resized: function() {
