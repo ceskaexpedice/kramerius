@@ -1000,6 +1000,8 @@ var PDFFindBar = (function PDFFindBarClosure() {
     },
 
     findEvent: function PDFFindBar_dispatchEvent(type, findPrev, settingsObject) {
+
+
       var event = document.createEvent('CustomEvent');
       event.initCustomEvent('find' + type, true, true, {
         query: settingsObject.query,
@@ -8012,10 +8014,13 @@ window.addEventListener('afterprint', function afterPrint(evt) {
 
 
 function findInDoc(q) {
-  PDFViewerApplication.findBar.findEvent("", true,{"query":q,"highlightAll":true});
+
+  PDFViewerApplication.findBar.findEvent("", false,{"query":q,"highlightAll":true});
+  /*
   setTimeout(function() {
     PDFViewerApplication.pdfViewer.scrollPageIntoView(1);
   }, 300);
+  */
 }
 
 window.addEventListener("message", function(e) {
