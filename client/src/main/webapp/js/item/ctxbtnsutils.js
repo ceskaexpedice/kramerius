@@ -92,8 +92,33 @@ function _ctxbuttonsrefresh(viewer) {
                     
             }
 
-            // next context
+            if (jQuery.inArray('structurebuttons', a) > -1) {
+                if (K5.gui.selected && K5.gui.selected.containsLeftStructure) {
+                    display = K5.gui.selected.containsLeftStructure();
+                } else {
+                    display = true;
+                }
+            }
+
+            if (jQuery.inArray('nextpage', a) > -1) {
+                if (K5.gui.selected && K5.gui.selected.nextPageEnabled) {
+                    display = K5.gui.selected.nextPageEnabled();
+                } else {
+                    display = true;
+                }
+            }
+
+            if (jQuery.inArray('prevpage', a) > -1) {
+                if (K5.gui.selected && K5.gui.selected.prevPageEnabled) {
+                    display = K5.gui.selected.prevPageEnabled();
+                } else {
+                    display = true;
+                }
+            }
+
+            // next context -- TODO: kick out
             if (jQuery.inArray('next', a) > -1) {
+
                 if (K5.api.ctx["item"][selected]["siblings"]) {
                     var data = K5.api.ctx["item"][selected]["siblings"];
                     var arr = data[0]['siblings'];
@@ -102,13 +127,19 @@ function _ctxbuttonsrefresh(viewer) {
                         return (value.selected) ? index : memo;
                     }, -1);
                     if (index < arr.length - 1) {
-                        display = true;
+                        if (K5.gui.selected.nextPageEnabled) {
+                            display = K5.gui.selected.nextPageEnabled();
+                        } else {
+                            display = true;
+                        }
                     }
                 }
             }
 
-            // prev context
+            // prev context -- TODO: kick out
             if (jQuery.inArray('prev', a) > -1) {
+                // contains siblings and must be enabled by viewer
+
                 if (K5.api.ctx["item"][selected]["siblings"]) {
                     var data = K5.api.ctx["item"][selected]["siblings"];
                     var arr = data[0]['siblings'];
@@ -117,7 +148,11 @@ function _ctxbuttonsrefresh(viewer) {
                         return (value.selected) ? index : memo;
                     }, -1);
                     if (index > 0) {
-                        display = true;
+                        if (K5.gui.selected.prevPageEnabled) {
+                            display = K5.gui.selected.prevPageEnabled();
+                        } else {
+                            display = true;
+                        }
                     }
                 }
             }

@@ -3,15 +3,14 @@
 #app-bar-cookie-info {
   display: none;
   padding: 5px 0;
-  background-color: rgba(0, 30, 60, 1);
+  background-color: rgba(60, 0, 0, 1);
   color: white;
   text-align: center;
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   width: 100%;
   height:60px;
-
   z-index: 1001;
 }
 

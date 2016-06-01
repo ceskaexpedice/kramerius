@@ -317,6 +317,7 @@ function _optionspane(visibilityOptions) {
             }
         });
     }
+
     /*
     if (visibilityOptions && visibilityOptions.zoomout) {
         icondiv(li(ul), "options_findnext", "minus", "buttons.zoomout", K5.i18n.ctx.dictionary["buttons.zoomout"], function () {

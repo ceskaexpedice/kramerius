@@ -1000,8 +1000,6 @@ var PDFFindBar = (function PDFFindBarClosure() {
     },
 
     findEvent: function PDFFindBar_dispatchEvent(type, findPrev, settingsObject) {
-
-
       var event = document.createEvent('CustomEvent');
       event.initCustomEvent('find' + type, true, true, {
         query: settingsObject.query,

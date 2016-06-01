@@ -50,6 +50,7 @@ PDFView.prototype.open = function() {
                 href = href +"&query="+q;
         }
 
+
         var iFrame = $("<iframe/>",{'src':'pdf/web/viewer.html?file='+href,'id':'pdfIframe'});
         iFrame.css("width","99%");
         iFrame.css("height","100%");
@@ -134,6 +135,13 @@ PDFView.prototype.containsLeftStructure = function() {
                 return K5.api.ctx["item"][selected]["model"] === "article";
         }
         return false;
+}
+
+PDFView.prototype.prevPageEnabled = function () {
+        return (this.containsLeftStructure());
+}
+PDFView.prototype.nextPageEnabled = function () {
+        return (this.containsLeftStructure());
 }
 
 PDFView.prototype.zoomIn = function() {
