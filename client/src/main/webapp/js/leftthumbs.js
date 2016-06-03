@@ -365,7 +365,9 @@ LeftThumbs.prototype = {
         thumb.css('width', this.thumbWidth + "px");
         thumb.css('height', this.thumbHeight + "px");
 
-        var title = '<span class="title">' + K5.i18n.translatable('fedora.model.' + this.thumbs[index].model) + " " + this.thumbs[index].title + '</span>';
+        var modelName = this.thumbs[index].model === 'article' ? '' : K5.i18n.translatable('fedora.model.' + this.thumbs[index].model);
+        var title = '<span class="title">' + modelName + " " + this.thumbs[index].title + '</span>';
+
         var info = {short: "", full: ""};
         this.getDetails(this.thumbs[index], info);
         thumb.data("pid", pid);
