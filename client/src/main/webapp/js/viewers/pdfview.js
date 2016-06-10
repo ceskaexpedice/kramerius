@@ -32,7 +32,7 @@ PDFView.prototype.open = function() {
 
 
         var optionsDiv = _optionspane({
-                "maximize":false,
+                "maximize":true,
                 "fit":false,
                 "rotateleft":false,
                 "rotateright":false,
