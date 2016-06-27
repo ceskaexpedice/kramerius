@@ -129,7 +129,13 @@ subprojects {
          
          repositories {
 
-         	 maven {
+
+			 flatDir {
+				 dirs '../buildSrc/lib'
+			 }
+
+
+			 maven {
          	 	 url "http://kramerius.googlecode.com/svn/mvnrepo"
          	 }
 

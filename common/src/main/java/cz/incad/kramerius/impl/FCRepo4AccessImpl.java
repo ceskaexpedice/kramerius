@@ -21,6 +21,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import org.fcrepo.client.FedoraDatastream;
 import org.fcrepo.client.FedoraException;
 import org.fcrepo.client.FedoraObject;
@@ -48,12 +50,12 @@ public class FCRepo4AccessImpl extends AbstractFedoraAccess {
 
     
     private FedoraRepository repo;
-
+    private String url = null;
 
     @Inject
     public FCRepo4AccessImpl(KConfiguration configuration, StatisticsAccessLog accessLog) throws IOException {
         super(configuration, accessLog);
-        String url = KConfiguration.getInstance().getConfiguration().getString("fc4.repo","http://localhost:18080/rest/");
+        url = KConfiguration.getInstance().getConfiguration().getString("fc4.repo","http://localhost:18080/rest/");
         repo = new FedoraRepositoryImpl(url);
     }
 
@@ -121,13 +123,20 @@ public class FCRepo4AccessImpl extends AbstractFedoraAccess {
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         try {
             pid = makeSureObjectPid(pid);
-            FedoraObject object = this.repo.getObject(restPid(pid));
-            FedoraDatastream datastream = this.repo.getDatastream(object.getPath()+"/"+datastreamName);
-            InputStream iStream = datastream.getContent();
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            IOUtils.copyStreams(iStream, true,bos,true);
-
-            return new ByteArrayInputStream(bos.toByteArray());
+            String mimeType = getMimeTypeForStream(pid,datastreamName);
+            ImageMimeType imageMimeType = ImageMimeType.loadFromMimeType(mimeType);
+            System.out.println("LOADED MIMETYPE "+imageMimeType);
+            if (imageMimeType != null) {
+                InputStream is = RESTHelper.inputStream(this.url+"/"+restPid(pid)+"/"+datastreamName,null,null);
+                return is;
+            } else {
+                FedoraObject object = this.repo.getObject(restPid(pid));
+                FedoraDatastream datastream = this.repo.getDatastream(object.getPath()+"/"+datastreamName);
+                InputStream iStream = datastream.getContent();
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                IOUtils.copyStreams(iStream, true,bos,true);
+                return new ByteArrayInputStream(bos.toByteArray());
+            }
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
