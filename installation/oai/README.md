@@ -1,36 +1,52 @@
-###OAI
+#OAI
 
-OAI provider postaven jako plugin do SOLRu
+OAI provider implementovaný jako plugin pro index SOLR, nahrazuje defaultní implementaci OAI-PMH úložiště fedora (ta je nadále dostupná v adresáři oaiprovider).
+
+Implementace vychází z projektu oai4solr (https://github.com/IISH/oai4solr), kde můžete najít i další detailní dokumentaci.
 
 ----
 
 ##Instalace 
 
-Adresar oai kopirovat do adresare solr_home (napr ~/fedora/solr)
-Adresar lib, obsahujici knihovnu pluginu (oai2-plugin-3.1.jar) musi byt dostupny SOLRu. Pri defaultni instalaci kopirovat do solr_home 
+1. Adresář oai zkopírujte jako podadresář do adresáře solr_home (např. ~/fedora/solr).
 
-Soubor solrconfig.xml v adresari conf nahradi aktualni solrconfig.xml pokud mate vychozi konfigurace.
+2. Adresář lib, obsahující knihovnu pluginu (oai2-plugin-3.1.jar) zkopírujte jako podadresář do adresáře solr_home
 
-Restartovat SOLR
+3. Ze souboru solrconfig.xml v adresáři conf překopírujte do svého souboru solrconfig.xml elementy requestHandler a queryResponseWriter pro oai  (rozsah řádků 1444 - 1555, na konci souboru). Pokud jste v původním souboru solrconfig.xml neprováděli žádné změny oproti defaultní konfiguraci SOLR Krameria, můžete jej jednoduše celý nahradit tímto novým konfiguračním souborem.
 
-##Konfigurace
+4. Podle potřeby upravte konfigurační soubory podle popisu v následujícím odstavci "Detaily konfigurace".
 
-Do konfiguraci SOLRu pribude nove requestHandler a queryResponseWriter: oai (v defaultni konfiguraci uplne dole)
-solrconfig.xml
+5. Restartujte SOLR
 
+##Detaily konfigurace
 
-Toto je filter pridan do SOLR query, ktery omezuje seznam vracenych vysledku podle modelu
-```
-<str name="static_query">
-    fedora.model:monograph OR fedora.model:periodical OR fedora.model:periodicalitem OR fedora.model:periodicalvolume OR fedora.model:manuscript
-    OR fedora.model:graphic OR fedora.model:map OR fedora.model:sheetmusic OR fedora.model:article OR fedora.model:supplement
-</str>
-```
+###solrconfig.xml
 
-Parametry nutne pro komunikaci s Kramerius. Kramerius musi byt dostupny pro server, v kterem bezi SOLR.
+Parametry nutné pro komunikaci s API Krameria. Pokud je Kramerius nainstalovaný na jiném serveru, než SOLR, případně pokud používá jiný port než 8080, je třeba změnit parametr kramerius_url. Kramerius musí být dostupný ze serveru, na kterém běží SOLR.
+
 ```
 <lst name="xslt_parameters">
   <str name="kramerius_url">http://localhost:8080/search/</str>
   <str name="api_point">api/v5.0/</str>
 </lst>
 ```
+Následující element definuje filtr, který je přidán do SOLR query a omezuje seznam vrácených výsledků podle modelu.
+```
+<str name="static_query">
+    fedora.model:monograph OR fedora.model:periodical OR fedora.model:periodicalitem OR fedora.model:periodicalvolume OR fedora.model:manuscript
+    OR fedora.model:graphic OR fedora.model:map OR fedora.model:sheetmusic OR fedora.model:article OR fedora.model:supplement
+</str>
+```
+Ostatní elementy standardně není potřeba upravovat. 
+
+###oai/Identify.xml
+
+Statický dokument obsahující odezvu na OAI příkaz Identify. Upravte jej podle potřeb vaší organizace.
+
+###oai/ListMetadataFormats.xml a oai/ListSets.xml
+
+Statické dokumenty obsahující odezvu na odpovídající OAI příkazy, standardně je není potřeba upravovat.
+
+###oai/oai.xsl, oai/drkramerius4.xsl, oai/ese.xsl a oai/oai_dc.xsl
+
+XSLT šablony pro jednotlivé metadatové formáty, standardně je není potřeba upravovat.
