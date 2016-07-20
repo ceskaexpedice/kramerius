@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ OAI4Solr exposes your Solr indexes using an OAI2 protocol handler.
+  ~
+  ~     Copyright (c) 2011-2014  International Institute of Social History
+  ~
+  ~     This program is free software: you can redistribute it and/or modify
+  ~     it under the terms of the GNU General Public License as published by
+  ~     the Free Software Foundation, either version 3 of the License, or
+  ~     (at your option) any later version.
+  ~
+  ~     This program is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~     GNU General Public License for more details.
+  ~
+  ~     You should have received a copy of the GNU General Public License
+  ~     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+    <!-- You may leave out the responseDate and request elements.
+     The records in this demo will get these set values randomly assigned. -->
+    <ListSets>
+        <set>
+            <setSpec>monograph</setSpec>
+            <setName>Seznam monografií</setName>
+            <setDescription>Seznam monografií</setDescription>
+        </set>
+        <set>
+            <setSpec>periodical</setSpec>
+            <setName>Seznam periodik</setName>
+            <setDescription>Seznam periodik</setDescription>
+        </set>
+        <set>
+            <setSpec>periodicalitem</setSpec>
+            <setName>Seznam výtisků</setName>
+            <setDescription>Seznam výtisků</setDescription>
+        </set>
+        <set>
+            <setSpec>periodicalvolume</setSpec>
+            <setName>Seznam ročníků</setName>
+            <setDescription>Seznam ročníků</setDescription>
+        </set>
+        <set>
+            <setSpec>manuscript</setSpec>
+            <setName>Seznam manuskriptů</setName>
+            <setDescription>Seznam manuskriptů</setDescription>
+        </set>
+        <set>
+            <setSpec>graphic</setSpec>
+            <setName>Seznam grafik</setName>
+            <setDescription>Seznam grafik</setDescription>
+        </set>
+        <set>
+            <setSpec>map</setSpec>
+            <setName>Seznam map</setName>
+            <setDescription>Seznam map</setDescription>
+        </set>
+        <set>
+            <setSpec>sheetmusic</setSpec>
+            <setName>Seznam hudebnin</setName>
+            <setDescription>Seznam hudebnin</setDescription>
+        </set>
+        <set>
+            <setSpec>article</setSpec>
+            <setName>Seznam článků</setName>
+            <setDescription>Seznam článků</setDescription>
+        </set>
+        <set>
+            <setSpec>supplement</setSpec>
+            <setName>Seznam příloh</setName>
+            <setDescription>Seznam příloh</setDescription>
+        </set>
+    </ListSets>
+</OAI-PMH>
+
+
