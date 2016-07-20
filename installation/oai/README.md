@@ -20,13 +20,17 @@ solrconfig.xml
 
 
 Toto je filter pridan do SOLR query, ktery omezuje seznam vracenych vysledku podle modelu
+```
 <str name="static_query">
     fedora.model:monograph OR fedora.model:periodical OR fedora.model:periodicalitem OR fedora.model:periodicalvolume OR fedora.model:manuscript
     OR fedora.model:graphic OR fedora.model:map OR fedora.model:sheetmusic OR fedora.model:article OR fedora.model:supplement
 </str>
+```
 
 Parametry nutne pro komunikaci s Kramerius. Kramerius musi byt dostupny pro server, v kterem bezi SOLR.
+```
 <lst name="xslt_parameters">
   <str name="kramerius_url">http://localhost:8080/search/</str>
   <str name="api_point">api/v5.0/</str>
 </lst>
+```
