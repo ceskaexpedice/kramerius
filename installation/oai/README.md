@@ -16,7 +16,7 @@ Implementace vychází z projektu oai4solr (https://github.com/IISH/oai4solr), k
 
 4. Podle potřeby upravte konfigurační soubory podle popisu v následujícím odstavci "Detaily konfigurace".
 
-5. Restartujte SOLR
+5. Restartujte SOLR. OAI bude dostupné na url solr_server/solr/oai
 
 ##Detaily konfigurace
 
