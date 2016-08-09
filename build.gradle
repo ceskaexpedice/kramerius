@@ -78,6 +78,8 @@ repositories {
 }
 
 
+
+
 /**
  * Inject to all subprojects 
  */
@@ -85,9 +87,12 @@ subprojects {
 
          apply plugin:'java'
          apply plugin: 'eclipse'
-	 apply plugin: 'maven'
+         apply plugin: 'maven'
 
 
+         compileJava.options.encoding = 'UTF-8'
+		 
+		 		 
          ext.guiceversion ='3.0'
          ext.postgresversion = '8.4-702.jdbc4'
          ext.slf4jversion='1.6.0'
@@ -129,9 +134,9 @@ subprojects {
          
          repositories {
 		 
-		 flatDir {
-		 	dirs '../buildSrc/lib'	
-		 }
+            flatDir {
+		 	   dirs '../buildSrc/lib'	
+		    }
 
          	 maven {
          	 	 url "http://kramerius.googlecode.com/svn/mvnrepo"
@@ -193,10 +198,20 @@ subprojects {
 
          }
 
-	tasks.withType(Javadoc) {
-		options.addStringOption('Xdoclint:none', '-quiet')	
-	}	
-
+         tasks.withType(Javadoc) {
+		   options.addStringOption('Xdoclint:none', '-quiet')	
+	     }
+	     
+		//~ overwrite windows encoding		
+        test {
+           systemProperty "file.encoding", "utf-8"
+        }
+		
+        tasks.withType(JavaCompile) {
+           options.encoding = 'UTF-8'
+		}
+		// ~ overwritten windows encoding 
+		
         build.finalizedBy 'install'
 }
 
