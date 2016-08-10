@@ -9,7 +9,7 @@ DC Schema for SRU. February 13, 2004
  xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:srw_dc="info:srw/schema/1/dc-schema"
   elementFormDefault="qualified" attributeFormDefault="unqualified">
   
-<import namespace="http://purl.org/dc/elements/1.1/" schemaLocation="http://dublincore.org/schemas/xmls/simpledc20021212.xsd"/>
+<import namespace="http://purl.org/dc/elements/1.1/" schemaLocation="../catalog/simpledc20021212.xsd"/>
 	<!--
 	Allows for either (1) a single DC record (element "<srw_dc:dc>"), or (2) a collection of DC records (element "<srw_dc:dcCollection>"). 
 
