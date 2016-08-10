@@ -24,7 +24,7 @@
   </xs:annotation>
 
   <xs:import namespace="http://www.w3.org/XML/1998/namespace"
-             schemaLocation="file:///C:/Users/PavelStastny/nprojs/kramerius/import-jaxb-dc/src/main/catalog/xml.xsd">
+             schemaLocation="xml.xsd">
   </xs:import>
 
   <xs:element name="title" type="elementType"/>
