@@ -212,7 +212,10 @@ subprojects {
 		}
 		// ~ overwritten windows encoding 
 		
-        build.finalizedBy 'install'
+		// remove all dependencies without group id 
+		install.repositories.mavenInstaller.pom.whenConfigured {pom ->
+			pom.dependencies.removeAll { it.groupId == null || it.groupId.equals("") }
+		}
 }
 
 
@@ -228,12 +231,12 @@ task zipAllJavadocs(type: Zip) {
                 } 
 
         }
-                
 }
 
 [distZip, distTar, installDist,patchDistZip,patchDistTar].each() { 
   it.dependsOn('clean',':search:build',':client:build')
 };
+
 
 
 

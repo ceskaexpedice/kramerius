@@ -20,17 +20,15 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
 public abstract class AbstractGuiceTestCase {
 
-	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-			.getLogger(AbstractGuiceTestCase.class.getName());
-	
-	
+    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+            .getLogger(AbstractGuiceTestCase.class.getName());
 
-	public Connection connection() {
-		Injector inj = injector();
-		Provider<Connection> kramerius4Provider = inj.getProvider(Key.get(Connection.class, Names.named("kramerius4")));
-		Connection connection = kramerius4Provider.get();
-		return connection;
-	}
+    public Connection connection() {
+        Injector inj = injector();
+        Provider<Connection> kramerius4Provider = inj.getProvider(Key.get(Connection.class, Names.named("kramerius4")));
+        Connection connection = kramerius4Provider.get();
+        return connection;
+    }
 
-	protected abstract Injector injector();
+    protected abstract Injector injector();
 }
