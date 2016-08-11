@@ -89,7 +89,6 @@ subprojects {
          apply plugin: 'eclipse'
          apply plugin: 'maven'
 
-
          compileJava.options.encoding = 'UTF-8'
 		 
 		 		 

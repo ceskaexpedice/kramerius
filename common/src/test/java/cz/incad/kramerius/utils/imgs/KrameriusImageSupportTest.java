@@ -2,7 +2,13 @@ package cz.incad.kramerius.utils.imgs;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URL;
+
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -37,4 +43,6 @@ public class KrameriusImageSupportTest extends TestCase {
         Assert.assertNotNull(readImage);
         return readImage;
     }
+    
+ 
 }

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -18,8 +17,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.pdfbox.exceptions.COSVisitorException;
-import org.apache.pdfbox.util.PDFMergerUtility;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,7 +25,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
 
 import cz.incad.kramerius.AbstractObjectPath;
@@ -136,7 +133,7 @@ public class AbstractPDFResource {
     }
 
     
-    public File selection(String[] pids, Rectangle rect,FirstPage fp) throws DocumentException, IOException, ProcessSubtreeException, OutOfRangeException, COSVisitorException {
+    public File selection(String[] pids, Rectangle rect,FirstPage fp) throws DocumentException, IOException, ProcessSubtreeException, OutOfRangeException {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
 
         PreparedDocument rdoc = documentService.buildDocumentFromSelection(pids, new int[] {(int)rect.getWidth(), (int)rect.getHeight()});
@@ -172,7 +169,7 @@ public class AbstractPDFResource {
     }
 
     public File parent(String pid, int n, Rectangle rect, FirstPage fp) throws DocumentException,
-            IOException, COSVisitorException, NumberFormatException,
+            IOException, NumberFormatException,
             ProcessSubtreeException {
 
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
@@ -252,7 +249,7 @@ public class AbstractPDFResource {
     }
 
     static void mergeToOutput(OutputStream fos, File bodyFile,
-            File firstPageFile) throws IOException, COSVisitorException {
+            File firstPageFile) throws IOException {
         PDFMergerUtility utility = new PDFMergerUtility();
         utility.addSource(firstPageFile);
         utility.addSource(bodyFile);

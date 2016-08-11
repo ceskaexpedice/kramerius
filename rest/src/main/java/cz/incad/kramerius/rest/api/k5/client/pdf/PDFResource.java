@@ -41,7 +41,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,7 +51,6 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfWriter;
 
-import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
@@ -60,7 +58,6 @@ import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -306,9 +303,6 @@ public class PDFResource extends AbstractPDFResource  {
                 } catch (ProcessSubtreeException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
-                } catch (COSVisitorException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new GenericApplicationException(e.getMessage());
                 } catch (DocumentException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
@@ -383,9 +377,6 @@ public class PDFResource extends AbstractPDFResource  {
                                             + sdate.format(new Date()) + ".pdf")
                             .entity(stream).type("application/pdf").build();
                 } catch (NumberFormatException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new GenericApplicationException(e.getMessage());
-                } catch (COSVisitorException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
                 } catch (FileNotFoundException e) {

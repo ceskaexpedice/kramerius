@@ -22,8 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.pdfbox.exceptions.COSVisitorException;
-import org.apache.pdfbox.util.PDFMergerUtility;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -272,15 +271,6 @@ public class GeneratePDFServlet extends GuiceServlet {
                     } catch (IOException e1) {
                         LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     }
-                } catch (COSVisitorException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    try {
-                        renderGenericError(request, response);
-                    } catch (ServletException e1) {
-                        LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                    } catch (IOException e1) {
-                        LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                    }
                 } catch (DocumentException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     try {
@@ -406,15 +396,6 @@ public class GeneratePDFServlet extends GuiceServlet {
                     } catch (IOException e1) {
                         LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     }
-                } catch (COSVisitorException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    try {
-                        renderGenericError(request, response);
-                    } catch (ServletException e1) {
-                        LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                    } catch (IOException e1) {
-                        LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                    }
                 } catch (DocumentException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     try {
@@ -516,7 +497,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                 String imgServletUrl, String i18nUrl);
 
         public void mergeToOutput(OutputStream fos, File bodyFile,
-                File firstPageFile) throws IOException, COSVisitorException {
+                File firstPageFile) throws IOException {
             PDFMergerUtility utility = new PDFMergerUtility();
             utility.addSource(firstPageFile);
             utility.addSource(bodyFile);
@@ -526,7 +507,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 
         public void outputJSON(HttpServletResponse response, File generatedPDF,
                 FileOutputStream generatedPDFFos, File tmpFile, File fpage)
-                throws IOException, COSVisitorException {
+                throws IOException {
             response.setContentType("text/plain");
             String uuid = UUID.randomUUID().toString();
             pushFile(uuid, generatedPDF);
