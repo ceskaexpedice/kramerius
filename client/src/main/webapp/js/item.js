@@ -241,11 +241,11 @@ ItemSupport.prototype = {
     },
     
     maximize:function(){
+
         if(K5.gui["maximized"]){
             this.restore();
         }else{
-            //$("#header").hide();
-            $("#metadata").hide();
+        	$("#metadata").hide();
             $(".thumbs").hide();
             $("#viewer>div.breadcrumbs").hide();
             $("#viewer>div.container").css("width", "100%");
