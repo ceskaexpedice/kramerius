@@ -543,27 +543,30 @@
               $(jq("res_"+root_pid)+" div.uncollapsed").scrollTop(0);
           });
     }
-    function daYearClicked(params){
-        var rok = params.year;
-        $("#" + fromField).val("01.01."+rok);
-        $("#" + toField).val("31.12."+rok);
-        if(!isValidDate($("#" + fromField).val()) || !isValidDate($("#" + toField).val())){
-            alert(dictionary['filter.invalid.date'] );
-            return;
-        }
-
-        var page = new PageQuery(window.location.search);
-        page.setValue("offset", "0");
-        page.setValue("forProfile", "dateaxis");
-        //page.setValue(fromField, decodeDate($("#" + fromField).val()));
-        //page.setValue(toField, decodeDate($("#" + toField).val()));
-
-        page.setValue("da_od", decodeDate($("#" + fromField).val()));
-        page.setValue("da_do", decodeDate($("#" + toField).val()));
-        var newurl = "r.jsp?" + page.toString() + dateAxisAdditionalParams;
-
-        document.location.href = newurl;
-
+    
+ /** Commented by PS; because of bad merge
+  *  number of commit is  0938a4b0caaa252671ce15b407d0cd7687d18f5f
+  *  function daYearClicked(params){
+  *      var rok = params.year;
+  *      $("#" + fromField).val("01.01."+rok);
+  *      $("#" + toField).val("31.12."+rok);
+  *      if(!isValidDate($("#" + fromField).val()) || !isValidDate($("#" + toField).val())){
+  *          alert(dictionary['filter.invalid.date'] );
+  *          return;
+  *      }
+  *
+  *      var page = new PageQuery(window.location.search);
+  *      page.setValue("offset", "0");
+  *      page.setValue("forProfile", "dateaxis");
+  *      //page.setValue(fromField, decodeDate($("#" + fromField).val()));
+  *      //page.setValue(toField, decodeDate($("#" + toField).val()));
+  *
+  *      page.setValue("da_od", decodeDate($("#" + fromField).val()));
+  *      page.setValue("da_do", decodeDate($("#" + toField).val()));
+  *      var newurl = "r.jsp?" + page.toString() + dateAxisAdditionalParams;
+  *
+  *      document.location.href = newurl;
+  */
     
     function fixRootTitle(){
         $(".search_result").each(function(){
