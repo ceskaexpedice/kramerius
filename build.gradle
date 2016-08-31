@@ -16,14 +16,13 @@
  */
 
 plugins {
-        id 'com.gradle.build-receipt' version '1.0'
+    id 'com.gradle.build-scan' version '1.0'
 }
 
-buildReceiptLicense {
-    agreementUrl = 'https://gradle.com/terms-of-service'
-    agree = 'yes'
+buildScan {
+    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
+    licenseAgree = 'yes'
 }
-
 println "Building K4; please read BUILD-README.txt"
 
 apply plugin: 'distribution' // -> generate distributions
