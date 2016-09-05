@@ -38,6 +38,12 @@ configurations {
 	}
 }
 
+
+configurations.all {
+    exclude module: 'slf4j-log4j12'
+}
+
+
 dependencies {
         // editor dependency
         editors group: "cz.incad.kramerius", name: "editor", version: "5.1.0", ext: "war"
