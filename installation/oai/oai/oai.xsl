@@ -21,8 +21,9 @@
 
     <xsl:output omit-xml-declaration="yes"/>
     
-    <xsl:param name="kramerius_url" />
-    <xsl:param name="api_point" />
+    <!-- Setup Kramerius location variables -->
+    <xsl:variable name="kramerius_url">http://localhost:8080/search/</xsl:variable>
+    <xsl:variable name="api_point">api/v5.0/</xsl:variable>
 
     <!-- Initialize the Solr document variables -->
     <xsl:variable name="doc" select="//doc"/>
