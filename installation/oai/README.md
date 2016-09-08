@@ -12,7 +12,7 @@ Implementace vychází z projektu oai4solr (https://github.com/IISH/oai4solr), k
 
 2. Adresář lib, obsahující knihovnu pluginu (oai2-plugin-3.1.jar) zkopírujte jako podadresář do adresáře solr_home
 
-3. Ze souboru solrconfig.xml v adresáři conf překopírujte do svého souboru solrconfig.xml elementy requestHandler a queryResponseWriter pro oai  (rozsah řádků 1444 - 1555, na konci souboru). Pokud jste v původním souboru solrconfig.xml neprováděli žádné změny oproti defaultní konfiguraci SOLR Krameria, můžete jej jednoduše celý nahradit tímto novým konfiguračním souborem.
+3. Ze souboru solrconfig.xml v adresáři conf překopírujte do svého souboru solrconfig.xml elementy requestHandler a queryResponseWriter pro oai  (rozsah řádků 1444 - 1549, na konci souboru). Pokud jste v původním souboru solrconfig.xml neprováděli žádné změny oproti defaultní konfiguraci SOLR Krameria, můžete jej jednoduše celý nahradit tímto novým konfiguračním souborem.
 
 4. Podle potřeby upravte konfigurační soubory podle popisu v následujícím odstavci "Detaily konfigurace".
 
@@ -22,14 +22,6 @@ Implementace vychází z projektu oai4solr (https://github.com/IISH/oai4solr), k
 
 ###solrconfig.xml
 
-Parametry nutné pro komunikaci s API Krameria. Pokud je Kramerius nainstalovaný na jiném serveru, než SOLR, případně pokud používá jiný port než 8080, je třeba změnit parametr kramerius_url. Kramerius musí být dostupný ze serveru, na kterém běží SOLR.
-
-```
-<lst name="xslt_parameters">
-  <str name="kramerius_url">http://localhost:8080/search/</str>
-  <str name="api_point">api/v5.0/</str>
-</lst>
-```
 Následující element definuje filtr, který je přidán do SOLR query a omezuje seznam vrácených výsledků podle modelu.
 ```
 <str name="static_query">
@@ -47,6 +39,14 @@ Statický dokument obsahující odezvu na OAI příkaz Identify. Upravte jej pod
 
 Statické dokumenty obsahující odezvu na odpovídající OAI příkazy, standardně je není potřeba upravovat.
 
-###oai/oai.xsl, oai/drkramerius4.xsl, oai/ese.xsl a oai/oai_dc.xsl
+###oai/oai.xsl
 
+Sdílená část XSLT šablon. Obsahuje parametry nutné pro komunikaci s API Krameria. Pokud je Kramerius nainstalovaný na jiném serveru, než SOLR, případně pokud používá jiný port než 8080, je třeba změnit parametr kramerius_url. Kramerius musí být dostupný ze serveru, na kterém běží SOLR.
+
+```
+  <!-- Setup Kramerius location variables -->
+  <xsl:variable name="kramerius_url">http://localhost:8080/search/</xsl:variable>
+  <xsl:variable name="api_point">api/v5.0/</xsl:variable>
+```
+###oai/drkramerius4.xsl, oai/ese.xsl a oai/oai_dc.xsl
 XSLT šablony pro jednotlivé metadatové formáty, standardně je není potřeba upravovat.
