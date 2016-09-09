@@ -23,11 +23,9 @@ buildScan {
     licenseAgreementUrl = 'https://gradle.com/terms-of-service'
     licenseAgree = 'yes'
 }
-println "Building K4; please read BUILD-README.txt"
+println "Building K4-K5; please read BUILD-README.txt"
 
-apply plugin: 'distribution' // -> generate distributions
 apply plugin: 'java' // -> generate javadoc
-//apply plugin: 'java-library-distribution'
 
 configurations {
         /**
@@ -51,35 +49,6 @@ dependencies {
         editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.0", ext: "war"
 }
 
-
-
-
-distributions {
-        // main distribution        
-        main {
-                contents {
-                        from {'client/build/libs'}
-                        from {'search/build/libs'}
-                        from {'security-core/build/libs'}
-                        from configurations.editors
-                        from {'build/installation.zip'}
-                        from 'build/distributions/kramerius-javadoc.zip'
-			eachFile {
-				it.path = it.path.replace('-5.1.0.war', '.war')
-			}
-                }
-        }
-
-
-        // patch distribution        
-        patch {
-                contents {
-                        from {'client/build/libs'}
-                        from {'search/build/libs'}
-                        from {'security-core/build/libs'}
-                }
-        }
-}
 
 
 repositories {
@@ -110,7 +79,7 @@ subprojects {
 
          
          group='cz.incad.kramerius'
-         version='5.3.3'
+         version='5.3.4'
          
          sourceCompatibility = 1.6
          targetCompatibility= 1.6
@@ -226,6 +195,36 @@ subprojects {
 	}
 }
 
+/**
+ * Distribution task; zipInstallDir first
+ */
+task distZip(type:Zip, dependsOn: 'zipInstallDir') {
+        description "Create full distribution zip"
+	baseName "kramerius"
+	group "Distribution"
+        from {'client/build/libs'}
+        from {'search/build/libs'}
+        from {'security-core/build/libs'}
+        from configurations.editors
+        from {'build/installation.zip'}
+        from 'build/distributions/kramerius-javadoc.zip'
+	eachFile {
+		it.path = it.path.replace('-5.1.0.war', '.war')
+	}
+}
+/**
+ * Patch distribution task
+ */
+task distPatchZip(type:Zip) {
+        description "Create patch distribution zip"
+	baseName "kramerius-patch"
+	group "Distribution"
+        from {'client/build/libs'}
+        from {'search/build/libs'}
+        from {'security-core/build/libs'}
+}
+
+
 // zip installaton directory
 task zipInstallDir(type:Zip) {
         description "Create zip from installation directory"
@@ -233,7 +232,6 @@ task zipInstallDir(type:Zip) {
 	from "installation"
 	destinationDir file('build')
 }
-
 
 
 // disabled distributions
@@ -249,16 +247,5 @@ task zipAllJavadocs(type: Zip) {
 
         }
 }
-
-
-[distTar, installDist,patchDistTar,installPatchDist].each() {
-   it.enabled=false
-   //tasks.remove(it)
-}
-[distZip, patchDistZip].each() { 
-  it.dependsOn('clean',':search:build',':client:build','zipInstallDir')
-};
-
-
 
 
