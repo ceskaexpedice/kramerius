@@ -27,7 +27,7 @@ println "Building K4; please read BUILD-README.txt"
 
 apply plugin: 'distribution' // -> generate distributions
 apply plugin: 'java' // -> generate javadoc
-
+//apply plugin: 'java-library-distribution'
 
 configurations {
         /**
@@ -62,7 +62,11 @@ distributions {
                         from {'search/build/libs'}
                         from {'security-core/build/libs'}
                         from configurations.editors
+                        from {'build/installation.zip'}
                         from 'build/distributions/kramerius-javadoc.zip'
+			eachFile {
+				it.path = it.path.replace('-5.1.0.war', '.war')
+			}
                 }
         }
 
@@ -204,23 +208,32 @@ subprojects {
 
          tasks.withType(Javadoc) {
 		   options.addStringOption('Xdoclint:none', '-quiet')	
-	     }
+        }
 	     
-		//~ overwrite windows encoding		
+	//~ overwrite windows encoding		
         test {
            systemProperty "file.encoding", "utf-8"
         }
 		
         tasks.withType(JavaCompile) {
            options.encoding = 'UTF-8'
-		}
-		// ~ overwritten windows encoding 
+        }
+	// ~ overwritten windows encoding 
 		
-		// remove all dependencies without group id 
-		install.repositories.mavenInstaller.pom.whenConfigured {pom ->
-			pom.dependencies.removeAll { it.groupId == null || it.groupId.equals("") }
-		}
+	// remove all dependencies without group id 
+	install.repositories.mavenInstaller.pom.whenConfigured {pom ->
+		pom.dependencies.removeAll { it.groupId == null || it.groupId.equals("") }
+	}
 }
+
+// zip installaton directory
+task zipInstallDir(type:Zip) {
+        description "Create zip from installation directory"
+	baseName "installation"
+	from "installation"
+	destinationDir file('build')
+}
+
 
 
 // disabled distributions
@@ -237,8 +250,13 @@ task zipAllJavadocs(type: Zip) {
         }
 }
 
-[distZip, distTar, installDist,patchDistZip,patchDistTar].each() { 
-  it.dependsOn('clean',':search:build',':client:build')
+
+[distTar, installDist,patchDistTar,installPatchDist].each() {
+   it.enabled=false
+   //tasks.remove(it)
+}
+[distZip, patchDistZip].each() { 
+  it.dependsOn('clean',':search:build',':client:build','zipInstallDir')
 };
 
 
