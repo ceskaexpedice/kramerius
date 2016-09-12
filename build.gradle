@@ -55,7 +55,10 @@ repositories {
 	mavenLocal()
 }
 
-
+allprojects {
+         group='cz.incad.kramerius'
+         version='5.3.4'
+}
 
 
 /**
@@ -78,8 +81,8 @@ subprojects {
          ext.generatedSources = "generated-sources"
 
          
-         group='cz.incad.kramerius'
-         version='5.3.4'
+         //group='cz.incad.kramerius'
+         //version='5.3.4'
          
          sourceCompatibility = 1.6
          targetCompatibility= 1.6
@@ -206,7 +209,7 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
         from {'search/build/libs'}
         from {'security-core/build/libs'}
         from configurations.editors
-        from {'build/installation.zip'}
+        from {'build/installation'}
         from 'build/distributions/kramerius-javadoc.zip'
 	eachFile {
 		it.path = it.path.replace('-5.1.0.war', '.war')
@@ -230,7 +233,7 @@ task zipInstallDir(type:Zip) {
         description "Create zip from installation directory"
 	baseName "installation"
 	from "installation"
-	destinationDir file('build')
+	destinationDir file('build/installation')
 }
 
 
