@@ -51,9 +51,9 @@ V předchozích letech byl vývoj systému Kramerius průběžně financován z 
 ##Instalace
 Instalační balík je k dispozici v sekci Releases na adrese https://github.com/ceskaexpedice/kramerius/releases/latest . 
 
-Kompletní dokumentace k aktuální verzi je v sekci Wiki.
+Kompletní dokumentace k aktuální verzi je v sekci [Wiki](https://github.com/ceskaexpedice/kramerius/wiki).
 
-Instalační postup a konfigurace systému jsou popsány na Wiki.
+[Instalační postup a konfigurace systému](https://github.com/ceskaexpedice/kramerius/wiki/Instalace) jsou popsány na Wiki.
 
 Službu instalace lze také objednat na http://www.unidata.cz/system-kramerius
 
