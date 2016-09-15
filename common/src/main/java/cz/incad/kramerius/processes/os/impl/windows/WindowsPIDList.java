@@ -29,7 +29,6 @@ public class WindowsPIDList extends PIDList {
 
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		IOUtils.copyStreams(inputStream, bos);
-
 		int exitValue = psProcess.waitFor();
 		if (exitValue != 0) {
 			LOGGER.warning("ps exiting with value '" + exitValue + "'");
