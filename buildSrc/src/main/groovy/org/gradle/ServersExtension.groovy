@@ -8,6 +8,7 @@ import org.gradle.api.plugins.cargo.tasks.remote.CargoUndeployRemote;
 
 public class ServersExtension {
 		    
+	/*		
 	private List<Server> servers = new ArrayList<Server>();
         private Project project;
 
@@ -86,9 +87,10 @@ public class ServersExtension {
         public List<Server> getServers() {
                 return this.servers;
         }
+		*/
 }
 
-
+/*
 class Server {
 
         private String ident;        
@@ -151,3 +153,4 @@ class Server {
                 this.password = pswd;
         }
 }
+*/

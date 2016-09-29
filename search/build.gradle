@@ -1,13 +1,12 @@
 apply plugin: 'war'
-apply plugin: 'kdeploy'
 
 description "Admin web application"
 
-
+/*
 deployment {
         http('adminLocal','localhost','localPort','usernameKey','pswdKey','tomcat6x') 
         http('adminVmkram','vmkramerius','vmkramPort','usernameKey','pswdKey') 
-}
+}*/
 
 sourceSets {
     main {
