@@ -10,6 +10,8 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
 
 public class JackRabbitSessionFactory extends BasePooledObjectFactory<Session>{
 
+    private static final String ADMIN_USER = "admin";
+    private static final String ADMIN_PSWD = "admin";
     private Repository repo;
 
 	public JackRabbitSessionFactory(Repository repo) {
@@ -19,7 +21,7 @@ public class JackRabbitSessionFactory extends BasePooledObjectFactory<Session>{
 
 	@Override
 	public Session create() throws Exception {
-    	return this.repo.login(new SimpleCredentials("admin", "admin".toCharArray()));
+    	return this.repo.login(new SimpleCredentials(ADMIN_USER, ADMIN_PSWD.toCharArray()));
 	}
 
 	@Override
