@@ -350,7 +350,7 @@ public class FCRepo4AccessImpl extends AbstractFedoraAccess {
     @Override
     public void observeStreamHeaders(String pid, String datastreamName, StreamHeadersObserver streamObserver)
             throws IOException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("unsupported operation");
         
     }
     

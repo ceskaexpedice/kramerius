@@ -58,6 +58,8 @@ dependencies {
 	exclude group:"com.hp.hpl.jena", module:"jena"
     }
 
+	compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.4.2'
+
     /*
     compile "org.slf4j:slf4j-api:${ext.slf4jversion}"
     compile "org.slf4j:log4j-over-slf4j:${ext.slf4jversion}"
@@ -89,6 +91,9 @@ dependencies {
     compile 'org.fcrepo:fcrepo-client:4.4.1-SNAPSHOT'
     compile 'org.fcrepo:fcrepo-client-impl:4.4.1-SNAPSHOT'
 
+	compile 'javax.jcr:jcr:2.0'
+    compile 'org.apache.jackrabbit:jackrabbit-core:2.12.1'
+    compile 'org.apache.jackrabbit:jackrabbit-jcr2dav:2.12.1'
 
     // for audio support 
     compile 'net.sf.ehcache:ehcache:2.6.0'
