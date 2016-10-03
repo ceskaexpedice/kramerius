@@ -56,6 +56,7 @@ public class ModelStatisticsViewObject extends AbstractStatisticsViewObject {
     public String getSelectedModel() throws IOException {
         HttpServletRequest request = this.servletRequestProvider.get();
         String type = request.getParameter("val");
+        
         ResourceBundle resBundle = resService.getResourceBundle("labels", this.localesProvider.get());
         String str = resBundle.getString("fedora.model."+type);
         return str;

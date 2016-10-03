@@ -66,8 +66,8 @@ public class FormatterModule extends AbstractModule {
         reportFormatter.addBinding().to(AuthorCSVFormatter.class);
         reportFormatter.addBinding().to(AuthorXMLFormatter.class);
 
-        reportFormatter.addBinding().to(DateCSVFormatter.class);
-        reportFormatter.addBinding().to(DateXMLFormatter.class);
+//        reportFormatter.addBinding().to(DateCSVFormatter.class);
+//        reportFormatter.addBinding().to(DateXMLFormatter.class);
         
         reportFormatter.addBinding().to(PidsCSVFormatter.class);
         reportFormatter.addBinding().to(PidsXMLFormatter.class);

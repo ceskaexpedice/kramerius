@@ -31,6 +31,7 @@ select
     sa.remote_ip_address as sremote_ip_address,
     sa.requested_url as srequested_url,
     sa.stat_action as sstat_action,
+    sa.session_id as ssession_id,
     detail.pid as dpid,
     detail.model as dmodel,
     detail.issued_date as dissued_date,
@@ -46,31 +47,45 @@ select
 
 
 /** vybrany model */
-selectModelReport(action, model, paging) ::=<<
+selectModelReport(action, model, paging, fromDefined, toDefined) ::=<<
     $if(action)$ 
 
-    select count(*) as count, pid, rights, title, model from statistic_access_log_detail
-        where model='$model$' and record_id in (
+    select count(*) as count, detail.pid, detail.rights, detail.title, detail.model from statistic_access_log_detail detail
+      join  statistics_access_log st using(record_id)
+        where model='$model$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  and record_id in (
             select max(record_id) as record_id from statistics_access_log where stat_action='$action$' group by session_id,pid
         )
-        group by pid, rights, title, model order by count DESC
+        group by detail.pid, detail.rights, detail.title, detail.model order by count DESC
     $if(paging)$ $paging()$ $endif$
 
     $else$   
 
-    select count(*) as count, pid, rights, title, model from statistic_access_log_detail
-        where model='$model$' and record_id in (
+    select count(*) as count, detail.pid, detail.rights, detail.title, detail.model from statistic_access_log_detail detail
+      join  statistics_access_log st using(record_id)
+        where model='$model$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ and record_id in (
             select max(record_id) as record_id from statistics_access_log group by session_id,pid
         )
-        group by pid, rights, title, model order by count DESC
+        group by detail.pid, detail.rights, detail.title, detail.model order by count DESC
     $if(paging)$ $paging()$ $endif$
     
     $endif$   
-    
->> 
+>>
 
 selectModels() ::=<<
     select distinct model from statistic_access_log_detail
+>>
+
+/** date filter **/
+dateFilter(fromDefined, toDefined) ::=<<
+$if(fromDefined)$
+   $if(toDefined)$
+and "date" > ? and "date" < ? 
+   $else$
+and "date">? 
+   $endif$
+$elseif(toDefined)$
+and "date" < ? 
+$endif$
 >>
 
 /** datum - datum */
@@ -96,19 +111,24 @@ selectDateDurationReport(action,from, to, paging) ::=<<
 
 
 
-
 /** author */ 
-selectAuthorReport(action, paging) ::=<<
+selectAuthorReport(action, paging,fromDefined, toDefined) ::=<<
     $if(action)$ 
 
 select count(*) as count, auth.author_name from statistic_access_log_detail_authors auth
-join statistics_access_log sta on(auth.record_id = sta.record_id)
-where sta.stat_action='$action$'
+join statistics_access_log sta using(record_id)
+where sta.stat_action='$action$'  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$
+and record_id in (
+            select max(record_id) as record_id from statistics_access_log group by session_id,pid
+        )
 group by author_name order by count DESC $if(paging)$ $paging()$ $endif$
-
     $else$   
-
 select count(*) as count, author_name from statistic_access_log_detail_authors
+join statistics_access_log sta using(record_id)
+where 1=1  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$
+and record_id in (
+            select max(record_id) as record_id from statistics_access_log group by session_id,pid
+        )
 group by author_name order by count DESC $if(paging)$ $paging()$ $endif$
         
     $endif$   
@@ -119,19 +139,26 @@ paging() ::=<<offset ? limit ?>>
 
 
 /** language */
-selectLangReport(action) ::=<<
+selectLangReport(action,fromDefined, toDefined) ::=<<
     $if(action)$ 
     
     select count(*) as count, lang from statistic_access_log_detail detail
-        join statistics_access_log salog on (salog.record_id=detail.record_id)
-    where detail.lang is not null and  salog.stat_action='$action$'
+        join statistics_access_log salog using(record_id)
+    where detail.lang is not null and  salog.stat_action='$action$'  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$
+and record_id in (
+            select max(record_id) as record_id from statistics_access_log group by session_id,pid
+        )
         group by lang order by count DESC
 
     $else$   
 
 
     select count(*) as count, lang from statistic_access_log_detail 
-where lang is not null
+    join statistics_access_log sta using(record_id)
+where lang is not null  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$
+and record_id in (
+            select max(record_id) as record_id from statistics_access_log group by session_id,pid
+        )
     group by lang order by count DESC
     
     $endif$   

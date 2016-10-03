@@ -37,6 +37,7 @@ import cz.incad.Kramerius.imaging.utils.FileNameUtils;
 import cz.incad.Kramerius.statistics.formatters.main.StatisticsExportMainLogFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.StatisticsReportFormatter;
 import cz.incad.Kramerius.statistics.formatters.utils.StringUtils;
+import cz.incad.kramerius.statistics.DateFilter;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
@@ -65,9 +66,16 @@ public class StatisticsExportServlet extends GuiceServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
         String format = req.getParameter("format");
+        String dateFrom = req.getParameter("dateFrom");
+        String dateTo = req.getParameter("dateTo");
+        
         String reportId = req.getParameter("report");
         String filteredValue = req.getParameter("filteredValue");
-
+        
+        DateFilter dateFilter = new DateFilter();
+        dateFilter.setFromDate(dateFrom != null && (!dateFrom.trim().equals("")) ? dateFrom : null);
+        dateFilter.setToDate(dateTo != null && (!dateTo.trim().equals("")) ? dateTo : null);
+        
         if (reportId != null && (!reportId.equals(""))) {
             // report
             StatisticReport report = this.statisticAccessLog.getReportById(reportId);
@@ -83,7 +91,7 @@ public class StatisticsExportServlet extends GuiceServlet {
                     selectedFormatter.beforeProcess(resp);
                     resp.setContentType(selectedFormatter.getMimeType());
                     resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
-                    report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter, filteredValue);
+                    report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null,dateFilter, selectedFormatter, filteredValue);
                     selectedFormatter.afterProcess(resp);
                 }
             } catch (StatisticsReportException e) {

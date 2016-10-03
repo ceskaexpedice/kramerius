@@ -56,7 +56,7 @@ public class BaseModule extends AbstractModule {
         
         Multibinder<StatisticReport> reports = Multibinder.newSetBinder(binder(), StatisticReport.class);
         reports.addBinding().to(ModelStatisticReport.class);
-        reports.addBinding().to(DateDurationReport.class);
+        //reports.addBinding().to(DateDurationReport.class);
         reports.addBinding().to(AuthorReport.class);
         reports.addBinding().to(LangReport.class);
         reports.addBinding().to(PidsReport.class);

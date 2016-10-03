@@ -36,65 +36,67 @@ import cz.incad.kramerius.statistics.impl.DateDurationReport;
  * @author pavels
  *
  */
-public class DateXMLFormatter implements StatisticsReportFormatter{
-
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AuthorXMLFormatter.class.getName());
-    
-    private OutputStream os;
-
-    @Override
-    public String getMimeType() {
-        return XML_MIME_TYPE;
-    }
-
-    @Override
-    public String getFormat() {
-        return XML_FORMAT;
-    }
-
-    @Override
-    public void beforeProcess(HttpServletResponse response) throws IOException {
-        this.os = response.getOutputStream();
-        this.os.write("<records>\n".getBytes("UTF-8"));
-    }
-
-
-    @Override
-    public void afterProcess(HttpServletResponse response) throws IOException {
-        this.os.write("\n</records>".getBytes("UTF-8"));
-        this.os = null;
-    }
-
-
-    
-    
-    @Override
-    public void processReportRecord(Map<String, Object> record) {
-        try {
-
-            StringBuilder builder = new StringBuilder("<record>\n");
-            builder.append("\t<count>").append(record.get("count")).append("</count>\n");
-            builder.append("\t<pid>").append(StringUtils.nullify((String)record.get("pid"))).append("</pid>\n");
-            builder.append("\t<date>").append(StringUtils.nullify((String)record.get("date"))).append("</date>\n");
-            builder.append("\t<remote_ip_address>").append(StringUtils.nullify((String)record.get("remote_ip_address"))).append("</remote_ip_address>\n");
-            builder.append("\t<user>").append(StringUtils.nullify((String)record.get("user"))).append("</user>\n");
-            builder.append("\t<issued_date>").append(StringUtils.nullify((String)record.get("issued_date"))).append("</issued_date>\n");
-            builder.append("\t<rights>").append(StringUtils.nullify((String)record.get("rights"))).append("</rights>\n");
-            builder.append("\t<lang>").append(StringUtils.nullify((String)record.get("lang"))).append("</lang>\n");
-            builder.append("\t<title>").append(StringUtils.nullify((String)record.get("title"))).append("</title>\n");
-            builder.append("</record>\n");
-
-            this.os.write(builder.toString().getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-        }
-       
-    }
-
-    @Override
-    public String getReportId() {
-        return DateDurationReport.REPORT_ID;
-    }
+public class DateXMLFormatter {
+//    implements StatisticsReportFormatter{
+//}
+//
+//    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AuthorXMLFormatter.class.getName());
+//    
+//    private OutputStream os;
+//
+//    @Override
+//    public String getMimeType() {
+//        return XML_MIME_TYPE;
+//    }
+//
+//    @Override
+//    public String getFormat() {
+//        return XML_FORMAT;
+//    }
+//
+//    @Override
+//    public void beforeProcess(HttpServletResponse response) throws IOException {
+//        this.os = response.getOutputStream();
+//        this.os.write("<records>\n".getBytes("UTF-8"));
+//    }
+//
+//
+//    @Override
+//    public void afterProcess(HttpServletResponse response) throws IOException {
+//        this.os.write("\n</records>".getBytes("UTF-8"));
+//        this.os = null;
+//    }
+//
+//
+//    
+//    
+//    @Override
+//    public void processReportRecord(Map<String, Object> record) {
+//        try {
+//
+//            StringBuilder builder = new StringBuilder("<record>\n");
+//            builder.append("\t<count>").append(record.get("count")).append("</count>\n");
+//            builder.append("\t<pid>").append(StringUtils.nullify((String)record.get("pid"))).append("</pid>\n");
+//            builder.append("\t<date>").append(StringUtils.nullify((String)record.get("date"))).append("</date>\n");
+//            builder.append("\t<remote_ip_address>").append(StringUtils.nullify((String)record.get("remote_ip_address"))).append("</remote_ip_address>\n");
+//            builder.append("\t<user>").append(StringUtils.nullify((String)record.get("user"))).append("</user>\n");
+//            builder.append("\t<issued_date>").append(StringUtils.nullify((String)record.get("issued_date"))).append("</issued_date>\n");
+//            builder.append("\t<rights>").append(StringUtils.nullify((String)record.get("rights"))).append("</rights>\n");
+//            builder.append("\t<lang>").append(StringUtils.nullify((String)record.get("lang"))).append("</lang>\n");
+//            builder.append("\t<title>").append(StringUtils.nullify((String)record.get("title"))).append("</title>\n");
+//            builder.append("</record>\n");
+//
+//            this.os.write(builder.toString().getBytes("UTF-8"));
+//        } catch (UnsupportedEncodingException e) {
+//            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+//        } catch (IOException e) {
+//            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+//        }
+//       
+//    }
+//
+//    @Override
+//    public String getReportId() {
+//        return DateDurationReport.REPORT_ID;
+//    }
 }

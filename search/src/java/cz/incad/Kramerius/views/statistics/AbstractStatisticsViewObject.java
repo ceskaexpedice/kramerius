@@ -19,20 +19,25 @@
  */
 package cz.incad.Kramerius.views.statistics;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.utils.JSONUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.statistics.DateFilter;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
@@ -46,6 +51,7 @@ import cz.incad.kramerius.utils.database.Offset;
  */
 public abstract class AbstractStatisticsViewObject {
 
+    public static final Logger LOGGER = Logger.getLogger(AbstractStatisticsViewObject.class.getName());
     static final int MAX_TITLE_LIMIT = 18;
 
     @Inject
@@ -77,19 +83,37 @@ public abstract class AbstractStatisticsViewObject {
         return max;
     }
 
-    public synchronized List<Map<String,Object>> getReport() throws StatisticsReportException {
-        if (this.data == null) {
-            HttpServletRequest request = this.servletRequestProvider.get();
-            String type = request.getParameter("type");
-            String val = request.getParameter("val");
-            String actionFilter = request.getParameter("action");
-            String offset = request.getParameter("offset") != null ? request.getParameter("offset") : "0";
-            String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
-            StatisticReport report = statisticsAccessLog.getReportById(type);
-            Offset reportOff = new Offset(offset, size);
-            this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null , reportOff,val);
+    public DateFilter getDateFilter() throws IOException {
+        HttpServletRequest request = this.servletRequestProvider.get();
+        String dFrom = request.getParameter("dateFrom");
+        String dTo = request.getParameter("dateTo");
+        DateFilter dFilter = new DateFilter();
+        if (dFrom != null && (!dFrom.trim().equals(""))) {
+            dFilter.setFromDate(dFrom);
         }
-        return this.data;
+        if (dTo != null && (!dTo.trim().equals(""))) {
+            dFilter.setToDate(dTo);
+        }
+        return dFilter;
+    }
+
+    public synchronized List<Map<String,Object>> getReport() throws StatisticsReportException {
+        try {
+            if (this.data == null) {
+                HttpServletRequest request = this.servletRequestProvider.get();
+                String type = request.getParameter("type");
+                String val = request.getParameter("val");
+                String actionFilter = request.getParameter("action");
+                String offset = request.getParameter("offset") != null ? request.getParameter("offset") : "0";
+                String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
+                StatisticReport report = statisticsAccessLog.getReportById(type);
+                Offset reportOff = new Offset(offset, size);
+                this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,getDateFilter(), reportOff,val);
+            }
+            return this.data;
+        } catch (IOException e) {
+            throw new StatisticsReportException(e);
+        }
     }
 
     public int getPageIndex() {

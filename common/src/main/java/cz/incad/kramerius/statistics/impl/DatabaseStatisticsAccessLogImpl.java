@@ -222,6 +222,8 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                 String user = rs.getString("suser");
                 String requestedUrl = rs.getString("srequested_url");
                 String action = rs.getString("sstat_action");
+                String sessionId = rs.getString("ssession_id");
+
 
                 Map<String, Object> record = new HashMap<String, Object>(); {
                     record.put("pid", pid);
@@ -229,6 +231,8 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                     record.put("remote_ip_address", remote);
                     record.put("user", user);
                     record.put("action",action);
+                    record.put("session_id", sessionId);
+                    record.put("requested_url", requestedUrl);
                 }
                 sup.processMainRecord(record);
                 

@@ -49,93 +49,96 @@ import cz.incad.kramerius.utils.database.Offset;
 /**
  * @author pavels
  */
-public class DateDurationReport implements StatisticReport{
-
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DateDurationReport.class.getName());
-    
-    public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy.MM.dd");
-    
-    public static final String REPORT_ID="dates";
-    
-    @Inject
-    @Named("kramerius4")
-    Provider<Connection> connectionProvider;
-
-    @Override
-    public List<Map<String, Object>> getReportPage(ReportedAction repAction, Offset rOffset, Object filteringValue) {
-        try {
-            //TODO: move to JSON object
-            String[] splitted = filteringValue.toString().split("-");
-            
-            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport");
-            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
-            statRecord.setAttribute("paging",true);
-            String sql = statRecord.toString();
-            
-            List<Map<String,Object>> vals = new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
-                @Override
-                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
-                    Map<String, Object> map = createMap(rs);
-                    returnsList.add(map);
-                    return super.handleRow(rs, returnsList);
-                }
-            }.executeQuery(sql, new Timestamp(FORMAT.parse(splitted[0]).getTime()), new Timestamp(FORMAT.parse(splitted[1]).getTime()) , Integer.parseInt(rOffset.getOffset()), Integer.parseInt(rOffset.getSize()));
-            
-            return vals;
-        } catch (ParseException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            return new ArrayList<Map<String,Object>>();
-        }
-    }
-
-
-    @Override
-    public List<String> getOptionalValues() {
-        return new ArrayList<String>();
-    }
-
-    @Override
-    public String getReportId() {
-        return REPORT_ID;
-    }
-
-
-    private Map<String, Object> createMap(ResultSet rs) throws SQLException {
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("pid",rs.getString("pid"));
-        map.put("count",new Integer(rs.getInt("count")));
-        map.put("record_id",new Integer(rs.getInt("record_id")));
-        map.put("title",rs.getString("title"));
-        map.put("model",rs.getString("model"));
-        map.put("rights",rs.getString("rights"));
-        map.put("lang",rs.getString("lang"));
-        return map;
-    }
-
-    @Override
-    public void processAccessLog(ReportedAction repAction, final StatisticsReportSupport sup, Object filteringValue, Object... args) throws StatisticsReportException {
-        try {
-            String[] splitted = filteringValue.toString().split("-");
-            
-            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport");
-            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
-            statRecord.setAttribute("paging", false);
-            String sql = statRecord.toString();
-            
-            new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
-                @Override
-                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
-                    Map<String, Object> map = createMap(rs);
-                    returnsList.add(map);
-                    sup.processReportRecord(map);
-                    
-                    return super.handleRow(rs, returnsList);
-                }
-
-            }.executeQuery(sql, new Timestamp(FORMAT.parse(splitted[0]).getTime()), new Timestamp(FORMAT.parse(splitted[1]).getTime()));
-            
-        } catch (ParseException e) {
-            throw new StatisticsReportException(e);
-        }
-    }
+public class DateDurationReport { 
+	// DISABLED
+//	implements StatisticReport{
+//}
+//
+//    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DateDurationReport.class.getName());
+//    
+//    public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy.MM.dd");
+//    
+//    public static final String REPORT_ID="dates";
+//    
+//    @Inject
+//    @Named("kramerius4")
+//    Provider<Connection> connectionProvider;
+//
+//    @Override
+//    public List<Map<String, Object>> getReportPage(ReportedAction repAction, Offset rOffset, Object filteringValue) {
+//        try {
+//            //TODO: move to JSON object
+//            String[] splitted = filteringValue.toString().split("-");
+//            
+//            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport");
+//            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+//            statRecord.setAttribute("paging",true);
+//            String sql = statRecord.toString();
+//            
+//            List<Map<String,Object>> vals = new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
+//                @Override
+//                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
+//                    Map<String, Object> map = createMap(rs);
+//                    returnsList.add(map);
+//                    return super.handleRow(rs, returnsList);
+//                }
+//            }.executeQuery(sql, new Timestamp(FORMAT.parse(splitted[0]).getTime()), new Timestamp(FORMAT.parse(splitted[1]).getTime()) , Integer.parseInt(rOffset.getOffset()), Integer.parseInt(rOffset.getSize()));
+//            
+//            return vals;
+//        } catch (ParseException e) {
+//            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+//            return new ArrayList<Map<String,Object>>();
+//        }
+//    }
+//
+//
+//    @Override
+//    public List<String> getOptionalValues() {
+//        return new ArrayList<String>();
+//    }
+//
+//    @Override
+//    public String getReportId() {
+//        return REPORT_ID;
+//    }
+//
+//
+//    private Map<String, Object> createMap(ResultSet rs) throws SQLException {
+//        Map<String, Object> map = new HashMap<String, Object>();
+//        map.put("pid",rs.getString("pid"));
+//        map.put("count",new Integer(rs.getInt("count")));
+//        map.put("record_id",new Integer(rs.getInt("record_id")));
+//        map.put("title",rs.getString("title"));
+//        map.put("model",rs.getString("model"));
+//        map.put("rights",rs.getString("rights"));
+//        map.put("lang",rs.getString("lang"));
+//        return map;
+//    }
+//
+//    @Override
+//    public void processAccessLog(ReportedAction repAction, final StatisticsReportSupport sup, Object filteringValue, Object... args) throws StatisticsReportException {
+//        try {
+//            String[] splitted = filteringValue.toString().split("-");
+//            
+//            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectDateDurationReport");
+//            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+//            statRecord.setAttribute("paging", false);
+//            String sql = statRecord.toString();
+//            
+//            new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
+//                @Override
+//                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
+//                    Map<String, Object> map = createMap(rs);
+//                    returnsList.add(map);
+//                    sup.processReportRecord(map);
+//                    
+//                    return super.handleRow(rs, returnsList);
+//                }
+//
+//            }.executeQuery(sql, new Timestamp(FORMAT.parse(splitted[0]).getTime()), new Timestamp(FORMAT.parse(splitted[1]).getTime()));
+//            
+//        } catch (ParseException e) {
+//            throw new StatisticsReportException(e);
+//        }
+//    }
 }
