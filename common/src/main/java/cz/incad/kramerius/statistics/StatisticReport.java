@@ -69,6 +69,15 @@ public interface StatisticReport {
     public String getReportId();
 
     /**
+     * Prepares view necessary for rendering plot
+     * @param action
+     * @param dateFilter
+     * @param filteredValue
+     */
+    public void prepareViews(ReportedAction action, DateFilter dateFilter, Object filteredValue);
+    
+    
+    /**
      * Process access log for concrete report
      * 
      * @param sup

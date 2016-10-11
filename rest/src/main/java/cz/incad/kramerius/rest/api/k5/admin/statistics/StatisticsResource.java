@@ -83,7 +83,8 @@ public class StatisticsResource {
                         && StringUtils.isAnyString(filterResultSize)) {
                     offset = new Offset(filterOffset, filterResultSize);
                 }
-
+                
+                report.prepareViews(raction != null ? ReportedAction.valueOf(raction) : null, filter, val);
                 List<Map<String, Object>> repPage = report.getReportPage(
                         raction != null ? ReportedAction.valueOf(raction)
                                 : null, filter, offset, val);

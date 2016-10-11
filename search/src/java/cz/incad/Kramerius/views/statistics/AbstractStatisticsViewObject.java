@@ -108,6 +108,7 @@ public abstract class AbstractStatisticsViewObject {
                 String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
                 StatisticReport report = statisticsAccessLog.getReportById(type);
                 Offset reportOff = new Offset(offset, size);
+                report.prepareViews(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,getDateFilter(), val);
                 this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,getDateFilter(), reportOff,val);
             }
             return this.data;

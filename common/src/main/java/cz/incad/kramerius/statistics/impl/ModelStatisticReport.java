@@ -42,7 +42,9 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
+import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
 /**
@@ -116,6 +118,34 @@ public class ModelStatisticReport implements StatisticReport {
     @Override
     public String getReportId() {
         return REPORT_ID;
+    }
+
+    
+    @Override
+    public void prepareViews(ReportedAction action, DateFilter dateFilter, Object filteredValue) {
+        try {
+
+            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("prepareModelView");
+            statRecord.setAttribute("model", filteredValue);
+            statRecord.setAttribute("action", action != null ? action.name() : null);
+            statRecord.setAttribute("paging", false);
+            
+            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
+            
+            String sql = statRecord.toString();
+            
+            String viewName =  "statistics_grouped_by_sessionandpid_"+filteredValue;
+            boolean tableExists = DatabaseUtils.viewExists(connectionProvider.get(),viewName.toUpperCase());
+            if (!tableExists) {
+                JDBCUpdateTemplate updateTemplate = new JDBCUpdateTemplate(connectionProvider.get(), true);
+                updateTemplate.setUseReturningKeys(false);
+                updateTemplate
+                    .executeUpdate(sql);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
     }
 
     @Override

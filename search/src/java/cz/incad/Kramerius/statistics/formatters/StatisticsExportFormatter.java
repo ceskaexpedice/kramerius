@@ -35,7 +35,7 @@ public interface StatisticsExportFormatter {
     public static String CSV_FORMAT="CSV";
 
     public static String XML_MIME_TYPE="application/xml";
-    public static String CSV_MIME_TYPE="text/csv";
+    public static String CSV_MIME_TYPE="text/csv; charset=UTF-8";
     
     
     public static String[] SUPPORTED_FORMATS = {XML_FORMAT,CSV_FORMAT};

@@ -47,25 +47,48 @@ select
 
 
 /** vybrany model */
+prepareModelView(action, model, paging, fromDefined, toDefined) ::=<<
+ CREATE OR REPLACE VIEW _$model$_model_view AS 
+   SELECT 
+    last(l.record_id) AS record_id,
+    last(date) as date,
+    last(detail_id) as detail_id,
+    l.session_id,
+    model,
+    d.pid,
+    stat_action,
+    last(d.title) as title
+   FROM statistics_access_log l
+     JOIN statistic_access_log_detail d USING (record_id)
+  WHERE d.model::text = '$model$'::text
+  GROUP BY l.session_id,model,d.pid,stat_action;
+>>
+
 selectModelReport(action, model, paging, fromDefined, toDefined) ::=<<
     $if(action)$ 
-
-    select count(*) as count, detail.pid, detail.rights, detail.title, detail.model from statistic_access_log_detail detail
-      join  statistics_access_log st using(record_id)
-        where model='$model$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  and record_id in (
-            select max(record_id) as record_id from statistics_access_log where stat_action='$action$' group by session_id,pid
-        )
-        group by detail.pid, detail.rights, detail.title, detail.model order by count DESC
+    
+    select count(*) as count,
+         pid,
+         max(date) as date,
+         last(model) as model,
+         last(title) as title
+         from _$model$_model_view 
+         where stat_action='$action$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ 
+         group by pid
+     order by count DESC   
     $if(paging)$ $paging()$ $endif$
 
     $else$   
 
-    select count(*) as count, detail.pid, detail.rights, detail.title, detail.model from statistic_access_log_detail detail
-      join  statistics_access_log st using(record_id)
-        where model='$model$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ and record_id in (
-            select max(record_id) as record_id from statistics_access_log group by session_id,pid
-        )
-        group by detail.pid, detail.rights, detail.title, detail.model order by count DESC
+    select count(*) as count,
+         pid,
+         max(date) as date,
+         last(model) as model,
+         last(title) as title
+         from _$model$_model_view 
+         where 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ 
+         group by pid
+     order by count DESC   
     $if(paging)$ $paging()$ $endif$
     
     $endif$   
@@ -96,7 +119,6 @@ selectDateDurationReport(action,from, to, paging) ::=<<
         join  flat_statistic_access_log_detail fa using(record_id)
         where "date">? and "date" < ? and stat_action='$action$'
         group by sa.pid,title,model,rights,lang order by count DESC $if(paging)$ $paging()$ $endif$
-
 
     $else$
 
@@ -165,30 +187,6 @@ and record_id in (
     
 >>
 
-/** datum - datum - pro jednotlive pidy */
-selectPidReport(action, pids, paging) ::=<<
-
-    $if(action)$
-
-	select count(*) as count, pid, rights, title, model from statistic_access_log_detail
-	where pid in ($pids(pids=pids)$) and  record_id in (
-	    select max(record_id) as record_id from statistics_access_log where 
-	    stat_action='$action$' group by session_id,pid
-	)
-	group by pid, rights, title, model order by count DESC $if(paging)$ $paging()$ $endif$
-
-    $else$
-
-
-	select count(*) as count, pid, rights, title, model from statistic_access_log_detail
-	where pid in ($pids(pids=pids)$) and  record_id in (
-	    select max(record_id) as record_id from statistics_access_log group by session_id,pid
-	)
-	group by pid, rights, title, model order by count DESC $if(paging)$ $paging()$ $endif$
-
-
-    $endif$
->>
 
 
 /** pids */

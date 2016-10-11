@@ -105,6 +105,13 @@ public class AuthorReport implements StatisticReport{
     }
 
     
+    
+    @Override
+    public void prepareViews(ReportedAction action, DateFilter dateFilter, Object filteredValue) {
+        // TODO Auto-generated method stub
+        
+    }
+
     @Override
     public void processAccessLog(final ReportedAction repAction, final DateFilter filter,final StatisticsReportSupport sup,Object filteredValue, Object ... args) throws StatisticsReportException {
         try {

@@ -71,9 +71,9 @@ public class AuthorReportTest {
         statRecord.setAttribute("fromDefined", true);
         statRecord.setAttribute("toDefined", false);
         str = statRecord.toString();
-
-        Assert.assertFalse(str.contains(" offset "));
-        Assert.assertFalse(str.contains(" limit "));
+        //System.out.println(str);
+        Assert.assertTrue(str.contains(" offset "));
+        Assert.assertTrue(str.contains(" limit "));
         Assert.assertNotNull(str);
 
         statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");

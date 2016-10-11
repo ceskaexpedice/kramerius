@@ -89,8 +89,10 @@ public class StatisticsExportServlet extends GuiceServlet {
                 }
                 if (selectedFormatter != null) {
                     selectedFormatter.beforeProcess(resp);
+                    resp.setCharacterEncoding("UTF-8");
                     resp.setContentType(selectedFormatter.getMimeType());
                     resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
+                    report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,dateFilter, filteredValue);
                     report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null,dateFilter, selectedFormatter, filteredValue);
                     selectedFormatter.afterProcess(resp);
                 }
@@ -107,6 +109,7 @@ public class StatisticsExportServlet extends GuiceServlet {
             }
             if (selectedFormatter != null) {
                 selectedFormatter.beforeProcess(resp);
+                resp.setCharacterEncoding("UTF-8");
                 resp.setContentType(selectedFormatter.getMimeType());
                 resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
                 this.statisticAccessLog.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter);

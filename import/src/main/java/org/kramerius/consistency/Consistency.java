@@ -232,6 +232,12 @@ public class Consistency {
             
         }
 
+        @Override
+        public void reportAccess(String pid, String streamName, String actionName) throws IOException {
+            // TODO Auto-generated method stub
+            
+        }
+
         
         
     }

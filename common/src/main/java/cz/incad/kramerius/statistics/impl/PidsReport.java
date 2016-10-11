@@ -28,7 +28,7 @@ import cz.incad.kramerius.utils.database.Offset;
 
 public class PidsReport implements StatisticReport {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DateDurationReport.class.getName());
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PidsReport.class.getName());
 
     public static final String REPORT_ID = "pids";
 
@@ -69,6 +69,16 @@ public class PidsReport implements StatisticReport {
         }
 
     }
+    
+    
+
+    @Override
+    public void prepareViews(ReportedAction action, DateFilter dateFilter, Object filteredValue) {
+        // TODO Auto-generated method stub
+        
+    }
+
+
 
     @Override
     public List<String> getOptionalValues() {
