@@ -56,7 +56,7 @@ public class LangXMLFormatter implements StatisticsReportFormatter {
             builder.append("\t<lang>").append(StringUtils.nullify((String)record.get("lang"))).append("</lang>\n");
             builder.append("</record>\n");
 
-            this.os.write(builder.toString().getBytes("UTF-8"));
+            this.os.write(builder.toString().getBytes(DEFAULT_ENCODING));
         } catch (UnsupportedEncodingException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (IOException e) {
@@ -80,13 +80,13 @@ public class LangXMLFormatter implements StatisticsReportFormatter {
     @Override
     public void beforeProcess(HttpServletResponse response) throws IOException {
         this.os = response.getOutputStream();
-        this.os.write("<records>\n".getBytes("UTF-8"));
+        this.os.write("<records>\n".getBytes(DEFAULT_ENCODING));
     }
 
 
     @Override
     public void afterProcess(HttpServletResponse response) throws IOException {
-        this.os.write("\n</records>".getBytes("UTF-8"));
+        this.os.write("\n</records>".getBytes(DEFAULT_ENCODING));
         this.os = null;
     }
 }

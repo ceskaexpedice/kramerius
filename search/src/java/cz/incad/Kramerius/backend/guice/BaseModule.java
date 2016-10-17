@@ -33,6 +33,11 @@ import cz.incad.kramerius.service.impl.GoogleAnalyticsImpl;
 import cz.incad.kramerius.service.impl.METSServiceImpl;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.ModelFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.statistics.impl.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
@@ -59,7 +64,7 @@ public class BaseModule extends AbstractModule {
         //reports.addBinding().to(DateDurationReport.class);
         reports.addBinding().to(AuthorReport.class);
         reports.addBinding().to(LangReport.class);
-        reports.addBinding().to(PidsReport.class);
+
         
         bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
 

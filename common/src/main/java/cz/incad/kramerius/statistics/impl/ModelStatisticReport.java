@@ -37,11 +37,14 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.statistics.DateFilter;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.ModelFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
@@ -61,22 +64,23 @@ public class ModelStatisticReport implements StatisticReport {
     Provider<Connection> connectionProvider;
 
     @Override
-    public List<Map<String, Object>> getReportPage(ReportedAction repAction, DateFilter filter, Offset rOffset,
-            Object filteringValue) {
+    public List<Map<String, Object>> getReportPage(ReportedAction repAction,StatisticsFiltersContainer filters, Offset rOffset) {
         try {
-            // filtered value
-            // String[] splitted = filteringValue.toString().split("-");
-
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
+            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
+            
             final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectModelReport");
-            statRecord.setAttribute("model", filteringValue);
+            statRecord.setAttribute("model", modelFilter.getModel());
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
             statRecord.setAttribute("paging", true);
-            statRecord.setAttribute("fromDefined", filter.getFromDate() != null);
-            statRecord.setAttribute("toDefined", filter.getToDate() != null);
+            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
+            statRecord.setAttribute("visibility", visFilter.asMap());
 
             @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(filter, rOffset);
+            List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
             String sql = statRecord.toString();
             List<Map<String, Object>> returns = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
                 @Override
@@ -121,12 +125,14 @@ public class ModelStatisticReport implements StatisticReport {
     }
 
     
+    
     @Override
-    public void prepareViews(ReportedAction action, DateFilter dateFilter, Object filteredValue) {
+    public void prepareViews(ReportedAction action, StatisticsFiltersContainer filters) throws StatisticsReportException {
         try {
-
+            ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
             final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("prepareModelView");
-            statRecord.setAttribute("model", filteredValue);
+            statRecord.setAttribute("model", modelFilter.getModel());
             statRecord.setAttribute("action", action != null ? action.name() : null);
             statRecord.setAttribute("paging", false);
             
@@ -135,7 +141,7 @@ public class ModelStatisticReport implements StatisticReport {
             
             String sql = statRecord.toString();
             
-            String viewName =  "statistics_grouped_by_sessionandpid_"+filteredValue;
+            String viewName =  "statistics_grouped_by_sessionandpid_"+modelFilter.getModel();
             boolean tableExists = DatabaseUtils.viewExists(connectionProvider.get(),viewName.toUpperCase());
             if (!tableExists) {
                 JDBCUpdateTemplate updateTemplate = new JDBCUpdateTemplate(connectionProvider.get(), true);
@@ -145,23 +151,30 @@ public class ModelStatisticReport implements StatisticReport {
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new StatisticsReportException(e);
         }
     }
 
     @Override
-    public void processAccessLog(final ReportedAction repAction, final DateFilter filter, final StatisticsReportSupport sup,
-            Object filteringValue, Object... args) throws StatisticsReportException {
+    public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup,
+            final StatisticsFiltersContainer filters) throws StatisticsReportException {
         try {
+            ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
+
             final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModelReport");
-            statRecord.setAttribute("model", filteringValue);
+            statRecord.setAttribute("model", modelFilter.getModel());
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
             statRecord.setAttribute("paging", false);
             
-            statRecord.setAttribute("fromDefined", filter.getFromDate() != null);
-            statRecord.setAttribute("toDefined", filter.getToDate() != null);
+            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
+            statRecord.setAttribute("visibility", visFilter.asMap());
+
 
             @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(filter);
+            List params = StatisticUtils.jdbcParams(dateFilter);
             String sql = statRecord.toString();
             new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
                 @Override
@@ -179,7 +192,10 @@ public class ModelStatisticReport implements StatisticReport {
             }.executeQuery(sql,params.toArray());
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new StatisticsReportException(e);
         }
-
     }
+
+    
+
 }

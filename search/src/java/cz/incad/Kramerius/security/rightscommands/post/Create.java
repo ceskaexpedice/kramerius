@@ -31,6 +31,7 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.impl.RightImpl;
+import cz.incad.kramerius.utils.FedoraUtils;
 
 public class Create extends ServletRightsCommand {
     
@@ -81,7 +82,7 @@ public class Create extends ServletRightsCommand {
                 hasRight = true;
                 break;
             } else {
-                throw new SecurityException("operation is not permited");
+                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));
             }
         } 
         // root object
@@ -89,7 +90,7 @@ public class Create extends ServletRightsCommand {
             if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, new ObjectPidsPath(pid))) {
                 hasRight = true;
             } else {
-                throw new SecurityException("operation is not permited");
+                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));
             }
         }
         

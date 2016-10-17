@@ -42,11 +42,16 @@ import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.statistics.DateFilter;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsReportException;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.ModelFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter.VisbilityType;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -69,14 +74,22 @@ public class StatisticsResource {
             @QueryParam("action") String raction,
             @QueryParam("dateFrom") String dateFrom,
             @QueryParam("dateTo") String dateTo,
-            @QueryParam("value") String val,
+            @QueryParam("model") String model,
+            @QueryParam("visibility") String visibility,
             @QueryParam("offset") String filterOffset,
             @QueryParam("resultSize") String filterResultSize) {
         if (permit(userProvider.get())) {
             try {
-                DateFilter filter = new DateFilter();
-                filter.setFromDate(dateFrom);
-                filter.setToDate(dateTo);
+                DateFilter dateFilter = new DateFilter();
+                dateFilter.setFromDate(dateFrom);
+                dateFilter.setToDate(dateTo);
+                
+                ModelFilter modelFilter = new ModelFilter();
+                modelFilter.setModel(model);
+                
+                VisibilityFilter visFilter = new VisibilityFilter();
+                visFilter.setSelected(VisbilityType.valueOf(visibility));
+                
                 StatisticReport report = statisticsAccessLog.getReportById(rip);
                 Offset offset = new Offset("0", "25");
                 if (StringUtils.isAnyString(filterOffset)
@@ -84,10 +97,10 @@ public class StatisticsResource {
                     offset = new Offset(filterOffset, filterResultSize);
                 }
                 
-                report.prepareViews(raction != null ? ReportedAction.valueOf(raction) : null, filter, val);
+                report.prepareViews(raction != null ? ReportedAction.valueOf(raction) : null, new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter, modelFilter,visFilter}));
                 List<Map<String, Object>> repPage = report.getReportPage(
                         raction != null ? ReportedAction.valueOf(raction)
-                                : null, filter, offset, val);
+                                : null,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter, modelFilter}), offset);
 
                 JSONArray jsonArr = new JSONArray();
                 for (Map<String, Object> map : repPage) {

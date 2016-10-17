@@ -35,13 +35,19 @@ import org.apache.log4j.Logger;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.Kramerius.statistics.StatisticsExportServlet;
 import cz.incad.Kramerius.utils.JSONUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.statistics.DateFilter;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsReportException;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.ModelFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter.VisbilityType;
 import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -83,10 +89,18 @@ public abstract class AbstractStatisticsViewObject {
         return max;
     }
 
+    public VisibilityFilter getVisibilityFilter() throws IOException {
+        HttpServletRequest request = this.servletRequestProvider.get();
+        String visibility = request.getParameter("visibility");
+        VisibilityFilter filter = new VisibilityFilter();
+        filter.setSelected(VisibilityFilter.VisbilityType.valueOf(visibility.toUpperCase()));
+        return filter;
+    }
+
     public DateFilter getDateFilter() throws IOException {
         HttpServletRequest request = this.servletRequestProvider.get();
-        String dFrom = request.getParameter("dateFrom");
-        String dTo = request.getParameter("dateTo");
+        String dFrom = request.getParameter(StatisticsExportServlet.DATE_FROM_ATTRIBUTE);
+        String dTo = request.getParameter( StatisticsExportServlet.DATE_TO_ATTRIBUTE);
         DateFilter dFilter = new DateFilter();
         if (dFrom != null && (!dFrom.trim().equals(""))) {
             dFilter.setFromDate(dFrom);
@@ -97,19 +111,35 @@ public abstract class AbstractStatisticsViewObject {
         return dFilter;
     }
 
+    public VisibilityFilter getVisbilityFilter() {
+        HttpServletRequest request = this.servletRequestProvider.get();
+        String vis = request.getParameter(StatisticsExportServlet.VISIBILITY_ATTRIBUTE);
+        if (vis != null) vis = vis.toUpperCase();
+        VisibilityFilter filter = new VisibilityFilter();
+        filter.setSelected(VisbilityType.valueOf(vis));
+        return filter;
+    }
+    
     public synchronized List<Map<String,Object>> getReport() throws StatisticsReportException {
         try {
             if (this.data == null) {
                 HttpServletRequest request = this.servletRequestProvider.get();
                 String type = request.getParameter("type");
                 String val = request.getParameter("val");
+
                 String actionFilter = request.getParameter("action");
                 String offset = request.getParameter("offset") != null ? request.getParameter("offset") : "0";
                 String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
+                
+                DateFilter dateFilter = getDateFilter();
+                ModelFilter modelFilter = new ModelFilter();
+                modelFilter.setModel(val);
+                VisibilityFilter visFilter = getVisbilityFilter();
+                
                 StatisticReport report = statisticsAccessLog.getReportById(type);
                 Offset reportOff = new Offset(offset, size);
-                report.prepareViews(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,getDateFilter(), val);
-                this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,getDateFilter(), reportOff,val);
+                report.prepareViews(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter}));
+                this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter}), reportOff);
             }
             return this.data;
         } catch (IOException e) {

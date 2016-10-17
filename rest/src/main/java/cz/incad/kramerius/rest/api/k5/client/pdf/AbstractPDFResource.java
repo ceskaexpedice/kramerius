@@ -250,7 +250,7 @@ public class AbstractPDFResource {
         List<AbstractPage> pages = rdoc.getPages();
         for (AbstractPage apage : pages) {
             if (!this.canBeRenderedAsPDF(apage.getUuid())) {
-                throw new  SecurityException("");
+                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.PDF_RESOURCE, apage.getUuid()));
             }
         }
     }

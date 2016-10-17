@@ -1,4 +1,4 @@
-package cz.incad.kramerius.statistics;
+package cz.incad.kramerius.statistics.filters;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -7,7 +7,7 @@ import java.util.logging.Logger;
  * Represents simple date filter (date_from  -  date_to)
  * @author pstastny
  */
-public class DateFilter {
+public class DateFilter implements StatisticsFilter {
 
     public static final Logger LOGGER = Logger.getLogger(DateFilter.class.getName());
     

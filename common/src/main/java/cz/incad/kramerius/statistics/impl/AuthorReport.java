@@ -37,12 +37,13 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.statistics.DateFilter;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -63,16 +64,17 @@ public class AuthorReport implements StatisticReport{
 
     
     @Override
-    public List<Map<String, Object>> getReportPage(ReportedAction repAction,DateFilter filter , Offset rOffset, Object filteredValue) {
+    public List<Map<String, Object>> getReportPage(ReportedAction repAction,StatisticsFiltersContainer filters, Offset rOffset) {
         try {
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
             final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
             authors.setAttribute("action", repAction != null ? repAction.name() : null);
             authors.setAttribute("paging", true);
-            authors.setAttribute("fromDefined", filter.getFromDate() != null);
-            authors.setAttribute("toDefined", filter.getToDate() != null);
+            authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            authors.setAttribute("toDefined", dateFilter.getToDate() != null);
 
             @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(filter, rOffset);
+            List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
             String sql = authors.toString();
             Connection conn = connectionProvider.get();
             List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(conn) {
@@ -104,25 +106,26 @@ public class AuthorReport implements StatisticReport{
         return REPORT_ID;
     }
 
-    
-    
+
     @Override
-    public void prepareViews(ReportedAction action, DateFilter dateFilter, Object filteredValue) {
+    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void processAccessLog(final ReportedAction repAction, final DateFilter filter,final StatisticsReportSupport sup,Object filteredValue, Object ... args) throws StatisticsReportException {
+    public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup,
+            StatisticsFiltersContainer filters) throws StatisticsReportException {
         try {
+            final DateFilter dateFilter = filters.getFilter(DateFilter.class);
             final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
             authors.setAttribute("action", repAction != null ? repAction.name() : null);
             authors.setAttribute("paging", false);
-            authors.setAttribute("fromDefined", filter.getFromDate() != null);
-            authors.setAttribute("toDefined", filter.getToDate() != null);
+            authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            authors.setAttribute("toDefined", dateFilter.getToDate() != null);
 
             @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(filter);
+            List params = StatisticUtils.jdbcParams(dateFilter);
 
             String sql = authors.toString();
             new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
@@ -139,6 +142,8 @@ public class AuthorReport implements StatisticReport{
             }.executeQuery(sql.toString(),params.toArray());
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new StatisticsReportException(e);
        }
     }
+
 }

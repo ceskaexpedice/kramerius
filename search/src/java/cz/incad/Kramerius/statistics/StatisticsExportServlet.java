@@ -37,13 +37,18 @@ import cz.incad.Kramerius.imaging.utils.FileNameUtils;
 import cz.incad.Kramerius.statistics.formatters.main.StatisticsExportMainLogFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.StatisticsReportFormatter;
 import cz.incad.Kramerius.statistics.formatters.utils.StringUtils;
-import cz.incad.kramerius.statistics.DateFilter;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.ModelFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter.VisbilityType;
 
 /**
  * @author pavels
@@ -51,6 +56,15 @@ import cz.incad.kramerius.statistics.StatisticsReportSupport;
  */
 public class StatisticsExportServlet extends GuiceServlet {
 
+    public static final String MODEL_ATTRIBUTE = "filteredValue";
+    public static final String REPORT_ID_ATTRIBUTE = "report";
+    public static final String DATE_TO_ATTRIBUTE = "dateTo";
+    public static final String DATE_FROM_ATTRIBUTE = "dateFrom";
+    public static final String FORMAT_ATTRIBUTE = "format";
+    public static final String ACTION_ATTRIBUTE = "action";
+    public static final String VISIBILITY_ATTRIBUTE = "visibility";
+
+    
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(StatisticsExportServlet.class.getName());
     
     @Inject
@@ -64,18 +78,26 @@ public class StatisticsExportServlet extends GuiceServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = req.getParameter("action");
-        String format = req.getParameter("format");
-        String dateFrom = req.getParameter("dateFrom");
-        String dateTo = req.getParameter("dateTo");
+        String action = req.getParameter(ACTION_ATTRIBUTE);
+        String format = req.getParameter(FORMAT_ATTRIBUTE);
+        String dateFrom = req.getParameter(DATE_FROM_ATTRIBUTE);
+        String dateTo = req.getParameter(DATE_TO_ATTRIBUTE);
         
-        String reportId = req.getParameter("report");
-        String filteredValue = req.getParameter("filteredValue");
+        String reportId = req.getParameter(REPORT_ID_ATTRIBUTE);
+        String filteredValue = req.getParameter(MODEL_ATTRIBUTE);
+        String visibilityValue = req.getParameter(VISIBILITY_ATTRIBUTE);
         
         DateFilter dateFilter = new DateFilter();
         dateFilter.setFromDate(dateFrom != null && (!dateFrom.trim().equals("")) ? dateFrom : null);
         dateFilter.setToDate(dateTo != null && (!dateTo.trim().equals("")) ? dateTo : null);
         
+        ModelFilter modelFilter = new ModelFilter();
+        modelFilter.setModel(filteredValue);
+        
+        if (visibilityValue != null) visibilityValue = visibilityValue.toUpperCase();
+        VisibilityFilter visFilter = new VisibilityFilter();
+        visFilter.setSelected(VisbilityType.valueOf(visibilityValue));
+
         if (reportId != null && (!reportId.equals(""))) {
             // report
             StatisticReport report = this.statisticAccessLog.getReportById(reportId);
@@ -92,8 +114,8 @@ public class StatisticsExportServlet extends GuiceServlet {
                     resp.setCharacterEncoding("UTF-8");
                     resp.setContentType(selectedFormatter.getMimeType());
                     resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
-                    report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,dateFilter, filteredValue);
-                    report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null,dateFilter, selectedFormatter, filteredValue);
+                    report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter}));
+                    report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter}));
                     selectedFormatter.afterProcess(resp);
                 }
             } catch (StatisticsReportException e) {
@@ -116,13 +138,6 @@ public class StatisticsExportServlet extends GuiceServlet {
                 selectedFormatter.afterProcess(resp);
                 
             }
-            // all format
-            /*
-            Format enumFormat = Format.valueOf(format);
-            resp.setContentType(enumFormat.getMimeType());
-            resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
-            enumFormat.render(ReportedAction.valueOf(action),this.statisticAccessLog, resp.getOutputStream());
-            */
         }
     }
 

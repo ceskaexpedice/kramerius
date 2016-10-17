@@ -20,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.utils.database.Offset;
 
 /**
@@ -51,8 +53,7 @@ public interface StatisticReport {
      *            Specific value
      * @return
      */
-    public List<Map<String, Object>> getReportPage(ReportedAction reportedAction, DateFilter dateFilter, Offset rOffset,
-            Object specificFilteredValue) throws StatisticsReportException;
+    public List<Map<String, Object>> getReportPage(ReportedAction reportedAction, StatisticsFiltersContainer filters, Offset rOffset) throws StatisticsReportException;
 
     /**
      * Returns optional filtering values
@@ -74,7 +75,7 @@ public interface StatisticReport {
      * @param dateFilter
      * @param filteredValue
      */
-    public void prepareViews(ReportedAction action, DateFilter dateFilter, Object filteredValue);
+    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) throws StatisticsReportException ;
     
     
     /**
@@ -82,6 +83,6 @@ public interface StatisticReport {
      * 
      * @param sup
      */
-    public void processAccessLog(ReportedAction action, DateFilter dateFilter, StatisticsReportSupport sup,
-            Object filteredValue, Object... args) throws StatisticsReportException;
+    public void processAccessLog(ReportedAction action, StatisticsReportSupport sup,
+            StatisticsFiltersContainer container) throws StatisticsReportException;
 }

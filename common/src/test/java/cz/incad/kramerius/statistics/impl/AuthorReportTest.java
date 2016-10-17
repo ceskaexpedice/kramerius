@@ -83,7 +83,6 @@ public class AuthorReportTest {
         statRecord.setAttribute("toDefined", true);
 
         str = statRecord.toString();
-        System.out.println(str);
 
         statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
         statRecord.setAttribute("action", "PDF");
@@ -92,7 +91,6 @@ public class AuthorReportTest {
         statRecord.setAttribute("toDefined", true);
 
         str = statRecord.toString();
-        System.out.println(str);
         
     }
 }

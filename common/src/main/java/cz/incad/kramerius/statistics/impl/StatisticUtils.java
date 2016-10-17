@@ -5,8 +5,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.incad.kramerius.statistics.DateFilter;
 import cz.incad.kramerius.statistics.StatisticReport;
+import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.utils.database.Offset;
 
 public class StatisticUtils {

@@ -53,6 +53,7 @@ prepareModelView(action, model, paging, fromDefined, toDefined) ::=<<
     last(l.record_id) AS record_id,
     last(date) as date,
     last(detail_id) as detail_id,
+    last(rights) as rights,
     l.session_id,
     model,
     d.pid,
@@ -64,7 +65,7 @@ prepareModelView(action, model, paging, fromDefined, toDefined) ::=<<
   GROUP BY l.session_id,model,d.pid,stat_action;
 >>
 
-selectModelReport(action, model, paging, fromDefined, toDefined) ::=<<
+selectModelReport(action, model, paging, fromDefined, toDefined,visibility) ::=<<
     $if(action)$ 
     
     select count(*) as count,
@@ -73,7 +74,7 @@ selectModelReport(action, model, paging, fromDefined, toDefined) ::=<<
          last(model) as model,
          last(title) as title
          from _$model$_model_view 
-         where stat_action='$action$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ 
+         where stat_action='$action$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ $visibilityFilter(visibility=visibility)$
          group by pid
      order by count DESC   
     $if(paging)$ $paging()$ $endif$
@@ -86,7 +87,7 @@ selectModelReport(action, model, paging, fromDefined, toDefined) ::=<<
          last(model) as model,
          last(title) as title
          from _$model$_model_view 
-         where 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ 
+         where 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ $visibilityFilter(visibility=visibility)$
          group by pid
      order by count DESC   
     $if(paging)$ $paging()$ $endif$
@@ -111,48 +112,36 @@ and "date" < ?
 $endif$
 >>
 
-/** datum - datum */
-selectDateDurationReport(action,from, to, paging) ::=<<
-    $if(action)$
-
-    select count(*) as count, sa.pid,max(sa.record_id) as record_id, title, model, rights,lang from statistics_access_log sa
-        join  flat_statistic_access_log_detail fa using(record_id)
-        where "date">? and "date" < ? and stat_action='$action$'
-        group by sa.pid,title,model,rights,lang order by count DESC $if(paging)$ $paging()$ $endif$
-
-    $else$
-
-    select count(*) as count, sa.pid,max(sa.record_id) as record_id, title, model, rights,lang from statistics_access_log sa
-        join  flat_statistic_access_log_detail fa using(record_id)
-        where "date">? and "date" < ? 
-        group by sa.pid,title,model,rights,lang order by count DESC $if(paging)$ $paging()$ $endif$
-
-    $endif$
+/** visibility filter **/
+visibilityFilter(visibility) ::=<<
+$if(visibility.public)$
+and "rights" =  'policy:public'
+$elseif(visibility.private)$
+and "rights" =  'policy:private' 
+$endif$
 >>
 
-
-
-
 /** author */ 
-selectAuthorReport(action, paging,fromDefined, toDefined) ::=<<
+selectAuthorReport(action, paging,fromDefined, toDefined,visibility) ::=<<
     $if(action)$ 
-
-select count(*) as count, auth.author_name from statistic_access_log_detail_authors auth
-join statistics_access_log sta using(record_id)
-where sta.stat_action='$action$'  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$
-and record_id in (
-            select max(record_id) as record_id from statistics_access_log group by session_id,pid
-        )
-group by author_name order by count DESC $if(paging)$ $paging()$ $endif$
+select count(*) as count, author_name from 
+(
+ select last(author_name) as author_name from _authors_view where stat_action='$action$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ 
+ group by  session_id
+) as nauth
+group by author_name
+order by count DESC   
+$if(paging)$ $paging()$ $endif$
     $else$   
-select count(*) as count, author_name from statistic_access_log_detail_authors
-join statistics_access_log sta using(record_id)
-where 1=1  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$
-and record_id in (
-            select max(record_id) as record_id from statistics_access_log group by session_id,pid
-        )
-group by author_name order by count DESC $if(paging)$ $paging()$ $endif$
-        
+
+select count(*) as count, author_name from 
+(
+ select last(author_name) as author_name from _authors_view where 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ 
+ group by  session_id
+) as nauth
+group by author_name
+order by count DESC   
+$if(paging)$ $paging()$ $endif$
     $endif$   
 >>
 
@@ -161,30 +150,28 @@ paging() ::=<<offset ? limit ?>>
 
 
 /** language */
-selectLangReport(action,fromDefined, toDefined) ::=<<
+selectLangReport(action,fromDefined, toDefined,visibility) ::=<<
     $if(action)$ 
     
-    select count(*) as count, lang from statistic_access_log_detail detail
-        join statistics_access_log salog using(record_id)
-    where detail.lang is not null and  salog.stat_action='$action$'  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$
-and record_id in (
-            select max(record_id) as record_id from statistics_access_log group by session_id,pid
-        )
-        group by lang order by count DESC
+select count(*) as count, lang from 
+(
+ select last(lang) as lang from _langs_view where  salog.stat_action='$action$'  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$
+ group by  session_id
+) as nlang
+group by lang
+order by count DESC   
 
     $else$   
 
-
-    select count(*) as count, lang from statistic_access_log_detail 
-    join statistics_access_log sta using(record_id)
-where lang is not null  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$
-and record_id in (
-            select max(record_id) as record_id from statistics_access_log group by session_id,pid
-        )
-    group by lang order by count DESC
+select count(*) as count, lang from 
+(
+ select last(lang) as lang from _langs_view where  1=1  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$
+ group by  session_id
+) as nlang
+group by lang
+order by count DESC   
     
     $endif$   
-    
 >>
 
 

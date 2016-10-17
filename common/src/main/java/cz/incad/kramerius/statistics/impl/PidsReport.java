@@ -18,11 +18,12 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.statistics.DateFilter;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -36,47 +37,48 @@ public class PidsReport implements StatisticReport {
     @Named("kramerius4")
     Provider<Connection> connectionProvider;
 
+    
     @Override
-    public List<Map<String, Object>> getReportPage(ReportedAction repAction, DateFilter filter, Offset rOffset,
-            Object filteringValue) {
-
-        try {
-            String[] pids = filteringValue.toString().split(",");
-
-            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectPidReport");
-            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
-            statRecord.setAttribute("paging", true);
-            statRecord.setAttribute("pids", pids);
-            statRecord.setAttribute("fromDefined", filter.getFromDate() != null);
-            statRecord.setAttribute("toDefined", filter.getToDate() != null);
-
-            @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(filter, rOffset);
-            String sql = statRecord.toString();
-            List<Map<String, Object>> vals = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
-                @Override
-                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
-                    Map<String, Object> map = createMap(rs);
-                    returnsList.add(map);
-                    return super.handleRow(rs, returnsList);
-                }
-            }.executeQuery(sql, params.toArray());
-
-            return vals;
-        } catch (ParseException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return new ArrayList<Map<String, Object>>();
-        }
+    public List<Map<String, Object>> getReportPage(ReportedAction repAction, StatisticsFiltersContainer filters,
+            Offset rOffset) throws StatisticsReportException {
+//        try {
+//            String[] pids = filteringValue.toString().split(",");
+//
+//            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectPidReport");
+//            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+//            statRecord.setAttribute("paging", true);
+//            statRecord.setAttribute("pids", pids);
+//            statRecord.setAttribute("fromDefined", filter.getFromDate() != null);
+//            statRecord.setAttribute("toDefined", filter.getToDate() != null);
+//
+//            @SuppressWarnings("rawtypes")
+//            List params = StatisticUtils.jdbcParams(filter, rOffset);
+//            String sql = statRecord.toString();
+//            List<Map<String, Object>> vals = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
+//                @Override
+//                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
+//                    Map<String, Object> map = createMap(rs);
+//                    returnsList.add(map);
+//                    return super.handleRow(rs, returnsList);
+//                }
+//            }.executeQuery(sql, params.toArray());
+//
+//            return vals;
+//        } catch (ParseException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            return new ArrayList<Map<String, Object>>();
+//        }
+      return new ArrayList<Map<String, Object>>();
 
     }
-    
+
+
+
+
+
+
     
 
-    @Override
-    public void prepareViews(ReportedAction action, DateFilter dateFilter, Object filteredValue) {
-        // TODO Auto-generated method stub
-        
-    }
 
 
 
@@ -100,37 +102,55 @@ public class PidsReport implements StatisticReport {
         return map;
     }
 
+    
     @Override
-    public void processAccessLog(ReportedAction repAction, final DateFilter filter, final StatisticsReportSupport sup, Object filteringValue,
-            Object... args) throws StatisticsReportException {
-        try {
-            String[] pids = filteringValue.toString().split(",");
-
-            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectPidReport");
-            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
-            statRecord.setAttribute("paging", false);
-            statRecord.setAttribute("pids", pids);
-            statRecord.setAttribute("fromDefined", filter.getFromDate() != null);
-            statRecord.setAttribute("toDefined", filter.getToDate() != null);
-
-            @SuppressWarnings({ "rawtypes"})
-            List params = StatisticUtils.jdbcParams(filter);
-            String sql = statRecord.toString();
-
-            new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
-                @Override
-                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
-                    Map<String, Object> map = createMap(rs);
-                    returnsList.add(map);
-                    sup.processReportRecord(map);
-
-                    return super.handleRow(rs, returnsList);
-                }
-
-            }.executeQuery(sql,params);
-        } catch (ParseException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-
+    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container)
+            throws StatisticsReportException {
+        // TODO Auto-generated method stub
+        
     }
+
+
+
+
+
+
+    @Override
+    public void processAccessLog(ReportedAction repAction, StatisticsReportSupport sup,
+            StatisticsFiltersContainer filters) throws StatisticsReportException {
+//        try {
+//            String[] pids = filteringValue.toString().split(",");
+//
+//            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectPidReport");
+//            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+//            statRecord.setAttribute("paging", false);
+//            statRecord.setAttribute("pids", pids);
+//            statRecord.setAttribute("fromDefined", filter.getFromDate() != null);
+//            statRecord.setAttribute("toDefined", filter.getToDate() != null);
+//
+//            @SuppressWarnings({ "rawtypes"})
+//            List params = StatisticUtils.jdbcParams(filter);
+//            String sql = statRecord.toString();
+//
+//            new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
+//                @Override
+//                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
+//                    Map<String, Object> map = createMap(rs);
+//                    returnsList.add(map);
+//                    sup.processReportRecord(map);
+//
+//                    return super.handleRow(rs, returnsList);
+//                }
+//
+//            }.executeQuery(sql,params);
+//        } catch (ParseException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//        }
+        
+    }
+
+
+
+
+
 }
