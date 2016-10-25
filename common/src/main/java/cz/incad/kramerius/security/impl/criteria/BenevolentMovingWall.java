@@ -92,10 +92,10 @@ public class BenevolentMovingWall extends AbstractCriterium implements
             XPathExpressionException {
         if (pid.equals(SpecialObjects.REPOSITORY.getPid()))
             return EvaluatingResult.NOT_APPLICABLE;
-        return evaluateDoc(wallFromConf, xmlDoc, xpath);
+        return evaluateDoc(pid,wallFromConf, xmlDoc, xpath);
     }
 
-    public EvaluatingResult evaluateDoc(int wallFromConf, Document xmlDoc,
+    public EvaluatingResult evaluateDoc(String pid,int wallFromConf, Document xmlDoc,
             String xPathExpression) throws XPathExpressionException {
         XPath xpath = xpfactory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
@@ -119,12 +119,12 @@ public class BenevolentMovingWall extends AbstractCriterium implements
                         : EvaluatingResult.NOT_APPLICABLE;
 
             } catch (RecognitionException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                LOGGER.log(Level.SEVERE, "Returning NOT_APPLICABLE");
+                LOGGER.log(Level.WARNING, e.getMessage() +" in object "+pid);
+                LOGGER.log(Level.WARNING, "Returning NOT_APPLICABLE");
                 return EvaluatingResult.NOT_APPLICABLE;
             } catch (TokenStreamException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                LOGGER.log(Level.SEVERE, "Returning NOT_APPLICABLE");
+                LOGGER.log(Level.WARNING, e.getMessage() +" in object "+pid);
+                LOGGER.log(Level.WARNING, "Returning NOT_APPLICABLE");
                 return EvaluatingResult.NOT_APPLICABLE;
             }
 

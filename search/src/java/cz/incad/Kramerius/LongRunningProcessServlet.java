@@ -138,7 +138,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
             Actions selectedAction = Actions.valueOf(action);
             selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.usersManager, this.userProvider, this.actionAllowed, this.loggedUsersSingleton, this.iTemplateFactory, this.outputTemplateFactory);
         } catch (SecurityException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            LOGGER.log(Level.INFO, e.getMessage());
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         }
     }

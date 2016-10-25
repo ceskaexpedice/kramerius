@@ -309,7 +309,7 @@ public class PDFResource extends AbstractPDFResource  {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
                 } catch(SecurityException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    LOGGER.log(Level.INFO, e.getMessage());
                     throw new ActionNotAllowed(e.getMessage());
                 }
             } else {
@@ -396,7 +396,7 @@ public class PDFResource extends AbstractPDFResource  {
                     LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     throw new PDFResourceBadRequestException(e1.getMessage());
                 } catch (SecurityException e1) {
-                    LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    LOGGER.log(Level.INFO, e1.getMessage());
                     throw new ActionNotAllowed(e1.getMessage());
                 }
             } else {
