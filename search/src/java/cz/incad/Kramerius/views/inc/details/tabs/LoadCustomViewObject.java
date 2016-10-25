@@ -102,11 +102,11 @@ public class LoadCustomViewObject implements Initializable {
 
                 String mime = fedoraAccess.getMimeTypeForStream(pid, ds);
                 if (mime.equals("text/plain")) {
-                    InputStream is = fedoraAccess.getDataStream(pid, ds);
-                    byte[] bytes = org.apache.commons.io.IOUtils.toByteArray(is);
-                    String enc = UnicodeUtil.getEncoding(bytes);
-                    ByteArrayInputStream is2 = new ByteArrayInputStream(bytes);
                     try {
+                        InputStream is = fedoraAccess.getDataStream(pid, ds);
+                        byte[] bytes = org.apache.commons.io.IOUtils.toByteArray(is);
+                        String enc = UnicodeUtil.getEncoding(bytes);
+                        ByteArrayInputStream is2 = new ByteArrayInputStream(bytes);
                         stringBuilder.append("<textarea style=\"width:98%; height:98%; border:0; \">" + IOUtils.readAsString(is2, Charset.forName(enc), true) + "</textarea>");
                     } catch (cz.incad.kramerius.security.SecurityException e) {
                         securityError(stringBuilder, pid, ds);
@@ -146,7 +146,9 @@ public class LoadCustomViewObject implements Initializable {
 
 
     public void securityError(StringBuilder stringBuilder, String pid, String ds) throws IOException {
+        /* NO message
         ResourceBundle resourceBundle = this.resourceBundleService.getResourceBundle("labels", this.localesProvider.get());
         stringBuilder.append("<b>" + pid + "/" + ds + " </b>").append("<pre> " + resourceBundle.getString("rightMsg.stream") + "</pre>");
+        */
     }
 }
