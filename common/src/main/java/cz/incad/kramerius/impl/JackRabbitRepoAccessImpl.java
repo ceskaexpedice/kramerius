@@ -3,14 +3,17 @@ package cz.incad.kramerius.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Binary;
 import javax.jcr.ItemExistsException;
@@ -18,6 +21,7 @@ import javax.jcr.LoginException;
 import javax.jcr.NamespaceException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
@@ -67,7 +71,7 @@ public class JackRabbitRepoAccessImpl extends AbstractFedoraAccess {
     private ObjectPool<Session> poolOfSession;
 
     @Inject
-    public JackRabbitRepoAccessImpl(KConfiguration configuration, StatisticsAccessLog accessLog) throws IOException {
+    public JackRabbitRepoAccessImpl(KConfiguration configuration, @Nullable StatisticsAccessLog accessLog) throws IOException {
         super(configuration, accessLog);
         try {
             File f = new File(JACKRABBIT_FOLDER);
@@ -243,7 +247,25 @@ public class JackRabbitRepoAccessImpl extends AbstractFedoraAccess {
 
     @Override
     public boolean isContentAccessible(String pid) throws IOException {
-        return true;
+        Session session = null;
+        try {
+            session = poolOfSession.borrowObject();
+            Node rNode = session.getRootNode();
+            if (rNode.hasNode(restPid(pid))) {
+                return true;
+            } else return false;
+            
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } finally {
+            try {
+                poolOfSession.returnObject(session);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new IOException(e);
+            }
+        }
     }
 
     @Override
@@ -416,8 +438,35 @@ public class JackRabbitRepoAccessImpl extends AbstractFedoraAccess {
     }
 
     @Override
-    public List<Map<String, String>> getStreamsOfObject(String pid) {
-        throw new UnsupportedOperationException("this is unsupported");
+    public List<Map<String, String>> getStreamsOfObject(String pid)  throws IOException {
+        Session session = null;
+        try {
+            List<Map<String, String>> list = new ArrayList<Map<String,String>>();
+            session = poolOfSession.borrowObject();
+            Node rNode = session.getRootNode();
+            Node kramerius = rNode.getNode(restPid(pid));
+            NodeIterator nodes = kramerius.getNodes();
+            while(nodes.hasNext()) {
+                Node subNode = nodes.nextNode();
+                if (subNode.isNodeType("kramerius:resource")) {
+                    Map<String, String> m = new HashMap<String, String>();
+                    m.put("dsid",subNode.getName());
+                    m.put("label",subNode.getName());
+                    list.add(m);
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } finally {
+            try {
+                poolOfSession.returnObject(session);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new IOException(e);
+            }
+        }
     }
 
     private synchronized void namespaces(Session session) throws AccessDeniedException, NamespaceException,

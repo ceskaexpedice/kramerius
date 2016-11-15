@@ -15,9 +15,6 @@ import cz.incad.kramerius.audio.AudioLifeCycleHook;
 import cz.incad.kramerius.audio.urlMapping.CachingFedoraUrlManager;
 import cz.incad.kramerius.audio.urlMapping.MockUrlManager;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
-import cz.incad.kramerius.impl.FCRepo4AccessImpl;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.impl.JackRabbitRepoAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.processes.GCScheduler;
@@ -27,6 +24,7 @@ import cz.incad.kramerius.processes.impl.GCSchedulerImpl;
 import cz.incad.kramerius.processes.impl.ProcessSchedulerImpl;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
+import cz.incad.kramerius.repo.RepoModule;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.service.GoogleAnalytics;
 import cz.incad.kramerius.service.LifeCycleHook;
@@ -50,37 +48,8 @@ import java.util.Locale;
  */
 public class BaseModule extends AbstractModule {
 	
-	public static enum _FedoraEnum {
-		standard {
-			@Override
-			public void binding(BaseModule bm) {
-		        bm.bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-			}
-		},
-		fcrepo4 {
-			@Override
-			public void binding(BaseModule bm) {
-				bm.bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FCRepo4AccessImpl.class).in(Scopes.SINGLETON);
-		        				
-			}
-		},
-		jackrabbit {
-			@Override
-			public void binding(BaseModule bm) {
-		        bm.bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(JackRabbitRepoAccessImpl.class).in(Scopes.SINGLETON);
-			}
-		};
-		
-		public abstract void binding(BaseModule bm);
-	}
-	
-    @Override
+	@Override
     protected void configure() {
-        //bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-    	String underlayingRepo = KConfiguration.getInstance().getConfiguration().getString("fedora.implementation", _FedoraEnum.standard.name());
-    	// establish underalying repository
-    	_FedoraEnum.valueOf(underlayingRepo).binding(this);
-        
         bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(SecuredFedoraAccessImpl.class).in(Scopes.SINGLETON);
         bind(StatisticsAccessLog.class).to(DatabaseStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
         

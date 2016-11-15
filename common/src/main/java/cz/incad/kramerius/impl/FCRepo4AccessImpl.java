@@ -53,7 +53,7 @@ public class FCRepo4AccessImpl extends AbstractFedoraAccess {
     private String url = null;
 
     @Inject
-    public FCRepo4AccessImpl(KConfiguration configuration, StatisticsAccessLog accessLog) throws IOException {
+    public FCRepo4AccessImpl(KConfiguration configuration, @Nullable StatisticsAccessLog accessLog) throws IOException {
         super(configuration, accessLog);
         url = KConfiguration.getInstance().getConfiguration().getString("fc4.repo","http://localhost:18080/rest/");
         repo = new FedoraRepositoryImpl(url);
@@ -125,7 +125,6 @@ public class FCRepo4AccessImpl extends AbstractFedoraAccess {
             pid = makeSureObjectPid(pid);
             String mimeType = getMimeTypeForStream(pid,datastreamName);
             ImageMimeType imageMimeType = ImageMimeType.loadFromMimeType(mimeType);
-            System.out.println("LOADED MIMETYPE "+imageMimeType);
             if (imageMimeType != null) {
                 InputStream is = RESTHelper.inputStream(this.url+"/"+restPid(pid)+"/"+datastreamName,null,null);
                 return is;
@@ -278,7 +277,6 @@ public class FCRepo4AccessImpl extends AbstractFedoraAccess {
     public List<Map<String, String>> getStreamsOfObject(String pid) {
         try {
             List<Map<String,String>> maps = new ArrayList<Map<String,String>>();
-
             FedoraObject object = this.repo.getObject(restPid(pid));
             Iterator<Triple> objProps = object.getProperties();
             while(objProps.hasNext()) {

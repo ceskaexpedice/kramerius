@@ -1,0 +1,37 @@
+group migrationtemplates;
+
+
+/* the one context item  **/
+item(itm) ::=<<
+	<migration:item>
+	    <migration:model>$itm.model$</migration:model>
+        <migration:pid>$itm.pid$</migration:pid>
+    </migration:item>
+>>
+
+/* the one path  **/
+path(path) ::=<<
+	<migration:path>
+		$path:{p| $item(itm=p)$}$   
+	</migration:path>
+>>
+
+/* the one path  **/
+paths(pths) ::=<<
+	<migration:context xmlns:migration="http://migration">
+		$pths:{p | $path(path=p)$ }$  
+	</migration:context>
+>>
+
+/* datastream  **/
+datastream(pths) ::=<<
+
+<foxml:datastream xmlns:foxml="info:fedora/fedora-system:def/foxml#" ID="MIGRATION" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="MIGRATION.10" LABEL="Migration information" CREATED="2016-03-30T12:06:02.704Z" MIMETYPE="text/xml" FORMAT_URI="http://migration" >
+<foxml:xmlContent>
+	$paths(pths=pths)$
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+>>
+

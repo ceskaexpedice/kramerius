@@ -342,7 +342,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     }
 
     @Override
-    public List<Map<String, String>> getStreamsOfObject(String pid) {
+    public List<Map<String, String>> getStreamsOfObject(String pid) throws IOException {
         return rawAccess.getStreamsOfObject(pid);
     }
     

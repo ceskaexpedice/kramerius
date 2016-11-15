@@ -32,6 +32,7 @@ import cz.incad.kramerius.imaging.guice.ImageModule;
 import cz.incad.kramerius.pdf.guice.PDFModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
 import cz.incad.kramerius.processes.guice.LongRunningProcessModule;
+import cz.incad.kramerius.repo.RepoModule;
 import cz.incad.kramerius.security.guice.GuiceSecurityModule;
 import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
 import cz.incad.kramerius.service.guice.I18NModule;
@@ -58,7 +59,8 @@ public class GuiceConfigBean extends GuiceServletContextListener {
     @Override
     protected Injector getInjector() {
     	List<AbstractModule> modules = new ArrayList<AbstractModule>(Arrays.asList(
-                new BaseModule(), // base  module
+    	        new RepoModule(), // repo module
+    	        new BaseModule(), // base  module
                 
                 new ServicesModule(), // base services
                 

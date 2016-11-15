@@ -41,6 +41,7 @@ public class FedoraUtils {
     public static final String OGG_STREAM = "OGG";
     public static final String WAV_STREAM = "WAV";
 
+    public static final String MIGRATION_STREAM = "MIGRATION";
     
     public static final String POLICY_STREAM="POLICY";
     

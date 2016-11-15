@@ -236,7 +236,7 @@ public class VirtualCollectionsManager {
         final String predicate = FedoraNamespaces.RDF_NAMESPACE_URI + "isMemberOfCollection";
         final String fedoraColl = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
         IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
-        ArrayList<String> pids = g.getObjectsInCollection(collection, 1000, 0);
+        List<String> pids = g.getObjectsInCollection(collection, 1000, 0);
         for (String pid : pids) {
             String fedoraPid = pid.startsWith("info:fedora/") ? pid : "info:fedora/" + pid;
             fedoraAccess.getAPIM().purgeRelationship(fedoraPid, predicate, fedoraColl, false, null);

@@ -43,6 +43,8 @@ import org.w3c.dom.Element;
  * @see FedoraAccessImpl
  * @see SecuredFedoraAccessImpl
  * @author pavels
+ * 
+ * @todo Change it; Rename object; change methods; move instances to repo pacakge
  */
 public interface FedoraAccess {
 
@@ -426,7 +428,7 @@ public interface FedoraAccess {
 
     Date getStreamLastmodifiedFlag(String pid, String stream) throws IOException;
     
-    List<Map<String, String>> getStreamsOfObject(String pid);
+    List<Map<String, String>> getStreamsOfObject(String pid)  throws IOException;
     
 //    private Date lastModified(String pid, String stream) throws IOException {
 //        Date date = null;

@@ -496,6 +496,7 @@ public class MPTStoreService implements IResourceIndex {
 
     @Override
     public ArrayList<String> getFedoraPidsFromModel(String model, int limit, int offset) throws Exception {
+
         /*
          * iTQL query
          * select $object $title $date from <#ri>
