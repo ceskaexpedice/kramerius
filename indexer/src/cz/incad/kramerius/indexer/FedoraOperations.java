@@ -97,7 +97,7 @@ public class FedoraOperations {
     }
 
     public int getRelsIndex(String pid) throws Exception {
-        ArrayList<String> p = getParentsArray(pid);
+        List<String> p = getParentsArray(pid);
         String uuid;
         int relsindex = 0;
         if (!p.isEmpty()) {
@@ -177,7 +177,7 @@ public class FedoraOperations {
         pid_paths.clear();
         for (int i = 0; i < old.size(); i++) {
             first = old.get(i).split("/")[0];
-            ArrayList<String> p = getParentsArray(first);
+            List<String> p = getParentsArray(first);
             if (!p.isEmpty()) {
                 for (String s : p) {
                     if(!old.get(i).contains(s)){
@@ -198,7 +198,7 @@ public class FedoraOperations {
     }
 
     public String getParents(String pid) {
-        ArrayList<String> l = getParentsArray(pid);
+        List<String> l = getParentsArray(pid);
         StringBuilder sb = new StringBuilder();
         for (String s : l) {
             sb.append(s).append(";");
@@ -207,13 +207,12 @@ public class FedoraOperations {
         return sb.toString();
     }
 
-    public ArrayList<String> getParentsArray(String pid) {
+    public List<String> getParentsArray(String pid) {
         try {
             if (rindex == null) {
                 rindex = ResourceIndexService.getResourceIndexImpl();
             }
-            ArrayList<String> ret =  rindex.getParentsPids(pid);
-            
+            List<String> ret =  rindex.getParentsPids(pid);
             if(ret.contains(pid)){
                 logger.log(Level.WARNING, "Cyclic reference on {0}", pid);
                 ret.remove(pid);

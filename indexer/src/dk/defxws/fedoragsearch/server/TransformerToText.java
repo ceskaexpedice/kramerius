@@ -8,7 +8,6 @@
 package dk.defxws.fedoragsearch.server;
 
 import cz.incad.kramerius.utils.UnicodeUtil;
-import org.apache.lucene.demo.html.HTMLParser;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.encryption.DocumentEncryption;
 import org.apache.pdfbox.exceptions.CryptographyException;
@@ -16,6 +15,8 @@ import org.apache.pdfbox.exceptions.InvalidPasswordException;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
@@ -48,7 +49,7 @@ public class TransformerToText {
         } else if (mimetype.equals("text/xml")) {
             return getTextFromXML(doc);
         } else if (mimetype.equals("text/html")) {
-            return getTextFromHTML(doc);
+            return new StringBuffer(getTextFromHTML(doc));
         } else if (mimetype.equals("application/pdf")) {
             return getTextFromPDF(doc, page);
         } else if (mimetype.equals("application/ps")) {
@@ -107,21 +108,10 @@ public class TransformerToText {
      *
      * @throws Exception.
      */
-    private StringBuffer getTextFromHTML(byte[] doc)
+    private String getTextFromHTML(byte[] doc)
             throws Exception {
-        StringBuffer docText = new StringBuffer();
-        HTMLParser htmlParser = new HTMLParser(new ByteArrayInputStream(doc));
-        try {
-            InputStreamReader isr = (InputStreamReader) htmlParser.getReader();
-            int c = isr.read();
-            while (c > -1) {
-                docText.append((char) c);
-                c = isr.read();
-            }
-        } catch (IOException e) {
-            throw new Exception(e.toString());
-        }
-        return docText;
+        Document parsed = Jsoup.parse(new String(doc, "UTF-8"));
+        return parsed.text();
     }
     
     public COSDocument getCOSDocument(byte[] doc) throws Exception{

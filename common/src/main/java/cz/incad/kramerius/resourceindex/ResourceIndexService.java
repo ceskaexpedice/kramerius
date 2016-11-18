@@ -19,7 +19,6 @@ public class ResourceIndexService {
         Configuration config = KConfiguration.getInstance().getConfiguration();
         String className = config.getString("resource.index.service.class");
         ClassLoader classLoader = ResourceIndexService.class.getClassLoader();
-
         return (IResourceIndex) classLoader.loadClass(className).newInstance();
     }
 }

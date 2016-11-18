@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -307,28 +308,13 @@ public class SolrOperations {
     private void krameriusModel(String model, int offset) throws Exception {
         int pageSize = 100;
         try {
-            boolean hasRecords = false;
-
-            org.w3c.dom.Document doc = rindex.getFedoraObjectsFromModelExt(model, pageSize, offset, "date", "asc");
-            factory = XPathFactory.newInstance();
-            xpath = factory.newXPath();
-
-            xpath.setNamespaceContext(new FedoraNamespaceContext());
-            String xPathStr = "/sparql:sparql/sparql:results/sparql:result/sparql:object";
-            expr = xpath.compile(xPathStr);
-            NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
-            String pid;
-
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Node childnode = nodes.item(i);
-                pid = childnode.getAttributes().getNamedItem("uri").getNodeValue();
-                pid = pid.replaceAll("info:fedora/", "");
+            boolean next = false;
+            List<String> objectsByModel = rindex.getObjectsByModel(model, pageSize, offset, "date", "asc");
+            for (String pid : objectsByModel) {
                 fromKrameriusModel(pid);
-                hasRecords = true;
+                next = true;
             }
-            if (hasRecords) {
-                krameriusModel(model, offset + pageSize);
-            }
+            if (next)  krameriusModel(model, offset + pageSize);
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error indexing model " + model, e);

@@ -309,6 +309,8 @@ public class ItemResource {
             return Response.ok().entity(jsonObject.toString()).build();
         } catch (JSONException e1) {
             throw new GenericApplicationException(e1.getMessage());
+        } catch (IOException e1) {
+            throw new GenericApplicationException(e1.getMessage());
         }
     }
 

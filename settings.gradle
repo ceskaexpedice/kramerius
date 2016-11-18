@@ -16,7 +16,8 @@ include	'import-jaxb-srwdc'
 include	'import-mets' 
 	
 include	'indexer'
-include	'k5indexer'
+//disable forever
+//include	'k5indexer'
 include	'static-export'
 include	'rest'
 include	'search' 

@@ -39,7 +39,8 @@ dependencies {
     compile project(':common')
     compile project(':static-export')
     compile project(':indexer')
-    compile project(':k5indexer')
+    // disable forever
+	//compile project(':k5indexer')
     compile project(':import')
     compile project(':import-mets')
     compile project(':security-core')

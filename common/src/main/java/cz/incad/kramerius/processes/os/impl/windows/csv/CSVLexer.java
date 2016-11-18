@@ -1,7 +1,6 @@
-// $ANTLR 2.7.7 (20060906): "csv.g" -> "CSVLexer.java"$
+// $ANTLR 2.7.7 (2006-11-01): "/C:/Users/pstastny.SEARCH/nprojs/kramerius/common/src/main/java/cz/incad/kramerius/processes/os/impl/windows/csv/csv.g" -> "CSVLexer.java"$
 
 	package cz.incad.kramerius.processes.os.impl.windows.csv;
-	
 	import java.util.*;
 
 import java.io.InputStream;
@@ -129,6 +128,7 @@ tryAgain:
 			_cnt19++;
 		} while (true);
 		}
+		match('"');
 		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {
 			_token = makeToken(_ttype);
 			_token.setText(new String(text.getBuffer(), _begin, text.length()-_begin));
@@ -231,7 +231,7 @@ inputState.guessing--;
 	
 	private static final long[] mk_tokenSet_0() {
 		long[] data = new long[1024];
-		data[0]=-17592186053640L;
+		data[0]=-17179878408L;
 		for (int i = 1; i<=510; i++) { data[i]=-1L; }
 		data[511]=9223372036854775807L;
 		return data;
