@@ -1,0 +1,11 @@
+description "Import jackrabbit and fedora 4 repository" 
+
+
+dependencies {
+    compile project(':security-core')
+    compile project(':fedora-api')
+    compile project(':common')
+    compile project(':import')
+    compile 'commons-codec:commons-codec:1.5'
+}
+
