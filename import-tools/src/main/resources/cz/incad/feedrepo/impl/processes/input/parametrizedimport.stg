@@ -43,8 +43,8 @@ form(importDirectory,importRootDirectory,  startIndexer, updateExisting, bundle)
                 +';startIndexer='+startIndexer+';updateExisting='+updateExisting
                 ;
             
-            var url = "lr?action=form_post&def=parametrizedimport&paramsMapping={"+vals+"}&out=text";
-            processStarter("parametrizedimport").start(url);
+            var url = "lr?action=form_post&def=parametrizedimport_jackrabbit&paramsMapping={"+vals+"}&out=text";
+            processStarter("parametrizedimport_jackrabbit").start(url);
         }
 
         // show directory dialog

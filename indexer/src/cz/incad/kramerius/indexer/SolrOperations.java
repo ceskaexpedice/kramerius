@@ -2,6 +2,7 @@ package cz.incad.kramerius.indexer;
 
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -10,6 +11,8 @@ import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.google.inject.Inject;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -35,19 +38,17 @@ import java.util.logging.Logger;
 
 /**
  * performs the Solr specific parts of the operations
+ * TODO: rewrite !!
  */
 public class SolrOperations {
 
     private static final Logger logger = Logger.getLogger(SolrOperations.class.getName());
     private static final String UNIQUEKEY = "PID";
-    //private IndexReader ir = null;
     protected Configuration config;
     protected int insertTotal = 0;
     protected int updateTotal = 0;
     protected int deleteTotal = 0;
     protected int warnCount = 0;
-    //protected String[] params = null;
-    private FedoraOperations fedoraOperations;
     IResourceIndex rindex;
     ExtendedFields extendedFields;
     private GTransformer transformer;
@@ -55,15 +56,19 @@ public class SolrOperations {
     private ArrayList<String> indexedCache = new ArrayList<String>();
     private boolean isSoftCommit = true;
     String pidSeparator;
-
-    public SolrOperations(FedoraOperations _fedoraOperations) throws IOException {
+    
+    private FedoraAccessBridge bridge;
+    private FedoraOperations fedoraOperations;
+    
+    @Inject
+    public SolrOperations(FedoraAccessBridge bridge, FedoraOperations _fedoraOperations) throws IOException {
         fedoraOperations = _fedoraOperations;
         config = KConfiguration.getInstance().getConfiguration();
         isSoftCommit = config.getBoolean("indexer.isSoftCommit", false);
         pidSeparator = config.getString("indexer.pidSeparator", ";");
         transformer = new GTransformer();
         initCustomTransformations();
-        extendedFields = new ExtendedFields(fedoraOperations);
+        extendedFields = new ExtendedFields(bridge, this.fedoraOperations);
     }
 
     public void updateIndex(String action, String value)
@@ -473,8 +478,8 @@ public class SolrOperations {
     }
 
 
-
-    private void indexDoc(
+    // TODO: Change it; not namespaceare;
+    public void indexDoc(
             InputStream foxmlStream,
             String docCount)
             throws java.rmi.RemoteException, IOException, Exception {
@@ -753,9 +758,7 @@ public class SolrOperations {
         for (int i = 0; i < nodeList.getLength(); i++) {
             node = nodeList.item(i);
             PID = node.getFirstChild().getNodeValue();
-            try {
-                fedoraOperations.fa.getAPIM().getObjectXML(PID);
-            } catch (Exception e) {
+            if (!bridge.existPid(PID)) {
                 logger.log(Level.INFO, PID + " doesn't exist. Deleting...");
                 deletePid(PID);
             }

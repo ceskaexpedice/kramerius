@@ -53,11 +53,12 @@ dependencies {
     compile "org.apache.commons:commons-lang3:3.2.1"
 
     compile ("com.yourmediashelf.fedora.client:fedora-client-core:0.7") {
-	exclude group:"com.hp.hpl.jena", module:"jena"
+      exclude group:"com.hp.hpl.jena", module:"jena"
+      exclude group:"ch.qos.logback", module:"logback-classic"
     }
     
     compile ("com.yourmediashelf.fedora.client:fedora-client-messaging:0.7") {
-	exclude group:"com.hp.hpl.jena", module:"jena"
+      exclude group:"com.hp.hpl.jena", module:"jena"
     }
 
 	compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.4.2'
@@ -95,6 +96,7 @@ dependencies {
 	compile 'javax.jcr:jcr:2.0'
     compile 'org.apache.jackrabbit:jackrabbit-core:2.12.1'
     compile 'org.apache.jackrabbit:jackrabbit-jcr2dav:2.12.1'
+    compile 'org.apache.jackrabbit:jackrabbit-jcr-rmi:2.12.1'
 
     // for audio support 
     compile 'net.sf.ehcache:ehcache:2.6.0'

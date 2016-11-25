@@ -7,6 +7,8 @@ dependencies {
     compile project(':common')
     compile project(':import-jaxb')
     compile project(':import-cmdtool')
+    // new repository tools 
+    //compile project(':import-tools')
 
     compile 'commons-codec:commons-codec:1.5'
 }

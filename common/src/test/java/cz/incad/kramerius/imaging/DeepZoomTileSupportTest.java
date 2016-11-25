@@ -48,19 +48,6 @@ public class DeepZoomTileSupportTest extends AbstractGuiceTestCase {
         int levels = tileSupp.getLevels(new Dimension(8949, 6684), tileSize);
         Assert.assertTrue(levels == 6);
         
-        for (int i = 0; i < levels; i++) {
-            Dimension scaledResolution = tileSupp.getScaledDimension(new Dimension(8949, 6684), i,levels);
-            System.out.println("level "+i+" = "+scaledResolution);
-            int closestLevel = tileSupp.getClosestLevel(new Dimension(8949, 6684), 512, 512);
-            System.out.println("closest level ="+closestLevel);
-        }
-        
-//        Dimension scaledResolution = tileSupp.getScaledDimension(new Dimension(8949, 6684), 0,levels);
-//        System.out.println(scaledResolution);
-//        //tileSupp.getMaxSize(pid, factor)
-//
-//        int closestLevel = tileSupp.getClosestLevel(new Dimension(8949, 6684), 512);
-//        System.out.println(closestLevel);
         
     }
 

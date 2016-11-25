@@ -63,22 +63,20 @@ public class JackRabbitRepoAccessImpl extends AbstractFedoraAccess {
 
     public static final Logger LOGGER = Logger.getLogger(JackRabbitRepoAccessImpl.class.getName());
 
-    static String JACKRABBIT_FOLDER = System.getProperty("jackrabbit.folder",
-            (System.getProperty("user.home") + File.separator + "jck_repo"));
+//    static String JACKRABBIT_FOLDER = System.getProperty("jackrabbit.folder",
+//            (System.getProperty("user.home") + File.separator + "jck_repo"));
 
     private Repository repo;
 
     private ObjectPool<Session> poolOfSession;
 
     @Inject
-    public JackRabbitRepoAccessImpl(KConfiguration configuration, @Nullable StatisticsAccessLog accessLog) throws IOException {
+    public JackRabbitRepoAccessImpl(KConfiguration configuration, @Nullable StatisticsAccessLog accessLog)
+            throws IOException {
         super(configuration, accessLog);
         try {
-            File f = new File(JACKRABBIT_FOLDER);
-            if (!f.exists()) {
-                f.mkdirs();
-            }
-            this.repo = JcrUtils.getRepository(new File(JACKRABBIT_FOLDER).toURI().toString());
+            String url = KConfiguration.getInstance().getConfiguration().getString("jackrabbit.uri");
+            this.repo = JcrUtils.getRepository(url);
             this.poolOfSession = new GenericObjectPool(new JackRabbitSessionFactory(this.repo));
             // 3 objects in the pool
             this.poolOfSession.addObject();
@@ -100,7 +98,7 @@ public class JackRabbitRepoAccessImpl extends AbstractFedoraAccess {
             session = poolOfSession.borrowObject();
             // this.session = this.repo.login(new SimpleCredentials("admin",
             // "admin".toCharArray()));
-            this.namespaces(session);
+            //this.namespaces(session);
         } catch (LoginException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
@@ -253,8 +251,9 @@ public class JackRabbitRepoAccessImpl extends AbstractFedoraAccess {
             Node rNode = session.getRootNode();
             if (rNode.hasNode(restPid(pid))) {
                 return true;
-            } else return false;
-            
+            } else
+                return false;
+
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
@@ -322,6 +321,27 @@ public class JackRabbitRepoAccessImpl extends AbstractFedoraAccess {
                 return node;
             } else
                 return null;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw e;
+        } finally {
+            try {
+                poolOfSession.returnObject(session);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw e;
+            }
+        }
+    }
+
+    private Node objectNode(String pid) throws RepositoryException, ItemExistsException,
+            PathNotFoundException, VersionException, ConstraintViolationException, LockException, Exception {
+        Session session = null;
+        try {
+            session = poolOfSession.borrowObject();
+            Node rNode = session.getRootNode();
+            Node kramerius = rNode.getNode(restPid(pid));
+            return kramerius;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw e;
@@ -434,24 +454,53 @@ public class JackRabbitRepoAccessImpl extends AbstractFedoraAccess {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         }
-
     }
 
     @Override
-    public List<Map<String, String>> getStreamsOfObject(String pid)  throws IOException {
+    public Date getObjectLastmodifiedFlag(String pid) throws IOException {
+        try {
+            Node node = objectNode(pid);
+            Property property = node.getProperty(JcrConstants.JCR_LASTMODIFIED);
+            return property.getDate().getTime();
+        } catch (ItemExistsException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (PathNotFoundException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (VersionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (ConstraintViolationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (LockException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (RepositoryException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public List<Map<String, String>> getStreamsOfObject(String pid) throws IOException {
         Session session = null;
         try {
-            List<Map<String, String>> list = new ArrayList<Map<String,String>>();
+            List<Map<String, String>> list = new ArrayList<Map<String, String>>();
             session = poolOfSession.borrowObject();
             Node rNode = session.getRootNode();
             Node kramerius = rNode.getNode(restPid(pid));
             NodeIterator nodes = kramerius.getNodes();
-            while(nodes.hasNext()) {
+            while (nodes.hasNext()) {
                 Node subNode = nodes.nextNode();
                 if (subNode.isNodeType("kramerius:resource")) {
                     Map<String, String> m = new HashMap<String, String>();
-                    m.put("dsid",subNode.getName());
-                    m.put("label",subNode.getName());
+                    m.put("dsid", subNode.getName());
+                    m.put("label", subNode.getName());
                     list.add(m);
                 }
             }

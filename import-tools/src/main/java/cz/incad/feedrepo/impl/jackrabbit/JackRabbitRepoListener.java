@@ -69,7 +69,10 @@ public class JackRabbitRepoListener {
                 FedoraNamespaces.FEDORA_MODELS_URI);
         String sourcePid = cutCommonPrefix(descEl.getAttribute("rdf:about"));
         String model = cutCommonPrefix((modelEl!= null)  ? modelEl.getAttribute("rdf:resource") : "uknown");
-        model = (model.contains("model:")) ? model.substring("model:".length()) : model;        
+        model = (model.contains("model:")) ? model.substring("model:".length()) : model;
+        // delete by pid
+        this.processingIndexFeeder.deleteByPid(sourcePid, solrHost);
+        // feed description document
         this.processingIndexFeeder.feedDescriptionDocument(sourcePid, model,solrHost);
         List<Element> els = XMLUtils.getElements(descEl);
         for (Element el : els) {

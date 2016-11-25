@@ -428,6 +428,8 @@ public interface FedoraAccess {
 
     Date getStreamLastmodifiedFlag(String pid, String stream) throws IOException;
     
+    Date getObjectLastmodifiedFlag(String pid) throws IOException;
+
     List<Map<String, String>> getStreamsOfObject(String pid)  throws IOException;
     
 //    private Date lastModified(String pid, String stream) throws IOException {

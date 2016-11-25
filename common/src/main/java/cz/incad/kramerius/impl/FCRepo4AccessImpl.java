@@ -258,6 +258,16 @@ public class FCRepo4AccessImpl extends AbstractFedoraAccess {
     
 
     
+    @Override
+    public Date getObjectLastmodifiedFlag(String pid) throws IOException {
+        try {
+            FedoraDatastream datastream = this.repo.getDatastream(restPid(pid));
+            return datastream.getLastModifiedDate();
+        } catch (FedoraException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
     private String restOfPath(String pid, String path) {
        int indexOf = path.indexOf(pid);
        return path.substring(indexOf+pid.length()+1);
@@ -287,7 +297,7 @@ public class FCRepo4AccessImpl extends AbstractFedoraAccess {
                 
                 if (predicate.toString().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
                     if (tripleObject.toString().equals("http://fedora.info/definitions/v4/repository#Binary")) {
-                        String label = restOfPath(pid, tripleSubject.toString());
+                        String label = restOfPath(restPid(pid), tripleSubject.toString());
                         if (find(maps, label).isEmpty()) {
                             Map<String, String> map = createMap(label);
                             maps.add(map);
@@ -296,7 +306,7 @@ public class FCRepo4AccessImpl extends AbstractFedoraAccess {
                     if (predicate.toString().equals("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#hasMimeType")) {
                         if (tripleObject.isLiteral()) {
                             Object objValue = tripleObject.getLiteral().getValue();
-                            String label = restOfPath(pid, tripleSubject.toString());
+                            String label = restOfPath(restPid(pid), tripleSubject.toString());
                             List<Map<String, String>> collected = find(maps, label);
                             Map<String, String> map = collected.isEmpty() ? null : collected.get(0);
                             if (map == null) {

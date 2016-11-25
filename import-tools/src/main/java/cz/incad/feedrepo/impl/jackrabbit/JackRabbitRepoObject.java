@@ -21,17 +21,20 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.version.VersionException;
 
 import org.apache.jackrabbit.JcrConstants;
+import org.apache.jackrabbit.rmi.value.SerialValueFactory;
 import org.apache.jackrabbit.value.BinaryImpl;
 
 import cz.incad.feedrepo.RepoAbstractionException;
@@ -45,7 +48,6 @@ public class JackRabbitRepoObject implements RepositoryObjectAbstraction {
 
     
     private Node node;
-
     
     
     /**
@@ -108,14 +110,22 @@ public class JackRabbitRepoObject implements RepositoryObjectAbstraction {
             throws RepoAbstractionException {
         try {
             String ident = this.node.getIdentifier();
+            if (this.node.hasNode(ident)) {
+                this.node.getNode(ident).remove();
+            }
+ 
             Node kramerius = this.node.addNode(streamId);
+            
             kramerius.addMixin("mix:lockable");
             kramerius.addMixin("kramerius:datastream");
             kramerius.setProperty(JcrConstants.JCR_MIMETYPE, mimeType);
-            kramerius.setProperty(JcrConstants.JCR_DATA, new BinaryImpl(input));
+           
+            Binary binVal = SerialValueFactory.getInstance().createBinary(input);
+            kramerius.setProperty(JcrConstants.JCR_DATA, binVal);
             Calendar instance = Calendar.getInstance();
             instance.setTime(new Date());
-            kramerius.setProperty(JcrConstants.JCR_LASTMODIFIED, instance);            return new JackRabbitRepoObject(kramerius);
+            kramerius.setProperty(JcrConstants.JCR_LASTMODIFIED, instance);           
+            return new JackRabbitRepoObject(kramerius);
         } catch (Exception e) {
             throw new RepoAbstractionException(e);
         }

@@ -58,11 +58,11 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
-public class ImportToRepo {
+public class ImportToRepos {
 
     static ObjectFactory of;
     static int counter = 0;
-    static final Logger log = Logger.getLogger(ImportToRepo.class.getName());
+    static final Logger log = Logger.getLogger(ImportToRepos.class.getName());
     static Unmarshaller unmarshaller = null;
     static Marshaller datastreamMarshaller = null;
     static List<String> rootModels = null;
@@ -108,7 +108,7 @@ public class ImportToRepo {
      */
     public static void main(String[] args) throws UnsupportedEncodingException, ClassNotFoundException, InstantiationException, IllegalAccessException, RepoAbstractionException {
         String importDirectory = System.getProperties().containsKey("import.directory") ? System.getProperty("import.directory") : KConfiguration.getInstance().getProperty("import.directory");
-        ImportToRepo.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
+        ImportToRepos.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
     }
     
 
@@ -206,14 +206,15 @@ public class ImportToRepo {
                         }
                         pids.append(tpt.pid);
                     }
-                    //IndexerProcessStarter.spawnIndexer(true, importFile.getName(), pids.toString());
-                    //log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
+                    IndexerProcessStarter.spawnIndexer(true, importFile.getName(), pids.toString());
+                    log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
                 }
             } else {
                 log.info("AUTO INDEXING DISABLED.");
             }
             repo.commitTransaction();
         } catch(Exception ex) {
+            log.log(Level.SEVERE,ex.getMessage(),ex);
             repo.rollbackTransaction();
         } finally {
             repo.close();

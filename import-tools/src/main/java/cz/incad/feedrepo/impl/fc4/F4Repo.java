@@ -92,8 +92,8 @@ public class F4Repo implements RepoAbstraction {
     @Override
     public RepositoryObjectAbstraction createObject(String ident) throws RepoAbstractionException {
         try {
-            FedoraObject createObject = this.repo.createObject(ident);
-
+            boolean exists = this.repo.exists(ident);
+            FedoraObject createObject = this.repo.findOrCreateObject(ident);
             return new F4RepoObject(createObject, this.repo);
         } catch (FedoraException e) {
             throw new RepoAbstractionException(e);

@@ -23,6 +23,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
+import javax.swing.JComboBox.KeySelectionManager;
+
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
+import cz.incad.kramerius.indexer.guice.GuiceModelInjector;
+
 public class Indexer {
 
     private static final Logger logger = Logger.getLogger(Indexer.class.getName());
@@ -112,9 +121,8 @@ public class Indexer {
     }
 
     public void updateIndex(String action, String value) throws Exception {
-        FedoraOperations ops = new FedoraOperations();
-        ArrayList<String> params = new ArrayList<String>();
-        ops.updateIndex(action, value, params);
+        SolrOperations ops = GuiceModelInjector.injector().getInstance(SolrOperations.class);
+        ops.updateIndex(action, value);
     }
 
     private String formatElapsedTime(long timeInMiliseconds) {

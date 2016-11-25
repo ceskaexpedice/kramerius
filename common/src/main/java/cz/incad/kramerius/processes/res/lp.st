@@ -312,6 +312,20 @@
     </process>
 
 
+    <!-- Parametrizovany process importu - novy repositar -->
+    <process>
+        <id>parametrizedimport_jackrabbit</id>
+        <description>Import JACKRABBIT | FCREPO FOXML</description>
+        <mainClass>cz.incad.feedrepo.impl.processes.ParametrizedImport</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <templates>
+            <input class="cz.incad.feedrepo.impl.processes.input.ParametrizedImportInputTemplate"></input>
+        </templates>
+        
+        <securedaction>import</securedaction>
+    </process>
+
     <!-- parametrizovany process importu -->
     <process>
         <id>parametrizedimport</id>

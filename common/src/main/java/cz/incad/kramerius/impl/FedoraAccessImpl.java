@@ -790,9 +790,34 @@ public class FedoraAccessImpl extends AbstractFedoraAccess {
 
     @Override
     public Date getStreamLastmodifiedFlag(String pid, String stream) throws IOException {
-
         Date date = null;
         Document streamProfile = this.getStreamProfile(pid, stream);
+
+        Element elm = XMLUtils.findElement(streamProfile.getDocumentElement(), "dsCreateDate",
+                FedoraNamespaces.FEDORA_MANAGEMENT_NAMESPACE_URI);
+        if (elm != null) {
+            String textContent = elm.getTextContent();
+            for (DateFormat df : FedoraUtils.XSD_DATE_FORMATS) {
+                try {
+                    date = df.parse(textContent);
+                    break;
+                } catch (ParseException e) {
+                    //
+                }
+            }
+        }
+        if (date == null) {
+            date = new Date();
+        }
+        return date;
+    }
+
+    
+    
+    @Override
+    public Date getObjectLastmodifiedFlag(String pid) throws IOException {
+        Date date = null;
+        Document streamProfile = this.getObjectProfile(pid);
 
         Element elm = XMLUtils.findElement(streamProfile.getDocumentElement(), "dsCreateDate",
                 FedoraNamespaces.FEDORA_MANAGEMENT_NAMESPACE_URI);

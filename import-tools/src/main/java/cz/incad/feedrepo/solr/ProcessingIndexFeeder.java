@@ -1,10 +1,12 @@
 package cz.incad.feedrepo.solr;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ws.rs.core.MediaType;
 
+import org.apache.http.client.ClientProtocolException;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
@@ -79,5 +81,23 @@ public class ProcessingIndexFeeder {
         String post = r.accept(MediaType.APPLICATION_JSON).entity(string, MediaType.APPLICATION_JSON).post(String.class);
         return new JSONObject(post);
     }
+
+    public JSONObject deleteByPid(JSONObject jsonObj, String solrHost) {
+        //String solrHost = KConfiguration.getInstance().getConfiguration().getString("processingSolrHost")+"/update";
+        String updateEndpoint = solrHost+"/update";
+        WebResource r = this.client.resource(updateEndpoint);
+        String string = jsonObj.toString();
+        String post = r.accept(MediaType.APPLICATION_JSON).entity(string, MediaType.APPLICATION_JSON).post(String.class);
+        return new JSONObject(post);
+    }
+
     
+    public JSONObject deleteByPid(String pid, String solrHost) throws ClientProtocolException, IOException {
+        JSONObject deleteObject = new JSONObject();
+        JSONObject queryObject = new JSONObject();
+        queryObject.put("query", "source:\""+pid+"\"");
+        deleteObject.put("delete", queryObject);
+        return deleteByPid(deleteObject, solrHost);
+    }    
+
 }

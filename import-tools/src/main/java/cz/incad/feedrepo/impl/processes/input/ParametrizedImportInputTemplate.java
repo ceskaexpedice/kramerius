@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.kramerius.imports.input;
+package cz.incad.feedrepo.impl.processes.input;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

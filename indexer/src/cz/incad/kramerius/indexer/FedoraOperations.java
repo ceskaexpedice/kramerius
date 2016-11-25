@@ -3,8 +3,10 @@ package cz.incad.kramerius.indexer;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.UTFSort;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -14,12 +16,15 @@ import org.fedora.api.MIMETypedStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.google.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// rewrite !!
 public class FedoraOperations {
 
     private static final Logger logger =
@@ -32,29 +37,30 @@ public class FedoraOperations {
     protected String dsText;
     protected String[] params = null;
     String foxmlFormat;
-    FedoraAccess fa;
+    FedoraAccessBridge bridge;
     IResourceIndex rindex;
     UTFSort utf_sort;
 
-    public FedoraOperations() throws Exception {
-        fa = new FedoraAccessImpl(KConfiguration.getInstance(),null);
+    @Inject
+    public FedoraOperations(FedoraAccessBridge brigde) throws Exception {
+        this.bridge = brigde;
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
         utf_sort = new UTFSort();
         utf_sort.init();
     }
 
-    public void updateIndex(String action, String value, ArrayList<String> requestParams) throws java.rmi.RemoteException, Exception {
-        logger.log(Level.INFO, "updateIndex action={0} value={1}", new Object[]{action, value});
-
-        SolrOperations ops = new SolrOperations(this);
-        ops.updateIndex(action, value);
-    }
+//    public void updateIndex(String action, String value, ArrayList<String> requestParams) throws java.rmi.RemoteException, Exception {
+//        logger.log(Level.INFO, "updateIndex action={0} value={1}", new Object[]{action, value});
+//        SolrOperations ops = new SolrOperations(bridge,this);
+//        ops.updateIndex(action, value);
+//    }
 
     public byte[] getAndReturnFoxmlFromPid(String pid) throws java.rmi.RemoteException, Exception {
         logger.log(Level.FINE, "getAndReturnFoxmlFromPid pid={0}", pid);
 
         try {
-            return fa.getAPIM().export(pid, foxmlFormat, "public");
+            //return fa.getAPIM().export(pid, foxmlFormat, "public");
+            return bridge.getFoxml(pid);
         } catch (Exception e) {
             throw new Exception("Fedora Object " + pid + " not found. ", e);
         }
@@ -63,10 +69,8 @@ public class FedoraOperations {
     public void getFoxmlFromPid(String pid) throws java.rmi.RemoteException, Exception {
 
         logger.log(Level.INFO, "getFoxmlFromPid pid={0}", pid);
-
         try {
-            foxmlRecord = fa.getAPIM().export(pid, foxmlFormat, "public");
-
+            foxmlRecord = this.bridge.getFoxml(pid);// fa.getAPIM().export(pid, foxmlFormat, "public");
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error getting object", e);
             throw new Exception("Fedora Object " + pid + " not found. ", e);
@@ -76,13 +80,14 @@ public class FedoraOperations {
     public int getPdfPagesCount_(String pid, String dsId) throws Exception {
         ds = null;
         if (dsId != null) {
-            FedoraAPIA apia = fa.getAPIA();
-            MIMETypedStream mts = apia.getDatastreamDissemination(pid,
-                    dsId, null);
-            if (mts == null) {
-                return 1;
-            }
-            ds = mts.getStream();
+//            FedoraAPIA apia = fa.getAPIA();
+//            MIMETypedStream mts = apia.getDatastreamDissemination(pid,
+//                    dsId, null);
+//            if (mts == null) {
+//                return 1;
+//            }
+            
+            ds = bridge.getStreamContentAsArray(pid, dsId);// mts.getStream();
 //            getPDFDocument(pid);
 //            int ret = (pdDoc.getNumberOfPages() + 1);
 //            closePDFDocument();
@@ -103,7 +108,7 @@ public class FedoraOperations {
         if (!p.isEmpty()) {
             String fedoraPid = "info:fedora/" + pid;
             for (String s : p) {
-                Document relsExt = fa.getRelsExt(s);
+                Document relsExt = bridge.getStreamContentAsDocument(s, FedoraUtils.RELS_EXT_STREAM);
                 Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
                 List<Element> els = XMLUtils.getElements(descEl);
                 int i = 0;
@@ -139,7 +144,7 @@ public class FedoraOperations {
                 } else {
                     fedoraPid = "info:fedora/" + pids[pids.length - 1];
                     parent = pids[pids.length - 2];
-                    Document relsExt = fa.getRelsExt(parent);
+                    Document relsExt = bridge.getStreamContentAsDocument(parent, FedoraUtils.RELS_EXT_STREAM);
                     Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
                     List<Element> els = XMLUtils.getElements(descEl);
                     int i = 0;
@@ -238,15 +243,17 @@ public class FedoraOperations {
         ds = null;
 
         try {
-            FedoraAPIA apia = fa.getAPIA();
-            MIMETypedStream mts = apia.getDatastreamDissemination(pid,
-                    dsId, null);
-            if (mts == null) {
-                return "";
-            }
-            ds = mts.getStream();
-            String mimetype = mts.getMIMEType();
-
+            
+//            FedoraAPIA apia = fa.getAPIA();
+//            MIMETypedStream mts = apia.getDatastreamDissemination(pid,
+//                    dsId, null);
+//            if (mts == null) {
+//                return "";
+//            }
+            //ds = mts.getStream();
+            ds = bridge.getStreamContentAsArray(pid, dsId);
+//            String mimetype = mts.getMIMEType();
+            String mimetype = bridge.getStreamMimeType(pid, dsId);
             if (ds != null) {
                 if (mimetype.equals("application/pdf")) {
                     //getPDFDocument(pid);

@@ -33,10 +33,6 @@ public class Main {
                 throw new Exception("Program arguments are invalid: " + Arrays.toString(args));
             }
 
-            //checkFileOrCreateNew(arguments.log4jFile, "res/log4j.properties");
-            //checkFileOrCreateNew(arguments.configFile, "res/config.properties");
-			//checkFileOrCreateNew(arguments.configFile,"res/KrameriusFoxmlToSolr.xslt");
-            //System.out.println(arguments.title);
             try{
                 ProcessStarter.updateName("Indexace dokumentu: " + arguments.title);
             } catch (Exception ex) {

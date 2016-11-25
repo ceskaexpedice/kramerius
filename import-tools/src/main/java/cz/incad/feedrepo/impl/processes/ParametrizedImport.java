@@ -14,18 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.kramerius.imports;
+package cz.incad.feedrepo.impl.processes;
+
+import cz.incad.feedrepo.ImportToRepos;
+import cz.incad.feedrepo.RepoAbstractionException;
+import cz.incad.kramerius.processes.annotations.ParameterName;
+import cz.incad.kramerius.processes.annotations.Process;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
+
+import org.kramerius.Import;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
-
-import org.kramerius.Import;
-
-import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
 
 /**
  * Parametrized import proces
@@ -41,7 +43,7 @@ public class ParametrizedImport {
     @Process
     public static void process( @ParameterName("importDirectory") File importDirectory, 
             @ParameterName("startIndexer")Boolean startIndexer,
-            @ParameterName("updateExisting")Boolean updateExisting) throws UnsupportedEncodingException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+            @ParameterName("updateExisting")Boolean updateExisting) throws UnsupportedEncodingException, ClassNotFoundException, InstantiationException, IllegalAccessException, RepoAbstractionException {
 
         System.setProperty("import.directory", importDirectory.getAbsolutePath());
         System.setProperty("ingest.startIndexer", startIndexer.toString());
@@ -55,8 +57,8 @@ public class ParametrizedImport {
             LOGGER.log(Level.SEVERE,e.getMessage(), e);
         }
         
-        //ImportToRepos.main(new String[0]);
+        ImportToRepos.main(new String[0]);
         //standard import program
-        Import.main(new String[0]);
+        //Import.main(new String[0]);
     }
 }

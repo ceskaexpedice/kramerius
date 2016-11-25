@@ -345,6 +345,10 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public List<Map<String, String>> getStreamsOfObject(String pid) throws IOException {
         return rawAccess.getStreamsOfObject(pid);
     }
-    
+
+    @Override
+    public Date getObjectLastmodifiedFlag(String pid) throws IOException {
+        return rawAccess.getObjectLastmodifiedFlag(pid);
+    }
     
 }

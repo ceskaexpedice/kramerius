@@ -24,6 +24,8 @@ include	'search'
 include 'client'
 include 'mw-process'
 include 'authfilters'
+include 'import-tools'
+
 	
 
 // filter property -DremoveProjs=projectA,projectB,..

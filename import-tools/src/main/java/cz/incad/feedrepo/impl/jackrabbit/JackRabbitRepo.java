@@ -67,6 +67,7 @@ import cz.incad.feedrepo.RepositoryObjectAbstraction;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.repo.impl.JackRabbitUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * @author pavels
@@ -77,11 +78,6 @@ public class JackRabbitRepo implements RepoAbstraction {
 
     public static final Logger LOGGER = Logger.getLogger(JackRabbitRepo.class.getName());
 
-//    static String JACKRABBIT_FOLDER = System.getProperty("jackrabbit.folder",
-//            (System.getProperty("user.home") + File.separator + "jck_repo"));
-
-//    public static final String USER = "admin";
-//    public static final String PASSWORD = "admin";
 
     private Repository repo;
     private JackRabbitRepoListener listener;
@@ -100,7 +96,6 @@ public class JackRabbitRepo implements RepoAbstraction {
     public void open() throws RepoAbstractionException {
         try {
             this.currentSession = this.repo.login(new SimpleCredentials(JackRabbitUtils.getUser(), JackRabbitUtils.getPassword().toCharArray()));
-            this.namespaces();
             this.listener = new JackRabbitRepoListener(this.currentSession);
             EventListener listener = new EventListener() {
                 @Override
@@ -183,58 +178,14 @@ public class JackRabbitRepo implements RepoAbstraction {
     public JackRabbitRepo() {
         super();
         try {
-            File f = new File(JackRabbitUtils.getJackRabbitFolder());
-            if (!f.exists()) {
-                f.mkdirs();
-            }
-            this.repo = JcrUtils.getRepository(new File(JackRabbitUtils.getJackRabbitFolder()).toURI().toString());
+            String url = KConfiguration.getInstance().getConfiguration().getString("jackrabbit.uri");
+            this.repo = JcrUtils.getRepository(url);
         } catch (RepositoryException e) {
             throw new RuntimeException(e);
         }
 
     }
 
-    private synchronized void namespaces() throws AccessDeniedException, NamespaceException,
-            UnsupportedRepositoryOperationException, RepositoryException {
-        NamespaceRegistry registry = this.currentSession.getWorkspace().getNamespaceRegistry();
-        List<String> list = Arrays.asList(registry.getURIs());
-        if (!list.contains(FedoraNamespaces.KRAMERIUS_URI)) {
-            registry.registerNamespace("kramerius", FedoraNamespaces.KRAMERIUS_URI);
-        }
-        if (!list.contains(FedoraNamespaces.FEDORA_MODELS_URI)) {
-            registry.registerNamespace("fedora-models", FedoraNamespaces.FEDORA_MODELS_URI);
-        }
-
-        // kramerius resource
-        NodeTypeManager mgr = currentSession.getWorkspace().getNodeTypeManager();
-        NodeTypeTemplate krameriusResource = mgr.createNodeTypeTemplate();
-        krameriusResource.setName("kramerius:resource");
-        krameriusResource.setMixin(true);
-
-        // kramerius resource must have fedora model property and property must
-        // correspond with model node
-        PropertyDefinitionTemplate propDefn = mgr.createPropertyDefinitionTemplate();
-        propDefn.setName("fedora-models:model");
-        propDefn.setRequiredType(PropertyType.STRING);
-
-        // TODO: Change it
-        propDefn.setMandatory(false);
-
-        krameriusResource.getPropertyDefinitionTemplates().add(propDefn);
-
-        // datastream
-        NodeTypeTemplate dataStream = mgr.createNodeTypeTemplate();
-        dataStream.setName("kramerius:datastream");
-        dataStream.setMixin(true);
-
-        // kramerius model; model
-        NodeTypeTemplate modelResource = mgr.createNodeTypeTemplate();
-        modelResource.setName("kramerius:model");
-        modelResource.setMixin(true);
-
-        NodeTypeDefinition[] nodeTypes = new NodeTypeDefinition[] { krameriusResource, dataStream, modelResource };
-        mgr.registerNodeTypes(nodeTypes, true);
-    }
 
     /*
      * (non-Javadoc)
@@ -322,4 +273,5 @@ public class JackRabbitRepo implements RepoAbstraction {
         }
     }
 
+    
 }

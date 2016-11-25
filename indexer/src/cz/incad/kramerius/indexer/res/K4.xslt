@@ -3,7 +3,7 @@
 <xsl:stylesheet version="1.1"
         xmlns:xsl="http://www.w3.org/1999/XSL/Transform"   
         xmlns:fn="http://www.w3.org/2005/xpath-functions"
-    	xmlns:exts="java://cz.incad.kramerius.indexer.FedoraOperations"
+    	xmlns:exts="java://cz.incad.kramerius.indexer.xslt.XSLTSupport"
         xmlns:java="http://xml.apache.org/xslt/java"
         xmlns:zs="http://www.loc.gov/zing/srw/"
         xmlns:foxml="info:fedora/fedora-system:def/foxml#"

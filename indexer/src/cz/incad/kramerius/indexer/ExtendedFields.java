@@ -5,9 +5,11 @@ import antlr.TokenStreamException;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
 import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.pdfbox.cos.COSDocument;
@@ -46,8 +48,8 @@ public class ExtendedFields {
     private ArrayList<Integer> rels_ext_indexes;
     private ArrayList<String> pid_paths;
     private ArrayList<String> model_paths;
-    private FedoraOperations fo;
-    FedoraAccess fa;
+//    private FedoraOperations fo;
+//    FedoraAccess fa;
     HashMap<String, String> models_cache;
     HashMap<String, String> dates_cache;
     HashMap<String, String> root_title_cache;
@@ -64,10 +66,12 @@ public class ExtendedFields {
     DateFormat df;
     DateFormat solrDateFormat;
 
-    public ExtendedFields(FedoraOperations fo) throws IOException {
-        this.fo = fo;
+    FedoraAccessBridge bridge;
+    FedoraOperations fo;
+    public ExtendedFields(FedoraAccessBridge bridge, FedoraOperations fo) throws IOException {
         KConfiguration config = KConfiguration.getInstance();
-        this.fa = new FedoraAccessImpl(config,null);
+        this.bridge = bridge;
+        this.fo = fo;
         models_cache = new HashMap<String, String>();
         dates_cache = new HashMap<String, String>();
         root_title_cache = new HashMap<String, String>();
@@ -105,7 +109,7 @@ public class ExtendedFields {
             try {
             pdfPid = "";
             closePDFDocument();
-                InputStream is = fa.getDataStream(pid, "IMG_FULL");
+                InputStream is = this.bridge.getStreamContent(pid, "IMG_FULL");
                 if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdf.loadNonSeq", false)){
                     PDDocument pdDocument = PDDocument.loadNonSeq(is, null);
                     cosDoc = pdDocument.getDocument();
@@ -174,7 +178,7 @@ public class ExtendedFields {
             if (models_cache.containsKey(s)) {
                 model_path.append(models_cache.get(s)).append("/");
             } else {
-                model = fa.getKrameriusModelName(s);
+                model = bridge.getKrameriusModelName(s);
                 model_path.append(model).append("/");
                 models_cache.put(s, model);
             }
@@ -244,7 +248,7 @@ public class ExtendedFields {
         if (root_title_cache.containsKey(root_pid)) {
             root_title = root_title_cache.get(root_pid);
         } else {
-            Document doc = fa.getDC(root_pid);
+            Document doc = bridge.getStreamContentAsDocument(root_pid, FedoraUtils.DC_STREAM);
 //            root_title = StringEscapeUtils.escapeXml(DCUtils.titleFromDC(doc));
 //            root_title_cache.put(root_pid, root_title);
             xPathStr = "//dc:title/text()";
@@ -267,7 +271,7 @@ public class ExtendedFields {
             String[] pid_path = pid_paths.get(j).split("/");
             for (int i = pid_path.length - 1; i > -1; i--) {
                 String pid = pid_path[i];
-                Document foxml = fa.getBiblioMods(pid);
+                Document foxml = bridge.getStreamContentAsDocument(pid, FedoraUtils.BIBLIO_MODS_STREAM);
                 if (dates_cache.containsKey(pid)) {
                     datum_str = dates_cache.get(pid);
                     parseDatum(datum_str);

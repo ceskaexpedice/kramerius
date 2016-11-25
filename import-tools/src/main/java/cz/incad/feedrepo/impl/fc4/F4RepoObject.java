@@ -81,7 +81,16 @@ public class F4RepoObject implements RepositoryObjectAbstraction {
             } else {
                 content.setContentType("text/xml");
             }
-            FedoraDatastream datastream = this.repo.createDatastream(this.fObject.getPath()+"/"+streamId, content);
+            
+            boolean exists = this.repo.exists(this.fObject.getPath()+"/"+streamId);
+            FedoraDatastream datastream =  null;
+            if (exists) {
+                datastream = this.repo.findOrCreateDatastream(this.fObject.getPath()+"/"+streamId);
+                datastream.updateContent(content);
+            } else {
+                datastream = this.repo.createDatastream(this.fObject.getPath()+"/"+streamId, content);
+            }
+            
             if (streamId.equals("RELS-EXT")) {
                 datastream.updateProperties(F4Repo.UPDATE_INDEXING_SPARQL());
             }
