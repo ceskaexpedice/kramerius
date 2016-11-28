@@ -10,7 +10,9 @@ public class MovingWallProcess extends AbstractMainMenuItem implements AdminMenu
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName()));
+        return false;
+        // DISABLED because of POC
+        //return (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName()));
     }
 
     @Override

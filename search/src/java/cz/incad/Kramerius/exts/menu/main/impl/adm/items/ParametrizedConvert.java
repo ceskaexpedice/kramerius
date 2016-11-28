@@ -26,7 +26,9 @@ public class ParametrizedConvert extends AbstractMainMenuItem implements AdminMe
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedPlanProcess("parametrizedconvert"));
+        return false;
+        // DISABLED because of POC
+        //return (hasUserAllowedPlanProcess("parametrizedconvert"));
     }
 
     @Override

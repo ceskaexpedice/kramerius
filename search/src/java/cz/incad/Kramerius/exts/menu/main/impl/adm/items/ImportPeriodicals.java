@@ -26,7 +26,9 @@ public class ImportPeriodicals extends AbstractMainMenuItem implements AdminMenu
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.REPLIKATOR_PERIODICALS.getFormalName()));
+        return false;
+        // DISABLED because of POC
+        //return (hasUserAllowedAction(SecuredActions.REPLIKATOR_PERIODICALS.getFormalName()));
     }
 
     @Override

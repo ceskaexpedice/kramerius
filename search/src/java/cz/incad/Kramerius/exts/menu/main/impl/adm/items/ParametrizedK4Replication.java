@@ -30,7 +30,9 @@ public class ParametrizedK4Replication extends AbstractMainMenuItem implements A
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedPlanProcess("k4_replication"));
+        return false;
+        // DISABLED because of POC
+        //return (hasUserAllowedPlanProcess("k4_replication"));
     }
 
     @Override

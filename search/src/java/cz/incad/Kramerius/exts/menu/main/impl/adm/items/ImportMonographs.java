@@ -26,7 +26,9 @@ public class ImportMonographs extends AbstractMainMenuItem implements AdminMenuI
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.REPLIKATOR_MONOGRAPHS.getFormalName()));
+        return false;
+        // DISABLED because of POC
+        //return (hasUserAllowedAction(SecuredActions.REPLIKATOR_MONOGRAPHS.getFormalName()));
     }
 
     @Override

@@ -26,7 +26,9 @@ public class Enumerator extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.ENUMERATOR.getFormalName()));
+         return false;
+        // DISABLED because of POC 
+        //return (hasUserAllowedAction(SecuredActions.ENUMERATOR.getFormalName()));
     }
 
     @Override

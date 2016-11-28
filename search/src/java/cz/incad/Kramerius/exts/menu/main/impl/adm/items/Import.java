@@ -26,7 +26,9 @@ public class Import extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.IMPORT.getFormalName()));
+        return false;
+        // DISABLED because of POC
+        //return (hasUserAllowedAction(SecuredActions.IMPORT.getFormalName()));
     }
 
     @Override
