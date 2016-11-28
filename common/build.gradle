@@ -59,6 +59,7 @@ dependencies {
     
     compile ("com.yourmediashelf.fedora.client:fedora-client-messaging:0.7") {
       exclude group:"com.hp.hpl.jena", module:"jena"
+      exclude group:"ch.qos.logback", module:"logback-classic"
     }
 
 	compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.4.2'
@@ -89,9 +90,17 @@ dependencies {
     compile "com.sun.jersey.contribs:jersey-guice:${jerseyversion}"
 
 
-    compile 'org.fcrepo:fcrepo4-client:4.4.1-SNAPSHOT'
-    compile 'org.fcrepo:fcrepo-client:4.4.1-SNAPSHOT'
-    compile 'org.fcrepo:fcrepo-client-impl:4.4.1-SNAPSHOT'
+    compile("org.fcrepo:fcrepo4-client:4.4.1-SNAPSHOT") {
+       exclude group:"ch.qos.logback", module:"logback-classic"
+    }
+    
+    compile("org.fcrepo:fcrepo-client:4.4.1-SNAPSHOT") {
+       exclude group:"ch.qos.logback", module:"logback-classic"
+    }
+     
+    compile("org.fcrepo:fcrepo-client-impl:4.4.1-SNAPSHOT") {
+       exclude group:"ch.qos.logback", module:"logback-classic"
+    }
 
 	compile 'javax.jcr:jcr:2.0'
     compile 'org.apache.jackrabbit:jackrabbit-core:2.12.1'
