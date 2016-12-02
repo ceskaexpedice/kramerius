@@ -1,4 +1,3 @@
-
 <div>
     <script language="JavaScript" type="text/javascript"> 
     <!--    
@@ -21,9 +20,9 @@
 
 <form>
 
-        <label>prvni</label><br>
-        <input type="text" style="width:100%" id="first" value="default"></input><br>    <label>druhy</label><br>
-        <input type="text" style="width:100%" id="second" value=""></input><br> 
+        <label>prvni</label><br></br>
+        <input type="text" style="width:100%" id="first" value="default"></input><br></br>    <label>druhy</label><br></br>
+        <input type="text" style="width:100%" id="second" value=""></input><br></br> 
 
 </form>
 

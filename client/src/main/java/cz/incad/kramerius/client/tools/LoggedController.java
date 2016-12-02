@@ -26,6 +26,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.velocity.tools.generic.ValueParser;
 
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUtils;
+import cz.incad.kramerius.auth.thirdparty.social.utils.OpenIDFlag;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
 import cz.incad.utils.StringUtils;
 
@@ -100,5 +102,13 @@ public class LoggedController {
         }
     }
 
-    
+    public boolean isUnderShibbolethSession() {
+        return ShibbolethUtils.isShibbolethSessionIsStored(this.req);
+    }
+
+    public boolean isOpenIdSession() {
+        OpenIDFlag flag = OpenIDFlag.flagFromRequest(this.req);
+        return (!flag.equals(OpenIDFlag.UNTOUCHED));
+    }
+
 }

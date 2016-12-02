@@ -28,66 +28,74 @@ import org.junit.Test;
 
 import cz.incad.kramerius.AbstractObjectPath.Between;
 
-
 public class ObjectPidsPathTest {
 
     @Test
     public void testInjectObjectsPaths() {
-        List<String> relsExtPath = new ArrayList<String>() {{
-            add("uuid:root");
-            add("uuid:monograph");
-            add("uuid:internalpart");
-            add("uuid:page");
-        }};
-        List<String> expecting = new ArrayList<String>() {{
-            add("uuid:root");
-            add("uuid:monograph");
-            add("uuid:internalpart");
-            add("uuid:article");
-            add("uuid:page");
-        }};
+        List<String> relsExtPath = new ArrayList<String>() {
+            {
+                add("uuid:root");
+                add("uuid:monograph");
+                add("uuid:internalpart");
+                add("uuid:page");
+            }
+        };
+        List<String> expecting = new ArrayList<String>() {
+            {
+                add("uuid:root");
+                add("uuid:monograph");
+                add("uuid:internalpart");
+                add("uuid:article");
+                add("uuid:page");
+            }
+        };
 
         ObjectPidsPath path = new ObjectPidsPath(relsExtPath.toArray(new String[relsExtPath.size()]));
         TestCase.assertEquals(relsExtPath, Arrays.asList(path.getPathFromRootToLeaf()));
 
-        ObjectPidsPath npath = path.injectObjectBetween("uuid:article", new AbstractObjectPath.Between("uuid:internalpart","uuid:page")); 
+        ObjectPidsPath npath = path.injectObjectBetween("uuid:article",
+                new AbstractObjectPath.Between("uuid:internalpart", "uuid:page"));
         String[] pathFromRootToLeaf = npath.getPathFromRootToLeaf();
         Assert.assertEquals(expecting, Arrays.asList(pathFromRootToLeaf));
 
-        npath = path.injectObjectBetween("uuid:article", new AbstractObjectPath.Between("uuid:page","uuid:internalpart")); 
+        npath = path.injectObjectBetween("uuid:article",
+                new AbstractObjectPath.Between("uuid:page", "uuid:internalpart"));
         pathFromRootToLeaf = npath.getPathFromRootToLeaf();
         Assert.assertEquals(expecting, Arrays.asList(pathFromRootToLeaf));
 
     }
 
-    
-    
     @Test
     public void testInjectObjectsPathsAtTheBeginning() {
 
-    	List<String> relsExtPath = new ArrayList<String>() {{
-            add("uuid:root");
-            add("uuid:monograph");
-            add("uuid:internalpart");
-            add("uuid:page");
-        }};
+        List<String> relsExtPath = new ArrayList<String>() {
+            {
+                add("uuid:root");
+                add("uuid:monograph");
+                add("uuid:internalpart");
+                add("uuid:page");
+            }
+        };
 
-    	List<String> expecting = new ArrayList<String>() {{
-            add("uuid:superroot");
-            add("uuid:root");
-            add("uuid:monograph");
-            add("uuid:internalpart");
-            add("uuid:page");
-        }};
-        
+        List<String> expecting = new ArrayList<String>() {
+            {
+                add("uuid:superroot");
+                add("uuid:root");
+                add("uuid:monograph");
+                add("uuid:internalpart");
+                add("uuid:page");
+            }
+        };
+
         ObjectPidsPath path = new ObjectPidsPath(relsExtPath.toArray(new String[relsExtPath.size()]));
         TestCase.assertEquals(relsExtPath, Arrays.asList(path.getPathFromRootToLeaf()));
 
-        ObjectPidsPath npath = path.injectObjectBetween("uuid:superroot", new AbstractObjectPath.Between(null,"uuid:root")); 
+        ObjectPidsPath npath = path.injectObjectBetween("uuid:superroot",
+                new AbstractObjectPath.Between(null, "uuid:root"));
         String[] pathFromRootToLeaf = npath.getPathFromRootToLeaf();
         Assert.assertEquals(expecting, Arrays.asList(pathFromRootToLeaf));
 
-        npath = path.injectObjectBetween("uuid:superroot", new AbstractObjectPath.Between("uuid:root",null)); 
+        npath = path.injectObjectBetween("uuid:superroot", new AbstractObjectPath.Between("uuid:root", null));
         pathFromRootToLeaf = npath.getPathFromRootToLeaf();
         Assert.assertEquals(expecting, Arrays.asList(pathFromRootToLeaf));
 
@@ -96,29 +104,34 @@ public class ObjectPidsPathTest {
     @Test
     public void testInjectObjectsPathsInTheEnd() {
 
-    	List<String> relsExtPath = new ArrayList<String>() {{
-            add("uuid:root");
-            add("uuid:monograph");
-            add("uuid:internalpart");
-            add("uuid:page");
-        }};
+        List<String> relsExtPath = new ArrayList<String>() {
+            {
+                add("uuid:root");
+                add("uuid:monograph");
+                add("uuid:internalpart");
+                add("uuid:page");
+            }
+        };
 
-    	List<String> expecting = new ArrayList<String>() {{
-            add("uuid:root");
-            add("uuid:monograph");
-            add("uuid:internalpart");
-            add("uuid:page");
-            add("uuid:subpage");
-        }};
-        
+        List<String> expecting = new ArrayList<String>() {
+            {
+                add("uuid:root");
+                add("uuid:monograph");
+                add("uuid:internalpart");
+                add("uuid:page");
+                add("uuid:subpage");
+            }
+        };
+
         ObjectPidsPath path = new ObjectPidsPath(relsExtPath.toArray(new String[relsExtPath.size()]));
         TestCase.assertEquals(relsExtPath, Arrays.asList(path.getPathFromRootToLeaf()));
 
-        ObjectPidsPath npath = path.injectObjectBetween("uuid:subpage", new AbstractObjectPath.Between(null,"uuid:page")); 
+        ObjectPidsPath npath = path.injectObjectBetween("uuid:subpage",
+                new AbstractObjectPath.Between(null, "uuid:page"));
         String[] pathFromRootToLeaf = npath.getPathFromRootToLeaf();
         Assert.assertEquals(expecting, Arrays.asList(pathFromRootToLeaf));
 
-        npath = path.injectObjectBetween("uuid:subpage", new AbstractObjectPath.Between("uuid:page",null)); 
+        npath = path.injectObjectBetween("uuid:subpage", new AbstractObjectPath.Between("uuid:page", null));
         pathFromRootToLeaf = npath.getPathFromRootToLeaf();
         Assert.assertEquals(expecting, Arrays.asList(pathFromRootToLeaf));
 
@@ -126,43 +139,52 @@ public class ObjectPidsPathTest {
 
     @Test
     public void testPidPaths() {
-        List<String> relsExtPath = new ArrayList<String>() {{
-            add("uuid:root");
-            add("uuid:monograph");
-            add("uuid:internalpart");
-            add("uuid:page");
-        }};
+        List<String> relsExtPath = new ArrayList<String>() {
+            {
+                add("uuid:root");
+                add("uuid:monograph");
+                add("uuid:internalpart");
+                add("uuid:page");
+            }
+        };
         ObjectPidsPath path = new ObjectPidsPath(relsExtPath.toArray(new String[relsExtPath.size()]));
         TestCase.assertEquals(relsExtPath, Arrays.asList(path.getPathFromRootToLeaf()));
-        
+
         Collections.reverse(relsExtPath);
         TestCase.assertEquals(relsExtPath, Arrays.asList(path.getPathFromLeafToRoot()));
     }
 
     @Test
     public void testCutHeads() {
-        List<String> relsExtPath = new ArrayList<String>() {{
-            add("uuid:root");
-            add("uuid:monograph");
-            add("uuid:internalpart");
-            add("uuid:page");
-        }};
+        List<String> relsExtPath = new ArrayList<String>() {
+            {
+                add("uuid:root");
+                add("uuid:monograph");
+                add("uuid:internalpart");
+                add("uuid:page");
+            }
+        };
 
-        List<String> cutHeadPath0 = new ArrayList<String>() {{
-            add("uuid:monograph");
-            add("uuid:internalpart");
-            add("uuid:page");
-        }};
+        List<String> cutHeadPath0 = new ArrayList<String>() {
+            {
+                add("uuid:monograph");
+                add("uuid:internalpart");
+                add("uuid:page");
+            }
+        };
 
-        
-        List<String> cutHeadPath1 = new ArrayList<String>() {{
-            add("uuid:internalpart");
-            add("uuid:page");
-        }};
-        
-        List<String> cutHeadPath2 = new ArrayList<String>() {{
-            add("uuid:page");
-        }};
+        List<String> cutHeadPath1 = new ArrayList<String>() {
+            {
+                add("uuid:internalpart");
+                add("uuid:page");
+            }
+        };
+
+        List<String> cutHeadPath2 = new ArrayList<String>() {
+            {
+                add("uuid:page");
+            }
+        };
 
         ObjectPidsPath path = new ObjectPidsPath(relsExtPath.toArray(new String[relsExtPath.size()]));
 
@@ -175,32 +197,38 @@ public class ObjectPidsPathTest {
         ObjectPidsPath cutHead2 = path.cutHead(2);
         TestCase.assertEquals(Arrays.asList(cutHead2.getPathFromRootToLeaf()), cutHeadPath2);
     }
-    
-    
+
     @Test
     public void testCutTails() {
-        List<String> relsExtPath = new ArrayList<String>() {{
-            add("uuid:root");
-            add("uuid:monograph");
-            add("uuid:internalpart");
-            add("uuid:page");
-        }};
+        List<String> relsExtPath = new ArrayList<String>() {
+            {
+                add("uuid:root");
+                add("uuid:monograph");
+                add("uuid:internalpart");
+                add("uuid:page");
+            }
+        };
 
-        List<String> cutTailPath0 = new ArrayList<String>() {{
-            add("uuid:root");
-            add("uuid:monograph");
-            add("uuid:internalpart");
-        }};
+        List<String> cutTailPath0 = new ArrayList<String>() {
+            {
+                add("uuid:root");
+                add("uuid:monograph");
+                add("uuid:internalpart");
+            }
+        };
 
-        
-        List<String> cutTailPath1 = new ArrayList<String>() {{
-            add("uuid:root");
-            add("uuid:monograph");
-        }};
-        
-        List<String> cutTailPath2 = new ArrayList<String>() {{
-            add("uuid:root");
-        }};
+        List<String> cutTailPath1 = new ArrayList<String>() {
+            {
+                add("uuid:root");
+                add("uuid:monograph");
+            }
+        };
+
+        List<String> cutTailPath2 = new ArrayList<String>() {
+            {
+                add("uuid:root");
+            }
+        };
 
         ObjectPidsPath path = new ObjectPidsPath(relsExtPath.toArray(new String[relsExtPath.size()]));
 

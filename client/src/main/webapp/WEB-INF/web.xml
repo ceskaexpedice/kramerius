@@ -6,6 +6,35 @@
         <filter-class>cz.incad.kramerius.client.CrawlHTTPFilter</filter-class>
     </filter>
 
+    <!--  thrid party authentication -->
+    <filter>
+        <filter-name>thirdpartyauthfilter_shibboleth</filter-name>
+        <filter-class>cz.incad.kramerius.auth.thirdparty.shibb.external.ExternalShibbolethAuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>thirdpartyauthfilter_shibboleth</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>thirdpartyauthfilter_social</filter-name>
+        <filter-class>cz.incad.kramerius.auth.thirdparty.social.SocialAuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>thirdpartyauthfilter_social</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>_auth_filter</filter-name>
+        <filter-class>cz.incad.kramerius.client.shib.ShibbolethCallerFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>_auth_filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!--  end of third party authentication -->
+
     <filter>
         <filter-name>javascripts</filter-name>
         <filter-class>cz.incad.kramerius.client.resources.ResourcesLoaderFilter</filter-class>

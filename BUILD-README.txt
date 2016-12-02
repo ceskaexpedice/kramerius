@@ -8,16 +8,20 @@ To build search.war:
 
 gradle :search:clean :search:build
 
+To build client.war:
 
-Creating full distribution (contains rightseditor,editor,  K4 app and javadocs ):
+gradle :client:clean :client:build
 
-gradle distTar -> creates tar.gz file
-gradle distZip -> creates zip file
 
-Note: It is expected that you will have rightseditor and editor wars in your m2 repo.
+Creating full distribution (contains rightseditor,editor, K5, Client and javadocs ):
 
-Creating patch distribution (k4 app only)
+gradle clean build distZip -> creates zip file
 
-gradle  patchDistTar
-gradle  patchDistZip
+Note: It is expected you have rightseditor and editor wars in your m2 repo.
+
+Creating patch distribution (K5 core, K5 Client, security-core only)
+
+gradle  clean build distPatchZip
+
+
 

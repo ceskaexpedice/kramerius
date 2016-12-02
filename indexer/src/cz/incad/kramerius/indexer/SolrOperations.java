@@ -822,9 +822,16 @@ public class SolrOperations {
             node = nodeList.item(i);
             PID = node.getFirstChild().getNodeValue();
             pid_path = node.getNextSibling().getFirstChild().getNodeValue();
+            
+            //PID with @ are virtual only in index. Test parent.
+            String simplePid = PID;
+            if(PID.indexOf("/@")>-1){
+              simplePid = PID.substring(0, PID.indexOf("/@")-1);
+            }
+            
 
-            if(!rindex.existsPid(PID)){
-                logger.log(Level.INFO, PID + " doesn't exist. Deleting...");
+            if(!rindex.existsPid(simplePid)){
+                logger.log(Level.INFO, simplePid + " doesn't exist. Deleting...");
                 deletePid(PID);
             }
         }

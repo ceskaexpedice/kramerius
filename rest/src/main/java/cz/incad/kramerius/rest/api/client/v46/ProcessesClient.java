@@ -180,6 +180,25 @@ public class ProcessesClient {
     }
     
 
+    public static String list() {
+        try {
+            Client c = Client.create();
+            WebResource r = c.resource("http://localhost:8080/search/api/v4.6/processes/" );
+            r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+            String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
+            return t;
+        } catch (UniformInterfaceException e) {
+            int status = e.getResponse().getStatus();
+            if (status == 404) {
+                LOGGER.severe("Process not found ");
+            }
+            throw new IllegalStateException(e);
+        }
+    }
+
     
-    
+    public static void main(String[] args) {
+        String list = list();
+        System.out.println(list);
+    }
 }

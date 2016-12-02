@@ -68,25 +68,12 @@ Zoomify.prototype.open = function() {
     this.elem.append(_rightNavigationArrow());    
 
     var optionsDiv = _optionspane();
-    this.elem.append(_optionspane());    
+    if ($("#options").length > 0) {
+        $("#options").remove();
+    }
+    this.elem.append(optionsDiv);
     
-    
-    /*
-    if(isTouchDevice()){
-        this.elem.swipe({
-            swipeLeft: function(event, direction, distance, duration, fingerCount) {
-                K5.gui.selected.next();
-            },
-            swipeRight: function(event, direction, distance, duration, fingerCount) {
-                K5.gui.selected.prev();
-            },
-            maxTimeThreshold:200,
-            threshold:5,
-            triggerOnTouchEnd:true
-        });
-    }*/
 
-    
     var mapDiv = $("<div/>",{"id":"map","width":"100%","height":"100%"});
 
     this.elem.append(mapDiv);    
@@ -350,13 +337,6 @@ Zoomify.prototype.crop = function(rect,offset){
         $("#header").show();
         $("#pageright").show();
         $("#pageleft").show();
-        /*
-        function idealCenter (ext) {
-                 return [ext[2]/2, (-1*ext[3])/2];         
-        }
-        function curentSize(ext, resolution) {
-                 return [ext[2]/resolution, ext[3]/resolution];         
-        }*/
 
         var ideal = this.idealCenter(this.projection.getExtent());
 

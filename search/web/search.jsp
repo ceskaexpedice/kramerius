@@ -39,6 +39,14 @@
             <div class="clear"></div>
         </div>
         <div id="footer">
+
+        
+        <div id="app-bar-cookie-info">
+          <fmt:message bundle="${lctx}">application.cookie</fmt:message>
+          <a href="javascript:setCookieInfo();" title="Souhlas s cookie" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+          <span class="ui-button-text"><fmt:message bundle="${lctx}">application.agree</fmt:message></span></a>
+        </div>
+
             <%@ include file="inc/footer.jsp" %>
             <script type="text/javascript">
               var rbs = new RebuildSocialButtons();
@@ -54,6 +62,7 @@
                 });
             </script>
         </c:if>
+        
         
     </body>
 </html>

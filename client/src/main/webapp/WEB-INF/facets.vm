@@ -18,7 +18,7 @@
             #if($filters.key == "collection")
                 <a href="" class="res" data-key="$filter">
                 #translatable("facet.$filters.key") : #transCol("$filter")
-            #elseif($filters.key == "fedora.model")
+            #elseif($filters.key == "fedora.model" || $filters.key == "model_path" || $filters.key == "typ_titulu") 
                 <a href="" class="res" data-key="fedora.model.$filter">
                 #translatable("facet.$filters.key") : #translatable("fedora.model.$filter")
             #elseif($filters.key == "dostupnost")

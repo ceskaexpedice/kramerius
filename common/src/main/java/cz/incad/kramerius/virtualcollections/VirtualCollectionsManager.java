@@ -53,6 +53,7 @@ import org.json.JSONArray;
 public class VirtualCollectionsManager {
 
     private static final Logger logger = Logger.getLogger(VirtualCollectionsManager.class.getName());
+    static final String SPARQL_NS = "http://www.w3.org/2001/sw/DataAccess/rf1/result";
     static final String TEXT_DS_PREFIX = "TEXT_";
 
     
@@ -110,6 +111,72 @@ public class VirtualCollectionsManager {
         } catch (Exception vcex) {
             logger.log(Level.WARNING, "Could not get virtual collection for  " + pid + ": " + vcex.toString());
             return null;
+        }
+    }
+    
+    public static List<VirtualCollection> getVirtualCollectionsFromFedora(FedoraAccess fedoraAccess, ArrayList<String> languages) throws Exception {
+        try {
+            IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
+            Document doc = g.getVirtualCollections();
+
+            NodeList nodes = doc.getDocumentElement().getElementsByTagNameNS(SPARQL_NS, "result");
+            NodeList children;
+            Node child;
+            String name;
+            String pid;
+            boolean canLeave;
+            
+            
+            ArrayList<String> langs = new ArrayList<String>();
+            
+            if(languages == null || languages.isEmpty()){
+                String[] ls = KConfiguration.getInstance().getPropertyList("interface.languages");
+                for (int i = 0; i < ls.length; i++) {
+                            String lang = ls[++i];
+                    langs.add(lang);
+                }
+            }else{
+                langs = new ArrayList<String>(languages);
+            }
+            
+            List<VirtualCollection> vcs = new ArrayList<VirtualCollection>();
+            for (int i = 0; i < nodes.getLength(); i++) {
+                canLeave = false;
+                name = null;
+                pid = null;
+                Node node = nodes.item(i);
+                children = node.getChildNodes();
+                for (int j = 0; j < children.getLength(); j++) {
+                    child = children.item(j);
+                    if ("title".equals(child.getLocalName())) {
+                        name = child.getFirstChild().getNodeValue();
+                    } else if ("object".equals(child.getLocalName())) {
+                        pid = ((Element) child).getAttribute("uri").replaceAll("info:fedora/", "");
+                    } else if ("canLeave".equals(child.getLocalName())) {
+                        canLeave = Boolean.parseBoolean(child.getFirstChild().getNodeValue().replaceAll("\"", "").substring(("canLeave:").length()));
+                    }
+                }
+
+                if (name != null && pid != null) {
+                    try {
+                        VirtualCollection vc = new VirtualCollection(name, pid, canLeave);
+
+                        for (String lang : langs) {
+                            String dsName = TEXT_DS_PREFIX + lang;
+                            String value = IOUtils.readAsString(fedoraAccess.getDataStream(pid, dsName), Charset.forName("UTF8"), true);
+                            vc.addDescription(lang, value);
+                        }
+                        vcs.add(vc);
+                    } catch (Exception vcex) {
+                        logger.log(Level.WARNING, "Could not get virtual collection for  " + pid + ": " + vcex.toString());
+
+                    }
+                }
+            }
+            return vcs;
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Error getting virtual collections", ex);
+            throw new Exception(ex);
         }
     }
 

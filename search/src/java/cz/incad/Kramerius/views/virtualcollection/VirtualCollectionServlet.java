@@ -53,7 +53,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
                 PrintWriter out = resp.getWriter();
                 out.print(e1.toString());
             } catch (SecurityException e1) {
-                LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                LOGGER.log(Level.INFO, e1.getMessage());
                 resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
             } catch (Exception e1) {
                 LOGGER.log(Level.SEVERE, e1.getMessage(), e1);

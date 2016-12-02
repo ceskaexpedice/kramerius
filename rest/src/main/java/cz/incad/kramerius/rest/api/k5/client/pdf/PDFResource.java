@@ -41,10 +41,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Image;
@@ -52,12 +53,16 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfWriter;
 
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
 import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
+import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -72,7 +77,9 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 public class PDFResource extends AbstractPDFResource  {
 
     public static Logger LOGGER = Logger.getLogger(PDFResource.class.getName());
+    
 
+    
     /**
      * Paper size
      * @author pavels
@@ -109,8 +116,6 @@ public class PDFResource extends AbstractPDFResource  {
         public Rectangle getRectangle() {
             return rect;
         }
-     
-        
     }
     
     
@@ -182,6 +187,7 @@ public class PDFResource extends AbstractPDFResource  {
                     File fileToDelete = null;
                     try {
                         pid = this.fedoraAccess.findFirstViewablePid(pid);
+                        
                         BufferedImage bufImage = KrameriusImageSupport.readImage(pid,FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
 
                         double xPerctDouble = Double.parseDouble(xpos);
@@ -197,7 +203,15 @@ public class PDFResource extends AbstractPDFResource  {
                         FileOutputStream fos = new FileOutputStream(fileToDelete);
                         KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), fos);
                         fos.close();
-
+                        
+                        try {
+                            this.mostDesirable.saveAccess(pid, new Date());
+                            this.statisticsAccessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.PDF.name());
+                        } catch (Exception e) {
+                            LOGGER.severe("cannot write statistic records");
+                            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                        }
+                        
                         StreamingOutput stream = streamingOutput(fileToDelete,format);
                         return Response
                             .ok()
@@ -252,8 +266,10 @@ public class PDFResource extends AbstractPDFResource  {
                             .valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
 
                     String[] pids = pidsParam.split(",");
+                    
                     // max number test
                     ConfigurationUtils.checkNumber(pids);
+                    
                     Rectangle formatRect = formatRect(format);
                     final File generatedPDF = super.selection(pids, formatRect, fp);
                     final InputStream fis = new FileInputStream(generatedPDF);
@@ -289,12 +305,12 @@ public class PDFResource extends AbstractPDFResource  {
                 } catch (ProcessSubtreeException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
-                } catch (COSVisitorException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new GenericApplicationException(e.getMessage());
                 } catch (DocumentException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
+                } catch(SecurityException e) {
+                    LOGGER.log(Level.INFO, e.getMessage());
+                    throw new ActionNotAllowed(e.getMessage());
                 }
             } else {
                 throw new PDFResourceNotReadyException("not ready");
@@ -327,6 +343,7 @@ public class PDFResource extends AbstractPDFResource  {
             acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
             if (acquired) {
                 try {
+
 
                     AbstractPDFResource.FirstPage fp = pageType != null ? AbstractPDFResource.FirstPage
                             .valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
@@ -363,9 +380,6 @@ public class PDFResource extends AbstractPDFResource  {
                 } catch (NumberFormatException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
-                } catch (COSVisitorException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    throw new GenericApplicationException(e.getMessage());
                 } catch (FileNotFoundException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
@@ -381,7 +395,10 @@ public class PDFResource extends AbstractPDFResource  {
                 } catch (OutOfRangeException e1) {
                     LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     throw new PDFResourceBadRequestException(e1.getMessage());
-                 }
+                } catch (SecurityException e1) {
+                    LOGGER.log(Level.INFO, e1.getMessage());
+                    throw new ActionNotAllowed(e1.getMessage());
+                }
             } else {
                 throw new PDFResourceNotReadyException("not ready");
             }
@@ -456,4 +473,6 @@ public class PDFResource extends AbstractPDFResource  {
         }
         return formatRect;
     }
+    
+
 }

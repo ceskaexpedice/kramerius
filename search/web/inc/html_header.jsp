@@ -86,6 +86,7 @@
     <link rel="StyleSheet" href="css/styles.css" type="text/css" />
     <link rel="StyleSheet" href="css/autocomplete.css" type="text/css" />
     <link rel="StyleSheet" href="css/layout-default-latest.css" type="text/css" />
+    <link rel="StyleSheet" href="css/app-bar-cookie-info.css" type="text/css" />
     
     <!--[if IE ]>
     <link rel="StyleSheet" href="css/ie.css" type="text/css" />
@@ -102,6 +103,8 @@
     <script src="js/jquery.layout-latest.js" type="text/javascript" ></script>
 
     <script src="js/jquery-ui-timepicker-addon.js" language="JavaScript" type="text/javascript"></script>
+    <script src="js/jquery.cookie.js"  type="text/javascript"></script>
+
 
     <script src="js/pageQuery.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/main.js" language="JavaScript" type="text/javascript"></script>
@@ -112,6 +115,7 @@
     <script  src="js/jquery.jstree.js" language="javascript" type="text/javascript"></script>
 
     <script type="text/javascript"  src="js/seadragon-min.js"></script>
+    <script type="text/javascript"  src="js/app-bar-cookie-info.js"></script>
 
     <script  src="js/cmn/cmn.js" language="javascript" type="text/javascript"></script>
     <script  src="js/json2.js" language="javascript" type="text/javascript"></script>

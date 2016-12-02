@@ -52,7 +52,7 @@ public class ModelCSVFormatter implements StatisticsReportFormatter{
         builder.append("title");
         builder.append("\n");
 
-        this.os.write(builder.toString().getBytes("UTF-8"));
+        this.os.write(builder.toString().getBytes(DEFAULT_ENCODING));
     }
 
     @Override
@@ -65,7 +65,7 @@ public class ModelCSVFormatter implements StatisticsReportFormatter{
             builder.append(StringUtils.nullify((String)record.get("model"))).append(',');
             builder.append('"').append(StringUtils.escapeNewLine(StringUtils.nullify((String)record.get("title")))).append('"');
 
-            os.write(builder.toString().getBytes());
+            os.write(builder.toString().getBytes(DEFAULT_ENCODING));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }

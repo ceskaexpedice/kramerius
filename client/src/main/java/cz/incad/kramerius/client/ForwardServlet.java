@@ -53,8 +53,8 @@ import cz.incad.kramerius.client.forward.DefaultModify;
 import cz.incad.kramerius.client.forward.URLPathModify;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
 import cz.incad.kramerius.client.kapi.auth.User;
-import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 import cz.incad.utils.IOUtils;
 import cz.incad.utils.StringUtils;
 
@@ -109,7 +109,7 @@ public class ForwardServlet extends HttpServlet {
     
     
     public static ClientResponse method(String url, SupportedMethods method,
-            JSONObject jsonObject, String userName, String pswd, String acceptMimeType)
+            JSONObject jsonObject, String userName, String pswd, String acceptMimeType, String contentType)
             throws JSONException {
         Client c = Client.create();
 
@@ -123,8 +123,8 @@ public class ForwardServlet extends HttpServlet {
         Builder builder = r.accept(acceptMimeType);
 
         if (jsonObject != null) {
-            builder = builder.type(acceptMimeType).entity(
-                    jsonObject.toString(), acceptMimeType);
+            builder = builder.type(contentType).entity(
+                    jsonObject.toString(), contentType);
         }
 
         switch (method) {
@@ -194,10 +194,10 @@ public class ForwardServlet extends HttpServlet {
             ClientResponse clientResponse = null;
             if (user != null) {
                 clientResponse = method(replaceURL, SupportedMethods.POST, jsonObj,
-                        user.getUserName(), user.getPassword(), req.getHeader("Accept"));
+                        user.getUserName(), user.getPassword(), req.getHeader("Accept"),req.getHeader("Content-Type"));
             } else {
                 clientResponse = method(replaceURL, SupportedMethods.POST, jsonObj, null,
-                        null, req.getHeader("Accept"));
+                        null, req.getHeader("Accept"),req.getHeader("Content-Type"));
             }
             resp.setContentType(clientResponse.getType().toString());
             resp.getWriter().write(clientResponse.getEntity(String.class));

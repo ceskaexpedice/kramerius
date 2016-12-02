@@ -109,8 +109,10 @@ public class ProcessDatabaseUtils {
                 "   PARAMS_MAPPING , " + //11
                 "   BATCH_STATUS ," + //12
                 "   TOKEN_ACTIVE, " + //
-                "   AUTH_TOKEN) " + // 13
-                "       values " +
+                "   AUTH_TOKEN,"+ //13
+                "   IP_ADDR"+ // 14
+                "   ) " + 
+                "   values " +
                 "   (" +
                 "       ?," + //1 - DEFID
                 "       ?," + //2 - UUID
@@ -126,7 +128,8 @@ public class ProcessDatabaseUtils {
                 "       ?," + //11 PARAMS_MAPPING
                 "       ?," + //12 BATCH_STATUS
                 "       TRUE," + //
-                "       ?" + //13 AUTH_TOKEN
+                "       ?," + //13 AUTH_TOKEN
+                "       ?" + //14 IP_ADDR
                 "   )");
         try {
             prepareStatement.setString(1, lp.getDefinitionId());
@@ -156,6 +159,7 @@ public class ProcessDatabaseUtils {
             prepareStatement.setString(11, storedParams);
             prepareStatement.setInt(12, lp.getBatchState().getVal());
             prepareStatement.setString(13, lp.getAuthToken());
+            prepareStatement.setString(14, lp.getPlannedIPAddress());
             
             prepareStatement.executeUpdate();
         } finally {
@@ -297,7 +301,7 @@ public class ProcessDatabaseUtils {
     public static String [] QUERY_PROCESS_COLUMNS= {
         "p.DEFID,PID", "p.UUID", "p.STATUS", "p.PLANNED", "p.STARTED",
         "p.NAME AS PNAME", "p.PARAMS", "p.STARTEDBY", "p.TOKEN", "p.FINISHED", 
-        "p.loginname","p.surname","p.firstname","p.user_key","p.params_mapping", "p.batch_status","p.AUTH_TOKEN" 
+        "p.loginname","p.surname","p.firstname","p.user_key","p.params_mapping", "p.batch_status","p.AUTH_TOKEN","p.IP_ADDR" 
     };
 
 

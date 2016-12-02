@@ -31,6 +31,7 @@ import cz.incad.kramerius.security.utils.PasswordDigest;
 
 public class SaveNewPassword extends ServletUsersCommand {
 
+    private static final String OLD_PSWD_PARAM = "opswd";
     private static final String PSWD_PARAM = "nswpd";
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SaveNewPassword.class.getName());
     
@@ -39,10 +40,16 @@ public class SaveNewPassword extends ServletUsersCommand {
         try {
             HttpServletRequest req = this.requestProvider.get();
             String newPswd = req.getParameter(PSWD_PARAM);
+            String oldPswd = req.getParameter(OLD_PSWD_PARAM);
             User user = this.userProvider.get();
             if (user.getId() > 0) {
-                newPswd = PasswordDigest.messageDigest(newPswd);
-                this.userManager.saveNewPassword(this.userProvider.get().getId(), newPswd);
+                if (this.userManager.validatePassword(user.getId(), oldPswd)) {
+                    newPswd = PasswordDigest.messageDigest(newPswd);
+                    this.userManager.saveNewPassword(this.userProvider.get().getId(), newPswd);
+                    
+                } else {
+                    this.responseProvider.get().sendError(HttpServletResponse.SC_BAD_REQUEST);
+                }
             } else {
                 this.responseProvider.get().sendError(HttpServletResponse.SC_BAD_REQUEST);
             }

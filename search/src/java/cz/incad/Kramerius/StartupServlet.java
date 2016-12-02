@@ -64,12 +64,6 @@ public class StartupServlet extends GuiceServlet {
     @Inject
     VersionService versionService;
     
-//    @Inject
-//    ProcessScheduler processScheduler;
-//    
-//    @Inject
-//    GCScheduler gcScheduler;
-    
 
     @Inject 
     LifeCycleHookRegistry lifecycleRegistry;

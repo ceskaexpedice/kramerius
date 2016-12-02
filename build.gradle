@@ -15,11 +15,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-println "Building K4; please read BUILD-README.txt"
+plugins {
+    id 'com.gradle.build-scan' version '1.0'
+}
 
-//apply plugin: 'distribution' // -> generate distributions
+buildScan {
+    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
+    licenseAgree = 'yes'
+}
+println "Building K4-K5; please read BUILD-README.txt"
+
 apply plugin: 'java' // -> generate javadoc
-
 
 configurations {
         /**
@@ -30,6 +36,12 @@ configurations {
 	}
 }
 
+
+configurations.all {
+    exclude module: 'slf4j-log4j12'
+}
+
+
 dependencies {
         // editor dependency
         editors group: "cz.incad.kramerius", name: "editor", version: "5.1.0", ext: "war"
@@ -39,31 +51,13 @@ dependencies {
 
 
 
-
-/*
-distributions {
-        // main distribution        
-        main {
-                contents {
-                        from {'search/build/libs'}
-                        from {'security-core/build/libs'}
-                        from configurations.editors
-                        from 'build/distributions/kramerius-javadoc.zip'
-                }
-        }
-
-        // patch distribution        
-        patch {
-                contents {
-                        from {'search/build/libs'}
-                        from {'security-core/build/libs'}
-                }
-        }
-}*/
-
-
 repositories {
 	mavenLocal()
+}
+
+allprojects {
+         group='cz.incad.kramerius'
+         version='5.3.4'
 }
 
 
@@ -74,9 +68,11 @@ subprojects {
 
          apply plugin:'java'
          apply plugin: 'eclipse'
-	 apply plugin: 'maven'
+         apply plugin: 'maven'
 
-
+         compileJava.options.encoding = 'UTF-8'
+		 
+		 		 
          ext.guiceversion ='3.0'
          ext.postgresversion = '8.4-702.jdbc4'
          ext.slf4jversion='1.6.0'
@@ -85,8 +81,8 @@ subprojects {
          ext.generatedSources = "generated-sources"
 
          
-         group='cz.incad.kramerius'
-         version='5.3.0'
+         //group='cz.incad.kramerius'
+         //version='5.3.4'
          
          sourceCompatibility = 1.6
          targetCompatibility= 1.6
@@ -111,12 +107,16 @@ subprojects {
          	 compile "org.slf4j:jcl-over-slf4j:${slf4jversion}"
          	 
          	 //junit to all subprojects
-         	 testCompile "junit:junit:4.1"
+         	 testCompile "junit:junit:4.4"
          	 testCompile "org.easymock:easymock:3.0"
                 
          }
          
          repositories {
+		 
+            flatDir {
+		 	   dirs '../buildSrc/lib'	
+		    }
 
          	 maven {
          	 	 url "http://kramerius.googlecode.com/svn/mvnrepo"
@@ -178,12 +178,66 @@ subprojects {
 
          }
 
-        build.finalizedBy 'install'
+         tasks.withType(Javadoc) {
+		   options.addStringOption('Xdoclint:none', '-quiet')	
+        }
+	     
+	//~ overwrite windows encoding		
+        test {
+           systemProperty "file.encoding", "utf-8"
+        }
+		
+        tasks.withType(JavaCompile) {
+           options.encoding = 'UTF-8'
+        }
+	// ~ overwritten windows encoding 
+		
+	// remove all dependencies without group id 
+	install.repositories.mavenInstaller.pom.whenConfigured {pom ->
+		pom.dependencies.removeAll { it.groupId == null || it.groupId.equals("") }
+	}
+}
+
+/**
+ * Distribution task; zipInstallDir first
+ */
+task distZip(type:Zip, dependsOn: 'zipInstallDir') {
+        description "Create full distribution zip"
+	baseName "kramerius"
+	group "Distribution"
+        from {'client/build/libs'}
+        from {'search/build/libs'}
+        from {'security-core/build/libs'}
+        from configurations.editors
+        from {'build/installation'}
+        from 'build/distributions/kramerius-javadoc.zip'
+	eachFile {
+		it.path = it.path.replace('-5.1.0.war', '.war')
+	}
+}
+/**
+ * Patch distribution task
+ */
+task distPatchZip(type:Zip) {
+        description "Create patch distribution zip"
+	baseName "kramerius-patch"
+	group "Distribution"
+        from {'client/build/libs'}
+        from {'search/build/libs'}
+        from {'security-core/build/libs'}
+}
+
+
+// zip installaton directory
+task zipInstallDir(type:Zip) {
+        description "Create zip from installation directory"
+	baseName "installation"
+	from "installation"
+	destinationDir file('build/installation')
 }
 
 
 // disabled distributions
-/*
 task zipAllJavadocs(type: Zip) {
         String[] _spr = ["common","fedora-api","security-core","rest","search"];
         description "create javadocs for ${_spr} and zip it"
@@ -195,11 +249,6 @@ task zipAllJavadocs(type: Zip) {
                 } 
 
         }
-                
 }
 
-[distZip, distTar, installDist].each() { 
-  it.dependsOn('clean',':search:build', 'zipAllJavadocs')
-};
 
-*/

@@ -1,0 +1,8 @@
+<div id="app-bar-cookie-info">
+
+<span class="translate" data-key="application.cookie"></span>
+
+<div class="button " onclick="setCookieInfo()"><span class="translate" data-key="application.agree">Souhlasím</span>
+
+</div>
+

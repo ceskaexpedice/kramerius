@@ -85,7 +85,9 @@ import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.Offset;
 import cz.incad.kramerius.utils.database.SQLFilter;
 import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
@@ -220,7 +222,7 @@ public class LRResource {
                         }
                         newProcess.setParameters(params);
                         newProcess.setUser(user);
-                        newProcess.planMe(new Properties());
+                        newProcess.planMe(new Properties(),IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
                         lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
                         URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
                         return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
@@ -287,7 +289,7 @@ public class LRResource {
                 newProcess.setParameters(Arrays.asList(new String[0]));
                 newProcess.setUser(user);
 
-                newProcess.planMe(props);
+                newProcess.planMe(props, IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
                 lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
                 URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
                 return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();

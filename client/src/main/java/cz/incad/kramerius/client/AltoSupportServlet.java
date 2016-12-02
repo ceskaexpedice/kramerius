@@ -34,12 +34,12 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 
-import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.ALTOUtils.AltoDisected;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.XMLUtils.ElementsFilter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
 
 /**

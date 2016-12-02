@@ -19,7 +19,6 @@ package cz.incad.kramerius.client;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,24 +33,21 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import biz.sourcecode.base64Coder.Base64Coder;
-
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.api.client.config.ClientConfig;
 
+import biz.sourcecode.base64Coder.Base64Coder;
+import cz.incad.kramerius.auth.thirdparty.social.SocialAuthFilter;
 import cz.incad.kramerius.client.kapi.auth.AdminUser;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
 import cz.incad.kramerius.client.kapi.auth.ClientUser;
 import cz.incad.kramerius.client.kapi.auth.ProfileDelegator;
-import cz.incad.kramerius.client.kapi.auth.User;
+import cz.incad.kramerius.client.kapi.auth.User.UserProvider;
 import cz.incad.kramerius.client.kapi.auth.impl.CallUserControllerImpl;
-import cz.incad.kramerius.client.socialauth.OpenIDSupport;
-import cz.incad.kramerius.client.socialauth.ShibbolethSupport;
-import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
-import cz.incad.kramerius.users.UserProfile;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
 
 /**
@@ -85,7 +81,6 @@ public class AuthenticationServlet extends HttpServlet {
             String password, String returned) throws JSONException,
             ConfigurationException {
         CallUserController contr = (CallUserController) req.getSession(true).getAttribute(CallUserController.KEY);
-
         if (contr == null) {
             contr = new CallUserControllerImpl();
             req.getSession().setAttribute(CallUserController.KEY, contr);
@@ -126,7 +121,7 @@ public class AuthenticationServlet extends HttpServlet {
         try {
             String authUrl = KConfiguration.getInstance().getConfiguration().getString("api.point")+"/user";
             aAction.perform(authUrl, req, resp);
-        } catch (JSONException  e) {
+        } catch (Exception  e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
@@ -148,7 +143,6 @@ public class AuthenticationServlet extends HttpServlet {
                     if (callUserController != null) {
                         ProfileDelegator profileDelegator = callUserController.getProfileDelegator();
                         String njsonRepre = post(remoteAddr+"/profile", jsonObject, profileDelegator.getUserName(), profileDelegator.getPassword());
-                        System.out.println(njsonRepre);
                         resp.setContentType("application/json");
                         resp.getWriter().write(jsonObject.toString());
                         //((CallUserControllerImpl)callUserController).setProfileJSONReprestation(new JSONObject(returned));
@@ -161,6 +155,47 @@ public class AuthenticationServlet extends HttpServlet {
                 }
             }
         },
+
+        savepass {
+
+            @Override
+            public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
+                String npass = req.getParameter("pswd");
+                String oldpass = req.getParameter("opswd");
+                
+                CallUserController callUserController = (cz.incad.kramerius.client.kapi.auth.CallUserController) req.getSession(true).getAttribute(CallUserController.KEY);
+                if (callUserController != null) {
+                    ClientUser clientCaller = callUserController.getClientCaller();
+                    // only k5 client
+                    String callerPassword = clientCaller.getPassword();
+                    if (callerPassword.equals(oldpass)) {
+                        UserProvider userProvider = clientCaller.getUserProvider();
+                        if (userProvider.equals(UserProvider.K5)) {
+                            // 
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("pswd", npass);
+                            String nprof = post(remoteAddr, jsonObject, clientCaller.getUserName(), clientCaller.getPassword());
+                            if (nprof != null) {
+                                synchronized(this) {
+                                    clientCaller.updatePassword(npass);
+                                    CallUserController.clearCredentials(clientCaller.getUserName());
+                                    CallUserController.credentialsTable(clientCaller.getUserName(),npass);
+                                }
+                            }
+                            resp.getWriter().write(nprof);
+                            resp.setContentType("application/json");
+                            resp.setStatus(HttpServletResponse.SC_OK);
+                        } else {
+                            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                        }
+                    } else {
+                        resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
+                }
+            }
+            
+        },
+
         
         profile {
             @Override
@@ -192,46 +227,27 @@ public class AuthenticationServlet extends HttpServlet {
         
     public static enum AuthenticationActions {
         
-        socialLoginRedirect {
-
-            @Override
-            public void perform(String remoteAddr, HttpServletRequest req,HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
-                try {
-                    OpenIDSupport oidSupport = new OpenIDSupport();
-                    oidSupport.provideRedirection(req,resp);
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                }
-            }
-        },
-        
+//        socialLoginRedirect {
+//
+//            @Override
+//            public void perform(String remoteAddr, HttpServletRequest req,HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
+//                try {
+//                    OpenIDSupport oidSupport = new OpenIDSupport();
+//                    oidSupport.provideRedirection(req,resp);
+//                } catch (Exception e) {
+//                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+//                }
+//            }
+//        },
+//        
         socialLogin {
 
             @Override
-            public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
-                OpenIDSupport oidSupport = new OpenIDSupport();
-                oidSupport.login(req, resp);
-            }
-        },
-        
-        shibbLoginRedirect {
-            @Override
-            public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
-                try {
-                    ShibbolethSupport shibbSupport = new ShibbolethSupport();
-                    shibbSupport.provideRedirection(req,resp);
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                }
-            }
-            
-        },
-        
-        shibbLogin {
-            @Override
-            public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
-                ShibbolethSupport shibbolethSupport = new ShibbolethSupport();
-                shibbolethSupport.login(req, resp);
+            public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+                String provider = req.getParameter("provider");
+                String applicationCotext = ApplicationURL.applicationURL(req);
+                String redirectUrl =  applicationCotext + "/index.vm";
+                SocialAuthFilter.loginReqests(req, resp, provider, redirectUrl);
             }
         },
         
@@ -289,6 +305,7 @@ public class AuthenticationServlet extends HttpServlet {
             }
         },
         
+        
         profile {
             @Override
             public void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException {
@@ -308,6 +325,6 @@ public class AuthenticationServlet extends HttpServlet {
             }
             
         };
-        public abstract void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException, IOException, JSONException;
+        public abstract void perform(String remoteAddr, HttpServletRequest req, HttpServletResponse resp) throws Exception;
     }
 }

@@ -28,7 +28,7 @@ LocalPrint.prototype = {
         if (this.printErrorDialog) {
             this.printErrorDialog.dialog('open');
         } else {
-                var strings = '<div id="printAccessDenied"><table style="width:100%; height:100%;"><tr><td style="text-align: center;vertical-align: center;">'+dictionary['rightMsg.localprint']+'</td></tr></table></div>';
+                var strings = '<div id="printAccessDenied"><table style="width:100%; height:100%;"><tr><td style="text-align: center;vertical-align: center;">'+dictionary['rightMsg.printpfd']+'</td></tr></table></div>';
                 $(document.body).append(strings);
                     this.printErrorDialog = $('#printAccessDenied').dialog({
                         width:350,
@@ -67,7 +67,7 @@ LocalPrint.prototype = {
             }
         }
 
-        $.get("isActionAllowed?action=read&pid="+this.structs[0].pid,bind(function(data) {
+        $.get("isActionAllowed?actions=read&actions=pdf_resource&pid="+this.structs[0].pid,bind(function(data) {
                 var flag = data[this.structs[0].pid];                        
                 if (flag) {
                         if (this.printSetupDialog) {
@@ -108,7 +108,7 @@ LocalPrint.prototype = {
 
     printPart:function() {
         this.initSelected();
-        $.get("isActionAllowed?action=read&pid="+this.structs[0].pid,bind(function(data) {
+        $.get("isActionAllowed?actions=read&actions=pdf_resource&pid="+this.structs[0].pid,bind(function(data) {
                 var flag = data[this.structs[0].pid];                        
                 if (flag) {
                         if (this.printPartDialog) {
@@ -116,7 +116,6 @@ LocalPrint.prototype = {
                         } else {
                             $(document.body).append('<div id="selectPart">'+
                                 '</div>');
-
                             this.printPartDialog = $('#selectPart').dialog({
                                 width:800,
                                 height:640,

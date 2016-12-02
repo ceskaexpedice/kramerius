@@ -22,8 +22,8 @@ import com.google.inject.Inject;
 
 import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUtils;
 import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.shib.utils.ShibbolethUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class UsersAdministration extends AbstractMainMenuItem implements AdminMenuItem {
@@ -33,8 +33,7 @@ public class UsersAdministration extends AbstractMainMenuItem implements AdminMe
     
     @Override
     public boolean isRenderable() {
-        return (!ShibbolethUtils.isUnderShibbolethSession(this.requestProvider.get())) &&
-                (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName()));
+        return (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName()));
     }
 
     @Override

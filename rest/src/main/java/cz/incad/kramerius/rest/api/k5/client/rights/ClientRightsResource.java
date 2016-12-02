@@ -44,102 +44,97 @@ import cz.incad.kramerius.security.SpecialObjects;
 @Path("/v5.0/rights")
 public class ClientRightsResource {
 
-	public static final Logger LOGGER = Logger.getLogger(ClientRightsResource.class.getName());
-	
-	@Inject
-	IsActionAllowed actionAllowed;
+    public static final Logger LOGGER = Logger.getLogger(ClientRightsResource.class.getName());
 
-	@Inject
-	SolrAccess solrAccess;
-	
-	
-	@GET
+    @Inject
+    IsActionAllowed actionAllowed;
+
+    @Inject
+    SolrAccess solrAccess;
+
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
-	public Response allowedActions(
-			@QueryParam("actions") String actionNames, 
-			@QueryParam("pid")String pid, 
-			@QueryParam("stream")String stream,
-			@QueryParam("fullpath")boolean fullp
-			) {
-		try {
-			if (pid == null) pid = SpecialObjects.REPOSITORY.getPid();
-			ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
-			
-			if (actionNames == null) {
-				SecuredActions[] vls = SecuredActions.values();
-				StringBuilder builder = new StringBuilder();
-				for (int i = 0; i < vls.length; i++) {
-					if (i>0) builder.append(',');
-					builder.append(vls[i].getFormalName());
-				}
-				actionNames = builder.toString();
-			}
+    public Response allowedActions(@QueryParam("actions") String actionNames, @QueryParam("pid") String pid,
+            @QueryParam("stream") String stream, @QueryParam("fullpath") boolean fullp) {
+        try {
+            if (pid == null)
+                pid = SpecialObjects.REPOSITORY.getPid();
+            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
 
-			
-			JSONObject object = new JSONObject();
-			if (fullp) {
-				fullPath(actionNames, pid, stream, paths, object);
-			} else {
-				onePath(actionNames, pid, stream, paths, object);
-			}
-			return Response.ok().entity(object.toString()).build();
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-			throw new GenericApplicationException(e.getMessage());
-		} catch (JSONException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            if (actionNames == null) {
+                SecuredActions[] vls = SecuredActions.values();
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < vls.length; i++) {
+                    if (i > 0)
+                        builder.append(',');
+                    builder.append(vls[i].getFormalName());
+                }
+                actionNames = builder.toString();
+            }
+
+            JSONObject object = new JSONObject();
+            if (fullp) {
+                fullPath(actionNames, pid, stream, paths, object);
+            } else {
+                onePath(actionNames, pid, stream, paths, object);
+            }
+            return Response.ok().entity(object.toString()).build();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());
         }
-	}
+    }
 
+    private void fullPath(String actionNames, String pid, String stream, ObjectPidsPath[] paths, JSONObject object)
+            throws JSONException {
 
-	private void fullPath(String actionNames, String pid, String stream,
-			ObjectPidsPath[] paths, JSONObject object) throws JSONException {
+        StringTokenizer tokenizer = new StringTokenizer(actionNames, ",");
+        while (tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            object.put(token, new JSONArray());
+            for (ObjectPidsPath ph : paths) {
+                ObjectPidsPath nph = ph.injectRepository();
+                boolean[] flags = this.actionAllowed.isActionAllowedForAllPath(token, pid, stream, nph);
+                allowedFor(object.getJSONArray(token), token, nph, flags);
+            }
+        }
 
-		StringTokenizer tokenizer = new StringTokenizer(actionNames,",");
-		while(tokenizer.hasMoreTokens()) {
-			String token = tokenizer.nextToken();
-			object.put(token, new JSONArray());
-			for (ObjectPidsPath ph : paths) {
-				ObjectPidsPath nph = ph.injectRepository();
-				boolean[] flags = this.actionAllowed.isActionAllowedForAllPath(token, pid, stream, nph);
-				allowedFor(object.getJSONArray(token), token, nph, flags);
-			}
-		}
-		
-	}
+    }
 
+    private void onePath(String actionNames, String pid, String stream, ObjectPidsPath[] paths, JSONObject object)
+            throws JSONException {
+        StringTokenizer tokenizer = new StringTokenizer(actionNames, ",");
+        while (tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            boolean flag = false;
+            for (ObjectPidsPath ph : paths) {
+                flag = this.actionAllowed.isActionAllowed(token, pid, stream, ph);
+                if (flag)
+                    break;
+            }
+            allowedFor(object, token, flag);
+        }
+    }
 
-	private void onePath(String actionNames, String pid, String stream,
-			ObjectPidsPath[] paths, JSONObject object) throws JSONException {
-		StringTokenizer tokenizer = new StringTokenizer(actionNames,",");
-		while(tokenizer.hasMoreTokens()) {
-			String token = tokenizer.nextToken();
-			boolean flag = false;
-			for (ObjectPidsPath ph : paths) {
-				flag = this.actionAllowed.isActionAllowed(token, pid, stream, ph);
-				if (flag) break;
-			}
-			allowedFor(object, token, flag);
-		}
-	}
-	
+    private JSONArray allowedFor(JSONArray jsonArr, String action, ObjectPidsPath path, boolean[] flags)
+            throws JSONException {
+        JSONObject pathSon = new JSONObject();
 
-	private JSONArray allowedFor(JSONArray jsonArr, String action,ObjectPidsPath path, boolean[] flags) throws JSONException {
-		JSONObject pathSon = new JSONObject();
+        String[] fromRootToLeaf = path.getPathFromRootToLeaf();
+        for (int i = 0; i < fromRootToLeaf.length; i++) {
+            pathSon.put(fromRootToLeaf[i], flags[i]);
+        }
+        jsonArr.put(pathSon);
 
-		String[] fromRootToLeaf = path.getPathFromRootToLeaf();
-		for (int i = 0; i < fromRootToLeaf.length; i++) {
-			pathSon.put(fromRootToLeaf[i], flags[i]);
-		}
-		jsonArr.put(pathSon);
+        return jsonArr;
+    }
 
-		return jsonArr;
-	}
+    private JSONObject allowedFor(JSONObject jsonObj, String action, boolean flag) throws JSONException {
+        jsonObj.put(action, flag);
+        return jsonObj;
+    }
 
-	private JSONObject allowedFor(JSONObject jsonObj, String action,boolean flag) throws JSONException {
-		jsonObj.put(action, flag);
-		return jsonObj;
-	}
-	
 }

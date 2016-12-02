@@ -160,7 +160,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                     LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 } catch (SecurityException e1) {
-                    LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    LOGGER.log(Level.INFO, e1.getMessage());
                     resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 } catch (XPathExpressionException e1) {
                     LOGGER.log(Level.SEVERE, e1.getMessage(), e1);

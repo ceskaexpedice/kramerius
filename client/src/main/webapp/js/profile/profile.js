@@ -237,27 +237,33 @@ ProfileDisplay.prototype = {
          * @method 
          */        
         store:function(fnc) {
-                var encodedData = Base64.encode(JSON.stringify(K5.authentication.ctx.profile));
-                var refresh = _.bind(function() { 
-                        this.refreshButtons();  this.profileContent(); 
-                        if (fnc) {
-                            fnc.apply(null, []);
-                        }
-                        K5.eventsHandler.trigger("application/menu/ctxchanged", null);
-                }, this);
-                var postok = _.bind(function() { 
-                    K5.authentication.askForProfileRequest(refresh); 
-                }, this);
+                if (!this.dirtyFlag) {
+                    this.close();
+                } else {
+                    var encodedData = Base64.encode(JSON.stringify(K5.authentication.ctx.profile));
+                    var refresh = _.bind(function() { 
+                            this.refreshButtons();  this.profileContent(); 
+                            if (fnc) {
+                                fnc.apply(null, []);
+                            }
+                            K5.eventsHandler.trigger("application/menu/ctxchanged", null);
+                    }, this);
 
-                $.ajax({
-                        dataType: "json",
-                        type: "POST",
-                        //contentType:'application/json',
-                        'url': 'authentication?action=profile',
-                        //'beforeSend': function(xhr) { xhr.setRequestHeader("Authorization","Basic " + Base64.encode(uname + ":" + pass)); },
-                        data: {'encodedData':encodedData},
-                        success: postok
-                });
+                    var postok = _.bind(function() { 
+                        K5.authentication.askForProfileRequest(refresh); 
+                    }, this);
+
+                    $.ajax({
+                            dataType: "json",
+                            type: "POST",
+                            //contentType:'application/json',
+                            'url': 'authentication?action=profile',
+                            //'beforeSend': function(xhr) { xhr.setRequestHeader("Authorization","Basic " + Base64.encode(uname + ":" + pass)); },
+                            data: {'encodedData':encodedData},
+                            success: postok
+                    });
+                    this.close();
+                }
         }
 }
 

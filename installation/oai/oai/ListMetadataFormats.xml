@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ OAI4Solr exposes your Solr indexes using an OAI2 protocol handler.
+  ~
+  ~     Copyright (c) 2011-2014  International Institute of Social History
+  ~
+  ~     This program is free software: you can redistribute it and/or modify
+  ~     it under the terms of the GNU General Public License as published by
+  ~     the Free Software Foundation, either version 3 of the License, or
+  ~     (at your option) any later version.
+  ~
+  ~     This program is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~     GNU General Public License for more details.
+  ~
+  ~     You should have received a copy of the GNU General Public License
+  ~     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+    <!-- You may leave out the responseDate and request elements -->
+    <ListMetadataFormats>
+        <metadataFormat>
+            <metadataPrefix>oai_dc</metadataPrefix>
+            <schema>http://www.openarchives.org/OAI/2.0/oai_dc.xsd</schema>
+            <metadataNamespace>http://www.openarchives.org/OAI/2.0/oai_dc/</metadataNamespace>
+        </metadataFormat>
+        <metadataFormat>
+            <metadataPrefix>ese</metadataPrefix>
+            <schema>http://www.europeana.eu/schemas/ese/ESE-V3.2.xsd</schema>
+            <metadataNamespace>http://www.europeana.eu/schemas/ese/</metadataNamespace>
+        </metadataFormat>
+        <metadataFormat>
+            <metadataPrefix>drkramerius4</metadataPrefix>
+            <schema>http://registrdigitalizace.cz/schemas/drkramerius/v4/drkram.xsd</schema>
+            <metadataNamespace>http://registrdigitalizace.cz/schemas/drkramerius/v4/</metadataNamespace>
+        </metadataFormat>
+    </ListMetadataFormats>
+</OAI-PMH>

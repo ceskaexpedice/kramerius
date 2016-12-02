@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
@@ -44,11 +45,15 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  * @author pavels
  */
 public class SolrUtils   {
+    
+    public static final Logger LOGGER = Logger.getLogger(SolrUtils.class.getName());
 
     /** PID query */
     public static final String UUID_QUERY="q=PID:";
     /** Handle query */
     public static final String HANDLE_QUERY="q=handle:";
+    /** Parent query */
+    public static final String PARENT_QUERY="q=parent_pid:";
     
     // factory instance
     static XPathFactory fact =XPathFactory.newInstance();
@@ -68,11 +73,15 @@ public class SolrUtils   {
      * @return Compiled XPath expression
      * @throws XPathExpressionException Cannot compile xpath
      */
-    public static XPathExpression pidExpr() throws XPathExpressionException {
+    public static XPathExpression docPidExpr() throws XPathExpressionException {
         XPathExpression pidExpr = fact.newXPath().compile("//str[@name='PID']");
         return pidExpr;
     }
 
+    public static XPathExpression elmPidExpr() throws XPathExpressionException {
+        XPathExpression pidExpr = fact.newXPath().compile("str[@name='PID']");
+        return pidExpr;
+    }
 
     /**
      * Constructs XPath for disecting model path
@@ -83,6 +92,7 @@ public class SolrUtils   {
         XPathExpression pathExpr = fact.newXPath().compile("//arr[@name='model_path']/str");
         return pathExpr;
     }
+
     
     /**
      * Disects pid paths from given parsed solr document
@@ -90,17 +100,19 @@ public class SolrUtils   {
      * @throws XPathExpressionException cannot disect pid paths
      */
     public static List<String> disectPidPaths( Document parseDocument) throws XPathExpressionException {
-        List<String> list = new ArrayList<String>();
-        NodeList paths = (org.w3c.dom.NodeList) pidPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
-        if (paths != null) {
-            for (int i = 0,ll=paths.getLength(); i < ll; i++) {
-                Node n = paths.item(i);
-                String text = n.getTextContent();
-                list.add(text.trim());
+        synchronized(parseDocument) {
+            List<String> list = new ArrayList<String>();
+            NodeList paths = (org.w3c.dom.NodeList) pidPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
+            if (paths != null) {
+                for (int i = 0,ll=paths.getLength(); i < ll; i++) {
+                    Node n = paths.item(i);
+                    String text = n.getTextContent();
+                    list.add(text.trim());
+                }
+                return list;
             }
-            return list;
+            return new ArrayList<String>();
         }
-        return new ArrayList<String>();
     }
     
     /**
@@ -110,12 +122,30 @@ public class SolrUtils   {
      * @throws XPathExpressionException cannot disect pid
      */
     public static String disectPid(Document parseDocument) throws XPathExpressionException {
-        Node pidNode = (Node) pidExpr().evaluate(parseDocument, XPathConstants.NODE);
-        if (pidNode != null) {
-            Element pidElm = (Element) pidNode;
-            return pidElm.getTextContent().trim();
+        synchronized(parseDocument) {
+            Node pidNode = (Node) docPidExpr().evaluate(parseDocument, XPathConstants.NODE);
+            if (pidNode != null) {
+                Element pidElm = (Element) pidNode;
+                return pidElm.getTextContent().trim();
+            }
+            return null;
         }
-        return null;
+    }
+
+    public static String disectPid(Element topElem) throws XPathExpressionException {
+        synchronized(topElem.getOwnerDocument()) {
+            Element foundElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
+
+                @Override
+                public boolean acceptElement(Element element) {
+                    return (element.getNodeName().equals("str") && element.getAttribute("name") != null && element.getAttribute("name").equals("PID"));
+                }
+                
+            });
+            if (foundElement != null) {
+                return foundElement.getTextContent().trim();
+            } else return null;
+        }
     }
 
     /**
@@ -125,19 +155,29 @@ public class SolrUtils   {
      * @throws XPathExpressionException cannot disect models path
      */
     public static List<String> disectModelPaths(Document parseDocument) throws XPathExpressionException {
-        List<String> list = new ArrayList<String>();
-        NodeList pathNodes = (NodeList) modelPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
-        if (pathNodes != null) {
-            for (int i = 0,ll=pathNodes.getLength(); i < ll; i++) {
-                Node n = pathNodes.item(i);
-                String text = n.getTextContent();
-                list.add(text.trim());
+        synchronized(parseDocument) {
+            List<String> list = new ArrayList<String>();
+            NodeList pathNodes = (NodeList) modelPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
+            if (pathNodes != null) {
+                for (int i = 0,ll=pathNodes.getLength(); i < ll; i++) {
+                    Node n = pathNodes.item(i);
+                    String text = n.getTextContent();
+                    list.add(text.trim());
+                }
+                return list;
             }
-            return list;
+            return new ArrayList<String>();
         }
-        return new ArrayList<String>();
     }
 
+
+    public static Document getSolrDataInternalOffset(String query, String offset) throws IOException, ParserConfigurationException, SAXException {
+        String solrHost = KConfiguration.getInstance().getSolrHost();
+        String uri = solrHost +"/select?" +query+"&start="+offset;
+        InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
+        Document parseDocument = XMLUtils.parseDocument(inputStream);
+        return parseDocument;
+    }
 
     public static Document getSolrDataInternal(String query) throws IOException, ParserConfigurationException, SAXException {
         String solrHost = KConfiguration.getInstance().getSolrHost();
@@ -170,6 +210,4 @@ public class SolrUtils   {
         InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
         return inputStream;
     }
-
-
 }

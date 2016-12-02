@@ -1,12 +1,10 @@
 [
-    "http://fonts.googleapis.com/css?family=Duru+Sans&subset=latin,latin-ext",
-    "http://fonts.googleapis.com/css?family=Exo+2:400,700",
-    "http://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css",
+    "//fonts.googleapis.com/css?family=Duru+Sans&subset=latin,latin-ext",
+    "//fonts.googleapis.com/css?family=Exo+2:400,700",
+    "//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css",
 
-
+     "css/app-bar-cookie-info.css",
     "jplayer/skin/blue.monday/jplayer.blue.monday.css",
-
-    
 
     "resources/css/selector.css",
     "resources/css/styles.css",

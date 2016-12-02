@@ -4,6 +4,7 @@ import static cz.incad.kramerius.FedoraNamespaces.DC_NAMESPACE_URI;
 import static cz.incad.kramerius.utils.XMLUtils.findElement;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.w3c.dom.Element;
@@ -74,15 +75,24 @@ public class DCUtils {
 	 * @return
 	 */
 	public static String modelFromDC(org.w3c.dom.Document doc) {
-        Element elm = findElement(doc.getDocumentElement(), "type", DC_NAMESPACE_URI);  
-        if (elm != null) {
+	    List<Element> elements = XMLUtils.getElements(doc.getDocumentElement(),  new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                return (element.getLocalName().equals("type") && element.getNamespaceURI().equals(DC_NAMESPACE_URI));
+            }
+        });
+	    
+	    for (Element elm : elements) {
             String type = elm.getTextContent();
-            StringTokenizer tokenizer = new StringTokenizer(type,":");
-            if ((tokenizer.hasMoreTokens() && tokenizer.nextToken() != null) && tokenizer.hasMoreTokens()) {
-                String model = tokenizer.nextToken();
-                return model;
-            } else return null;
-        } else return null;
+            if (type.contains(":")) {
+                StringTokenizer tokenizer = new StringTokenizer(type,":");
+                if ((tokenizer.hasMoreTokens() && tokenizer.nextToken() != null) && tokenizer.hasMoreTokens()) {
+                    String model = tokenizer.nextToken();
+                    return model;
+                } else return null;
+            }
+	    }
+	    return null;
 	}
 	
 	/**

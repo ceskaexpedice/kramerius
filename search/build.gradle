@@ -1,13 +1,8 @@
 apply plugin: 'war'
-apply plugin: 'kdeploy'
 
 description "Admin web application"
 
 
-deployment {
-        http('adminLocal','localhost','localPort','usernameKey','pswdKey','tomcat6x') 
-        http('adminVmkram','vmkramerius','vmkramPort','usernameKey','pswdKey') 
-}
 
 sourceSets {
     main {
@@ -46,6 +41,7 @@ dependencies {
     compile project(':security-core')
     compile project(':rest')
     compile project(':mw-process')
+    compile project(':authfilters')
 
     compile 'javax.servlet:jstl:1.1.2'   
     compile 'taglibs:standard:1.1.2'   

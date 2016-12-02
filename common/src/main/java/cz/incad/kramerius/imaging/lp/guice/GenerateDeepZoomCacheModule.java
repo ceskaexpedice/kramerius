@@ -28,21 +28,25 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class GenerateDeepZoomCacheModule extends AbstractModule {
 
-	@Override
-	protected void configure() {
-		// mapped plain fedoraAccess as secured.  In this process it is not necessary to have checked access to fedora.
-		bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-		bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
-		bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
-		bind(DeepZoomTileSupport.class).to(TileSupportImpl.class);
+    @Override
+    protected void configure() {
+        // mapped plain fedoraAccess as secured. In this process it is not
+        // necessary to have checked access to fedora.
+        bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class)
+                .in(Scopes.SINGLETON);
+        bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
+        bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
+        bind(DeepZoomTileSupport.class).to(TileSupportImpl.class);
 
-		bind(DeepZoomCacheService.class).annotatedWith(Names.named("fileSystemCache")).to(FileSystemCacheServiceImpl.class).in(Scopes.SINGLETON);
-		bind(DeepZoomCacheService.class).annotatedWith(Names.named("memoryCacheForward")).to(SimpleMemoryCacheServiceWrapper.class).in(Scopes.SINGLETON);
-		bind(DeepZoomFlagService.class).to(DeepZoomFlagServiceImpl.class).in(Scopes.SINGLETON);
-	}
-	
-	public static class NoStatistics implements StatisticsAccessLog {
-	    
+        bind(DeepZoomCacheService.class).annotatedWith(Names.named("fileSystemCache"))
+                .to(FileSystemCacheServiceImpl.class).in(Scopes.SINGLETON);
+        bind(DeepZoomCacheService.class).annotatedWith(Names.named("memoryCacheForward"))
+                .to(SimpleMemoryCacheServiceWrapper.class).in(Scopes.SINGLETON);
+        bind(DeepZoomFlagService.class).to(DeepZoomFlagServiceImpl.class).in(Scopes.SINGLETON);
+    }
+
+    public static class NoStatistics implements StatisticsAccessLog {
+
         @Override
         public StatisticReport[] getAllReports() {
             return new StatisticReport[0];
@@ -56,16 +60,18 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
         @Override
         public void reportAccess(String pid, String streamName) throws IOException {
         }
-	
+
         @Override
         public boolean isReportingAccess(String pid, String streamName) {
             return true;
         }
 
-        
         @Override
         public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup) {
-            // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void reportAccess(String pid, String streamName, String actionName) throws IOException {
         }
     }
 }

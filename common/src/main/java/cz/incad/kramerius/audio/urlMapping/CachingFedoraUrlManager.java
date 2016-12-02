@@ -98,7 +98,7 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
             LOGGER.log(Level.FINE, "found url {0} for {1}", new Object[]{url, id});
             return url;
         } catch (SecurityException ex) {
-            LOGGER.log(Level.INFO, null, ex);
+            LOGGER.log(Level.INFO, ex.getMessage());
             return null;
         }
     }

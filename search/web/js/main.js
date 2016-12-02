@@ -136,6 +136,9 @@ function PDF() {
     // error dialogs
     this.pagesValidationErrorDialog = null;
     this.conflictErrorDialog = null;
+
+    this.accessErrorDialog = null;
+    
 }
 
 
@@ -161,12 +164,8 @@ PDF.prototype.downloadFile = function(url) {
         console.log("dialog " + this.waitDialog);
         if (xhr.readyState == 4) {
             if (xhr.status == 200) {
-                var name = (function() {
-                    var date = new Date();
-                    return "" + date.getFullYear() + "" + date.getDate() + ""
-                            + date.getMonth() + "_" + date.getHours() + ""
-                            + date.getMinutes() + "" + date.getSeconds() + ".pdf";
-                })();
+                var date = new Date();
+                var name = "" + date.getFullYear() + "" + date.getDate() + "" + date.getMonth() + "_" + date.getHours() + "" + date.getMinutes() + "" + date.getSeconds()+"_"+date.getMilliseconds()+ ".pdf";
                 var blob = xhr.response;
                 var burl = window.URL.createObjectURL(blob);
                 var ref = $('<a/>', {
@@ -176,14 +175,14 @@ PDF.prototype.downloadFile = function(url) {
                     style : "display:none"
                 });
                 ref.text("click to download");
+
+                $("#_pdf_download_bloblink" ).remove();
                 $("#waitPdf").append(ref);
 
-                // JQuery issue, the code:
-                // $("#_pdf_download_bloblink").trigger('click');
-                // doesn't work
-
                 $("#_pdf_download_bloblink").get(0).click();
+                
                 this.waitDialog.dialog('close');
+
             } else if (xhr.status == 400) {
                 this.waitDialog.dialog('close');
                 this.showPagesValidationError();
@@ -256,6 +255,7 @@ PDF.prototype.showPagesValidationError = function() {
 
 PDF.prototype.renderPDF = function() {
     var u = null;
+    var chpids = [];
     var selected = $("#pdf input:checked");
     if (selected.length >= 1) {
         var pidsstring = selected.val();
@@ -270,55 +270,101 @@ PDF.prototype.renderPDF = function() {
                 }
                 return base + element.trim();
             }, "", selectedPids);
+            
+            chpids = selectedPids;
             u = "api/v5.0/pdf/selection?pids=" + reducedString;
+            
         } else {
             var selectedPids = pidsstring.slice(1, pidsstring.length - 1)
                     .split(",");
             var howMany = parseInt($("#" + id + "_input").val());
-
             if (this.apiPDFSettings.pdfMaxRange === "unlimited") {
                 u = "api/v5.0/pdf/parent?pid=" + selectedPids[0];
             } else {
                 u = "api/v5.0/pdf/parent?pid=" + selectedPids[0] + "&number="
                         + howMany;
             }
+            chpids[0] = selectedPids[0];
         }
+        
         // device, IMAGE,TEXT
         u = u + "&pageType="
                 + $("#pdfsettings input[name=device]:checked").val();
         // page format
         u = u + "&format=" + $("#pdfsettings_ereader option:selected").val();
 
-        if (this.waitDialog) {
-            this.waitDialog.dialog('open');
-        } else {
-            $(document.body)
-                    .append(
-                            '<div id="waitPdf">'
-                                    + '<div style="margin: 16px; font-family: sans-serif; font-size: 10px; ">'
-                                    + '<table width="100%">'
-                                    + '<tr><td align="center"><img src="img/loading.gif" height="16px" width="16px"/></td></tr>'
-                                    + '<tr><td align="center" id="waitPdf_message">'
-                                    + dictionary['pdf.waitDialog.message']
-                                    + '</td></tr>' + '</table>' + '</div>'
-                                    + '</div>');
-            this.waitDialog = $('#waitPdf').dialog({
-                width : 400,
-                height : 270,
-                modal : true,
-                title : dictionary["generatePdfTitle"],
-                buttons : [ {
-                    text : dictionary['common.close'],
-                    click : bind(function() {
-                        this.dialog.dialog("close");
-                    }, this)
-                } ]
-            });
-        }
 
-        this.downloadFile(u);
+        var _goahead = bind(function(adata) {
+            var flag = true;
+            for(var key in adata) {
+                flag = adata[key] && flag;
+            }
+            if (flag) {
+                if (this.waitDialog) {
+                    this.waitDialog.dialog('open');
+                } else {
+                    $(document.body)
+                            .append(
+                                    '<div id="waitPdf">'
+                                            + '<div style="margin: 16px; font-family: sans-serif; font-size: 10px; ">'
+                                            + '<table width="100%">'
+                                            + '<tr><td align="center"><img src="img/loading.gif" height="16px" width="16px"/></td></tr>'
+                                            + '<tr><td align="center" id="waitPdf_message">'
+                                            + dictionary['pdf.waitDialog.message']
+                                            + '</td></tr>' + '</table>' + '</div>'
+                                            + '</div>');
+                    this.waitDialog = $('#waitPdf').dialog({
+                        width : 400,
+                        height : 270,
+                        modal : true,
+                        title : dictionary["generatePdfTitle"],
+                        buttons : [ {
+                            text : dictionary['common.close'],
+                            click : bind(function() {
+                                this.dialog.dialog("close");
+                            }, this)
+                        } ]
+                    });
+                }
+                this.downloadFile(u);
+            } else {
+                this.accessDeniedDialog();
+            }
+        },this);
+
+        $.get("isActionAllowed?actions=read&actions=pdf_resource&"+
+                 reduce(function(base, element, status) {
+                    if (!status.first) {
+                       base = base + "&";
+                    }
+                    return base + "pid="+element.trim();
+                 }, "", chpids),
+        _goahead);
     }
 }
+
+PDF.prototype.accessDeniedDialog = function() {
+    if (this.accessErrorDialog) {
+        this.accessErrorDialog.dialog('open');
+    } else {
+            var strings = '<div id="pdfAccessDenied"><table style="width:100%; height:100%;"><tr><td style="text-align: center;vertical-align: center;">'+dictionary['rightMsg.printpfd']+'</td></tr></table></div>';
+            $(document.body).append(strings);
+                this.accessErrorDialog = $('#pdfAccessDenied').dialog({
+                    width:350,
+                    height:250,
+                    modal:true,
+                    title:dictionary["administrator.menu.pdferror"],
+                    buttons:[{
+                                    text: dictionary['common.close'],
+                                    click: function() {
+                                        $(this).dialog("close");
+                                    }
+                            }]
+                    });
+           }
+
+},        
+
 
 PDF.prototype.generate = function(objects) {
     this.devconf = null;

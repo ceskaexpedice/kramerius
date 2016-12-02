@@ -45,19 +45,18 @@
 </style>
 
 <div id="login_box">
-<span>
 
 
 <form id="login_form" name="login_form">
     <label>#translatable('login.username'):</label>
-    <input id="username" name="username" placeholder="#i18nval('login.username.placeholder')" value="" />
+    <input class="translate_placeholder" data-key="login.username.placeholder" id="username" name="username" placeholder="#i18nval('login.username.placeholder')" value="" />
     <label>#translatable('login.password'):</label>
-    <input id="password" name="password" placeholder="#i18nval('login.password.placeholder')" value="" type="password" />
+    <input class="translate_placeholder" data-key="login.password.placeholder" id="password" name="password" placeholder="#i18nval('login.password.placeholder')" value="" type="password" />
 </form>
 
-<span>
 
     <script type="text/javascript">
+
     
         function getParameterByName(name) {
             name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -86,6 +85,14 @@
             if (err === "true") {
                 $("#login_box_error").show();
             }
+            $("#login_form input").keypress(function (e) {
+              if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+                __loginbutton();
+                return false;
+              } else {
+                 return true;
+              }
+           });
         });
 
     </script>
@@ -94,9 +101,7 @@
         <a href="javascript:__loginbutton()">#translatable('login.button')</a>
     </div>
 
-<div id="login_box_error" class="login_error" style="display:none">#translatable('login.error')</span>
+<div id="login_box_error" class="login_error" style="display:none">#translatable('login.error')
 </div>
 
-
-</span>
 </div>

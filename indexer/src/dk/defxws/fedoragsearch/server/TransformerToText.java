@@ -7,23 +7,19 @@
  */
 package dk.defxws.fedoragsearch.server;
 
-import cz.incad.kramerius.utils.UnicodeUtil;
-import org.apache.lucene.demo.html.HTMLParser;
-import org.apache.pdfbox.cos.COSDocument;
-import org.apache.pdfbox.encryption.DocumentEncryption;
-import org.apache.pdfbox.exceptions.CryptographyException;
-import org.apache.pdfbox.exceptions.InvalidPasswordException;
-import org.apache.pdfbox.pdfparser.PDFParser;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
-
-import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.lucene.demo.html.HTMLParser;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+
+import cz.incad.kramerius.utils.UnicodeUtil;
 
 /**
  * performs transformations from formatted documents to text
@@ -70,8 +66,6 @@ public class TransformerToText {
             throws Exception {
         StringBuffer docText = new StringBuffer();
         try {
-            //byte[] out = UnicodeUtil.convert(doc, "UTF-8");
-            //InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(out));
             String enc = UnicodeUtil.getEncoding(doc);
             //enc = "UTF-8";
             InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(doc), enc);
@@ -124,60 +118,18 @@ public class TransformerToText {
         return docText;
     }
     
-    public COSDocument getCOSDocument(byte[] doc) throws Exception{
-        COSDocument cosDoc = null;
-        String password = "";
-        try {
-            cosDoc = parseDocument(new ByteArrayInputStream(doc));
-        } catch (IOException e) {
-            closeCOSDocument(cosDoc);
-            throw new Exception("Cannot parse PDF document", e);
-        }
-        return cosDoc;
-    }
     
     public int getPdfPagesCount_(byte[] doc) throws Exception{
-        COSDocument cosDoc = null;
-        PDDocument pdDoc = null;
         String password = "";
-        try {
-            cosDoc = parseDocument(new ByteArrayInputStream(doc));
-        } catch (IOException e) {
-            closeCOSDocument(cosDoc);
-            throw new Exception(
-                    "Cannot parse PDF document", e);
-        }
-
-        // decrypt the PDF document, if it is encrypted
-        try {
-            if (cosDoc.isEncrypted()) {
-                DocumentEncryption decryptor = new DocumentEncryption(cosDoc);
-                decryptor.decryptDocument(password);
-            }
-        } catch (CryptographyException e) {
-            closeCOSDocument(cosDoc);
-            throw new Exception(
-                    "Cannot decrypt PDF document", e);
-        } catch (InvalidPasswordException e) {
-            closeCOSDocument(cosDoc);
-            throw new Exception(
-                    "Cannot decrypt PDF document", e);
-        } catch (IOException e) {
-            closeCOSDocument(cosDoc);
-            throw new Exception(
-                    "Cannot decrypt PDF document", e);
-        }
-
+        PDDocument pdDoc = null;
         // extract PDF document's textual content
         try {
-            
-            pdDoc = new PDDocument(cosDoc);
+            pdDoc = PDDocument.load(new ByteArrayInputStream(doc),password);
             return pdDoc.getNumberOfPages();
         } catch (Exception e) {
             throw new Exception(
                     "Cannot parse PDF document", e);
         } finally {
-            closeCOSDocument(cosDoc);
             closePDDocument(pdDoc);
         }
     }
@@ -188,7 +140,7 @@ public class TransformerToText {
         String password = "";
         // extract PDF document's textual content
         try {
-            PDFTextStripper stripper = new PDFTextStripper("UTF-8");
+            PDFTextStripper stripper = new PDFTextStripper(/*"UTF-8"*/);
             int page = Integer.parseInt(pageNum);
             if(page!=-1){
                 stripper.setStartPage(page);
@@ -210,72 +162,29 @@ public class TransformerToText {
     private StringBuffer getTextFromPDF(byte[] doc, String pageNum)
             throws Exception {
         StringBuffer docText = new StringBuffer();
-        COSDocument cosDoc = null;
         PDDocument pdDoc = null;
         String password = "";
-        try {
-            cosDoc = parseDocument(new ByteArrayInputStream(doc));
-        } catch (IOException e) {
-            closeCOSDocument(cosDoc);
-            throw new Exception(
-                    "Cannot parse PDF document", e);
-        }
-
-        // decrypt the PDF document, if it is encrypted
-        try {
-            if (cosDoc.isEncrypted()) {
-                DocumentEncryption decryptor = new DocumentEncryption(cosDoc);
-                decryptor.decryptDocument(password);
-            }
-        } catch (CryptographyException e) {
-            closeCOSDocument(cosDoc);
-            throw new Exception(
-                    "Cannot decrypt PDF document", e);
-        } catch (InvalidPasswordException e) {
-            closeCOSDocument(cosDoc);
-            throw new Exception(
-                    "Cannot decrypt PDF document", e);
-        } catch (IOException e) {
-            closeCOSDocument(cosDoc);
-            throw new Exception(
-                    "Cannot decrypt PDF document", e);
-        }
 
         // extract PDF document's textual content
         try {
-            PDFTextStripper stripper = new PDFTextStripper("UTF-8");
+            PDFTextStripper stripper = new PDFTextStripper(/*"UTF-8"*/);
             int page = Integer.parseInt(pageNum);
             if(page!=-1){
                 stripper.setStartPage(page);
                 stripper.setEndPage(page);
             }
-            pdDoc = new PDDocument(cosDoc);
+            //password
+            pdDoc = PDDocument.load(new ByteArrayInputStream(doc),password); // new PDDocument(cosDoc);
             docText = new StringBuffer(stripper.getText(pdDoc));
         } catch (IOException e) {
             throw new Exception(
                     "Cannot parse PDF document", e);
         } finally {
-            closeCOSDocument(cosDoc);
             closePDDocument(pdDoc);
         }
         return docText;
     }
 
-    private static COSDocument parseDocument(InputStream is)
-            throws IOException {
-        PDFParser parser = new PDFParser(is);
-        parser.parse();
-        return parser.getDocument();
-    }
-
-    private void closeCOSDocument(COSDocument cosDoc) {
-        if (cosDoc != null) {
-            try {
-                cosDoc.close();
-            } catch (IOException e) {
-            }
-        }
-    }
 
     private void closePDDocument(PDDocument pdDoc) {
         if (pdDoc != null) {

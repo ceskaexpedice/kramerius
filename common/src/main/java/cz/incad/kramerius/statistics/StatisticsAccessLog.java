@@ -37,6 +37,15 @@ public interface StatisticsAccessLog {
     public void reportAccess(String pid, String streamName) throws IOException;
     
     /**
+     * Report one access 
+     * @param pid
+     * @param streamName
+     * @param actionName
+     * @throws IOException
+     */
+    public void reportAccess(String pid, String streamName, String actionName) throws IOException;
+    
+    /**
      * Returns true if access to  given pid and stream should be reported
      * @param pid accessing pid
      * @param streamName accessing stream
@@ -62,4 +71,5 @@ public interface StatisticsAccessLog {
      * @return
      */
     public StatisticReport getReportById(String reportId);
+    
 }

@@ -29,4 +29,5 @@ public interface ClientUser extends User {
 
     public void updateInformation(String fname, String sname);
 
+    public void updatePassword(String pswd);
 }
