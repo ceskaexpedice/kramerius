@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -115,6 +116,8 @@ public class RegisterPublicUser extends AbstractPostUser{
             String key = this.notActivatedUsersSingleton.addNotActivatedUser(user);
             javax.mail.Session sess = mailer.getSession(null, null);
             Message msg = new MimeMessage(sess);
+            // Issue 444
+            msg.addFrom(Arrays.asList(new InternetAddress(user.getEmail())).toArray(new InternetAddress[1]));
             msg.addRecipient(RecipientType.TO, new InternetAddress(user.getEmail()));
             msg.setSubject(resourceBundle.getString("registeruser.mail.subject"));
             String formatted = MessageFormat.format(resourceBundle.getString("registeruser.mail.message"),user.getFirstName()+" "+user.getSurname(), user.getLoginname(), ApplicationURL.applicationURL(request)+"/users?action=activation&key="+key);
