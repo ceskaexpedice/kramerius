@@ -16,6 +16,15 @@
  */
 package cz.incad.kramerius;
 
+import static org.easymock.EasyMock.createMockBuilder;
+import static org.easymock.EasyMock.replay;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,9 +33,19 @@ import java.util.List;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import org.easymock.EasyMock;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import cz.incad.kramerius.AbstractObjectPath.Between;
+import cz.incad.kramerius.fedora.impl.DataPrepare;
+import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.virtualcollections.CollectionGet;
 
 public class ObjectPidsPathTest {
 
@@ -198,6 +217,7 @@ public class ObjectPidsPathTest {
         TestCase.assertEquals(Arrays.asList(cutHead2.getPathFromRootToLeaf()), cutHeadPath2);
     }
 
+    
     @Test
     public void testCutTails() {
         List<String> relsExtPath = new ArrayList<String>() {
@@ -242,4 +262,78 @@ public class ObjectPidsPathTest {
         TestCase.assertEquals(Arrays.asList(cutTail2.getPathFromRootToLeaf()), cutTailPath2);
     }
 
+    
+    @Test
+    public void testEhanceByCollection() throws JSONException, IOException, NoSuchMethodException, IllegalAccessException {
+        
+        InputStream itemStream = ObjectPidsPathTest.class.getResourceAsStream("objectpidpathitem.json");
+        JSONObject obj = new JSONObject(IOUtils.readAsString(itemStream, Charset.forName("UTF-8"), true));
+
+        InputStream colsInputStream = ObjectPidsPathTest.class.getResourceAsStream("collections.json");
+        JSONArray collections = new JSONArray(IOUtils.readAsString(colsInputStream, Charset.forName("UTF-8"), true));
+        
+        ObjectPidsPath path = createMockBuilder(ObjectPidsPath.class)
+            .withConstructor(List.class)
+             .withArgs( Arrays.asList("uuid:periodical","uuid:periodicalvolume","uuid:periodicalitem"))
+            .addMockedMethod("getItemJSON")
+            .createMock(); 
+        
+        CollectionGet colGet = EasyMock.createMock(CollectionGet.class);
+        
+        
+        EasyMock.expect(path.getItemJSON("uuid:periodical")).andReturn(obj).anyTimes();
+        EasyMock.expect(path.getItemJSON("uuid:periodicalvolume")).andReturn(obj).anyTimes();
+        EasyMock.expect(path.getItemJSON("uuid:periodicalitem")).andReturn(obj).anyTimes();
+
+        EasyMock.expect(colGet.collections()).andReturn(collections).anyTimes();
+        replay(path, colGet);
+
+        Assert.assertEquals(path.injectCollections(colGet).getRoot(), "vc:ebc58201-b12d-4be5-baa6-b0cdcf7f1ae3");
+        Assert.assertEquals(path.injectCollections(colGet).injectRepository().getRoot(), "uuid:1");
+    }
+    
+
+    @Test
+    public void testEhanceByCollection3() throws JSONException, IOException, NoSuchMethodException, IllegalAccessException {
+        ObjectPidsPath p = new ObjectPidsPath();
+
+        CollectionGet colGet = EasyMock.createMock(CollectionGet.class);
+        replay( colGet);
+        ObjectPidsPath cols = p.injectCollections(colGet);
+        Assert.assertTrue(cols.isEmptyPath());
+    }
+    
+    @Test
+    public void testEhanceByCollection2() throws JSONException, IOException, NoSuchMethodException, IllegalAccessException {
+        InputStream itemStream = ObjectPidsPathTest.class.getResourceAsStream("objectpidpathitem.json");
+        JSONObject obj = new JSONObject(IOUtils.readAsString(itemStream, Charset.forName("UTF-8"), true));
+
+        InputStream colsInputStream = ObjectPidsPathTest.class.getResourceAsStream("collections.json");
+        JSONArray collections = new JSONArray(IOUtils.readAsString(colsInputStream, Charset.forName("UTF-8"), true));
+        
+
+        ObjectPidsPath repoPath = createMockBuilder(ObjectPidsPath.class)
+                .withConstructor(List.class)
+                 .withArgs( Arrays.asList(SpecialObjects.REPOSITORY.getPid(),"uuid:periodical","uuid:periodicalvolume","uuid:periodicalitem"))
+                .addMockedMethod("getItemJSON")
+                .createMock(); 
+
+        EasyMock.expect(repoPath.getItemJSON("uuid:1")).andReturn(obj).anyTimes();
+        EasyMock.expect(repoPath.getItemJSON("uuid:periodical")).andReturn(obj).anyTimes();
+        EasyMock.expect(repoPath.getItemJSON("uuid:periodicalvolume")).andReturn(obj).anyTimes();
+        EasyMock.expect(repoPath.getItemJSON("uuid:periodicalitem")).andReturn(obj).anyTimes();
+
+        CollectionGet colGet = EasyMock.createMock(CollectionGet.class);
+
+        EasyMock.expect(colGet.collections()).andReturn(collections).anyTimes();
+        replay(repoPath,colGet);
+
+        Assert.assertEquals(repoPath.injectCollections(colGet).getRoot(), "uuid:1");
+        List<String> arr =Arrays.asList(repoPath.injectCollections(colGet).getPathFromRootToLeaf());
+        List<String> expectingList = Arrays.asList("uuid:1", "vc:ebc58201-b12d-4be5-baa6-b0cdcf7f1ae3", "uuid:periodical", "uuid:periodicalvolume", "uuid:periodicalitem");
+        Assert.assertTrue(arr.size() == expectingList.size());
+        for (int i = 0,ll=arr.size(); i < ll; i++) {
+            Assert.assertTrue(arr.get(i).equals(expectingList.get(i)));
+        }
+    }
 }

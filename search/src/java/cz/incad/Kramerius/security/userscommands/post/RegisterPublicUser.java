@@ -116,8 +116,6 @@ public class RegisterPublicUser extends AbstractPostUser{
             String key = this.notActivatedUsersSingleton.addNotActivatedUser(user);
             javax.mail.Session sess = mailer.getSession(null, null);
             Message msg = new MimeMessage(sess);
-            // Issue 444
-            msg.addFrom(Arrays.asList(new InternetAddress(user.getEmail())).toArray(new InternetAddress[1]));
             msg.addRecipient(RecipientType.TO, new InternetAddress(user.getEmail()));
             msg.setSubject(resourceBundle.getString("registeruser.mail.subject"));
             String formatted = MessageFormat.format(resourceBundle.getString("registeruser.mail.message"),user.getFirstName()+" "+user.getSurname(), user.getLoginname(), ApplicationURL.applicationURL(request)+"/users?action=activation&key="+key);
@@ -126,8 +124,13 @@ public class RegisterPublicUser extends AbstractPostUser{
             if (from == null) {
                 from = sess.getProperty("mail.smtp.user");
             }
+            if (from == null) {
+                // default value
+                from = user.getEmail();
+            }
             InternetAddress mailFrom = new InternetAddress(from);
             msg.setFrom(mailFrom);
+
             Transport.send(msg);
         } catch (NoSuchProviderException e) {
             LOGGER.log(Level.SEVERE, e.getMessage());

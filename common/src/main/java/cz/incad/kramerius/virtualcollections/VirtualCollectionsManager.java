@@ -50,6 +50,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import org.json.JSONArray;
 
+//TODO: remove
 public class VirtualCollectionsManager {
 
     private static final Logger logger = Logger.getLogger(VirtualCollectionsManager.class.getName());

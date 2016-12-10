@@ -53,6 +53,7 @@ import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.virtualcollections.CollectionGet;
 
 public class DisplayRightsForObjectsView extends AbstractRightsView {
 
@@ -85,6 +86,8 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
     @Inject
     ResourceBundleService resourceBundleService;
     
+    @Inject
+    CollectionGet collectionGet;
     
     public DisplayRightsForObjectsView() {
         super();
@@ -130,7 +133,7 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
                 ObjectPidsPath[] paths = solrAccess.getPath(pid.toString());
                 
                 for (ObjectPidsPath path : paths) {
-                    path = path.injectRepository();
+                    path = path.injectRepository().injectCollections(this.collectionGet);
                     List<Right> pathRights = new ArrayList<Right>(Arrays.asList(allRights(path)));
                     Map<Integer, Boolean> map = new HashMap<Integer, Boolean>();
                     

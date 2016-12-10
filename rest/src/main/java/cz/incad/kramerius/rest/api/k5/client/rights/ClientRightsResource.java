@@ -40,6 +40,7 @@ import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.virtualcollections.CollectionGet;
 
 @Path("/v5.0/rights")
 public class ClientRightsResource {
@@ -51,6 +52,9 @@ public class ClientRightsResource {
 
     @Inject
     SolrAccess solrAccess;
+    
+    @Inject
+    CollectionGet colGet;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -96,7 +100,7 @@ public class ClientRightsResource {
             String token = tokenizer.nextToken();
             object.put(token, new JSONArray());
             for (ObjectPidsPath ph : paths) {
-                ObjectPidsPath nph = ph.injectRepository();
+                ObjectPidsPath nph = ph.injectRepository().injectCollections(this.colGet);
                 boolean[] flags = this.actionAllowed.isActionAllowedForAllPath(token, pid, stream, nph);
                 allowedFor(object.getJSONArray(token), token, nph, flags);
             }
