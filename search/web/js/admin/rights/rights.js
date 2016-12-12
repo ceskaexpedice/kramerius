@@ -766,8 +766,6 @@ GlobalActions.prototype.globalActions=function() {
 
 /** Open collection actions dialog */
 GlobalActions.prototype.collectionActions=function() {
-	// change affected pids
-	//findObjectsDialog().pids = [{pid:'uuid:1',model:'REPOSITORY'}];
 		
 	var url = "inc/admin/_collection_actions.jsp";
 	$.get(url, bind(function(data) {
@@ -787,10 +785,10 @@ GlobalActions.prototype.collectionActions=function() {
 		        height:480,
 		        modal:true,
 		        buttons: [{
-                	  text:dictionary['common.close'],
-                	  click:bind(function() {
-  		        		this.dialog.dialog("close");
-                	  },this)
+                      text:dictionary['common.close'],
+                      click:bind(function() {
+  		                  this.coldialog.dialog("close");
+                      },this)
 		        }]
 		    });
 		    

@@ -31,8 +31,8 @@
     <table  style="width:100%">
         <thead>
             <tr> 
-                <td><strong><view:msg>rights.dialog.table.column.action</view:msg></strong></td>
-                <td><strong><view:msg>rights.dialog.table.column.description</view:msg></strong></td>
+                <td><strong><view:msg>rights.dialog.table.column.collectionlabel</view:msg></strong></td>
+                <td><strong><view:msg>rights.dialog.table.column.pid</view:msg></strong></td>
                 <td><strong><view:msg>rights.dialog.table.column.change</view:msg></strong></td>
             </tr>
         </thead>

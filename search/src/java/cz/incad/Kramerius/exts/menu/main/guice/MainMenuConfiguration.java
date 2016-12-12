@@ -34,6 +34,7 @@ import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Import;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ImportMonographs;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ImportPeriodicals;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerAdministration;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerMigration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MetadataEditor;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MovingWallProcess;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.NDKMetsImport;
@@ -81,6 +82,7 @@ public class MainMenuConfiguration extends AbstractModule {
         = Multibinder.newSetBinder(binder(), AdminMenuItem.class);
         adminItems.addBinding().to(ProcessesDialog.class);
         adminItems.addBinding().to(IndexerAdministration.class);
+        adminItems.addBinding().to(IndexerMigration.class);
 
         adminItems.addBinding().to(UsersAdministration.class);
         adminItems.addBinding().to(RolesEditor.class);

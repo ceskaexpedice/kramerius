@@ -14,31 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.Kramerius.exts.menu.context.impl.adm.items;
+package cz.incad.Kramerius.exts.menu.main.impl.adm.items;
 
 import java.io.IOException;
 
-import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
-import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
+import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
+import cz.incad.kramerius.security.SecuredActions;
 
-public class Reindex extends AbstractContextMenuItem implements AdminContextMenuItem  {
-
-
-    @Override
-    public String getRenderedItem() throws IOException {
-        return super.renderContextMenuItem("javascript:reindex();", "administrator.menu.reindex");
-    }
+public class IndexerMigration extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public boolean isRenderable() {
-        boolean flag =  super.isRenderable();
-        if (flag) return this.hasUserAllowedPlanProcess("reindex");
-        return flag;
+        return (hasUserAllowedPlanProcess("reindex"));
     }
 
     @Override
-    public boolean isMultipleSelectSupported() {
-        return true;
+    public String getRenderedItem() throws IOException {
+        return renderMainMenuItem(
+                "javascript:indexmigrations(); javascript:hideAdminMenu();",
+                "administrator.menu.dialogs.indexMigration.title", false);
     }
+
 
 }
