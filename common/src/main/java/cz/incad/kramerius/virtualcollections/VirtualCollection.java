@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 //TODO: remove
-public class VirtualCollection {
+class VirtualCollection {
     
     protected String label;
     protected String pid;

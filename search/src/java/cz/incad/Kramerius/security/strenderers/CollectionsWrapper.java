@@ -7,29 +7,32 @@ import java.util.ResourceBundle;
 
 import org.json.JSONObject;
 
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.Collection.Description;
+
 public class CollectionsWrapper {
 
  
-    private JSONObject json;
+    private Collection col;
     private Locale loc;
-    public CollectionsWrapper(JSONObject json, Locale loc) {
+    public CollectionsWrapper(Collection col, Locale loc) {
         super();
-        this.json = json;
+        this.col = col;
         this.loc = loc;
     }
 
     
     public String getPid() {
-        return this.json.getString("pid");
+        return this.col.getPid();
     }
     
     
     public String getLabel() {
         String language = this.loc.getLanguage();
-        JSONObject descs = this.json.getJSONObject("descs");
-        if (descs.has(language)) {
-            return descs.getString(language);
+        Description lookup = this.col.lookup(language);
+        if (lookup != null) {
+            return lookup.getText();
         }
-        return descs.getString("cs");
+        return this.col.lookup("cs").getText();
     }
 }

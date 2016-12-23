@@ -121,6 +121,7 @@ public class MigrateSolrIndexImpl implements MigrateSolrIndex{
             WebResource r = this.client.resource(destSolr);
             
             Document ndoc = XMLUtils.crateDocument("add");
+
             Element docElem = ndoc.createElement("doc");
             ndoc.getDocumentElement().appendChild(docElem);
             
@@ -128,7 +129,7 @@ public class MigrateSolrIndexImpl implements MigrateSolrIndex{
             for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
                 Node node = childNodes.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    List<String> primitiveVals = Arrays.asList("str","int","bool");
+                    List<String> primitiveVals = Arrays.asList("str","int","bool","date");
                     if (primitiveVals.contains(node.getNodeName())) {
                         simpleValue(ndoc,docElem, node,null);
                     } else {
@@ -151,14 +152,15 @@ public class MigrateSolrIndexImpl implements MigrateSolrIndex{
             throw new MigrateSolrIndexException(e);
         }
     }
-    private void simpleValue(Document ndoc, Element docElm, Node node, String derivedName) {
+
+    public void simpleValue(Document ndoc, Element docElm, Node node, String derivedName) {
         Element strElm = ndoc.createElement("field");
         strElm.setAttribute("name", derivedName != null ? derivedName : ((Element)node).getAttribute("name"));
         docElm.appendChild(strElm);
         strElm.setTextContent(node.getTextContent());
     }
 
-    private void arrayValue(Document ndoc, Element docElm, Node node) {
+    public void arrayValue(Document ndoc, Element docElm, Node node) {
         NodeList childNodes = node.getChildNodes();
         for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
             Node n = childNodes.item(i);
@@ -206,5 +208,4 @@ public class MigrateSolrIndexImpl implements MigrateSolrIndex{
         MigrateSolrIndexImpl impl = new MigrateSolrIndexImpl();
         impl.migrate();
     }
-    
 }

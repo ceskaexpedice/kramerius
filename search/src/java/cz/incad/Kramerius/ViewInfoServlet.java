@@ -57,7 +57,8 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.solr.SolrUtils;
-import cz.incad.kramerius.virtualcollections.CollectionGet;
+import cz.incad.kramerius.virtualcollections.CollectionException;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
 public class ViewInfoServlet extends GuiceServlet {
 
@@ -99,7 +100,8 @@ public class ViewInfoServlet extends GuiceServlet {
     Provider<User> currentLoggedUserProvider;
 
     @Inject
-    CollectionGet collectionGet;
+    @Named("solr")
+    CollectionsManager collectionGet;
     
     private InputStream dataStream;
 
@@ -221,6 +223,8 @@ public class ViewInfoServlet extends GuiceServlet {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch(SecurityException e) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+        } catch (CollectionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
     
@@ -318,7 +322,7 @@ public class ViewInfoServlet extends GuiceServlet {
     }
    
     
-    public MappedPath findPathWithFirstAccess(HttpServletRequest req, String pid, ObjectPidsPath[] paths,SecuredActions act) {
+    public MappedPath findPathWithFirstAccess(HttpServletRequest req, String pid, ObjectPidsPath[] paths,SecuredActions act) throws CollectionException {
         for (ObjectPidsPath objectPath : paths) {
             ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet);
             boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM ,path);
@@ -329,7 +333,7 @@ public class ViewInfoServlet extends GuiceServlet {
         return null;
     }
     
-    public List<MappedPath> fillActionsToJSON(HttpServletRequest req, String pid, ObjectPidsPath[] paths, SecuredActions act) {
+    public List<MappedPath> fillActionsToJSON(HttpServletRequest req, String pid, ObjectPidsPath[] paths, SecuredActions act) throws CollectionException {
         List<MappedPath> mappedPaths = new ArrayList<ViewInfoServlet.MappedPath>();
         for (ObjectPidsPath objectPath : paths) {
             ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet);

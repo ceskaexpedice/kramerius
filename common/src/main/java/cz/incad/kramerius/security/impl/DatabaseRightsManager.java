@@ -57,7 +57,8 @@ import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
-import cz.incad.kramerius.virtualcollections.CollectionGet;
+import cz.incad.kramerius.virtualcollections.CollectionException;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
 public class DatabaseRightsManager implements RightsManager {
 
@@ -75,7 +76,8 @@ public class DatabaseRightsManager implements RightsManager {
     RightCriteriumWrapperFactory criteriumWrapperFactory;
     
     @Inject
-    CollectionGet colGet;
+    @Named("solr")
+    CollectionsManager colGet;
     
     @Override
     @InitSecurityDatabase
@@ -242,7 +244,13 @@ public class DatabaseRightsManager implements RightsManager {
     @Override
     @InitSecurityDatabase
     public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, ObjectPidsPath path, String action, User user) throws RightCriteriumException {
-        ObjectPidsPath processPath = path.injectRepository().injectCollections(this.colGet);
+        ObjectPidsPath processPath=path.injectRepository();
+        try {
+            processPath = processPath.injectCollections(this.colGet);
+        } catch (CollectionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+
         //List<String> pids = Arrays.asList(path.injectRepository().getPathFromRootToLeaf());
         String[] pids = processPath.getPathFromLeafToRoot();
         

@@ -45,7 +45,10 @@ import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.CollectionGet;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
 public class ObjectPidsPathTest {
 
@@ -264,13 +267,13 @@ public class ObjectPidsPathTest {
 
     
     @Test
-    public void testEhanceByCollection() throws JSONException, IOException, NoSuchMethodException, IllegalAccessException {
+    public void testEhanceByCollection() throws JSONException, IOException, NoSuchMethodException, IllegalAccessException, CollectionException {
         
         InputStream itemStream = ObjectPidsPathTest.class.getResourceAsStream("objectpidpathitem.json");
         JSONObject obj = new JSONObject(IOUtils.readAsString(itemStream, Charset.forName("UTF-8"), true));
 
         InputStream colsInputStream = ObjectPidsPathTest.class.getResourceAsStream("collections.json");
-        JSONArray collections = new JSONArray(IOUtils.readAsString(colsInputStream, Charset.forName("UTF-8"), true));
+        //JSONArray collections = new JSONArray(IOUtils.readAsString(colsInputStream, Charset.forName("UTF-8"), true));
         
         ObjectPidsPath path = createMockBuilder(ObjectPidsPath.class)
             .withConstructor(List.class)
@@ -278,33 +281,48 @@ public class ObjectPidsPathTest {
             .addMockedMethod("getItemJSON")
             .createMock(); 
         
-        CollectionGet colGet = EasyMock.createMock(CollectionGet.class);
+        CollectionsManager colGet = EasyMock.createMock(CollectionsManager.class);
         
         
         EasyMock.expect(path.getItemJSON("uuid:periodical")).andReturn(obj).anyTimes();
         EasyMock.expect(path.getItemJSON("uuid:periodicalvolume")).andReturn(obj).anyTimes();
         EasyMock.expect(path.getItemJSON("uuid:periodicalitem")).andReturn(obj).anyTimes();
 
-        EasyMock.expect(colGet.collections()).andReturn(collections).anyTimes();
+        List<Collection> colList = collectionList();
+        
+        EasyMock.expect(colGet.getCollections()).andReturn(colList).anyTimes();
         replay(path, colGet);
 
         Assert.assertEquals(path.injectCollections(colGet).getRoot(), "vc:ebc58201-b12d-4be5-baa6-b0cdcf7f1ae3");
         Assert.assertEquals(path.injectCollections(colGet).injectRepository().getRoot(), "uuid:1");
     }
+
+    private List<Collection> collectionList() {
+        Collection col1 = new Collection("vc:ebc58201-b12d-4be5-baa6-b0cdcf7f1ae3","",true);
+        col1.addDescription(new Collection.Description("cs","TEXT_cs","prvni"));
+        col1.addDescription(new Collection.Description("en","TEXT_en","first"));
+        
+        Collection col2 = new Collection("vc:07e47af3-58fb-47d2-b1db-c86af07c97b6","",true);
+        col2.addDescription(new Collection.Description("cs","TEXT_cs","druhy"));
+        col2.addDescription(new Collection.Description("en","TEXT_en","second"));
+
+        List<Collection> colList = Arrays.asList(col1,col2);
+        return colList;
+    }
     
 
     @Test
-    public void testEhanceByCollection3() throws JSONException, IOException, NoSuchMethodException, IllegalAccessException {
+    public void testEhanceByCollection3() throws JSONException, IOException, NoSuchMethodException, IllegalAccessException, CollectionException {
         ObjectPidsPath p = new ObjectPidsPath();
 
-        CollectionGet colGet = EasyMock.createMock(CollectionGet.class);
+        CollectionsManager colGet = EasyMock.createMock(CollectionsManager.class);
         replay( colGet);
         ObjectPidsPath cols = p.injectCollections(colGet);
         Assert.assertTrue(cols.isEmptyPath());
     }
     
     @Test
-    public void testEhanceByCollection2() throws JSONException, IOException, NoSuchMethodException, IllegalAccessException {
+    public void testEhanceByCollection2() throws JSONException, IOException, NoSuchMethodException, IllegalAccessException, CollectionException {
         InputStream itemStream = ObjectPidsPathTest.class.getResourceAsStream("objectpidpathitem.json");
         JSONObject obj = new JSONObject(IOUtils.readAsString(itemStream, Charset.forName("UTF-8"), true));
 
@@ -323,9 +341,9 @@ public class ObjectPidsPathTest {
         EasyMock.expect(repoPath.getItemJSON("uuid:periodicalvolume")).andReturn(obj).anyTimes();
         EasyMock.expect(repoPath.getItemJSON("uuid:periodicalitem")).andReturn(obj).anyTimes();
 
-        CollectionGet colGet = EasyMock.createMock(CollectionGet.class);
+        CollectionsManager colGet = EasyMock.createMock(CollectionsManager.class);
 
-        EasyMock.expect(colGet.collections()).andReturn(collections).anyTimes();
+        EasyMock.expect(colGet.getCollections()).andReturn(collectionList()).anyTimes();
         replay(repoPath,colGet);
 
         Assert.assertEquals(repoPath.injectCollections(colGet).getRoot(), "uuid:1");

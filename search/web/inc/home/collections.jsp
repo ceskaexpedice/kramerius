@@ -54,11 +54,24 @@
 <a id="col_refresh" style="float:right;" href="javascript:refreshCollections();" title="<view:msg>common.refresh</view:msg>"><span class="ui-icon ui-icon-refresh">refresh</span></a>
 <div class="collections" id="collection_list" style="font-size:1.2em;">
 </c:if>
-    <ul>
+    
+    <ul style="margin:0px;padding:0px">
 <c:forEach var="col" items="${cols.virtualCollectionsLocale}">
     <li>
         <c:forEach items="${col.descriptions}" var="desc">
+            <!--
             <a href="javascript:setVirtualCollection('${col.pid}');">${desc.text}</a>
+             -->
+            
+            <!-- jiny styl -->
+            <div align="center" style="overflow:hidden; border:1px solid #eeeeee; height:120px; width:100px; float:left; margin:5px; ">
+                <a href="javascript:setVirtualCollection('${col.pid}');" >
+                    <img align="middle" vspace="2" id="img_${col.pid}" src="img?uuid=${col.pid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" border="0"
+                         title="${desc.text}" alt="${desc.text}" />
+                </a>
+                <div style="color:black;text-overflow: ellipsis;font-size:11px">${desc.text}</div>
+            </div>
+
         </c:forEach>
     </li>
 </c:forEach>

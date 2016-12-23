@@ -37,6 +37,7 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.rest.api.k5.client.utils.RELSEXTDecoratorUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -92,17 +93,20 @@ public class CollectionsDecorator extends AbstractItemDecorator {
                         for (Element colElm : collections) {
                             String collectionPid = colElm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI,
                                     "resource");
-                            try {
-                                PIDParser pidParser = new PIDParser(collectionPid);
-                                if (collectionPid.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
-                                    pidParser.disseminationURI();
-                                } else {
-                                    pidParser.objectPid();
+                            
+                            if (StringUtils.isAnyString(collectionPid)) {
+                                try {
+                                    PIDParser pidParser = new PIDParser(collectionPid);
+                                    if (collectionPid.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
+                                        pidParser.disseminationURI();
+                                    } else {
+                                        pidParser.objectPid();
+                                    }
+                                    collectionsJSON.put(pidParser.getObjectPid());
+                                } catch (LexerException e) {
+                                    LOGGER.severe("cannot parse collection pid " + collectionPid);
+                                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                                 }
-                                collectionsJSON.put(pidParser.getObjectPid());
-                            } catch (LexerException e) {
-                                LOGGER.severe("cannot parse collection pid " + collectionPid);
-                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
                             }
                         }
                         jsonObject.put("collections", collectionsJSON);

@@ -91,7 +91,6 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         String spercent = req.getParameter(SCALE_PARAMETER);
         String sheight = req.getParameter(SCALED_HEIGHT_PARAMETER);
         String swidth = req.getParameter(SCALED_WIDTH_PARAMETER);
-        // System.out.println("REQUEST PARAMS: sheight:"+sheight+"swidth:"+swidth);
         if (spercent != null) {
             double percent = 1.0;
             {

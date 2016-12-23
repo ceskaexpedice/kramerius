@@ -37,8 +37,10 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.virtualcollections.CollectionGet;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.CollectionPidUtils;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
 /**
  * Represents objects path
@@ -84,7 +86,8 @@ public class ObjectPidsPath extends AbstractObjectPath {
     }
     
     // support collections
-    public ObjectPidsPath injectCollections(CollectionGet col) {
+    
+    public ObjectPidsPath injectCollections(CollectionsManager col) throws CollectionException {
         if (this.isEmptyPath()) return this;
         for (String pid : pathFromRootToLeaf) {
             if (CollectionPidUtils.isCollectionPid(pid)) {
@@ -93,10 +96,10 @@ public class ObjectPidsPath extends AbstractObjectPath {
             }
         }
         List<String> collections = new ArrayList<String>();
-        JSONArray jsonArray = col.collections();
-        for (int i = 0,ll=jsonArray.length(); i < ll; i++) {
-            JSONObject vcJSONObject = jsonArray.getJSONObject(i);
-            collections.add(vcJSONObject.getString("pid"));
+        List<Collection> cols = col.getCollections();
+        for (int i = 0,ll=cols.size(); i < ll; i++) {
+            Collection cCol = cols.get(i);
+            collections.add(cCol.getPid());
         }
         
         String[] pathFromRoot = this.getPathFromRootToLeaf();

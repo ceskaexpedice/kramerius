@@ -30,7 +30,8 @@ import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.virtualcollections.CollectionGet;
+import cz.incad.kramerius.virtualcollections.CollectionException;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
@@ -48,9 +49,10 @@ public class DownloadOriginalViewObject extends AbstractViewObject {
     FedoraAccess fedoraAccess;
     
     @Inject
-    CollectionGet collectionGet;
+    @Named("solr")
+    CollectionsManager collectionGet;
     
-    public List<DownloadItem> getDownloadItems() throws RecognitionException, TokenStreamException, IOException {
+    public List<DownloadItem> getDownloadItems() throws RecognitionException, TokenStreamException, IOException, CollectionException {
         List<DownloadItem> items = new ArrayList<DownloadOriginalViewObject.DownloadItem>();
         List params = getPidsParams();
         for (Object param : params) {

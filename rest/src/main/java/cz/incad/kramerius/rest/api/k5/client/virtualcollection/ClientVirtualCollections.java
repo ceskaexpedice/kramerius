@@ -16,7 +16,6 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.virtualcollection;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,10 +35,10 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
-import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.CollectionUtils;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
 @Path("/v5.0/vc")
 public class ClientVirtualCollections {
@@ -48,7 +47,8 @@ public class ClientVirtualCollections {
             .getLogger(ClientVirtualCollections.class.getName());
 
     @Inject
-    VirtualCollectionsManager manager;
+    @Named("fedora")
+    CollectionsManager manager;
 
     @Inject
     @Named("securedFedoraAccess")
@@ -60,12 +60,12 @@ public class ClientVirtualCollections {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response oneVirtualCollection(@PathParam("pid") String pid) {
         try {
-            VirtualCollection vc = VirtualCollectionsResource
-                    .findVirtualCollection(this.fedoraAccess, pid);
+            List<Collection> collections = this.manager.getCollections();
+            Collection vc = this.manager.getCollection(pid);
             if (vc != null) {
                 return Response
                         .ok()
-                        .entity(VirtualCollectionsResource
+                        .entity(CollectionUtils
                                 .virtualCollectionTOJSON(vc)).build();
             } else {
                 throw new ObjectNotFound("cannot find vc '" + pid + "'");
@@ -82,12 +82,10 @@ public class ClientVirtualCollections {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response get() {
         try {
-            List<VirtualCollection> vcs = VirtualCollectionsManager
-                    .getVirtualCollections(fedoraAccess,
-                            new ArrayList<String>());
+            List<Collection> collections = this.manager.getCollections();
             JSONArray jsonArr = new JSONArray();
-            for (VirtualCollection vc : vcs) {
-                jsonArr.put(VirtualCollectionsResource
+            for (Collection vc : collections) {
+                jsonArr.put(CollectionUtils
                         .virtualCollectionTOJSON(vc));
             }
             return Response.ok().entity(jsonArr.toString()).build();

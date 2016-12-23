@@ -1,6 +1,6 @@
 package cz.incad.Kramerius.backend.guice;
 
-import java.util.Locale;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,20 +9,24 @@ import javax.servlet.http.HttpSession;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
+
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
-import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
-import java.util.ArrayList;
-import java.util.Arrays;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.CollectionException;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
-public class VirtualCollectionProvider implements Provider<VirtualCollection> {
+public class VirtualCollectionProvider implements Provider<Collection> {
 
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
     @Inject
     KConfiguration kConfiguration;
+
+    @Inject
+    @Named("fedora")
+    CollectionsManager manager;
     
     public static final String VIRTUAL_COLLECTION = "virtual_collection";
     private Provider<HttpServletRequest> provider;
@@ -36,40 +40,36 @@ public class VirtualCollectionProvider implements Provider<VirtualCollection> {
     }
 
     @Override
-    public VirtualCollection get() {
-        HttpServletRequest request = this.provider.get();
-        HttpSession session = request.getSession(true);
-        String parameter = request.getParameter("collection");
-        if (parameter != null) {
-            if (parameter.equals("none")) {
-                session.setAttribute(VIRTUAL_COLLECTION, null);
-                return null;
-            } else {
-                if (!parameter.startsWith("vc:")) {
-                    parameter = "vc:" + parameter;
+    public Collection get() {
+        try {
+            HttpServletRequest request = this.provider.get();
+            HttpSession session = request.getSession(true);
+            String parameter = request.getParameter("collection");
+            if (parameter != null) {
+                if (parameter.equals("none")) {
+                    session.setAttribute(VIRTUAL_COLLECTION, null);
+                    return null;
+                } else {
+                    if (!parameter.startsWith("vc:")) {
+                        parameter = "vc:" + parameter;
+                    }
+                    //ArrayList<String> langs = new ArrayList<String>(Arrays.asList(kConfiguration.getPropertyList("interface.languages")));
+                    Collection vc = this.manager.getCollection(parameter);
+                    session.setAttribute(VIRTUAL_COLLECTION, vc);
+                    return vc;
                 }
-                //ArrayList<String> langs = new ArrayList<String>(Arrays.asList(kConfiguration.getPropertyList("interface.languages")));
-                VirtualCollection vc = VirtualCollectionsManager.getVirtualCollection(fedoraAccess, parameter, languageCodes());
-                session.setAttribute(VIRTUAL_COLLECTION, vc);
-                return vc;
-            }
 
-        } else if (session.getAttribute(VIRTUAL_COLLECTION) != null) {
-            return (VirtualCollection) session.getAttribute(VIRTUAL_COLLECTION);
-        } else {
+            } else if (session.getAttribute(VIRTUAL_COLLECTION) != null) {
+                return (Collection) session.getAttribute(VIRTUAL_COLLECTION);
+            } else {
+                return null;
+            }
+        } catch (CollectionException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
             return null;
         }
     }
     
-    private ArrayList languageCodes(){
-        ArrayList l = new ArrayList<String>();
-        String[] langs = kConfiguration.getPropertyList("interface.languages");
-        for (int i = 0; i < langs.length; i++) {
-                    String lang = langs[++i];
-            l.add(lang);
-        }
-        return l;
-    }
 
     private boolean isInUrl(HttpServletRequest request) {
         String requestURL = request.getRequestURL().toString();
