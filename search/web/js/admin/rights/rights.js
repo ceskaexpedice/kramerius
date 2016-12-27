@@ -793,7 +793,7 @@ GlobalActions.prototype.collectionActions=function() {
 		    
 		}
     
-        this.coldialog.dialog( "option", "title", dictionary['rights.global.actions.title'] );
+        //this.coldialog.dialog( "option", "title", dictionary['rights.global.actions.title'] );
 
 		$("#collectionActions").html(data);
 	}, this));
