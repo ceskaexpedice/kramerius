@@ -40,8 +40,13 @@ public abstract class AbstractCollectionManager implements CollectionsManager {
     @Inject
     @Named("rawFedoraAccess")
     protected FedoraAccess fa;
+
     protected XPathFactory factory = XPathFactory.newInstance();
 
+    public AbstractCollectionManager() {
+        this.factory = XPathFactory.newInstance();
+    }
+    
     public FedoraAccess getFedoraAccess() {
         return fa;
     }

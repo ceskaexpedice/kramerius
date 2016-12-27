@@ -21,17 +21,11 @@ import static org.easymock.EasyMock.replay;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.json.JSONArray;
@@ -39,16 +33,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import cz.incad.kramerius.AbstractObjectPath.Between;
-import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionException;
-import cz.incad.kramerius.virtualcollections.CollectionGet;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
 public class ObjectPidsPathTest {
 
