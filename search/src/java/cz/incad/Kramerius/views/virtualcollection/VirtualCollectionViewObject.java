@@ -104,7 +104,8 @@ public class VirtualCollectionViewObject {
     }
 
     private SortType sortType() {
-        String confString = KConfiguration.getInstance().getConfiguration().getString("search.collection.search");
+        String confString = KConfiguration.getInstance().getConfiguration().getString("search.collection.sort");
+        if (confString == null) return null;
         SortType selectedVal = null;
         for (SortType v : CollectionsManager.SortType.values()) {
             if (confString.equals(v.name())) {
@@ -115,6 +116,13 @@ public class VirtualCollectionViewObject {
         return selectedVal;
     }
 
+    
+    public boolean isThumbnailsVisible() {
+        boolean thumbs = KConfiguration.getInstance().getConfiguration().getBoolean("search.collection.thumbs",false);
+        return thumbs;
+    }
+    
+    
     private List<CollectionItemViewObject> onlyLocalizedDescriptions(List<Collection> rawCollection) throws IOException {
         Locale locale = this.localeProvider.get();
         List<Collection> ncols = new ArrayList<Collection>();

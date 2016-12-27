@@ -17,20 +17,24 @@
 package cz.incad.kramerius.rest.api.k5.client.virtualcollection;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.json.JSONArray;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
@@ -39,6 +43,7 @@ import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionUtils;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
+import cz.incad.kramerius.virtualcollections.CollectionsManager.SortType;
 
 @Path("/v5.0/vc")
 public class ClientVirtualCollections {
@@ -54,6 +59,9 @@ public class ClientVirtualCollections {
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
+    @Inject
+    Provider<HttpServletRequest> req;
+    
     @GET
     @Path("{pid}")
     @Consumes
@@ -80,9 +88,21 @@ public class ClientVirtualCollections {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response get() {
+    public Response get(@QueryParam("sort") String sortType,@QueryParam("langCode") String langCode) {
         try {
-            List<Collection> collections = this.manager.getCollections();
+            SortType type = sortType(sortType);
+            List<Collection> collections = null;
+            if (type != null) {
+                Locale locale = null;
+                if (langCode != null) {
+                    locale = Locale.forLanguageTag(langCode);
+                } else {
+                    locale = this.req.get().getLocale();
+                }
+                collections = this.manager.getSortedCollections(locale, type);
+            }  else {
+                collections = this.manager.getCollections();
+            }
             JSONArray jsonArr = new JSONArray();
             for (Collection vc : collections) {
                 jsonArr.put(CollectionUtils
@@ -93,6 +113,19 @@ public class ClientVirtualCollections {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());
         }
+    }
+
+    private SortType sortType(String sortType) {
+        if (sortType!=null) {
+            SortType selectedVal = null;
+            for (SortType v : CollectionsManager.SortType.values()) {
+                if (sortType.equals(v.name())) {
+                    selectedVal = v;
+                    break;
+                }
+            }
+            return selectedVal;
+        } else return null;
     }
 
 }

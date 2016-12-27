@@ -115,7 +115,7 @@ CollectionAdm.prototype.imgassoc=function(collection) {
                 width:400,
                 height:250,
                 modal:true,
-                title:'Collection',
+                title:'',
                 buttons: [
                     {
                         text: dictionary["common.ok"],

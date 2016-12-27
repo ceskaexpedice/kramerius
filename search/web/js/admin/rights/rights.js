@@ -766,7 +766,6 @@ GlobalActions.prototype.globalActions=function() {
 
 /** Open collection actions dialog */
 GlobalActions.prototype.collectionActions=function() {
-		
 	var url = "inc/admin/_collection_actions.jsp";
 	$.get(url, bind(function(data) {
 		if (this.coldialog) {
@@ -781,8 +780,8 @@ GlobalActions.prototype.collectionActions=function() {
 			}
 		    
 		    this.coldialog = $('#collectionActions').dialog({
-		        width:640,
-		        height:480,
+		        width:700,
+		        height:400,
 		        modal:true,
 		        buttons: [{
                       text:dictionary['common.close'],

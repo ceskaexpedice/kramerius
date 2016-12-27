@@ -28,7 +28,7 @@
 	
 
      <table style="width:100%">
-     <tr><td style="width:100%"><label for="czech_text">Cesky</label></td></td>
+     <tr><td style="width:100%"><label for="czech_text"><view:msg>collection.administration.edit.czech_lang</view:msg></label></td></td>
      <c:choose>
        <c:when test="${ga.parameterCollection != null}">
         <tr><td style="width:100%"><input id="czech_text" name="czech" type="text" value="${ga.parameterCollection.descriptionsMap['cs']}" /></td></td>
@@ -39,7 +39,7 @@
      </c:choose>
      
 
-     <tr><td style="width:100%"><label for="english_text">Anglicky</label></td></td>
+     <tr><td style="width:100%"><label for="english_text"><view:msg>collection.administration.edit.eng_lang</view:msg></label></td></td>
      <c:choose>
        <c:when test="${ga.parameterCollection != null}">
         <tr><td style="width:100%"><input id="english_text" name="english" type="text" value="${ga.parameterCollection.descriptionsMap['en']}" /></td></td>
@@ -51,7 +51,7 @@
      
 
 
-     <tr><td><label for="canLeave">canLeave</label></td></td>
+     <tr><td><label for="canLeave"><view:msg>collection.administration.content.canleave</view:msg></label></td></td>
      <c:choose>
        <c:when test="${ga.parameterCollection != null && ga.parameterCollection.canLeave}">
          <tr><td><input id="canLeave" name="canLeave" type="checkbox" checked/></td></td>
@@ -60,11 +60,7 @@
           <tr><td><input id="canLeave" name="canLeave" type="checkbox" /></td></td>
        </c:otherwise>
      </c:choose>
-     
-
 	</table>
 </div>
-
-
 
 </div>

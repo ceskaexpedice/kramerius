@@ -15,15 +15,15 @@
     <table  style="width:100%">
         <thead>
             <tr> 
-                <td><strong><view:msg>rights.dialog.table.column.collectionlabel</view:msg></strong></td>
-                <td><strong><view:msg>rights.dialog.table.column.pid</view:msg></strong></td>
-                <td><strong>Can leave</strong></td>
-                <td><strong>Preview set</strong></td>
-                <td><strong>Image full set</strong></td>
-                <td><strong><view:msg>rights.dialog.table.column.change</view:msg></strong></td>
-                <td><strong>rights</strong></td>
-                <td><strong>Images association</strong></td>
-                <td><strong>delete</strong></td>
+                <td><strong><view:msg>collection.administration.content.collectionlabel</view:msg></strong></td>
+                <td width="25%"><strong><view:msg>common.pid</view:msg></strong></td>
+                <td width="2%"><strong><view:msg>collection.administration.content.canleave</view:msg></strong></td>
+                <td width="2%"><strong><view:msg>collection.administration.content.thumbset</view:msg></strong></td>
+                <td width="2%"><strong><view:msg>collection.administration.content.fullset</view:msg></strong></td>
+                <td width="10%"><strong><view:msg>collection.administration.content.change</view:msg></strong></td>
+                <td width="10%"><strong><view:msg>collection.administration.content.rights</view:msg></strong></td>
+                <td width="20%"><strong><view:msg>collection.administration.content.imgassoc</view:msg></strong></td>
+                <td width="10%"><strong><view:msg>collection.administration.content.delete</view:msg></strong></td>
              </tr>
         </thead>
         <tbody>
@@ -40,10 +40,10 @@
 		<input disabled  type="checkbox"/>
        </c:otherwise>
      </c:choose>
-	                  
+          
 	                  </td>
 
-  	                  <td> 
+      <td> 
        <c:choose>
        <c:when test="${itm.thumbnailAvailable}">
 		<input disabled  type="checkbox" checked/>
@@ -52,10 +52,10 @@
 		<input disabled  type="checkbox"/>
        </c:otherwise>
      </c:choose>
+      
+      </td>
 	                  
-	                  </td>
-	                  
-	                  	                  <td> 
+      <td> 
        <c:choose>
        <c:when test="${itm.fullAvailable}">
 		<input disabled  type="checkbox" checked/>
@@ -67,9 +67,9 @@
 	                  
 	                  </td>
 	                  
-                      <td><button type="button" onclick="colAdm.collection('${itm.pid}');">rights</button></td>
+                      <td><button type="button" onclick="colAdm.collection('${itm.pid}');"><view:msg>common.edit</view:msg></button></td>
                       <td><button type="button" onclick="collectionRightDialog('${itm.pid}');"><view:msg>common.edit</view:msg></button></td>
-                      <td><button type="button" onclick="colAdm.imgassoc('${itm.pid}');">Nahledy</button></td>
+                      <td><button type="button" onclick="colAdm.imgassoc('${itm.pid}');"><view:msg>collection.administration.content.imgassoc.button</view:msg></button></td>
                       <td><button type="button" onclick="colAdm.delete('${itm.pid}');"><view:msg>common.delete</view:msg></button></td>
                     </tr>
 	            </c:forEach>
