@@ -7,6 +7,7 @@ import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.k5.client.item.utils.IIIFUtils;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
@@ -77,7 +78,8 @@ public class IiifServlet extends AbstractImageServlet {
 
         if (permited) {
             try {
-                StringBuffer url = new StringBuffer(RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess));
+                String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+                StringBuffer url = new StringBuffer(u);
                 while (tokenizer.hasMoreTokens()) {
                     String nextToken = tokenizer.nextToken();
                     url.append("/" + nextToken);

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.inject.multibindings.Multibinder;
+import com.lizardtech.djvu.IFFEnumeration;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
@@ -43,6 +44,7 @@ import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
 import cz.incad.kramerius.rest.api.k5.client.impl.SolrMemoizationImpl;
 import cz.incad.kramerius.rest.api.k5.client.info.InfoResource;
+import cz.incad.kramerius.rest.api.k5.client.item.IiifResource;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.CollectionsDecorator;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.DonatorDecorate;
@@ -91,6 +93,8 @@ public class ApiServletModule extends JerseyServletModule {
         // k5 - znovu...
         bind(ClientUserResource.class);
         bind(ItemResource.class);
+        bind(IiifResource.class);
+        
         bind(FeederResource.class);
         bind(ClientVirtualCollections.class);
         bind(SearchResource.class);
