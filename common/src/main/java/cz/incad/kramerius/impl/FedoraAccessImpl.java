@@ -465,6 +465,27 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
+    
+    
+    @Override
+    public boolean isObjectAvailable(String pid) throws IOException {
+        try {
+            Document parseDocument = XMLUtils.parseDocument(getFedoraDataStreamsList(makeSureObjectPid(pid)), true);
+            return true;
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (FileNotFoundException e) {
+            return false;
+        } 
+    }
+
     @Override
     public boolean isContentAccessible(String pid) throws IOException {
         return true;

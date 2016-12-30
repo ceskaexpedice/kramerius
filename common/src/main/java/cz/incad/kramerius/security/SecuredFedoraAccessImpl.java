@@ -261,6 +261,12 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public boolean isStreamAvailable(String pid, String streamName) throws IOException {
         return this.rawAccess.isStreamAvailable(pid, streamName);
     }
+    
+
+    @Override
+    public boolean isObjectAvailable(String pid) throws IOException {
+        return this.rawAccess.isObjectAvailable(pid);
+    }
 
     @Override
     public String getMimeTypeForStream(String pid, String datastreamName) throws IOException {
