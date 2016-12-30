@@ -128,33 +128,39 @@ public class IiifResource {
 
                     String id = ApplicationURL.applicationURL(this.requestProvider.get()) + "/canvas/" + repPid;
                     Pair<Integer, Integer> resolution = getResolution(repPid);
+                    if (resolution != null) {
+                        Canvas canvas = new CanvasImpl(id, new PropertyValueSimpleImpl(titlePage), resolution.getLeft(),
+                                resolution.getRight());
 
-                    Canvas canvas = new CanvasImpl(id, new PropertyValueSimpleImpl(titlePage), resolution.getLeft(),
-                            resolution.getRight());
+                        ImageResource resource = new ImageResourceImpl();
+                        String resourceId = ApplicationURL.applicationURL(this.requestProvider.get()).toString() + "/iiif/"
+                                + repPid + "/full/full/0/default.jpg";
+                        resource.setType("dctypes:Image");
+                        resource.setId(resourceId);
+                        resource.setHeight(resolution.getLeft());
+                        resource.setWidth(resolution.getRight());
+                        resource.setFormat("image/jpeg");
 
-                    ImageResource resource = new ImageResourceImpl();
-                    String resourceId = ApplicationURL.applicationURL(this.requestProvider.get()).toString() + "/iiif/"
-                            + repPid + "/full/full/0/default.jpg";
-                    resource.setType("dctypes:Image");
-                    resource.setId(resourceId);
-                    resource.setHeight(resolution.getLeft());
-                    resource.setWidth(resolution.getRight());
-                    resource.setFormat("image/jpeg");
+                        Service service = new ServiceImpl();
+                        service.setContext("http://iiif.io/api/image/2/context.json");
+                        service.setId(
+                                ApplicationURL.applicationURL(this.requestProvider.get()).toString() + "/iiif/" + repPid);
+                        service.setProfile("http://iiif.io/api/image/2/level1.json");
 
-                    Service service = new ServiceImpl();
-                    service.setContext("http://iiif.io/api/image/2/context.json");
-                    service.setId(
-                            ApplicationURL.applicationURL(this.requestProvider.get()).toString() + "/iiif/" + repPid);
-                    service.setProfile("http://iiif.io/api/image/2/level1.json");
-
-                    resource.setService(service);
-                    Image image = new ImageImpl();
-                    image.setOn(new URI(id));
-                    image.setResource(resource);
-                    canvas.setImages(Collections.singletonList(image));
-                    canvases.add(canvas);
-
+                        resource.setService(service);
+                        Image image = new ImageImpl();
+                        image.setOn(new URI(id));
+                        image.setResource(resource);
+                        canvas.setImages(Collections.singletonList(image));
+                        canvases.add(canvas);
+                    }
                 }
+
+                // no pages - 500 ? 
+                if (canvases.isEmpty()) {
+                    throw new GenericApplicationException("cannot create manifest for pid '"+pid+"'");
+                }
+                    
                 Sequence sequence = new SequenceImpl();
                 sequence.setCanvases(canvases);
                 manifest.setSequences(Collections.singletonList(sequence));
