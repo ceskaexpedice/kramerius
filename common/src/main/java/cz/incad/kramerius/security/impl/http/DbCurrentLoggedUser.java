@@ -57,30 +57,9 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
     }
 
     public User getPreviousLoggedUser(HttpServletRequest httpServletRequest) {
-        /*
         HttpSession session = httpServletRequest.getSession();
-        if (session !=  null) {
-            if (session.getAttribute(SHIB_USER_KEY) != null) {
-                    if (session.getAttribute(SHIB_USER_KEY).equals("true")) {
-                        if (ShibbolethUtils.isUnderShibbolethSession(httpServletRequest)) {
-                          return getSessionUser(session);
-                        } else {
-                            LOGGER.fine("shib key defined but no shibboleth session");
-                            LOGGER.fine("clear attributes");
-                            User sessionUser = getSessionUser(session);
-                            if (sessionUser != null) {
-                                clearRightsInSession(sessionUser);
-                                clearSessionUser(session);
-                            }
-                            return null;
-                        }
-                    } else return getSessionUser(session);
-            } else {
-                return getSessionUser(session);
-            }
-        } else return null;
-        */
-        return null;
+        if (session != null) return getSessionUser(session);
+        else return null;
     }
 
     
