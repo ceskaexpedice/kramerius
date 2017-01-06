@@ -36,7 +36,14 @@ public class FedoraCollectionsManagerImpl extends AbstractCollectionManager {
     protected List<String> languages() {
         return super.languages();
     }
-
+    
+    private Collection findCollection(String pid,List<Collection> cols) {
+        for (Collection cl : cols) {
+            if (cl.getPid().equals(pid)) return cl;
+        }
+        return null;
+    }
+    
     @Override
     public List<Collection> getCollections() throws CollectionException {
         try {
@@ -47,8 +54,11 @@ public class FedoraCollectionsManagerImpl extends AbstractCollectionManager {
                 Node item = nodes.item(i);
                 if (item.getNodeType() == Node.ELEMENT_NODE) {
                     Element itemElm = (Element) item;
-                    Collection col = new Collection(sparqlPid(itemElm), sparqlTitle(itemElm), sparqlType(itemElm));
-                    cols.add(col);
+                    String sparqlPid = sparqlPid(itemElm);
+                    if (findCollection(sparqlPid, cols) == null) {
+                        Collection col = new Collection(sparqlPid, sparqlTitle(itemElm), sparqlType(itemElm));
+                        cols.add(col);
+                    }
                 }
             }
             for (Collection col : cols) {
