@@ -156,7 +156,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
                     } else {
                         throw new IllegalArgumentException("illegal argument! ");
                     }
-            }
+                }
             }
         };        
         abstract void doPerform(VirtualCollectionServlet vc, FedoraAccess fedoraAccess, CollectionsManager colMan, HttpServletRequest req, HttpServletResponse response) throws Exception, SecurityException;
