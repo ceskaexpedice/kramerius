@@ -58,7 +58,11 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
     public User getPreviousLoggedUser(HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession();
-        if (session != null) return getSessionUser(session);
+        if (session != null) {
+            if (this.loggedUsersSingleton.isLoggedUser(this.provider)) {
+                return getSessionUser(session);
+            } else return null;
+        }
         else return null;
     }
 

@@ -98,7 +98,15 @@ deleteSessionKey() ::=<<
         where session_key = ?;
 >>
 
+/** delete all session keys except associated  */
+deleteAllSessionKeys() ::=<<
+    DELETE FROM SESSION_KEYS;
+>>
 
+/** delete all assocations  - with exception assication which points to planned(5) processes - They must survive */
+deleteAllAssociationOfSessionKeys() ::=<<
+    DELETE FROM process_2_token WHERE session_keys_id IN (SELECT session_keys_id FROM SESSION_KEYS); 
+>>
 
 
 /** select logged user */
