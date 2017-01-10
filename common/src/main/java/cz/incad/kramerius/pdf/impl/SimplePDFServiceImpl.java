@@ -160,7 +160,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
                 } catch (XPathExpressionException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (SecurityException e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    LOGGER.log(Level.INFO,e.getMessage());
                     String text = textsService.getText("security_fail",locale);
                     text = text != null ? text : "security_fail";
 

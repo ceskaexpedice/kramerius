@@ -85,7 +85,32 @@ public class PIDParserTest {
             // ok
         }
     }
-    
+
+    @Test
+    public void testCollectionPid() throws LexerException {
+        PIDParser parser = new PIDParser(
+                "vc:ebc58201-b12d-4be5-baa6-b0cdcf7f1ae3");
+        parser.objectPid();
+        Assert.assertEquals(false, parser.isDatastreamPid());
+        Assert.assertEquals("ebc58201-b12d-4be5-baa6-b0cdcf7f1ae3",
+                parser.getObjectId());
+        Assert.assertEquals("vc:ebc58201-b12d-4be5-baa6-b0cdcf7f1ae3",
+                parser.getObjectPid());
+    }
+
+    @Test
+    public void testCollectionPidDisseminationUri() throws LexerException {
+        PIDParser parser = new PIDParser(
+                "info:fedora/vc:64b95a45-6ead-4bf1-aa93-c31b0ccbf646");
+        parser.disseminationURI();
+        Assert.assertEquals(false, parser.isDatastreamPid());
+        Assert.assertEquals("64b95a45-6ead-4bf1-aa93-c31b0ccbf646",
+                parser.getObjectId());
+        Assert.assertEquals("vc:64b95a45-6ead-4bf1-aa93-c31b0ccbf646",
+                parser.getObjectPid());
+    }
+
+
     @Test
     public void testDonator() {
         try {

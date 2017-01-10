@@ -91,7 +91,7 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
 				}
 			}
 		} catch(SecurityException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			LOGGER.log(Level.INFO, e.getMessage());
 			resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);

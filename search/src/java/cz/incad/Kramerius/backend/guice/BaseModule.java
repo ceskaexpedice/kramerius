@@ -33,9 +33,17 @@ import cz.incad.kramerius.service.impl.GoogleAnalyticsImpl;
 import cz.incad.kramerius.service.impl.METSServiceImpl;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.ModelFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.statistics.impl.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
+import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
+import cz.incad.kramerius.virtualcollections.impl.solr.SolrCollectionManagerImpl;
 
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
@@ -56,10 +64,10 @@ public class BaseModule extends AbstractModule {
         
         Multibinder<StatisticReport> reports = Multibinder.newSetBinder(binder(), StatisticReport.class);
         reports.addBinding().to(ModelStatisticReport.class);
-        reports.addBinding().to(DateDurationReport.class);
+        //reports.addBinding().to(DateDurationReport.class);
         reports.addBinding().to(AuthorReport.class);
         reports.addBinding().to(LangReport.class);
-        reports.addBinding().to(PidsReport.class);
+
         
         bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
 
@@ -78,7 +86,12 @@ public class BaseModule extends AbstractModule {
 
         bind(MostDesirable.class).to(MostDesirableImpl.class);
 
-        bind(VirtualCollection.class).toProvider(VirtualCollectionProvider.class);
+        // 
+        bind(Collection.class).toProvider(VirtualCollectionProvider.class);
+        
+        bind(CollectionsManager.class).annotatedWith(Names.named("fedora")).to(FedoraCollectionsManagerImpl.class);
+        bind(CollectionsManager.class).annotatedWith(Names.named("solr")).to(SolrCollectionManagerImpl.class);
+        
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
 

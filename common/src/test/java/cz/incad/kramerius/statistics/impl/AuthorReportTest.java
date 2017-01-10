@@ -63,5 +63,34 @@ public class AuthorReportTest {
         Assert.assertFalse(str.contains(" offset "));
         Assert.assertFalse(str.contains(" limit "));
         Assert.assertNotNull(str);
+        
+        
+        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
+        statRecord.setAttribute("action", "PDF");
+        statRecord.setAttribute("paging", true);
+        statRecord.setAttribute("fromDefined", true);
+        statRecord.setAttribute("toDefined", false);
+        str = statRecord.toString();
+        //System.out.println(str);
+        Assert.assertTrue(str.contains(" offset "));
+        Assert.assertTrue(str.contains(" limit "));
+        Assert.assertNotNull(str);
+
+        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
+        statRecord.setAttribute("action", "PDF");
+        statRecord.setAttribute("paging", true);
+        statRecord.setAttribute("fromDefined", true);
+        statRecord.setAttribute("toDefined", true);
+
+        str = statRecord.toString();
+
+        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
+        statRecord.setAttribute("action", "PDF");
+        statRecord.setAttribute("paging", false);
+        statRecord.setAttribute("fromDefined", true);
+        statRecord.setAttribute("toDefined", true);
+
+        str = statRecord.toString();
+        
     }
 }

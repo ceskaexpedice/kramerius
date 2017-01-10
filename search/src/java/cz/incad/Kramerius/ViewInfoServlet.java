@@ -57,6 +57,8 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.solr.SolrUtils;
+import cz.incad.kramerius.virtualcollections.CollectionException;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
 public class ViewInfoServlet extends GuiceServlet {
 
@@ -97,6 +99,10 @@ public class ViewInfoServlet extends GuiceServlet {
     @Inject
     Provider<User> currentLoggedUserProvider;
 
+    @Inject
+    @Named("solr")
+    CollectionsManager collectionGet;
+    
     private InputStream dataStream;
 
     
@@ -183,7 +189,7 @@ public class ViewInfoServlet extends GuiceServlet {
                         }
                         for (SecuredActions act : acts) {
                             List<MappedPath> pathElems = new ArrayList<MappedPath>();
-                            pathElems.add(new MappedPath(new ObjectPidsPath().injectRepository(), new boolean[] {true}));
+                            pathElems.add(new MappedPath(new ObjectPidsPath().injectRepository().injectCollections(this.collectionGet), new boolean[] {true}));
                             globalActions.put(act.getFormalName(), pathElems);
                         }
                     }
@@ -217,6 +223,8 @@ public class ViewInfoServlet extends GuiceServlet {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch(SecurityException e) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+        } catch (CollectionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
     
@@ -314,9 +322,9 @@ public class ViewInfoServlet extends GuiceServlet {
     }
    
     
-    public MappedPath findPathWithFirstAccess(HttpServletRequest req, String pid, ObjectPidsPath[] paths,SecuredActions act) {
+    public MappedPath findPathWithFirstAccess(HttpServletRequest req, String pid, ObjectPidsPath[] paths,SecuredActions act) throws CollectionException {
         for (ObjectPidsPath objectPath : paths) {
-            ObjectPidsPath path = objectPath.injectRepository();
+            ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet);
             boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM ,path);
             if (atLeastOneTrue(allowedActionForPath)) {
                 return new MappedPath(path, allowedActionForPath);
@@ -325,10 +333,10 @@ public class ViewInfoServlet extends GuiceServlet {
         return null;
     }
     
-    public List<MappedPath> fillActionsToJSON(HttpServletRequest req, String pid, ObjectPidsPath[] paths, SecuredActions act) {
+    public List<MappedPath> fillActionsToJSON(HttpServletRequest req, String pid, ObjectPidsPath[] paths, SecuredActions act) throws CollectionException {
         List<MappedPath> mappedPaths = new ArrayList<ViewInfoServlet.MappedPath>();
         for (ObjectPidsPath objectPath : paths) {
-            ObjectPidsPath path = objectPath.injectRepository();
+            ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet);
             boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM,path);
             mappedPaths.add(new MappedPath(path, allowedActionForPath));
         }

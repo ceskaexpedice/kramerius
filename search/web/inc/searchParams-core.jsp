@@ -9,6 +9,7 @@
 
 <view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
 <view:kconfig var="collapsed_conf" key="search.query.collapsed" defaultValue="true" />
+
 <c:catch var="searchException">
     <c:set var="isCollapsed" value="${!isHome && (param.collapsed != 'false') && (collapsed_conf == 'true')}" scope="request"  />
     <c:set var="filterByType" value="false" scope="request" />
@@ -47,6 +48,8 @@
     <%--
     <c:param name="fl" value="PID,score,root_title,path,pid_path,root_pid,dc.title,details,fedora.model,model_path,dc.creator,datum,page_format,text" />
     --%>
+    
+    <c:param name="qf" value="root_title^10 root_title_lemmatized^10 root_title_lemmatized_ascii^10 text text_lemmatized text_lemmatized_ascii" />
     
     <c:forEach var="fqs" items="${paramValues.fq}">
         <c:if test="${fn:startsWith(fqs, 'document_type')}">

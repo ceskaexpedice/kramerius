@@ -40,7 +40,20 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 public class RelsExtHelper {
 
     public static final Logger LOGGER = Logger.getLogger(RelsExtHelper.class.getName());
+
     
+    
+    public static String getReplicatedFromUrl(String uuid, FedoraAccess fedoraAccess) throws IOException, XPathExpressionException {
+        Document relsExt = fedoraAccess.getRelsExt(uuid);
+        XPathFactory xpfactory = XPathFactory.newInstance();
+        XPath xpath = xpfactory.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        XPathExpression expr = xpath.compile("//kramerius:replicatedFrom/text()");
+        Object tiles = expr.evaluate(relsExt, XPathConstants.NODE);
+        if (tiles != null) return ((Text) tiles).getData();
+        else return null;
+    }
+
     public static String getRelsExtTilesUrl(String uuid, FedoraAccess fedoraAccess) throws IOException, XPathExpressionException {
         Document relsExt = fedoraAccess.getRelsExt(uuid);
         XPathFactory xpfactory = XPathFactory.newInstance();

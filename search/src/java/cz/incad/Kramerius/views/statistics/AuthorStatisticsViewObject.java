@@ -35,7 +35,7 @@ public class AuthorStatisticsViewObject extends AbstractStatisticsViewObject {
         String val = request.getParameter("val");
         int sizeInt = Integer.parseInt(size);
         int offsetInt = (Integer.parseInt(offset))+sizeInt;
-        return "javascript:statistics.reloadAuthorsReport(_action(),'"+val+"',"+offsetInt+","+size+");";
+        return "javascript:statistics.reloadAuthorsReport(_action(),_visibility(),'"+val+"',"+offsetInt+","+size+");";
     }
     
     public String getPrev() {
@@ -45,7 +45,7 @@ public class AuthorStatisticsViewObject extends AbstractStatisticsViewObject {
         String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
         int sizeInt = Integer.parseInt(size);
         int offsetInt = Math.max((Integer.parseInt(offset)-sizeInt), 0);
-        return "javascript:statistics.reloadAuthorsReport(_action(),'"+val+"',"+offsetInt+","+size+");";
+        return "javascript:statistics.reloadAuthorsReport(_action(),_visibility(),'"+val+"',"+offsetInt+","+size+");";
     }
 
     public String getGraphTitle() {

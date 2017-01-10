@@ -494,6 +494,14 @@
     </process>
 
 
+    <process>
+        <id>migrationindex</id>
+        <description>Index migrations</description>
+        <mainClass>cz.incad.kramerius.service.impl.MigrateSolrIndexImpl</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>reindex</securedaction>
+    </process>
 
 
 </processes>

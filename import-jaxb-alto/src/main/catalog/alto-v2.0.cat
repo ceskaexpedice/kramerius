@@ -1,0 +1,7 @@
+--
+  sample catalog file.
+  
+  double hyphens are used to begin and end a comment section.
+--
+
+SYSTEM "http://www.w3.org/2001/xml.xsd" "xml.xsd"

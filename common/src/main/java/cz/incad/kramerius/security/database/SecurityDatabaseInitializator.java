@@ -96,6 +96,9 @@ public class SecurityDatabaseInitializator {
                 updateUserEntityTable(connection);
                 updateShowItems(connection);
                 
+                // delete session keys in table; consider about moving this method
+                LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+                
             } else { 
                 String v = versionService.getVersion();
 
@@ -138,6 +141,9 @@ public class SecurityDatabaseInitializator {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
                 } else if (versionCondition(v, "=", "5.3.0")){
                     // right for criteria params manage
                     insertRightForCriteriaParamsManage(connection);
@@ -161,6 +167,8 @@ public class SecurityDatabaseInitializator {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
                 } else if (versionCondition(v, "=", "5.4.0")){
                     // k4 replication rights
                     insertRightK4ReplicationExport(connection);
@@ -181,6 +189,8 @@ public class SecurityDatabaseInitializator {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
                 } else if (versionCondition(v, "=", "5.5.0")){
                     // mets ndk import
                     insertNDKMetsImport(connection);
@@ -195,6 +205,9 @@ public class SecurityDatabaseInitializator {
                     insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
+
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
                 } else if (versionCondition(v, "=", "5.6.0")){
                     // replikator k3
                     insertReplikatorK3(connection);
@@ -207,6 +220,10 @@ public class SecurityDatabaseInitializator {
                     insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
+
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
                 } else if (versionCondition(v, "=", "5.7.0")){
                     // insert aggregate process right
                     insertAggregateRight(connection);
@@ -217,6 +234,10 @@ public class SecurityDatabaseInitializator {
                     insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
+                    
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
                 } else if (versionCondition(v, "=", "5.8.0")){
                     // insert aggregate process right
                     insertAggregateRight(connection);
@@ -227,6 +248,10 @@ public class SecurityDatabaseInitializator {
                     insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
+
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
                 } else if (versionCondition(v, "=", "5.9.0")){
                     // insert statistics right
                     insertShowStatiticsRight(connection);
@@ -235,21 +260,44 @@ public class SecurityDatabaseInitializator {
                     insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
+
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
                 } else if ((versionCondition(v, ">", "5.9.0")) && (versionCondition(v, "<", "6.3.0"))){
                     //sort right
                     insertSortRight(connection);
                     insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
+                    
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
                 } else if (versionCondition(v, "=", "6.3.0"))  {
                     insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
+
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
                 } else if (versionCondition(v, "=", "6.6.0"))  {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
+                    
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
                 } else if (versionCondition(v, ">", "6.6.0") && versionCondition(v, "<=", "6.6.2"))  {
                     updateShowItems(connection);
+
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+                } else if (versionCondition(v, ">", "6.6.2")) {
+                    
+                    // delete session keys in table; consider about moving this method
+                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
                 }
             }
         } catch (SQLException e) {

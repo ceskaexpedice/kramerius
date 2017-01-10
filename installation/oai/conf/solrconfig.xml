@@ -1545,10 +1545,6 @@
 	  
 	  
          -->
-        <lst name="xslt_parameters">
-	  <str name="kramerius_url">http://localhost:8080/search/</str>
-	  <str name="api_point">api/v5.0/</str>
-        </lst>
 
     </requestHandler>
     <!-- Custom wt that is being used by the OAI handler -->

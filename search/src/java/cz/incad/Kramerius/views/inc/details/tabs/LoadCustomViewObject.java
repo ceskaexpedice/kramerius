@@ -102,20 +102,19 @@ public class LoadCustomViewObject implements Initializable {
 
                 String mime = fedoraAccess.getMimeTypeForStream(pid, ds);
                 if (mime.equals("text/plain")) {
-                    InputStream is = fedoraAccess.getDataStream(pid, ds);
-                    byte[] bytes = org.apache.commons.io.IOUtils.toByteArray(is);
-                    String enc = UnicodeUtil.getEncoding(bytes);
-                    ByteArrayInputStream is2 = new ByteArrayInputStream(bytes);
                     try {
+                        InputStream is = fedoraAccess.getDataStream(pid, ds);
+                        byte[] bytes = org.apache.commons.io.IOUtils.toByteArray(is);
+                        String enc = UnicodeUtil.getEncoding(bytes);
+                        ByteArrayInputStream is2 = new ByteArrayInputStream(bytes);
                         stringBuilder.append("<textarea style=\"width:98%; height:98%; border:0; \">" + IOUtils.readAsString(is2, Charset.forName(enc), true) + "</textarea>");
                     } catch (cz.incad.kramerius.security.SecurityException e) {
-                        securityError(stringBuilder, pid, ds);
+                        LOGGER.log(Level.INFO, e.getMessage());
                     }
                 } else if (mime.equals("text/xml") || mime.equals("application/rdf+xml")) {
                     try {
                         if (xslService.isAvailable(xsl)) {
                             org.w3c.dom.Document xml = XMLUtils.parseDocument(fedoraAccess.getDataStream(pid, ds), true);
-
                             String text = xslService.transform(xml, xsl, this.localesProvider.get());
                             stringBuilder.append(text);
                         } else {
@@ -123,7 +122,7 @@ public class LoadCustomViewObject implements Initializable {
                             stringBuilder.append(StringEscapeUtils.escapeHtml4(xmltext));
                         }
                     } catch (cz.incad.kramerius.security.SecurityException e) {
-                        securityError(stringBuilder, pid, ds);
+                        LOGGER.log(Level.INFO, e.getMessage());
                     } catch (Exception e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
@@ -131,22 +130,14 @@ public class LoadCustomViewObject implements Initializable {
                     try {
                         String xmltext = org.apache.commons.io.IOUtils.toString(fedoraAccess.getDataStream(pid, ds), Charset.forName("UTF-8"));
                         stringBuilder.append(xmltext);
-
                     } catch (cz.incad.kramerius.security.SecurityException e) {
-                        securityError(stringBuilder, pid, ds);
+                        LOGGER.log(Level.INFO, e.getMessage());
                     } catch (Exception e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
                 }
             }
         }
-
         return stringBuilder.toString();
-    }
-
-
-    public void securityError(StringBuilder stringBuilder, String pid, String ds) throws IOException {
-        ResourceBundle resourceBundle = this.resourceBundleService.getResourceBundle("labels", this.localesProvider.get());
-        stringBuilder.append("<b>" + pid + "/" + ds + " </b>").append("<pre> " + resourceBundle.getString("rightMsg.stream") + "</pre>");
     }
 }

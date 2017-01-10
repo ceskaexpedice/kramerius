@@ -180,12 +180,34 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         try {
             return ndkDates(patt);
         } catch (Exception e) {
-            // try to parse custom 
-            List<String> patterns = readCustomizedPatterns();
-            return customizedDates(patt, patterns);
+            try {
+                // normalize text and test again; remove all characters under 127 
+                return ndkDates(normalizedString(patt));
+            } catch (Exception e1) {
+                // try to parse custom 
+                List<String> patterns = readCustomizedPatterns();
+                return customizedDates(patt, patterns);
+            }
         }
     }
 
+    /**
+     * Remove NONASCII character and try parse again
+     * @param patt
+     * @return
+     */
+    public static String normalizedString(String patt) {
+        StringBuilder builder = new StringBuilder();
+        char[] charArray = patt.toCharArray();
+        for (char c : charArray) {
+            int val = c;
+            if (val < 127) {
+                builder.append(c);
+            }
+        }
+        return builder.toString();
+    }
+    
     public static List<String> readCustomizedPatterns() throws IOException {
         List<String> retvals = new ArrayList<String>();
         BufferedReader buffReader = null;

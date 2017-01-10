@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
+import org.apache.pdfbox.text.PDFTextStripper;
 
 /**
  *
@@ -26,7 +26,6 @@ public class KrameriusPDFDocument {
     private final String pid;
     private final InputStream stream;
 
-    COSDocument cosDoc = null;
     PDDocument pdDoc = null;
 
     public KrameriusPDFDocument(String pid, InputStream stream) throws Exception {
@@ -36,24 +35,9 @@ public class KrameriusPDFDocument {
     }
 
     private void setDocument() throws Exception {
-
         try {
             closeDocument();
-            if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdf.loadNonSeq", false)) {
-                PDDocument pdDocument = PDDocument.loadNonSeq(stream, null);
-                cosDoc = pdDocument.getDocument();
-                pdDoc = new PDDocument(cosDoc);
-            } else {
-                PDFParser parser = new PDFParser(stream);
-                parser.parse();
-                cosDoc = parser.getDocument();
-                pdDoc = new PDDocument(cosDoc);
-            }
-
-            if (pdDoc.isEncrypted()) {
-                pdDoc.decrypt(KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
-            }
-
+            PDDocument pdDocument = PDDocument.load(stream, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
         } catch (Exception ex) {
             closeDocument();
             logger.log(Level.WARNING, "Cannot parse PDF document", ex);
@@ -62,10 +46,6 @@ public class KrameriusPDFDocument {
     }
 
     public void closeDocument() throws IOException {
-
-        if (cosDoc != null) {
-            cosDoc.close();
-        }
         if (pdDoc != null) {
             pdDoc.close();
         }
@@ -82,7 +62,7 @@ public class KrameriusPDFDocument {
     public String getPage(int page) throws Exception {
         logger.log(Level.INFO, "Getting page {0}", page);
         try {
-            PDFTextStripper stripper = new PDFTextStripper("UTF-8");
+            PDFTextStripper stripper = new PDFTextStripper(/*"UTF-8"*/);
             if (page != -1) {
                 stripper.setStartPage(page);
                 stripper.setEndPage(page);

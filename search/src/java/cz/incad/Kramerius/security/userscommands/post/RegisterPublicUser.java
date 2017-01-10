@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -123,8 +124,13 @@ public class RegisterPublicUser extends AbstractPostUser{
             if (from == null) {
                 from = sess.getProperty("mail.smtp.user");
             }
+            if (from == null) {
+                // default value
+                from = user.getEmail();
+            }
             InternetAddress mailFrom = new InternetAddress(from);
             msg.setFrom(mailFrom);
+
             Transport.send(msg);
         } catch (NoSuchProviderException e) {
             LOGGER.log(Level.SEVERE, e.getMessage());

@@ -160,11 +160,17 @@ function enumerator() {
     });
 }
 
+function indexmigrations() {
+    showConfirmDialog(dictionary['administrator.dialogs.migrationindex.confirm'], function(){
+        noParamsProcess('migrationindex');
+    });
+}
+
+
 function replicationRights() {
     showConfirmDialog(dictionary['administrator.dialogs.replicationrights.confirm'], function(){
         noParamsProcess('replicationrights');
     });
- 
 }
 
 

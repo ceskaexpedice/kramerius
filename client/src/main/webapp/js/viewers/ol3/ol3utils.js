@@ -270,9 +270,15 @@ function _optionspane(visibilityOptions) {
     }
 
     if (!visibilityOptions || visibilityOptions.maximize) {
-        icondiv(li(ul),"options_maximize","maximize","buttons.maximize",K5.i18n.ctx.dictionary["buttons.maximize"], function() {
-            K5.gui.selected.maximize();
-        });
+        if(!K5.gui["maximized"]){
+            icondiv(li(ul),"options_maximize","maximize","buttons.maximize",K5.i18n.ctx.dictionary["buttons.maximize"], function() {
+                K5.gui.selected.maximize();
+            });
+        } else {
+            icondiv(li(ul),"options_maximize","minimize","buttons.minimize",K5.i18n.ctx.dictionary["buttons.minimize"], function() {
+                K5.gui.selected.maximize();
+            });
+        }
     }
 
     if (!visibilityOptions || visibilityOptions.fit) {

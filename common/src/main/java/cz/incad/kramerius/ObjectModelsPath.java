@@ -35,7 +35,6 @@ public class ObjectModelsPath extends AbstractObjectPath {
     }
 
     
-    
     @Override
     public ObjectModelsPath cutHead(int indexFrom) {
         return new ObjectModelsPath(super.cutHeadInternal(indexFrom));

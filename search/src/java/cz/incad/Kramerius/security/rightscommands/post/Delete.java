@@ -95,7 +95,7 @@ public class Delete extends ServletRightsCommand {
                 hasRight = true;
                 break;
             } else {
-                throw new SecurityException("operation is not permited");
+                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));
             }
         }
         if (hasRight) {

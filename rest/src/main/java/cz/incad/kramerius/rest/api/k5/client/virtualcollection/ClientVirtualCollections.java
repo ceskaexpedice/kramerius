@@ -16,30 +16,34 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.virtualcollection;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.json.JSONArray;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
-import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.CollectionUtils;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
+import cz.incad.kramerius.virtualcollections.CollectionsManager.SortType;
 
 @Path("/v5.0/vc")
 public class ClientVirtualCollections {
@@ -48,24 +52,28 @@ public class ClientVirtualCollections {
             .getLogger(ClientVirtualCollections.class.getName());
 
     @Inject
-    VirtualCollectionsManager manager;
+    @Named("fedora")
+    CollectionsManager manager;
 
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
+    @Inject
+    Provider<HttpServletRequest> req;
+    
     @GET
     @Path("{pid}")
     @Consumes
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response oneVirtualCollection(@PathParam("pid") String pid) {
         try {
-            VirtualCollection vc = VirtualCollectionsResource
-                    .findVirtualCollection(this.fedoraAccess, pid);
+            List<Collection> collections = this.manager.getCollections();
+            Collection vc = this.manager.getCollection(pid);
             if (vc != null) {
                 return Response
                         .ok()
-                        .entity(VirtualCollectionsResource
+                        .entity(CollectionUtils
                                 .virtualCollectionTOJSON(vc)).build();
             } else {
                 throw new ObjectNotFound("cannot find vc '" + pid + "'");
@@ -80,14 +88,24 @@ public class ClientVirtualCollections {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response get() {
+    public Response get(@QueryParam("sort") String sortType,@QueryParam("langCode") String langCode) {
         try {
-            List<VirtualCollection> vcs = VirtualCollectionsManager
-                    .getVirtualCollections(fedoraAccess,
-                            new ArrayList<String>());
+            SortType type = sortType(sortType);
+            List<Collection> collections = null;
+            if (type != null) {
+                Locale locale = null;
+                if (langCode != null) {
+                    locale = Locale.forLanguageTag(langCode);
+                } else {
+                    locale = this.req.get().getLocale();
+                }
+                collections = this.manager.getSortedCollections(locale, type);
+            }  else {
+                collections = this.manager.getCollections();
+            }
             JSONArray jsonArr = new JSONArray();
-            for (VirtualCollection vc : vcs) {
-                jsonArr.put(VirtualCollectionsResource
+            for (Collection vc : collections) {
+                jsonArr.put(CollectionUtils
                         .virtualCollectionTOJSON(vc));
             }
             return Response.ok().entity(jsonArr.toString()).build();
@@ -95,6 +113,19 @@ public class ClientVirtualCollections {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());
         }
+    }
+
+    private SortType sortType(String sortType) {
+        if (sortType!=null) {
+            SortType selectedVal = null;
+            for (SortType v : CollectionsManager.SortType.values()) {
+                if (sortType.equals(v.name())) {
+                    selectedVal = v;
+                    break;
+                }
+            }
+            return selectedVal;
+        } else return null;
     }
 
 }
