@@ -280,7 +280,7 @@ function Application() {
 
                 // receive collections 
                 if (configuration["page"] && configuration["page"]==="collections") {
-                        K5.api.askForCollections();
+                        //K5.api.askForCollections();
                 }
 
                 

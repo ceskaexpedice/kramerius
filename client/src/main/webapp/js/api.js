@@ -93,7 +93,14 @@ ClientAPIDev.prototype = {
      * @method
      */
     askForCollections : function(whenready) {
-        $.getJSON("api/vc", _.bind(function(data) {
+      
+      var url = "api/vc?sort=ASC&langCode=";
+      if (K5 && K5.i18n.ctx.language){ 
+        url += K5.i18n.ctx.language;
+      } else {
+        url += 'cs'; 
+      }
+        $.getJSON(url, _.bind(function(data) {
             var collections = {};
             for (var i = 0; i < data.length; i++) {
                 var pid = data[i].pid;
