@@ -7,7 +7,7 @@ K5.eventsHandler.addHandler(function(type, configuration) {
         
         K5.i18n.askForText("k5security_fail",K5.i18n.ctx.language, function(data) {
           var text = K5.i18n.ctx.texts["k5security_fail"];
-           $('#viewer>div.container>div.ol').html('<div id=\"forbidden\"  style=\"width: 100%; height: 100%;vertical-align: middle; text-align:center\" >'+text+'</div>');
+           $('#forbidden').html(text);
        }); 
 
   
