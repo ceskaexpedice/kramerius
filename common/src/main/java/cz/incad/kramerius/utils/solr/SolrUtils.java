@@ -18,11 +18,13 @@ package cz.incad.kramerius.utils.solr;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -210,4 +212,10 @@ public class SolrUtils   {
         InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
         return inputStream;
     }
+    
+    
+    
+    
+
+    
 }

@@ -8,6 +8,7 @@ package cz.incad.kramerius.indexer;
  *
  * @author Incad
  */
+// TODO: Rewrite it !!
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
