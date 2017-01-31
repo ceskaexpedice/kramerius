@@ -456,7 +456,7 @@
         
         <field name="sec" type="string"  indexed="true"  stored="true"  />
         
-        <field name="model_path" type="text_path"  indexed="true"  stored="true" multiValued="true"  docValues="true"/>
+        <field name="model_path" type="text_path"  indexed="true"  stored="true" multiValued="true"  />
         <field name="pid_path" type="text_path"  indexed="true"  stored="true" multiValued="true"  />
 		
         <field name="rels_ext_index" type="int" indexed="true"  stored="true" multiValued="true"  />
