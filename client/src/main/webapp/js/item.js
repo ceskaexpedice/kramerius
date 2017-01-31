@@ -326,9 +326,9 @@ ItemSupport.prototype = {
         var model = K5.api.ctx["item"][pid]['model'];
         model = K5.i18n.ctx.dictionary["fedora.model." + model];
         $('.mtd_footer .prev').attr('title', K5.i18n.ctx.dictionary["buttons.prev"] + " " + model);
-        $('.mtd_footer .prev').data('key', K5.i18n.ctx.dictionary["buttons.prev"] + " " + model);
+        $('.mtd_footer .prev').data('key', "buttons.prev");
         $('.mtd_footer .next').attr('title', K5.i18n.ctx.dictionary["buttons.next"] + " " + model);
-        $('.mtd_footer .next').data('key', K5.i18n.ctx.dictionary["buttons.nex"] + " " + model);
+        $('.mtd_footer .next').data('key', "buttons.next");
         
         //contextDiv.append('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
         for (var i = 0; i < this.itemContext.length; i++) {
