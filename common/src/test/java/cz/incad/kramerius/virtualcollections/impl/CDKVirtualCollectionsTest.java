@@ -1,8 +1,16 @@
 package cz.incad.kramerius.virtualcollections.impl;
 
+import static junit.framework.Assert.assertEquals;
+import static org.easymock.EasyMock.createMockBuilder;
+import static org.easymock.EasyMock.replay;
+
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,14 +19,21 @@ import javax.xml.xpath.XPathExpressionException;
 
 import junit.framework.Assert;
 
+import org.easymock.EasyMock;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import cz.incad.kramerius.fedora.impl.DataPrepare;
+import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.VirtualCollection;
 import cz.incad.kramerius.virtualcollections.impl.CDKVirtualCollectionsGetImpl;
 
@@ -55,4 +70,6 @@ public class CDKVirtualCollectionsTest {
         Assert.assertTrue(map.containsKey("cs"));
         
     }
+
+
 }
