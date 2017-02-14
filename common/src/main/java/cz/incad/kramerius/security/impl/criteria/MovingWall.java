@@ -56,7 +56,8 @@ import java.util.logging.Level;
  */
 public class MovingWall extends AbstractCriterium implements RightCriterium {
 
-    public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()","//mods:part/mods:date/text()"};
+    //encoding="marc"
+    public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued[@encoding='marc']/text()","//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()","//mods:part/mods:date/text()"};
 
     
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
@@ -112,10 +113,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
 
     public static EvaluatingResult evaluateDoc(int wallFromConf, Document xmlDoc, String xPathExpression,XPathFactory xpfactory) throws XPathExpressionException {
-        XPath xpath = xpfactory.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
-        XPathExpression expr = xpath.compile(xPathExpression);
-        Object date = expr.evaluate(xmlDoc, XPathConstants.NODE);
+        Object date = findDateString(xmlDoc, xPathExpression, xpfactory);
         if (date != null) {
             String patt = ((Text) date).getData();
 
@@ -145,6 +143,15 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
         
         return null;
+    }
+
+    public static Object findDateString(Document xmlDoc, String xPathExpression, XPathFactory xpfactory)
+            throws XPathExpressionException {
+        XPath xpath = xpfactory.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        XPathExpression expr = xpath.compile(xPathExpression);
+        Object date = expr.evaluate(xmlDoc, XPathConstants.NODE);
+        return date;
     }
 
     
