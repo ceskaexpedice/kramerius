@@ -52,7 +52,7 @@ public class ClientVirtualCollections {
             .getLogger(ClientVirtualCollections.class.getName());
 
     @Inject
-    @Named("fedora")
+    @Named("solr")
     CollectionsManager manager;
 
     @Inject
