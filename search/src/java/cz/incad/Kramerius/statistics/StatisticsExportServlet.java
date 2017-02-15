@@ -44,6 +44,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IPAddressFilter;
 import cz.incad.kramerius.statistics.filters.ModelFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
@@ -94,6 +95,8 @@ public class StatisticsExportServlet extends GuiceServlet {
         ModelFilter modelFilter = new ModelFilter();
         modelFilter.setModel(filteredValue);
         
+        IPAddressFilter ipAddr = new IPAddressFilter();
+        
         if (visibilityValue != null) visibilityValue = visibilityValue.toUpperCase();
         VisibilityFilter visFilter = new VisibilityFilter();
         visFilter.setSelected(VisbilityType.valueOf(visibilityValue));
@@ -114,8 +117,9 @@ public class StatisticsExportServlet extends GuiceServlet {
                     resp.setCharacterEncoding("UTF-8");
                     resp.setContentType(selectedFormatter.getMimeType());
                     resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
-                    report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter}));
-                    report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter}));
+                    //TODO: Syncrhonization
+                    report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter, ipAddr}));
+                    report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter,ipAddr}));
                     selectedFormatter.afterProcess(resp);
                 }
             } catch (StatisticsReportException e) {

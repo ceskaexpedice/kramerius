@@ -42,6 +42,7 @@ import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IPAddressFilter;
 import cz.incad.kramerius.statistics.filters.ModelFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.statistics.filters.VisibilityFilter;
@@ -78,6 +79,7 @@ public class ModelStatisticReport implements StatisticReport {
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
             statRecord.setAttribute("visibility", visFilter.asMap());
+            
 
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
@@ -131,6 +133,9 @@ public class ModelStatisticReport implements StatisticReport {
         try {
             ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            IPAddressFilter ipAddr = filters.getFilter(IPAddressFilter.class);
+            
+            
             final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("prepareModelView");
             statRecord.setAttribute("model", modelFilter.getModel());
             statRecord.setAttribute("action", action != null ? action.name() : null);
@@ -138,6 +143,9 @@ public class ModelStatisticReport implements StatisticReport {
             
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
+            if (ipAddr.hasValue()) {
+                statRecord.setAttribute("ipaddr", ipAddr.getValue());
+            }
             
             String sql = statRecord.toString();
             
@@ -162,6 +170,7 @@ public class ModelStatisticReport implements StatisticReport {
             ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
+            //IPAddressFilter ipAddrFilter = filters.getFilter(IPAddressFilter.class);
 
             final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModelReport");
             statRecord.setAttribute("model", modelFilter.getModel());
@@ -172,7 +181,7 @@ public class ModelStatisticReport implements StatisticReport {
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
             statRecord.setAttribute("visibility", visFilter.asMap());
 
-
+            
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
             String sql = statRecord.toString();

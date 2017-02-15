@@ -42,6 +42,7 @@ import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IPAddressFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
@@ -64,15 +65,21 @@ public class LangReport implements StatisticReport{
     public List<Map<String, Object>> getReportPage(ReportedAction repAction,  StatisticsFiltersContainer filters,Offset rOffset) {
         try {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
-            authors.setAttribute("action", repAction != null ? repAction.name() : null);
-            authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            authors.setAttribute("toDefined", dateFilter.getToDate() != null);
+            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
+            final StringTemplate langss = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
+            langss.setAttribute("action", repAction != null ? repAction.name() : null);
+            langss.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            langss.setAttribute("toDefined", dateFilter.getToDate() != null);
 
+            if (ipFilter.hasValue()) {
+                langss.setAttribute("ipaddr", ipFilter.getValue());
+            }
+
+            
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
             //authors.setAttribute("paging", true);
-            String sql = authors.toString();
+            String sql = langss.toString();
             List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
 
                 @Override
@@ -116,10 +123,17 @@ public class LangReport implements StatisticReport{
             final StatisticsFiltersContainer container) throws StatisticsReportException {
         try {
             DateFilter dateFilter = container.getFilter(DateFilter.class);
+            IPAddressFilter ipFilter = container.getFilter(IPAddressFilter.class);
+
             final StringTemplate langs = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
             langs.setAttribute("action", repAction != null ? repAction.name() : null);
             langs.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             langs.setAttribute("toDefined", dateFilter.getToDate() != null);
+            
+            if (ipFilter.hasValue()) {
+                langs.setAttribute("ipaddr", ipFilter.getValue());
+            }
+
 
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);

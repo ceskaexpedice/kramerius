@@ -47,6 +47,7 @@ import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IPAddressFilter;
 import cz.incad.kramerius.statistics.filters.ModelFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
@@ -78,6 +79,8 @@ public class StatisticsResource {
             @QueryParam("visibility") String visibility,
             @QueryParam("offset") String filterOffset,
             @QueryParam("resultSize") String filterResultSize) {
+        
+        //TODO: syncrhonization
         if (permit(userProvider.get())) {
             try {
                 DateFilter dateFilter = new DateFilter();
@@ -90,6 +93,8 @@ public class StatisticsResource {
                 VisibilityFilter visFilter = new VisibilityFilter();
                 visFilter.setSelected(VisbilityType.valueOf(visibility));
                 
+                IPAddressFilter ipAddr = new IPAddressFilter();
+                
                 StatisticReport report = statisticsAccessLog.getReportById(rip);
                 Offset offset = new Offset("0", "25");
                 if (StringUtils.isAnyString(filterOffset)
@@ -97,10 +102,10 @@ public class StatisticsResource {
                     offset = new Offset(filterOffset, filterResultSize);
                 }
                 
-                report.prepareViews(raction != null ? ReportedAction.valueOf(raction) : null, new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter, modelFilter,visFilter}));
+                report.prepareViews(raction != null ? ReportedAction.valueOf(raction) : null, new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter, modelFilter,visFilter, ipAddr}));
                 List<Map<String, Object>> repPage = report.getReportPage(
                         raction != null ? ReportedAction.valueOf(raction)
-                                : null,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter, modelFilter}), offset);
+                                : null,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter, modelFilter, ipAddr}), offset);
 
                 JSONArray jsonArr = new JSONArray();
                 for (Map<String, Object> map : repPage) {

@@ -47,7 +47,7 @@ select
 
 
 /** vybrany model */
-prepareModelView(action, model, paging, fromDefined, toDefined) ::=<<
+prepareModelView(action, model, paging, fromDefined, toDefined, ipaddr) ::=<<
  CREATE OR REPLACE VIEW _$model$_model_view AS 
    SELECT 
     last(l.record_id) AS record_id,
@@ -58,10 +58,12 @@ prepareModelView(action, model, paging, fromDefined, toDefined) ::=<<
     model,
     d.pid,
     stat_action,
-    last(d.title) as title
+    last(d.title) as title,
+    last(remote_ip_address) as remote_ip_address
+    
    FROM statistics_access_log l
      JOIN statistic_access_log_detail d USING (record_id)
-  WHERE d.model::text = '$model$'::text
+  WHERE d.model::text = '$model$'::text $ipAddrFilter(ipaddr=ipaddr)$
   GROUP BY l.session_id,model,d.pid,stat_action;
 >>
 
@@ -121,12 +123,21 @@ and "rights" =  'policy:private'
 $endif$
 >>
 
+
+
+/** ipaddr filter **/
+ipAddrFilter(ipaddr) ::=<<
+$if(ipaddr)$
+AND NOT remote_ip_address::text SIMILAR TO  '$ipaddr$'
+$endif$
+>>
+
 /** author */ 
-selectAuthorReport(action, paging,fromDefined, toDefined,visibility) ::=<<
+selectAuthorReport(action, paging,fromDefined, toDefined,visibility, ipaddr) ::=<<
     $if(action)$ 
 select count(*) as count, author_name from 
 (
- select last(author_name) as author_name from _authors_view where stat_action='$action$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ 
+ select last(author_name) as author_name from _authors_view where stat_action='$action$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$ 
  group by  session_id
 ) as nauth
 group by author_name
@@ -136,7 +147,7 @@ $if(paging)$ $paging()$ $endif$
 
 select count(*) as count, author_name from 
 (
- select last(author_name) as author_name from _authors_view where 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ 
+ select last(author_name) as author_name from _authors_view where 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$
  group by  session_id
 ) as nauth
 group by author_name
@@ -150,12 +161,12 @@ paging() ::=<<offset ? limit ?>>
 
 
 /** language */
-selectLangReport(action,fromDefined, toDefined,visibility) ::=<<
+selectLangReport(action,fromDefined, toDefined,visibility,ipaddr) ::=<<
     $if(action)$ 
     
 select count(*) as count, lang from 
 (
- select last(lang) as lang from _langs_view where  salog.stat_action='$action$'  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$
+ select last(lang) as lang from _langs_view where  salog.stat_action='$action$'  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$
  group by  session_id
 ) as nlang
 group by lang
@@ -165,7 +176,7 @@ order by count DESC
 
 select count(*) as count, lang from 
 (
- select last(lang) as lang from _langs_view where  1=1  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$
+ select last(lang) as lang from _langs_view where  1=1  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$
  group by  session_id
 ) as nlang
 group by lang
