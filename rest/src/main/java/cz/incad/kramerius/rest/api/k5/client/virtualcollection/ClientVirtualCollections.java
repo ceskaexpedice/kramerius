@@ -16,6 +16,9 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.virtualcollection;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -24,6 +27,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -38,8 +42,13 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.imaging.ImageStreams;
+import cz.incad.kramerius.impl.fedora.FedoraStreamUtils;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
+import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionUtils;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
@@ -85,6 +94,53 @@ public class ClientVirtualCollections {
             throw new GenericApplicationException(e.getMessage());
         }
     }
+    
+    private void checkPid(String pid) throws PIDNotFound {
+        try {
+            if (!this.fedoraAccess.isObjectAvailable(pid)) {
+                throw new PIDNotFound("pid not found");
+            }
+        } catch (IOException e) {
+            throw new PIDNotFound("pid not found");
+        } catch(Exception e) {
+            throw new PIDNotFound("error while parsing pid ("+pid+")");
+        }
+    }
+
+
+    @GET
+    @Path("{pid}/thumb")
+    public Response thumb(@PathParam("pid") String pid) {
+        try {
+            checkPid(pid);
+                String suri = ApplicationURL
+                        .applicationURL(this.req.get())
+                        + "/api/v5.0/item/" + pid + "/streams/"+ImageStreams.IMG_THUMB;
+                URI uri = new URI(suri);
+                return Response.temporaryRedirect(uri).build();
+        } catch (URISyntaxException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new PIDNotFound("pid not found '" + pid + "'");
+        }
+    }
+
+
+    @GET
+    @Path("{pid}/full")
+    public Response full(@PathParam("pid") String pid) {
+        try {
+            checkPid(pid);
+                String suri = ApplicationURL
+                        .applicationURL(this.req.get())
+                        + "/api/v5.0/item/" + pid + "/streams/"+ImageStreams.IMG_FULL;
+                URI uri = new URI(suri);
+                return Response.temporaryRedirect(uri).build();
+        } catch (URISyntaxException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new PIDNotFound("pid not found '" + pid + "'");
+        }
+    }
+
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")

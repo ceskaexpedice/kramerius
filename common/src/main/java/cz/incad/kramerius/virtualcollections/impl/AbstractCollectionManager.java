@@ -35,12 +35,16 @@ import cz.incad.kramerius.virtualcollections.CollectionsManager.SortType;
 
 public abstract class AbstractCollectionManager implements CollectionsManager {
 
-    static final String TEXT_DS_PREFIX = "TEXT_";
+    public static final String TEXT_DS_PREFIX = "TEXT_";
+    public static final String LONG_TEXT_DS_PREFIX = "LONG_TEXT_";
+
     protected static final String SPARQL_NS = "http://www.w3.org/2001/sw/DataAccess/rf1/result";
+
     @Inject
     @Named("rawFedoraAccess")
     protected FedoraAccess fa;
 
+    
     protected XPathFactory factory = XPathFactory.newInstance();
 
     public AbstractCollectionManager() {
@@ -103,7 +107,19 @@ public abstract class AbstractCollectionManager implements CollectionsManager {
         } catch (DOMException e) {
             throw new CollectionException(e);
         } catch (IOException e) {
+            exists(pid);
+            
+            
             throw new CollectionException(e);
+        }
+    }
+
+    protected boolean exists(String pid) {
+        try {
+            this.fa.getRelsExt(pid);
+            return true;
+        } catch (IOException e1) {
+            return false;
         }
     }
 
@@ -114,12 +130,16 @@ public abstract class AbstractCollectionManager implements CollectionsManager {
             col.changeCanLeaveFlag(dcType);
         }
         for (String lang : languages()) {
-            String dsName = TEXT_DS_PREFIX + lang;
-            if (this.fa.isStreamAvailable(col.getPid(), dsName)) {
-                String text = IOUtils.readAsString(this.fa.getDataStream(col.getPid(), dsName), Charset.forName("UTF8"),
-                        true);
-                col.addDescription(new Collection.Description(lang, dsName, text));
-            }
+
+            String shortDsName = TEXT_DS_PREFIX + lang;
+            String longDsName = LONG_TEXT_DS_PREFIX + lang;
+
+            String shorText = this.fa.isStreamAvailable(col.getPid(), shortDsName) ?  IOUtils.readAsString(this.fa.getDataStream(col.getPid(), shortDsName), Charset.forName("UTF8"),
+                    true) : null;
+            String longText = this.fa.isStreamAvailable(col.getPid(), longDsName) ?  IOUtils.readAsString(this.fa.getDataStream(col.getPid(), longDsName), Charset.forName("UTF8"),
+                    true) : null;
+            Collection.Description descObject = longText == null ?  new Collection.Description(lang,shortDsName,shorText) : new Collection.Description(lang,shortDsName, shorText, longDsName, longText);
+            col.addDescription(descObject);
         }
     }
 

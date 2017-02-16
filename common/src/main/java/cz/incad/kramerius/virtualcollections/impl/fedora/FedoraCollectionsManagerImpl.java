@@ -5,6 +5,7 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.w3c.dom.DOMException;
@@ -24,6 +25,11 @@ import cz.incad.kramerius.virtualcollections.CollectionUtils;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import cz.incad.kramerius.virtualcollections.impl.AbstractCollectionManager;
 
+/**
+ * Implementation stands on fedora
+ * @author pstastny
+ *
+ */
 public class FedoraCollectionsManagerImpl extends AbstractCollectionManager {
 
     public static final Logger LOGGER = Logger.getLogger(FedoraCollectionsManagerImpl.class.getName());
@@ -62,7 +68,11 @@ public class FedoraCollectionsManagerImpl extends AbstractCollectionManager {
                 }
             }
             for (Collection col : cols) {
-                this.enhanceDescriptions(col);
+                try {
+                    this.enhanceDescriptions(col);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
             }
             return cols;
         } catch (ClassNotFoundException e) {

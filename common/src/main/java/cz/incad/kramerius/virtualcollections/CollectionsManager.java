@@ -40,11 +40,14 @@ public interface CollectionsManager {
      */
     public List<Collection> getSortedCollections(Locale locale, SortType type) throws CollectionException;
     
-    
+        
+    /**
+     * Returns true if created collection contains datastream
+     * @param pid PID of collection 
+     * @param streamName Stream name
+     * @return
+     * @throws CollectionException
+     */
     public boolean containsDataStream(String pid, String streamName) throws CollectionException;
     
-//    public Collection create(String label, boolean canLeave) throws CollectionException;
-//    public boolean delete(Collection col) throws CollectionException;
-//    public void addToCollection(Collection col, String npid);
-//    public void removeFromCollection(Collection col, String npid);
 }

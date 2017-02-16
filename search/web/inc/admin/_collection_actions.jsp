@@ -64,7 +64,7 @@ CollectionAdm.prototype.content=function() {
 
 
 
-CollectionAdm.prototype.edit=function(action, canLeave, czech, english, collection) {
+CollectionAdm.prototype.edit=function(action, canLeave, czech, english, collection,czech_log_desc,english_log_desc) {
 	//var url = "vc?action=CREATE&canLeave=" + canLeave;
     var url = "vc?action="+action+"&canLeave=" + canLeave;
 
@@ -90,6 +90,20 @@ CollectionAdm.prototype.edit=function(action, canLeave, czech, english, collecti
                 
     this.waiting();
     $.get(url,  bind(function(pid){
+        if (czech_log_desc) {
+            var encodedData = Base64.encode(czech_log_desc);
+            $.post("vc?action=LONG_TEXT_UPLOAD&pid="+collection+"&lang=cs", {
+	           'encodedData' : encodedData
+            });
+        }
+        
+        if (english_log_desc) {
+            var encodedData = Base64.encode(english_log_desc);
+            $.post("vc?action=LONG_TEXT_UPLOAD&pid="+collection+"&lang=en", {
+               'encodedData' : encodedData
+            });
+        }
+
         this.refresh();
     },this));
     
@@ -149,8 +163,8 @@ CollectionAdm.prototype.collection=function(collection) {
         } else {
             $(document.body).append('<div id="newCol">'+'</div>');
             this.dialog = $('#newCol').dialog({
-                width:400,
-                height:250,
+                width:600,
+                height:480,
                 modal:true,
                 title:'Collection',
                 buttons: [
@@ -162,7 +176,13 @@ CollectionAdm.prototype.collection=function(collection) {
                                var canLeave = $("#canLeave").is(":checked");
                                var collection = $("#vc_pid").val();
                                var action = (collection ? "CHANGE" : "CREATE");
-                               this.edit(action,canLeave,czech,english, collection);
+                               
+                               var czech_log_desc = $("#descs_cs_text").val();
+                               var english_log_desc = $("#descs_en_text").val();
+
+                               
+                               this.edit(action,canLeave,czech,english, collection, czech_log_desc,english_log_desc);
+                               
                                this.dialog.dialog("close"); 
                         },this)
                     },

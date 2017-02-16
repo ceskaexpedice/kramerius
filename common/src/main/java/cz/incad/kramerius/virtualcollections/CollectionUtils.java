@@ -79,6 +79,10 @@ public class CollectionUtils {
         }
     }
     
+    /**
+     * Allows user to be sure that collection already exist
+     * @author pstastny
+     */
     public static abstract class CollectionWait {
         
         public CollectionWait() {
@@ -88,6 +92,8 @@ public class CollectionUtils {
         public abstract boolean condition(String pid);
     }
     
+    
+    /** Methods bellow are mostly moved from previous implementation of virtual collections */
     public static String create(FedoraAccess fedoraAccess,String title,boolean canLeaveFlag, Map<String, String>plainTexts, CollectionWait wait) throws IOException, InterruptedException {
 
         Map<String, String> encodedTexts = new HashMap<String, String>();
@@ -113,6 +119,7 @@ public class CollectionUtils {
             while(! wait.condition(pid)) {
                 counter+=1;
                 Thread.sleep(WAIT_TIMENOUT);
+                // there is counter which prevent waiting forever
                 if (counter == MAX_WAIT_ITERATION) break;
             }
         }
@@ -180,7 +187,10 @@ public class CollectionUtils {
 
     public static void modifyLangDatastream(String pid, String lang, String ds, FedoraAccess fedoraAccess) throws IOException {
         String dsName = VirtualCollectionsManager.TEXT_DS_PREFIX + lang;
-        //String url = k4url + "?action=TEXT&content=" + URLEncoder.encode(ds, "UTF8");
+        modifyLangDatastream(pid, lang, dsName, ds, fedoraAccess);
+    }
+
+    public static void modifyLangDatastream(String pid, String lang,String dsName, String ds, FedoraAccess fedoraAccess) throws IOException {
         File tmpFile = File.createTempFile("collections", "content");
         tmpFile.createNewFile();
         IOUtils.saveToFile(ds.getBytes("UTF-8"), tmpFile);
@@ -359,18 +369,23 @@ public class CollectionUtils {
         jsonObj.put("pid", vc.getPid());
         jsonObj.put("label", vc.getLabel());
         jsonObj.put("canLeave", vc.isCanLeaveFlag());
-        JSONObject jsonMap = new JSONObject();
-//        Map map = new HashMap<String, String>();
-//        for(CollectionDescription cd : descriptions){
-//            map.put(cd.lang, cd.text);
-//        }
-//        return map;
-//        Map<String, String> descMAp = vc.getDescriptionsMap();
+        
+        
+        JSONObject descsMap = new JSONObject();
+        JSONObject longDescsMap = new JSONObject();
+
         List<Description> descs = vc.getDescriptions();
         for (Description d : descs) {
-            jsonMap.put(d.getLangCode(), d.getText());
+            descsMap.put(d.getLangCode(), d.getText());
+            if (d.hasLongtext()) {
+                longDescsMap.put(d.getLangCode(), d.getLongText());
+            }
         }
-        jsonObj.put("descs", jsonMap);
+
+        jsonObj.put("descs", descsMap);
+        if (!longDescsMap.keySet().isEmpty()) {
+            jsonObj.put("longDescs", longDescsMap);
+        }
         return jsonObj;
     }
 

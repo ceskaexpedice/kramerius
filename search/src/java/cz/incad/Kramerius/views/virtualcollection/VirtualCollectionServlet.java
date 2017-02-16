@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.logging.Level;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+import biz.sourcecode.base64Coder.Base64Coder;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
@@ -24,6 +26,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.CollectionUtils;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
+import cz.incad.kramerius.virtualcollections.impl.AbstractCollectionManager;
+
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -131,6 +135,27 @@ public class VirtualCollectionServlet extends GuiceServlet {
     }
 
     enum PostActions {
+        
+        /** long text uploading */
+        LONG_TEXT_UPLOAD {
+
+            @Override
+            void doPerform(VirtualCollectionServlet vc, 
+                    FedoraAccess fedoraAccess, 
+                    CollectionsManager colMan, 
+                    HttpServletRequest req, 
+                    HttpServletResponse response) throws Exception, SecurityException {
+                String collection = req.getParameter("pid");
+                String language = req.getParameter("lang");
+
+                String encodedProfile = req.getParameter("encodedData");
+                byte[] decoded = Base64Coder.decode(encodedProfile);
+
+                CollectionUtils.modifyLangDatastream(collection, language, AbstractCollectionManager.LONG_TEXT_DS_PREFIX+language,new String(decoded, "UTF-8"), fedoraAccess);
+            }
+        },
+
+        /** image uploads */
         IMAGES_UPLOAD {
             @Override
             void doPerform(VirtualCollectionServlet vc, FedoraAccess fedoraAccess, CollectionsManager colMan,

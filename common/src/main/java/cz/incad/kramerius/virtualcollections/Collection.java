@@ -70,13 +70,29 @@ public class Collection {
 
 
     public static class Description {
-        private String name;
-        private String text;
-        private String langCode;
+        private String langCode; // lang code
+
+        private String name; // stored name for short text
+        private String text; // short text
+        
+        private String longTextName; // stored name for long text
+        private String longText; // stored long text
+        
+        
         public Description(String langCode, String name, String text) {
             super();
             this.name = name;
             this.text = text;
+            this.langCode = langCode;
+        }
+        public Description(String langCode, String name, String text, String longTextName,String longText) {
+            super();
+            this.name = name;
+            this.text = text;
+            
+            this.longTextName = longTextName;
+            this.longText = longText;
+            
             this.langCode = langCode;
         }
 
@@ -91,6 +107,21 @@ public class Collection {
         public String getLangCode() {
             return langCode;
         }
+        
+        
+        public String getLongTextName() {
+            return longTextName;
+        }
+        
+        public String getLongText() {
+            return longText;
+        }
+
+        public boolean hasLongtext() {
+            return this.longText != null;
+        }
+
+
         @Override
         public String toString() {
             return "Descriptions [name=" + name + ", text=" + text + "]";

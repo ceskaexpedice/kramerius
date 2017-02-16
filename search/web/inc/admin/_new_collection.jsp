@@ -9,14 +9,20 @@
 <%@ page isELIgnored="false"%>
 <view:object name="ga" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
 
-<style>
-</style>
+
 
 
 <div class="newrole">
 
-<div>
 
+  <ul>
+    <li><a href="#basic"><view:msg>collection.administration.content.tab.basic</view:msg></a></li>
+    <li><a href="#descs_en"><view:msg>collection.administration.content.tab.eng_description</view:msg></a></li>
+    <li><a href="#descs_cs"><view:msg>collection.administration.content.tab.czech_description</view:msg></a></li>
+  </ul>
+
+
+<div id="basic">
      <c:choose>
        <c:when test="${ga.parameterCollection != null}">
 	     <input id="vc_pid" name="vc_pid" type="text" value="${ga.parameterCollection.pid}" style="display:none"/>
@@ -63,4 +69,39 @@
 	</table>
 </div>
 
+
+<div id="descs_en">
+
+     <c:choose>
+       <c:when test="${ga.parameterCollection != null}">
+           <textarea id="descs_en_text" style="width:100%" rows="10">${ga.parameterCollection.longDescriptionsMap['en']}</textarea>    
+       </c:when>    
+      <c:otherwise>
+           <textarea id="descs_en_text" style="width:100%" rows="10"></textarea>    
+       </c:otherwise>
+     </c:choose>
+
 </div>
+
+<div id="descs_cs">
+     <c:choose>
+       <c:when test="${ga.parameterCollection != null}">
+           <textarea id="descs_cs_text" style="width:100%" rows="10">${ga.parameterCollection.longDescriptionsMap['cs']}</textarea>    
+       </c:when>    
+      <c:otherwise>
+           <textarea id="descs_cs_text" style="width:100%" rows="10"></textarea>    
+       </c:otherwise>
+     </c:choose>
+
+</div>
+
+</div>
+
+<script type="text/javascript" language="javascript">
+    $(document).ready(function(){
+       // tabs
+       $('.newrole').tabs();
+    });
+    
+   
+</script>

@@ -61,5 +61,12 @@ public class CollectionItemViewObject {
         return map;
     }
 
+    public Map<String, String> getLongDescriptionsMap(){
+        Map map = new HashMap<String, String>();
+        for(Description d : this.collection.getDescriptions()){
+            map.put(d.getLangCode(), d.getLongText());
+        }
+        return map;
+    }
     
 }
