@@ -517,7 +517,7 @@ public class SolrOperations {
             StringBuffer sb = transformer.transform(
                     xsltPath,
                     new StreamSource(foxmlStream),
-                    null,
+                    new GTransformer.ClasspathResolver(),
                     params,
                     true);
             
@@ -573,7 +573,7 @@ public class SolrOperations {
             StringBuffer newSb = transformer.transform(
                     f,
                     new StreamSource(foxmlStream),
-                    null,
+                    new GTransformer.ClasspathResolver(),
                     params,
                     false);
             //logger.info("newSb: " +newSb.toString());

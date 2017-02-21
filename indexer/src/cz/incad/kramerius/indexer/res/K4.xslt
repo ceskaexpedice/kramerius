@@ -20,6 +20,8 @@
     >
     <xsl:output omit-xml-declaration="yes" method="xml" indent="yes" encoding="UTF-8" />
 
+    <xsl:include href="biblio_location.xslt"/>
+
 <!--
 	 This xslt stylesheet generates the Solr doc element consisting of field elements
      from a FOXML record. The PID field is mandatory.
@@ -201,6 +203,7 @@
             <field name="viewable">true</field>
         </xsl:if>
     </xsl:template>
+
     
     <xsl:template match="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" mode="biblioMods">
         <xsl:for-each select="mods:language[@objectPart != 'translation']/mods:languageTerm/text()">
@@ -208,6 +211,11 @@
             <xsl:value-of select="." />
         </field>
         </xsl:for-each>
+
+        <!-- <mods:location  -->
+        <xsl:apply-templates select="mods:location" />
+
+        
         <xsl:if test="$PAGENUM=0">
             <xsl:for-each select="mods:subject/mods:topic/text()">
                 <field name="keywords" >
@@ -371,4 +379,7 @@
             </field>
         </xsl:for-each>    
     </xsl:template>
+    
+    
+    
 </xsl:stylesheet>

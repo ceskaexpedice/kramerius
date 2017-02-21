@@ -49,6 +49,7 @@
     <c:param name="fl" value="PID,score,root_title,path,pid_path,root_pid,dc.title,details,fedora.model,model_path,dc.creator,datum,page_format,text" />
     --%>
     
+
     <c:param name="qf" value="root_title^10 root_title_lemmatized^10 root_title_lemmatized_ascii^10 text text_lemmatized text_lemmatized_ascii" />
     
     <c:forEach var="fqs" items="${paramValues.fq}">
@@ -120,11 +121,28 @@
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
+
     <c:if test="${!empty param.ddc}">
         <c:param name="fq" value="ddt:\"${param.ddc}\"" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
+    
+    <!-- shelf locator and physical location -->
+    <c:if test="${!empty param.shelfLocator}">
+        <c:param name="fq" value="mods.shelfLocator:\"${param.shelfLocator}\"" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
+    </c:if>
+    
+    <c:if test="${!empty param.physicalLocation}">
+        <c:param name="fq" value="mods.physicalLocation:\"${param.physicalLocation}\"" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
+    </c:if>
+    <!--~ // shelf locator and physical location -->
+
+    
     <c:if test="${!empty param.keywords}">
         <c:param name="fq" value="keywords:\"${param.keywords}\"" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
