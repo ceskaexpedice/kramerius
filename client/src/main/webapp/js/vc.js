@@ -1,23 +1,25 @@
 
 /** Represents objects displaying all virtual collections */
 var VirtualCollections = function(application) {
-        
     var f = _.bind(function(type, data) {
 	console.log("event type :"+type);
-        if (type === "api/vc") {
-            this.check();
-            this.init();
+      if (type === "i18n/dictionary"){
+        K5.api.askForCollections();
+      }
+      if (type === "api/vc") {
+          this.check();
+          this.init();
 
-            this.translate(K5.i18n.ctx.language);
+          this.translate(K5.i18n.ctx.language);
 
-            this.resizediv();
+          this.resizediv();
 
-            $("#yearRows").bind("wresize", function() {
-                K5.gui.vc.resizediv();
-            });
+          $("#yearRows").bind("wresize", function() {
+              K5.gui.vc.resizediv();
+          });
 
-            this.checkArrows();    
-        }
+          this.checkArrows();    
+      }
     },this);
 
     application.eventsHandler.addHandler(f);
@@ -50,6 +52,7 @@ VirtualCollections.prototype = {
         /** gui initialization */
         init: function() {
                 {
+                  $("#yearRows").empty();
                         this.ctx.elements["scroll"] =  $('<div/>', {class: 'scroll'});
                         $("#yearRows").append(this.ctx.elements["scroll"]);
 
@@ -203,8 +206,24 @@ VirtualCollection.prototype = {
 
 
         this.titleBand = $('<div>', {class: 'rowtitle'});
+        
         this.$elem.append(this.titleBand);
         //this.titleBand.append(vctranslatable(this.pid, K5.api.ctx.vc, K5.i18n.ctx.language));
+        this.thumb = $('<img>');
+        var src = 'api/item/' + this.pid + '/thumb';
+        var image = new Image();
+        image.onload = _.bind(function() {
+            
+            
+        }, this);
+
+        image.onerror = _.bind(function() {
+            this.thumb.remove();
+        }, this);
+        image.src = src;
+        this.thumb.attr('src', src);
+        
+        this.titleBand.append(this.thumb);
         this.titleBand.append(K5.i18n.translatable(this.pid));
         
 

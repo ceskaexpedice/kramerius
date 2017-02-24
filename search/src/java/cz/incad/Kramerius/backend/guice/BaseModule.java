@@ -41,8 +41,11 @@ import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.statistics.impl.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.CDKVirtualCollectionsGet;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
 import cz.incad.kramerius.virtualcollections.impl.CDKVirtualCollectionsGetImpl;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
+import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
+import cz.incad.kramerius.virtualcollections.impl.solr.SolrCollectionManagerImpl;
 
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
@@ -85,7 +88,12 @@ public class BaseModule extends AbstractModule {
 
         bind(MostDesirable.class).to(MostDesirableImpl.class);
 
-        bind(VirtualCollection.class).toProvider(VirtualCollectionProvider.class);
+        // 
+        bind(Collection.class).toProvider(VirtualCollectionProvider.class);
+        
+        bind(CollectionsManager.class).annotatedWith(Names.named("fedora")).to(FedoraCollectionsManagerImpl.class);
+        bind(CollectionsManager.class).annotatedWith(Names.named("solr")).to(SolrCollectionManagerImpl.class);
+        
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
 

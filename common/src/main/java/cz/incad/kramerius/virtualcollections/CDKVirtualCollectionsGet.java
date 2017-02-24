@@ -4,11 +4,11 @@ import java.util.List;
 
 public interface CDKVirtualCollectionsGet {
 
-    public List<VirtualCollection> virtualCollectionsFromResource(String res);
+    public List<Collection> virtualCollectionsFromResource(String res);
 
-    public VirtualCollection virtualCollectionsFromResource(String vc, String res);
+    public Collection virtualCollectionsFromResource(String vc, String res);
 
-    public List<VirtualCollection> virtualCollections();
+    public List<Collection> virtualCollections();
 
     public String getResource(String vcId);
 }

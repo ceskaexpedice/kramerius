@@ -112,6 +112,7 @@ public class StatisticDatabaseInitializator {
                 createLangsView(connection);
             } else if (versionCondition(version, ">=", "6.6.5")) {
                 createLangsView(connection);
+                createAuthorsView(connection);
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -314,7 +315,8 @@ public class StatisticDatabaseInitializator {
                         "last(session_id) as session_id, "+
                         "last(date) as \"date\", "+
                         "last(rights) as rights, "+
-                        "last(stat_action) as stat_action "+
+                        "last(stat_action) as stat_action, "+
+                        "last(remote_ip_address) as remote_ip_address "+
                         "from statistic_access_log_detail_authors auth "+
                         "join statistics_access_log sta using(record_id) "+
                         "join statistic_access_log_detail dta using(record_id) "+
@@ -343,7 +345,8 @@ public class StatisticDatabaseInitializator {
                         "last(sta.date) AS date, "+
                         "last(dta.rights) AS rights, "+
                         "last(sta.stat_action) AS stat_action, "+
-                        "last(dta.lang) as lang "+
+                        "last(dta.lang) as lang, "+
+                        "last(remote_ip_address) as remote_ip_address "+
                        "FROM statistics_access_log sta "+
                          "JOIN statistic_access_log_detail dta USING (record_id) "+
                       "GROUP BY sta.record_id;"+

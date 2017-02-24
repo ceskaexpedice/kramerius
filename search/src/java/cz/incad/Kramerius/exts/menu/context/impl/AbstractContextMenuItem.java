@@ -101,7 +101,7 @@ public abstract class AbstractContextMenuItem implements ContextMenuItem {
 
     
     /**
-     * Disable or enable item in configuration
+     * Disable or enable item by configuration
      */
     @Override
     public boolean isRenderable() {

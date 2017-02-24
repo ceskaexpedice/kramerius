@@ -34,7 +34,8 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.Collection.Description;
 import cz.incad.kramerius.virtualcollections.impl.CDKVirtualCollectionsGetImpl;
 
 public class CDKVirtualCollectionsTest {
@@ -60,14 +61,18 @@ public class CDKVirtualCollectionsTest {
         URL urlRes = CDKVirtualCollectionsTest.class.getResource("vc.json");
         String str = IOUtils.readAsString(urlRes.openStream(), Charset.forName("UTF-8"), true);
         JSONObject jobj = new JSONObject(str);
-        VirtualCollection vc = CDKVirtualCollectionsGetImpl.collectionFromJSON(jobj);
+        Collection vc = CDKVirtualCollectionsGetImpl.collectionFromJSON(jobj);
         Assert.assertEquals(vc.getPid(), "vc:f73dee31-ae76-4dbc-b7b9-d986df497596");
         Assert.assertEquals(vc.getLabel(), "vc:f73dee31-ae76-4dbc-b7b9-d986df497596");
-        Assert.assertEquals(vc.isCanLeave(), true);
-        Map<String, String> map = vc.getDescriptionsMap();
-        Assert.assertTrue(map.size() == 2);
-        Assert.assertTrue(map.containsKey("en"));
-        Assert.assertTrue(map.containsKey("cs"));
+        Assert.assertEquals(vc.isCanLeaveFlag(), true);
+        List<Description> descs = vc.getDescriptions();
+        
+        Assert.assertTrue(descs.size() == 2);
+        
+//        Map<String, String> map = vc.getDescriptionsMap();
+//        Assert.assertTrue(map.size() == 2);
+//        Assert.assertTrue(map.containsKey("en"));
+//        Assert.assertTrue(map.containsKey("cs"));
         
     }
 

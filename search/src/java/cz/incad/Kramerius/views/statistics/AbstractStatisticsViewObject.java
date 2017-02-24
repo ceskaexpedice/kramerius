@@ -43,6 +43,7 @@ import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IPAddressFilter;
 import cz.incad.kramerius.statistics.filters.ModelFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
@@ -136,10 +137,12 @@ public abstract class AbstractStatisticsViewObject {
                 modelFilter.setModel(val);
                 VisibilityFilter visFilter = getVisbilityFilter();
                 
+                IPAddressFilter ipAddr = new IPAddressFilter();
+                
                 StatisticReport report = statisticsAccessLog.getReportById(type);
                 Offset reportOff = new Offset(offset, size);
-                report.prepareViews(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter}));
-                this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter}), reportOff);
+                report.prepareViews(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter, ipAddr}));
+                this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter,ipAddr}), reportOff);
             }
             return this.data;
         } catch (IOException e) {

@@ -43,6 +43,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IPAddressFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
@@ -67,12 +68,17 @@ public class AuthorReport implements StatisticReport{
     public List<Map<String, Object>> getReportPage(ReportedAction repAction,StatisticsFiltersContainer filters, Offset rOffset) {
         try {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
+            
             final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
             authors.setAttribute("action", repAction != null ? repAction.name() : null);
             authors.setAttribute("paging", true);
             authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             authors.setAttribute("toDefined", dateFilter.getToDate() != null);
-
+            if (ipFilter.hasValue()) {
+                authors.setAttribute("ipaddr", ipFilter.getValue());
+            }
+            
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
             String sql = authors.toString();
@@ -118,11 +124,17 @@ public class AuthorReport implements StatisticReport{
             StatisticsFiltersContainer filters) throws StatisticsReportException {
         try {
             final DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
+
             final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
             authors.setAttribute("action", repAction != null ? repAction.name() : null);
             authors.setAttribute("paging", false);
             authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             authors.setAttribute("toDefined", dateFilter.getToDate() != null);
+
+            if (ipFilter.hasValue()) {
+                authors.setAttribute("ipaddr", ipFilter.getValue());
+            }
 
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);

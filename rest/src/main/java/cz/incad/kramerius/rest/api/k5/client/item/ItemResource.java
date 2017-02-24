@@ -524,9 +524,13 @@ public class ItemResource {
         try {
             if (PIDSupport.isComposedPID(pid)) {
                 String p = PIDSupport.first(pid);
-                this.fedoraAccess.getRelsExt(p);
+                if (!this.fedoraAccess.isObjectAvailable(p)) {
+                    throw new PIDNotFound("pid not found");
+                }
             } else {
-                this.fedoraAccess.getRelsExt(pid);
+                if (!this.fedoraAccess.isObjectAvailable(pid)) {
+                    throw new PIDNotFound("pid not found");
+                }
             }
         } catch (IOException e) {
             throw new PIDNotFound("pid not found");

@@ -29,13 +29,16 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.virtualcollections.CDKVirtualCollectionsGet;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
-import cz.incad.kramerius.virtualcollections.VirtualCollection.CollectionDescription;
+import cz.incad.kramerius.virtualcollections.Collection;
 
 public class CDKVirtualCollectionsGetImpl implements CDKVirtualCollectionsGet {
-
-    private static Map<String, List<String>> COLLECTIONS_MAPPING = new HashMap<String, List<String>>();
-
+    
+    // TODO: Synchronized together 
+//    private static Map<String, List<String>> COLLECTIONS_MAPPING = new HashMap<String, List<String>>();
+//    private static Map<String, JSONObject> COLLECTIONS_CACHE = new HashMap<String, JSONObject>(); 
+    
+    private static SimpleCollectionsCache _CACHE = new SimpleCollectionsCache();
+    
     private static final String URI_PREFIX = "URI";
 
     public static final Logger LOGGER = Logger
@@ -48,20 +51,26 @@ public class CDKVirtualCollectionsGetImpl implements CDKVirtualCollectionsGet {
     public CDKVirtualCollectionsGetImpl() {
     }
 
-    public List<VirtualCollection> virtualCollectionsFromResource(
+    
+    public CDKVirtualCollectionsGetImpl(SimpleCollectionsCache cache) {
+        _CACHE = cache;
+    }
+    
+    public synchronized List<Collection> virtualCollectionsFromResource(
             String resource) {
-        clearResource(resource);
-        List<VirtualCollection> vcs = new ArrayList<VirtualCollection>();
-        CDKResourcesFilter filter = new CDKResourcesFilter();
+        List<Collection> vcs = new ArrayList<Collection>();
+        CDKResourcesFilter filter = createResourceFilter();
         if (!filter.isHidden(resource)) {
             try {
-                Document dc = this.fedoraAccess.getDC(resource);
-                String vcpoint = appendVCPoint(disectURL(dc));
-                JSONArray jsonArray = virtualCollectionsFromPoint(vcpoint);
+                if (!_CACHE.containsResource(resource)) {
+                    Document dc = this.fedoraAccess.getDC(resource);
+                    String vcpoint = appendVCPoint(disectURL(dc));
+                    _CACHE.fillCacheFromResoure(resource, vcpoint);
+                }
+                JSONArray jsonArray = _CACHE.getResourceJSONArray(resource);
                 for (int i = 0, ll = jsonArray.length(); i < ll; i++) {
-                    VirtualCollection vc = collectionFromJSON(jsonArray
+                    Collection vc = collectionFromJSON(jsonArray
                             .getJSONObject(i));
-                    addResourceVC(resource, vc.getPid());
                     vcs.add(vc);
                 }
             } catch (IOException e) {
@@ -75,33 +84,43 @@ public class CDKVirtualCollectionsGetImpl implements CDKVirtualCollectionsGet {
         return vcs;
     }
 
-    public List<VirtualCollection> virtualCollections() {
-        clearAllResources();
-        List<VirtualCollection> vcs = new ArrayList<VirtualCollection>();
-        CDKResourcesFilter filter = new CDKResourcesFilter();
+    CDKResourcesFilter createResourceFilter() {
+        return new CDKResourcesFilter();
+    }
+
+    public List<Collection> virtualCollections() {
+        //clearAllResources();
+        List<Collection> vcs = new ArrayList<Collection>();
+        CDKResourcesFilter filter = createResourceFilter();
         List<String> resources = filter.getResources();
         for (String res : resources) {
-            List<VirtualCollection> subVCS = virtualCollectionsFromResource(res);
+            List<Collection> subVCS = virtualCollectionsFromResource(res);
             vcs.addAll(subVCS);
         }
         return vcs;
     }
 
     @Override
-    public VirtualCollection virtualCollectionsFromResource(String vc,
-            String res) {
-        CDKResourcesFilter filter = new CDKResourcesFilter();
-        if (filter.isResource(res)) {
-            if (!filter.isHidden(res)) {
-                // http://krameriusdemo.mzk.cz/search/api/v5.0/vc/vc:758d7168-d625-4648-911a-9a80473a1717
+    public Collection virtualCollectionsFromResource(String vc,
+            String resource) {
+        CDKResourcesFilter filter = createResourceFilter();
+        if (filter.isResource(resource)) {
+            if (!filter.isHidden(resource)) {
                 try {
-                    Document dc = this.fedoraAccess.getDC(res);
-                    String vcpoint = appendVCPoint(disectURL(dc)) + "/" + vc;
-                    JSONObject jsonObject = virtualCollectionFromPoint(vcpoint,
-                            vc);
-                    VirtualCollection vcObject = collectionFromJSON(jsonObject);
-                    addResourceVC(res, vcObject.getPid());
-                    return vcObject;
+                    
+                    if (!_CACHE.containsResource(resource)) {
+                        Document dc = this.fedoraAccess.getDC(resource);
+                        String vcpoint = appendVCPoint(disectURL(dc));
+                        _CACHE.fillCacheFromResoure(resource, vcpoint);
+                    }
+                    JSONArray jsonArray = _CACHE.getResourceJSONArray(resource);
+                    for (int i = 0,ll=jsonArray.length(); i < ll; i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        Collection vcObject = collectionFromJSON(jsonObject);
+                        if (vc.equals(vcObject.getPid())) return vcObject;
+                        
+                    }
+                    
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 } catch (XPathExpressionException e) {
@@ -115,12 +134,30 @@ public class CDKVirtualCollectionsGetImpl implements CDKVirtualCollectionsGet {
     }
 
     @Override
-    public String getResource(String vcId) {
-        Set<String> keys = COLLECTIONS_MAPPING.keySet();
-        for (String resource : keys) {
-            List<String> list = COLLECTIONS_MAPPING.get(resource);
-            if (list.contains(vcId))
-                return resource;
+    public String getResource(String vcId)  {
+        try {
+            CDKResourcesFilter filter = createResourceFilter();
+            List<String> resources = filter.getResources();
+            for (String res : resources) {
+                boolean containsResource = _CACHE.containsResource(res);
+                if (!containsResource) {
+                    Document dc = this.fedoraAccess.getDC(res);
+                    String vcpoint = appendVCPoint(disectURL(dc));
+                    _CACHE.fillCacheFromResoure(res, vcpoint);
+                }
+                JSONArray jsonArray = _CACHE.getResourceJSONArray(res);
+                for (int i = 0,ll=jsonArray.length(); i < ll; i++) {
+                    JSONObject jsonObj = jsonArray.getJSONObject(i);
+                    String pid = jsonObj.getString("pid");
+                    if (pid.equals(vcId)) return res;
+                }
+            }
+        } catch (XPathExpressionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return null;
     }
@@ -134,21 +171,25 @@ public class CDKVirtualCollectionsGetImpl implements CDKVirtualCollectionsGet {
         this.fedoraAccess = fedoraAccess;
     }
 
-    static VirtualCollection collectionFromJSON(JSONObject jsonObject)
+    static Collection collectionFromJSON(JSONObject jsonObject)
             throws JSONException {
+
         String pid = jsonObject.getString("pid");
         String label = jsonObject.getString("label");
         boolean cleave = jsonObject.getBoolean("canLeave");
-        VirtualCollection col = new VirtualCollection(label, pid, cleave);
+        Collection col = new Collection(pid,label, cleave);
         JSONObject descs = jsonObject.getJSONObject("descs");
         Iterator keys = descs.keys();
         while (keys.hasNext()) {
             String k = (String) keys.next();
-            col.addDescription(k, descs.getString(k));
+            String string = descs.getString(k);
+            Collection.Description desc = new Collection.Description(k, string, string);
+            col.addDescription(desc);
         }
         return col;
     }
 
+    
     static JSONArray virtualCollectionsFromPoint(String point)
             throws JSONException {
         try {
@@ -188,49 +229,46 @@ public class CDKVirtualCollectionsGetImpl implements CDKVirtualCollectionsGet {
        return src;
     }
 
-    static synchronized void clearAllResources() {
-        COLLECTIONS_MAPPING.clear();
-    }
+   
+   static class SimpleCollectionsCache {
+       
+       private Map<String, JSONArray> collectionsResults = new HashMap<String, JSONArray>();
+       private Map<String, JSONObject> collectionObject = new HashMap<String, JSONObject>();
+       
+       
+       public synchronized  void fillCacheFromResoure(String resourcePid, String point) {
+           JSONArray jsonArray = virtualCollectionsFromPoint(point);
+           this.collectionsResults.put(resourcePid, jsonArray);
+           for (int i = 0,ll=jsonArray.length(); i < ll; i++) {
+               JSONObject jsonObject = jsonArray.getJSONObject(i);
+               this.collectionObject.put(jsonObject.getString("pid"), jsonObject);
+               
+           }
+       }
+       
+       synchronized JSONArray virtualCollectionsFromPoint(String point) {
+           return CDKVirtualCollectionsGetImpl.virtualCollectionsFromPoint(point);
+       }
 
-    static synchronized void clearResource(String resource) {
-        COLLECTIONS_MAPPING.remove(resource);
-    }
-
-    static synchronized void addResourceVC(String resource, String vcid) {
-        if (!COLLECTIONS_MAPPING.containsKey(resource)) {
-            COLLECTIONS_MAPPING.put(resource, new ArrayList<String>());
-        }
-        List<String> alist = COLLECTIONS_MAPPING.get(resource);
-        if (!alist.contains(vcid)) {
-            alist.add(vcid);
-        }
-    }
-
-    static synchronized void removeResourceVC(String resource, String vcid) {
-        if (!COLLECTIONS_MAPPING.containsKey(resource)) {
-            COLLECTIONS_MAPPING.put(resource, new ArrayList<String>());
-        }
-        List<String> alist = COLLECTIONS_MAPPING.get(resource);
-        if (alist.contains(vcid)) {
-            alist.remove(vcid);
-        }
-    }
-
-//    public static void main(String[] args) throws JSONException {
-//        List<VirtualCollection> cols = new ArrayList<VirtualCollection>();
-//        String str = "http://kramerius.lib.cas.cz/search";
-//        //http://kramerius.lib.cas.cz/search/api/v5.0/vc
-//        JSONArray jsonArray = virtualCollectionsFromPoint(appendVCPoint(str));
-//        for (int i = 0, ll = jsonArray.length(); i < ll; i++) {
-//            cols.add(collectionFromJSON(jsonArray.getJSONObject(i)));
-//        }
-//
-//        for (VirtualCollection vc : cols) {
-//            System.out.println(vc.getLabel());
-//            System.out.println(vc.getPid());
-//            System.out.println(vc.getDescriptionLocale("en"));
-//            System.out.println(vc.getDescriptionLocale("cs"));
-//        }
-//    }
-
+       public synchronized boolean containsResource(String resourcePid) {
+           return collectionsResults.containsKey(resourcePid);
+       }
+       
+       public synchronized boolean containsCache(String colPid) {
+           return this.collectionObject.containsKey(colPid);
+       }
+       
+       public synchronized JSONArray getResourceJSONArray(String resourcePid) {
+           return this.collectionsResults.get(resourcePid);
+       }
+       
+       public synchronized JSONObject getJSONCollection(String colPid) {
+           return this.collectionObject.get(colPid);
+       }
+      
+       public synchronized boolean isEmpty() {
+           return this.collectionsResults.isEmpty();
+       }
+   }
+   
 }

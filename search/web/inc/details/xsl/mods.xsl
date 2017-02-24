@@ -49,6 +49,7 @@
                         </span>
                     </li>
                 </xsl:if>
+             
                 <xsl:if test="mods:titleInfo/mods:title/text()">
                     <li>
                         <span class="label">
@@ -70,6 +71,29 @@
                         </xsl:if>
                     </li>
                 </xsl:if>
+
+                <xsl:if test="mods:relatedItem[@type='preceding']/mods:titleInfo/mods:title/text()">
+                    <li>
+                        <span class="label">
+                            <xsl:value-of select="$bundle/value[@key='mods.preceding']"/>
+                        </span>:&#160;
+                        <span class="value">
+                            <xsl:value-of select="mods:relatedItem[@type='preceding']/mods:titleInfo/mods:title/text()" />
+                        </span>
+                    </li>
+                </xsl:if>
+
+                <xsl:if test="mods:relatedItem[@type='succeeding']/mods:titleInfo/mods:title/text()">
+                    <li>
+                        <span class="label">
+                            <xsl:value-of select="$bundle/value[@key='mods.succeeding']"/>
+                        </span>:&#160;
+                        <span class="value">
+                            <xsl:value-of select="mods:relatedItem[@type='succeeding']/mods:titleInfo/mods:title/text()" />
+                        </span>
+                    </li>
+                </xsl:if>
+
         
                 <xsl:if test="$level &gt; 0">
                 </xsl:if>

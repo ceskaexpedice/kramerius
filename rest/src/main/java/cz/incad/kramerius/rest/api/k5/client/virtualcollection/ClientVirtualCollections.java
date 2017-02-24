@@ -16,38 +16,43 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.virtualcollection;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.json.JSONArray;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
+import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-
-import cz.incad.kramerius.security.utils.PasswordDigest;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.virtualcollections.CDKVirtualCollectionsGet;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
-import cz.incad.kramerius.virtualcollections.VirtualCollection.CollectionDescription;
-import cz.incad.kramerius.virtualcollections.impl.CDKResourcesFilter;
-
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
-
-import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.CollectionUtils;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
+import cz.incad.kramerius.virtualcollections.CollectionsManager.SortType;
+import cz.incad.kramerius.virtualcollections.impl.AbstractCollectionManager.CollectionComparator;
 
 @Path("/v5.0/vc")
 public class ClientVirtualCollections {
@@ -56,7 +61,8 @@ public class ClientVirtualCollections {
             .getLogger(ClientVirtualCollections.class.getName());
 
     @Inject
-    VirtualCollectionsManager manager;
+    @Named("fedora")
+    CollectionsManager manager;
 
     @Inject
     @Named("securedFedoraAccess")
@@ -66,6 +72,7 @@ public class ClientVirtualCollections {
     CDKVirtualCollectionsGet cdkVirtGet;
     
 
+    Provider<HttpServletRequest> req;
     
     @GET
     @Path("{pid}")
@@ -73,27 +80,14 @@ public class ClientVirtualCollections {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response oneVirtualCollection(@PathParam("pid") String pid) {
         try {
-            String res = this.cdkVirtGet.getResource(pid);
-            if (res == null) {
-                List<VirtualCollection> vcs = this.cdkVirtGet.virtualCollections();
-                for (VirtualCollection vc : vcs) {
-                    if (vc.getPid().equals(pid)) {
-                        return Response
-                                .ok()
-                                .entity(VirtualCollectionsResource
-                                        .virtualCollectionTOJSON(vc)).build();
-                        
-                    }
-                }
-                throw new ObjectNotFound("cannot find vc '" + pid + "'");
-            } else {
-                VirtualCollection vc = this.cdkVirtGet.virtualCollectionsFromResource(pid, res);
-                return Response
-                        .ok()
-                        .entity(VirtualCollectionsResource
-                                .virtualCollectionTOJSON(vc)).build();
-                
-            }
+            String resource = this.cdkVirtGet.getResource(pid);
+            Collection col = this.cdkVirtGet.virtualCollectionsFromResource(pid, resource);
+            return Response
+                    .ok()
+                    .entity(CollectionUtils
+                            .virtualCollectionTOJSON(col)).build();
+            
+
         } catch (ObjectNotFound e) {
             throw e;
         } catch (Exception e) {
@@ -101,15 +95,65 @@ public class ClientVirtualCollections {
             throw new GenericApplicationException(e.getMessage());
         }
     }
+    
+    private void checkPid(String pid) throws PIDNotFound {
+        try {
+            if (!this.fedoraAccess.isObjectAvailable(pid)) {
+                throw new PIDNotFound("pid not found");
+            }
+        } catch (IOException e) {
+            throw new PIDNotFound("pid not found");
+        } catch(Exception e) {
+            throw new PIDNotFound("error while parsing pid ("+pid+")");
+        }
+    }
+
+
+    @GET
+    @Path("{pid}/thumb")
+    public Response thumb(@PathParam("pid") String pid) {
+        try {
+            checkPid(pid);
+                String suri = ApplicationURL
+                        .applicationURL(this.req.get())
+                        + "/api/v5.0/item/" + pid + "/streams/"+ImageStreams.IMG_THUMB;
+                URI uri = new URI(suri);
+                return Response.temporaryRedirect(uri).build();
+        } catch (URISyntaxException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new PIDNotFound("pid not found '" + pid + "'");
+        }
+    }
+
+
+    @GET
+    @Path("{pid}/full")
+    public Response full(@PathParam("pid") String pid) {
+        try {
+            checkPid(pid);
+                String suri = ApplicationURL
+                        .applicationURL(this.req.get())
+                        + "/api/v5.0/item/" + pid + "/streams/"+ImageStreams.IMG_FULL;
+                URI uri = new URI(suri);
+                return Response.temporaryRedirect(uri).build();
+        } catch (URISyntaxException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new PIDNotFound("pid not found '" + pid + "'");
+        }
+    }
+
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response get() {
+    public Response get(@QueryParam("sort") String sortType,@QueryParam("langCode") String langCode) {
         try {
-            List<VirtualCollection> vcs = this.cdkVirtGet.virtualCollections();
+            Locale locale = Locale.forLanguageTag(langCode);
+            List<Collection> cols = this.cdkVirtGet.virtualCollections();
+            Collections.sort(cols, new CollectionComparator(locale, sortType(sortType)));
+
             JSONArray jsonArr = new JSONArray();
-            for (VirtualCollection vc : vcs) {
-                jsonArr.put(VirtualCollectionsResource
+            for (Collection vc : cols) {
+                jsonArr.put(CollectionUtils
                         .virtualCollectionTOJSON(vc));
             }
             return Response.ok().entity(jsonArr.toString()).build();
@@ -117,6 +161,19 @@ public class ClientVirtualCollections {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());
         }
+    }
+
+    private SortType sortType(String sortType) {
+        if (sortType!=null) {
+            SortType selectedVal = null;
+            for (SortType v : CollectionsManager.SortType.values()) {
+                if (sortType.equals(v.name())) {
+                    selectedVal = v;
+                    break;
+                }
+            }
+            return selectedVal;
+        } else return null;
     }
 
 }

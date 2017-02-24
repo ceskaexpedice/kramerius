@@ -42,7 +42,7 @@
             </c:if>
             
             <c:if test="${buttons.underShibbolethSession == true}">
-                <c:if test="${buttons.shibbLogout}">
+                <c:if test="${buttons.shibbLogoutEnabled}">
                      <a href="${buttons.shibbLogout}"><view:msg>application.logout</view:msg></a>
                 </c:if>
            </c:if>

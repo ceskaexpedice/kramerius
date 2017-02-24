@@ -3,7 +3,7 @@ package cz.incad.kramerius.virtualcollections.impl;
 import java.util.List;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
+import cz.incad.kramerius.virtualcollections.Collection;
 
 public class CDKResourcesFilter {
 
@@ -17,7 +17,7 @@ public class CDKResourcesFilter {
         return al;
     }
     
-    public boolean isResource(VirtualCollection vc) {
+    public boolean isResource(Collection vc) {
         return isResource(vc.getPid());
     }
     
@@ -26,7 +26,7 @@ public class CDKResourcesFilter {
         return al.contains(pid);
     }
 
-    public boolean isHidden(VirtualCollection vc) {
+    public boolean isHidden(Collection vc) {
         return isHidden(vc.getPid());
     }
     
@@ -35,7 +35,7 @@ public class CDKResourcesFilter {
         return al.contains(pid);
     }
     
-    public boolean isFiltered(VirtualCollection vc) {
+    public boolean isFiltered(Collection vc) {
         return isResource(vc.getPid()) || isHidden(vc.getPid());
     }
     

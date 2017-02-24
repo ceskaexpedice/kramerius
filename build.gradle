@@ -57,7 +57,7 @@ repositories {
 
 allprojects {
          group='cz.incad.kramerius'
-         version='5.3.4'
+         version='5.3.6'
 }
 
 
@@ -81,8 +81,6 @@ subprojects {
          ext.generatedSources = "generated-sources"
 
          
-         //group='cz.incad.kramerius'
-         //version='5.3.4'
          
          sourceCompatibility = 1.6
          targetCompatibility= 1.6

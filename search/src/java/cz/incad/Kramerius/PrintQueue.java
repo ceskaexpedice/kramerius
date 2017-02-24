@@ -148,13 +148,4 @@ public class PrintQueue extends GuiceServlet {
         protected abstract void print(HttpServletRequest request, HttpServletResponse response,PrintingService service, String imgServlet, String i18nservlet) throws IOException, ProcessSubtreeException, PrinterException, PrintException;
     }
 
-    
-    
-    public static void main(String[] args) throws FileNotFoundException, PrintException {
-        PrintService pserv = PrintServiceLookup.lookupDefaultPrintService();
-        FileInputStream fis = new FileInputStream("/home/pavels/fortests.pdf");
-        Doc simpleDoc = new SimpleDoc(fis,DocFlavor.INPUT_STREAM.PDF ,null);
-        DocPrintJob job = PrintServiceLookup.lookupDefaultPrintService().createPrintJob();
-        job.print(simpleDoc, null);
-    }
 }

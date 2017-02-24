@@ -56,7 +56,8 @@ import java.util.logging.Level;
  */
 public class MovingWall extends AbstractCriterium implements RightCriterium {
 
-    public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()","//mods:part/mods:date/text()"};
+    //encoding="marc"
+    public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued[@encoding='marc']/text()","//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()","//mods:part/mods:date/text()"};
 
     
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
@@ -112,10 +113,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
 
     public static EvaluatingResult evaluateDoc(int wallFromConf, Document xmlDoc, String xPathExpression,XPathFactory xpfactory) throws XPathExpressionException {
-        XPath xpath = xpfactory.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
-        XPathExpression expr = xpath.compile(xPathExpression);
-        Object date = expr.evaluate(xmlDoc, XPathConstants.NODE);
+        Object date = findDateString(xmlDoc, xPathExpression, xpfactory);
         if (date != null) {
             String patt = ((Text) date).getData();
 
@@ -145,6 +143,15 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
         
         return null;
+    }
+
+    public static Object findDateString(Document xmlDoc, String xPathExpression, XPathFactory xpfactory)
+            throws XPathExpressionException {
+        XPath xpath = xpfactory.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        XPathExpression expr = xpath.compile(xPathExpression);
+        Object date = expr.evaluate(xmlDoc, XPathConstants.NODE);
+        return date;
     }
 
     
@@ -180,12 +187,34 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         try {
             return ndkDates(patt);
         } catch (Exception e) {
-            // try to parse custom 
-            List<String> patterns = readCustomizedPatterns();
-            return customizedDates(patt, patterns);
+            try {
+                // normalize text and test again; remove all characters under 127 
+                return ndkDates(normalizedString(patt));
+            } catch (Exception e1) {
+                // try to parse custom 
+                List<String> patterns = readCustomizedPatterns();
+                return customizedDates(patt, patterns);
+            }
         }
     }
 
+    /**
+     * Remove NONASCII character and try parse again
+     * @param patt
+     * @return
+     */
+    public static String normalizedString(String patt) {
+        StringBuilder builder = new StringBuilder();
+        char[] charArray = patt.toCharArray();
+        for (char c : charArray) {
+            int val = c;
+            if (val < 127) {
+                builder.append(c);
+            }
+        }
+        return builder.toString();
+    }
+    
     public static List<String> readCustomizedPatterns() throws IOException {
         List<String> retvals = new ArrayList<String>();
         BufferedReader buffReader = null;

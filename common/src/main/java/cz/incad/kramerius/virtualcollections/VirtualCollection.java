@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class VirtualCollection {
+//TODO: remove
+class VirtualCollection {
     
     protected String label;
     protected String pid;

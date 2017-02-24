@@ -465,6 +465,27 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
+    
+    
+    @Override
+    public boolean isObjectAvailable(String pid) throws IOException {
+        try {
+            Document parseDocument = XMLUtils.parseDocument(getFedoraDataStreamsList(makeSureObjectPid(pid)), true);
+            return true;
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (FileNotFoundException e) {
+            return false;
+        } 
+    }
+
     @Override
     public boolean isContentAccessible(String pid) throws IOException {
         return true;
@@ -795,26 +816,25 @@ public class FedoraAccessImpl implements FedoraAccess {
                     String attVal = iteratingElm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
                     if (!attVal.trim().equals("")) {
                         PIDParser pidParser = new PIDParser(attVal);
-                        pidParser.disseminationURI();
+
+                        try {
+                            pidParser.disseminationURI();
+                        } catch (LexerException e) {
+                            LOGGER.warning(e.getMessage());
+                            LOGGER.warning("could not parse '"+attVal+"' -> skipping");
+                            continue;
+                        }
+
                         String objectId = pidParser.getObjectPid();
                         if (pidParser.getNamespaceId().equals("uuid")) {
-//                            StringBuffer buffer = new StringBuffer();
-//                            {   // debug print
-//                                for (int k = 0; k < level; k++) {
-//                                    buffer.append(" ");
-//                                }
-//                                LOGGER.fine(buffer.toString() + " processing pid [" + attVal + "]");
-//                            }
                             if (!processor.skipBranch(objectId, level + 1)) {
                                 Document iterationgRelsExt = null;
-
                                 try {
                                     iterationgRelsExt = getRelsExt(objectId);
                                 } catch (Exception ex) {
                                     LOGGER.warning("could not read RELS-EXT, skipping branch [" + (level + 1) + "] and pid (" + objectId + "):" + ex);
                                 }
                                 breakProcessing = processSubtreeInternal(pidParser.getObjectPid(), iterationgRelsExt, processor, level + 1, pidStack);
-
                                 if (breakProcessing) {
                                     break;
                                 }

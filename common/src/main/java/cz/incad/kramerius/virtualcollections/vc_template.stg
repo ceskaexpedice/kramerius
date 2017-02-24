@@ -1,0 +1,69 @@
+group collection;
+
+foxml(pid, title, canLeave, text) ::= <<
+
+<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" VERSION="1.1" PID="$pid$" xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+<foxml:objectProperties>
+<foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="$pid$"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="K4"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2010-04-21T07:29:46.135Z"/>
+<foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2016-12-22T19:34:18.973Z"/>
+</foxml:objectProperties>
+<foxml:datastream ID="AUDIT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="AUDIT.0" LABEL="Audit Trail for this object" CREATED="2010-04-21T07:29:46.135Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:format/xml.fedora.audit">
+<foxml:xmlContent>
+<audit:auditTrail xmlns:audit="info:fedora/fedora-system:def/audit#">
+<audit:record ID="AUDREC1">
+<audit:process type="Fedora API-M"/>
+<audit:action>ingest</audit:action>
+<audit:componentID/>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-12-22T19:22:53.083Z</audit:date>
+<audit:justification>Create virtual collection</audit:justification>
+</audit:record>
+</audit:auditTrail>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="TEXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="TEXT1.0" LABEL="Localized texts for this object" CREATED="2016-12-22T19:22:53.083Z" MIMETYPE="text/xml" SIZE="34">
+<foxml:xmlContent>
+<texts></texts>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="RELS-EXT.0" LABEL="RDF Statements about this object" CREATED="2011-11-11T11:11:11.000Z" MIMETYPE="application/rdf+xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="535">
+<foxml:xmlContent>
+<rdf:RDF xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#">
+<rdf:Description rdf:about="info:fedora/$pid$">
+<fedora-model:hasModel rdf:resource="info:fedora/model:collection"/>
+</rdf:Description>
+</rdf:RDF>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="DC.2" LABEL="Dublin Core Record for this object" CREATED="2016-12-22T19:34:18.746Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="466">
+<foxml:xmlContent>
+<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>$title$</dc:title>
+<dc:type>canLeave:$canLeave$</dc:type>
+<dc:identifier>$pid$</dc:identifier>
+</oai_dc:dc>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="TEXT_cs" STATE="A" CONTROL_GROUP="M" VERSIONABLE="false">
+<foxml:datastreamVersion ID="TEXT_cs.1" LABEL="Description cs" CREATED="2016-12-22T19:34:18.887Z" MIMETYPE="text/plain">
+<foxml:binaryContent>$text.cs$</foxml:binaryContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="TEXT_en" STATE="A" CONTROL_GROUP="M" VERSIONABLE="false">
+<foxml:datastreamVersion ID="TEXT_en.1" LABEL="Description en" CREATED="2016-12-22T19:34:18.973Z" MIMETYPE="text/plain">
+<foxml:binaryContent>$text.en$</foxml:binaryContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+</foxml:digitalObject>
+>>

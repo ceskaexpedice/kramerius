@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sparql xmlns="http://www.w3.org/2001/sw/DataAccess/rf1/result">
+	<results>
+		<result>
+			<object uri="info:fedora/vc:3d466a99-6dca-4113-87d9-831673bae580" />
+			<title>"vc:3d466a99-6dca-4113-87d9-831673bae580"</title>
+			<canLeave>"canLeave:false"</canLeave>
+		</result>
+		<result>
+			<object uri="info:fedora/vc:217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef" />
+			<title>"vc:217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef"</title>
+			<canLeave>"canLeave:false"</canLeave>
+		</result>
+		<result>
+			<object uri="info:fedora/vc:64b95a45-6ead-4bf1-aa93-c31b0ccbf646" />
+			<title>"vc:64b95a45-6ead-4bf1-aa93-c31b0ccbf646"</title>
+			<canLeave>"canLeave:false"</canLeave>
+		</result>
+		<result>
+			<object uri="info:fedora/vc:a9dd018c-32ed-474b-9ee5-071ebecfdef5" />
+			<title>"vc:a9dd018c-32ed-474b-9ee5-071ebecfdef5"</title>
+			<canLeave>"canLeave:false"</canLeave>
+		</result>
+		<result>
+			<object uri="info:fedora/vc:25463364-b86b-4f2b-8fb3-598b55efa09f" />
+			<title>"vc:25463364-b86b-4f2b-8fb3-598b55efa09f"</title>
+			<canLeave>"canLeave:false"</canLeave>
+		</result>
+	</results>
+</sparql>

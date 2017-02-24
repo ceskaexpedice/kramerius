@@ -33,6 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -40,6 +41,8 @@ import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.virtualcollections.CollectionException;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
 @Path("/v5.0/rights")
 public class ClientRightsResource {
@@ -51,6 +54,10 @@ public class ClientRightsResource {
 
     @Inject
     SolrAccess solrAccess;
+    
+    @Inject
+    @Named("solr")
+    CollectionsManager colGet;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -85,18 +92,21 @@ public class ClientRightsResource {
         } catch (JSONException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());
+        } catch (CollectionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
     private void fullPath(String actionNames, String pid, String stream, ObjectPidsPath[] paths, JSONObject object)
-            throws JSONException {
+            throws JSONException, CollectionException {
 
         StringTokenizer tokenizer = new StringTokenizer(actionNames, ",");
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken();
             object.put(token, new JSONArray());
             for (ObjectPidsPath ph : paths) {
-                ObjectPidsPath nph = ph.injectRepository();
+                ObjectPidsPath nph = ph.injectRepository().injectCollections(this.colGet);
                 boolean[] flags = this.actionAllowed.isActionAllowedForAllPath(token, pid, stream, nph);
                 allowedFor(object.getJSONArray(token), token, nph, flags);
             }
