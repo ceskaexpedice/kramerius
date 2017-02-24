@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.api.k5.client.virtualcollection;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -29,8 +30,9 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
-import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.Collection.Description;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import cz.incad.kramerius.virtualcollections.impl.CDKResourcesFilter;
 import cz.incad.kramerius.virtualcollections.impl.CDKVirtualCollectionsGetImpl;
 
@@ -40,7 +42,8 @@ public class ClientResources {
     public static Logger LOGGER = Logger.getLogger(ClientResources.class.getName());
 
     @Inject
-    VirtualCollectionsManager manager;
+    @Named("fedora")
+    CollectionsManager colManager;
 
     @Inject
     @Named("securedFedoraAccess")
@@ -55,8 +58,7 @@ public class ClientResources {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response oneVirtualCollection(@PathParam("pid") String pid) {
         try {
-            VirtualCollection vc = VirtualCollectionsResource
-                    .findVirtualCollection(this.fedoraAccess, pid);
+            Collection vc = this.colManager.getCollection(pid);
             if (vc != null && this.cdkResFilter.isResource(vc.getPid())) {
                 if (!this.cdkResFilter.isHidden(vc.getPid())) {
                     return Response
@@ -84,10 +86,9 @@ public class ClientResources {
             List<String> resources = this.cdkResFilter.getResources();
             for (String pid : resources) {
                 if (!this.cdkResFilter.isHidden(pid)) {
-                    VirtualCollection vc = VirtualCollectionsResource
-                            .findVirtualCollection(this.fedoraAccess, pid);
-                    if (vc != null) {
-                        jsonArr.put(resourceTOJSON(this.fedoraAccess, vc));
+                    Collection col = this.colManager.getCollection(pid);
+                    if (col != null) {
+                        jsonArr.put(resourceTOJSON(this.fedoraAccess, col));
                     }
                 }
             }
@@ -98,7 +99,7 @@ public class ClientResources {
         }
     }
     
-    public static JSONObject resourceTOJSON(FedoraAccess fa, VirtualCollection vc) throws XPathExpressionException, IOException {
+    public static JSONObject resourceTOJSON(FedoraAccess fa, Collection vc) throws XPathExpressionException, IOException {
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("pid", vc.getPid());
         jsonObj.put("label", vc.getLabel());
@@ -110,9 +111,10 @@ public class ClientResources {
         }
 
         JSONObject jsonMap = new JSONObject();
-        Map<String, String> descMAp = vc.getDescriptionsMap();
-        for (String k : descMAp.keySet()) {
-            jsonMap.put(k, descMAp.get(k));
+        List<Description> descriptions = vc.getDescriptions();
+        Map<String, String> descMAp = new HashMap<String, String>();
+        for (Description description : descriptions) {
+            jsonMap.put(description.getLangCode(), description.getText());
         }
         jsonObj.put("descs", jsonMap);
         
