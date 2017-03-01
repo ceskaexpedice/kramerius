@@ -112,7 +112,6 @@ public class ClientResources {
 
         JSONObject jsonMap = new JSONObject();
         List<Description> descriptions = vc.getDescriptions();
-        Map<String, String> descMAp = new HashMap<String, String>();
         for (Description description : descriptions) {
             jsonMap.put(description.getLangCode(), description.getText());
         }

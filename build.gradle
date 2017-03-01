@@ -206,8 +206,7 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
         from {'client/build/libs'}
         from {'search/build/libs'}
         from {'security-core/build/libs'}
-        from configurations.editors
-        from {'build/installation'}
+        //from {'build/installation'}
         from 'build/distributions/kramerius-javadoc.zip'
 	eachFile {
 		it.path = it.path.replace('-5.1.0.war', '.war')
