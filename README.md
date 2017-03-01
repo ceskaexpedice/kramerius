@@ -26,9 +26,9 @@ Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Mo
 KNAV - M. Lhoták, M. Duda, I. Šlapáková; 
 NK ČR – T. Foltýn, R. Kreibich, V. Jiroušek, K. Košťálová; 
 MZK – L. Damborská, P. Žabička, M. Indrák; 
-NTK – J. Kolátor; 
+NTK – J. Kolátor, J. Dobiášovský; 
 NLK – F. Kříž; 
-INCAD – P. Kocourek, V. Lahoda
+INCAD – P. Kocourek, P. Šťastný;
 
 Koordinátorem současného vývoje je Knihovna Akademie věd ČR zastoupená ředitelem Ing. Martinem Lhotákem.
 
@@ -49,6 +49,14 @@ V letech 2012 - 2015 bylo financování vývoje zajištěno díky projektu "Čes
 
 V předchozích letech byl vývoj systému Kramerius průběžně financován z různých dotačních programů Akademie věd ČR a Ministerstva kultury ČR. 
 
+##Plánovaný vývoj na rok 2017
+
+- přechod na Fedoru 4 nebo jiné řešení
+- nové uživatelské rozhraní
+
+###Vývoj na rok 2018
+
+- úprava administrátorského rozhraní - přesun na 2018
 
 ##Instalace
 Instalační balík je k dispozici v sekci Releases na adrese https://github.com/ceskaexpedice/kramerius/releases/latest . 
