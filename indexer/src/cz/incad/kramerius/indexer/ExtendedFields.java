@@ -33,6 +33,11 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
+//----------------------------------------
+import org.apache.commons.io.IOUtils;
+import java.io.File;
+
 /**
  *
  * @author Alberto
@@ -100,20 +105,30 @@ public class ExtendedFields {
 
     public void setPDFDocument(String pid) throws Exception {
         if (!pdfPid.equals(pid)) {
+            InputStream is = null;
             try {
             pdfPid = "";
             closePDFDocument();
-                InputStream is = fa.getDataStream(pid, "IMG_FULL");
+                is = fa.getDataStream(pid, "IMG_FULL");
+
+                //File pdfImg = new File("/usr/local/tomcat/temp/"+pid+".tmp");
+
+                File pdfImg = File.createTempFile(pid,null);
+                pdfImg.deleteOnExit();
+                java.nio.file.Files.copy(is,pdfImg.toPath(),java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+
                 if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdf.loadNonSeq", false)){
-                    pdDoc = PDDocument.load(is, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
+                    pdDoc = PDDocument.load(pdfImg, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
                 }else{
-                    pdDoc = PDDocument.load(is, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
+                    pdDoc = PDDocument.load(pdfImg, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
                 }
                 pdfPid = pid;
 
 
             } catch (Exception ex) {
                 closePDFDocument();
+                IOUtils.closeQuietly(is);
                 logger.log(Level.WARNING, "Cannot parse PDF document", ex);
             }
 
