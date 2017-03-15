@@ -11,10 +11,11 @@ import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.audio.AudioLifeCycleHook;
+import cz.incad.kramerius.audio.CacheLifeCycleHook;
 import cz.incad.kramerius.audio.urlMapping.CachingFedoraUrlManager;
-import cz.incad.kramerius.audio.urlMapping.MockUrlManager;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
+import cz.incad.kramerius.impl.CachedFedoraAccessImpl;
+import cz.incad.kramerius.impl.CachedSolrAccessImpl;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
@@ -33,17 +34,13 @@ import cz.incad.kramerius.service.impl.GoogleAnalyticsImpl;
 import cz.incad.kramerius.service.impl.METSServiceImpl;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.statistics.filters.DateFilter;
-import cz.incad.kramerius.statistics.filters.ModelFilter;
-import cz.incad.kramerius.statistics.filters.StatisticsFilter;
-import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
-import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.statistics.impl.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
 import cz.incad.kramerius.virtualcollections.impl.solr.SolrCollectionManagerImpl;
+import org.ehcache.CacheManager;
 
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
@@ -60,6 +57,9 @@ public class BaseModule extends AbstractModule {
     protected void configure() {
         bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
         bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(SecuredFedoraAccessImpl.class).in(Scopes.SINGLETON);
+        bind(FedoraAccess.class).annotatedWith(Names.named("cachedFedoraAccess")).to(CachedFedoraAccessImpl.class).in(Scopes.SINGLETON);
+
+
         bind(StatisticsAccessLog.class).to(DatabaseStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
         
         Multibinder<StatisticReport> reports = Multibinder.newSetBinder(binder(), StatisticReport.class);
@@ -70,6 +70,7 @@ public class BaseModule extends AbstractModule {
 
         
         bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
+        bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);
 
         bind(METSService.class).to(METSServiceImpl.class);
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
@@ -96,10 +97,12 @@ public class BaseModule extends AbstractModule {
         bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
 
         
-        bind(RepositoryUrlManager.class).to(CachingFedoraUrlManager.class).in(Scopes.SINGLETON); //TODO: implement correct shutdown (Issue 567)
+        bind(RepositoryUrlManager.class).to(CachingFedoraUrlManager.class).in(Scopes.SINGLETON);
+
+        bind(CacheManager.class).toProvider(CacheProvider.class).in(Scopes.SINGLETON);
 
         Multibinder<LifeCycleHook> lfhooks = Multibinder.newSetBinder(binder(), LifeCycleHook.class);
-        lfhooks.addBinding().to(AudioLifeCycleHook.class);
+        lfhooks.addBinding().to(CacheLifeCycleHook.class);
     }
 
     @Provides
