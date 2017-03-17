@@ -49,14 +49,6 @@ V letech 2012 - 2015 bylo financování vývoje zajištěno díky projektu "Čes
 
 V předchozích letech byl vývoj systému Kramerius průběžně financován z různých dotačních programů Akademie věd ČR a Ministerstva kultury ČR. 
 
-##Plánovaný vývoj na rok 2017
-
-- přechod na Fedoru 4 nebo jiné řešení
-- nové uživatelské rozhraní
-
-###Vývoj na rok 2018
-
-- úprava administrátorského rozhraní - přesun na 2018
 
 ##Instalace
 Instalační balík je k dispozici v sekci Releases na adrese https://github.com/ceskaexpedice/kramerius/releases/latest . 
