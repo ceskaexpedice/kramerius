@@ -12,7 +12,6 @@ import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.RESTHelper;
-import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
@@ -36,9 +35,8 @@ import java.util.logging.Level;
  */
 public class IiifServlet extends AbstractImageServlet {
 
-
-
     @Inject
+    @Named("cachedSolrAccess")
     private SolrAccess solrAccess;
 
     @Inject
@@ -48,10 +46,10 @@ public class IiifServlet extends AbstractImageServlet {
     private Provider<User> userProvider;
 
     @Inject
-    @Named("securedFedoraAccess")
-    protected transient FedoraAccess fedoraAccess;
+    @Named("cachedFedoraAccess")
+    private transient FedoraAccess fedoraAccess;
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(IiifServlet.class.getName());
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(IiifServlet.class.getName());
 
 
     @Override
@@ -79,10 +77,10 @@ public class IiifServlet extends AbstractImageServlet {
         if (permited) {
             try {
                 String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
-                StringBuffer url = new StringBuffer(u);
+                StringBuilder url = new StringBuilder(u);
                 while (tokenizer.hasMoreTokens()) {
                     String nextToken = tokenizer.nextToken();
-                    url.append("/" + nextToken);
+                    url.append("/").append(nextToken);
                     if ("info.json".equals(nextToken)) {
                         resp.setContentType("application/ld+json");
                         resp.setCharacterEncoding("UTF-8");

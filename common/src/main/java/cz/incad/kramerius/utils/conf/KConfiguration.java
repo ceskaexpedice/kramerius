@@ -300,6 +300,10 @@ public class KConfiguration {
         return getConfiguration().getString("googleanalytics.webpropertyid");
     }
 
+    public int getCacheTimeToLiveExpiration() {
+        return getConfiguration().getInt("cache.timeToLiveExpiration", 60);
+    }
+
     
     private static String normalizeURL(String url) {
         if (url != null) {

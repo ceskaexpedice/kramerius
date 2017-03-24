@@ -79,7 +79,7 @@ dependencies {
     compile "com.sun.jersey.contribs:jersey-guice:${jerseyversion}"
 
     // for audio support 
-    compile 'net.sf.ehcache:ehcache:2.6.0'
+    compile 'org.ehcache:ehcache:3.3.0'
     compile 'org.apache.httpcomponents:httpclient:4.3.2'
  
     // dependencies in maven profile
