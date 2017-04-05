@@ -10,7 +10,6 @@ import cz.incad.kramerius.rest.api.k5.client.item.utils.IIIFUtils;
 import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.utils.ApplicationURL;
-import cz.incad.kramerius.utils.RESTHelper;
 import de.digitalcollections.iiif.presentation.model.api.v2.Canvas;
 import de.digitalcollections.iiif.presentation.model.api.v2.IiifResource;
 import de.digitalcollections.iiif.presentation.model.api.v2.Image;
@@ -27,8 +26,13 @@ import de.digitalcollections.iiif.presentation.model.impl.v2.ManifestImpl;
 import de.digitalcollections.iiif.presentation.model.impl.v2.PropertyValueSimpleImpl;
 import de.digitalcollections.iiif.presentation.model.impl.v2.SequenceImpl;
 import de.digitalcollections.iiif.presentation.model.impl.v2.ServiceImpl;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.nio.client.HttpAsyncClient;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import javax.inject.Inject;
@@ -42,16 +46,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * IiiPresentationApi
@@ -61,6 +66,9 @@ import java.util.List;
 @Path("/")
 public class IiifAPI {
 
+    private static final Logger LOGGER = Logger.getLogger(IiifAPI.class.getName());
+
+    @Inject
     private SolrMemoization solrMemoization;
 
     private FedoraAccess fedoraAccess;
@@ -71,13 +79,16 @@ public class IiifAPI {
 
     private URI iiifUri;
 
+    private HttpAsyncClient asyncClient;
+
     @Inject
     public IiifAPI(SolrMemoization solrMemoization, @Named("cachedFedoraAccess") FedoraAccess fedoraAccess,
-                   SolrAccess solrAccess, Provider<HttpServletRequest> requestProvider) {
+                   SolrAccess solrAccess, Provider<HttpServletRequest> requestProvider, HttpAsyncClient asyncClient) {
         this.solrMemoization = solrMemoization;
         this.fedoraAccess = fedoraAccess;
         this.solrAccess = solrAccess;
         this.requestProvider = requestProvider;
+        this.asyncClient = asyncClient;
 
         try {
             this.iiifUri = new URI(ApplicationURL.applicationURL(this.requestProvider.get()) + "/iiif-presentation/");
@@ -100,6 +111,8 @@ public class IiifAPI {
             List<Canvas> canvases = new ArrayList<Canvas>();
             List<String> children = ItemResourceUtils.solrChildrenPids(pid, fieldList, solrAccess, solrMemoization);
 
+            Map<String, Pair<Integer, Integer>> resolutions = getResolutions(children);
+
             for (String p : children) {
                 String repPid = p.replace("/", "");
                 if (repPid.equals(pid)) {
@@ -110,13 +123,13 @@ public class IiifAPI {
                 if (!"page".equals(page.getModel())) continue;
 
                 String id = ApplicationURL.applicationURL(this.requestProvider.get()) + "/canvas/" + repPid;
-                Pair<Integer, Integer> resolution = getResolution(repPid);
+                Pair<Integer, Integer> resolution = resolutions.get(p);
                 if (resolution != null) {
                     Canvas canvas = new CanvasImpl(id, new PropertyValueSimpleImpl(page.getTitle()), resolution.getLeft(),
                             resolution.getRight());
 
                     ImageResource resource = new ImageResourceImpl();
-                    String resourceId = ApplicationURL.applicationURL(this.requestProvider.get()) + "/iiif/"
+                    String resourceId = ApplicationURL.applicationURL(this.requestProvider.get()).toString() + "/iiif/"
                             + repPid + "/full/full/0/default.jpg";
                     resource.setType("dctypes:Image");
                     resource.setId(resourceId);
@@ -127,7 +140,7 @@ public class IiifAPI {
                     Service service = new ServiceImpl();
                     service.setContext("http://iiif.io/api/image/2/context.json");
                     service.setId(
-                            ApplicationURL.applicationURL(this.requestProvider.get()) + "/iiif/" + repPid);
+                            ApplicationURL.applicationURL(this.requestProvider.get()).toString() + "/iiif/" + repPid);
                     service.setProfile("http://iiif.io/api/image/2/level1.json");
 
                     resource.setService(service);
@@ -154,46 +167,72 @@ public class IiifAPI {
             throw new GenericApplicationException(e.getMessage());
         } catch (URISyntaxException e) {
             throw new GenericApplicationException(e.getMessage());
-        } catch (XPathExpressionException e) {
+        } catch (InterruptedException e) {
             throw new GenericApplicationException(e.getMessage());
         }
     }
+
 
     private String toJSON(IiifResource resource) throws JsonProcessingException {
         IiifPresentationApiObjectMapper objectMapper = new IiifPresentationApiObjectMapper();
         return objectMapper.writeValueAsString(resource);
     }
 
-    private Pair<Integer, Integer> getResolution(String pid) throws XPathExpressionException, IOException {
-        String iiifEndpoint = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
-        return iiifEndpoint != null ? resolution(iiifEndpoint) : null;
-    }
+    private Map<String, Pair<Integer, Integer>> getResolutions(List<String> children) throws IOException, InterruptedException {
+        final Map<String, Pair<Integer, Integer>> resolutions = new HashMap<String, Pair<Integer, Integer>>();
 
-    private Pair<Integer, Integer> resolution(String url) throws IOException {
-        URLConnection con = RESTHelper.openConnection(url + "/info.json", "", "");
-        InputStream inputStream = con.getInputStream();
-        String json = org.apache.commons.io.IOUtils.toString(inputStream, Charset.defaultCharset());
-        final org.json.JSONObject jsonObject = new org.json.JSONObject(json);
+        final CountDownLatch latch = new CountDownLatch(children.size());
+        for (final String pid : children) {
+            String iiifEndpoint = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+            if (iiifEndpoint != null) {
+                HttpGet request = new HttpGet(iiifEndpoint + "/info.json");
+                asyncClient.execute(request, new FutureCallback<HttpResponse>() {
 
-        final Integer width = jsonObject.getInt("width");
-        final Integer height = jsonObject.getInt("height");
+                    @Override
+                    public void completed(HttpResponse httpResponse) {
+                        try {
+                            String json = IOUtils.toString(httpResponse.getEntity().getContent());
+                            final JSONObject jsonObject = new JSONObject(json);
 
-        return new Pair<Integer, Integer>() {
-            @Override
-            public Integer getLeft() {
-                return height;
+                            Pair resolution = new Pair<Integer, Integer>() {
+                                    @Override
+                                    public Integer getLeft() {
+                                        return jsonObject.getInt("height");
+                                    }
+
+                                    @Override
+                                    public Integer getRight() {
+                                        return jsonObject.getInt("width");
+                                    }
+
+                                    @Override
+                                    public Integer setValue(Integer value) {
+                                        return null;
+                                    }
+                                };
+                            resolutions.put(pid, resolution);
+                        } catch (IOException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage());
+                        }
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void failed(Exception e) {
+                        latch.countDown();
+                        LOGGER.log(Level.SEVERE, e.getMessage());
+                    }
+
+                    @Override
+                    public void cancelled() {
+                        latch.countDown();
+                    }
+                });
             }
+        }
+        latch.await();
 
-            @Override
-            public Integer getRight() {
-                return width;
-            }
-
-            @Override
-            public Integer setValue(Integer value) {
-                return null;
-            }
-        };
+        return resolutions;
     }
 
     private DocumentDto getIiifDocument(String pid) throws IOException {
@@ -201,10 +240,11 @@ public class IiifAPI {
         if (indexDoc == null) {
             indexDoc = this.solrMemoization.askForIndexDocument(pid);
         }
-        return new DocumentDto(pid, indexDoc);
+        DocumentDto document = new DocumentDto(pid, indexDoc);
+        return document;
     }
 
-    private void checkPid(String pid) throws PIDNotFound {
+    protected void checkPid(String pid) throws PIDNotFound {
         try {
             if (PIDSupport.isComposedPID(pid)) {
                 String p = PIDSupport.first(pid);
