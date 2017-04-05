@@ -28,6 +28,7 @@ import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 
 /**
  * @author pavels
@@ -57,6 +58,7 @@ public class BenevolentModelFilter  extends AbstractCriterium implements RightCr
             for (ObjectPidsPath pth : pathsToRoot) {
                 String[] pids = pth.getPathFromLeafToRoot();
                 for (String pid : pids) {
+                    if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
                     String modelName = fa.getKrameriusModelName(pid);
                     if (containsModelName(params,modelName)) return EvaluatingResult.TRUE;
                 }
