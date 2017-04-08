@@ -97,8 +97,6 @@ public class IiifServlet extends AbstractImageServlet {
                     }
                 }
                 copyFromImageServer(url.toString(), req, resp);
-            } catch (XPathExpressionException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage());
             } catch (JSONException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage());
             }
