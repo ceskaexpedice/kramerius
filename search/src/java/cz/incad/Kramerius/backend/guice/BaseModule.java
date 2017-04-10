@@ -26,6 +26,8 @@ import cz.incad.kramerius.processes.impl.GCSchedulerImpl;
 import cz.incad.kramerius.processes.impl.ProcessSchedulerImpl;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
+import cz.incad.kramerius.rest.api.guice.HttpAsyncClientLifeCycleHook;
+import cz.incad.kramerius.rest.api.guice.HttpAsyncClientProvider;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.service.GoogleAnalytics;
 import cz.incad.kramerius.service.LifeCycleHook;
@@ -40,6 +42,7 @@ import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
 import cz.incad.kramerius.virtualcollections.impl.solr.SolrCollectionManagerImpl;
+import org.apache.http.nio.client.HttpAsyncClient;
 import org.ehcache.CacheManager;
 
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
@@ -100,9 +103,11 @@ public class BaseModule extends AbstractModule {
         bind(RepositoryUrlManager.class).to(CachingFedoraUrlManager.class).in(Scopes.SINGLETON);
 
         bind(CacheManager.class).toProvider(CacheProvider.class).in(Scopes.SINGLETON);
+        bind(HttpAsyncClient.class).toProvider(HttpAsyncClientProvider.class).in(Scopes.SINGLETON);
 
         Multibinder<LifeCycleHook> lfhooks = Multibinder.newSetBinder(binder(), LifeCycleHook.class);
         lfhooks.addBinding().to(CacheLifeCycleHook.class);
+        lfhooks.addBinding().to(HttpAsyncClientLifeCycleHook.class);
     }
 
     @Provides

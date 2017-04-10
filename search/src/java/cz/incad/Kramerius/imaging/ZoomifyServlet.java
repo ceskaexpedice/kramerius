@@ -261,7 +261,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
             StringTemplate dziUrl = stGroup().getInstanceOf("zoomify");
             if (urlForStream.endsWith("/")) urlForStream = urlForStream.substring(0, urlForStream.length()-1);
             dziUrl.setAttribute("url", urlForStream);
-            copyFromImageServer(dziUrl.toString(), null, resp);
+            copyFromImageServer(dziUrl.toString(), resp);
         }
     }
 
@@ -364,7 +364,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
             tileUrl.setAttribute("x", x);
             tileUrl.setAttribute("y", y);
             tileUrl.setAttribute("ext", ext);
-            copyFromImageServer(tileUrl.toString(), null, resp);
+            copyFromImageServer(tileUrl.toString(), resp);
         }
     }
 }
