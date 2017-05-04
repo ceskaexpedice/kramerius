@@ -501,8 +501,9 @@ ClientAPIDev.prototype = {
     gotoItemPage : function(pid, withParams) {
         var href = "";
         if (withParams) {
-            $('#search_form input[name="page"]').val("doc")
-            href += "index.vm?" + $("#search_form").serialize() + "#" + pid;
+            $('#search_form input[name="page"]').val("doc");
+            href += "index.vm?page=doc&" + $("#search_form").serialize() + "#" + pid;
+            $('#search_form input[name="page"]').val("search");
         } else {
             href += "index.vm?page=doc#" + pid;
         }
