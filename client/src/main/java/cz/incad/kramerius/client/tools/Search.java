@@ -153,7 +153,9 @@ public class Search {
 
     public JSONObject getHome() {
         try {
-            String url = apipoint + "/search" + "?q=*:*&wt=json&facet=true&rows=0&facet.field=model_path&facet.field=collection&facet.field=dostupnost";
+            String url = apipoint + "/search" 
+                    + "?q=*:*&wt=json&rows=0&facet=true&facet.mincount=1" 
+                    + "&facet.field=model_path&facet.field=collection&facet.field=dostupnost";
             return new JSONObject(getJSON(url));
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);

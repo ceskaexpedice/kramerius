@@ -104,6 +104,11 @@ Facets.prototype = {
         if(this.isUsed(key, val)){
             return;
         }
+        
+        if(count === 0){
+          return;
+        }
+        
         var div2 = $('<div/>', {class: 'res'});
         var a = $('<a/>', {class: 'res'});
 
