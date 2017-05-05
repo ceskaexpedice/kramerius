@@ -23,6 +23,7 @@ include	'search'
 include 'client'
 include 'mw-process'
 include 'authfilters'
+include 'solr-migration'
 	
 
 // filter property -DremoveProjs=projectA,projectB,..
