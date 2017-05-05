@@ -83,9 +83,10 @@ Results.prototype = {
 
     },
     onScroll: function() {
-        if ($('#search_results_docs .more_docs').length > 0) {
+        if ($('#search_results_docs .more_docs').length > 0 && !this.loadingDocs) {
             var el = $('#search_results_docs .more_docs');
             if (isScrolledIntoView($(el), $('#search_results_docs'))) {
+              this.loadingDocs = true;
                 var start = $('#search_results_docs .more_docs').data('start');
                 $("#start").val(start);
                 this.getDocs();
@@ -105,6 +106,7 @@ Results.prototype = {
                 this.srResize();
             }
             $('.opacityloading').hide();
+            this.loadingDocs = false;
             this.resultsLoaded = true;
         }, this));
     },
