@@ -35,7 +35,7 @@
     <input id="sort" name="sort" type="hidden" value="${param.sort}" /> 
     <input type="text"
            alt="" name="q" id="q"
-           value="${param.q}" size="50"
+           value="${fn:escapeXml(param.q)}" size="50"
            class="${qclass}" type="text" onclick="checkSearchInput();"> &nbsp;
     <input class="submit" title="Vyhledat" type="submit" value="" />
     <span><a href="javascript:toggleAdv();"
