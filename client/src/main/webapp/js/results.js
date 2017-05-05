@@ -44,7 +44,7 @@ Results.prototype = {
             }
         }, this));
 
-        this.getDocs();
+        this.getDocs(false);
         var hash = hashParser();
         if (hash.hasOwnProperty(this.displayStyle) > 1) {
             if (hash[this.displayStyle] === "asrow")
@@ -89,14 +89,16 @@ Results.prototype = {
               this.loadingDocs = true;
                 var start = $('#search_results_docs .more_docs').data('start');
                 $("#start").val(start);
-                this.getDocs();
+                this.getDocs(true);
             }
         }
     },
-    getDocs: function() {
+    getDocs: function(isMore) {
         $('.opacityloading').show();
         this.srResize();
-        $.get("raw_results.vm?" + $("#search_form").serialize(), _.bind(function(data) {
+        var start = isMore ? $("#start").val() : 0 ; 
+        
+        $.get("raw_results.vm?" + $("#search_form").serialize() + "&start=" + start, _.bind(function(data) {
             //console.log(data);
             $('#search_results_docs .more_docs').remove();
             var json = jQuery.parseJSON(data);
