@@ -42,11 +42,21 @@ K5.eventsHandler.addHandler(function(type, configuration) {
     }
         
     if (type === "application/keys/left") {
+      if($("#viewer>div.searchinside").is(":visible") || $("#q").is(":focus")){
+        return;
+      } else {
+        configuration[0].preventDefault(); // prevent the default action (scroll / move caret)
         K5.gui["selected"].prev();
+      }
     }
 
     if (type === "application/keys/right") {
+      if($("#viewer>div.searchinside").is(":visible") || $("#q").is(":focus")){
+        return;
+      } else {
+        configuration[0].preventDefault(); // prevent the default action (scroll / move caret)
         K5.gui["selected"].next();
+      }
     }
 
     if (type === "window/resized") {

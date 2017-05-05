@@ -355,12 +355,12 @@ function Application() {
                 $(document).keydown(function(e) {
                     switch(e.which) {
                         case 37: // left
-                        K5.eventsHandler.trigger("application/keys/left",[]);
+                        K5.eventsHandler.trigger("application/keys/left",[e]);
                         break;
 
 
                         case 39: // right
-                        K5.eventsHandler.trigger("application/keys/right",[]);
+                        K5.eventsHandler.trigger("application/keys/right",[e]);
                         break;
                         
                         case 27: // escape. Close dialogs
@@ -370,7 +370,7 @@ function Application() {
 
                         default: return; // exit this handler for other keys
                     }
-                    e.preventDefault(); // prevent the default action (scroll / move caret)
+                    //e.preventDefault(); // prevent the default action (scroll / move caret)
                 });
 
                 //prevent scrolling
