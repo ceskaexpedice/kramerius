@@ -34,7 +34,8 @@ public class Image extends AbstractITextCommand implements ITextCommand {
             String pid = elm.getAttribute("pid");
             if ((pid != null) && (!pid.equals(""))) {
                 this.pid = pid;
-            } else if ((file != null) && (!file.equals(""))) {
+            } 
+            if ((file != null) && (!file.equals(""))) {
                 this.file = file;
             } else {
                 LOGGER.log(Level.WARNING, "cannot load image component. No pid, no file "); 

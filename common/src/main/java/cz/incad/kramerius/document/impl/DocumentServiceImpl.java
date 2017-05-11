@@ -210,6 +210,7 @@ public class DocumentServiceImpl implements DocumentService {
                     throws ProcessSubtreeException {
                 try {
                     AbstractPage page = createPage(renderedDocument, pid);
+                    
                     renderedDocument.addPage(page);
                     if (previousLevel == -1) {
                         // first
@@ -293,8 +294,11 @@ public class DocumentServiceImpl implements DocumentService {
         });
 
     }
+    
+    
 
-    protected AbstractPage createPage(final PreparedDocument renderedDocument,
+
+	protected AbstractPage createPage(final PreparedDocument renderedDocument,
             String pid) throws LexerException, IOException {
 
         try {
@@ -361,62 +365,59 @@ public class DocumentServiceImpl implements DocumentService {
                 }
 
             } else {
-                // metadata
+                    page = new ImagePage(modelName,
+                            this.fedoraAccess.findFirstViewablePid(pid));
+                    page.setOutlineDestination(pid);
 
-                page = new ImagePage(modelName,
-                        this.fedoraAccess.findFirstViewablePid(pid));
-                page.setOutlineDestination(pid);
+                    page.setBiblioMods(biblioMods);
+                    page.setDc(dc);
 
-                page.setBiblioMods(biblioMods);
-                page.setDc(dc);
+                    Map<String, List<String>> map = new HashMap<String, List<String>>();
+                    PageNumbersBuilder pageNumbersBuilder = new PageNumbersBuilder();
+                    pageNumbersBuilder.build(biblioMods, map, modelName);
+                    List<String> pageNumbers = map
+                            .get(PageNumbersBuilder.MODS_PAGENUMBER);
+                    pageNumbers = pageNumbers != null ? pageNumbers
+                            : new ArrayList<String>();
+                    String pageNumber = pageNumbers.isEmpty() ? "" : pageNumbers
+                            .get(0);
 
-                Map<String, List<String>> map = new HashMap<String, List<String>>();
-                PageNumbersBuilder pageNumbersBuilder = new PageNumbersBuilder();
-                pageNumbersBuilder.build(biblioMods, map, modelName);
-                List<String> pageNumbers = map
-                        .get(PageNumbersBuilder.MODS_PAGENUMBER);
-                pageNumbers = pageNumbers != null ? pageNumbers
-                        : new ArrayList<String>();
-                String pageNumber = pageNumbers.isEmpty() ? "" : pageNumbers
-                        .get(0);
-
-                page.setPageNumber(pageNumber);
-                // renderedDocument.addPage(page);
-                Element part = XMLUtils.findElement(
-                        biblioMods.getDocumentElement(), "part",
-                        FedoraNamespaces.BIBILO_MODS_URI);
-                String attribute = part != null ? part.getAttribute("type")
-                        : null;
-                if (attribute != null) {
-                    String key = "pdf." + attribute;
-                    if (resourceBundle.containsKey(key)) {
-                        page.setOutlineTitle(page.getPageNumber() + " "
-                                + resourceBundle.getString(key));
-                    } else {
-                        page.setOutlineTitle(page.getPageNumber());
-                        // throw new RuntimeException("");
+                    page.setPageNumber(pageNumber);
+                    // renderedDocument.addPage(page);
+                    Element part = XMLUtils.findElement(
+                            biblioMods.getDocumentElement(), "part",
+                            FedoraNamespaces.BIBILO_MODS_URI);
+                    String attribute = part != null ? part.getAttribute("type")
+                            : null;
+                    if (attribute != null) {
+                        String key = "pdf." + attribute;
+                        if (resourceBundle.containsKey(key)) {
+                            page.setOutlineTitle(page.getPageNumber() + " "
+                                    + resourceBundle.getString(key));
+                        } else {
+                            page.setOutlineTitle(page.getPageNumber());
+                            // throw new RuntimeException("");
+                        }
                     }
-                }
-                if ((renderedDocument.getUuidTitlePage() == null)
-                        && ("TitlePage".equals(attribute))) {
-                    renderedDocument.setUuidTitlePage(pid);
-                }
+                    if ((renderedDocument.getUuidTitlePage() == null)
+                            && ("TitlePage".equals(attribute))) {
+                        renderedDocument.setUuidTitlePage(pid);
+                    }
 
-                if ((renderedDocument.getUuidFrontCover() == null)
-                        && ("FrontCover".equals(attribute))) {
-                    renderedDocument.setUuidFrontCover(pid);
-                }
+                    if ((renderedDocument.getUuidFrontCover() == null)
+                            && ("FrontCover".equals(attribute))) {
+                        renderedDocument.setUuidFrontCover(pid);
+                    }
 
-                if ((renderedDocument.getUuidBackCover() == null)
-                        && ("BackCover".equals(attribute))) {
-                    renderedDocument.setUuidBackCover(pid);
-                }
+                    if ((renderedDocument.getUuidBackCover() == null)
+                            && ("BackCover".equals(attribute))) {
+                        renderedDocument.setUuidBackCover(pid);
+                    }
 
-                if (renderedDocument.getFirstPage() == null) {
-                    renderedDocument.setFirstPage(pid);
-                }
-
-            }
+                    if (renderedDocument.getFirstPage() == null) {
+                        renderedDocument.setFirstPage(pid);
+                    }
+            	}
             return page;
         } catch (XPathExpressionException e) {
             throw new IOException(e);
@@ -439,7 +440,7 @@ public class DocumentServiceImpl implements DocumentService {
                 renderedDocument.mapDCConent(pid,
                         DCUtils.contentFromDC(fedoraAccess.getDC(pid)));
             }
-
+            
             /*
              * renderedDocument.setDocumentTitle(TitlesUtils.title(leaf,
              * this.solrAccess, this.fedoraAccess));
