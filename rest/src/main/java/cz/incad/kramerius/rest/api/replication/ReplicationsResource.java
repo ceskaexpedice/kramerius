@@ -26,10 +26,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -159,13 +161,14 @@ public class ReplicationsResource {
     @GET
     @Path("tree")
     @Produces(MediaType.APPLICATION_JSON)
-    public StreamingOutput prepareExport(@PathParam("pid") String pid) throws ReplicateException {
+    public StreamingOutput prepareExport(@PathParam("pid") String pid,@QueryParam("replicateCollections") @DefaultValue("false")String replicateCollections) throws ReplicateException {
         try {
             ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
             if (checkPermission(pid)) {
                 if (this.fedoraAccess.getRelsExt(pid) != null) {
                     // raw generate to request writer
-                    List<String> pidList = replicationService.prepareExport(pid);
+                	boolean collectionFlag = Boolean.parseBoolean(replicateCollections);
+                	List<String> pidList = replicationService.prepareExport(pid,collectionFlag);
                     // cannot use JSON object -> too big data
                     return new PIDListStreamOutput(pidList, Arrays.asList(paths));
                 } else throw new ObjectNotFound("cannot find pid '"+pid+"'");
@@ -187,13 +190,18 @@ public class ReplicationsResource {
     @GET
     @Path("foxml")
     @Produces(MediaType.APPLICATION_XML+";charset=utf-8")
-    public Response getExportedFOXML(@PathParam("pid")String pid
-    		) throws ReplicateException, UnsupportedEncodingException {
+    public Response getExportedFOXML(@PathParam("pid")String pid,
+    		@QueryParam("replicateCollections") @DefaultValue("false")String replicateCollections) throws ReplicateException, UnsupportedEncodingException {
         try {
             if (checkPermission(pid)) {
-                // musi se vejit do pameti
-                byte[] bytes = replicationService.getExportedFOXML(pid, FormatType.EXTERNALREFERENCES);
-                return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
+            	boolean collectionFlag = Boolean.parseBoolean(replicateCollections);
+            	if (collectionFlag) {
+                	byte[] bytes = replicationService.getExportedFOXML(pid, FormatType.EXTERNALREFERENCES);
+                    return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
+            	} else{
+                	byte[] bytes = replicationService.getExportedFOXML(pid, FormatType.EXTERNALREFERENCESANDREMOVECOLS);
+                    return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
+            	}
             }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");
@@ -216,15 +224,25 @@ public class ReplicationsResource {
     @GET
     @Path("foxml")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getExportedJSONFOXML(@PathParam("pid")String pid) throws ReplicateException, UnsupportedEncodingException {
+    public Response getExportedJSONFOXML(@PathParam("pid")String pid,@QueryParam("replicateCollections") @DefaultValue("false")String replicateCollections) throws ReplicateException, UnsupportedEncodingException {
         try {
             if (checkPermission(pid)) {
                 // musi se vejit do pameti
-                byte[] bytes = replicationService.getExportedFOXML(pid);
-                char[] encoded = Base64Coder.encode(bytes);
-                JSONObject jsonObj = new JSONObject();
-                jsonObj.put("raw", new String(encoded));
-                return Response.ok().entity(jsonObj.toString()).build();
+            	boolean collectionFlag = Boolean.parseBoolean(replicateCollections);
+            	if (collectionFlag) {
+                	byte[] bytes = replicationService.getExportedFOXML(pid,FormatType.EXTERNALREFERENCES);
+                    char[] encoded = Base64Coder.encode(bytes);
+                    JSONObject jsonObj = new JSONObject();
+                    jsonObj.put("raw", new String(encoded));
+                    return Response.ok().entity(jsonObj.toString()).build();
+            	} else{
+                	byte[] bytes = replicationService.getExportedFOXML(pid,FormatType.EXTERNALREFERENCESANDREMOVECOLS);
+                    char[] encoded = Base64Coder.encode(bytes);
+                    JSONObject jsonObj = new JSONObject();
+                    jsonObj.put("raw", new String(encoded));
+                    return Response.ok().entity(jsonObj.toString()).build();
+            	}
+
             }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");

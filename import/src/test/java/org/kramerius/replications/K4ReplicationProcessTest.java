@@ -29,8 +29,15 @@ public class K4ReplicationProcessTest {
     @Test
     public void prepareURL() {
         String goodURL = "http://vmkramerius/handle/uuid:XXXXX";
-        String good = K4ReplicationProcess.prepareURL(goodURL);
+        String good = K4ReplicationProcess.prepareURL(goodURL,"false");
         Assert.assertTrue("http://vmkramerius/api/v4.6/replication/uuid:XXXXX/tree".equals(good));
+    }
+
+    @Test
+    public void prepareURLWithCollection() {
+        String goodURL = "http://vmkramerius/handle/uuid:XXXXX";
+        String good = K4ReplicationProcess.prepareURL(goodURL,"true");
+        Assert.assertTrue("http://vmkramerius/api/v4.6/replication/uuid:XXXXX/tree?replicateCollections=true".equals(good));
     }
     
     
@@ -57,4 +64,5 @@ public class K4ReplicationProcessTest {
         Assert.assertTrue("http://vmkramerius/trouble/doubleapi/v4.6/replication/".equals(bad));
 
     }
+
 }

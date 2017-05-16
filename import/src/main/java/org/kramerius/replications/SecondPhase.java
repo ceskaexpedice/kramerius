@@ -21,13 +21,17 @@ import antlr.TokenStreamException;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+
+import org.apache.kahadb.util.ByteArrayInputStream;
 import org.kramerius.Import;
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
 import org.kramerius.replications.pidlist.PidsListCollect;
+import org.w3c.dom.Document;
 
 import javax.ws.rs.core.MediaType;
 import java.io.*;
@@ -42,11 +46,13 @@ public class SecondPhase extends AbstractPhase  {
     
     private DONEController controller = null;
     private boolean findPid = false;
+    private String replicationCollections;
     
     @Override
-    public void start(String url, String userName, String pswd) throws PhaseException {
+    public void start(String url, String userName, String pswd, String replicationCollections) throws PhaseException {
         this.findPid = false;
         this.controller = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
+        this.replicationCollections = replicationCollections;
         this.processIterate(url, userName, pswd);
     }
 
@@ -59,7 +65,10 @@ public class SecondPhase extends AbstractPhase  {
                 InputStream inputStream = null;
                 try {
                     inputStream = rawFOXMLData(pid, url, userName, pswd);
-                    foxmlfile = foxmlFile(inputStream, pid);
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    IOUtils.copyStreams(inputStream, bos);
+
+                    foxmlfile = foxmlFile(new ByteArrayInputStream(bos.toByteArray()), pid);
                     ingest(foxmlfile);
                     createFOXMLDone(pid);
                 } catch (LexerException e) {
@@ -123,7 +132,7 @@ public class SecondPhase extends AbstractPhase  {
 
     public InputStream rawFOXMLData(String pid, String url, String userName, String pswd) throws PhaseException {
         Client c = Client.create();
-        WebResource r = c.resource(K4ReplicationProcess.foxmlURL(url, pid));
+        WebResource r = c.resource(K4ReplicationProcess.foxmlURL(url, pid, this.replicationCollections));
         r.addFilter(new BasicAuthenticationClientFilter(userName, pswd));
         InputStream t = r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
         return t;
@@ -178,12 +187,13 @@ public class SecondPhase extends AbstractPhase  {
 
 
     @Override
-    public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd) throws PhaseException {
+    public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd, String replicationCollections) throws PhaseException {
         try {
             if (!phaseCompleted) {
                 this.findPid = true;
                 IOUtils.copyFolders(new File(previousProcessRoot, DONE_FOLDER_NAME),new File(DONE_FOLDER_NAME));
                 this.controller = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
+                this.replicationCollections = replicationCollections;
                 processIterate(url, userName, pswd);
             }
         } catch (IOException e) {

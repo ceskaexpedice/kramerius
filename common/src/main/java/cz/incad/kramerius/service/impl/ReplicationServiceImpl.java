@@ -28,11 +28,15 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
@@ -43,7 +47,9 @@ import cz.incad.kramerius.service.ReplicationService;
 import cz.incad.kramerius.service.replication.ExternalReferencesFormat;
 import cz.incad.kramerius.service.replication.FormatType;
 import cz.incad.kramerius.service.replication.ReplicationFormat;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class ReplicationServiceImpl implements ReplicationService{
 
@@ -63,7 +69,7 @@ public class ReplicationServiceImpl implements ReplicationService{
     
     
     @Override
-    public List<String> prepareExport(String pid) throws ReplicateException,IOException {
+    public List<String> prepareExport(String pid, final boolean collections) throws ReplicateException,IOException {
         final List<String> pids = new ArrayList<String>();
         try {
             ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
@@ -83,7 +89,35 @@ public class ReplicationServiceImpl implements ReplicationService{
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
                     if (!pids.contains(pid)) {
-                        pids.add(pid);
+                    	pids.add(pid);
+                    	if (collections) {
+                        	try {
+    							Document relsExt = fedoraAccess.getRelsExt(pid);
+    							List<Element> elementsRecursive = XMLUtils.getElementsRecursive(relsExt.getDocumentElement(), new XMLUtils.ElementsFilter() {
+    								@Override
+    								public boolean acceptElement(Element el) {
+    									String namespaceURI = el.getNamespaceURI();
+    									String localName = el.getLocalName();
+    									if (namespaceURI.equals(FedoraNamespaces.RDF_NAMESPACE_URI) && localName.equals("isMemberOfCollection")) {
+    										return true;
+    									} else  return false;
+    								}
+    							});
+    							
+    							for (Element del : elementsRecursive) {
+    								String collectionsAttribute = del.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+    								if (collectionsAttribute.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
+    									collectionsAttribute = collectionsAttribute.substring(PIDParser.INFO_FEDORA_PREFIX.length());
+    								}
+    								if (!pids.contains(collectionsAttribute)) {
+    									pids.add(collectionsAttribute);
+    								}
+    							}
+    						} catch (IOException e) {
+    				            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+    				            throw new ProcessSubtreeException(e);
+    						}
+                    	}
                     }
                 }
                 
@@ -123,7 +157,7 @@ public class ReplicationServiceImpl implements ReplicationService{
         try {
             byte[] exported = fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
             if (format != null) {
-                return format.formatFoxmlData(exported);
+                return format.formatFoxmlData(exported, null, null);
             } else return exported;
         } catch (SOAPFaultException e) {
             SOAPFault fault = e.getFault();

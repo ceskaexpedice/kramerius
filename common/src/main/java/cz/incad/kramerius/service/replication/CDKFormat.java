@@ -307,7 +307,7 @@ public class CDKFormat implements ReplicationFormat {
 
     @Override
     public byte[] formatFoxmlData(byte[] input) throws ReplicateException {
-        return this.formatFoxmlData(input, new Object[0]);
+        return this.formatFoxmlData(input, null, new Object[0]);
     }
 
 }

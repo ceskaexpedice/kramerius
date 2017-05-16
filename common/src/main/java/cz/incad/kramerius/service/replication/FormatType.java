@@ -10,8 +10,13 @@ public enum FormatType {
 	IDENTITY(IdentityFormat.class), 
 	/** CDK format */
 	CDK(CDKFormat.class), 
+	
 	/** K4 replication format */
-	EXTERNALREFERENCES(ExternalReferencesFormat.class);
+	EXTERNALREFERENCES(ExternalReferencesFormat.class),
+	
+	/** K4 replication format */
+	EXTERNALREFERENCESANDREMOVECOLS(ExternalReferencesAndRemoveCollectionsFormat.class);
+
 
 	private Class<?> clazz;
 

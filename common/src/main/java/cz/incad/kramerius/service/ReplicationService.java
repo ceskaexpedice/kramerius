@@ -33,8 +33,9 @@ public interface ReplicationService {
      * @param pid Root PID
      * @return
      * @throws ReplicateException cannot prepare export
+     * @TODO: do it better; try to get rid off boolean flag
      */
-    public List<String> prepareExport(String pid) throws ReplicateException,IOException;
+    public List<String> prepareExport(String pid, boolean collections) throws ReplicateException,IOException;
 
     /**
      * Returns data of current pid
