@@ -77,11 +77,11 @@
                     <img align="middle" vspace="2" id="img_${col.pid}" src="img?uuid=${col.pid}&stream=IMG_THUMB&action=SCALE&scaledHeight=96" border="0"
                          title="${desc.text}" alt="${desc.text}" />
                 </a>
-                <div style="color:black;text-overflow: ellipsis;font-size:11px">${desc.text}</div>
+                <div style="color:black;text-overflow: ellipsis;font-size:11px">${desc.text} (${col.numberOfDocs})</div>
             </div>
        </c:when>    
       <c:otherwise>
-            <a href="javascript:setVirtualCollection('${col.pid}');">${desc.text}</a>
+            <a href="javascript:setVirtualCollection('${col.pid}');">${desc.text}  (${col.numberOfDocs}) </a>
 
        </c:otherwise>
 </c:choose>

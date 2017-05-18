@@ -17,7 +17,6 @@ public class CollectionItemViewObject {
     private boolean thumbnailAvailable = false;
     private boolean fullAvailable = false;
     
-    
     public CollectionItemViewObject(Collection collection, FedoraAccess fedoraAccess) throws IOException {
         super();
         this.collection = collection;
@@ -36,10 +35,13 @@ public class CollectionItemViewObject {
      * @return the canLeave
      */
     public boolean isCanLeave() {
-        return collection.isCanLeaveFlag();
+    	return collection.isCanLeaveFlag();
+    }
+
+    public int getNumberOfDocs() {
+    	return this.collection.getNumberOfDocs();
     }
     
-
     public boolean isThumbnailAvailable() {
         return thumbnailAvailable;
     }

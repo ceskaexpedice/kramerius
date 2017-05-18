@@ -363,6 +363,7 @@ public class CollectionUtils {
         jsonObj.put("pid", vc.getPid());
         jsonObj.put("label", vc.getLabel());
         jsonObj.put("canLeave", vc.isCanLeaveFlag());
+        jsonObj.put("numberOfDocs", vc.getNumberOfDocs());
         
         
         JSONObject descsMap = new JSONObject();

@@ -14,6 +14,7 @@ public class Collection {
     private String label;
     private boolean canLeaveFlag;
     
+    private int numberOfDocs;
     
     private List<Description> descriptions = new ArrayList<Description>();
     
@@ -61,7 +62,15 @@ public class Collection {
 
     
 
-    @Override
+    public int getNumberOfDocs() {
+		return numberOfDocs;
+	}
+
+	public void setNumberOfDocs(int numberOfDocs) {
+		this.numberOfDocs = numberOfDocs;
+	}
+
+	@Override
     public String toString() {
         return "Collection [pid=" + pid + ", label=" + label + ", canLeaveFlag=" + canLeaveFlag + ", descriptions="
                 + descriptions + "]";
