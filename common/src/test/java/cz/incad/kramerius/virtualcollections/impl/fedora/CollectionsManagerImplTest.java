@@ -63,11 +63,11 @@ public class CollectionsManagerImplTest extends TestCase {
         EasyMock.expect(fa.getDC("vc:a9dd018c-32ed-474b-9ee5-071ebecfdef5")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("a9dd018c-32ed-474b-9ee5-071ebecfdef5.dc.xml"), true)).anyTimes();
         EasyMock.expect(fa.getDC("vc:25463364-b86b-4f2b-8fb3-598b55efa09f")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("25463364-b86b-4f2b-8fb3-598b55efa09f.dc.xml"), true)).anyTimes();
 
-        EasyMock.expect(sa.request("q=collection:(\"vc:3d466a99-6dca-4113-87d9-831673bae580\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
-        EasyMock.expect(sa.request("q=collection:(\"vc:217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
-        EasyMock.expect(sa.request("q=collection:(\"vc:64b95a45-6ead-4bf1-aa93-c31b0ccbf646\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
-        EasyMock.expect(sa.request("q=collection:(\"vc:a9dd018c-32ed-474b-9ee5-071ebecfdef5\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
-        EasyMock.expect(sa.request("q=collection:(\"vc:25463364-b86b-4f2b-8fb3-598b55efa09f\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
+        EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:3d466a99-6dca-4113-87d9-831673bae580\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
+        EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
+        EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:64b95a45-6ead-4bf1-aa93-c31b0ccbf646\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
+        EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:a9dd018c-32ed-474b-9ee5-071ebecfdef5\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
+        EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:25463364-b86b-4f2b-8fb3-598b55efa09f\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
 
         
         EasyMock.expect(fa.isStreamAvailable("vc:3d466a99-6dca-4113-87d9-831673bae580", "TEXT_cs")).andReturn(true).anyTimes();
@@ -160,11 +160,11 @@ public class CollectionsManagerImplTest extends TestCase {
         EasyMock.expect(col.getCollectionListFromResourceIndex()).andReturn(document);
         EasyMock.expect(col.languages()).andReturn(Arrays.asList("cs","en")).anyTimes();
 
-        EasyMock.expect(sa.request("q=collection:(\"vc:3d466a99-6dca-4113-87d9-831673bae580\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
-        EasyMock.expect(sa.request("q=collection:(\"vc:217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
-        EasyMock.expect(sa.request("q=collection:(\"vc:64b95a45-6ead-4bf1-aa93-c31b0ccbf646\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
-        EasyMock.expect(sa.request("q=collection:(\"vc:a9dd018c-32ed-474b-9ee5-071ebecfdef5\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
-        EasyMock.expect(sa.request("q=collection:(\"vc:25463364-b86b-4f2b-8fb3-598b55efa09f\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
+        EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:3d466a99-6dca-4113-87d9-831673bae580\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
+        EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
+        EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:64b95a45-6ead-4bf1-aa93-c31b0ccbf646\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
+        EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:a9dd018c-32ed-474b-9ee5-071ebecfdef5\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
+        EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:25463364-b86b-4f2b-8fb3-598b55efa09f\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
 
         EasyMock.expect(fa.getDC("vc:3d466a99-6dca-4113-87d9-831673bae580")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("3d466a99-6dca-4113-87d9-831673bae580.dc.xml"), true)).anyTimes();
         EasyMock.expect(fa.getDC("vc:217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef.dc.xml"), true)).anyTimes();

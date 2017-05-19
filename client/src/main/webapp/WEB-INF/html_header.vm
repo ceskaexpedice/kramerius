@@ -61,6 +61,23 @@
                          #end
 
                      },
+                     "collections":{
+
+
+						#if($conf.getString('k5client.collection.sort'))
+                            "sort":"$conf.getString('k5client.collection.sort')"
+						#end
+						
+						#if($conf.getString('k5client.collection.sort') && $conf.getString('k5client.collection.sortType'))
+						,
+						#end
+						 
+						
+						#if($conf.getString('k5client.collection.sortType'))
+                            "sortType":"$conf.getString('k5client.collection.sortType')"
+						#end
+                     	
+                     },
                     "authentication":{
                         "k5":true, #if($conf.getString('oauth.googleapis.com.consumer_key')) "gplus":true, #else "gplus":false, #end #if($conf.getString('oauth.graph.facebook.com.consumer_key')) "fb":true #else "fb":false #end
 

@@ -77,7 +77,7 @@ public class SolrCollectionManagerImpl extends AbstractCollectionManager {
         FACET {
             @Override
             protected String constructQueryString() {
-                return "/select?facet.field=collection&facet=on&indent=on&q=*:*&rows=0&wt=json";
+                return "/select?facet.field=collection&facet=on&indent=on&q=*:*&rows=0&wt=json&&facet.mincount=1";
             }
 
             @Override

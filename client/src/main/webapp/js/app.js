@@ -289,7 +289,7 @@ function Application() {
                         K5.api.askForPopular();
                         K5.api.askForCool();
                 }
-
+				
 
                 if (configuration["conf"]["pdf"]) {
                     K5.outputs.pdf.initConfiguration(configuration["conf"]["pdf"]);
@@ -311,6 +311,15 @@ function Application() {
                                 this.gui.clipboard.init(configuration.session["clipboard"]);                                           
                         }
                 }
+
+                if (configuration.conf.collections["sort"]) {
+                        this.gui.vc.sort = configuration.conf.collections["sort"];                                           
+					
+				}
+				
+                if (configuration.conf.collections["sortType"]) {
+                        this.gui.vc.sortType = configuration.conf.collections["sortType"];                                           
+				}
                 
                 //context menu and viewers
                 if (configuration["defs"]) {

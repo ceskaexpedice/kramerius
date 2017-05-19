@@ -144,8 +144,7 @@ public abstract class AbstractCollectionManager implements CollectionsManager {
     }
 
     protected void enhanceNumberOfDocs(Collection col) throws IOException, XPathExpressionException {
- 
-    	Document response = this.sa.request("q=collection:(\""+col.getPid()+"\")&rows=0");
+    	Document response = this.sa.request("fq=level:0&q=collection:(\""+col.getPid()+"\")&rows=0");
     	Element resElement = XMLUtils.findElement(response.getDocumentElement(), "result");
     	if (resElement != null){
     		String attribute = resElement.getAttribute("numFound");

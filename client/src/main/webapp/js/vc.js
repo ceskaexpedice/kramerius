@@ -2,9 +2,11 @@
 /** Represents objects displaying all virtual collections */
 var VirtualCollections = function(application) {
     var f = _.bind(function(type, data) {
-	console.log("event type :"+type);
+      	
+	  console.log("event type :"+type);
       if (type === "i18n/dictionary"){
-        K5.api.askForCollections();
+      	
+        K5.api.askForCollections(this.sort, this.sortType);
       }
       if (type === "api/vc") {
           this.check();

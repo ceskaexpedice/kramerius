@@ -92,9 +92,15 @@ ClientAPIDev.prototype = {
      * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
-    askForCollections : function(whenready) {
-      
-      var url = "api/vc?sort=ASC&langCode=";
+    askForCollections : function(sort, sortType, whenready) {
+	  if (!sort) {
+	  	sort = "ASC";
+	  }
+	  
+	  if (!sortType) {
+		sortType = "ALPHABET"
+	  }
+      var url = "api/vc?sort="+sort+"&sortType="+sortType+"&langCode=";
       if (K5 && K5.i18n.ctx.language){ 
         url += K5.i18n.ctx.language;
       } else {
