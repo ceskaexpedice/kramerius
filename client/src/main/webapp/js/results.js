@@ -311,7 +311,11 @@ Result.prototype = {
         var policy = $('<div/>', {class: 'policy'});
         if (doc['dostupnost']) {
             policy.addClass(doc['dostupnost']);
-            policy.attr("title", doc['dostupnost']);
+            policy.addClass("translate_title");
+            policy.attr("data-key","dostupnost."+doc['dostupnost']);
+            //policy.attr("title", doc['dostupnost']);
+            policy.attr("title", K5.i18n.translate("dostupnost."+doc['dostupnost']));
+			
         }
 
         var divimg = $('<div/>', {class: 'img'});

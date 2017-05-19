@@ -93,19 +93,20 @@ ClientAPIDev.prototype = {
      * @method
      */
     askForCollections : function(sort, sortType, whenready) {
-	  if (!sort) {
-	  	sort = "ASC";
-	  }
 	  
-	  if (!sortType) {
-		sortType = "ALPHABET"
-	  }
-      var url = "api/vc?sort="+sort+"&sortType="+sortType+"&langCode=";
-      if (K5 && K5.i18n.ctx.language){ 
-        url += K5.i18n.ctx.language;
-      } else {
-        url += 'cs'; 
-      }
+	  var url = "api/vc";
+	  if (sort) {
+		  if (!sortType) {
+			sortType = "ALPHABET"
+	  	  }
+		  url = "api/vc?sort="+sort+"&sortType="+sortType+"&langCode="		  	
+	      if (K5 && K5.i18n.ctx.language){ 
+    	    url += K5.i18n.ctx.language;
+      	  } else {
+        	url += 'cs'; 
+      	  }
+	  }			
+
         $.getJSON(url, _.bind(function(data) {
             var collections = {};
             for (var i = 0; i < data.length; i++) {
