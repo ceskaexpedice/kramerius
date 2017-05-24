@@ -63,13 +63,18 @@
             var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
             results = regex.exec(location.search);
             return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-        }
+        }	
         
     
         function __loginbutton() {
             var lname = $("#username").val();
             var pswd =  $("#password").val();
-            K5.authentication.loginAndRedirect(lname,pswd, 'index.vm', 'index.vm?page=login&error=true'); 
+            var returnurl = getParameterByName("return");
+			if (returnurl) {
+	            K5.authentication.loginAndRedirect(lname,pswd, returnurl, 'index.vm?page=login&error=true&return='+encodeURIComponent(returnurl)); 
+			}  else {
+	            K5.authentication.loginAndRedirect(lname,pswd, 'index.vm', 'index.vm?page=login&error=true'); 
+			}           
         }
 
         function __gplus() {

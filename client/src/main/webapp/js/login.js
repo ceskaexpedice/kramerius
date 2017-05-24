@@ -219,10 +219,10 @@ AuthenticationSupport.prototype = {
                     if (gp || fb) {
                         divopen("div.logoptions");
                     } else {
-                        link('?page=login');
+                        linkWithReturn('?page=login');
                     }
                 } else {
-                    link('?page=login');
+                    linkWithReturn('?page=login');
                 }
             },this);
             
