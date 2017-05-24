@@ -185,7 +185,7 @@ public class ClientVirtualCollections {
     		SortType selVal = null;
     		SortType[] values = CollectionsManager.SortType.values();
     		for (SortType sortType : values) {
-                if (sortType.equals(sortType)) {
+                if (sortType.name().equals(sType)) {
                 	selVal = sortType;
                     break;
                 }
