@@ -245,10 +245,12 @@ public class DatabaseRightsManager implements RightsManager {
     @InitSecurityDatabase
     public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, ObjectPidsPath path, String action, User user) throws RightCriteriumException {
         ObjectPidsPath processPath=path.injectRepository();
-        try {
-            processPath = processPath.injectCollections(this.colGet);
-        } catch (CollectionException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        if (!SpecialObjects.isSpecialObject(uuid)) {
+            try {
+                processPath = processPath.injectCollections(this.colGet);
+            } catch (CollectionException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
         }
 
         //List<String> pids = Arrays.asList(path.injectRepository().getPathFromRootToLeaf());
