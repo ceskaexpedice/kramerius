@@ -95,13 +95,6 @@ public class ObjectPidsPath extends AbstractObjectPath {
                 return this;
             }
         }
-        List<String> collections = new ArrayList<String>();
-        List<Collection> cols = col.getCollections();
-        for (int i = 0,ll=cols.size(); i < ll; i++) {
-            Collection cCol = cols.get(i);
-            collections.add(cCol.getPid());
-        }
-        
         String[] pathFromRoot = this.getPathFromRootToLeaf();
         Set<String> processingCollection = new HashSet<String>();
         Map<String,List<String>> m = new HashMap<String, List<String>>();
@@ -113,14 +106,12 @@ public class ObjectPidsPath extends AbstractObjectPath {
                 JSONArray collectionsArray = itemJSON.getJSONArray("collections");
                 for (int i = 0,ll=collectionsArray.length(); i < ll; i++) {
                     String val = collectionsArray.getString(i);
-                    if (collections.contains(val)) {
-                        if (!m.containsKey(pid)) {
-                            m.put(pid, new ArrayList<String>());
-                        }
-                        if (!processingCollection.contains(val)) {
-                            m.get(pid).add(val);
-                            processingCollection.add(val);
-                        }
+                    if (!m.containsKey(pid)) {
+                        m.put(pid, new ArrayList<String>());
+                    }
+                    if (!processingCollection.contains(val)) {
+                        m.get(pid).add(val);
+                        processingCollection.add(val);
                     }
                 }
             } else {
@@ -164,19 +155,6 @@ public class ObjectPidsPath extends AbstractObjectPath {
         return null;
     }
     
-//    protected JSONArray getVCJSON() {
-//        try {
-//            String apipoint = KConfiguration.getInstance().getConfiguration().getString("api.point");
-//            String loc = apipoint+ (apipoint.endsWith("/") ? "" : "/") +"vc";
-//            InputStream inputStream = RESTHelper.inputStream(loc, "", "");
-//            String string = IOUtils.readAsString(inputStream, Charset.forName("UTF-8"), true);
-//            JSONArray jsonArray = new JSONArray(string);
-//            return jsonArray;
-//        } catch (IOException e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//        }
-//        return null;
-//    }
     
     
     @Override
