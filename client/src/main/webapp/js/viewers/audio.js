@@ -64,7 +64,7 @@ AudioView.prototype.open = function() {
         this.elem.append(data);
 
         this.jplayer();
-        _checkArrows();
+        this._checkArrows();
         
     },this));
     
@@ -93,17 +93,14 @@ AudioView.prototype.jplayer = function() {
 }
 
 AudioView.prototype.clearContainer = function() {
-        $("#audioContainer").remove();
-        $("#pageleft").remove();
-        $("#pageright").remove();
-
+   this.container.empty();
 }
 
 AudioView.prototype.addContextButtons=  function() {
     _ctxbuttonsrefresh();
 }
 
-AudioView.prototype.arrowbuttons = function() {
+AudioView.prototype._checkArrows = function() {
         var selected = K5.api.ctx["item"].selected;
         if (K5.api.ctx["item"] && K5.api.ctx["item"][selected] &&  K5.api.ctx["item"][selected]["siblings"]) {
                 var data = K5.api.ctx["item"][selected]["siblings"];
@@ -114,15 +111,40 @@ AudioView.prototype.arrowbuttons = function() {
                 if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
                 if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
         } else {
-                K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
-                        var arr = data[0]['siblings'];
-                        var index = _.reduce(arr, function(memo, value, index) {
-                                return (value.selected) ? index : memo;
-                        }, -1);
+				
+				// nahoru az "soundrecording"
+				// pres "soundunit"
+								
+				var model = K5.api.ctx["item"][K5.api.ctx["item"].selected].model;
+				if (K5.api.ctx["item"][K5.api.ctx["item"].selected].context.length > 0) {
+					var soundRecordingPid = _.reduce( K5.api.ctx["item"][K5.api.ctx["item"].selected].context[0], function(memo, value, index) {
+							if (memo === null) {
+								if (value.model === "soundrecording") {
+									return value.pid;
+								} else return null;
+							} else return memo;
+        	                return (value.selected) ? index : memo;
+            	    }, null);
 
-                        if (index>0) { $("#pageleft").show(); } else { $("#pageleft").hide(); }  
-                        if (index<arr.length-1) { $("#pageright").show(); } else { $("#pageright").hide(); }  
-                });
+					if (soundRecordingPid != null) {
+						K5.api.ctx["item"][selected]["audiotracks"] = [];
+						K5.api.askForItemChildren(soundRecordingPid, function(data) {
+							$.each(data, function(t, d) {
+								if (d.model === "track") {
+									K5.api.ctx["item"][selected]["audiotracks"].push(d);
+								} else if (d.model === "soundunit") {
+									K5.api.askForItemChildren(d.pid, function(ddata) {
+										$.each(ddata, function(tt, dd) {
+											if (dd.model === "track") {
+												K5.api.ctx["item"][selected]["audiotracks"].push(dd);
+											}
+										});
+									});
+								}
+							});
+						});
+					}
+				}
         }
 
 }
@@ -136,3 +158,107 @@ AudioView.prototype.isEnabled= function(data) {
 AudioView.prototype.containsLeftStructure = function() {
     return true;
 }
+
+
+/**
+ * Next item
+ * @method      
+ */
+AudioView.prototype.next =  function() {
+
+    cleanWindow();
+
+    if (K5.api.isKeyReady("item/selected") && (K5.api.isKeyReady("item/" + K5.api.ctx.item.selected + "/audiotracks"))) {
+        var data = K5.api.ctx["item"][ K5.api.ctx["item"]["selected"] ]["audiotracks"];
+        //var arr = data[0]['siblings'];
+        var index = _.reduce(data, function(memo, value, index) {
+            return (K5.api.ctx["item"]["selected"] === value.pid) ? index : memo;
+        }, -1);
+        if (index <= data.length - 1) {
+            var nextPid = data[index + 1].pid;
+            var hash = hashParser();
+            hash.pid = nextPid;
+            var histDeep = getHistoryDeep() + 1;
+            hash.hist = histDeep;
+            K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
+        }
+    } 
+    /*
+    else {
+        K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
+            var arr = data[0]['siblings'];
+            var index = _.reduce(arr, function(memo, value, index) {
+                return (value.selected) ? index : memo;
+            }, -1);
+            if (index < arr.length - 2) {
+                var nextPid = arr[index + 1].pid;
+                var hash = hashParser();
+                hash.pid = nextPid;
+                var histDeep = getHistoryDeep() + 1;
+                hash.hist = histDeep;
+                K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
+            }
+        });
+    }*/
+}
+
+/**
+ * Previous item
+ * @method      
+ */       
+AudioView.prototype.prev =  function() {
+
+    cleanWindow();
+
+    //this.clearContainer();
+    
+    if (K5.api.isKeyReady("item/selected") && (K5.api.isKeyReady("item/" + K5.api.ctx.item.selected + "/audiotracks"))) {
+        var data = K5.api.ctx["item"][ K5.api.ctx["item"]["selected"] ]["audiotracks"];
+        var index = _.reduce(data, function(memo, value, index) {
+            return (K5.api.ctx["item"]["selected"] === value.pid) ? index : memo;
+        }, -1);
+        if (index > 0) {
+            var prevPid = data[index - 1].pid;
+            var hash = hashParser();
+            hash.pid = prevPid;
+            var histDeep = getHistoryDeep() + 1;
+            hash.hist = histDeep;
+            K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
+        }
+    }
+	
+	/*    
+    if (K5.api.isKeyReady("item/selected") && (K5.api.isKeyReady("item/" + K5.api.ctx.item.selected + "/siblings"))) {
+        var data = K5.api.ctx["item"][ K5.api.ctx["item"]["selected"] ]["siblings"];
+        var arr = data[0]['siblings'];
+        var index = _.reduce(arr, function(memo, value, index) {
+            return (value.selected) ? index : memo;
+        }, -1);
+        if (index > 0) {
+            var prevPid = arr[index - 1].pid;
+            var hash = hashParser();
+            hash.pid = prevPid;
+            var histDeep = getHistoryDeep() + 1;
+            hash.hist = histDeep;
+            K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
+        }
+
+    } else {
+        K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
+            var arr = data[0]['siblings'];
+            var index = _.reduce(arr, function(memo, value, index) {
+                return (value.selected) ? index : memo;
+            }, -1);
+            if (index > 0) {
+                var prevPid = arr[index - 1].pid;
+                var hash = hashParser();
+                hash.pid = prevPid;
+                var histDeep = getHistoryDeep() + 1;
+                hash.hist = histDeep;
+                K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
+            }
+        });
+    }*/
+    
+}
+
