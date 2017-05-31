@@ -52,7 +52,7 @@ var Da = function(elem, data, options) {
     for (var i = 0; i < this.jarray.length; i++) {
         year = parseInt(this.jarray[i]);
         val = parseInt(this.jarray[++i]);
-        if (year > 1000 && year<actualYear) {
+        if (year > 1000 && year<=actualYear) {
             this.years[year] = {"count": val, "accumulated": accumulated};
             accumulated += val;
             this.maxYear = Math.max(this.maxYear, year);
