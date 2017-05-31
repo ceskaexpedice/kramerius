@@ -511,8 +511,23 @@
     <copyField source="text_ocr" dest="text"/>
 
 	<!-- lemmatized fields; text -->
-    <copyField source="text" dest="text_lemmatized"/>
-    <copyField source="text" dest="text_lemmatized_ascii"/>
+    <copyField source="dc.title" dest="text_lemmatized"/>
+    <copyField source="keywords" dest="text_lemmatized"/>
+    <copyField source="dc.description" dest="text_lemmatized"/>
+    <copyField source="dc.title" dest="text_lemmatized"/>
+    <copyField source="dc.creator" dest="text_lemmatized"/>
+    <copyField source="details" dest="text_lemmatized"/>
+    <copyField source="text_ocr" dest="text_lemmatized"/>
+
+
+    <copyField source="dc.title" dest="text_lemmatized_ascii"/>
+    <copyField source="keywords" dest="text_lemmatized_ascii"/>
+    <copyField source="dc.description" dest="text_lemmatized_ascii"/>
+    <copyField source="dc.title" dest="text_lemmatized_ascii"/>
+    <copyField source="dc.creator" dest="text_lemmatized_ascii"/>
+    <copyField source="details" dest="text_lemmatized_ascii"/>
+    <copyField source="text_ocr" dest="text_lemmatized_ascii"/>
+
 
 	<!-- lemmatized fields; root_title -->
     <copyField source="root_title" dest="root_title_lemmatized"/>
