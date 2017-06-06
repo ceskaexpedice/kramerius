@@ -10,6 +10,19 @@ DownloadItem.prototype.selectedMessage = function(act) {
         }
     }
 }
+DownloadItem.prototype.limits = function() {
+    var act = this.selectAction();
+    if (act != null) {
+        return act.object.limits();
+    } else return null;
+}
+
+DownloadItem.prototype.change = function(data) {
+    var act = this.selectAction();
+    if (act != null) {
+        act.object.change(data);
+    }
+}
 
 DownloadItem.prototype.selectAction = function() {
     var v = $("#download_options ul li input:checked").val();
@@ -30,6 +43,11 @@ DownloadItem.prototype.doAction = function() {
         act.object.doAction();
     }
     /*cleanWindow();*/
+}
+
+DownloadItem.prototype.close = function() {
+	$("#download_action_message").empty();
+	cleanWindow();
 }
 
 DownloadItem.prototype.init = function() {
@@ -103,7 +121,7 @@ DownloadItem.prototype.init = function() {
         okButton.append(K5.i18n.translatable('common.ok'));
 
         var closeButton = $("<div/>",{"class":"button"});
-        closeButton.attr('onclick',"cleanWindow();");
+        closeButton.attr('onclick',"K5.gui.selected.download.close();");
         closeButton.attr("data-ctx","selection;pdflimit");
 
         closeButton.append(K5.i18n.translatable('common.close'));
@@ -181,9 +199,9 @@ DownloadItem.prototype.open = function() {
 
         var message = first["message"];
         if ((message) && (message != null)) {
-            $("#download_action_message").text(message);
+            $("#download_action_message").html(message);
         } else {
-            $("#download_action_message").text("");
+            $("#download_action_message").html("");
         }
 
         $("#download_options").html(select);
