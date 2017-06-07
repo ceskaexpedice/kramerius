@@ -9,9 +9,7 @@
 	}
 	
 	$(document).ready(function() {
-		
 		var html5Slider = document.getElementById('slighter');
-
 		noUiSlider.create(html5Slider, {
 			start: [ 0, 100	 ],
 			connect: false,
@@ -32,9 +30,38 @@
 				
 			}
 		});
+
+		var currentPage = K5.api.ctx.item.selected; 
+		var limits = K5.gui.selected.download.limits();
+
+        var startIndex = _.reduce(K5.gui.selected.download.limits().pages, function(memo, value, index) {
+            return (value === currentPage) ? index+1 : memo;
+        }, 1);
 		
+				
+		var limitedPages = -1;
+		if (limits.pdfrange !== "unlimited") {
+			limitedPages = parseInt(limits.pdfrange);	
+			endIndex = Math.min(startIndex+limitedPages, K5.gui.selected.download.limits().pages.length);
+		} else {
+			endIndex =  K5.gui.selected.download.limits().pages.length;
+		}
 		
+		var onePercent = K5.gui.selected.download.limits().pages.length/100;
+		var startPercent = startIndex / onePercent;
+		var endPercent = endIndex / onePercent;
 		
+		html5Slider.noUiSlider.set([startPercent, endPercent]);
+
+		$("#val_0").text( startIndex );
+		K5.gui.selected.download.change({"value":startIndex,"handler":0, "pid":K5.gui.selected.download.limits().pages[startIndex-1]});
+
+		$("#val_1").text( endIndex );
+		K5.gui.selected.download.change({"value":endIndex,"handler":1, "pid":K5.gui.selected.download.limits().pages[endIndex-1]});
+
+
+		
+		// TODO: initialization
 		html5Slider.noUiSlider.on('update', function( values, handle ) {
 
 			html5Slider.noUiSlider.on('change', function ( values, handle ) {
@@ -55,7 +82,7 @@
 							var percent = nextVal / onePercent;
 							html5Slider.noUiSlider.set([sliderValue[0], percent]);
 
-							 var v = __translatePercent( parseFloat(html5Slider.noUiSlider.get()[1]) , limits.pages.length );
+							var v = __translatePercent( parseFloat(html5Slider.noUiSlider.get()[1]) , limits.pages.length );
 							$("#val_1").text( v );
 							K5.gui.selected.download.change({"value":v,"handler":1, "pid":limits.pages[v-1]});
 						}
