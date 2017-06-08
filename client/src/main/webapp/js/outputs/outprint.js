@@ -30,6 +30,9 @@ PrintSupport.prototype= {
             window.open('print?pids='+page,'_blank');
         }, 
 
+        pages:function(startPid, stopPid) {
+            window.open('print?startPid='+startPid+"&stopPid="+stopPid,'_blank');
+        }, 
         
         siblings: function(pid) {
             var itm = K5.api.ctx.item[pid];

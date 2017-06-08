@@ -36,6 +36,7 @@ public class PrintFunctionalityServlet extends HttpServlet {
             String params = req.getParameter("pids");
             String startPid = req.getParameter("startPid");
             String parentPid = req.getParameter("parentPid");
+            String stopPid = req.getParameter("stopPid");
 
             if (StringUtils.isAnyString(params)) {
                 String[] splitted = params.split(",");
@@ -74,6 +75,9 @@ public class PrintFunctionalityServlet extends HttpServlet {
                 String redirecthost = RedirectHelp.redirectApplication(req);
                 String str = redirecthost + "search/inc/_iprint.jsp?startPid="
                         + startPid;
+                if  (StringUtils.isAnyString(stopPid)) {
+                	str = str + "&stopPid="+stopPid;
+                }
                 resp.sendRedirect(str);
 
             } else if (StringUtils.isAnyString(parentPid)) {

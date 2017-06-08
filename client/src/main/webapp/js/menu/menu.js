@@ -554,12 +554,31 @@ PrintPage.prototype = {
 }
 
 
-function PrintSiblings() {}
+function PrintSiblings() {
+    this.ctx = {};
+    
+    $.get("_sliders.vm", _.bind(function(slider) {
+        this.ctx["htmlslider"] = slider;
+    },this));
+
+}
 PrintSiblings.prototype = {
         'change':function(data) {
+			//console.log("data test "+data);
+			if (!this.ctx['data']) {
+				this.ctx['data'] = [];
+			}
+			this.ctx['data'][data.handler] = { "value":data.value, "pid":data.pid };
         },
         'limits':function() {
-        	return null;
+	        var pids = _.map( K5.api.ctx["item"][ K5.api.ctx["item"].selected ]["siblings"][0].siblings, function(item, context) {
+				return item.pid;
+        	});
+		
+        	return {
+        		'pdfrange':'unlimited',
+        		'pages': pids
+        	}
         },
 
         'close':function() {
@@ -568,10 +587,15 @@ PrintSiblings.prototype = {
 		},        
 
         'doAction':function() {
-                cleanWindow();
-                //var page = removeHistoryPostfix(K5.api.ctx.item.selected);
-                var v = K5.api.ctx.item.selected;
-                K5.outputs.print.siblings(v);
+            cleanWindow();
+			var v = K5.api.ctx.item.selected;
+			var startPid = this.ctx['data'][0].pid;
+			var stopPid = this.ctx['data'][1].pid;
+            K5.outputs.print.pages(startPid, stopPid);
+        },
+	
+	    'message' :function() {
+			return  this.ctx["htmlslider"];
         },
         
         'enabled': function() {
@@ -596,6 +620,8 @@ PrintSiblings.prototype = {
         },
         "group": "PRINT"
 }
+
+
 
 
 function PrintTitle() {}
@@ -656,9 +682,6 @@ PrintTitle.prototype = {
         },
         "group": "PRINT"
 }
-
-
-
 
 function PDFSiblingsTitle() {
     this.ctx = {};
@@ -728,36 +751,13 @@ PDFSiblingsTitle.prototype = {
                 }, this));
                 
                 
-				/*
-                console.log("pid FROM :"+ this.ctx['data'][0].pid);
-                console.log("pid TO :"+ this.ctx['data'][1].pid);
-                */
-                //var v = K5.api.ctx.item.selected;
-                //K5.outputs.pdf.siblings(this.ctx['data'][0].pid);
 
 				K5.outputs.pdf.siblingspages(processctx.pids);
         },
         
         
         'message' :function() {
-			
 			return  this.ctx["htmlslider"];
-
-			/*
-			var div = $("<div/>",{"id":"_slighter"});
-			console.log(div.html());
-			return div.html();	
-			*/
-			
-        	/*
-            if (this.ctx && this.ctx.conf) { 
-                if (this.ctx.conf.pdfMaxRange !== "unlimited") {
-				    var f = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.1'];
-				    var s = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.2'];
-                    return f+this.ctx.conf.pdfMaxRange+s; 
-                }
-            } else return null;
-            */
         },
 
         'enabled': function() {

@@ -41,7 +41,7 @@
 				
 		var limitedPages = -1;
 		if (limits.pdfrange !== "unlimited") {
-			limitedPages = parseInt(limits.pdfrange);	
+			limitedPages = parseInt(limits.pdfrange)-1;	
 			endIndex = Math.min(startIndex+limitedPages, K5.gui.selected.download.limits().pages.length);
 		} else {
 			endIndex =  K5.gui.selected.download.limits().pages.length;
@@ -68,7 +68,7 @@
 				var limits = K5.gui.selected.download.limits();
 				var limitedPages = -1;
 				if (limits.pdfrange !== "unlimited") {
-					limitedPages = parseInt(limits.pdfrange);	
+					limitedPages = parseInt(limits.pdfrange)-1;	
 				}
 				if (handle == 0) {
 					var tt = Math.max(__translatePercent(values[handle],limits.pages.length), 1);
