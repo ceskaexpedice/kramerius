@@ -323,16 +323,26 @@ public class RenderPDF   {
                 return new NullElement();
             } else if (cmd instanceof Image) {
 
-            	
+            	Image cmdImage = (Image) cmd;
+        		String pid = cmdImage.getPid();
+
+                boolean altoStream = false; 
+            	try {
+            		altoStream = this.fedoraAccess.isStreamAvailable(pid,
+                        FedoraUtils.ALTO_STREAM);
+				} catch (MalformedURLException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				} catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				} 
+
                 boolean useAlto = KConfiguration.getInstance()
                         .getConfiguration()
                         .getBoolean("pdfQueue.useAlto", false);
 
-                if (useAlto) {
+                if (useAlto && altoStream) {
                 	try {
 
-                		Image cmdImage = (Image) cmd;
-                		String pid = cmdImage.getPid();
 
                 		org.w3c.dom.Document alto = XMLUtils
                                 .parseDocument(this.fedoraAccess
@@ -386,8 +396,7 @@ public class RenderPDF   {
                 	return new NullElement();
                 } else {
                     try {
-                        Image cmdImage = (Image) cmd;
-                        String pid = cmdImage.getPid();
+ 
                         String file = cmdImage.getFile();
                         com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
                      

@@ -161,6 +161,38 @@ PDFSupport.prototype= {
             
         },
 
+		siblingspages:function(arrayofPids) {
+            $.getJSON("api/pdf", _.bind(function(conf) {
+                    if (!conf.resourceBusy) {
+                        if (conf.pdfMaxRange === "unlimited") {
+                        	var sel = K5.api.ctx.item.selected;
+                        	var itm = K5.api.ctx.item[sel];
+                        	if (itm) {
+            					var arr = K5.api.ctx.item[sel].context[0];
+            					var item = arr[arr.length-2].pid;
+	                            window.open("pdfforward/pdf/parent?pid="+ item.pid,"_blank");
+                        	} else {
+	                        	K5.api.askForItem("api/item/"+arrayofPids[0], function(data) {
+	            					var arr = data.context[0];
+        	    					var item = arr[arr.length-2].pid;
+		                            window.open("pdfforward/pdf/parent?pid="+ item.pid,"_blank");
+        	                	});
+                        	} 
+                    	} else {
+                            var string = _.reduce(arrayofPids, function(memo, value, ctx) {
+                                if (ctx > 0) {
+                                    memo = memo+",";
+                                }
+                                memo = memo +value;
+                                return memo;
+                            }, "");
+                    	
+                    	    window.open("pdfforward/pdf/selection?pids="+string,"_blank");
+						}
+					}				
+            },this));
+		},
+
         siblings: function(pid) {
             $.getJSON("api/pdf", _.bind(function(conf) {
                 var itm = K5.api.ctx.item[pid];
@@ -171,6 +203,7 @@ PDFSupport.prototype= {
                     if (!conf.resourceBusy) {
                         var parent = sPath[sPath.length-2];
                         if (conf.pdfMaxRange === "unlimited") {
+                        	
                             window.open("pdfforward/pdf/parent?pid="+ parent.pid,"_blank");
                         } else {
                             //var max = Math.min(pages.length, parseInt(conf.pdfMaxRange));

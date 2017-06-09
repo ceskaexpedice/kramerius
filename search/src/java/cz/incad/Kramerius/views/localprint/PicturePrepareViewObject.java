@@ -61,15 +61,17 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
         try {
             double ratio = KConfiguration.getInstance().getConfiguration().getDouble("search.print.pageratio",1.414);
             HttpServletRequest request = this.servletRequestProvider.get();
+            
             String pidsString = request.getParameter("pids");
             String startPid = request.getParameter("startPid");
+            String stopPid = request.getParameter("stopPid");
             String parentPid = request.getParameter("parentPid");
 
             String[] pids = new String[0];
             if (StringUtils.isAnyString(pidsString)) {
                 pids = pidsAsList(pidsString);
             } else if (StringUtils.isAnyString(startPid)){
-                pids = pidsAsSiblings(startPid);
+                pids = pidsAsSiblings(startPid, stopPid);
             } else if (StringUtils.isAnyString(parentPid)){
                 pids =  pidsAsChildren(parentPid);
             }
@@ -111,7 +113,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
     }
 
     
-    private String[] pidsAsSiblings( String startPid)
+    private String[] pidsAsSiblings( String startPid, String stopPid)
             throws IOException {
         String[] pids = new String[0];
         ObjectPidsPath[] paths = this.solrAccess.getPath(startPid);
@@ -121,13 +123,17 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
             String parent = pidsPths[pidsPths.length -2];
             List<String> solrChildrenPids = ItemResourceUtils.solrChildrenPids(parent, new ArrayList<String>(), this.solrAccess, this.solrMemoization);
             List<String> rest = new ArrayList<String>();
-            boolean append = true;
+            boolean append = false;
             for (String pid : solrChildrenPids) {
                 if ((!append) && pid.equals(startPid)) {
                     append = true;
                 }
                 if (append) {
                     rest.add(pid);
+                }
+                if ((append) && pid.equals(stopPid)) {
+                    append = false;
+                    break;
                 }
             }
             pids = rest.toArray(new String[rest.size()]);

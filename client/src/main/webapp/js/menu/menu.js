@@ -78,14 +78,24 @@ MenuActionsControll.prototype = {
 function PersistentURL() {}
 
 PersistentURL.prototype = {
+        'change':function(data) {
+        },
+        'limits':function() {
+			return null;
+        },
+
         'doAction':function() { 
                 cleanWindow();
                 divopen("#viewer div.persistents");
                 var sel = K5.api.ctx.item.selected;
-		var handleurl = window.location.protocol+"//"+window.location.host+"/client/handle/"+sel;
+				var handleurl = window.location.protocol+"//"+window.location.host+"/client/handle/"+sel;
                 $("#persisturl").val(handleurl);
                 $("#persisturl").select();
         },
+        'close':function() { 
+	        $("#download_action_message").empty();
+            cleanWindow();
+		},        
         'enabled': function() {
                 return true;
         }
@@ -120,9 +130,20 @@ function _isPDF() {
 function DisplayClipboard() {}
 
 DisplayClipboard.prototype =  {
+        'change':function(data) {
+        },
+        'limits':function() {
+        	return null;
+        },
+
         'doAction':function() { 
                K5.gui.clipboard.display();
         },
+        'close':function() {
+	        $("#download_action_message").empty(); 
+    	    cleanWindow();
+		}, 
+        
         'enabled': function() {
                 var arr = K5.gui.clipboard.ctx.selected;         
                 return arr.length > 0;
@@ -134,8 +155,22 @@ DisplayClipboard.prototype =  {
  * Print one page pdf 
  * @constructor 
  */
-function PDFOnePage() {}
+function PDFOnePage() {
+
+}
+
 PDFOnePage.prototype = {
+        'change':function(data) {
+        },
+
+        'limits':function() {
+        	return null;
+        },
+
+        'close':function() {
+	        $("#download_action_message").empty(); 
+            cleanWindow();
+		},
 
         'doAction':function() { 
                 cleanWindow();
@@ -175,6 +210,17 @@ PDFOnePage.prototype = {
  */
 function DownloadPage() {}
 DownloadPage.prototype = {
+        'change':function(data) {
+        },
+        'limits':function() {
+        	return null;
+        },
+
+        'close':function() { 
+	        $("#download_action_message").empty();
+            cleanWindow();
+		}, 
+
        'doAction':function() {
                 var selected = K5.api.ctx.item.selected; 
                 window.location.assign("api/item/"+selected+"/full?asFile=true")
@@ -200,6 +246,17 @@ DownloadPage.prototype = {
 function PrintPartPage() {}
 
 PrintPartPage.prototype = {
+        'change':function(data) {
+        },
+        'limits':function() {
+        	return null;
+        },
+
+        'close':function() { 
+	        $("#download_action_message").empty();
+            cleanWindow();
+		},        
+
 
        'doAction':function() {
                 function ntab(url) {
@@ -236,6 +293,17 @@ function PrintPartItem() {
 }
 
 PrintPartItem.prototype = {
+        'change':function(data) {
+        },
+        'limits':function() {
+        	return null;
+        },
+
+        'close':function() { 
+	        $("#download_action_message").empty();
+            cleanWindow();
+		},
+
         'doAction':function() {
                 cleanWindow();
                 $('#viewer>div.container')
@@ -446,12 +514,23 @@ PrintPartItem.prototype = {
 function PrintPage() {}
 
 PrintPage.prototype = {
+        'change':function(data) {
+        },
+        'limits':function() {
+        	return null;
+        },
+
+        'close':function() {
+	        $("#download_action_message").empty(); 
+            cleanWindow();
+		},        
+
         'doAction':function() {
             cleanWindow();
             var page = removeHistoryPostfix(K5.api.ctx.item.selected);
             K5.outputs.print.page(page);
-    },
-    'enabled': function() {
+    	},
+    	'enabled': function() {
             var selected = K5.api.ctx.item.selected; 
             var itm = K5.api.ctx.item[selected];
             if (!itm['forbidden']) {
@@ -475,13 +554,48 @@ PrintPage.prototype = {
 }
 
 
-function PrintSiblings() {}
+function PrintSiblings() {
+    this.ctx = {};
+    
+    $.get("_sliders.vm", _.bind(function(slider) {
+        this.ctx["htmlslider"] = slider;
+    },this));
+
+}
 PrintSiblings.prototype = {
+        'change':function(data) {
+			//console.log("data test "+data);
+			if (!this.ctx['data']) {
+				this.ctx['data'] = [];
+			}
+			this.ctx['data'][data.handler] = { "value":data.value, "pid":data.pid };
+        },
+        'limits':function() {
+	        var pids = _.map( K5.api.ctx["item"][ K5.api.ctx["item"].selected ]["siblings"][0].siblings, function(item, context) {
+				return item.pid;
+        	});
+		
+        	return {
+        		'pdfrange':'unlimited',
+        		'pages': pids
+        	}
+        },
+
+        'close':function() {
+	        $("#download_action_message").empty(); 
+            cleanWindow();
+		},        
+
         'doAction':function() {
-                cleanWindow();
-                //var page = removeHistoryPostfix(K5.api.ctx.item.selected);
-                var v = K5.api.ctx.item.selected;
-                K5.outputs.print.siblings(v);
+            cleanWindow();
+			var v = K5.api.ctx.item.selected;
+			var startPid = this.ctx['data'][0].pid;
+			var stopPid = this.ctx['data'][1].pid;
+            K5.outputs.print.pages(startPid, stopPid);
+        },
+	
+	    'message' :function() {
+			return  this.ctx["htmlslider"];
         },
         
         'enabled': function() {
@@ -508,9 +622,22 @@ PrintSiblings.prototype = {
 }
 
 
+
+
 function PrintTitle() {}
 
 PrintTitle.prototype = {
+        'change':function(data) {
+        },
+        'limits':function() {
+        	return null;
+        },
+
+        'close':function() { 
+            $("#download_action_message").empty();
+            cleanWindow();
+		},        
+
         'doAction':function() {
                 cleanWindow();
                 var page = removeHistoryPostfix(K5.api.ctx.item.selected);
@@ -556,31 +683,81 @@ PrintTitle.prototype = {
         "group": "PRINT"
 }
 
-
-
-
 function PDFSiblingsTitle() {
     this.ctx = {};
+    
     $.getJSON("api/pdf", _.bind(function(conf) {
         this.ctx["conf"] = conf;
     },this));
+    
+    $.get("_sliders.vm", _.bind(function(slider) {
+        this.ctx["htmlslider"] = slider;
+    },this));
+    
     this.dialog = null;
 }
 
 PDFSiblingsTitle.prototype = {
+        
+        'change':function(data) {
+			//console.log("data test "+data);
+			if (!this.ctx['data']) {
+				this.ctx['data'] = [];
+			}
+			this.ctx['data'][data.handler] = { "value":data.value, "pid":data.pid };
+        },
+
+        'limits':function() {
+
+	        var pids = _.map( K5.api.ctx["item"][ K5.api.ctx["item"].selected ]["siblings"][0].siblings, function(item, context) {
+				return item.pid;
+        	});
+		
+        	return {
+        		'pdfrange':this.ctx.conf.pdfMaxRange,
+        		'pages': pids
+        	}
+        },
+        
+        'close':function() { 
+			$("#download_action_message").empty();
+            cleanWindow();
+		},
+
         'doAction':function() {
                 cleanWindow();
-                var v = K5.api.ctx.item.selected;
-                K5.outputs.pdf.siblings(v);
+				/*                
+                var pids = _.map( K5.api.ctx["item"][ K5.api.ctx["item"].selected ]["siblings"][0].siblings, function(item, context) {
+					return item.pid;
+        		});
+        		*/
+        		
+        		var processctx  = {
+        			"pids":[],
+        			"inside":false
+        		};
+                
+                _.each(this.limits().pages, _.bind(function(itm, ctx) {
+					if (itm === this.ctx['data'][0].pid) {
+						processctx.inside = true;
+					}
+					if (processctx.inside) {
+						processctx.pids.push(itm);
+					}
+					if (itm === this.ctx['data'][1].pid) {
+						processctx.inside = false;
+					}
+
+                }, this));
+                
+                
+
+				K5.outputs.pdf.siblingspages(processctx.pids);
         },
+        
+        
         'message' :function() {
-            if (this.ctx && this.ctx.conf) { 
-                if (this.ctx.conf.pdfMaxRange !== "unlimited") {
-		    var f = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.1'];
-		    var s = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.2'];
-                    return f+this.ctx.conf.pdfMaxRange+s; 
-                }
-            } else return null;
+			return  this.ctx["htmlslider"];
         },
 
         'enabled': function() {
@@ -616,13 +793,24 @@ function PDFTitle() {
 }
 
 PDFTitle.prototype = {
+        'limits':function() {
+        	return null;
+        },
+
+        'change':function(data) {
+        },
+
+        'close':function() { 
+	        $("#download_action_message").empty();
+            cleanWindow();
+		},        
+
         'doAction':function() {
                 cleanWindow();
                 //K5.outputs.pdf.asyncTitle(K5.api.ctx.item.selected);
                 K5.outputs.pdf.title(K5.api.ctx.item.selected);
         },
         'message' :function() {
-            //this.ctx.conf
             if (this.ctx && this.ctx.conf) { 
                 if (this.ctx.conf.pdfMaxRange !== "unlimited") {
                 var f = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.1'];
@@ -678,6 +866,18 @@ PDFTitle.prototype = {
  */
 function DownloadOCR() {}
 DownloadOCR.prototype = {
+        'limits':function() {
+        	return null;
+        },
+
+        'change':function(data) {
+        },
+
+        'close':function() { 
+	        $("#download_action_message").empty();
+            cleanWindow();
+		},        
+
         'doAction':function() {
                 cleanWindow();
 
@@ -717,6 +917,18 @@ function _socialUrl() {
 
 function GooglePlusShare() {}
 GooglePlusShare.prototype = {
+        'limits':function() {
+        	return null;
+        },
+
+        'change':function(data) {
+        },
+
+        'close':function() {
+	        $("#download_action_message").empty(); 
+            cleanWindow();
+		}, 
+
         'doAction':function() {
                 var share = "https://plus.google.com/share?url="+_socialUrl();
                 window.open(share,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;
@@ -728,6 +940,18 @@ GooglePlusShare.prototype = {
 
 function FacebookShare() {}
 FacebookShare.prototype = {
+        'limits':function() {
+        	return null;
+        },
+
+        'change':function(data) {
+        },
+
+        'close':function() {
+	        $("#download_action_message").empty(); 
+            cleanWindow();
+		}, 
+
         'doAction':function() {
                 var share = "https://www.facebook.com/sharer/sharer.php?u="+_socialUrl();
                 window.open(share,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;
