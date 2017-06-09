@@ -65,13 +65,27 @@
     <%-- datum --%>
     <c:if test="${param.da_od != null && !empty param.da_od}">
         <c:set var="fieldedSearch" value="true" scope="request" />
-        <c:set var="da">(rok:[${searchParams.yearFrom} TO ${searchParams.yearUntil}]) OR (datum_begin:[1 TO ${searchParams.yearUntil}] AND datum_end:[${searchParams.yearFrom} TO 3000])</c:set>
-        <c:if test="${param.da_od == param.da_do}">
-            <c:set var="da">
-                 ${da} OR (datum:"${searchParams.dateFromFormatted}")
-            </c:set>
-        </c:if>
-        <c:param name="fq" value="${da}" />
+            <c:choose>
+                <c:when test="${param.exactDay == 'true'}" >
+		  <c:set var="da">datum_str:"${param.da_od}"</c:set>
+		  <c:set var="daNoZeroes"></c:set>
+		  <c:if test="${fn:startsWith(param.da_od, '0')}">
+		    <c:set var="daNoZeroes">${fn:substring(param.da_od, 1, -1)}</c:set>
+		  </c:if>
+		  <c:set var="daNoZeroes">${fn:replace(daNoZeroes, '.0', '.')}</c:set>
+		  <c:set var="da">${da} OR datum_str:"${daNoZeroes}"</c:set>
+		  <c:param name="fq" value="${da}" />
+                </c:when>
+                <c:otherwise>
+		  <c:set var="da">(rok:[${searchParams.yearFrom} TO ${searchParams.yearUntil}]) OR (datum_begin:[1 TO ${searchParams.yearUntil}] AND datum_end:[${searchParams.yearFrom} TO 3000])</c:set>
+		  <c:if test="${param.da_od == param.da_do}">
+		      <c:set var="da">
+			  ${da} OR (datum:"${searchParams.dateFromFormatted}")
+		      </c:set>
+		  </c:if>
+                </c:otherwise>
+            </c:choose>
+            
         <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
     <c:if test="${!empty param.offset}">

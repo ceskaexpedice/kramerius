@@ -50,12 +50,19 @@
     }
 </script>
 <div id="da-inputs" >
-    <span style="float:left;"><fmt:message bundle="${lctx}">Od</fmt:message>:&nbsp;</span>
+    <span class="exactbox" style="float:left;"><fmt:message bundle="${lctx}">Od</fmt:message>:&nbsp;</span>
     <input style="float:left;" class="da_input" id="f1" size="10" type="text" value="" onchange="checkValid(event, this)"  />
+    <div class="exactbox" style="float:left; <c:if test="${param.exactDay  == 'true'}">display:none;</c:if> /> ">
     <span style="float:left;">&nbsp;<fmt:message bundle="${lctx}">Do</fmt:message>:&nbsp;</span>
     <input style="float:left;" class="da_input" id="f2" size="10" type="text" value="" onchange="checkValid(event, this)"  /> 
-<a href="javascript:doFilter();" style="float:right; width:16px;overflow:hidden;" ><span class="ui-icon ui-icon-search" title="<fmt:message bundle="${lctx}">dateaxis.use</fmt:message>" >a</span></a>
+    </div>
+    <a href="javascript:doFilter();" style="float:right; width:16px;overflow:hidden;" ><span class="ui-icon ui-icon-search" title="<fmt:message bundle="${lctx}">dateaxis.use</fmt:message>" >a</span></a>
+
 </div>
+    <div>
+    <label for="exactDay">konkrétní den</label><input type="checkbox" id="exactDay" name="exactDay" onchange="$('.exactbox').toggle()"
+	<c:if test="${param.exactDay  == 'true'}">checked="checked"</c:if> />
+    </div>
 <div style="overflow:hidden; width:100%; height:100%;position: relative;left:0px;top:0px;padding:0px;">
 <div id="canvasda" class="years" style="overflow:auto; position: relative;">
 <div class="info"></div><div class="yearLabel"></div><div class="bar"><div class="sel"></div></div>
