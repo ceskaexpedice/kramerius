@@ -33,6 +33,7 @@ import org.kramerius.processes.utils.TreeModelUtils;
 import java.io.*;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Random;
 import java.util.ResourceBundle;
 
 public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
@@ -65,6 +66,9 @@ public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
             }
         });
 
+        Random randomGenerator = new Random();
+        int idPostfix = randomGenerator.nextInt(2000);
+        
         StringTemplateGroup parametrizedimport = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
         StringTemplate template = parametrizedimport.getInstanceOf("form");
 
@@ -80,7 +84,8 @@ public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
         Boolean updateExisting = configuration.getConfiguration().getBoolean("ingest.updateExisting");
         template.setAttribute("updateExisting",updateExisting);
 
-
+        template.setAttribute("postfixdiv",""+idPostfix);
+        
         writer.write(template.toString());
     }
     
