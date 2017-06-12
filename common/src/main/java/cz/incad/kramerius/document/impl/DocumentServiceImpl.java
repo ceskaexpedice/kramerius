@@ -224,7 +224,6 @@ public class DocumentServiceImpl implements DocumentService {
                     } else {
                     	// no page 
                     }
-                    previousLevel = level;
                 } catch (DOMException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new RuntimeException(e);
