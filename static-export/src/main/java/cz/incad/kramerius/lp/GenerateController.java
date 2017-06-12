@@ -7,10 +7,10 @@ import java.io.OutputStream;
 import cz.incad.kramerius.lp.utils.ASCIITranslate;
 import cz.incad.kramerius.pdf.Break;
 import cz.incad.kramerius.pdf.impl.OutputStreams;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class GenerateController implements Break, OutputStreams {
 
-	public static final long ONE_FILE_LIMIT = 100l << 20;
 
 	private File curFile;
 	private DecoratedOutputStream currentDos;
@@ -18,12 +18,13 @@ public class GenerateController implements Break, OutputStreams {
 	
 	private File folder;
 	private String name;
-	private long velikost = ONE_FILE_LIMIT;
+	private long velikost = KConfiguration.getInstance().getConfiguration().getLong("static.export.filelimit", 104857600);
 	
 	public GenerateController(File folder, String name) {
 		super();
 		this.folder = folder;
 		this.name = ASCIITranslate.asciiString(name.trim());
+		
 		this.corruptName();
 	}
 
@@ -57,5 +58,4 @@ public class GenerateController implements Break, OutputStreams {
 		if (this.currentDos.getActualSize() >= this.velikost) return true;
 		return false;
 	}
-	
 }

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Base64;
 
 import cz.incad.kramerius.client.cache.SimpleJSONResultsCache;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.utils.IOUtils;
 
 public class RESTHelper {
@@ -152,7 +153,7 @@ public class RESTHelper {
             uc.setReadTimeout(Integer.parseInt(settings.get(READ_TIMEOUT)));
             uc.setConnectTimeout(Integer.parseInt(settings.get(CONNECTION_TIMEOUT)));
         }
-        uc.setRequestProperty("X_IP_FORWARD", request.getRemoteAddr());
+        uc.setRequestProperty(IPAddressUtils.X_IP_FORWARD, request.getRemoteAddr());
         return uc;
     }
 
@@ -187,7 +188,7 @@ public class RESTHelper {
         String userPassword = user + ":" + pass;
         String encoded = Base64.encodeBase64String(userPassword.getBytes());
 
-        uc.setRequestProperty("X_IP_FORWARD", request.getRemoteAddr());
+        uc.setRequestProperty(IPAddressUtils.X_IP_FORWARD, request.getRemoteAddr());
         uc.setRequestProperty("Authorization", "Basic " + encoded);
         return uc;
     }

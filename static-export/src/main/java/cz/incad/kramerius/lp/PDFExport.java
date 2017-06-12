@@ -76,7 +76,9 @@ public class PDFExport {
 			if (args.length > 6) {
 				LOGGER.fine("Country "+args[5]);
 				LOGGER.fine("Lang "+args[6]);
-				System.setProperty(ArgumentLocalesProvider.ISO3COUNTRY_KEY, args[5]);
+				if (args[5] != null) {
+					System.setProperty(ArgumentLocalesProvider.ISO3COUNTRY_KEY, args[5]);
+				}
 				System.setProperty(ArgumentLocalesProvider.ISO3LANG_KEY, args[6]);
 			}
 			
