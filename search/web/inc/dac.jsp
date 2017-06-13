@@ -20,7 +20,8 @@
 <c:set var="singleQuotesReplace">\'</c:set>
 <c:set var="doubleQuotes">"</c:set>
 <c:set var="doubleQuotesReplace">\"</c:set>
-    
+<c:set var="exactDay">false</c:set>
+<c:if test="${param.exactDay  == 'true'}"><c:set var="exactDay">true</c:set></c:if> 
 <script src="js/underscore-min.js" type="text/javascript" ></script>
 <script src="js/utils.js" type="text/javascript" ></script>
 <script src="js/jcanvas.js" type="text/javascript" ></script>
@@ -33,7 +34,17 @@
         da.render();
         da.setDatePicker();
         da.scrollToMax();
+        $('#exactDay').attr('checked', ${exactDay});
     });
+    
+    function toggleExact(){
+      if($('#exactDay').attr('checked')){
+	$('.exactbox').hide();
+      } else {
+	$('.exactbox').show();
+      }
+    }
+    
     function checkValid(event, obj){
         var minDate = $("#f1").datepicker('option', 'getDate');
         var maxDate = $("#f2").datepicker('option', 'getDate');
@@ -60,7 +71,7 @@
 
 </div>
     <div>
-    <label for="exactDay">konkrétní den</label><input type="checkbox" id="exactDay" name="exactDay" onchange="$('.exactbox').toggle()"
+    <label for="exactDay">konkrétní den</label><input type="checkbox" id="exactDay" name="exactDay" onchange="toggleExact()"
 	<c:if test="${param.exactDay  == 'true'}">checked="checked"</c:if> />
     </div>
 <div style="overflow:hidden; width:100%; height:100%;position: relative;left:0px;top:0px;padding:0px;">
