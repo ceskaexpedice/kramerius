@@ -76,7 +76,7 @@ subprojects {
          ext.guiceversion ='3.0'
          ext.postgresversion = '8.4-702.jdbc4'
          ext.slf4jversion='1.6.0'
-         ext.jerseyversion = '1.17.1'
+         ext.jerseyversion = '1.19.4'
          
          ext.generatedSources = "generated-sources"
 
