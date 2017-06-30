@@ -47,6 +47,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -142,6 +143,8 @@ public class SearchResource {
         List<String> filters = Arrays.asList(KConfiguration.getInstance().getAPISolrFilter());
         String[] vals = value.split(",");
         for (String v : vals) {
+            // remove field alias
+            v = StringUtils.substringAfterLast(v, ":");
             if (filters.contains(v)) throw new BadRequestException("requesting filtering field");
         }
     }
