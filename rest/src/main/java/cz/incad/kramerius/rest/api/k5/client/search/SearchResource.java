@@ -48,6 +48,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -124,6 +126,9 @@ public class SearchResource {
             XMLUtils.print(domObject, strWriter);
 
             return strWriter.toString();
+        } catch (HttpResponseException e) {
+            LOGGER.log(Level.INFO, e.getMessage(), e);
+            throw new BadRequestException(e.getMessage());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());
