@@ -216,6 +216,9 @@ public class SearchResource {
             JSONObject jsonObject = changeJSONResult(rawString, uri, this.jsonDecoratorAggregates.getDecorators());
 
             return jsonObject.toString();
+        } catch (HttpResponseException e) {
+            LOGGER.log(Level.INFO, e.getMessage(), e);
+            throw new BadRequestException(e.getMessage());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());
