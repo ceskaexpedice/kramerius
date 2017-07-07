@@ -131,7 +131,7 @@ public class PdfTextUnderImage {
 			}
 		}
         if (r == null) {
-            if (isSP(element)) {
+            if (isSP(element) || isHYP(element)) {
                 r = "Arial";
             } else {
                 throwPdfTextUnderImageException();
@@ -152,7 +152,7 @@ public class PdfTextUnderImage {
 			}
 		}
         if (r == null) {
-            if (isSP(element)) {
+            if (isSP(element) || isHYP(element)) {
                 r = 10f;
             } else {
                 throwPdfTextUnderImageException();
