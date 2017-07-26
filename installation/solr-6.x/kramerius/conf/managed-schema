@@ -344,6 +344,16 @@
         <tokenizer class="solr.PathHierarchyTokenizerFactory"/>
       </analyzer>
     </fieldType>
+
+   <fieldType name="pid_path" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.PathHierarchyTokenizerFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+      </analyzer>
+   </fieldType>
+
     
     <!-- A text field that only splits on whitespace for exact matching of words -->
         <fieldType name="string_lower" class="solr.TextField" sortMissingLast="true" omitNorms="true" positionIncrementGap="100">
@@ -457,7 +467,7 @@
         <field name="sec" type="string"  indexed="true"  stored="true"  />
         
         <field name="model_path" type="text_path"  indexed="true"  stored="true" multiValued="true"  />
-        <field name="pid_path" type="text_path"  indexed="true"  stored="true" multiValued="true"  />
+        <field name="pid_path" type="pid_path"  indexed="true"  stored="true" multiValued="true"  />
 		
         <field name="rels_ext_index" type="int" indexed="true"  stored="true" multiValued="true"  />
         <field name="level" type="int" indexed="true"  stored="true"  />
