@@ -74,7 +74,6 @@
 		  </c:if>
 		  <c:set var="daNoZeroes">${fn:replace(daNoZeroes, '.0', '.')}</c:set>
 		  <c:set var="da">${da} OR datum_str:"${daNoZeroes}"</c:set>
-		  <c:param name="fq" value="${da}" />
                 </c:when>
                 <c:otherwise>
 		  <c:set var="da">(rok:[${searchParams.yearFrom} TO ${searchParams.yearUntil}]) OR (datum_begin:[1 TO ${searchParams.yearUntil}] AND datum_end:[${searchParams.yearFrom} TO 3000])</c:set>
@@ -85,7 +84,7 @@
 		  </c:if>
                 </c:otherwise>
             </c:choose>
-            
+        <c:param name="fq" value="${da}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
     <c:if test="${!empty param.offset}">
