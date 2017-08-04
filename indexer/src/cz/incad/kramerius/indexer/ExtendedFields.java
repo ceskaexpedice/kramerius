@@ -9,6 +9,7 @@ import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.pdfparser.PDFParser;
@@ -25,6 +26,10 @@ import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -115,7 +120,7 @@ public class ExtendedFields {
 
                 File pdfImg = File.createTempFile(pid,null);
                 pdfImg.deleteOnExit();
-                java.nio.file.Files.copy(is,pdfImg.toPath(),java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                FileUtils.copyInputStreamToFile(is, pdfImg);
 
 
                 if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdf.loadNonSeq", false)){
@@ -159,7 +164,7 @@ public class ExtendedFields {
                 stripper.setEndPage(page);
             }
 
-            return StringEscapeUtils.escapeXml(stripper.getText(pdDoc));
+            return StringEscapeUtils.escapeXml10(stripper.getText(pdDoc));
         } catch (Exception ex) {
             return "";
         }
