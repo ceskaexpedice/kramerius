@@ -57,7 +57,7 @@ repositories {
 
 allprojects {
          group='cz.incad.kramerius'
-         version='5.3.7'
+         version='5.3.8'
 }
 
 
