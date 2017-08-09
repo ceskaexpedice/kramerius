@@ -60,7 +60,10 @@ public abstract class ExtAuthFilter implements Filter {
                 }
             }
             chain.doFilter(getExternalAuthenticatedUsers().updateRequest((HttpServletRequest) req), resp);
-        } catch (Exception e) {
+        } catch (IOException e) {
+            throw e;
+        }
+        catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new ServletException(e);
         }
