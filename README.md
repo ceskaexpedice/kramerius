@@ -30,7 +30,7 @@ NTK – J. Kolátor, J. Dobiášovský;
 NLK – F. Kříž; 
 INCAD – P. Kocourek, P. Šťastný;
 
-Koordinátorem současného vývoje je Knihovna Akademie věd ČR zastoupená ředitelem Ing. Martinem Lhotákem.
+Koordinátorem současného vývoje je Knihovna Akademie věd ČR zastoupená Ing. Martinem Lhotákem.
 
 Kontakt:
 Ing. Martin Lhoták,
