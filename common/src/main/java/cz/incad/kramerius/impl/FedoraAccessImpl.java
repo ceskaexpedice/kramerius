@@ -335,14 +335,22 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     @Override
     public InputStream getSmallThumbnail(String pid) throws IOException {
+        HttpURLConnection con = null;
         try {
             pid = makeSureObjectPid(pid);
-            HttpURLConnection con = referencedDataStream(pid, IMG_THUMB_STREAM);
+            con = referencedDataStream(pid, IMG_THUMB_STREAM);
             if (con == null) {
                 con = (HttpURLConnection) openConnection(getThumbnailFromFedora(configuration, makeSureObjectPid(pid)), configuration.getFedoraUser(), configuration.getFedoraPass());
             }
             InputStream thumbInputStream = con.getInputStream();
             return thumbInputStream;
+        } catch (FileNotFoundException e) {
+            if (con != null) {
+                throw new FileNotFoundException("Bad " + pid + ": datastream url (" + con.getURL() +") not found");
+            } else {
+                throw e;
+            }
+
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
