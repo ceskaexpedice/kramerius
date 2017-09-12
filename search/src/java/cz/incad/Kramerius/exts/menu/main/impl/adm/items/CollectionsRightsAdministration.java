@@ -10,7 +10,7 @@ public class CollectionsRightsAdministration extends AbstractMainMenuItem implem
 
     @Override
     public boolean isRenderable() {
-        return  (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName()));
+        return  (hasUserAllowedAction(SecuredActions.VIRTUALCOLLECTION_MANAGE.getFormalName()));
     }
 
     @Override
