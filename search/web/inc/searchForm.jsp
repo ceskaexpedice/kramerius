@@ -23,6 +23,11 @@
         <input type="hidden" id="da_od" name="da_od" value="${param.da_od}" />
         <input type="hidden" id="da_do" name="da_do" value="${param.da_do}" />
     </c:if>
+
+    <c:if test="${!empty param.exactDay}" >
+        <input type="hidden" id="exactDay" name="exactDay" value="${param.exactDay}" />
+    </c:if>
+
 <c:choose>
     <c:when test="${empty param.q && !searching && !fieldedSearch}" >
         <c:set var="qclass" >searchQuery ui-corner-all</c:set>
