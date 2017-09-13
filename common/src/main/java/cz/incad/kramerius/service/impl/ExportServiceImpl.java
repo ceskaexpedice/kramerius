@@ -68,14 +68,8 @@ public class ExportServiceImpl implements ExportService {
                 });
 
                 Element relsExtVersion = latestVersion(relsExtVersions);
-
                 List<String> treePredicates = Arrays.asList(this.configuration.getPropertyList("fedora.treePredicates"));
-                Map<String, Element> map = new HashMap<>();
-
-
                 Element xmlContent = XMLUtils.findElement(relsExtVersion, "xmlContent", "info:fedora/fedora-system:def/foxml#");
-
-
                 List<Element> elems = XMLUtils.getElements(XMLUtils.findElement( XMLUtils.findElement(xmlContent, "RDF", FedoraNamespaces.RDF_NAMESPACE_URI), "Description",FedoraNamespaces.RDF_NAMESPACE_URI), (element) -> {
                     String localName = element.getLocalName();
                     String uri = element.getNamespaceURI();
@@ -105,8 +99,6 @@ public class ExportServiceImpl implements ExportService {
                 store(exportDirectory, childPid, bos.toByteArray());
 
             }
-            //fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive")
-//            pids.addAll(Arrays.asList(set));
         }
 
     }
