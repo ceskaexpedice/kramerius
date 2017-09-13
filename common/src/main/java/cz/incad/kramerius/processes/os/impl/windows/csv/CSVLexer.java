@@ -1,4 +1,4 @@
-// $ANTLR 2.7.7 (2006-11-01): "/C:/Users/pstastny.SEARCH/nprojs/kramerius/common/src/main/java/cz/incad/kramerius/processes/os/impl/windows/csv/csv.g" -> "CSVLexer.java"$
+// $ANTLR 2.7.7 (2006-11-01): "csv.g" -> "CSVLexer.java"$
 
 	package cz.incad.kramerius.processes.os.impl.windows.csv;
 	import java.util.*;
@@ -113,7 +113,6 @@ tryAgain:
 		
 		match('"');
 		{
-		int _cnt19=0;
 		_loop19:
 		do {
 			if ((_tokenSet_0.member(LA(1)))) {
@@ -122,10 +121,9 @@ tryAgain:
 				}
 			}
 			else {
-				if ( _cnt19>=1 ) { break _loop19; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
+				break _loop19;
 			}
 			
-			_cnt19++;
 		} while (true);
 		}
 		match('"');

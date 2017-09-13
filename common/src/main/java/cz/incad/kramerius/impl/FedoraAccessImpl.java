@@ -401,7 +401,10 @@ public class FedoraAccessImpl implements FedoraAccess {
                 InputStream thumbInputStream = con.getInputStream();
                 return thumbInputStream;
             } else {
-                throw new IOException("404");
+                // copy error stream and forward status code
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                IOUtils.copyStreams(con.getErrorStream(), bos);
+                throw new FedoraIOException(con.getResponseCode(), new String(bos.toByteArray()));
             }
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
