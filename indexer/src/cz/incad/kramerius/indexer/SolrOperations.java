@@ -2,6 +2,9 @@ package cz.incad.kramerius.indexer;
 
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -86,7 +89,14 @@ public class SolrOperations {
             initDocCount = getDocCount();
             if ("deleteDocument".equals(action)) {
                 for(String v : value.split(pidSeparator)){
-                    deleteDocument(v);
+                    SolrAccess sa = new SolrAccessImpl();
+                    ObjectPidsPath[] path = sa.getPath(v);
+                    // don't need iterate over all array
+                    ObjectPidsPath one = path[0];
+                    String[] pathFromRootToLeaf = one.getPathFromRootToLeaf();
+                    String joined = String.join("/", pathFromRootToLeaf);
+                    logger.info(" Deleting pidpath "+joined);
+                    deleteDocument(joined);
                     commit();
                 }
 //                deleteDocument(value);
@@ -589,10 +599,9 @@ public class SolrOperations {
     }
 
     private void deleteDocument(String pid_path) throws Exception {
-        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "\\\\") + "*</query></delete>");
+
+        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\])", "\\\\") + "*</query></delete>");
         logger.log(Level.INFO, "deleting document with {0}", sb.toString());
-        postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
-        sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "\\\\") + "</query></delete>");
         postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
         commit();
         deleteTotal++;
