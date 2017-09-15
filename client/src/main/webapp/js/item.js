@@ -329,7 +329,8 @@ ItemSupport.prototype = {
         var pid = K5.api.ctx["item"]["selected"];
         var data = K5.api.ctx["item"][pid];
 
-        this.itemContext = data.context[0];
+        this.itemContext = data.context.sort(function (a, b) { return b.length - a.length; })[0];
+
         var contextDiv = $("<div/>", {class: "context"});
         var titleH = $('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
         
