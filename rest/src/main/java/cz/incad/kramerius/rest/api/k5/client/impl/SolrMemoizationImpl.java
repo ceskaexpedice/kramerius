@@ -98,4 +98,12 @@ public class SolrMemoizationImpl implements SolrMemoization{
     public void clearMemo() {
         this.elms.clear();
     }
+
+    public SolrAccess getSolrAccess() {
+        return solrAccess;
+    }
+
+    public void setSolrAccess(SolrAccess solrAccess) {
+        this.solrAccess = solrAccess;
+    }
 }
