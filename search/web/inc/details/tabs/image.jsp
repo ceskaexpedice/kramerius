@@ -223,7 +223,7 @@ function onLoadPlainImage() {
                 if ((!pagePid) && viewerOptions.previewStreamGenerated) {
                     requestedImg = 'img?uuid='+viewerOptions.uuid+'&stream=IMG_PREVIEW&action=SCALE&scaledHeight=700';
                 } else if ((!pagePid) && (!viewerOptions.previewStreamGenerated)) {
-                	requestedImg = 'img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700&page=1';
+                	requestedImg = 'img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700&page=0';
                 } else {
                     requestedImg = 'img?uuid='+viewerOptions.uuid+'&stream=IMG_FULL&action=SCALE&scaledHeight=700&page=${image.pageInt}';
                 }      
