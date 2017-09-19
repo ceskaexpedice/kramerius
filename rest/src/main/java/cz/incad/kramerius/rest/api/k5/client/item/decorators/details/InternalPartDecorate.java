@@ -44,7 +44,6 @@ public class InternalPartDecorate extends  AbstractDetailDecorator{
                 if (doc == null) {
                     doc = this.memo.askForIndexDocument(pid);
                 }
-
                 if (doc != null) {
                     List<String> array = SOLRUtils.array(doc, "details",
                             String.class);
@@ -63,6 +62,7 @@ public class InternalPartDecorate extends  AbstractDetailDecorator{
                         if (details.length > 3) {
                             detailsJSONObject.put("pageRange", details[3]);
                         }
+
                         boolean moreThanZero = detailsJSONObject.keys().hasNext();
                         if (moreThanZero) {
                             jsonObject.put("details", detailsJSONObject);
@@ -81,6 +81,8 @@ public class InternalPartDecorate extends  AbstractDetailDecorator{
 
     @Override
     public boolean apply(JSONObject jsonObject, String context) throws JSONException {
-        return false;
+        String m = super.getModel(jsonObject);
+        TokenizedPath tpath = super.itemContext(tokenize(context));
+        return tpath.isParsed() && m != null && m.equals("internalpart");
     }
 }

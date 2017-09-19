@@ -156,31 +156,6 @@ public class CDKReplicationsResource {
                 + date + "%20TO%20NOW}&start=" + offset + "&rows=" + rows;
     }
 
-//    @GET
-//    @Path("prepare")
-//    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-//    public Response prepareJSON(@QueryParam("date") String date,
-//            @QueryParam("offset") @DefaultValue("0") String offset,
-//            @QueryParam("rows") @DefaultValue("100") String rows)
-//            throws ReplicateException, UnsupportedEncodingException {
-//        try {
-//            if (checkPermission()) {
-//                if (date == null) {
-//                    date = FORMAT.format(new Date());
-//                }
-//                // TODO: permissions
-//                Document document = this.solrAccess.request(makeRequestURL(
-//                        date, offset, rows) + "&wt=json");
-//                return Response.ok().entity(document).build();
-//            } else
-//                throw new ActionNotAllowed("action is not allowed");
-//        } catch (FileNotFoundException e) {
-//            throw new ReplicateException(e);
-//        } catch (IOException e) {
-//            throw new ReplicateException(e);
-//        }
-//    }
-
     @GET
     @Path("{pid}/solrxml")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
@@ -198,6 +173,25 @@ public class CDKReplicationsResource {
             throw new ReplicateException(e);
         }
     }
+
+    @GET
+    @Path("{pid}/{page}/solrxml")
+    @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
+    public Response getCombinedPidExportedSolrXML(@PathParam("pid") String pid,@PathParam("page") String page)
+            throws ReplicateException, UnsupportedEncodingException {
+        try {
+            if (checkPermission()) {
+                Document solrDoc = this.solrAccess.getSolrDataDocument(pid+"/"+page);
+                return Response.ok().entity(solrDoc).build();
+            } else
+                throw new ActionNotAllowed("action is not allowed");
+        } catch (FileNotFoundException e) {
+            throw new ObjectNotFound("cannot find pid '" + pid + "'");
+        } catch (IOException e) {
+            throw new ReplicateException(e);
+        }
+    }
+
 
     @GET
     @Path("{pid}/foxml")
