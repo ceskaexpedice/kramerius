@@ -86,6 +86,7 @@ public class XMLFormatter implements StatisticsExportMainLogFormatter {
             builder.append("\t<user>").append(StringUtils.nullify((String)record.get("user"))).append("</user>\n");
             builder.append("\t<remote_ip_address>").append(StringUtils.nullify((String)record.get("remote_ip_address"))).append("</remote_ip_address>\n");
             builder.append("\t<stat_action>").append(StringUtils.nullify((String)record.get("stat_action"))).append("</stat_action>\n");
+            builder.append("\t<session_id>").append(StringUtils.nullify((String)record.get("session_id"))).append("</session_id>\n");
             builder.append("<details>");
 
             this.os.write(builder.toString().getBytes("UTF-8"));

@@ -44,7 +44,7 @@ Results.prototype = {
             }
         }, this));
 
-        this.getDocs();
+        this.getDocs(false);
         var hash = hashParser();
         if (hash.hasOwnProperty(this.displayStyle) > 1) {
             if (hash[this.displayStyle] === "asrow")
@@ -83,19 +83,22 @@ Results.prototype = {
 
     },
     onScroll: function() {
-        if ($('#search_results_docs .more_docs').length > 0) {
+        if ($('#search_results_docs .more_docs').length > 0 && !this.loadingDocs) {
             var el = $('#search_results_docs .more_docs');
             if (isScrolledIntoView($(el), $('#search_results_docs'))) {
+              this.loadingDocs = true;
                 var start = $('#search_results_docs .more_docs').data('start');
                 $("#start").val(start);
-                this.getDocs();
+                this.getDocs(true);
             }
         }
     },
-    getDocs: function() {
+    getDocs: function(isMore) {
         $('.opacityloading').show();
         this.srResize();
-        $.get("raw_results.vm?" + $("#search_form").serialize(), _.bind(function(data) {
+        var start = isMore ? $("#start").val() : 0 ; 
+        
+        $.get("raw_results.vm?" + $("#search_form").serialize() + "&start=" + start, _.bind(function(data) {
             //console.log(data);
             $('#search_results_docs .more_docs').remove();
             var json = jQuery.parseJSON(data);
@@ -105,6 +108,7 @@ Results.prototype = {
                 this.srResize();
             }
             $('.opacityloading').hide();
+            this.loadingDocs = false;
             this.resultsLoaded = true;
         }, this));
     },
@@ -307,7 +311,11 @@ Result.prototype = {
         var policy = $('<div/>', {class: 'policy'});
         if (doc['dostupnost']) {
             policy.addClass(doc['dostupnost']);
-            policy.attr("title", doc['dostupnost']);
+            policy.addClass("translate_title");
+            policy.attr("data-key","dostupnost."+doc['dostupnost']);
+            //policy.attr("title", doc['dostupnost']);
+            policy.attr("title", K5.i18n.translate("dostupnost."+doc['dostupnost']));
+			
         }
 
         var divimg = $('<div/>', {class: 'img'});

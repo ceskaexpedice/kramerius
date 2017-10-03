@@ -1,1 +1,1 @@
-<image file="$imgpath$"></image>
+<image pid="$pid$" file="$imgpath$"></image>

@@ -34,13 +34,13 @@
     <input id="debug" name="debug" type="hidden" value="${param.debug}" /> 
     <input id="sort" name="sort" type="hidden" value="${param.sort}" /> 
     <input type="text"
-           name="q" id="q"
-           value="<c:out value="${param.q}"/>" size="50"
-           class="${qclass}" onclick="checkSearchInput();">
-    <input title="Vyhledat" type="submit" value="" class="submit" />
-    <div class="advSearch" title="<fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message>">
-        <a href="javascript:toggleAdv();"><fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message></a>
-    </div><%@ include file="advancedSearch.jsp"%>
+           alt="" name="q" id="q"
+           value="${fn:escapeXml(param.q)}" size="50"
+           class="${qclass}" type="text" onclick="checkSearchInput();"> &nbsp;
+    <input class="submit" title="Vyhledat" type="submit" value="" />
+    <span><a href="javascript:toggleAdv();"
+       title="<fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message>"><fmt:message bundle="${lctx}">Pokročilé vyhledávání</fmt:message></a>
+    </span><%@ include file="advancedSearch.jsp"%>
 </form>
 <script type="text/javascript">
 

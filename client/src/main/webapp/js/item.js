@@ -42,11 +42,21 @@ K5.eventsHandler.addHandler(function(type, configuration) {
     }
         
     if (type === "application/keys/left") {
+      if($("#viewer>div.searchinside").is(":visible") || $("#q").is(":focus")){
+        return;
+      } else {
+        configuration[0].preventDefault(); // prevent the default action (scroll / move caret)
         K5.gui["selected"].prev();
+      }
     }
 
     if (type === "application/keys/right") {
+      if($("#viewer>div.searchinside").is(":visible") || $("#q").is(":focus")){
+        return;
+      } else {
+        configuration[0].preventDefault(); // prevent the default action (scroll / move caret)
         K5.gui["selected"].next();
+      }
     }
 
     if (type === "window/resized") {
@@ -99,10 +109,18 @@ function _eventProcess(pid) {
         K5.gui["selected"]["ctx"] = {};    
 
         if (K5.gui["selected"].containsLeftStructure && K5.gui["selected"].containsLeftStructure()) {
+                        
             if(typeof K5.gui["selected-left"] != 'undefined'){
-                K5.gui["selected-left"].process();   
+                if (K5.gui["selected"].leftStructureSettings) {
+                    K5.gui["selected-left"].setSettings( K5.gui["selected"].leftStructureSettings());
+                }
+                K5.gui["selected-left"].process();
             }else{
-                K5.gui["selected-left"] =  new LeftThumbs();   
+                if (K5.gui["selected"].leftStructureSettings) {
+                    K5.gui["selected-left"] = new LeftThumbs(K5, '#viewer>div.container>div.thumbs',K5.gui["selected"].leftStructureSettings());
+                } else {
+                    K5.gui["selected-left"] = new LeftThumbs(K5, '#viewer>div.container>div.thumbs');
+                }
             }
                  
             //K5.gui["selected-left"].init();
@@ -233,11 +251,11 @@ ItemSupport.prototype = {
     },
     
     maximize:function(){
+
         if(K5.gui["maximized"]){
             this.restore();
         }else{
-            //$("#header").hide();
-            $("#metadata").hide();
+        	$("#metadata").hide();
             $(".thumbs").hide();
             $("#viewer>div.breadcrumbs").hide();
             $("#viewer>div.container").css("width", "100%");
@@ -318,9 +336,9 @@ ItemSupport.prototype = {
         var model = K5.api.ctx["item"][pid]['model'];
         model = K5.i18n.ctx.dictionary["fedora.model." + model];
         $('.mtd_footer .prev').attr('title', K5.i18n.ctx.dictionary["buttons.prev"] + " " + model);
-        $('.mtd_footer .prev').data('key', K5.i18n.ctx.dictionary["buttons.prev"] + " " + model);
+        $('.mtd_footer .prev').data('key', "buttons.prev");
         $('.mtd_footer .next').attr('title', K5.i18n.ctx.dictionary["buttons.next"] + " " + model);
-        $('.mtd_footer .next').data('key', K5.i18n.ctx.dictionary["buttons.nex"] + " " + model);
+        $('.mtd_footer .next').data('key', "buttons.next");
         
         //contextDiv.append('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
         for (var i = 0; i < this.itemContext.length; i++) {

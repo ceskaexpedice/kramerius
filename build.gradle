@@ -16,19 +16,16 @@
  */
 
 plugins {
-        id 'com.gradle.build-receipt' version '1.0'
+    id 'com.gradle.build-scan' version '1.0'
 }
 
-buildReceiptLicense {
-    agreementUrl = 'https://gradle.com/terms-of-service'
-    agree = 'yes'
+buildScan {
+    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
+    licenseAgree = 'yes'
 }
+println "Building K4-K5; please read BUILD-README.txt"
 
-println "Building K4; please read BUILD-README.txt"
-
-apply plugin: 'distribution' // -> generate distributions
 apply plugin: 'java' // -> generate javadoc
-
 
 configurations {
         /**
@@ -39,6 +36,12 @@ configurations {
 	}
 }
 
+
+configurations.all {
+    exclude module: 'slf4j-log4j12'
+}
+
+
 dependencies {
         // editor dependency
         editors group: "cz.incad.kramerius", name: "editor", version: "5.1.0", ext: "war"
@@ -48,33 +51,13 @@ dependencies {
 
 
 
-
-distributions {
-        // main distribution        
-        main {
-                contents {
-                        from {'client/build/libs'}
-                        from {'search/build/libs'}
-                        from {'security-core/build/libs'}
-                        from configurations.editors
-                        from 'build/distributions/kramerius-javadoc.zip'
-                }
-        }
-
-
-        // patch distribution        
-        patch {
-                contents {
-                        from {'client/build/libs'}
-                        from {'search/build/libs'}
-                        from {'security-core/build/libs'}
-                }
-        }
-}
-
-
 repositories {
 	mavenLocal()
+}
+
+allprojects {
+         group='cz.incad.kramerius'
+         version='5.3.8'
 }
 
 
@@ -85,9 +68,11 @@ subprojects {
 
          apply plugin:'java'
          apply plugin: 'eclipse'
-	 apply plugin: 'maven'
+         apply plugin: 'maven'
 
-
+         compileJava.options.encoding = 'UTF-8'
+		 
+		 		 
          ext.guiceversion ='3.0'
          ext.postgresversion = '8.4-702.jdbc4'
          ext.slf4jversion='1.6.0'
@@ -96,8 +81,6 @@ subprojects {
          ext.generatedSources = "generated-sources"
 
          
-         group='cz.incad.kramerius'
-         version='5.3.3'
          
          sourceCompatibility = 1.6
          targetCompatibility= 1.6
@@ -129,9 +112,9 @@ subprojects {
          
          repositories {
 		 
-		 flatDir {
-		 	dirs '../buildSrc/lib'	
-		 }
+            flatDir {
+		 	   dirs '../buildSrc/lib'	
+		    }
 
          	 maven {
          	 	 url "http://kramerius.googlecode.com/svn/mvnrepo"
@@ -167,37 +150,101 @@ subprojects {
          	 	 url "http://jsdoctk-plugin.googlecode.com/svn/repo"
          	 }
          	 
-         	 maven {
-         	 	 url "http://repository.springsource.com/maven/bundles/external"
-         	 }
+         	maven {
+				url "http://repository.springsource.com/maven/bundles/external"
+         	}
 
-         	 maven {
-         	 	 url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases"
-         	 }
+         	maven {
+				url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases"
+         	}
 
-         	 maven {
+         	maven {
          	 	 url "http://download.osgeo.org/webdav/geotools/"
-         	 }
+         	}
          	 
-                 maven {
-                        url "http://repo.jfrog.org/artifactory/libs-releases/"
-                 }
+			maven {
+				url "http://repo.jfrog.org/artifactory/libs-releases/"
+			}
 
-         	 maven {
-         	 	 url "https://maven.atlassian.com/content/groups/public"
-         	 }
+         	maven {
+				url "https://maven.atlassian.com/content/groups/public"
+         	}
          	 
-         	 maven {
-         	 	 url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
-         	 }
+         	maven {
+				url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
+			}
 
          }
 
-	tasks.withType(Javadoc) {
-		options.addStringOption('Xdoclint:none', '-quiet')	
-	}	
+         tasks.withType(Javadoc) {
+		   options.addStringOption('Xdoclint:none', '-quiet')	
+        }
+	     
+		//~ overwrite windows encoding		
+        test {
+           systemProperty "file.encoding", "utf-8"
+        }
+		
+        tasks.withType(JavaCompile) {
+			options.encoding = 'UTF-8'
+			options.fork = true	
 
-        build.finalizedBy 'install'
+			// if there JDK6_HOME path defined; use it 
+			if (System.env.JDK6_HOME != null) {
+				options.bootClasspath = "$System.env.JDK6_HOME/jre/lib/rt.jar"
+				options.bootClasspath += "$File.pathSeparator$System.env.JDK6_HOME/jre/lib/jsse.jar"
+			// if there JDK7_HOME path defined; use it 
+			} else if (System.env.JDK7_HOME != null) {
+				options.bootClasspath = "$System.env.JDK7_HOME/jre/lib/rt.jar"
+				options.bootClasspath += "$File.pathSeparator$System.env.JDK7_HOME/jre/lib/jsse.jar"
+			}
+		}
+		
+		
+		// ~ overwritten windows encoding 
+		
+		// remove all dependencies without group id 
+		install.repositories.mavenInstaller.pom.whenConfigured {pom ->
+			pom.dependencies.removeAll { it.groupId == null || it.groupId.equals("") }
+		}
+}
+
+/**
+ * Distribution task; zipInstallDir first
+ */
+task distZip(type:Zip, dependsOn: 'zipInstallDir') {
+        description "Create full distribution zip"
+	baseName "kramerius"
+	group "Distribution"
+        from {'client/build/libs'}
+        from {'search/build/libs'}
+        from {'security-core/build/libs'}
+        from configurations.editors
+        from {'build/installation'}
+        from 'build/distributions/kramerius-javadoc.zip'
+	eachFile {
+		it.path = it.path.replace('-5.1.0.war', '.war')
+	}
+}
+/**
+ * Patch distribution task
+ */
+task distPatchZip(type:Zip) {
+        description "Create patch distribution zip"
+	baseName "kramerius-patch"
+	group "Distribution"
+        from {'client/build/libs'}
+        from {'search/build/libs'}
+        from {'security-core/build/libs'}
+}
+
+
+// zip installaton directory
+task zipInstallDir(type:Zip) {
+        description "Create zip from installation directory"
+	baseName "installation"
+	from "installation"
+	destinationDir file('build/installation')
 }
 
 
@@ -213,12 +260,7 @@ task zipAllJavadocs(type: Zip) {
                 } 
 
         }
-                
 }
-
-[distZip, distTar, installDist,patchDistZip,patchDistTar].each() { 
-  it.dependsOn('clean',':search:build',':client:build')
-};
 
 
 

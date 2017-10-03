@@ -13,6 +13,7 @@ import java.util.logging.Level;
 
 import javax.servlet.ServletContextEvent;
 
+import com.google.gwt.user.client.ui.DelegatingFocusListenerCollection;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -32,6 +33,7 @@ import cz.incad.kramerius.imaging.guice.ImageModule;
 import cz.incad.kramerius.pdf.guice.PDFModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
 import cz.incad.kramerius.processes.guice.LongRunningProcessModule;
+import cz.incad.kramerius.rest.api.guice.IiifServletModule;
 import cz.incad.kramerius.security.guice.GuiceSecurityModule;
 import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
 import cz.incad.kramerius.service.guice.I18NModule;
@@ -39,6 +41,7 @@ import cz.incad.kramerius.service.guice.MailModule;
 import cz.incad.kramerius.service.guice.ServicesModule;
 import cz.incad.kramerius.users.guice.LoggedUsersModule;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class GuiceConfigBean extends GuiceServletContextListener {
 
@@ -51,7 +54,13 @@ public class GuiceConfigBean extends GuiceServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         String realPath = servletContextEvent.getServletContext().getRealPath("/WEB-INF/lib");
-        System.setProperty(LongRunningProcessModule.DEFAULT_LIBS_KEY, realPath);
+        String defaultProcesses = KConfiguration.getInstance().getProperty(".kramerius.deafult_processes_libs_dir");
+        // check if it is null or not
+        if (realPath != null || defaultProcesses != null) {
+            System.setProperty(LongRunningProcessModule.DEFAULT_LIBS_KEY, realPath != null ? realPath : defaultProcesses);
+        } else {
+            LOGGER.warning("cannot resolve path to WEB-INF/lib - couldn't to start processes");
+        }
         super.contextInitialized(servletContextEvent);
     }
 
@@ -81,6 +90,9 @@ public class GuiceConfigBean extends GuiceServletContextListener {
                 new ContextMenuConfiguration(), // menu modules
 
                 new FormatterModule(), // statistics formatters
+
+                new IiifServletModule(),
+
                 servletModule()
 		)); 
     	

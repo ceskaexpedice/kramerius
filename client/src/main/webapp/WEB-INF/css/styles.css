@@ -511,7 +511,7 @@ li.public:before{
 
 #facets div.res{
     width: 100%;
-    white-space: nowrap;
+    /* white-space: nowrap; */
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -1100,6 +1100,10 @@ li.public:before{
 
 #viewer table.container tr.img td.hit img{
     border:2px green solid;     
+}
+
+#viewer table.container tr.img td.chit img {
+    border:2px green solid;
 }
 
 #viewer table.container tr.txt td.hit{

@@ -24,6 +24,7 @@
 #parse("svg/markline-right.svg")
 #parse("svg/arrow2d.svg")
 #parse("svg/maximize.svg")
+#parse("svg/minimize.svg")
 #parse("svg/fit.svg")
 #parse("svg/lupa.svg")
 #parse("svg/hit.svg")

@@ -3,6 +3,7 @@ package cz.incad.kramerius.audio;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,7 +63,7 @@ public class AudioStreamForwardUtils {
                 throw new IllegalArgumentException(ex);
             }
         } else {
-            throw new SecurityException("not allowed");
+            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, id.getPid()));
         }
     
     }
@@ -85,7 +86,7 @@ public class AudioStreamForwardUtils {
                 throw new ServletException(ex);
             }
         } else {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, id.getPid()));
         }
     }
 
@@ -107,7 +108,7 @@ public class AudioStreamForwardUtils {
                 throw new ServletException(ex);
             }
         } else {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, id.getPid()));
         }
     }
 
@@ -129,8 +130,8 @@ public class AudioStreamForwardUtils {
                 throw new IllegalArgumentException(ex);
             }
         } else {
-            throw new SecurityException("not allowed");
-        }
+            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, id.getPid()));
+       }
     }
 
 }

@@ -399,8 +399,8 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                                 .forName("UTF-8"))), true).getDocumentElement(),
                 cmnds);
 
-        RenderPDF render = new RenderPDF(pdfContext.getFontMap());
-        render.render(document, cmnds);
+        RenderPDF render = new RenderPDF(pdfContext.getFontMap(), fedoraAccess);
+        render.render(document, pdfWriter, cmnds);
 
     }
 
@@ -545,7 +545,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                 document.add(na);
             }
         } catch (cz.incad.kramerius.security.SecurityException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.INFO, e.getMessage());
             Chunk chunk = new Chunk(textsService.getText("security_fail",
                     localeProvider.get()), font);
             Paragraph na = new Paragraph(chunk);

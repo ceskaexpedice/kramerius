@@ -3,20 +3,14 @@ package cz.incad.kramerius.rest.api.k5.client.pdf;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -25,31 +19,11 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
-import com.lowagie.text.DocumentException;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.document.DocumentService;
-import cz.incad.kramerius.pdf.FirstPagePDFService;
-import cz.incad.kramerius.pdf.GeneratePDFService;
-import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
 import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
-import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
-import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
-import cz.incad.kramerius.rest.api.k5.client.pdf.AbstractPDFResource.FirstPage;
-import cz.incad.kramerius.service.TextsService;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
 
@@ -60,7 +34,7 @@ public class AsyncPDFResource  extends AbstractPDFResource{
 
     //private boolean acquired;
 
-    public JSONObject outputJSON(File generatedPDF) throws IOException, COSVisitorException, JSONException {
+    public JSONObject outputJSON(File generatedPDF) throws IOException, JSONException {
         String uuid = UUID.randomUUID().toString();
         PDFExlusiveGenerateSupport.pushFile(uuid, generatedPDF);
         JSONObject obj = new JSONObject();

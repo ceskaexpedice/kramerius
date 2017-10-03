@@ -75,7 +75,7 @@ public class SolrISSNDecorate extends AbstractFeederDecorator {
     public boolean apply(JSONObject jsonObject, String context) {
         TokenizedPath fctx = super.feederContext(tokenize(context));
         if (fctx.isParsed()) {
-            return ((!fctx.getRestPath().isEmpty()) && mostDesirableOrNewest(fctx));
+            return ((!fctx.getRestPath().isEmpty()) && mostDesirableOrNewestOrCustom(fctx));
         } else
             return false;
     }

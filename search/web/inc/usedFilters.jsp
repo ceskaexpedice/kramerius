@@ -8,7 +8,7 @@
 <view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
 <c:if test="${!empty param.q || param.da_od != null && param.da_od != '' || !empty paramValues.fq ||
       !empty param.issn || !empty param.title || !empty param.author || !empty param.rok || !empty param.keywords ||
-      !empty param.udc ||!empty param.ddc || !empty param.onlyPublic || param.suggest=='true' ||
+      !empty param.udc ||!empty param.ddc || !param.shelfLocator || !param.physicalLocation || !empty param.onlyPublic || param.suggest=='true' ||
       cols.current != null}" >
 <ul>
     <li style="border-color: rgba(0, 30, 60, 0.9);border-right: 1px solid rgba(0, 30, 60, 0.9);">
@@ -30,8 +30,16 @@
             <%-- datum --%>
             <c:if test="${param.da_od != null && param.da_do != ''}">
                 <li>
-                <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeDateAxisFilter();">
-                <fmt:message bundle="${lctx}" key="common.date" />: <c:out value="${param.da_od}" /> - <c:out value="${param.da_do}" /></a>
+		  <c:choose>
+		      <c:when test="${param.exactDay == 'true'}" >
+			<a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeDateAxisFilter();">
+			<fmt:message bundle="${lctx}" key="common.date" />: <c:out value="${param.da_od}" /></a>
+		      </c:when>
+		      <c:otherwise>
+			<a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeDateAxisFilter();">
+			<fmt:message bundle="${lctx}" key="common.date" />: <c:out value="${param.da_od}" /> - <c:out value="${param.da_do}" /></a>
+		      </c:otherwise>
+		  </c:choose>
                 </li>
             </c:if>
 
@@ -112,6 +120,21 @@
                 <li>
                 <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeAdvFilter('ddc', '<c:out value="${param.ddc}" />');">
                 DDT: &#160;<c:out value="${param.ddc}"/></a>
+                </li>
+            </c:if>
+             
+
+            <c:if test="${!empty param.shelfLocator}">
+                <li>
+                <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeAdvFilter('shelfLocator', '<c:out value="${param.shelfLocator}" />');">
+               <fmt:message bundle="${lctx}" key="filter.shelfLocator" />: &#160;<c:out value="${param.shelfLocator}"/></a>
+                </li>
+            </c:if>
+
+            <c:if test="${!empty param.physicalLocation}">
+                <li>
+                <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeAdvFilter('physicalLocation', '<c:out value="${param.physicalLocation}" />');">
+               <fmt:message bundle="${lctx}" key="filter.physicalLocation" />: &#160;<c:out value="${param.physicalLocation}"/></a>
                 </li>
             </c:if>
                 

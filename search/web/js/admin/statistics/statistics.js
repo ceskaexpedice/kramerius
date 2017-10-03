@@ -10,6 +10,17 @@ Statistics.prototype._url=function(report,format) {
     return url;
 }
 
+Statistics.prototype._datefilter=function(url,dateFrom, dateTo) {
+    var retval = url;
+    if (dateFrom !== null) {
+      retval = retval + '&dateFrom='+dateFrom;   
+    }
+    if (dateTo !== null) {
+      retval = retval + "&dateTo="+dateTo;   
+    }
+    return retval;
+}
+
 /** Show context dialog **/
 Statistics.prototype.showContextDialog = function() {
     $.get("inc/admin/_statistics_context_container.jsp", bind(function(data) {
@@ -63,45 +74,53 @@ Statistics.prototype.showDialog = function() {
 }
 
 /** Lang **/
-Statistics.prototype.reloadLangReport=function(action,type, val, offset,size) {
+Statistics.prototype.reloadLangReport=function(action,visibility,dateFrom, dateTo,type, val, offset,size) {
     var url = "inc/admin/_statistics_langs.jsp?type=lang&val="+val+"&offset="+offset+"&size="+size;
     if (action !== null) {
         url = url +'&action='+action;
     }
+    url= this._datefilter(url,dateFrom, dateTo);
     $.get(url, bind(function(data) {
         $("#statistic_report_lang").html(data);
     },this));
 }
 
 
-Statistics.prototype.langCSV=function(action) {
+Statistics.prototype.langCSV=function(action,visibility,dateFrom, dateTo) {
     var url = this._url('lang','CSV'); // 'stats?format=CSV&report=lang';
+    url = url + "&visibility="+visibility
     if (action !== null) {
         url = url +'&action='+action;
+        url= this._datefilter(url,dateFrom, dateTo);
         window.open(url, '_blank');
     } else {
+        url= this._datefilter(url,dateFrom, dateTo);
         window.open(url, '_blank');
     }
 }
 
-Statistics.prototype.langXML=function(action) {
+Statistics.prototype.langXML=function(action,visibility,dateFrom, dateTo) {
     var url = this._url('lang','XML'); // 'stats?format=CSV&report=lang';
+    url = url + "&visibility="+visibility
     if (action !== null) {
         url = url +'&action='+action;
+        url= this._datefilter(url,dateFrom, dateTo);
         console.log(url);
         window.open(url, '_blank');
     } else {
+        url= this._datefilter(url,dateFrom, dateTo);
         console.log(url);
         window.open(url, '_blank');
     }
 }
 
-Statistics.prototype.showLangReport = function(action) {
+Statistics.prototype.showLangReport = function(action,visibility,dateFrom, dateTo) {
     if(console) {
         console.log(" action "+action);
     }
-    var url = "inc/admin/_statistics_langs.jsp?type=lang&val=x";
+    var url = "inc/admin/_statistics_langs.jsp?type=lang&val=x"+"&visibility="+visibility;
     if (action) url = url + "&action="+action;
+    url = this._datefilter(url,dateFrom, dateTo);
     $.get(url, bind(function(data) {
         var dDialog = this.reportDialogs['lang'];
         if (dDialog) {
@@ -116,8 +135,8 @@ Statistics.prototype.showLangReport = function(action) {
                 modal: true,
                 title: dictionary ['statistics.report.lang'],
                 buttons: [{
-                              text:dictionary['common.close'],
-                              click:function() { $(this).dialog("close"); }
+                          text:dictionary['common.close'],
+                          click:function() { $(this).dialog("close"); }
                 }]
             });
         }
@@ -130,22 +149,25 @@ Statistics.prototype.showLangReport = function(action) {
 
 
 /** Author **/
-Statistics.prototype.reloadAuthorsReport=function(action, type, val, offset,size) {
-    var url = "inc/admin/_statistics_authors.jsp?type=author&val="+val+"&offset="+offset+"&size="+size;
+Statistics.prototype.reloadAuthorsReport=function(action,visibility,dateFrom, dateTo, type, val, offset,size) {
+    var url = "inc/admin/_statistics_authors.jsp?type=author&val="+val+"&offset="+offset+"&size="+size+"&visibility="+visibility;
     if (action !== null) {
         url = url + '&action='+action;
     }
+    url = this._datefilter(url,dateFrom, dateTo);
     $.get(url, bind(function(data) {
         $("#statistic_report_author").html(data);
     },this));
 }
 
 
-Statistics.prototype.showAuthorReport = function(action) {
-    var url = "inc/admin/_statistics_authors.jsp?type=author&val=x";
+Statistics.prototype.showAuthorReport = function(action,visibility, dateFrom, dateTo) {
+    var url = "inc/admin/_statistics_authors.jsp?type=author&val=x"+"&visibility="+visibility;
     if (action !== null) {
         url = url + '&action='+action;
     }
+	url = this._datefilter(url,dateFrom, dateTo);
+	
     $.get(url, bind(function(data) {
         var dDialog = this.reportDialogs['author'];
         if (dDialog) {
@@ -173,25 +195,31 @@ Statistics.prototype.showAuthorReport = function(action) {
     
 }
 
-Statistics.prototype.authorCSV=function(action) {
+Statistics.prototype.authorCSV=function(action,visibility, dateFrom, dateTo) {
     var url = this._url('author','CSV'); // 'stats?format=CSV&report=author';
+    url = url + "&visibility="+visibility
     if (action !== null) {
         url = url +'&action='+action;
+        url = this._datefilter(url,dateFrom, dateTo);
         console.log(url);
         window.open(url, '_blank');
     } else {
+        url = this._datefilter(url,dateFrom, dateTo);
         console.log(url);
         window.open(url, '_blank');
     }
 }
 
-Statistics.prototype.authorXML=function(action) {
+Statistics.prototype.authorXML=function(action,visibility, dateFrom, dateTo) {
     var url = this._url('author','XML'); // 'stats?format=CSV&report=author';
     url = url + (action === null ? '':'');    
+    url = url + "&visibility="+visibility
     if (action !== null) {
         url = url +'&action='+action;
+		url = this._datefilter(url,dateFrom, dateTo);
         window.open(url, '_blank');
     } else {
+		url = this._datefilter(url,dateFrom, dateTo);
         window.open(url, '_blank');
     }
 }
@@ -199,76 +227,10 @@ Statistics.prototype.authorXML=function(action) {
 /**~ Author **/
 
 
-/** Dates range **/
-Statistics.prototype.dateDurationCSV=function(action,dateFrom, dateTo) {
-    var url = this._url('dates','CSV'); // 'stats?format=CSV&report=model';
-    if (action !== null) {
-        url = url + '&action='+action;
-    }
-    if (dateFrom !== null && dateTo !== null) {
-        url = url + '&filteredValue='+dateFrom+"-"+dateTo;   
-        if (console) console.log(' url is '+url);    
-        window.open(url, '_blank');
-    }
-}
-
-Statistics.prototype.dateDurationXML=function(action,dateFrom, dateTo) {
-    var url = this._url('dates','XML'); // 'stats?format=CSV&report=model';
-    if (action !== null) {
-        url = url + '&action='+action;
-    }
-    if (dateFrom !== null && dateTo !== null) {
-        url = url + '&filteredValue='+dateFrom+"-"+dateTo;   
-        if (console) console.log(' url is '+url);    
-        window.open(url, '_blank');
-    }
-}
-
-
-
-Statistics.prototype.reloadDatesRangeReport=function(action,type, val, offset,size) {
-    var url = "inc/admin/_statistics_datesrange.jsp?type=dates&val="+val+"&offset="+offset+"&size="+size;
-    if (action !== null) {
-        url = url + '&action='+action;
-    }
-    if (console) console.log("url "+url);
-    $.get(url, bind(function(data) {
-        $("#statistic_report_dates").html(data);
-    },this));
-}
-
-Statistics.prototype.showDatesRangeReport = function(action, from, to) {
-    var url = "inc/admin/_statistics_datesrange.jsp?type=dates&val="+from+"-"+to;
-    if (action !== null) {
-        url = url + '&action='+action;
-    }
-    $.get(url, bind(function(data) {
-        var dDialog = this.reportDialogs['dates'];
-        if (dDialog) {
-            dDialog.dialog('open');
-        } else {
-            var pdiv = '<div id="statistic_report_dates"></div>';
-            $(document.body).append(pdiv);
-            dDialog = $("#statistic_report_dates").dialog({
-                bgiframe: true,
-                width:  800,
-                height:  600,
-                modal: true,
-                title: dictionary['statistics.report.dates'],
-                buttons: [{
-                              text:dictionary['common.close'],
-                              click:function() { $(this).dialog("close"); }
-                }]
-            });
-        }
-        $("#statistic_report_dates").html(data);
-    },this));    
-}
-/** ~Dates range */
 
 
 /** Selected pids **/
-Statistics.prototype.pidsCSV=function(action,pids) {
+Statistics.prototype.pidsCSV=function(action,visibility,pids, dateFrom, dateTo) {
     var url = this._url('pids','CSV'); // 'stats?format=CSV&report=model';
     if (action !== null) {
         url = url + '&action='+action;
@@ -278,11 +240,12 @@ Statistics.prototype.pidsCSV=function(action,pids) {
         base = base+item+ (status.last ? "": ",");
         return base;
     }, url,pids); 
+	url = this._datefilter(url,dateFrom, dateTo);
     if (console) console.log(' url is '+url);    
     window.open(url, '_blank');
 }
 
-Statistics.prototype.pidsXML=function(action, pids) {
+Statistics.prototype.pidsXML=function(action,visibility, pids, dateFrom, dateTo) {
     var url = this._url('pids','XML'); // 'stats?format=CSV&report=model';
     if (action !== null) {
         url = url + '&action='+action;
@@ -292,13 +255,14 @@ Statistics.prototype.pidsXML=function(action, pids) {
         base = base+item+ (status.last ? "": ",");
         return base;
     }, url,pids); 
+	url = this._datefilter(url,dateFrom, dateTo);
     if (console) console.log(' url is '+url);    
     window.open(url, '_blank');
 }
 
 
 
-Statistics.prototype.reloadPidsReport=function(action,type, val, offset,size) {
+Statistics.prototype.reloadPidsReport=function(action,visibility, dateFrom, dateTo,type, val, offset,size) {
     var url = "inc/admin/_statistics_pids.jsp?type=pids&val="+val+"&offset="+offset+"&size="+size;
     url = reduce(function(base, item, status) {
         base = base+item+ (status.last ? "": ",");
@@ -307,13 +271,15 @@ Statistics.prototype.reloadPidsReport=function(action,type, val, offset,size) {
     if (action !== null) {
         url = url + '&action='+action;
     }
+	url = this._datefilter(url,dateFrom, dateTo);
+
     if (console) console.log("url "+url);
     $.get(url, bind(function(data) {
         $("#_statistics_pids").html(data);
     },this));
 }
 
-Statistics.prototype.showPidsReport = function(action,pids) {
+Statistics.prototype.showPidsReport = function(action,visibility,pids, dateFrom, dateTo) {
     var url = "inc/admin/_statistics_pids.jsp?type=pids&val=";
     url = reduce(function(base, item, status) {
         base = base+item+ (status.last ? "": ",");
@@ -322,6 +288,7 @@ Statistics.prototype.showPidsReport = function(action,pids) {
     if (action !== null) {
         url = url + '&action='+action;
     }
+	url = this._datefilter(url,dateFrom, dateTo);
     $.get(url, bind(function(data) {
         var dDialog = this.reportDialogs['dates'];
         if (dDialog) {
@@ -348,12 +315,13 @@ Statistics.prototype.showPidsReport = function(action,pids) {
 
 
 /** Model **/
-Statistics.prototype.showModelReport = function(action,model) {
+Statistics.prototype.showModelReport = function(action,visibility,dateFrom, dateTo,model) {
     if(console) {
         console.log(" action "+action +" and model "+model);
     }
-    var url = "inc/admin/_statistics_model.jsp?type=model&val="+model;
-    if (action) url = url + "&action="+action;
+    var url = "inc/admin/_statistics_model.jsp?type=model&val="+model+"&visibility="+visibility;
+    url = this._datefilter(url,dateFrom,dateTo);
+	if (action) url = url + "&action="+action;
     $.get(url, bind(function(data) {
         var modelDialog = this.reportDialogs['model'];
         if (modelDialog) {
@@ -371,7 +339,7 @@ Statistics.prototype.showModelReport = function(action,model) {
                               text:dictionary['common.close'],
                               click:function() {
                                  $(this).dialog("close"); 
-                              }
+                          }
                 }]
             
             });
@@ -381,36 +349,41 @@ Statistics.prototype.showModelReport = function(action,model) {
     },this));    
 }
 
-Statistics.prototype.reloadModelReport=function(action,type, val, offset,size) {
-    var url = "inc/admin/_statistics_model.jsp?type="+type+"&val="+val+"&offset="+offset+"&size="+size;
+Statistics.prototype.reloadModelReport=function(action,visibility, dateFrom, dateTo,type, val, offset,size) {
+    var url = "inc/admin/_statistics_model.jsp?type="+type+"&val="+val+"&visibility="+visibility+"&offset="+offset+"&size="+size;
     if(console) {
         console.log(" action "+action +" and model "+val);
     }
     if (action) url = url + "&action="+action;
-    $.get(url, bind(function(data) {
+	url = this._datefilter(url,dateFrom,dateTo);
+	$.get(url, bind(function(data) {
         $("#statistic_report_model").html(data);
     },this));
 }
-Statistics.prototype.modelCSV=function(action,filteredVal) {
+Statistics.prototype.modelCSV=function(action,visibility,filteredVal, dateFrom, dateTo) {
     var url = this._url('model','CSV'); // 'stats?format=CSV&report=model';
     if (action !== null) {
         url = url +'&action='+action;
     }
+    url = url + "&visibility="+visibility
     if (filteredVal !== null) {
         url = url +'&filteredValue='+filteredVal;
+		url= this._datefilter(url,dateFrom, dateTo);
         window.open(url, '_blank');
     } else {
         if (console) console.log('no filtered val defined ');
     }
 }
 
-Statistics.prototype.modelXML=function(action, filteredVal) {
+Statistics.prototype.modelXML=function(action,visibility, filteredVal,dateFrom, dateTo) {
     var url = this._url('model','XML'); // 'stats?format=XML&report=model';
     if (action !== null) {
         url = url +'&action='+action;
     }
+    url = url + "&visibility="+visibility
     if (filteredVal !== null) {
         url = url +'&filteredValue='+filteredVal;
+		url= this._datefilter(url,dateFrom, dateTo);
         window.open(url, '_blank');
     } else {
         if (console) console.log('no filtered val defined ');

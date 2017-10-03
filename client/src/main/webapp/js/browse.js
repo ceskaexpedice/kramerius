@@ -113,7 +113,8 @@ Browse.prototype = {
             $('.authors .loading').hide();
             if (arr.length === this.rowsPerRequest * 2) {
                 var nextStart = arr[arr.length-2];
-                var more = $('<div class="more_docs" data-start="' + nextStart + '">more...</div>');
+                var more = $('<div class="more_docs translate" data-start="' + nextStart + '" data-key="application.more" >'+K5.i18n.translate("application.more")+'</div>');
+                //var more = $('<div class="more_docs" data-start="' + nextStart + '">more...</div>');
                 this.authorsList.append(more);
                 more.click(function() {
                     var q = "&author=\"" + $(this).parent().data("author") + "\""; 
@@ -184,7 +185,9 @@ Browse.prototype = {
             $('.titles .loading').hide();
             var nextStart = start + this.rowsPerRequest;
             if (data.response.numFound > nextStart) {
-                var more = $('<div class="more_docs" data-start="' + nextStart + '">more...</div>');
+                //var more = $('<div class="more_docs" data-start="' + nextStart + '">more...</div>');
+                var more = $('<div class="more_docs translate" data-start="' + nextStart + '" data-key="application.more">'+K5.i18n.translate("application.more")+'</div>');
+
                 this.titlesList.append(more);
                 more.click(function() {
                     var q = "&author=\"" + $(this).parent().data("author") + "\""; 

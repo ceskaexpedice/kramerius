@@ -34,6 +34,18 @@
                 <td><fmt:message bundle="${lctx}" key="filter.query.ddt" /></td>
                 <td><input type="text" value="<c:out value="${param.ddc}" />" size="20" name="ddc" id="ddc"></td>
             </tr>
+            
+            <!-- filtered by shelf locator and physical locator -->
+            <tr>
+                <td><fmt:message bundle="${lctx}" key="filter.query.shelfLocator" /></td>
+                <td><input type="text" value="<c:out value="${param.shelfLocator}" />" size="20" name="shelfLocator" id="shelfLocator"></td>
+            </tr>
+            <tr>
+                <td><fmt:message bundle="${lctx}" key="filter.query.physicalLocation" /></td>
+                <td><input type="text" value="<c:out value="${param.physicalLocation}" />" size="20" name="physicalLocation" id="physicalLocation"></td>
+            </tr>
+            <!-- filtered by shelf locator and physical locator  -->
+            
             <tr>
                 <td><fmt:message bundle="${lctx}" key="Pouze veřejné dokumenty" /></td>
                 <td><input type="checkbox" value="on" name="onlyPublic" <c:if test="${!empty param.onlyPublic}">checked="checked"</c:if>></td>

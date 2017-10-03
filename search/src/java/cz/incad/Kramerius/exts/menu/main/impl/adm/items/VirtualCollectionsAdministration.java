@@ -26,7 +26,8 @@ public class VirtualCollectionsAdministration extends AbstractMainMenuItem imple
 
     @Override
     public boolean isRenderable() {
-        return hasUserAllowedPlanProcess("virtualcollections");
+        // disabled
+        return false;
     }
 
     @Override

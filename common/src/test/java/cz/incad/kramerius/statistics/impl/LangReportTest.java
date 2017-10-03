@@ -35,10 +35,18 @@ public class LangReportTest {
         StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
         statRecord.setAttribute("action", "PDF");
         Assert.assertNotNull(statRecord.toString());
-
+        Assert.assertFalse(statRecord.toString().contains("SIMILAR TO"));
+        
         statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
         statRecord.setAttribute("action", null);
         Assert.assertNotNull(statRecord.toString());
-    }
+        Assert.assertFalse(statRecord.toString().contains("SIMILAR TO"));
+
+        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
+        statRecord.setAttribute("action", null);
+        statRecord.setAttribute("ipaddr", "192.*");
+        Assert.assertNotNull(statRecord.toString());
+        Assert.assertTrue(statRecord.toString().contains("SIMILAR TO"));
+}
 
 }

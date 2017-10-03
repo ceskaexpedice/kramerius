@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -16,6 +17,7 @@ import java.util.logging.Level;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 
@@ -42,6 +44,7 @@ public class KConfiguration {
 
     private Configuration findAllConfigurations() throws IOException {
         CompositeConfiguration allConfiguration = new CompositeConfiguration();
+
         try {
             Enumeration<URL> resources = this.getClass().getClassLoader().getResources("res/configuration.properties");
             while (resources.hasMoreElements()) {
@@ -78,6 +81,16 @@ public class KConfiguration {
                     LOGGER.severe("ommiting '" + nextElement.getFile() + "'");
                 }
             }
+
+            EnvironmentConfiguration environmentConfiguration = new EnvironmentConfiguration();
+            for (Iterator it = environmentConfiguration.getKeys(); it.hasNext();) {
+                String key = (String)it.next();
+                String value = environmentConfiguration.getString(key);
+                key = key.replaceAll("_", ".");
+                key = key.replaceAll("\\.\\.", "__");
+                allConfiguration.setProperty(key, value);
+            }
+
             return allConfiguration;
         } catch (ConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -285,6 +298,10 @@ public class KConfiguration {
 
     public String getWebPropertyId() {
         return getConfiguration().getString("googleanalytics.webpropertyid");
+    }
+
+    public int getCacheTimeToLiveExpiration() {
+        return getConfiguration().getInt("cache.timeToLiveExpiration", 60);
     }
 
     

@@ -18,7 +18,6 @@ package cz.incad.kramerius.client.tools;
 
 import cz.incad.kramerius.client.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import static cz.incad.kramerius.client.tools.K5Configuration.getK5ConfigurationInstance;
 import cz.incad.utils.StringUtils;
 
 import java.io.IOException;
@@ -34,7 +33,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.velocity.tools.config.DefaultKey;
 import org.apache.velocity.tools.view.ViewToolContext;
 import org.json.JSONArray;
@@ -153,7 +152,9 @@ public class Search {
 
     public JSONObject getHome() {
         try {
-            String url = apipoint + "/search" + "?q=*:*&wt=json&facet=true&rows=0&facet.field=model_path&facet.field=collection&facet.field=dostupnost";
+            String url = apipoint + "/search" 
+                    + "?q=*:*&wt=json&rows=0&facet=true&facet.mincount=1" 
+                    + "&facet.field=model_path&facet.field=collection&facet.field=dostupnost";
             return new JSONObject(getJSON(url));
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
@@ -172,7 +173,7 @@ public class Search {
             if (q == null || q.equals("")) {
                 q = "*:*";
             } else {
-                q = URLEncoder.encode(q, "UTF-8") + getBoost(q);
+                q = URIUtil.encodeQuery(q + getBoost(q), "UTF-8");
             }
             String url = apipoint + "/search" + "?q=" + q + "&wt=json&facet=true"
                     + getStart()
@@ -199,7 +200,7 @@ public class Search {
             if (q == null || q.equals("")) {
                 q = "*:*";
             } else {
-                q = URLEncoder.encode(q, "UTF-8") + getBoost(q);
+                q = URIUtil.encodeQuery(q + getBoost(q), "UTF-8");
             }
 
             String url = apipoint + "/search" + "?q=" + q + "&wt=json&facet=true&fl=score,*"

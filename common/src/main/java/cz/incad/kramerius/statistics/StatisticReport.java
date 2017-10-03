@@ -16,46 +16,73 @@
  */
 package cz.incad.kramerius.statistics;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.utils.database.Offset;
 
 /**
  * Represents one report
+ * 
  * @author pavels
  */
 public interface StatisticReport {
-    
+
+    /** Simple date format */
+    public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy.MM.dd");
+
     public static final String COUNT_KEY = "count";
     public static final String PID_KEY = "pid";
     public static final String TITLE_KEY = "title";
     public static final String MODEL_KEY = "model";
     public static final String ACTION_KEY = "action";
-    
+
     /**
      * Returns reporting page
-     * @param rOffset Offset and size
+     * 
+     * @param reportedAction
+     *            Report action
+     * @param dateFilter
+     *            Date filter
+     * @param rOffset
+     *            Offset
+     * @param specificFilteredValue
+     *            Specific value
      * @return
      */
-    public List<Map<String,Object>> getReportPage(ReportedAction reportedAction, Offset rOffset, Object filteredValue) throws StatisticsReportException;
-    
+    public List<Map<String, Object>> getReportPage(ReportedAction reportedAction, StatisticsFiltersContainer filters, Offset rOffset) throws StatisticsReportException;
+
     /**
      * Returns optional filtering values
+     * 
      * @return
      */
     public List<String> getOptionalValues();
-    
+
     /**
      * Return report identifier
+     * 
      * @return
      */
     public String getReportId();
+
+    /**
+     * Prepares view necessary for rendering plot
+     * @param action
+     * @param dateFilter
+     * @param filteredValue
+     */
+    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) throws StatisticsReportException ;
     
     
     /**
      * Process access log for concrete report
+     * 
      * @param sup
      */
-    public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, Object filteredValue, Object...args) throws StatisticsReportException;
+    public void processAccessLog(ReportedAction action, StatisticsReportSupport sup,
+            StatisticsFiltersContainer container) throws StatisticsReportException;
 }

@@ -46,6 +46,13 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsReportException;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IPAddressFilter;
+import cz.incad.kramerius.statistics.filters.ModelFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter.VisbilityType;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -66,21 +73,39 @@ public class StatisticsResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response getReportPage(@PathParam("report") String rip,
             @QueryParam("action") String raction,
-            @QueryParam("value") String val,
+            @QueryParam("dateFrom") String dateFrom,
+            @QueryParam("dateTo") String dateTo,
+            @QueryParam("model") String model,
+            @QueryParam("visibility") String visibility,
             @QueryParam("offset") String filterOffset,
             @QueryParam("resultSize") String filterResultSize) {
+        
+        //TODO: syncrhonization
         if (permit(userProvider.get())) {
             try {
+                DateFilter dateFilter = new DateFilter();
+                dateFilter.setFromDate(dateFrom);
+                dateFilter.setToDate(dateTo);
+                
+                ModelFilter modelFilter = new ModelFilter();
+                modelFilter.setModel(model);
+                
+                VisibilityFilter visFilter = new VisibilityFilter();
+                visFilter.setSelected(VisbilityType.valueOf(visibility));
+                
+                IPAddressFilter ipAddr = new IPAddressFilter();
+                
                 StatisticReport report = statisticsAccessLog.getReportById(rip);
                 Offset offset = new Offset("0", "25");
                 if (StringUtils.isAnyString(filterOffset)
                         && StringUtils.isAnyString(filterResultSize)) {
                     offset = new Offset(filterOffset, filterResultSize);
                 }
-
+                
+                report.prepareViews(raction != null ? ReportedAction.valueOf(raction) : null, new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter, modelFilter,visFilter, ipAddr}));
                 List<Map<String, Object>> repPage = report.getReportPage(
                         raction != null ? ReportedAction.valueOf(raction)
-                                : null, offset, val);
+                                : null,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter, modelFilter, ipAddr}), offset);
 
                 JSONArray jsonArr = new JSONArray();
                 for (Map<String, Object> map : repPage) {

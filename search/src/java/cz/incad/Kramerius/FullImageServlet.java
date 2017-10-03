@@ -156,7 +156,7 @@ public class FullImageServlet extends AbstractImageServlet {
                 }
             }
         } catch (SecurityException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.INFO, e.getMessage());
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -164,24 +164,6 @@ public class FullImageServlet extends AbstractImageServlet {
         }
     }
 
-    // private synchronized void writeDeepZoomFiles(String uuid, BufferedImage
-    // image)
-    // throws IOException {
-    // if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
-    // cacheService.writeDeepZoomDescriptor(uuid, image,
-    // tileSupport.getTileSize());
-    // }
-    // if (!cacheService.isDeepZoomOriginalPresent(uuid)) {
-    // cacheService.writeDeepZoomFullImage(uuid, image);
-    // }
-    // }
-
-    // private synchronized void writeFullThumbnail(String uuid, BufferedImage
-    // fullThumb) {
-    // if (!cacheService.isFullThumbnailPresent(uuid)) {
-    // cacheService.
-    // }
-    // }
 
     public static String fullImageServlet(HttpServletRequest request) {
         return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.fullImage"));

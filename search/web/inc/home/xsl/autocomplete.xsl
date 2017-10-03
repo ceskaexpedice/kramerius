@@ -3,7 +3,7 @@
     <xsl:output method="html"/>
     <xsl:param name="incl" select="incl" />
     <xsl:template match="/">
-        <xsl:if test="count(/response/lst[@name='terms']/lst/int) &gt; 1">
+        <xsl:if test="count(/response/lst[@name='terms']/lst/int) &gt; 0">
         <xsl:for-each select="/response/lst[@name='terms']/lst/int">
             <xsl:if test="(position() &gt; 1) or ($incl = 'true')">
             <div>

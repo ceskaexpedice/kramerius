@@ -138,7 +138,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
             Actions selectedAction = Actions.valueOf(action);
             selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.usersManager, this.userProvider, this.actionAllowed, this.loggedUsersSingleton, this.iTemplateFactory, this.outputTemplateFactory);
         } catch (SecurityException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            LOGGER.log(Level.INFO, e.getMessage());
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         }
     }
@@ -202,7 +202,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     User user = loggedUserSingleton.getUser(loggedUserKey);
                     if (user == null) {
                         // no user
-                        throw new SecurityException("access denided");
+                        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
                     }
                     
                     boolean permited = permitStart(rightsResolver, actionFromDef, user);
@@ -253,7 +253,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         }
                         
                     } else {
-                        throw new SecurityException("access denided");
+                        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
                     }
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -329,7 +329,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 User user = loggedUserSingleton.getUser(loggedUserKey);
                 if (user == null) {
                     // no user
-                    throw new SecurityException("access denided");
+                    throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
                 }
 
                 boolean permitted = permitStart(actionAllowed, actionFromDef, user);
@@ -387,7 +387,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 User user = loggedUserSingleton.getUser(loggedUserKey);
                 if (user == null) {
                     // no user
-                    throw new SecurityException("access denided");
+                    throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
                 }
 
                 boolean permitted = permitStart(actionAllowed, actionFromDef, user);
@@ -628,7 +628,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String grpToken, String authToken,Provider<User> userProvider) {
             if (grpToken != null) {
                 if (lrProcessManager.isAuthTokenClosed(authToken)) {
-                    throw new SecurityException("access denided");
+                    throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
                 }
                 List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(grpToken);
                 if (!processes.isEmpty()) {

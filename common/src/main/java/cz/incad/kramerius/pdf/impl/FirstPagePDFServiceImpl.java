@@ -133,10 +133,10 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         try {
 
             Document doc = DocumentUtils.createDocument(rdoc);
-            PdfWriter.getInstance(doc, os);
+            PdfWriter writer = PdfWriter.getInstance(doc, os);
             doc.open();
             String itextCommands = templateSelection(rdoc, pids);
-            renderFromTemplate(rdoc, doc, fontMap, new StringReader(itextCommands));
+            renderFromTemplate(rdoc, doc, writer, fontMap, new StringReader(itextCommands));
 
             doc.close();
             os.flush();
@@ -157,12 +157,13 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         }
     }
 
-    void renderFromTemplate(PreparedDocument rdoc,Document doc, FontMap fontMap, StringReader reader) throws IOException, InstantiationException, IllegalAccessException, ParserConfigurationException, SAXException {
+    void renderFromTemplate(PreparedDocument rdoc,Document doc, PdfWriter pdfWriter, FontMap fontMap, StringReader reader) throws IOException, InstantiationException, IllegalAccessException, ParserConfigurationException, SAXException {
         ITextCommands cmnds = new ITextCommands();
         cmnds.load(XMLUtils.parseDocument(reader).getDocumentElement(), cmnds);
 
-        RenderPDF render = new RenderPDF(fontMap);
-        render.render(doc, cmnds);
+        
+        RenderPDF render = new RenderPDF(fontMap, this.fedoraAccess);
+        render.render(doc, pdfWriter, cmnds);
     }
 
     String templateSelection(PreparedDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
@@ -437,7 +438,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
 
             String itextCommands = templateParent(rdoc, path);
 
-            renderFromTemplate(rdoc, doc, fontMap, new StringReader(itextCommands));
+            renderFromTemplate(rdoc, doc, writer, fontMap, new StringReader(itextCommands));
 
             doc.close();
             os.flush();

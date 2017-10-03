@@ -25,6 +25,7 @@
         <url-pattern>/api/*</url-pattern>
         <url-pattern>/zoomify/*</url-pattern>
         <url-pattern>/iiif/*</url-pattern>
+        <url-pattern>/iiif-presentation/*</url-pattern>
     </filter-mapping>
 
     <!-- mod_proxy filter; doesnt work in krameriusdemo don't know why (logout doesn't work)

@@ -75,6 +75,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
     
+    
     static Map<String, ReportedAction> ACTIONS = new HashMap<String, ReportedAction>();
     static {
         ACTIONS.put("img", ReportedAction.READ);
@@ -82,6 +83,8 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         ACTIONS.put("print", ReportedAction.PRINT);
         ACTIONS.put("zoomify", ReportedAction.READ);
     }
+    
+    protected ThreadLocal<ReportedAction> reportedAction = new ThreadLocal<ReportedAction>();
     
     @Inject
     @Named("kramerius4")
@@ -117,7 +120,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                 throw new NotReadyException("connection not ready");
             
             List<JDBCCommand> commands = new ArrayList<JDBCCommand>(); 
-            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider));
+            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get()));
 
             for (int i = 0, ll = paths.length; i < ll; i++) {
 
@@ -162,6 +165,17 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
+
+    
+    
+    @Override
+    public void reportAccess(String pid, String streamName, String actionName) throws IOException {
+        ReportedAction action = ReportedAction.valueOf(actionName);
+        this.reportedAction.set(action);
+        this.reportAccess(pid, streamName);
+    }
+
+
 
     @Override
     public boolean isReportingAccess(String pid, String streamName) {
@@ -222,6 +236,8 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                 String user = rs.getString("suser");
                 String requestedUrl = rs.getString("srequested_url");
                 String action = rs.getString("sstat_action");
+                String sessionId = rs.getString("ssession_id");
+
 
                 Map<String, Object> record = new HashMap<String, Object>(); {
                     record.put("pid", pid);
@@ -229,6 +245,8 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                     record.put("remote_ip_address", remote);
                     record.put("user", user);
                     record.put("action",action);
+                    record.put("session_id", sessionId);
+                    record.put("requested_url", requestedUrl);
                 }
                 sup.processMainRecord(record);
                 
@@ -256,38 +274,22 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         return url;
     }
     
-    public static ReportedAction disectAction(Provider<HttpServletRequest> requestProvider) throws MalformedURLException {
-        String surl = requestProvider.get().getRequestURL().toString();
-        URL url = new URL(surl);
-        String lastToken = "";
-        StringTokenizer tokenizer = new StringTokenizer(url.getFile(), "/");
-        while(tokenizer.hasMoreTokens()) {
-            lastToken =  tokenizer.nextToken();
-        }
-        ReportedAction action = ACTIONS.get(lastToken);
-        if (action != null) return action;
-        else return ReportedAction.READ;
-    }
-
-    
-    public static void main(String[] args) throws MalformedURLException {
-        String str = "http://localhost:8080/search/img";
-        URL url = new URL(str);
-    }
-    
+ 
     public static class InsertRecord extends JDBCCommand {
         
         private LoggedUsersSingleton loggedUserSingleton;
         private Provider<HttpServletRequest> requestProvider;
         private Provider<User> userProvider;
         private String pid;
+        private ReportedAction action;
         
-        public InsertRecord(String pid,LoggedUsersSingleton loggedUserSingleton, Provider<HttpServletRequest> requestProvider, Provider<User> userProvider) {
+        public InsertRecord(String pid,LoggedUsersSingleton loggedUserSingleton, Provider<HttpServletRequest> requestProvider, Provider<User> userProvider, ReportedAction action) {
             super();
             this.loggedUserSingleton = loggedUserSingleton;
             this.requestProvider = requestProvider;
             this.userProvider = userProvider;
             this.pid = pid;
+            this.action = action;
         }
 
 
@@ -300,15 +302,8 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
             boolean logged = loggedUserSingleton.isLoggedUser(requestProvider);
             Object user = logged ? userProvider.get().getLoginname() : new JDBCUpdateTemplate.NullObject(String.class);
             String url = disectedURL(requestProvider); //requestProvider.get().getRequestURL().toString() +"?"+requestProvider.get().getQueryString();
-            ReportedAction act = ReportedAction.READ;
-            try {
-                act = disectAction(requestProvider);
-            } catch (MalformedURLException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            }
             int record_id  = new JDBCUpdateTemplate(con, false)
-                .executeUpdate(statRecord.toString(), pid, new java.sql.Timestamp(System.currentTimeMillis()), requestProvider.get().getRemoteAddr(), user, url, act.name(), sessionId);
-
+                .executeUpdate(statRecord.toString(), pid, new java.sql.Timestamp(System.currentTimeMillis()), requestProvider.get().getRemoteAddr(), user, url, action != null ? action.name() : ReportedAction.READ.name() , sessionId);
             previousResult.put("record_id", new Integer(record_id));
             return previousResult;
         }

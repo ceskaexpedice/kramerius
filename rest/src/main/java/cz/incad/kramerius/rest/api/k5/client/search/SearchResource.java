@@ -37,6 +37,7 @@ import java.util.logging.Logger;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -46,6 +47,9 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,18 +74,27 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 @Path("/v5.0/search")
 public class SearchResource {
 
-    public static Logger LOGGER = Logger.getLogger(SearchResource.class
+    private static Logger LOGGER = Logger.getLogger(SearchResource.class
             .getName());
 
     @Inject
-    SolrAccess solrAccess;
+    private SolrAccess solrAccess;
 
     @Inject
-    JSONDecoratorsAggregate jsonDecoratorAggregates;
+    private JSONDecoratorsAggregate jsonDecoratorAggregates;
 
     @GET
     @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
-    public Response selectXML(@Context UriInfo uriInfo) {
+    public Response selectXML(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
+        if ("json".equals(wt)) {
+            return Response.ok().type(MediaType.APPLICATION_JSON+ ";charset=utf-8")
+                    .entity(getEntityJSON(uriInfo).toString()).build();
+        } else {
+            return Response.ok().entity(getEntityXML(uriInfo).toString()).build();
+        }
+    }
+
+    private String getEntityXML(UriInfo uriInfo) {
         try {
             MultivaluedMap<String, String> queryParameters = uriInfo
                     .getQueryParameters();
@@ -112,7 +125,10 @@ public class SearchResource {
             StringWriter strWriter = new StringWriter();
             XMLUtils.print(domObject, strWriter);
 
-            return Response.ok().entity(strWriter.toString()).build();
+            return strWriter.toString();
+        } catch (HttpResponseException e) {
+            LOGGER.log(Level.INFO, e.getMessage(), e);
+            throw new BadRequestException(e.getMessage());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());
@@ -132,6 +148,8 @@ public class SearchResource {
         List<String> filters = Arrays.asList(KConfiguration.getInstance().getAPISolrFilter());
         String[] vals = value.split(",");
         for (String v : vals) {
+            // remove field alias
+            v = StringUtils.substringAfterLast(v, ":");
             if (filters.contains(v)) throw new BadRequestException("requesting filtering field");
         }
     }
@@ -159,7 +177,16 @@ public class SearchResource {
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response selectJSON(@Context UriInfo uriInfo) {
+    public Response selectJSON(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
+        if ("xml".equals(wt)) {
+            return Response.ok().type(MediaType.APPLICATION_XML+ ";charset=utf-8")
+                    .entity(getEntityXML(uriInfo).toString()).build();
+        } else {
+            return Response.ok().entity(getEntityJSON(uriInfo).toString()).build();
+        }
+    }
+
+    private String getEntityJSON(UriInfo uriInfo) {
         try {
 
             MultivaluedMap<String, String> queryParameters = uriInfo
@@ -187,8 +214,11 @@ public class SearchResource {
             String uri = UriBuilder.fromResource(SearchResource.class).path("")
                     .build().toString();
             JSONObject jsonObject = changeJSONResult(rawString, uri, this.jsonDecoratorAggregates.getDecorators());
-            
-            return Response.ok().entity(jsonObject.toString()).build();
+
+            return jsonObject.toString();
+        } catch (HttpResponseException e) {
+            LOGGER.log(Level.INFO, e.getMessage(), e);
+            throw new BadRequestException(e.getMessage());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());
@@ -375,7 +405,7 @@ public class SearchResource {
                 if (object instanceof String) {
                     String s = jsonObj.getString(k);
                     if (s.indexOf("/@") > 0) {
-                        s.replace("/@", "@");
+                        s.replace("/@", "@"); // probable bug - not assigned, so it's ignored
                         jsonObj.put(k, s);
                     }
                 } else if (object instanceof JSONArray) {

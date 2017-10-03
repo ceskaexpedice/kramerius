@@ -53,7 +53,7 @@ public class ThirdPhase extends AbstractPhase {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ThirdPhase.class.getName());
     
     @Override
-    public void start(String url, String userName, String pswd) throws PhaseException {
+    public void start(String url, String userName, String pswd, String replicationCollections) throws PhaseException {
         try {
             List<String> paths = processIterateToFindRoot(getIterateFile());
             String rootPid = paths.isEmpty() ?  K4ReplicationProcess.pidFrom(url) : rootFromPaths(paths);
@@ -116,9 +116,9 @@ public class ThirdPhase extends AbstractPhase {
     }
 
     @Override
-    public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd) throws PhaseException {
+    public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd, String replicationCollections) throws PhaseException {
         if (!phaseCompleted) {
-            this.start(url, userName, pswd);
+            this.start(url, userName, pswd, replicationCollections);
         }
     }
     

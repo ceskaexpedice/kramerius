@@ -34,6 +34,11 @@
         }
         return action;
     }
+
+    function _visibility() {
+        return $("#report_visibility").val();
+    }
+
 </script>
 
 <fieldset style="border: 0px; margin: 0px; padding: 0px;">
@@ -41,18 +46,31 @@
         
         <thead>
             <tr>
-               <td style="width:80%"></td> 
+               <td style="width:40%"></td> 
+               <td style="width:40%"></td> 
                <td></td> 
             </tr>
         </thead>
         
         <tbody>
+
             <tr>
-                <td><strong><view:msg>statistics.main_dialog.filter</view:msg></strong></td>               
-                <td><view:msg>common.action</view:msg>:</td>
+                <td><strong><view:msg>statistics.main_dialog.filter</view:msg></strong></td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
+        	
             <tr>
-                <td></td>               
+                <td><view:msg>statistics.report.dates.datefrom</view:msg>:</td>
+                <td><view:msg>statistics.report.dates.dateto</view:msg>:</td>
+                <td><view:msg>common.action</view:msg>:</td>
+                <td><view:msg>k3replication.defaultrights.fields</view:msg>:</td>
+            </tr>
+            
+            <tr>
+                <td><input id="report_date_from" type="text"></td>
+                <td><input id="report_date_to" type="text"></td>
                  <td>
                    <select id="report_action">
                        <option value="${statistics.allFilterOption}"><view:msg>statistics.main_dialog.actions.${statistics.allFilterOption}</view:msg> </option>
@@ -61,7 +79,14 @@
                        </c:forEach>
                    </select>
                 </td>
-            
+
+                 <td>
+                   <select id="report_visibility">
+                       <option value="all"><view:msg>common.all</view:msg></option>
+                       <option value="public"><view:msg>k3replication.defaultrights.public</view:msg></option>
+                       <option value="private"><view:msg>k3replication.defaultrights.private</view:msg></option>
+                   </select>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -94,27 +119,10 @@
         <td></td>
 
         <td style="text-align: right;"> 
-            <a href="javascript:statistics.showModelReport(_action(),$('#report_type option:selected').val());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg></a>
-            <a href="javascript:statistics.modelCSV(_action(),$('#report_type option:selected').val());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
-            <a href="javascript:statistics.modelXML(_action(),$('#report_type option:selected').val());" class="buttons"><view:msg>common.format.XML</view:msg></a>
-            </td>
-        </tr>
-
-        <tr><td colspan="3"> <hr/></td></tr>    
-
-        <tr><td colspan="3"> <strong><view:msg>statistics.report.dates</view:msg></strong></td></tr>    
-        <tr>
-            <td>
-
-            <view:msg>statistics.report.dates.datefrom</view:msg>:<input id="report_date_from" type="text"></input>  
-            <view:msg>statistics.report.dates.dateto</view:msg> <input id="report_date_to" type="text"></input></td>
-            
-            <td><span></span></td>
-            
-            <td style="text-align: right;" width="30%">
-            <a href="javascript:statistics.showDatesRangeReport(_action(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"> <view:msg>statistics.main_dialog.displaygraph</view:msg> </a>
-            <a href="javascript:statistics.dateDurationCSV(_action(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
-            <a href="javascript:statistics.dateDurationXML(_action(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.XML</view:msg></a>
+        
+            <a href="javascript:statistics.showModelReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),$('#report_type option:selected').val());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg></a>
+            <a href="javascript:statistics.modelCSV(_action(),_visibility(),$('#report_type option:selected').val(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
+            <a href="javascript:statistics.modelXML(_action(),_visibility(),$('#report_type option:selected').val(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.XML</view:msg></a>
             </td>
         </tr>
 
@@ -124,9 +132,9 @@
         <tr>
             <td colspan="2"></td>
             <td style="text-align: right;">
-                <a href="javascript:statistics.showAuthorReport(_action());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg></a>
-                <a href="javascript:statistics.authorCSV(_action());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
-                <a href="javascript:statistics.authorXML(_action());" class="buttons"><view:msg>common.format.XML</view:msg></a>
+                <a href="javascript:statistics.showAuthorReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg></a>
+                <a href="javascript:statistics.authorCSV(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
+                <a href="javascript:statistics.authorXML(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.XML</view:msg></a>
             </td>
         </tr>
 
@@ -136,9 +144,9 @@
         <tr>
             <td colspan="2"></td>
             <td style="text-align: right;">
-                <a href="javascript:statistics.showLangReport(_action());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg></a>
-                <a href="javascript:statistics.langCSV(_action());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
-                <a href="javascript:statistics.langXML(_action());" class="buttons"><view:msg>common.format.XML</view:msg></a>
+                <a href="javascript:statistics.showLangReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg></a>
+                <a href="javascript:statistics.langCSV(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
+                <a href="javascript:statistics.langXML(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.XML</view:msg></a>
             </td>
         </tr>
 

@@ -3,11 +3,11 @@
 <div id="browse">
 
 <!-- waiting div -->
-    <div class="input"><label>${i18n.browse.placeholder}: </label><input type="text" class="browse" /></div>
+    <div class="input"><label> <span data-key="browse.searchlabel" class="translate"> ${i18n.browse.searchlabel}: </span> </label><input type="text" class="browse" /></div>
     <div class="letters"><div class="scroll"><ul></ul></div></div>
     <div class="results">
         
-        <div class="typ titles"><h3>$i18n.browse.titles</h3>#parse("waiting.vm")<ul></ul></div>
-        <div class="typ authors"><h3>$i18n.browse.authors</h3>#parse("waiting.vm")<ul></ul></div>
+        <div class="typ titles"><h3 data-key="browse.titles" class="translate">$i18n.browse.titles</h3>#parse("waiting.vm")<ul></ul></div>
+        <div class="typ authors"><h3 data-key="browse.authors" class="translate">$i18n.browse.authors</h3>#parse("waiting.vm")<ul></ul></div>
     </div>
 </div>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+<lst name="responseHeader">
+  <bool name="zkConnected">true</bool>
+  <int name="status">0</int>
+  <int name="QTime">12</int>
+  <lst name="params">
+    <str name="q">collection:("vc:48821a6c-8345-4ae8-9be9-b88be3afdf0e")</str>
+    <str name="facet.field">collection</str>
+    <str name="indent">on</str>
+    <str name="rows">0</str>
+    <str name="facet">on</str>
+    <str name="wt">xml</str>
+  </lst>
+</lst>
+<result name="response" numFound="0" start="0" maxScore="0.0">
+</result>
+<lst name="facet_counts">
+  <lst name="facet_queries"/>
+  <lst name="facet_fields">
+    <lst name="collection">
+      <int name="vc:48821a6c-8345-4ae8-9be9-b88be3afdf0e">19</int>
+      <int name="">0</int>
+      <int name="vc:2626d5c0-cd88-4bd5-8bd5-b592b89b6313">0</int>
+    </lst>
+  </lst>
+  <lst name="facet_ranges"/>
+  <lst name="facet_intervals"/>
+  <lst name="facet_heatmaps"/>
+</lst>
+</response>

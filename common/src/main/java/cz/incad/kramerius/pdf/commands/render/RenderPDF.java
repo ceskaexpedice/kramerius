@@ -27,6 +27,10 @@ import java.util.ArrayList;
 import java.util.Stack;
 import java.util.logging.Level;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
 import com.lowagie.text.BadElementException;
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
@@ -37,8 +41,10 @@ import com.lowagie.text.Font;
 import com.lowagie.text.Phrase;
 import com.lowagie.text.TextElementArray;
 import com.lowagie.text.pdf.HyphenationAuto;
+import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.draw.LineSeparator;
 
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.pdf.commands.AbstractITextCommand.Hyphenation;
 import cz.incad.kramerius.pdf.commands.ITextCommand;
@@ -54,26 +60,33 @@ import cz.incad.kramerius.pdf.commands.Text;
 import cz.incad.kramerius.pdf.commands.TextsArray;
 import cz.incad.kramerius.pdf.commands.lists.GreekList;
 import cz.incad.kramerius.pdf.commands.lists.RomanList;
+import cz.incad.kramerius.pdf.impl.AbstractPDFRenderSupport.ScaledImageOptions;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
+import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import cz.knav.pdf.PdfTextUnderImage;
 
 public class RenderPDF   {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(RenderPDF.class.getName());
 
     private FontMap fontMap;
-
-    public RenderPDF(FontMap fontMap) {
+    private FedoraAccess fedoraAccess;
+    
+    public RenderPDF(FontMap fontMap, FedoraAccess fedoraAccess) {
         super();
         this.fontMap = fontMap;
+        this.fedoraAccess = fedoraAccess;
     }
 
     public Font getFont(String formalName) {
         return this.fontMap.getRegistredFont(formalName);
     }
 
-    public void render(final com.lowagie.text.Document pdfDoc , ITextCommands commands) {
-        commands.process(new Processor(pdfDoc));
+    public void render(final com.lowagie.text.Document pdfDoc, PdfWriter pdfWriter , ITextCommands commands) {
+        commands.process(new Processor(pdfDoc, pdfWriter, this.fedoraAccess));
     }
 
     public boolean notEmptyString(String fName) {
@@ -170,12 +183,17 @@ public class RenderPDF   {
     class Processor implements ITextCommandProcessListener {
         
         private Document pdfDoc;
+        private PdfWriter pdfWriter;
+        private FedoraAccess fedoraAccess;
+        
         private Stack<Element> createdElm  = new Stack<Element>();
 
         
-        public Processor(Document pdfDoc) {
+        public Processor(Document pdfDoc, PdfWriter pdfWriter, FedoraAccess fedoraAccess) {
             super();
             this.pdfDoc = pdfDoc;
+            this.pdfWriter = pdfWriter;
+            this.fedoraAccess = fedoraAccess;
             this.createdElm.push(new DocumentWrapper(this.pdfDoc));
         }
 
@@ -305,35 +323,120 @@ public class RenderPDF   {
                 return new NullElement();
             } else if (cmd instanceof Image) {
 
-                try {
-                    Image cmdImage = (Image) cmd;
-                    String pid = cmdImage.getPid();
-                    String file = cmdImage.getFile();
-                    com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
-                 
-                    Float ratio = ratio(pdfDoc, 1.0f, img);
+            	Image cmdImage = (Image) cmd;
+        		String pid = cmdImage.getPid();
 
-                    int fitToPageWidth = (int) (img.getWidth() * ratio);
-                    int fitToPageHeight = (int) (img.getHeight() * ratio);
-
-                    int offsetX = ((int) pdfDoc.getPageSize().getWidth() - fitToPageWidth) / 2;
-                    int offsetY = ((int) pdfDoc.getPageSize().getHeight() - fitToPageHeight) / 2;
-
-                    img.scaleAbsoluteHeight(ratio * img.getHeight());
-
-                    img.scaleAbsoluteWidth(ratio * img.getWidth());
-                    img.setAbsolutePosition((offsetX), pdfDoc.getPageSize().getHeight()
-                            - offsetY - (ratio * img.getHeight()));
-
-                    return img;
-                } catch (BadElementException e) {
+                boolean altoStream = false; 
+            	try {
+            		altoStream = this.fedoraAccess.isStreamAvailable(pid,
+                        FedoraUtils.ALTO_STREAM);
+				} catch (MalformedURLException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                } catch (MalformedURLException e) {
+				} catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				} 
+
+                boolean useAlto = KConfiguration.getInstance()
+                        .getConfiguration()
+                        .getBoolean("pdfQueue.useAlto", false);
+
+                if (useAlto && altoStream) {
+                	try {
+
+
+                		org.w3c.dom.Document alto = XMLUtils
+                                .parseDocument(this.fedoraAccess
+                                        .getDataStream(pid,
+                                                FedoraUtils.ALTO_STREAM));
+
+                		String file = cmdImage.getFile();
+						com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
+             
+						Float ratio = ratio(pdfDoc, 1.0f, img);
+
+						int fitToPageWidth = (int) (img.getWidth() * ratio);
+						int fitToPageHeight = (int) (img.getHeight() * ratio);
+
+						int offsetX = ((int) pdfDoc.getPageSize().getWidth() - fitToPageWidth) / 2;
+						int offsetY = ((int) pdfDoc.getPageSize().getHeight() - fitToPageHeight) / 2;
+
+						img.scaleAbsoluteHeight(ratio * img.getHeight());
+
+						img.scaleAbsoluteWidth(ratio * img.getWidth());
+						img.setAbsolutePosition((offsetX), pdfDoc.getPageSize().getHeight()
+						        - offsetY - (ratio * img.getHeight()));
+
+						
+						ScaledImageOptions options = new ScaledImageOptions();
+						options.setXdpi(img.getDpiX());
+						options.setYdpi(img.getDpiY());
+
+						options.setXoffset(offsetX);
+						options.setYoffset(offsetY);
+
+						options.setWidth(fitToPageWidth);
+						options.setHeight(fitToPageHeight);
+						options.setScaleFactor(ratio);
+					
+		                PdfTextUnderImage textUnderImage = new PdfTextUnderImage();
+		                textUnderImage.imageWithAlto(pdfDoc, pdfWriter, alto, options);
+                        return img;
+
+                    } catch (BadElementException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					} catch (MalformedURLException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					} catch (IOException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					} catch (ParserConfigurationException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					} catch (SAXException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+					}
+                	return new NullElement();
+                } else {
+                    try {
+ 
+                        String file = cmdImage.getFile();
+                        com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
+                     
+                        Float ratio = ratio(pdfDoc, 1.0f, img);
+
+                        int fitToPageWidth = (int) (img.getWidth() * ratio);
+                        int fitToPageHeight = (int) (img.getHeight() * ratio);
+
+                        int offsetX = ((int) pdfDoc.getPageSize().getWidth() - fitToPageWidth) / 2;
+                        int offsetY = ((int) pdfDoc.getPageSize().getHeight() - fitToPageHeight) / 2;
+
+                        img.scaleAbsoluteHeight(ratio * img.getHeight());
+
+                        img.scaleAbsoluteWidth(ratio * img.getWidth());
+                        img.setAbsolutePosition((offsetX), pdfDoc.getPageSize().getHeight()
+                                - offsetY - (ratio * img.getHeight()));
+
+                        
+                        ScaledImageOptions options = new ScaledImageOptions();
+                        options.setXdpi(img.getDpiX());
+                        options.setYdpi(img.getDpiY());
+
+                        options.setXoffset(offsetX);
+                        options.setYoffset(offsetY);
+
+                        options.setWidth(fitToPageWidth);
+                        options.setHeight(fitToPageHeight);
+                        options.setScaleFactor(ratio);
+
+                        return img;
+                    } catch (BadElementException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    } catch (MalformedURLException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    } catch (IOException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                    return new NullElement();
                 }
-                return new NullElement();
+                
 
             } else throw new UnsupportedOperationException("unsupported");
         }

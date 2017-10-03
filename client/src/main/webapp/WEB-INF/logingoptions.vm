@@ -68,7 +68,7 @@
 #if($conf.getString('shibboleth.loginpage'))
                 <li class="shibb"> <div title="#i18nval('login.option.shibboleth')" class="medium" onclick="__shibb()">#parse("svg/shibb.svg")</div> </li>
 #end
-                <li class="k5"> <div title="#i18nval('login.option.k5')" class="medium" onclick="link('?page=login')"> #parse("svg/k5.svg") </div> </li>
+                <li class="k5"> <div title="#i18nval('login.option.k5')" class="medium" onclick="linkWithReturn('?page=login')"> #parse("svg/k5.svg") </div> </li>
             </ul>
         </div>
     </div>

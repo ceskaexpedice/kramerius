@@ -82,10 +82,12 @@ public class SolrMemoizationImpl implements SolrMemoization{
                 }
             } else {
                 Document doc = solrAccess.getSolrDataDocument(pid);
-                Element result = XMLUtils.findElement(doc.getDocumentElement(), "result");
-                if (result != null) {
-                    Element d = XMLUtils.findElement(result, "doc");
-                    this.elms.put(pid, d);
+                if (doc !=  null) {
+                    Element result = XMLUtils.findElement(doc.getDocumentElement(), "result");
+                    if (result != null) {
+                        Element d = XMLUtils.findElement(result, "doc");
+                        this.elms.put(pid, d);
+                    }
                 }
             }
         }

@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -18,8 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.pdfbox.exceptions.COSVisitorException;
-import org.apache.pdfbox.util.PDFMergerUtility;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,7 +26,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
 
 import cz.incad.kramerius.AbstractObjectPath;
@@ -52,6 +50,9 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.statistics.ReportedAction;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class AbstractPDFResource {
@@ -116,6 +117,9 @@ public class AbstractPDFResource {
     @Inject
     Provider<User> userProvider;
     
+    @Inject
+    StatisticsAccessLog statisticsAccessLog;
+    
     @GET
     @Path("conf")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -136,7 +140,7 @@ public class AbstractPDFResource {
     }
 
     
-    public File selection(String[] pids, Rectangle rect,FirstPage fp) throws DocumentException, IOException, ProcessSubtreeException, OutOfRangeException, COSVisitorException {
+    public File selection(String[] pids, Rectangle rect,FirstPage fp) throws DocumentException, IOException, ProcessSubtreeException, OutOfRangeException {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
 
         PreparedDocument rdoc = documentService.buildDocumentFromSelection(pids, new int[] {(int)rect.getWidth(), (int)rect.getHeight()});
@@ -152,7 +156,19 @@ public class AbstractPDFResource {
 
             firstPageFile = File.createTempFile("head", "pdf");
             FileOutputStream fpageFos = new FileOutputStream(firstPageFile);
+            
+            // most desirable
+            for (String p : pids) {
+                this.mostDesirable.saveAccess(p, new Date());
+                try {
+                    this.statisticsAccessLog.reportAccess(p, FedoraUtils.IMG_FULL_STREAM, ReportedAction.PDF.name());
+                } catch (Exception e) {
+                    LOGGER.severe("cannot write statistic records");
+                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                }
+            }
 
+            
             if (fp == FirstPage.IMAGES) {
                 this.imageFirstPage.selection(rdoc, fpageFos, pids, fmap);
             } else {
@@ -172,7 +188,7 @@ public class AbstractPDFResource {
     }
 
     public File parent(String pid, int n, Rectangle rect, FirstPage fp) throws DocumentException,
-            IOException, COSVisitorException, NumberFormatException,
+            IOException, NumberFormatException,
             ProcessSubtreeException {
 
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
@@ -193,6 +209,16 @@ public class AbstractPDFResource {
             checkRenderedPDFDoc(rdoc);
             
             
+            this.mostDesirable.saveAccess(pid, new Date());
+            for (AbstractPage p : rdoc.getPages()) {
+                try {
+                    this.statisticsAccessLog.reportAccess(p.getUuid(), FedoraUtils.IMG_FULL_STREAM, ReportedAction.PDF.name());
+                } catch (Exception e) {
+                    LOGGER.severe("cannot write statistic records");
+                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                }
+            }
+
             parentFile = File.createTempFile("body", "pdf");
             FileOutputStream bodyTmpFos = new FileOutputStream(parentFile);
 
@@ -224,7 +250,7 @@ public class AbstractPDFResource {
         List<AbstractPage> pages = rdoc.getPages();
         for (AbstractPage apage : pages) {
             if (!this.canBeRenderedAsPDF(apage.getUuid())) {
-                throw new  SecurityException("");
+                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.PDF_RESOURCE, apage.getUuid()));
             }
         }
     }
@@ -252,7 +278,7 @@ public class AbstractPDFResource {
     }
 
     static void mergeToOutput(OutputStream fos, File bodyFile,
-            File firstPageFile) throws IOException, COSVisitorException {
+            File firstPageFile) throws IOException {
         PDFMergerUtility utility = new PDFMergerUtility();
         utility.addSource(firstPageFile);
         utility.addSource(bodyFile);

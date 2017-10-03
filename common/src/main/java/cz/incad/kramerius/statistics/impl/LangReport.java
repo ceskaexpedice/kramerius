@@ -22,10 +22,14 @@ package cz.incad.kramerius.statistics.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.antlr.stringtemplate.StringTemplate;
 
@@ -37,6 +41,9 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IPAddressFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -46,6 +53,8 @@ import cz.incad.kramerius.utils.database.Offset;
  */
 public class LangReport implements StatisticReport{
 
+    public static final Logger LOGGER = Logger.getLogger(LangReport.class.getName());
+    
     public static final String REPORT_ID = "lang";
 
     @Inject
@@ -53,24 +62,41 @@ public class LangReport implements StatisticReport{
     Provider<Connection> connectionProvider;
 
     @Override
-    public List<Map<String, Object>> getReportPage(ReportedAction repAction,Offset rOffset, Object filteredValue) {
-        final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
-        authors.setAttribute("action", repAction != null ? repAction.name() : null);
-        //authors.setAttribute("paging", true);
-        String sql = authors.toString();
-        List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
+    public List<Map<String, Object>> getReportPage(ReportedAction repAction,  StatisticsFiltersContainer filters,Offset rOffset) {
+        try {
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
+            final StringTemplate langss = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
+            langss.setAttribute("action", repAction != null ? repAction.name() : null);
+            langss.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            langss.setAttribute("toDefined", dateFilter.getToDate() != null);
 
-            @Override
-            public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
-                Map<String, Object> map = new HashMap<String, Object>();
-                map.put("count", rs.getInt("count"));
-                map.put("lang", rs.getString("lang"));
-                returnsList.add(map);
-                return super.handleRow(rs, returnsList);
+            if (ipFilter.hasValue()) {
+                langss.setAttribute("ipaddr", ipFilter.getValue());
             }
-        }.executeQuery(sql.toString());
-        
-        return auths;
+
+            
+            @SuppressWarnings("rawtypes")
+            List params = StatisticUtils.jdbcParams(dateFilter);
+            //authors.setAttribute("paging", true);
+            String sql = langss.toString();
+            List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
+
+                @Override
+                public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.put("count", rs.getInt("count"));
+                    map.put("lang", rs.getString("lang"));
+                    returnsList.add(map);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(sql.toString(),params.toArray());
+            
+            return auths;
+        } catch (ParseException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return new ArrayList<Map<String,Object>>();
+        }
     }
 
     @Override
@@ -83,21 +109,51 @@ public class LangReport implements StatisticReport{
         return REPORT_ID;
     }
 
+    
+    
+
     @Override
-    public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup, Object filteredValue, Object... args) throws StatisticsReportException {
-        final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
-        authors.setAttribute("action", repAction != null ? repAction.name() : null);
-        //authors.setAttribute("paging", true);
-        String sql = authors.toString();
-        new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
-                Map<String, Object> map = new HashMap<String, Object>();
-                map.put("count", rs.getInt("count"));
-                map.put("lang", rs.getString("lang"));
-                sup.processReportRecord(map);
-                return super.handleRow(rs, returnsList);
-            }
-        }.executeQuery(sql.toString());
+    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) {
+        // TODO Auto-generated method stub
+        
     }
+
+    @Override
+    public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup,
+            final StatisticsFiltersContainer container) throws StatisticsReportException {
+        try {
+            DateFilter dateFilter = container.getFilter(DateFilter.class);
+            IPAddressFilter ipFilter = container.getFilter(IPAddressFilter.class);
+
+            final StringTemplate langs = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
+            langs.setAttribute("action", repAction != null ? repAction.name() : null);
+            langs.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            langs.setAttribute("toDefined", dateFilter.getToDate() != null);
+            
+            if (ipFilter.hasValue()) {
+                langs.setAttribute("ipaddr", ipFilter.getValue());
+            }
+
+
+            @SuppressWarnings("rawtypes")
+            List params = StatisticUtils.jdbcParams(dateFilter);
+
+            //authors.setAttribute("paging", true);
+            String sql = langs.toString();
+            new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.put("count", rs.getInt("count"));
+                    map.put("lang", rs.getString("lang"));
+                    sup.processReportRecord(map);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(sql.toString(), params.toArray());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new StatisticsReportException(e);
+        }
+    }
+
 }

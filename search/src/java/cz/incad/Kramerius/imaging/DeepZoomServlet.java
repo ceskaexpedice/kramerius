@@ -86,38 +86,41 @@ public class DeepZoomServlet extends AbstractImageServlet {
             String zoomUrl = disectZoom(requestURL);
             StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
             String pid = tokenizer.nextToken();
-            
-            ObjectPidsPath[] paths = solrAccess.getPath(pid);
-            boolean premited = false;
-            for (ObjectPidsPath pth : paths) {
-                premited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth);
-                if (premited) break;
-            }
-            
-            if (premited) {
-                String stringMimeType = this.fedoraAccess.getImageFULLMimeType(pid);
-                ImageMimeType mimeType = ImageMimeType.loadFromMimeType(stringMimeType);
-                if ((mimeType != null) && (!hasNoSupportForMimeType(mimeType))) {
-                    resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
-                } else {
-                    if (tokenizer.hasMoreTokens()) {
-                        String files = tokenizer.nextToken();
-                        String level = tokenizer.nextToken();
-                        String tile = tokenizer.nextToken();
-                        renderTile(pid, level, tile, req, resp);
+            if (this.fedoraAccess.isObjectAvailable(pid)) {
+                ObjectPidsPath[] paths = solrAccess.getPath(pid);
+                boolean premited = false;
+                for (ObjectPidsPath pth : paths) {
+                    premited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth);
+                    if (premited) break;
+                }
+                
+                if (premited) {
+                    String stringMimeType = this.fedoraAccess.getImageFULLMimeType(pid);
+                    ImageMimeType mimeType = ImageMimeType.loadFromMimeType(stringMimeType);
+                    if ((mimeType != null) && (!hasNoSupportForMimeType(mimeType))) {
+                        resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
                     } else {
-                        if (this.fedoraAccess.isContentAccessible(pid)) {
-                            renderDZI(pid, req, resp);
+                        if (tokenizer.hasMoreTokens()) {
+                            String files = tokenizer.nextToken();
+                            String level = tokenizer.nextToken();
+                            String tile = tokenizer.nextToken();
+                            renderTile(pid, level, tile, req, resp);
                         } else {
-                            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            if (this.fedoraAccess.isContentAccessible(pid)) {
+                                renderDZI(pid, req, resp);
+                            } else {
+                                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            }
                         }
                     }
+                    
+                } else {
+                    resp.sendError(HttpServletResponse.SC_FORBIDDEN);
                 }
                 
             } else {
-                resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
-            
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -140,15 +143,19 @@ public class DeepZoomServlet extends AbstractImageServlet {
     	setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
-        if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
-            try {
-                renderIIPDZIDescriptor(pid, resp, relsExtUrl);
-            } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        if (relsExtUrl != null) {
+            if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
+                try {
+                    renderIIPDZIDescriptor(pid, resp, relsExtUrl);
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+            } else {
+                renderEmbededDZIDescriptor(pid, resp);
             }
         } else {
-            renderEmbededDZIDescriptor(pid, resp);
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
     
@@ -164,7 +171,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
             StringTemplate dziUrl = stGroup().getInstanceOf("ndzi");
             if (urlForStream.endsWith("/")) urlForStream = urlForStream.substring(0, urlForStream.length()-1);
             dziUrl.setAttribute("url", urlForStream);
-            copyFromImageServer(dziUrl.toString(), null, resp);
+            copyFromImageServer(dziUrl.toString(), resp);
         }
     }
 
@@ -191,15 +198,19 @@ public class DeepZoomServlet extends AbstractImageServlet {
         setDateHaders(pid, FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
-        if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
-            try {
-                renderIIPTile(pid, slevel, stile, resp, relsExtUrl);
-            } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        if (relsExtUrl != null) {
+            if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
+                try {
+                    renderIIPTile(pid, slevel, stile, resp, relsExtUrl);
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+            } else {
+                renderEmbededTile(pid, slevel, stile, req, resp);
             }
         } else {
-            renderEmbededTile(pid, slevel, stile, req, resp);
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
@@ -216,7 +227,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
             tileUrl.setAttribute("url", dataStreamUrl);
             tileUrl.setAttribute("level", slevel);
             tileUrl.setAttribute("tile", stile);
-            copyFromImageServer(tileUrl.toString(), null, resp);
+            copyFromImageServer(tileUrl.toString(), resp);
         }
     }
 

@@ -6,7 +6,9 @@ import java.util.List;
 import cz.incad.kramerius.processes.utils.PIDList;
 
 import junit.framework.TestCase;
+import org.junit.Ignore;
 
+@Ignore
 public class PIDTestCase extends TestCase {
 
 	public void testPIDList() throws IOException, InterruptedException {
