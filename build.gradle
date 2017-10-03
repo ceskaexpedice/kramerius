@@ -57,7 +57,7 @@ repositories {
 
 allprojects {
          group='cz.incad.kramerius'
-         version='5.3.8'
+         version='5.3.9'
 }
 
 
@@ -233,7 +233,6 @@ task distPatchZip(type:Zip) {
         description "Create patch distribution zip"
 	baseName "kramerius-patch"
 	group "Distribution"
-        from {'client/build/libs'}
         from {'search/build/libs'}
         from {'security-core/build/libs'}
 }
