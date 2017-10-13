@@ -1,33 +1,21 @@
 package cz.incad.kramerius.imaging;
 
 import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
-
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
-import org.easymock.IMockBuilder;
 import org.junit.Test;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 
 public class DeepZoomTileSupportTest extends AbstractGuiceTestCase {
 

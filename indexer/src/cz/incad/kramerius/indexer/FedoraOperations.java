@@ -1,8 +1,6 @@
 package cz.incad.kramerius.indexer;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
@@ -11,8 +9,6 @@ import cz.incad.kramerius.utils.UTFSort;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import dk.defxws.fedoragsearch.server.TransformerToText;
-import org.fedora.api.FedoraAPIA;
-import org.fedora.api.MIMETypedStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

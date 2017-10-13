@@ -2,13 +2,10 @@ package cz.incad.kramerius.indexer;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
-import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang3.StringEscapeUtils;

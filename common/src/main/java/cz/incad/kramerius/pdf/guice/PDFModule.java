@@ -18,11 +18,8 @@ package cz.incad.kramerius.pdf.guice;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.SimplePDFService;
@@ -30,7 +27,6 @@ import cz.incad.kramerius.pdf.impl.FirstPageAsImagePDFServiceImpl;
 import cz.incad.kramerius.pdf.impl.FirstPagePDFServiceImpl;
 import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
 import cz.incad.kramerius.pdf.impl.SimplePDFServiceImpl;
-import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 
 public class PDFModule extends AbstractModule {
 

@@ -11,7 +11,7 @@ import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.XmlContentType;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
 import cz.incad.kramerius.service.SortingService;

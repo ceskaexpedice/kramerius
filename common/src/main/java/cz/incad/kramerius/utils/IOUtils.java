@@ -6,6 +6,10 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.logging.Level;
 
+/**
+ * Depreceted; use apache IOUtils
+ */
+@Deprecated
 public class IOUtils {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger

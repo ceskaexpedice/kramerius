@@ -19,6 +19,8 @@ import org.apache.commons.codec.binary.Base64;
 import cz.incad.kramerius.client.cache.SimpleJSONResultsCache;
 import cz.incad.utils.IOUtils;
 
+
+//TODO: Delete, replace by apache client
 public class RESTHelper {
     
     public static final String READ_TIMEOUT = "readTimeout";

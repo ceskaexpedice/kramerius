@@ -17,12 +17,10 @@
 package cz.incad.feedrepo.impl.processes;
 
 import cz.incad.feedrepo.ImportToRepos;
-import cz.incad.feedrepo.RepoAbstractionException;
+import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
-
-import org.kramerius.Import;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +41,7 @@ public class ParametrizedImport {
     @Process
     public static void process( @ParameterName("importDirectory") File importDirectory, 
             @ParameterName("startIndexer")Boolean startIndexer,
-            @ParameterName("updateExisting")Boolean updateExisting) throws UnsupportedEncodingException, ClassNotFoundException, InstantiationException, IllegalAccessException, RepoAbstractionException {
+            @ParameterName("updateExisting")Boolean updateExisting) throws UnsupportedEncodingException, ClassNotFoundException, InstantiationException, IllegalAccessException, RepositoryException {
 
         System.setProperty("import.directory", importDirectory.getAbsolutePath());
         System.setProperty("ingest.startIndexer", startIndexer.toString());

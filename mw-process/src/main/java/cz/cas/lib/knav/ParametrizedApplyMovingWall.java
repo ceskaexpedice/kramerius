@@ -1,14 +1,13 @@
 package cz.cas.lib.knav;
 
 import java.io.IOException;
-import java.util.ResourceBundle;
 
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.cas.lib.knav.indexer.CollectPidForIndexing;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;

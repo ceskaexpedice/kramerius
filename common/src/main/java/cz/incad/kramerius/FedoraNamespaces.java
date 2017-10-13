@@ -31,6 +31,19 @@ public interface FedoraNamespaces {
      */
     public static final String FEDORA_MODELS_URI = "info:fedora/fedora-system:def/model#";
 
+    /**
+     * Fedora foxml namespace
+     */
+    public static final String FEDORA_FOXML_URI = "info:fedora/fedora-system:def/foxml#";
+
+    /**
+     * Fedora view uri
+     */
+    public static final String FEDORA_VIEW_URI = "info:fedora/fedora-system:def/view#";
+
+    /**
+     * Kramerius namespace
+     */
     public static final String KRAMERIUS_URI = "http://www.nsdl.org/ontologies/relationships#";
 
     /**
@@ -58,4 +71,36 @@ public interface FedoraNamespaces {
      * Namespace used in API-M results
      */
     public static final String FEDORA_MANAGEMENT_NAMESPACE_URI = "http://www.fedora.info/definitions/1/0/management/";
+
+    // FEDORA 4 Namespaces
+
+    public static final String PREMIS_NAMESPACE_URI = "http://www.loc.gov/premis/rdf/v1#";
+
+    public static final String INDEXING_NAMESPACE_URI ="http://fedora.info/definitions/v4/indexing#";
+
+    public static final String  RDFSCHEMA_NAMESPACE_URI = "http://www.w3.org/2000/01/rdf-schema#";
+
+    public static final String SCHEMA_INSTANCE_NAMESPACE_URI = "http://www.w3.org/2001/XMLSchema-instance";
+
+    public static final String XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
+
+    public static final String FEDORA_NAMESPACE_URI ="http://fedora.info/definitions/v4/repository#";
+
+    public static final String XML_NAMESPACE_URI ="http://www.w3.org/XML/1998/namespace";
+
+    public static final String  EBUCORE_NAMESPACE_URI = "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#";
+
+    public static final String  LDP_NAMESPACE_URI = "http://www.w3.org/ns/ldp#";
+
+    public static final String DC_TERMS_NAMESPACE_URI = "http://purl.org/dc/terms/";
+
+    public static final String SCHEMA_NAMESPACE_URI ="http://www.w3.org/2001/XMLSchema";
+
+    public static final String FEDORACONFIG_NAMESPACE_URI ="http://fedora.info/definitions/v4/config#";
+
+    public static final String FOAF_NAMESPACE_URI ="http://xmlns.com/foaf/0.1/";
+
+    public static final String DCTERMS_NAMESPACE_URI = "http://purl.org/dc/terms/";
+
+
 }

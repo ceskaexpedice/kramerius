@@ -42,7 +42,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

@@ -28,7 +28,6 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;

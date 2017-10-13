@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -16,7 +13,6 @@ import java.util.logging.Level;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -32,7 +28,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
@@ -40,9 +35,7 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.paths.Path;
 import cz.incad.kramerius.imaging.paths.impl.DirPathImpl;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.impl.fedora.FedoraDatabaseUtils;
-import cz.incad.kramerius.impl.fedora.FedoraStreamUtils;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 

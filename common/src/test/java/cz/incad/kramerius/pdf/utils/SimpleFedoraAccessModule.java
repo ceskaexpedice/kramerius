@@ -20,7 +20,7 @@ import com.google.inject.AbstractModule;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

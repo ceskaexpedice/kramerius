@@ -35,7 +35,6 @@ import org.easymock.EasyMock;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;

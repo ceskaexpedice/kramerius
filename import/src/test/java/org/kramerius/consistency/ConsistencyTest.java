@@ -34,7 +34,6 @@ import junit.framework.Assert;
 
 import org.easymock.EasyMock;
 import org.junit.Test;
-import org.kramerius.consistency.Consistency;
 import org.kramerius.consistency.Consistency.NotConsistentRelation;
 import org.kramerius.fedora.impl.ImportDataPrepare;
 import org.xml.sax.SAXException;
@@ -47,7 +46,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;

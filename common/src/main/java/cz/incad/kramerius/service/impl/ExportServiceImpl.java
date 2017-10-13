@@ -22,7 +22,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.ExportService;
 import cz.incad.kramerius.service.impl.export.EnahanceInformation;
 import cz.incad.kramerius.service.impl.export.MigrationInformation;

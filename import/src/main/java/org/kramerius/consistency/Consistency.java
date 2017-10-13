@@ -38,7 +38,7 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessStackAware;
 import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.statistics.ReportedAction;

@@ -1,7 +1,6 @@
 package cz.cas.lib.knav;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -9,12 +8,10 @@ import javax.xml.xpath.XPathExpressionException;
 import cz.cas.lib.knav.indexer.CollectPidForIndexing;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
  * Process sets flag public | private according to configuration

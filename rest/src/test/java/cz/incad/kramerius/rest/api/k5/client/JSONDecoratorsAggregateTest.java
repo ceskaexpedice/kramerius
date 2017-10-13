@@ -52,7 +52,7 @@ import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.rest.api.guice.ApiServletModule;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;

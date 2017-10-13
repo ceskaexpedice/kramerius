@@ -10,7 +10,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.imaging.impl.FileSystemCacheServiceImpl;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcessManager;

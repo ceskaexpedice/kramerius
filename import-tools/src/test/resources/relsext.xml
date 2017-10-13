@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+    <rdf:Description rdf:about="info:fedora/uuid:69dec000-490a-11de-8cf2-000d606f5dc6">
+        <hasModel xmlns="info:fedora/fedora-system:def/model#" rdf:resource="info:fedora/model:page"></hasModel>
+        <itemID xmlns="http://www.openarchives.org/OAI/2.0/">uuid:69dec000-490a-11de-8cf2-000d606f5dc6</itemID>
+        <file xmlns="http://www.nsdl.org/ontologies/relationships#">BOA001_3630900040.djvu</file>
+        <handle xmlns="http://www.nsdl.org/ontologies/relationships#">BOA001/915466</handle>
+        <tiles-url xmlns="http://www.nsdl.org/ontologies/relationships#">http://kramerius.mzk.cz/search/zoomify/uuid:69dec000-490a-11de-8cf2-000d606f5dc6</tiles-url>
+        <replicatedFrom xmlns="http://www.nsdl.org/ontologies/relationships#">http://kramerius.mzk.cz/search/handle/uuid:69dec000-490a-11de-8cf2-000d606f5dc6</replicatedFrom>
+        <replicatedFrom xmlns="http://www.nsdl.org/ontologies/relationships#">https://cdk.lib.cas.cz/search/handle/uuid:69dec000-490a-11de-8cf2-000d606f5dc6</replicatedFrom>
+        <rdf:isMemberOfCollection rdf:resource="info:fedora/vc:ff390e7e-05cc-4fcc-98db-89bd9e6e1f41"></rdf:isMemberOfCollection>
+        <rdf:isMemberOfCollection rdf:resource="info:fedora/vc:2626d5c0-cd88-4bd5-8bd5-b592b89b6313"></rdf:isMemberOfCollection>
+        <policy xmlns="http://www.nsdl.org/ontologies/relationships#">policy:private</policy>
+    </rdf:Description>
+
+</rdf:RDF>

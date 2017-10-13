@@ -16,11 +16,8 @@
  */
 package org.kramerius.replications.outputs;
 
-import static org.easymock.EasyMock.createMockBuilder;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,18 +34,14 @@ import net.sf.json.JSONObject;
 
 import org.easymock.EasyMock;
 import org.junit.Test;
-import org.kramerius.k3replications.input.InputTemplateTest._TestLocaleProvider;
-import org.kramerius.replications.outputs.OutputTemplate;
 
 import com.google.inject.Provider;
 
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * @author pavels

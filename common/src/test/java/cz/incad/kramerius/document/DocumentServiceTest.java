@@ -17,52 +17,28 @@
 package cz.incad.kramerius.document;
 
 import static junit.framework.Assert.assertEquals;
-import static org.easymock.EasyMock.replay;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
-import javax.xml.crypto.Data;
 import javax.xml.parsers.ParserConfigurationException;
 
 import junit.framework.Assert;
 
-import org.apache.http.pool.ConnFactory;
-import org.easymock.EasyMock;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
-import com.google.inject.Provides;
-import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.document.impl.DocumentServiceImpl;
 import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.PreparedDocument;
-import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.document.model.OutlineItem;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.pdf.OutOfRangeException;
-import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
 public class DocumentServiceTest {

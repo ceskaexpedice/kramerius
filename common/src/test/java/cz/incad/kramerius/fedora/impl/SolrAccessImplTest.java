@@ -30,14 +30,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.utils.SolrUtilsTest;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class SolrAccessImplTest {
 

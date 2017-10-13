@@ -16,11 +16,7 @@
  */
 package cz.incad.kramerius;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import static cz.incad.kramerius.FedoraNamespaces.*;
 
@@ -39,13 +35,31 @@ public class FedoraNamespaceContext implements NamespaceContext {
         MAP_PREFIX2URI.put("mods", BIBILO_MODS_URI);
         MAP_PREFIX2URI.put("dc", DC_NAMESPACE_URI);
         MAP_PREFIX2URI.put("oai_dc", OAI_DC_NAMESPACE_URI);
-        MAP_PREFIX2URI.put("fedora-models", FEDORA_MODELS_URI);
+        //MAP_PREFIX2URI.put("fedora-models", FEDORA_MODELS_URI);
         MAP_PREFIX2URI.put("kramerius", KRAMERIUS_URI);
         MAP_PREFIX2URI.put("rdf", RDF_NAMESPACE_URI);
         MAP_PREFIX2URI.put("oai", OAI_NAMESPACE_URI);
         MAP_PREFIX2URI.put("sparql", SPARQL_NAMESPACE_URI);
-        MAP_PREFIX2URI.put("apia", FEDORA_ACCESS_NAMESPACE_URI);
+        //MAP_PREFIX2URI.put("apia", FEDORA_ACCESS_NAMESPACE_URI);
         MAP_PREFIX2URI.put("apim", FEDORA_MANAGEMENT_NAMESPACE_URI);
+
+        // fedora4 mappings
+
+        MAP_PREFIX2URI.put("premis", PREMIS_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("indexing", INDEXING_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("xsi", SCHEMA_INSTANCE_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("xmlns", XMLNS_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("fedora3model", FEDORA_MODELS_URI);
+        MAP_PREFIX2URI.put("fedoraaccess", FEDORA_ACCESS_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("fedora", FEDORA_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("xml", XML_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("ebucore", EBUCORE_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("ldp", LDP_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("dcterms", DCTERMS_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("xs", SCHEMA_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("fedoraconfig", FEDORACONFIG_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("foaf", FOAF_NAMESPACE_URI);
+
 
         for (Map.Entry<String, String> entry : MAP_PREFIX2URI.entrySet()) {
             MAP_URI2PREFIX.put(entry.getValue(), entry.getKey());
@@ -70,5 +84,14 @@ public class FedoraNamespaceContext implements NamespaceContext {
         } else {
             return Collections.emptyList().iterator();
         }
+    }
+
+
+    public List<String> getNamespaceURIs() {
+        return new ArrayList<>(MAP_URI2PREFIX.keySet());
+    }
+
+    public List<String> getPrefixes() {
+        return new ArrayList<>(MAP_PREFIX2URI.keySet());
     }
 }

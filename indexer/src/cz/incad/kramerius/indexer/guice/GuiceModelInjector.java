@@ -1,14 +1,8 @@
 package cz.incad.kramerius.indexer.guice;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -18,7 +12,7 @@ import com.google.inject.Provides;
 import cz.incad.kramerius.indexer.FedoraOperations;
 import cz.incad.kramerius.indexer.SolrOperations;
 import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
-import cz.incad.kramerius.repo.RepoModule;
+import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.XMLUtils;
 

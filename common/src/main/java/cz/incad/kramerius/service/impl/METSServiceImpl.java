@@ -1,10 +1,6 @@
 package cz.incad.kramerius.service.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.logging.Logger;
@@ -13,7 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.METSService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

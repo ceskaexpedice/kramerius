@@ -92,8 +92,8 @@ subprojects {
          group='cz.incad.kramerius'
          version='5.3.3-POC'
          
-         sourceCompatibility = 1.6
-         targetCompatibility= 1.6
+         sourceCompatibility = 1.8
+         targetCompatibility= 1.8
          
          dependencies {
 
@@ -122,10 +122,21 @@ subprojects {
          
          repositories {
 
-
-			 flatDir {
+			//https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-4.7.4/fcrepo-webapp-4.7.4-jetty-console.jar
+			
+			/*
+			ivy {
+				url 'https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-4.7.4'
+			}*/
+			
+			/*
+			jcenter {
+				artifactUrls = ["https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-4.7.4"]
+			}*/
+		 
+			flatDir {
 				 dirs '../buildSrc/lib'
-			 }
+			}
 
 
 			 maven {

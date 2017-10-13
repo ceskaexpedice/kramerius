@@ -60,7 +60,7 @@ import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.impl.DocumentServiceImpl;
 import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.OutOfRangeException;

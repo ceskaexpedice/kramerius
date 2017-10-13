@@ -1,7 +1,6 @@
 package cz.incad.kramerius.imaging.lp.guice;
 
 import java.io.IOException;
-import java.sql.Connection;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -11,15 +10,11 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
-import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.impl.DeepZoomFlagServiceImpl;
-import cz.incad.kramerius.imaging.impl.Fedora3StreamsDiscStructure;
 import cz.incad.kramerius.imaging.impl.FileSystemCacheServiceImpl;
 import cz.incad.kramerius.imaging.impl.SimpleMemoryCacheServiceWrapper;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.processes.database.Fedora3ConnectionProvider;
-import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;

@@ -113,12 +113,14 @@ dependencies {
  
  	// https://mvnrepository.com/artifact/org.apache.solr/solr-core
 	// jackrabbit dependency
-	compile group: 'org.apache.lucene', name: 'lucene-analyzers', version: '3.6.0'
- 	
-	/*
-	compile group: 'org.apache.solr', name: 'solr-core', version: '6.2.1'
-	compile group: 'org.apache.solr', name: 'solr-solrj', version: '6.2.1'
-	*/
+	//compile group: 'org.apache.lucene', name: 'lucene-analyzers', version: '3.6.0'
+
+    compile group: 'org.fcrepo.client', name: 'fcrepo-java-client', version: '0.3.0'
+
+    /*
+    compile group: 'org.apache.solr', name: 'solr-core', version: '6.2.1'
+    compile group: 'org.apache.solr', name: 'solr-solrj', version: '6.2.1'
+    */
  
 	/*
 	compile group: 'org.apache.zookeeper', name: 'zookeeper', version: '3.4.6'

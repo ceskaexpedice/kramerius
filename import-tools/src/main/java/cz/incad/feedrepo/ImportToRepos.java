@@ -1,14 +1,6 @@
 package cz.incad.feedrepo;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,24 +26,20 @@ import javax.xml.transform.TransformerException;
 //import org.fcrepo.client.FedoraObject;
 //import org.fcrepo.client.FedoraRepository;
 //import org.fcrepo.client.FedoraResource;
-import org.fcrepo.client.impl.FedoraRepositoryImpl;
+import com.qbizm.kramerius.imp.jaxb.*;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.RepositoryObject;
+import cz.incad.kramerius.fedora.om.impl.Fedora4Repository;
+import org.apache.commons.io.IOUtils;
 import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Scopes;
-import com.qbizm.kramerius.imp.jaxb.DatastreamType;
-import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.XmlContentType;
 
-import cz.incad.feedrepo.impl.RepositoryAbstractionFactory;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
-import cz.incad.kramerius.service.impl.SortingServiceImpl;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -71,7 +59,7 @@ public class ImportToRepos {
     
     static Map<String, List<String>> updateMap = new HashMap<String, List<String>>();
     
-    static RepoAbstraction repo;
+    static Repository repo;
     
 
     static {
@@ -84,7 +72,7 @@ public class ImportToRepos {
             JAXBContext jaxbdatastreamContext = JAXBContext.newInstance(DatastreamType.class);
             datastreamMarshaller = jaxbdatastreamContext.createMarshaller();
 
-            repo = RepositoryAbstractionFactory.getRepoInstance();
+            repo = new Fedora4Repository();
         } catch (Exception e) {
             log.log(Level.SEVERE, "Cannot init JAXB", e);
             throw new RuntimeException(e);
@@ -100,19 +88,20 @@ public class ImportToRepos {
     /**
      * @param args
      * @throws UnsupportedEncodingException 
-     * @throws RepoAbstractionException 
+     * @throws RepositoryException
      * @throws IllegalAccessException 
      * @throws InstantiationException 
      * @throws ClassNotFoundException 
-     * @throws FedoraException 
      */
-    public static void main(String[] args) throws UnsupportedEncodingException, ClassNotFoundException, InstantiationException, IllegalAccessException, RepoAbstractionException {
+    public static void main(String[] args) throws UnsupportedEncodingException, ClassNotFoundException, InstantiationException, IllegalAccessException, RepositoryException {
+        System.setProperty("javax.xml.transform.TransformerFactory",
+                "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
         String importDirectory = System.getProperties().containsKey("import.directory") ? System.getProperty("import.directory") : KConfiguration.getInstance().getProperty("import.directory");
         ImportToRepos.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
     }
     
 
-    public static void ingest(final String url, final String user, final String pwd, String importRoot) throws UnsupportedEncodingException, ClassNotFoundException, InstantiationException, IllegalAccessException, RepoAbstractionException {
+    public static void ingest(final String url, final String user, final String pwd, String importRoot) throws UnsupportedEncodingException, ClassNotFoundException, InstantiationException, IllegalAccessException, RepositoryException {
         log.finest("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
         
         try {
@@ -135,7 +124,7 @@ public class ImportToRepos {
                         "Import root folder or control file doesn't exist: " + importFile.getAbsolutePath());
             }
             initialize(user, pwd);
-            repo.open();
+            //repo.open();
             repo.startTransaction();
             Set<TitlePidTuple> roots = new HashSet<TitlePidTuple>();
             Set<String> sortRelations = new HashSet<String>();
@@ -217,13 +206,13 @@ public class ImportToRepos {
             log.log(Level.SEVERE,ex.getMessage(),ex);
             repo.rollbackTransaction();
         } finally {
-            repo.close();
+            //repo.close();
         }
     }
 
     public static void initialize(final String user, final String pwd) throws ClassNotFoundException, InstantiationException, IllegalAccessException  {
         of = new ObjectFactory();
-        repo = RepositoryAbstractionFactory.getRepoInstance();
+        repo = new Fedora4Repository();
     }
 
     private static void visitAllDirsAndFiles(File importFile, Set<TitlePidTuple> roots, Set<String> sortRelations, boolean updateExisting) {
@@ -339,33 +328,50 @@ public class ImportToRepos {
         }
     }
 
-    public static void ingest(DigitalObject dob, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException, LexerException, TransformerException, RepoAbstractionException {
+    public static void ingest(DigitalObject dob, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException, LexerException, TransformerException, RepositoryException {
         long start = System.currentTimeMillis();
+
+
+        List<PropertyType> properties = dob.getObjectProperties().getProperty();
+        for (PropertyType pt :
+                properties) {
+            String name = pt.getNAME();
+            String[] splitted = name.split("#");
+            if (splitted.length == 2) {
+                //FedoraNamespaces.
+            } else {
+                log.log(Level.SEVERE, "expecting value size "+splitted.length);
+            }
+            String value = pt.getVALUE();
+        }
 
         PIDParser pidPArser = new PIDParser(pid);
         pidPArser.objectPid();
         String objId = pidPArser.getObjectId();
         
-        RepositoryObjectAbstraction obj = repo.createObject( objId/*+"?mixin=fedora:object"*/);
+        RepositoryObject obj = repo.createOrFindObject( objId/*+"?mixin=fedora:object"*/);
         
         List<DatastreamType> datastream = dob.getDatastream();
         for (DatastreamType ds : datastream) {
             String id = ds.getID();
-            System.out.println("STREAM :"+id);
             String controlgroup = ds.getCONTROLGROUP();
-            System.out.println("Control group = "+controlgroup);
             DatastreamVersionType latestDs =  ds.getDatastreamVersion().isEmpty() ? null : ds.getDatastreamVersion().get(ds.getDatastreamVersion().size()-1);
             if (latestDs != null) {
                 if (controlgroup.equals("X")) {
                     byte[] xmlContent = xmlContent(latestDs);
                     if (xmlContent != null) {
-                        createDataStream(repo,obj, id, latestDs, xmlContent);
+                        //String s = IOUtils.toString(xmlContent, "UTF-8");
+                        createDataStream(repo,obj, id, latestDs,xmlContent);
                     }
-                } else {
+                } else if (controlgroup.equals("M")) {
                     byte[] binaryContent = latestDs.getBinaryContent();
                     if (binaryContent != null) {
                         createDataStream(repo, obj, id, latestDs, binaryContent);
                     }
+                } else if (controlgroup.equals("E")) {
+                    ContentLocationType contentLocation = latestDs.getContentLocation();
+                    String ref = contentLocation.getREF();
+                    createRelationDataStream(repo, obj, id, ref);
                 }
             }
         }
@@ -374,8 +380,12 @@ public class ImportToRepos {
     }
 
 
-    private static void createDataStream(RepoAbstraction repo,  RepositoryObjectAbstraction obj, String id,
-            DatastreamVersionType versionType, byte[] binaryContent) throws RepoAbstractionException  {
+    private static void createRelationDataStream(Repository repo, RepositoryObject obj, String id,String url) throws RepositoryException {
+        obj.createRedirectedStream(id, url);
+    }
+
+    private static void createDataStream(Repository repo, RepositoryObject obj, String id,
+                                         DatastreamVersionType versionType, byte[] binaryContent) throws RepositoryException {
         boolean relsExt = id.equals("RELS-EXT");
         String mimeType = relsExt ? "text/xml" : versionType.getMIMETYPE();
         if (relsExt) {
@@ -384,6 +394,7 @@ public class ImportToRepos {
                 obj.setModel(model);
             }
         }
+
         obj.createStream(id, mimeType, new ByteArrayInputStream(binaryContent));
     }
 
@@ -393,11 +404,14 @@ public class ImportToRepos {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(bos);
         XMLUtils.print(any.get(0),ps);
+        StringWriter writer = new StringWriter();
+        XMLUtils.print(any.get(0),writer);
+        System.out.println("'"+writer.toString()+"'");
         return bos.toByteArray();
 
     }
     
-    public static void ingest(File file, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException,  LexerException, TransformerException, RepoAbstractionException {
+    public static void ingest(File file, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException,  LexerException, TransformerException, RepositoryException {
         Object obj = null;
         if (pid == null) {
             try {
@@ -427,7 +441,8 @@ public class ImportToRepos {
         }
         return null;
     }
-    
+
+    //TODO: consider what to do
     private static boolean merge(byte[] bytes) {
 //        List<RDFTuple> ingested = readRDF(bytes);
 //        if (ingested.isEmpty()) {

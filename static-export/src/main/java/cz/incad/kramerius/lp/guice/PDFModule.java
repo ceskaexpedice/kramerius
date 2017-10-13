@@ -2,7 +2,6 @@ package cz.incad.kramerius.lp.guice;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.Locale;
 
 import com.google.inject.AbstractModule;
@@ -11,12 +10,11 @@ import com.google.inject.Scopes;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.impl.DocumentServiceImpl;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.impl.GeneratePDFServiceImpl;
@@ -28,7 +26,6 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
 public class PDFModule extends AbstractModule {

@@ -6,7 +6,7 @@ import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuImage;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.impl.fedora.Handler;
+import cz.incad.kramerius.fedora.utils.Handler;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -17,7 +17,6 @@ import javax.imageio.*;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStreamImpl;
 import javax.swing.*;
-import javax.swing.text.StyledEditorKit.ForegroundAction;
 import javax.xml.xpath.XPathExpressionException;
 
 import java.awt.*;

@@ -16,23 +16,18 @@
  */
 package cz.incad.kramerius.security.impl.http;
 
-import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
 import org.easymock.EasyMock;
 
 import com.google.inject.AbstractModule;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class MockGuiceSecurityHTTPModule extends AbstractModule {
 

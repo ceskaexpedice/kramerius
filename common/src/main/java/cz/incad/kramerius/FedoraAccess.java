@@ -16,14 +16,11 @@
  */
 package cz.incad.kramerius;
 
-import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
-import cz.incad.kramerius.utils.XMLUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +44,7 @@ import org.w3c.dom.Element;
  * @todo Change it; Rename object; change methods; move instances to repo pacakge
  */
 public interface FedoraAccess {
+
 
     /**
      * Returns parsed RELS-EXT

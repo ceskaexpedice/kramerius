@@ -7,5 +7,12 @@ dependencies {
     compile project(':common')
     compile project(':import')
     compile 'commons-codec:commons-codec:1.5'
+	
+	//compile 'fcrepo-webapp-4.7.4-jetty-console'
+	//compile name:"fcrepo-webapp-4.7.4", classifier: 'jetty-console'
+
+    compile group: 'org.fcrepo.client', name: 'fcrepo-java-client', version: '0.3.0'
 }
+
+
 

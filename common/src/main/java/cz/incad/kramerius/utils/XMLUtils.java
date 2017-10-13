@@ -310,6 +310,15 @@ public class XMLUtils {
         transformer.transform(source, result);
     }
 
+    public static void print(Element elm, Writer out) throws TransformerException {
+        TransformerFactory tFactory = TransformerFactory.newInstance();
+        Transformer transformer = tFactory.newTransformer();
+
+        DOMSource source = new DOMSource(elm);
+        StreamResult result = new StreamResult(out);
+        transformer.transform(source, result);
+    }
+
     public static void print(Element elm, OutputStream out) throws TransformerException {
         TransformerFactory tFactory = TransformerFactory.newInstance();
         Transformer transformer = tFactory.newTransformer();
