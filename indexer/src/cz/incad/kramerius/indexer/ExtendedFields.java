@@ -7,12 +7,14 @@ import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
+import org.apache.pdfbox.text.PDFTextStripper;
+//import org.apache.pdfbox.util.PDFTextStripper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -41,7 +43,6 @@ public class ExtendedFields {
 
     private static final Logger logger = Logger.getLogger(ExtendedFields.class.getName());
     private String root_title;
-    //private int relsExtIndex;
     private ArrayList<Integer> rels_ext_indexes;
     private ArrayList<String> pid_paths;
     private ArrayList<String> model_paths;
@@ -89,7 +90,6 @@ public class ExtendedFields {
         pid_paths = new ArrayList<String>();
         pid_paths = fo.getPidPaths(pid);
         rels_ext_indexes = fo.getRelsIndexByPath(pid_paths);
-        //relsExtIndex = fo.getRelsIndex(pid);
         model_paths = new ArrayList<String>();
         for (String s : pid_paths) {
             model_paths.add(getModelPath(s));
@@ -97,7 +97,6 @@ public class ExtendedFields {
         setRootTitle();
         setDate();
     }
-    COSDocument cosDoc = null;
     PDDocument pdDoc = null;
     String pdfPid = "";
 
@@ -108,20 +107,12 @@ public class ExtendedFields {
             closePDFDocument();
                 InputStream is = this.bridge.getStreamContent(pid, "IMG_FULL");
                 if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdf.loadNonSeq", false)){
-                    PDDocument pdDocument = PDDocument.loadNonSeq(is, null);
-                    cosDoc = pdDocument.getDocument();
-                    pdDoc = new PDDocument(cosDoc);
+                    pdDoc = PDDocument.load(is, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
                 }else{
-                    PDFParser parser = new PDFParser(is);
-                    parser.parse();
-                    cosDoc = parser.getDocument();
-                    pdDoc = new PDDocument(cosDoc);
+                    pdDoc = PDDocument.load(is, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
                 }
                 pdfPid = pid;
 
-                if( pdDoc.isEncrypted() ){
-                    pdDoc.decrypt( KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword") );
-                }
 
             } catch (Exception ex) {
                 closePDFDocument();
@@ -134,9 +125,6 @@ public class ExtendedFields {
 
     public void closePDFDocument() throws IOException {
         pdfPid = "";
-        if (cosDoc != null) {
-            cosDoc.close();
-        }
         if (pdDoc != null) {
             pdDoc.close();
         }
@@ -152,7 +140,7 @@ public class ExtendedFields {
 
     private String getPDFPage(int page) throws Exception {
         try {
-            PDFTextStripper stripper = new PDFTextStripper("UTF-8");
+            PDFTextStripper stripper = new PDFTextStripper(/*"UTF-8"*/);
             if (page != -1) {
                 stripper.setStartPage(page);
                 stripper.setEndPage(page);
@@ -245,9 +233,7 @@ public class ExtendedFields {
         if (root_title_cache.containsKey(root_pid)) {
             root_title = root_title_cache.get(root_pid);
         } else {
-            Document doc = bridge.getStreamContentAsDocument(root_pid, FedoraUtils.DC_STREAM);
-//            root_title = StringEscapeUtils.escapeXml(DCUtils.titleFromDC(doc));
-//            root_title_cache.put(root_pid, root_title);
+            Document doc = XMLUtils.parseDocument(bridge.getStreamContent(root_pid, FedoraUtils.DC_STREAM), false);
             xPathStr = "//dc:title/text()";
             expr = xpath.compile(xPathStr);
             Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);

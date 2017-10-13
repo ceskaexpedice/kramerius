@@ -3,11 +3,16 @@
 /**
  * Left panel thumbs 
  */
-function LeftThumbs(appl, elem) {
+
+
+
+function LeftThumbs(appl, elem, settings) {
     this.application = (appl || K5);
 
-    var jqSel = (elem || '#viewer>div.container>div.thumbs');        
+    var jqSel = (elem || '#viewer>div.container>div.thumbs');
     this.elem = $(jqSel);
+
+    this.settings = ( settings || null );
 
     this.init();
     
@@ -113,16 +118,23 @@ LeftThumbs.prototype = {
         K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], _.bind(function(data) {
             var nomodel = this.currentParentModel === null;
             var dd = [];
-            _.each(data, function(objectForPath) { 
+            _.each(data, _.bind(function(objectForPath) { 
                 var path = objectForPath.path;
                 var lastModel = path[path.length - 2].model;
                 
-                _.each(objectForPath.siblings, function(thumb) {
-                    if(lastModel === hash.pmodel || nomodel){
-                        dd.push(thumb);
+                _.each(objectForPath.siblings, _.bind(function(thumb) {
+                    if (this.settings && this.settings.selector) {
+                        if (this.settings.selector.call(null, thumb)) {
+                            dd.push(thumb);
+                        }
+                    } else {
+                        // no selector defined
+                        if(lastModel === hash.pmodel || nomodel){
+                            dd.push(thumb);
+                        }
                     }
-                });
-            });
+                }, this));
+            },this));
             
             this.thumbs = dd;
             
@@ -168,12 +180,19 @@ LeftThumbs.prototype = {
             this.setLoading(true);
             $("#q").val(q);
             this.hits = {};
+            var data  = this.textOcr;
             $('td.hit').removeClass("hit");
             $('td.hit').each(function() {
-                $(this).tooltip("option", "content", $(this).data("tt"));
+                var pid = $(this).data('pid');
+                if (data[pid]) {
+                    $(this).tooltip("option", "content", $(this).data("tt"));
+                }
             });
             $('td.chit').each(function() {
-                $(this).tooltip("option", "content", $(this).data("tt"));
+                var pid = $(this).data('pid');
+                if (data[pid]) {
+                    $(this).tooltip("option", "content", $(this).data("tt"));
+                }
             });
             $('td.thumb').removeClass("hit chit");
             this.getHits(true);
@@ -221,6 +240,7 @@ LeftThumbs.prototype = {
     setHitClass: function() {
         var hits = this.hits;
         var hl = this.highlighting;
+        var data = {};
         $('td.thumb').each(function() {
             for (var i = 0; i < hits.length; i++) {
                 var pid = hits[i].pid ? hits[i].pid : hits[i].PID;
@@ -233,10 +253,14 @@ LeftThumbs.prototype = {
                     tt.addClass('hit');
 
                     var hltext = "";
-                    for (var j = 0; j < hl[pid].text_ocr.length; j++) {
-                        hltext += '<div class="hl">' + hl[pid].text_ocr[j] + '</div>';
+                    if (hl[pid].text_ocr) {
+                        for (var j = 0; j < hl[pid].text_ocr.length; j++) {
+                            hltext += '<div class="hl">' + hl[pid].text_ocr[j] + '</div>';
+                        }
+                        data[pid] = true;
+                    } else {
+                        data[pid] = false;
                     }
-//                    $(this).tooltip("option", "content", tt + hltext);
                     break;
                 } else if (pid_path.indexOf(lipid) > -1) {
                     $(this).addClass('chit');
@@ -244,6 +268,7 @@ LeftThumbs.prototype = {
                 }
             }
         });
+        this.textOcr = data;
         this.setLoading(false);
     },
     resized: function() {
@@ -340,7 +365,9 @@ LeftThumbs.prototype = {
         thumb.css('width', this.thumbWidth + "px");
         thumb.css('height', this.thumbHeight + "px");
 
-        var title = '<span class="title">' + K5.i18n.translatable('fedora.model.' + this.thumbs[index].model) + " " + this.thumbs[index].title + '</span>';
+        var modelName = this.thumbs[index].model === 'article' ? '' : K5.i18n.translatable('fedora.model.' + this.thumbs[index].model);
+        var title = '<span class="title">' + modelName + " " + this.thumbs[index].title + '</span>';
+
         var info = {short: "", full: ""};
         this.getDetails(this.thumbs[index], info);
         thumb.data("pid", pid);
@@ -441,6 +468,14 @@ LeftThumbs.prototype = {
         info.short += '<div class="details">' +  detShort + '</div>';
         info.full += '<div class="details">' + detFull + '</div>';
 
+    },
+
+    setSettings: function(settinssObject) {
+        this.settings = settinssObject;
+    },
+
+    getSettings: function (settingsObject) {
+        return this.settings;
     }
 };
 

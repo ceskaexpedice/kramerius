@@ -203,8 +203,8 @@ public class RESTHelper {
         for (String val : nullfields) {
             if (val.contains(":")) {
                 String[] vals = val.split(":");
-                String lastModifKey = "Last Modified";
-                String lastFetchKey = "Last Fetched";
+                String lastModifKey = "Last-Modified";
+                String lastFetchKey = "Last-Fetched";
                 if (vals.length >= 2) {
                     if (vals[0].equals(lastModifKey)) {
                         resp.setHeader(lastModifKey, vals[1]);

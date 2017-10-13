@@ -99,10 +99,18 @@ function _eventProcess(pid) {
         K5.gui["selected"]["ctx"] = {};    
 
         if (K5.gui["selected"].containsLeftStructure && K5.gui["selected"].containsLeftStructure()) {
+                        
             if(typeof K5.gui["selected-left"] != 'undefined'){
-                K5.gui["selected-left"].process();   
+                if (K5.gui["selected"].leftStructureSettings) {
+                    K5.gui["selected-left"].setSettings( K5.gui["selected"].leftStructureSettings());
+                }
+                K5.gui["selected-left"].process();
             }else{
-                K5.gui["selected-left"] =  new LeftThumbs();   
+                if (K5.gui["selected"].leftStructureSettings) {
+                    K5.gui["selected-left"] = new LeftThumbs(K5, '#viewer>div.container>div.thumbs',K5.gui["selected"].leftStructureSettings());
+                } else {
+                    K5.gui["selected-left"] = new LeftThumbs(K5, '#viewer>div.container>div.thumbs');
+                }
             }
                  
             //K5.gui["selected-left"].init();
@@ -233,11 +241,11 @@ ItemSupport.prototype = {
     },
     
     maximize:function(){
+
         if(K5.gui["maximized"]){
             this.restore();
         }else{
-            //$("#header").hide();
-            $("#metadata").hide();
+        	$("#metadata").hide();
             $(".thumbs").hide();
             $("#viewer>div.breadcrumbs").hide();
             $("#viewer>div.container").css("width", "100%");

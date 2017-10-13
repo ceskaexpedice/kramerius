@@ -299,7 +299,7 @@ ClientAPIDev.prototype = {
     },
 
     /**
-     * Requesting children from concrete pid
+     * Requesting rights from concrete pid
      * @param {string} pid - Pid of object.
      * @param {requestCallback} whenready  - Callback handling responses.
      * @method

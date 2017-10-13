@@ -2,12 +2,21 @@ description "Indexer process"
 
 sourceSets {
     main {
-	   java {
-		srcDir 'src'
-	   }
-	   resources {
-    	    	    srcDir 'src'
-    	   }
+     java {
+          srcDir  'src'
+      }
+      resources {
+         srcDir 'src'
+      }
+    }
+
+    test {
+        java {
+            srcDir 'src/test'
+        }
+        resources {
+           srcDir 'src/test'
+        }
     }
 }
 
@@ -18,7 +27,6 @@ dependencies {
 
 	compile group: 'org.jsoup', name: 'jsoup', version: '1.10.1'
 
-	/*   
     compile 'org.apache.lucene:lucene-analyzers:2.9.1'
     compile 'org.apache.lucene:lucene-core:2.9.1'
     compile 'org.apache.lucene:lucene-highlighter:2.9.1'
@@ -28,7 +36,7 @@ dependencies {
     compile 'org.apache.lucene:lucene-snowball:2.9.1'
     compile 'org.apache.lucene:lucene-spellchecker:2.9.1'
     compile 'org.apache.lucene:lucene-demos:2.9.1'
-	*/
+
 
 }
 

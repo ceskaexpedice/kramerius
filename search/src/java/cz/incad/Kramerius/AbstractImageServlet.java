@@ -159,8 +159,8 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         Date lastModifiedDate = lastModified(pid, streamName);
         Calendar instance = Calendar.getInstance();
         instance.roll(Calendar.YEAR, 1);
-        resp.setDateHeader("Last Modified", lastModifiedDate.getTime());
-        resp.setDateHeader("Last Fetched", System.currentTimeMillis());
+        resp.setDateHeader("Last-Modified", lastModifiedDate.getTime());
+        resp.setDateHeader("Last-Fetched", System.currentTimeMillis());
         resp.setDateHeader("Expires", instance.getTime().getTime());
     }
 

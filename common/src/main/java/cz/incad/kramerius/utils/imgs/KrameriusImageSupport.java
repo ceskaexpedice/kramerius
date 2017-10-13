@@ -12,6 +12,9 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 
 import javax.imageio.*;
 import javax.imageio.stream.ImageInputStream;
@@ -63,6 +66,12 @@ public class KrameriusImageSupport {
         return KConfiguration.getInstance().getConfiguration().getBoolean("convert.useCache", true);
     }
 
+    private static PDDocument loadPDFDocument(InputStream is, String pswd) throws IOException {
+        return PDDocument.load(is,pswd);
+    }
+    private static PDDocument loadPDFDocument(InputStream is) throws IOException {
+        return PDDocument.load(is,KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
+    }
     
     public static BufferedImage readImage(URL url, ImageMimeType type, int page) throws IOException {
         LOGGER.fine("type is "+type);
@@ -105,24 +114,17 @@ public class KrameriusImageSupport {
             try {
                 if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdf.loadNonSeq", false)){
                     //PDDocument.load
-                    document = PDDocument.loadNonSeq(stream, null);
+                    //document = PDDocument.loadNonSeq(stream, null);
+                    throw new IllegalStateException("convert.pdf.loadNonSeq is now not supported");
                 }else{
-                    document = PDDocument.load(stream);
-                }
-                if( document.isEncrypted() ){
-                    try{
-                        document.decrypt( KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword") );
-                    }
-                    catch( Exception e ){
-                        throw new RuntimeException(e);
-                    }
+                    // loaded - password is readed from configuration; are not stored in fedora just now
+                    document = loadPDFDocument(stream);
                 }
                 //int resolution = 96;
                 int resolution = 160;
-                List pages = document.getDocumentCatalog().getAllPages();
-                PDPage pdPage = (PDPage) pages.get(page);
-                BufferedImage image = pdPage.convertToImage(BufferedImage.TYPE_INT_RGB, resolution);
-                return image;
+                PDFRenderer renderer = new PDFRenderer(document);
+                BufferedImage renderImage = renderer.renderImageWithDPI(page, resolution, ImageType.RGB);
+                return renderImage;
             } finally {
                 if (document != null) {
                     document.close();

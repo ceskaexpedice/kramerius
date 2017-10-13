@@ -1,6 +1,6 @@
 ###Novinky
 
-Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub ( https://github.com/ceskaexpedice/kramerius/releases/latest )
+Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub (https://github.com/ceskaexpedice/kramerius/releases/latest)
 
 Zapojení do České digitální knihovny je možné od verze Kramerius 5.
 
@@ -10,7 +10,7 @@ Zapojení do České digitální knihovny je možné od verze Kramerius 5.
 
 je softwarové řešení pro zpřístupnění digitálních dokumentů. Primárně je určen pro digitalizované knihovní sbírky, monografie a periodika. Využit může být ke zpřístupnění dalších typů dokumentů např. map, hudebnin a starých tisků, případně částí dokumentů jako jsou články a kapitoly. Systém je vhodný také pro tzv. digital born dokumenty, tedy dokumenty, které vznikly v elektronické podobě. Kramerius je průběžně upravován tak, aby struktura metadat odpovídala standardům vyhlašovaným Národní knihovnou České republiky. Systém poskytuje rozhraní pro přístup koncových uživatelů, zajišťující vyhledávání v metadatech a v plných textech, generování vícestránkových PDF dokumentů z vybraných stran, vytváření virtuálních sbírek a další operace nad uloženou sbírkou digitálních dokumentů.
 
-Aktuální verze 5 vychází koncepčně z verze 4, která byla vyvíjena a průběžně publikována od roku 2009. Navazuje funkčností na předchozí verzi systému Kramerius končící označením 3.3.1. Od verze 4 je jako jádro systému použit open source repozitář [Fedora](http://www.fedora-commons.org). Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
+Aktuální verze 5 vychází koncepčně z verze 4, která byla vyvíjena a průběžně publikována od roku 2009. Navazuje funkčností na předchozí verzi systému Kramerius končící označením 4.8.6. Od verze 4 je jako jádro systému použit open source repozitář [Fedora](http://www.fedora-commons.org). Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
 
 Uživatelské rozhraní je přístupné ve většině současných webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer.
 
@@ -49,10 +49,15 @@ V předchozích letech byl vývoj systému Kramerius průběžně financován z 
 
 
 ##Instalace
-Instalační balík je k dispozici v sekci Releases na adrese https://github.com/ceskaexpedice/kramerius/releases/latest . Starší verze Krameria vydané před přesunutím vývoje na GitHub jsou stále k dispozici na původním umístění na Google Code (https://code.google.com/p/kramerius/downloads/list)
+Instalační balík je k dispozici v sekci Releases na adrese https://github.com/ceskaexpedice/kramerius/releases/latest . 
 
-Kompletní dokumentace k aktuální verzi je v sekci Wiki.
+Kompletní dokumentace k aktuální verzi je v sekci [Wiki](https://github.com/ceskaexpedice/kramerius/wiki).
 
+[Instalační postup a konfigurace systému](https://github.com/ceskaexpedice/kramerius/wiki/Instalace) jsou popsány na Wiki.
+
+Službu instalace lze také objednat na http://www.unidata.cz/system-kramerius
+
+Distribuovanou instalaci u společnosti Incad, která zajišťuje analytické a programátorské práce http://www.incad.cz
 
 ##Komunikace
 Hlášení o chybách a požadavky na novou funkcionalitu zadávejte pomocí formuláře New Issue v sekci Issues. 
@@ -70,14 +75,6 @@ Do mailové konference je možné posílat hlášení chyb, návrhy na vylepšen
 ##Podpora systému Kramerius
 
 Systém Kramerius je open source řešení. SW podporu poskytuje vývojový tým. Pro garantované termíny musí mít instituce uzavřenu samostatnou smlouvu o podpoře.
-
-INSTALACE
-
-Instalační postup a konfigurace systému jsou popsány na Wiki.
-
-Službu instalace lze také objednat na http://www.unidata.cz/system-kramerius
-
-Distribuovanou instalaci u společnosti Incad, která zajišťuje analytické a programátorské práce http://www.incad.cz
 
 SPRÁVA SYSTÉMU
 

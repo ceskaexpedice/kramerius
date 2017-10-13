@@ -16,20 +16,32 @@
  */
 package cz.incad.kramerius.processes.def;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Locale;
 import java.util.PropertyResourceBundle;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import junit.framework.Assert;
 
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
 import org.junit.Test;
+import org.w3c.dom.Comment;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
+import com.google.gwt.dom.client.Node;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -41,77 +53,87 @@ import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.WhitespaceUtility;
+import cz.incad.kramerius.utils.XMLUtils;
 
 public class DefaultTemplateTest {
 
-    public static String BUNLDE = 
-        "# procesy\n"
-        +"processes.defaultfields.first=prvni\n"
-        +"processes.defaultfields.second=druhy\n"
-        +"processes.defaultfields.third=treti\n";
+    public static String BUNLDE = "# procesy\n" + "processes.defaultfields.first=prvni\n"
+            + "processes.defaultfields.second=druhy\n" + "processes.defaultfields.third=treti\n";
 
     @Test
-    public void shouldRenderTemplate() throws IOException {
-// 		  DISABLED 
-//        Locale locale = new Locale("cs","CZ");
-//
-//        LRProcessDefinition definition = EasyMock.createMock(LRProcessDefinition.class);
-//        
-//        EasyMock.expect(definition.getId()).andReturn("_4test_").anyTimes();
-//        EasyMock.expect(definition.getMainClass()).andReturn(FourTestProcess.class.getName()).anyTimes();
-//        
-//        
-//        
-//        DefaultTemplate template = new DefaultTemplate();
-//        
-//
-//        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-//        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-//        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8")))).anyTimes();
-//
-//        EasyMock.replay(bundleService, definition);
-//        
-//        Injector injector = Guice.createInjector(new _Module(locale,  bundleService));
-//        injector.injectMembers(template);
-//        
-//        StringWriter stringWriter = new StringWriter();
-//        template.renderInput(definition, stringWriter, null);
-//        
-//        InputStream resStream = DefaultTemplateTest.class.getResourceAsStream("expecting.txt");
-//        String expected = IOUtils.readAsString(resStream, Charset.forName("UTF-8"), true);
-//        System.out.println(expected);
-//        
-//        String str1 = stringWriter.toString();
-//        String str2 = expected;
-//        int l = Math.min(stringWriter.toString().length(), expected.length());
-//        for (int i = 0; i < l; i++) {
-//			if (str1.charAt(i) != str2.charAt(i)) {
-//				String hex1 = String.format ("\\u%04x", (int)str1.charAt(i));
-//				String hex2 = String.format ("\\u%04x", (int)str2.charAt(i));
-//				System.out.println("char ["+i+"]; first str = '"+str1.charAt(i)+"' ("+hex1+"); second str = '"+str2.charAt(i)+"' ("+hex2+")");
-//			}
-//		}
-//        
-//        Assert.assertEquals(expected, stringWriter.toString());
+    public void shouldRenderTemplate() throws IOException, ParserConfigurationException, SAXException {
+        Locale locale = new Locale("cs", "CZ");
+
+        LRProcessDefinition definition = EasyMock.createMock(LRProcessDefinition.class);
+
+        EasyMock.expect(definition.getId()).andReturn("_4test_").anyTimes();
+        EasyMock.expect(definition.getMainClass()).andReturn(FourTestProcess.class.getName()).anyTimes();
+
+        DefaultTemplate template = new DefaultTemplate();
+
+        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
+        EasyMock.expect(bundleService.getResourceBundle("labels", locale))
+                .andReturn(new PropertyResourceBundle(
+                        new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8"))))
+                .anyTimes();
+        EasyMock.expect(bundleService.getResourceBundle("base", locale))
+                .andReturn(new PropertyResourceBundle(
+                        new InputStreamReader(new ByteArrayInputStream(BUNLDE.getBytes()), Charset.forName("UTF-8"))))
+                .anyTimes();
+
+        EasyMock.replay(bundleService, definition);
+
+        Injector injector = Guice.createInjector(new _Module(locale, bundleService));
+        injector.injectMembers(template);
+
+        StringWriter stringWriter = new StringWriter();
+        template.renderInput(definition, stringWriter, null);
+        Document parsedDocument = XMLUtils.parseDocument(new StringReader(stringWriter.toString()));
+        Assert.assertTrue(parsedDocument.getDocumentElement().getNodeName().equals("div"));
+
+        InputStream resStream = DefaultTemplateTest.class.getResourceAsStream("expecting.txt");
+        Document expected = XMLUtils.parseDocument(resStream);
+        // different formatting in comments
+        List<org.w3c.dom.Node> findNodesByType = XMLUtils.findNodesByType(expected.getDocumentElement(),
+                org.w3c.dom.Node.COMMENT_NODE);
+        StringBuilder expetedComments = new StringBuilder();
+        for (org.w3c.dom.Node node : findNodesByType) {
+            Comment comm  = (Comment) node;
+            org.w3c.dom.Node parentNode = node.getParentNode();
+            parentNode.removeChild(node);
+            expetedComments.append(comm.getData());
+        }
+        
+        StringBuilder parsedComments = new StringBuilder();
+        findNodesByType = XMLUtils.findNodesByType(parsedDocument.getDocumentElement(), org.w3c.dom.Node.COMMENT_NODE);
+        for (org.w3c.dom.Node node : findNodesByType) {
+            Comment comm  = (Comment) node;
+            org.w3c.dom.Node parentNode = node.getParentNode();
+            parentNode.removeChild(node);
+            parsedComments.append(comm.getData());
+        }
+        Assert.assertEquals(WhitespaceUtility.replace(expetedComments.toString()), WhitespaceUtility.replace(parsedComments.toString()));
+        Diff diff = XMLUnit.compareXML(parsedDocument, expected);
+        Assert.assertTrue(diff.toString(), diff.similar());
+
     }
-    
-    
-    
+
     public static class FourTestProcess {
 
         @DefaultParameterValue("first")
-        public static String DEFAULT_FIRST="default";
-        
+        public static String DEFAULT_FIRST = "default";
+
         @Process
-        public static void process(@ParameterName("first")String first, @ParameterName("second") String second) {}
+        public static void process(@ParameterName("first") String first, @ParameterName("second") String second) {
+        }
     }
-    
-    
+
     class _Module extends AbstractModule {
 
         private Locale locale;
         private ResourceBundleService resourceBundleService;
-        
+
         public _Module(Locale locale, ResourceBundleService resourceBundleService) {
             super();
             this.locale = locale;
@@ -122,7 +144,7 @@ public class DefaultTemplateTest {
         protected void configure() {
             bind(ResourceBundleService.class).toInstance(this.resourceBundleService);
         }
-        
+
         @Provides
         public Locale getLocale() {
             return this.locale;

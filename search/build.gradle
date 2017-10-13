@@ -2,11 +2,6 @@ apply plugin: 'war'
 
 description "Admin web application"
 
-/*
-deployment {
-        http('adminLocal','localhost','localPort','usernameKey','pswdKey','tomcat6x') 
-        http('adminVmkram','vmkramerius','vmkramPort','usernameKey','pswdKey') 
-}*/
 
 sourceSets {
     main {

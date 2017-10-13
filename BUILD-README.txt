@@ -15,16 +15,13 @@ gradle :client:clean :client:build
 
 Creating full distribution (contains rightseditor,editor, K5, Client and javadocs ):
 
-gradle zipAllJavadocs distTar -> creates tar.gz file
-gradle zipAllJavadocs distZip -> creates zip file
-gradle zipAllJavadocs -> Only javadoc documentation
+gradle clean build distZip -> creates zip file
 
 Note: It is expected you have rightseditor and editor wars in your m2 repo.
 
-Creating patch distribution (K5, Client, security-core only)
+Creating patch distribution (K5 core, K5 Client, security-core only)
 
-gradle  patchDistTar
-gradle  patchDistZip
+gradle  clean build distPatchZip
 
 
 

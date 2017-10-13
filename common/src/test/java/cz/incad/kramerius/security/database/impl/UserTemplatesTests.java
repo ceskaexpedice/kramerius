@@ -23,6 +23,7 @@ import junit.framework.Assert;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.easymock.EasyMock;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -43,103 +44,10 @@ import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightImpl;
 import cz.incad.kramerius.security.impl.criteria.MovingWall;
 import cz.incad.kramerius.security.impl.http.MockGuiceSecurityHTTPModule;
+import cz.incad.kramerius.utils.WhitespaceUtility;
 
+@Ignore
 public class UserTemplatesTests extends AbstractGuiceTestCase {
-
-
-//    @Test
-//    public void insertRole() {
-//        RoleImpl grpImpl = new RoleImpl(2, "4TEST", -1);
-//        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRole");
-//        template.setAttribute("role",grpImpl);
-//        String sql = template.toString().trim();
-//        String expectedSql = 
-//            "insert into group_entity(group_id,gname, personal_admin_id)\n"+
-//            "        values(\n"+
-//            "            nextval('group_id_sequence'),\n"+
-//            "            '4TEST',\n"+
-//            "            NULL\n"+
-//            "    )";  
-//
-//        /*
-//        System.out.println(sql);
-//        System.out.println(expectedSql);
-//        Stack<Character> stckSQL = new Stack<Character>();
-//        for (int i = 0; i < sql.length(); i++) {
-//            stckSQL.push(sql.charAt(i));
-//        }
-//        Stack<Character> expectedSQL = new Stack<Character>();
-//        for (int i = 0; i < expectedSql.length(); i++) {
-//            expectedSQL.push(expectedSql.charAt(i));
-//        }
-//        while(!stckSQL.isEmpty()) {
-//            Character chr = stckSQL.pop();
-//            Character echr = expectedSQL.pop();
-//            if (chr != echr) {
-//                System.out.println(expectedSQL.toString());
-//                System.out.println(stckSQL.toString());
-//            }
-//        }*/
-        
-//        
-//        Assert.assertEquals(expectedSql, sql);
-//        
-//        grpImpl = new RoleImpl(2, "4TEST", 3);
-//        template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRole");
-//        template.setAttribute("role",grpImpl);
-//        sql = template.toString().trim();
-//        expectedSql = 
-//            "insert into group_entity(group_id,gname, personal_admin_id)\n"+
-//            "        values(\n"+
-//            "            nextval('group_id_sequence'),\n"+
-//            "            '4TEST',\n"+
-//            "            3\n"+
-//            "    )";
-//        Assert.assertEquals(expectedSql, sql);
-//        
-//        
-//    }
-//
-//    @Test
-//    public void updateRole() {
-//        RoleImpl grpImpl = new RoleImpl(2, "4TEST", -1);
-//        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRole");
-//        template.setAttribute("role",grpImpl);
-//        String sql = template.toString().trim();
-//        String expectedSQL = "update group_entity set \n"+
-//            "            gname='4TEST', \n"+ 
-//            "            personal_admin_id=NULL\n"+
-//            "        where group_id=2";
-//
-//        Assert.assertEquals(expectedSQL, sql);
-//        
-//
-//        grpImpl = new RoleImpl(2, "4TEST", 10);
-//        template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRole");
-//        template.setAttribute("role",grpImpl);
-//        sql = template.toString().trim();
-//        expectedSQL = "update group_entity set \n"+
-//            "            gname='4TEST', \n"+ 
-//            "            personal_admin_id=10\n"+
-//            "         where group_id=2";
-//
-//        
-//        Assert.assertEquals(expectedSQL, sql);
-//    }
-
-    
-//    @Test
-//    public void deleteRole() {
-//        RoleImpl grpImpl = new RoleImpl(2, "4TEST", -1);
-//        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("deleteRole");
-//        template.setAttribute("role",grpImpl);
-//        String sql = template.toString().trim();
-//        String expectedSql = "delete from group_entity \n"+
-//                "   where group_id=2";
-//        Assert.assertEquals(expectedSql, sql);
-//        
-//    }
-
     
 //    @Test
 //    public void testFindGroupsWhichAdministrate(){
@@ -180,17 +88,5 @@ public class UserTemplatesTests extends AbstractGuiceTestCase {
     }
 
 
-    private void compareTexts(String sql, String expectedSQL) {
-        int min = Math.min(sql.length(), expectedSQL.length());
-        for (int i = 0; i < min; i++) {
-            if (sql.charAt(i) == expectedSQL.charAt(i)) {
-                System.out.println("ok charAt("+i+") = '"+sql.charAt(i)+"'");
-            } else {
-                System.out.println("bad sql.charAt("+i+") = '"+sql.charAt(i)+"'");
-                System.out.println("bad expectedSQL.charAt("+i+") = '"+expectedSQL.charAt(i)+"'");
-                
-            }
-        }
-    }
 
 }

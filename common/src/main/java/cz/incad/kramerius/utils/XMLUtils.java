@@ -220,6 +220,40 @@ public class XMLUtils {
 
     /**
      * Finds element in DOM tree
+     * @param topElm Top element
+     * @param nodeName Node name
+     * @return returns found node
+     */
+    public static List<Node> findNodesByType(Element topElm, int type) {
+        List<Node> retvals = new ArrayList<Node>();
+        if (topElm == null) throw new IllegalArgumentException("topElm cannot be null");
+        synchronized(topElm.getOwnerDocument()) {
+            Stack<Node> stack = new Stack<Node>();
+            stack.push(topElm);
+            while (!stack.isEmpty()) {
+                Node curElm = stack.pop();
+                if (curElm.getNodeType() == type) {
+                    retvals.add(curElm);
+                }
+                List<Node> nodesToProcess = new ArrayList<Node>();
+
+                NodeList childNodes = curElm.getChildNodes();
+                for (int i = 0, ll = childNodes.getLength(); i < ll; i++) {
+                    Node item = childNodes.item(i);
+                    //stack.push((Element) item);
+                    nodesToProcess.add(item);
+                }
+                Collections.reverse(nodesToProcess);
+                for (Node node : nodesToProcess) {
+                    stack.push(node);
+                }
+            }
+            return retvals;
+        }
+    }
+
+    /**
+     * Finds element in DOM tree
      * @param topElm Root node
      * @param localName Local element name
      * @param namespace Element namespace

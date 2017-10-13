@@ -106,7 +106,10 @@ ZoomifyStaticImage.prototype.open = function() {
         this.elem.append(_rightNavigationArrow());    
 
         var optionsDiv = _optionspane();
-        this.elem.append(optionsDiv);    
+        if ($("#options").length > 0) {
+            $("#options").remove();
+        }
+        this.elem.append(optionsDiv);
 
 
         var mapDiv = $("<div/>",{"id":"map"});
