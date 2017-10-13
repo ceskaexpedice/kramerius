@@ -27,9 +27,9 @@ import cz.incad.kramerius.service.ReplicateException;
  */
 public interface ReplicationFormat {
     
+	
     public byte[] formatFoxmlData(byte[] input) throws ReplicateException;
     
-    
-    public byte[] formatFoxmlData(byte[] input, Object ...params) throws ReplicateException;
+    public byte[] formatFoxmlData(byte[] input,  Object ...params) throws ReplicateException;
     
 }

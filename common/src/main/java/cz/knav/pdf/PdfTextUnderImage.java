@@ -131,7 +131,7 @@ public class PdfTextUnderImage {
 			}
 		}
         if (r == null) {
-            if (isSP(element)) {
+            if (isSP(element) || isHYP(element)) {
                 r = "Arial";
             } else {
                 throwPdfTextUnderImageException();
@@ -152,7 +152,7 @@ public class PdfTextUnderImage {
 			}
 		}
         if (r == null) {
-            if (isSP(element)) {
+            if (isSP(element) || isHYP(element)) {
                 r = 10f;
             } else {
                 throwPdfTextUnderImageException();
@@ -246,10 +246,9 @@ public class PdfTextUnderImage {
 			}
 		}
 		if (e.hasAttribute(stylerefs)) {
-			String textStyleId = e.getAttribute(stylerefs);
-			int ix = textStyleId.lastIndexOf("font");
-			if (ix != -1) {
-				textStyleId = textStyleId.substring(ix);
+			String textStyleIdAttribute = e.getAttribute(stylerefs);
+
+			for (String textStyleId : textStyleIdAttribute.split(" ")) {
 		    	NodeList nodeList = alto.getElementsByTagName("TextStyle");
 		    	for (int i = 0; i < nodeList.getLength(); i++) {
 		    		Element textStyle = (Element) nodeList.item(i);

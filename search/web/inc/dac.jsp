@@ -20,7 +20,8 @@
 <c:set var="singleQuotesReplace">\'</c:set>
 <c:set var="doubleQuotes">"</c:set>
 <c:set var="doubleQuotesReplace">\"</c:set>
-    
+<c:set var="exactDay">false</c:set>
+<c:if test="${param.exactDay  == 'true'}"><c:set var="exactDay">true</c:set></c:if> 
 <script src="js/underscore-min.js" type="text/javascript" ></script>
 <script src="js/utils.js" type="text/javascript" ></script>
 <script src="js/jcanvas.js" type="text/javascript" ></script>
@@ -33,7 +34,17 @@
         da.render();
         da.setDatePicker();
         da.scrollToMax();
+        $('#exactDay').attr('checked', ${exactDay});
     });
+    
+    function toggleExact(){
+      if($('#exactDay').attr('checked')){
+	$('.exactbox').hide();
+      } else {
+	$('.exactbox').show();
+      }
+    }
+    
     function checkValid(event, obj){
         var minDate = $("#f1").datepicker('option', 'getDate');
         var maxDate = $("#f2").datepicker('option', 'getDate');
@@ -50,12 +61,19 @@
     }
 </script>
 <div id="da-inputs" >
-    <span style="float:left;"><fmt:message bundle="${lctx}">Od</fmt:message>:&nbsp;</span>
+    <span class="exactbox" style="float:left;"><fmt:message bundle="${lctx}">Od</fmt:message>:&nbsp;</span>
     <input style="float:left;" class="da_input" id="f1" size="10" type="text" value="" onchange="checkValid(event, this)"  />
+    <div class="exactbox" style="float:left; <c:if test="${param.exactDay  == 'true'}">display:none;</c:if> /> ">
     <span style="float:left;">&nbsp;<fmt:message bundle="${lctx}">Do</fmt:message>:&nbsp;</span>
     <input style="float:left;" class="da_input" id="f2" size="10" type="text" value="" onchange="checkValid(event, this)"  /> 
-<a href="javascript:doFilter();" style="float:right; width:16px;overflow:hidden;" ><span class="ui-icon ui-icon-search" title="<fmt:message bundle="${lctx}">dateaxis.use</fmt:message>" >a</span></a>
+    </div>
+    <a href="javascript:doFilter();" style="float:right; width:16px;overflow:hidden;" ><span class="ui-icon ui-icon-search" title="<fmt:message bundle="${lctx}">dateaxis.use</fmt:message>" >a</span></a>
+
 </div>
+    <div>
+    <label for="exactDay">konkrétní den</label><input type="checkbox" id="exactDay" name="exactDay" onchange="toggleExact()"
+	<c:if test="${param.exactDay  == 'true'}">checked="checked"</c:if> />
+    </div>
 <div style="overflow:hidden; width:100%; height:100%;position: relative;left:0px;top:0px;padding:0px;">
 <div id="canvasda" class="years" style="overflow:auto; position: relative;">
 <div class="info"></div><div class="yearLabel"></div><div class="bar"><div class="sel"></div></div>

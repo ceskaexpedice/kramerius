@@ -16,7 +16,6 @@ include	'import-jaxb-srwdc'
 include	'import-mets' 
 	
 include	'indexer'
-//disable forever
 //include	'k5indexer'
 include	'static-export'
 include	'rest'
@@ -26,7 +25,8 @@ include 'mw-process'
 include 'authfilters'
 include 'import-tools'
 
-	
+include 'solr-migration'
+
 
 // filter property -DremoveProjs=projectA,projectB,..
 rootProject.children.removeAll { project ->

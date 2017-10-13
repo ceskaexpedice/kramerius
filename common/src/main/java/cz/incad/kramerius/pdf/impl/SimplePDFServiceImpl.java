@@ -93,14 +93,14 @@ public class SimplePDFServiceImpl implements SimplePDFService {
             String template = template(rdoc, this.fedoraAccess, this.textsService, this.localeProvider.get());
 
             Document doc = DocumentUtils.createDocument(rdoc);
-            PdfWriter.getInstance(doc, os);
+            PdfWriter pdfWriter = PdfWriter.getInstance(doc, os);
             doc.open();
 
             cmnds = new ITextCommands();
             cmnds.load(XMLUtils.parseDocument(new StringReader(template)).getDocumentElement(), cmnds);
 
-            RenderPDF render = new RenderPDF(fontMap);
-            render.render(doc, cmnds);
+            RenderPDF render = new RenderPDF(fontMap, this.fedoraAccess);
+            render.render(doc, pdfWriter, cmnds);
 
             doc.close();
             os.flush();
@@ -155,12 +155,13 @@ public class SimplePDFServiceImpl implements SimplePDFService {
                     String imgPath = writeImage(javaImg);
                     StringTemplate template = new StringTemplate(IOUtils.readAsString(SimplePDFServiceImpl.class.getResourceAsStream("templates/_image_page.st"), Charset.forName("UTF-8"), true));
                     template.setAttribute("imgpath", imgPath);
+                    template.setAttribute("pid", pid);
                     strWriter.write(template.toString());
 
                 } catch (XPathExpressionException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (SecurityException e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    LOGGER.log(Level.INFO,e.getMessage());
                     String text = textsService.getText("security_fail",locale);
                     text = text != null ? text : "security_fail";
 

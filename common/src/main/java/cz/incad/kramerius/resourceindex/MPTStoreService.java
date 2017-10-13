@@ -8,12 +8,13 @@ package cz.incad.kramerius.resourceindex;
  *
  * @author Alberto
  */
+// TODO: Rewrite !!
 import cz.incad.kramerius.utils.DatabaseUtils;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
+import org.apache.commons.io.IOUtils;
 import org.nsdl.mptstore.core.BasicTableManager;
 import org.nsdl.mptstore.core.DDLGenerator;
 import org.nsdl.mptstore.core.TableManager;
@@ -22,18 +23,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import com.google.gwt.resources.client.ResourceException;
-
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPathExpressionException;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,10 +34,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -188,9 +178,9 @@ public class MPTStoreService implements IResourceIndex {
 
     @Override
     public Document getFedoraModels() throws ResourceIndexException {
-//            String query = "select $object $title from <#ri> " +
-//                            "where $object <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>  " +
-//                            "and  $object <dc:title> $title" ;
+        //add by PS
+        Set<String> processed = new HashSet<String>();
+
         Document xmldoc;
         Connection c = null;
         PreparedStatement s = null;
@@ -222,6 +212,9 @@ public class MPTStoreService implements IResourceIndex {
             while (r.next()) {
                 e = xmldoc.createElementNS(SPARQL_NS, "result");
                 uuid = r.getString(1);
+                if (processed.contains(uuid)) continue;
+                processed.add(uuid);
+
                 //uuid = r.getString(1).split("info:fedora/")[1];
                 uuid = uuid.substring(1, uuid.length() - 1);
 
@@ -386,7 +379,7 @@ public class MPTStoreService implements IResourceIndex {
         return true;
     }
 
-   
+    @Override
     public Document getFedoraObjectsFromModelExt(String model, int limit, int offset, String orderby, String orderDir) throws ResourceIndexException {
         /*
          * iTQL query
@@ -421,7 +414,7 @@ public class MPTStoreService implements IResourceIndex {
             xmldoc.appendChild(root);
             root.appendChild(results);
 
-            String sql = "select " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_lastModifiedDate + ".o from ";
+            String sql = "select DISTINCT " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_lastModifiedDate + ".o from ";
             if ("title".equals(orderby)) {
                 sql += table_dcTitle + "," + table_lastModifiedDate + "," + table_model;
             } else {
@@ -451,11 +444,11 @@ public class MPTStoreService implements IResourceIndex {
              <results>
              <result>
              <object uri="info:fedora/uuid:9c1ad6d4-e645-11de-a504-001143e3f55c"/>
-            
+
              <title>Spisy Masarykovy Akademie Prace 1921</title>
              <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2010-05-03T08:24:40.776Z</date>
              </result>
-            
+
              */
             Element e, e2;
             Node n;
@@ -505,20 +498,8 @@ public class MPTStoreService implements IResourceIndex {
         return xmldoc;
     }
 
-    
-    @Override
-    public List<String> getObjectsByModel(String model, int limit, int offset, String orderby, String orderDir)
-            throws ResourceIndexException {
-        try {
-            return SPARQLUtils.sparqlResults(getFedoraObjectsFromModelExt(model, limit, offset, orderby, orderDir));
-        } catch (XPathExpressionException e) {
-            throw new ResourceIndexException(e);
-        }
-    }
-
     @Override
     public ArrayList<String> getFedoraPidsFromModel(String model, int limit, int offset) throws ResourceIndexException {
-        // !! REWRITE IT ALL !! 
         /*
          * iTQL query
          * select $object $title $date from <#ri>
@@ -583,9 +564,9 @@ public class MPTStoreService implements IResourceIndex {
     }
 
     //@Override
-    public List<String> getModelsPath(String uuid) throws Exception {
-        List<String> modelPaths = new ArrayList<String>();
-        List<String> pidpaths = getPidPaths(uuid);
+    public ArrayList<String> getModelsPath(String uuid) throws Exception {
+        ArrayList<String> modelPaths = new ArrayList<String>();
+        ArrayList<String> pidpaths = getPidPaths(uuid);
         for (String pidpath : pidpaths) {
             String modelPath = "";
             String[] pids = pidpath.split("/");
@@ -622,8 +603,8 @@ public class MPTStoreService implements IResourceIndex {
             try {
                 PreparedStatement s
                         = c.prepareStatement(sql,
-                                ResultSet.FETCH_FORWARD,
-                                ResultSet.CONCUR_READ_ONLY);
+                        ResultSet.FETCH_FORWARD,
+                        ResultSet.CONCUR_READ_ONLY);
                 try {
                     ResultSet r = s.executeQuery();
                     try {
@@ -648,48 +629,65 @@ public class MPTStoreService implements IResourceIndex {
     }
 
     @Override
-    public List<String> getParentsPids(String uuid) throws ResourceIndexException {
-        String query = "$object * <info:fedora/" + uuid + ">  ";
-        List<String> resList = new ArrayList<String>();
-        BufferedReader in = null;
+    public ArrayList<String> getParentsPids(String uuid) throws ResourceIndexException {
+        java.io.BufferedReader in = null;
         try {
+            //Can use risearch with SPO language
+            String query = "$object * <info:fedora/" + uuid + ">  ";
+            Set<String> resList = new HashSet<String>();
             String urlStr = config.getConfiguration().getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off"
                     + "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
             java.net.URL url = new java.net.URL(urlStr);
 
             in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
-            String inputLine = null;
-            while((inputLine = in.readLine()) != null) {
-                if (inputLine.startsWith("<info:fedora/")) {
-                    resList.add(inputLine.substring("<info:fedora/".length(), inputLine.indexOf(">")));
-                }
+            String inputLine;
+            int end;
+            while ((inputLine = in.readLine()) != null) {
+    //<info:fedora/uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#hasPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
+    //<info:fedora/uuid:f0da6570-8f3b-11dd-b796-000d606f5dc6> <http://www.nsdl.org/ontologies/relationships#isOnPage> <info:fedora/uuid:75fca1f0-64b2-11dd-9fd4-000d606f5dc6> .
+                end = inputLine.indexOf(">");
+    //13 je velikost   <info:fedora/
+                inputLine = inputLine.substring(13, end);
+                resList.add(inputLine);
             }
-            return resList;
-        } catch (UnsupportedEncodingException e) {
-            throw new ResourceIndexException(e);
-        } catch (MalformedURLException e) {
-            throw new ResourceIndexException(e);
+            return new ArrayList<String>(resList);
         } catch (IOException e) {
             throw new ResourceIndexException(e);
         } finally {
-            IOUtils.tryClose(in);
+            IOUtils.closeQuietly(in);
         }
     }
 
     @Override
-    public List<String> getPidPaths(String pid) throws ResourceIndexException {
-        return ResourceIndexUtils.getPidPaths(pid, this);
+    public ArrayList<String> getPidPaths(String pid) throws ResourceIndexException {
+        logger.info(pid);
+        ArrayList<String> resList = new ArrayList<String>();
+        ArrayList<String> parents = this.getParentsPids(pid);
+        logger.info(parents.toString());
+        for (int i = 0; i < parents.size(); i++) {
+            ArrayList<String> grands = this.getPidPaths(parents.get(i));
+            logger.info(grands.toString());
+            if (grands.isEmpty()) {
+                resList.add(parents.get(i));
+            } else {
+                for (int j = 0; j < grands.size(); j++) {
+                    resList.add(grands.get(j) + "/" + parents.get(i));
+                }
+            }
+        }
+        return resList;
     }
 
     @Override
     public boolean existsPid(String pid) throws ResourceIndexException {
-        Configuration config = KConfiguration.getInstance().getConfiguration();
-        String query = "<info:fedora/" + pid + "> <info:fedora/fedora-system:def/model#hasModel>  * ";
-        BufferedReader in = null;
-        try{
+        java.io.BufferedReader in = null;
+
+        try {
+            Configuration config = KConfiguration.getInstance().getConfiguration();
+            String query = "<info:fedora/" + pid + "> <info:fedora/fedora-system:def/model#hasModel>  * ";
             String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off"
                     + "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
-            URL url = new URL(urlStr);
+            java.net.URL url = new java.net.URL(urlStr);
 
             in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
             String inputLine;
@@ -700,20 +698,15 @@ public class MPTStoreService implements IResourceIndex {
                 in.close();
                 return false;
             }
-            
-        } catch (MalformedURLException e) {
-            throw new ResourceIndexException(e);
-        } catch (UnsupportedEncodingException e) {
-            throw new ResourceIndexException(e);
         } catch (IOException e) {
             throw new ResourceIndexException(e);
-        }finally {
-            IOUtils.tryClose(in);
+        } finally {
+            IOUtils.closeQuietly(in);
         }
     }
 
     @Override
-    public List<String> getObjectsInCollection(String collection, int limit, int offset) throws ResourceIndexException {
+    public ArrayList<String> getObjectsInCollection(String collection, int limit, int offset) throws ResourceIndexException {
         ArrayList<String> resList = new ArrayList<String>();
         Connection c = null;
         PreparedStatement s = null;
@@ -736,7 +729,7 @@ public class MPTStoreService implements IResourceIndex {
             r = s.executeQuery();
 
             while (r.next()) {
-                
+
                 String pid = r.getString(1).split("info:fedora/")[1];
                 pid = pid.substring(0, pid.length() - 1);
                 resList.add(pid);
@@ -758,25 +751,27 @@ public class MPTStoreService implements IResourceIndex {
         return resList;
     }
 
-    
-    
-    
-//    Commented by PS; not necessary  
-//    public List<String> getObjectsInCollectionOld(String collection, int limit, int offset) throws Exception {
-//        Configuration config = KConfiguration.getInstance().getConfiguration();
-//        String query = "* <rdf:isMemberOfCollection>  <info:fedora/" + collection + ">  ";
-//
-//        ArrayList<String> resList = new ArrayList<String>();
-//        String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=" + limit + "&distinct=off&stream=off"
-//                + "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
-//        java.net.URL url = new java.net.URL(urlStr);
-//
-//        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
-//        String inputLine;
-//        while ((inputLine = in.readLine()) != null) {
-//            resList.add(inputLine.substring(1, inputLine.indexOf("> <")));
-//        }
-//        in.close();
-//        return resList;
-//    }
+    public ArrayList<String> getObjectsInCollectionOld(String collection, int limit, int offset) throws Exception {
+        Configuration config = KConfiguration.getInstance().getConfiguration();
+        String query = "* <rdf:isMemberOfCollection>  <info:fedora/" + collection + ">  ";
+
+        ArrayList<String> resList = new ArrayList<String>();
+        String urlStr = config.getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=" + limit + "&distinct=off&stream=off"
+                + "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
+        java.net.URL url = new java.net.URL(urlStr);
+
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            resList.add(inputLine.substring(1, inputLine.indexOf("> <")));
+        }
+        in.close();
+        return resList;
+    }
+
+
+    @Override
+    public List<String> getObjectsByModel(String model, int limit, int offset, String orderby, String orderDir) throws ResourceIndexException {
+        throw new UnsupportedOperationException();
+    }
 }

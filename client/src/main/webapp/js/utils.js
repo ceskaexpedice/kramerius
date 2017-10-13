@@ -48,6 +48,20 @@ function link(addr, target) {
 }
 
 /**
+ * Goto method
+ * @param addr target address 
+ * @global
+ */
+function linkWithReturn(addr, target) {
+	var returnUrl = encodeURIComponent(window.location);
+    if(target){
+         window.open(addr+"&return="+returnUrl, target);
+    }else{
+        window.location.assign(addr+"&return="+returnUrl);
+    }
+}
+
+/**
  * Returns true if argument is array
  * @param {obj} tested object 
  * @global

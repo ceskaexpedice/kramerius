@@ -52,7 +52,7 @@ dependencies {
     compile name:"javadjvu-0.8.09"
 
     compile "commons-configuration:commons-configuration:1.6"
-    compile "org.apache.commons:commons-lang3:3.2.1"
+    compile "org.apache.commons:commons-lang3:3.5"
 
     compile ("com.yourmediashelf.fedora.client:fedora-client-core:0.7") {
       exclude group:"com.hp.hpl.jena", module:"jena"
@@ -113,7 +113,7 @@ dependencies {
     compile 'org.apache.jackrabbit:jackrabbit-jcr-rmi:2.12.1'
 
     // for audio support 
-    compile 'net.sf.ehcache:ehcache:2.6.0'
+    compile 'org.ehcache:ehcache:3.3.0'
     compile 'org.apache.httpcomponents:httpclient:4.3.2'
  
  	// https://mvnrepository.com/artifact/org.apache.solr/solr-core

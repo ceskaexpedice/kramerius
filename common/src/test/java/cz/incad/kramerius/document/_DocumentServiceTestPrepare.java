@@ -38,7 +38,7 @@ public class _DocumentServiceTestPrepare {
             LexerException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = Locale.getDefault();
-        AbstractFedoraAccess fa33 = _DocumentServiceTestPrepare.prepareFedoraAccess(acLog);
+        FedoraAccessImpl fa33 = _DocumentServiceTestPrepare.prepareFedoraAccess(acLog);
         ResourceBundleService bundleService = _DocumentServiceTestPrepare.prepareBundleService(locale);
         SolrAccess solrAccess = _DocumentServiceTestPrepare.prepareSolrAccess();
     
@@ -66,7 +66,7 @@ public class _DocumentServiceTestPrepare {
         return solrAccess;
     }
 
-    public static AbstractFedoraAccess prepareFedoraAccess(StatisticsAccessLog acLog)
+    public static FedoraAccessImpl prepareFedoraAccess(StatisticsAccessLog acLog)
             throws NoSuchMethodException, IOException,
             ParserConfigurationException, SAXException, LexerException {
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)

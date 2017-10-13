@@ -1,30 +1,32 @@
 package cz.incad.kramerius.rest.api.k5.client.info;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.logging.Logger;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-
-import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.service.TextsService;
-import cz.incad.kramerius.utils.conf.KConfiguration;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
+import java.util.Properties;
 
 /**
- * Created by Martin Rumanek on 27.5.15.
+ * InfoResource
+ *
+ * @author Martin Rumanek
  */
 
 @Path("/v5.0/info")
@@ -36,7 +38,7 @@ public class InfoResource {
 
     private static final String RIGHT_MSG = "rightMsg";
 
-    public static Logger LOGGER = Logger.getLogger(InfoResource.class.getName());
+    private static final String RIGHT_MSG_ALTERNATIVE = "rightMsgAlternative";
 
     @Inject
     private KConfiguration configuration;
@@ -50,7 +52,10 @@ public class InfoResource {
     @Inject
     private ResourceBundleService resourceBundleService;
 
-    InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("build.properties");
+    @Inject
+    private IsActionAllowed isActionAllowed;
+
+    private final InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("build.properties");
 
     @GET
     @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
@@ -77,8 +82,8 @@ public class InfoResource {
                 jsonObject.put("email", adminEmail);
             }
 
-            String intro = null;
-            String rightsMsg = null;
+            String intro;
+            String rightsMsg;
             try {
                 if (textService.isAvailable(INTRO_CONSTANT, provider.get())) {
                     intro = textService.getText(INTRO_CONSTANT, provider.get());
@@ -93,6 +98,12 @@ public class InfoResource {
                     rightsMsg = textService.getText(RIGHT_MSG, provider.get());
                 } else {
                     rightsMsg = resourceBundleService.getResourceBundle("labels", provider.get()).getString(RIGHT_MSG);
+                }
+
+                ObjectPidsPath path = new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid());
+                if (isActionAllowed.isActionAllowed(SecuredActions.SHOW_ALTERNATIVE_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, path)
+                        && textService.isAvailable(RIGHT_MSG_ALTERNATIVE,provider.get())) {
+                    rightsMsg = textService.getText(RIGHT_MSG_ALTERNATIVE, provider.get());
                 }
 
                 if (intro != null && !intro.isEmpty()) {

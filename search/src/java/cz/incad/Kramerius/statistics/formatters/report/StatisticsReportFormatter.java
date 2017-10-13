@@ -29,5 +29,7 @@ import cz.incad.kramerius.statistics.StatisticsReportSupport;
  */
 public interface StatisticsReportFormatter extends StatisticsReportSupport, StatisticsExportFormatter{
 
+    String DEFAULT_ENCODING = "UTF-8";
+
     public String getReportId();
 }

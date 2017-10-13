@@ -349,5 +349,13 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
         throw new UnsupportedOperationException("unsupported operation");
         
     }
-    
+
+    @Override
+    public boolean isObjectAvailable(String pid) throws IOException {
+        try {
+            return this.repository.exists(pid);
+        } catch (RepositoryException e) {
+            throw new IOException(e);
+        }
+    }
 }

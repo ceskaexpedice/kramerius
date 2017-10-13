@@ -27,24 +27,24 @@ import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 
-
 public class PDFModule extends AbstractModule {
 
-	@Override
-	protected void configure() {
-		bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-		bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-		bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
-		bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
-		bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
-		bind(DocumentService.class).to(DocumentServiceImpl.class);
-		bind(Locale.class).toProvider(ArgumentLocalesProvider.class);
+    @Override
+    protected void configure() {
+        bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class)
+                .in(Scopes.SINGLETON);
+        bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class)
+                .in(Scopes.SINGLETON);
+        bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
+        bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
+        bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
+        bind(DocumentService.class).to(DocumentServiceImpl.class);
+        bind(Locale.class).toProvider(ArgumentLocalesProvider.class);
 
-		bind(TextsService.class).to(TextsServiceImpl.class).in(Scopes.SINGLETON);
-		bind(ResourceBundleService.class).to(ResourceBundleServiceImpl.class).in(Scopes.SINGLETON);
-	}
+        bind(TextsService.class).to(TextsServiceImpl.class).in(Scopes.SINGLETON);
+        bind(ResourceBundleService.class).to(ResourceBundleServiceImpl.class).in(Scopes.SINGLETON);
+    }
 
-	
     @Provides
     @Named("fontsDir")
     public File getProcessFontsFolder() {
@@ -57,7 +57,7 @@ public class PDFModule extends AbstractModule {
         @Override
         public void reportAccess(String pid, String streamName) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
@@ -78,10 +78,14 @@ public class PDFModule extends AbstractModule {
         @Override
         public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup) {
             // TODO Auto-generated method stub
-            
+
         }
 
-        
-        
+        @Override
+        public void reportAccess(String pid, String streamName, String actionName) throws IOException {
+            // TODO Auto-generated method stub
+
+        }
+
     }
 }

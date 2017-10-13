@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -49,6 +50,9 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.statistics.ReportedAction;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class AbstractPDFResource {
@@ -113,6 +117,9 @@ public class AbstractPDFResource {
     @Inject
     Provider<User> userProvider;
     
+    @Inject
+    StatisticsAccessLog statisticsAccessLog;
+    
     @GET
     @Path("conf")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -149,7 +156,19 @@ public class AbstractPDFResource {
 
             firstPageFile = File.createTempFile("head", "pdf");
             FileOutputStream fpageFos = new FileOutputStream(firstPageFile);
+            
+            // most desirable
+            for (String p : pids) {
+                this.mostDesirable.saveAccess(p, new Date());
+                try {
+                    this.statisticsAccessLog.reportAccess(p, FedoraUtils.IMG_FULL_STREAM, ReportedAction.PDF.name());
+                } catch (Exception e) {
+                    LOGGER.severe("cannot write statistic records");
+                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                }
+            }
 
+            
             if (fp == FirstPage.IMAGES) {
                 this.imageFirstPage.selection(rdoc, fpageFos, pids, fmap);
             } else {
@@ -190,6 +209,16 @@ public class AbstractPDFResource {
             checkRenderedPDFDoc(rdoc);
             
             
+            this.mostDesirable.saveAccess(pid, new Date());
+            for (AbstractPage p : rdoc.getPages()) {
+                try {
+                    this.statisticsAccessLog.reportAccess(p.getUuid(), FedoraUtils.IMG_FULL_STREAM, ReportedAction.PDF.name());
+                } catch (Exception e) {
+                    LOGGER.severe("cannot write statistic records");
+                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                }
+            }
+
             parentFile = File.createTempFile("body", "pdf");
             FileOutputStream bodyTmpFos = new FileOutputStream(parentFile);
 
@@ -221,7 +250,7 @@ public class AbstractPDFResource {
         List<AbstractPage> pages = rdoc.getPages();
         for (AbstractPage apage : pages) {
             if (!this.canBeRenderedAsPDF(apage.getUuid())) {
-                throw new  SecurityException("");
+                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.PDF_RESOURCE, apage.getUuid()));
             }
         }
     }

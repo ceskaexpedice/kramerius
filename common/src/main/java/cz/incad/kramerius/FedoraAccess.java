@@ -268,7 +268,7 @@ public interface FedoraAccess {
     public boolean isImageFULLAvailable(String pid) throws IOException;
 
     /**
-     * Check whether stream is available, is present and accessible
+     * Check whether stream is available
      *
      * @param pid Requested object
      * @param streamName Stream name
@@ -277,6 +277,14 @@ public interface FedoraAccess {
      */
     public boolean isStreamAvailable(String pid, String streamName) throws IOException;
 
+    /**
+     * Check if the object is available
+     * @param pid Pid of object 
+     * @return true or false  - object exists or doesn't exist
+     * @throws IOException
+     */
+    public boolean isObjectAvailable(String pid) throws IOException;
+    
     /**
      * Checks whether content is acessiable
      *
@@ -453,5 +461,4 @@ public interface FedoraAccess {
 //        }
 //        return date;
 //    }
-
 }

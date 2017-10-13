@@ -57,7 +57,7 @@ public class FedoraAccessImplTest {
     public void testIsFullthumbnailAvailableWithPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
 
-        AbstractFedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
+        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
         .addMockedMethod("getFedoraDataStreamsList")
@@ -80,7 +80,7 @@ public class FedoraAccessImplTest {
     public void testIsFullThumbnailAvailableWithoutPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
 
-        AbstractFedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
+        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
         .addMockedMethod("getFedoraDataStreamsList")
@@ -102,7 +102,7 @@ public class FedoraAccessImplTest {
     public void testIsFullImageAvailableWithPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
 
-        AbstractFedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
+        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
         .addMockedMethod("getFedoraDataStreamsList")
@@ -124,7 +124,7 @@ public class FedoraAccessImplTest {
     @Test
     public void testIsFullImageAvailableWithoutPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
-        AbstractFedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
+        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
         .addMockedMethod("getFedoraDataStreamsList")

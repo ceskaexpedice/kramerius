@@ -197,7 +197,7 @@ public class ReplicationsTest {
         this.injector = Guice.createInjector(new _Module(fa,  solrAccess,scontext, request));
         ReplicationService replicationService = injector.getInstance(ReplicationService.class);
 
-        List<String> prepareExport = replicationService.prepareExport("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6");
+        List<String> prepareExport = replicationService.prepareExport("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", false);
         Assert.assertTrue(DataPrepare.DROBNUSTKY_PIDS.length == prepareExport.size());
         while(!prepareExport.isEmpty()) {
             String topPid = prepareExport.remove(0);
@@ -231,7 +231,7 @@ public class ReplicationsTest {
         ReplicationService replicationService = injector.getInstance(ReplicationService.class);
 
         // exportuju pouze jedno cislo periodika 
-        List<String> prepareExport = replicationService.prepareExport("uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6");
+        List<String> prepareExport = replicationService.prepareExport("uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6", false);
         Assert.assertTrue(prepareExport.contains("uuid:ae876087-435d-11dd-b505-00145e5790ea"));
         Assert.assertTrue(prepareExport.contains("uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6"));
         Assert.assertTrue(prepareExport.contains("uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6"));

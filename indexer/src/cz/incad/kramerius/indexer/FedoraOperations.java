@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-// rewrite !!
 public class FedoraOperations {
 
     private static final Logger logger =
@@ -44,6 +43,8 @@ public class FedoraOperations {
         utf_sort = new UTFSort();
         utf_sort.init();
     }
+
+
 
 //    public void updateIndex(String action, String value, ArrayList<String> requestParams) throws java.rmi.RemoteException, Exception {
 //        logger.log(Level.INFO, "updateIndex action={0} value={1}", new Object[]{action, value});

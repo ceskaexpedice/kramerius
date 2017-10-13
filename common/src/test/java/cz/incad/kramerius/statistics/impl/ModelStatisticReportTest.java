@@ -31,10 +31,33 @@ import org.junit.Test;
 public class ModelStatisticReportTest {
 
     @Test
+    public void testPrepareView() {
+        StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("prepareModelView");
+        statRecord.setAttribute("model", "monograph");
+        statRecord.setAttribute("action", "PDF");
+        statRecord.setAttribute("fromDefined", true);
+        statRecord.setAttribute("toDefined", true);
+       
+        Assert.assertFalse(statRecord.toString().contains(" SIMILAR TO "));
+        
+        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("prepareModelView");
+        statRecord.setAttribute("model", "monograph");
+        statRecord.setAttribute("action", "PDF");
+        statRecord.setAttribute("fromDefined", true);
+        statRecord.setAttribute("toDefined", true);
+        statRecord.setAttribute("ipaddr", "192.* | 191.*");
+
+        Assert.assertTrue(statRecord.toString().contains(" SIMILAR TO "));
+    }
+
+    @Test
     public void testTemplate() {
         StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModelReport");
         statRecord.setAttribute("model", "monograph");
         statRecord.setAttribute("action", "PDF");
+        statRecord.setAttribute("fromDefined", true);
+        statRecord.setAttribute("toDefined", true);
+
         String str = statRecord.toString();
         Assert.assertFalse(str.contains(" limit "));
         Assert.assertFalse(str.contains(" offset "));
@@ -44,6 +67,9 @@ public class ModelStatisticReportTest {
         statRecord.setAttribute("model", "monograph");
         statRecord.setAttribute("action", "PDF");
         statRecord.setAttribute("paging", true);
+        statRecord.setAttribute("fromDefined", true);
+        statRecord.setAttribute("toDefined", true);
+
         str = statRecord.toString();
         Assert.assertTrue(str.contains(" limit "));
         Assert.assertTrue(str.contains(" offset "));
@@ -52,6 +78,8 @@ public class ModelStatisticReportTest {
         statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModelReport");
         statRecord.setAttribute("model", "monograph");
         statRecord.setAttribute("action", null);
+        statRecord.setAttribute("fromDefined", true);
+        statRecord.setAttribute("toDefined", true);
         str = statRecord.toString();
         Assert.assertFalse(str.contains(" limit "));
         Assert.assertFalse(str.contains(" offset "));
@@ -61,6 +89,8 @@ public class ModelStatisticReportTest {
         statRecord.setAttribute("model", "monograph");
         statRecord.setAttribute("action", null);
         statRecord.setAttribute("paging", true);
+        statRecord.setAttribute("fromDefined", true);
+        statRecord.setAttribute("toDefined", true);
         str = statRecord.toString();
         Assert.assertTrue(str.contains(" limit "));
         Assert.assertTrue(str.contains(" offset "));

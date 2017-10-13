@@ -3,19 +3,29 @@ package cz.incad.kramerius.indexer;
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.solr.SolrUtils;
+import cz.incad.utils.PrepareIndexDocUtils;
 import dk.defxws.fedoragsearch.server.GTransformer;
 import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -40,6 +50,8 @@ import java.util.logging.Logger;
  * performs the Solr specific parts of the operations
  * TODO: rewrite !!
  */
+
+//TODO: rewrite
 public class SolrOperations {
 
     private static final Logger logger = Logger.getLogger(SolrOperations.class.getName());
@@ -83,7 +95,14 @@ public class SolrOperations {
             initDocCount = getDocCount();
             if ("deleteDocument".equals(action)) {
                 for(String v : value.split(pidSeparator)){
-                    deleteDocument(v);
+                    SolrAccess sa = new SolrAccessImpl();
+                    ObjectPidsPath[] path = sa.getPath(v);
+                    // don't need iterate over all array
+                    ObjectPidsPath one = path[0];
+                    String[] pathFromRootToLeaf = one.getPathFromRootToLeaf();
+                    String joined = String.join("/", pathFromRootToLeaf);
+                    logger.info(" Deleting pidpath "+joined);
+                    deleteDocument(joined);
                     commit();
                 }
 //                deleteDocument(value);
@@ -215,7 +234,7 @@ public class SolrOperations {
         StringBuilder sb = new StringBuilder("<optimize/>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
 
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
 
     }
 
@@ -306,7 +325,7 @@ public class SolrOperations {
         StringBuilder sb = new StringBuilder("<delete><query>*:*</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
 
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
         deleteTotal++;
     }
 
@@ -499,25 +518,39 @@ public class SolrOperations {
             StringBuffer sb = transformer.transform(
                     xsltPath,
                     new StreamSource(foxmlStream),
-                    null,
+                    new GTransformer.ClasspathResolver(),
                     params,
                     true);
-
+            
             applyCustomTransformations(sb, foxmlStream, params);
-            String doc = "<?xml version=\"1.1\" encoding=\"UTF-8\"?><add><doc>"
-                    + sb.toString()
-                    //+ extendedFields.toXmlString(i)
-                    + removeTroublesomeCharacters(extendedFields.toXmlString(i))
-                    + "</doc></add>";
-            logger.log(Level.FINE, "indexDoc=\n{0}", doc);
+            
+            String rawXML = "<doc>" + sb.toString() + extendedFields.toXmlString(i) + "</doc>";
+            String docSrc = prepareDocForIndexing(rawXML);
+            
+            logger.log(Level.FINE, "indexDoc=\n{0}", docSrc);
             if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
-                postData(config.getString("IndexBase") + "/update", new StringReader(doc), new StringBuilder());
+                postData(config.getString("IndexBase") + "/update", docSrc, new StringBuilder());
                 updateTotal++;
             }
         }
     }
+
     
-    private String removeTroublesomeCharacters(String inString) throws UnsupportedEncodingException {
+    public static String prepareDocForIndexing(String rawXML) throws ParserConfigurationException, SAXException, IOException,
+            TransformerException, UnsupportedEncodingException {
+        Document document = XMLUtils.parseDocument(new StringReader(rawXML));
+        Element docroot = document.getDocumentElement();
+        boolean compsoiteId  = KConfiguration.getInstance().getConfiguration().getBoolean("indexer.compositeId", false);
+        if (compsoiteId) {
+            PrepareIndexDocUtils.enhanceByCompositeId(document, document.getDocumentElement());
+        }
+        rawXML = PrepareIndexDocUtils.wrapByAddCommand(document);
+        String docSrc = removeTroublesomeCharacters(rawXML);
+        return docSrc;
+    }
+
+    
+    private static String removeTroublesomeCharacters(String inString) throws UnsupportedEncodingException {
         return inString.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", " ");
 
     }
@@ -541,7 +574,7 @@ public class SolrOperations {
             StringBuffer newSb = transformer.transform(
                     f,
                     new StreamSource(foxmlStream),
-                    null,
+                    new GTransformer.ClasspathResolver(),
                     params,
                     false);
             //logger.info("newSb: " +newSb.toString());
@@ -552,16 +585,15 @@ public class SolrOperations {
     private void deletePid(String pid) throws Exception {
         StringBuilder sb = new StringBuilder("<delete><query>PID:" + pid.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "\\\\") + "</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
         deleteTotal++;
     }
 
     private void deleteDocument(String pid_path) throws Exception {
-        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "\\\\") + "*</query></delete>");
+
+        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\])", "\\\\") + "*</query></delete>");
         logger.log(Level.INFO, "deleting document with {0}", sb.toString());
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
-        sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "\\\\") + "</query></delete>");
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
         commit();
         deleteTotal++;
     }
@@ -569,7 +601,7 @@ public class SolrOperations {
     private void deleteModel(String path) throws Exception {
         StringBuilder sb = new StringBuilder("<delete><query>model_path:" + path + "*</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
         commit();
         deleteTotal++;
     }
@@ -578,7 +610,7 @@ public class SolrOperations {
      * Reads data from the data reader and posts it to solr,
      * writes the response to output
      */
-    private void postData(String solrUrlString, Reader data, StringBuilder output)
+    private void postData(String solrUrlString, String data, StringBuilder output)
             throws Exception {
         URL solrUrl = null;
         try {
@@ -606,7 +638,7 @@ public class SolrOperations {
 
             try {
                 Writer writer = new OutputStreamWriter(out, POST_ENCODING);
-                pipe(data, writer);
+                writer.write(data);
                 writer.close();
             } catch (IOException e) {
                 throw new Exception("IOException while posting data", e);
@@ -673,7 +705,7 @@ public class SolrOperations {
         }
         logger.log(Level.FINE, "commit");
 
-        postData(config.getString("IndexBase") + "/update", new StringReader(s), new StringBuilder());
+        postData(config.getString("IndexBase") + "/update", s, new StringBuilder());
 
     }
 

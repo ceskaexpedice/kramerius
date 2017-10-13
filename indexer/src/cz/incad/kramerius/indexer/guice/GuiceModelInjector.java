@@ -31,7 +31,7 @@ public class GuiceModelInjector extends AbstractModule {
     public StatisticsAccessLog get() {
         return null;
     }
-    
+
     public synchronized static Injector injector() {
         if (_injectorInstance == null) {
             _injectorInstance = Guice.createInjector(
@@ -39,26 +39,5 @@ public class GuiceModelInjector extends AbstractModule {
         }
         return _injectorInstance;
     }
-    
-    public static void main(String[] args) throws Exception {
-        Injector injector = GuiceModelInjector.injector();
-        //FedoraAccess instance = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-        FedoraAccessBridge bridge = injector.getInstance(FedoraAccessBridge.class);
-        byte[] foxml = bridge.getFoxml("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6");
-        System.out.println(new String(foxml));
-        Document parseDocument = XMLUtils.parseDocument(new ByteArrayInputStream(foxml), true);
-        FedoraOperations fedoraOp = new FedoraOperations(bridge);
-        SolrOperations solrOp = new SolrOperations(bridge, fedoraOp);
-        solrOp.indexDoc(new ByteArrayInputStream(foxml), "0");
-        
-        //        XPathFactory factory = XPathFactory.newInstance();
-//        XPath  xpath = factory.newXPath();
-//        XPathExpression expr = xpath.compile("//datastream/datastreamVersion[last()]/xmlContent/RDF");
-//        NodeList nlist = (NodeList) expr.evaluate(parseDocument, XPathConstants.NODESET);
-//        System.out.println(nlist.getLength());
-//        for (int i = 0,ll=nlist.getLength(); i < ll; i++) {
-//            System.out.println(nlist.item(i).getNodeName());
-//        }
-        //System.out.println(parseDocument);
-    }
+
 }

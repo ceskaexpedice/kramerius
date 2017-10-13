@@ -1,0 +1,744 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+<lst name="responseHeader">
+  <int name="status">0</int>
+  <int name="QTime">0</int>
+  <lst name="params">
+    <str name="q">*:*</str>
+    <str name="indent">on</str>
+  </lst>
+</lst>
+<result name="response" numFound="1201" start="0">
+  <doc>
+    <str name="PID">uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    <str name="fedora.model">periodical</str>
+    <arr name="document_type">
+      <str>title</str>
+      <str>periodical</str>
+      <str>kulturně-historické časopisy</str>
+      <str>text</str>
+      <str>periodical</str>
+    </arr>
+    <str name="dc.title">Horské prameny</str>
+    <arr name="text">
+      <str>Horské prameny</str>
+      <str>literatura</str>
+      <str>výtvarné umění</str>
+      <str>společenský život</str>
+      <str>osvěta</str>
+      <str>vlastivěda</str>
+      <str>vlastivěda</str>
+      <str/>
+    </arr>
+    <str name="title_sort">HORSKE PRAMENY</str>
+    <arr name="dc.identifier">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+      <str>ccnb:cnb002258102</str>
+      <str>2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+      <str>cnb002258102</str>
+    </arr>
+    <str name="status">Active</str>
+    <str name="handle"/>
+    <date name="created_date">2014-06-26T10:39:22.573Z</date>
+    <date name="modified_date">2016-10-13T12:25:49.782Z</date>
+    <str name="dostupnost">private</str>
+    <arr name="keywords">
+      <str>literatura</str>
+      <str>výtvarné umění</str>
+      <str>společenský život</str>
+      <str>osvěta</str>
+      <str>vlastivěda</str>
+      <str>vlastivěda</str>
+    </arr>
+    <str name="issn"/>
+    <str name="mdt">82</str>
+    <str name="ddt"/>
+    <arr name="pid_path">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    </arr>
+    <arr name="parent_pid">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    </arr>
+    <arr name="rels_ext_index">
+      <int>0</int>
+    </arr>
+    <arr name="model_path">
+      <str>periodical</str>
+    </arr>
+    <str name="root_title">Horské prameny</str>
+    <str name="root_pid">uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    <int name="level">0</int>
+    <str name="datum_str">1937-1949</str>
+    <int name="datum_begin">1937</int>
+    <int name="datum_end">1949</int>
+    <long name="_version_">1553863200580042752</long>
+    <bool name="virtual">false</bool>
+    <arr name="dc.creator">
+       <str>Čermák, Miloslav</str>
+       <str>Frait, Jiří</str>
+    </arr>
+    <int name="pages_count">0</int>
+    <int name="rok">0</int></doc>
+  <doc>
+    <str name="PID">uuid:68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20</str>
+    <str name="fedora.model">periodicalvolume</str>
+    <arr name="document_type">
+      <str>volume</str>
+      <str>periodicalvolume</str>
+    </arr>
+    <str name="dc.title"/>
+    <arr name="text">
+      <str/>
+      <str/>
+      <str>1937-1938##1</str>
+    </arr>
+    <str name="title_sort"/>
+    <arr name="dc.identifier">
+      <str>uuid:68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20</str>
+      <str>68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20</str>
+    </arr>
+    <str name="status">Active</str>
+    <str name="handle"/>
+    <date name="created_date">2014-07-08T11:42:42.867Z</date>
+    <date name="modified_date">2016-10-13T12:25:51.168Z</date>
+    <str name="dostupnost">private</str>
+    <str name="issn"/>
+    <str name="mdt"/>
+    <str name="ddt"/>
+    <arr name="details">
+      <str>1937-1938##1</str>
+    </arr>
+    <arr name="pid_path">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723/uuid:68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20</str>
+    </arr>
+    <arr name="parent_pid">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    </arr>
+    <arr name="rels_ext_index">
+      <int>0</int>
+    </arr>
+    <arr name="model_path">
+      <str>periodical/periodicalvolume</str>
+    </arr>
+    <str name="root_title">Horské prameny</str>
+    <str name="root_pid">uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    <int name="level">1</int>
+    <str name="datum_str">1937-1938</str>
+    <int name="datum_begin">1937</int>
+    <int name="datum_end">1938</int>
+    <long name="_version_">1553863200660783104</long>
+    <bool name="virtual">false</bool>
+    <int name="pages_count">0</int>
+    <int name="rok">0</int></doc>
+  <doc>
+    <str name="PID">uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726</str>
+    <str name="fedora.model">periodicalitem</str>
+    <arr name="document_type">
+      <str>issue</str>
+      <str>normal</str>
+      <str>periodicalitem</str>
+    </arr>
+    <str name="dc.title">Horské prameny</str>
+    <arr name="text">
+      <str>Horské prameny</str>
+      <str/>
+      <str>Horské prameny####1937-1938##1</str>
+    </arr>
+    <str name="title_sort">HORSKE PRAMENY</str>
+    <arr name="dc.identifier">
+      <str>uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726</str>
+      <str>ccnb:cnb002258102</str>
+      <str>urnnbn:urn:nbn:cz:hka001-000099</str>
+      <str>6e4ef3ab-5fb3-4427-889d-50f27eb2a726</str>
+      <str>cnb002258102</str>
+      <str>urn:nbn:cz:hka001-000099</str>
+    </arr>
+    <str name="status">Active</str>
+    <str name="handle"/>
+    <date name="created_date">2014-07-08T11:49:48.906Z</date>
+    <date name="modified_date">2016-10-13T12:25:51.978Z</date>
+    <str name="dostupnost">private</str>
+    <str name="issn"/>
+    <str name="mdt"/>
+    <str name="ddt"/>
+    <arr name="details">
+      <str>Horské prameny####1937-1938##1</str>
+    </arr>
+    <arr name="pid_path">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723/uuid:68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20/uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726</str>
+    </arr>
+    <arr name="parent_pid">
+      <str>uuid:68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20</str>
+    </arr>
+    <arr name="rels_ext_index">
+      <int>0</int>
+    </arr>
+    <arr name="model_path">
+      <str>periodical/periodicalvolume/periodicalitem</str>
+    </arr>
+    <str name="root_title">Horské prameny</str>
+    <str name="root_pid">uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    <int name="level">2</int>
+    <str name="datum_str">1937-1938</str>
+    <int name="datum_begin">1937</int>
+    <int name="datum_end">1938</int>
+    <long name="_version_">1553863200812826624</long>
+    <bool name="virtual">false</bool>
+    <int name="pages_count">0</int>
+    <int name="rok">0</int></doc>
+  <doc>
+    <str name="PID">uuid:600816c7-06a9-11e4-bfd5-001b63bd97ba</str>
+    <str name="fedora.model">page</str>
+    <arr name="document_type">
+      <str>page</str>
+    </arr>
+    <str name="dc.title">[1a]</str>
+    <arr name="text">
+      <str>[1a]</str>
+      <str>﻿—Č&gt;	j T'.'
+.•&gt;«žíaíř;*;--
+IÄÜ ^ ■ '•
+-^-r :
+SVorské prameny
+</str>
+      <str/>
+      <str>[1a] 
+                        ##FrontCover</str>
+    </arr>
+    <str name="title_sort"/>
+    <arr name="dc.identifier">
+      <str>uuid:600816c7-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <str name="status">Active</str>
+    <str name="handle"/>
+    <date name="created_date">2014-07-08T16:12:39.607Z</date>
+    <date name="modified_date">2016-10-13T12:25:53.873Z</date>
+    <str name="dostupnost">private</str>
+    <str name="text_ocr">﻿—Č&gt;	j T'.'
+.•&gt;«žíaíř;*;--
+IÄÜ ^ ■ '•
+-^-r :
+SVorské prameny
+</str>
+    <str name="issn"/>
+    <str name="mdt"/>
+    <str name="ddt"/>
+    <arr name="details">
+      <str>[1a] 
+                        ##FrontCover</str>
+    </arr>
+    <str name="img_full_mime">image/jp2</str>
+    <bool name="viewable">true</bool>
+    <arr name="pid_path">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723/uuid:68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20/uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726/uuid:600816c7-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <arr name="parent_pid">
+      <str>uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726</str>
+    </arr>
+    <arr name="rels_ext_index">
+      <int>0</int>
+    </arr>
+    <arr name="model_path">
+      <str>periodical/periodicalvolume/periodicalitem/page</str>
+    </arr>
+    <str name="root_title">Horské prameny</str>
+    <str name="root_pid">uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    <int name="level">3</int>
+    <str name="datum_str">1937-1938</str>
+    <int name="datum_begin">1937</int>
+    <int name="datum_end">1938</int>
+    <long name="_version_">1553863201150468096</long>
+    <bool name="virtual">false</bool>
+    <int name="pages_count">0</int>
+    <int name="rok">0</int></doc>
+  <doc>
+    <str name="PID">uuid:600864e8-06a9-11e4-bfd5-001b63bd97ba</str>
+    <str name="fedora.model">page</str>
+    <arr name="document_type">
+      <str>page</str>
+    </arr>
+    <str name="dc.title">[1b]</str>
+    <arr name="text">
+      <str>[1b]</str>
+      <str>﻿
+</str>
+      <str/>
+      <str>[1b] 
+                        ##FrontEndSheet</str>
+    </arr>
+    <str name="title_sort"/>
+    <arr name="dc.identifier">
+      <str>uuid:600864e8-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <str name="status">Active</str>
+    <str name="handle"/>
+    <date name="created_date">2014-07-08T16:12:36.259Z</date>
+    <date name="modified_date">2016-10-13T12:25:56.252Z</date>
+    <str name="dostupnost">private</str>
+    <str name="text_ocr">﻿
+</str>
+    <str name="issn"/>
+    <str name="mdt"/>
+    <str name="ddt"/>
+    <arr name="details">
+      <str>[1b] 
+                        ##FrontEndSheet</str>
+    </arr>
+    <str name="img_full_mime">image/jp2</str>
+    <bool name="viewable">true</bool>
+    <arr name="pid_path">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723/uuid:68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20/uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726/uuid:600864e8-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <arr name="parent_pid">
+      <str>uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726</str>
+    </arr>
+    <arr name="rels_ext_index">
+      <int>1</int>
+    </arr>
+    <arr name="model_path">
+      <str>periodical/periodicalvolume/periodicalitem/page</str>
+    </arr>
+    <str name="root_title">Horské prameny</str>
+    <str name="root_pid">uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    <int name="level">3</int>
+    <str name="datum_str">1937-1938</str>
+    <int name="datum_begin">1937</int>
+    <int name="datum_end">1938</int>
+    <long name="_version_">1553863201412612096</long>
+    <bool name="virtual">false</bool>
+    <int name="pages_count">0</int>
+    <int name="rok">0</int></doc>
+  <doc>
+    <str name="PID">uuid:60088bf9-06a9-11e4-bfd5-001b63bd97ba</str>
+    <str name="fedora.model">page</str>
+    <arr name="document_type">
+      <str>page</str>
+    </arr>
+    <str name="dc.title">[1c]</str>
+    <arr name="text">
+      <str>[1c]</str>
+      <str>﻿«»íJactD
+psVÉTi
+</str>
+      <str/>
+      <str>[1c] 
+                        ##Blank</str>
+    </arr>
+    <str name="title_sort"/>
+    <arr name="dc.identifier">
+      <str>uuid:60088bf9-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <str name="status">Active</str>
+    <str name="handle"/>
+    <date name="created_date">2014-07-08T16:12:28.199Z</date>
+    <date name="modified_date">2016-10-13T12:25:58.058Z</date>
+    <str name="dostupnost">private</str>
+    <str name="text_ocr">﻿«»íJactD
+psVÉTi
+</str>
+    <str name="issn"/>
+    <str name="mdt"/>
+    <str name="ddt"/>
+    <arr name="details">
+      <str>[1c] 
+                        ##Blank</str>
+    </arr>
+    <str name="img_full_mime">image/jp2</str>
+    <bool name="viewable">true</bool>
+    <arr name="pid_path">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723/uuid:68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20/uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726/uuid:60088bf9-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <arr name="parent_pid">
+      <str>uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726</str>
+    </arr>
+    <arr name="rels_ext_index">
+      <int>2</int>
+    </arr>
+    <arr name="model_path">
+      <str>periodical/periodicalvolume/periodicalitem/page</str>
+    </arr>
+    <str name="root_title">Horské prameny</str>
+    <str name="root_pid">uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    <int name="level">3</int>
+    <str name="datum_str">1937-1938</str>
+    <int name="datum_begin">1937</int>
+    <int name="datum_end">1938</int>
+    <long name="_version_">1553863201646444544</long>
+    <bool name="virtual">false</bool>
+    <int name="pages_count">0</int>
+    <int name="rok">0</int></doc>
+  <doc>
+    <str name="PID">uuid:6008b30a-06a9-11e4-bfd5-001b63bd97ba</str>
+    <str name="fedora.model">page</str>
+    <arr name="document_type">
+      <str>page</str>
+    </arr>
+    <str name="dc.title">[1d]</str>
+    <arr name="text">
+      <str>[1d]</str>
+      <str>﻿
+</str>
+      <str/>
+      <str>[1d] 
+                        ##Blank</str>
+    </arr>
+    <str name="title_sort"/>
+    <arr name="dc.identifier">
+      <str>uuid:6008b30a-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <str name="status">Active</str>
+    <str name="handle"/>
+    <date name="created_date">2014-07-08T16:12:25.154Z</date>
+    <date name="modified_date">2016-10-13T12:26:00.278Z</date>
+    <str name="dostupnost">private</str>
+    <str name="text_ocr">﻿
+</str>
+    <str name="issn"/>
+    <str name="mdt"/>
+    <str name="ddt"/>
+    <arr name="details">
+      <str>[1d] 
+                        ##Blank</str>
+    </arr>
+    <str name="img_full_mime">image/jp2</str>
+    <bool name="viewable">true</bool>
+    <arr name="pid_path">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723/uuid:68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20/uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726/uuid:6008b30a-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <arr name="parent_pid">
+      <str>uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726</str>
+    </arr>
+    <arr name="rels_ext_index">
+      <int>3</int>
+    </arr>
+    <arr name="model_path">
+      <str>periodical/periodicalvolume/periodicalitem/page</str>
+    </arr>
+    <str name="root_title">Horské prameny</str>
+    <str name="root_pid">uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    <int name="level">3</int>
+    <str name="datum_str">1937-1938</str>
+    <int name="datum_begin">1937</int>
+    <int name="datum_end">1938</int>
+    <long name="_version_">1553863201843576832</long>
+    <bool name="virtual">false</bool>
+    <int name="pages_count">0</int>
+    <int name="rok">0</int></doc>
+  <doc>
+    <str name="PID">uuid:6008b30b-06a9-11e4-bfd5-001b63bd97ba</str>
+    <str name="fedora.model">page</str>
+    <arr name="document_type">
+      <str>page</str>
+    </arr>
+    <str name="dc.title">[1e]</str>
+    <arr name="text">
+      <str>[1e]</str>
+      <str>﻿Horské prameny
+KULTUPWÍ MĚSÍČNÍK PRO LITERATURU,
+UMĚNÍ VÝTVARNÉ,
+SOCIÁLNÍ A OSVĚTOVÝ ŽIVOT KRKONOŠ
+Redigoval Emil Flégl
+Ročník 1	•	1937-38
+NAKLADATEL JOSEF KRBAL VE VRCHLABÍ
+</str>
+      <str/>
+      <str>[1e] 
+                        ##TitlePage</str>
+    </arr>
+    <str name="title_sort"/>
+    <arr name="dc.identifier">
+      <str>uuid:6008b30b-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <str name="status">Active</str>
+    <str name="handle"/>
+    <date name="created_date">2014-07-08T16:13:14.506Z</date>
+    <date name="modified_date">2016-10-13T12:26:02.549Z</date>
+    <str name="dostupnost">private</str>
+    <str name="text_ocr">﻿Horské prameny
+KULTUPWÍ MĚSÍČNÍK PRO LITERATURU,
+UMĚNÍ VÝTVARNÉ,
+SOCIÁLNÍ A OSVĚTOVÝ ŽIVOT KRKONOŠ
+Redigoval Emil Flégl
+Ročník 1	•	1937-38
+NAKLADATEL JOSEF KRBAL VE VRCHLABÍ
+</str>
+    <str name="issn"/>
+    <str name="mdt"/>
+    <str name="ddt"/>
+    <arr name="details">
+      <str>[1e] 
+                        ##TitlePage</str>
+    </arr>
+    <str name="img_full_mime">image/jp2</str>
+    <bool name="viewable">true</bool>
+    <arr name="pid_path">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723/uuid:68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20/uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726/uuid:6008b30b-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <arr name="parent_pid">
+      <str>uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726</str>
+    </arr>
+    <arr name="rels_ext_index">
+      <int>4</int>
+    </arr>
+    <arr name="model_path">
+      <str>periodical/periodicalvolume/periodicalitem/page</str>
+    </arr>
+    <str name="root_title">Horské prameny</str>
+    <str name="root_pid">uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    <int name="level">3</int>
+    <str name="datum_str">1937-1938</str>
+    <int name="datum_begin">1937</int>
+    <int name="datum_end">1938</int>
+    <long name="_version_">1553863202061680640</long>
+    <bool name="virtual">false</bool>
+    <int name="pages_count">0</int>
+    <int name="rok">0</int></doc>
+  <doc>
+    <str name="PID">uuid:6008b30c-06a9-11e4-bfd5-001b63bd97ba</str>
+    <str name="fedora.model">page</str>
+    <arr name="document_type">
+      <str>page</str>
+    </arr>
+    <str name="dc.title">[1d]</str>
+    <arr name="text">
+      <str>[1d]</str>
+      <str>﻿í-
+i¥o
+^«4loh»
+13041
+a
+St-Unl v-dccká knih'.&gt;.:-.
+HHADEO
+státní yédecká VnibQyna
+U«a«)»r Krftlove
+i
+2310490195741
+</str>
+      <str/>
+      <str>[1d] 
+                        ##Blank</str>
+    </arr>
+    <str name="title_sort"/>
+    <arr name="dc.identifier">
+      <str>uuid:6008b30c-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <str name="status">Active</str>
+    <str name="handle"/>
+    <date name="created_date">2014-07-08T16:13:02.832Z</date>
+    <date name="modified_date">2016-10-13T12:26:04.946Z</date>
+    <str name="dostupnost">private</str>
+    <str name="text_ocr">﻿í-
+i¥o
+^«4loh»
+13041
+a
+St-Unl v-dccká knih'.&gt;.:-.
+HHADEO
+státní yédecká VnibQyna
+U«a«)»r Krftlove
+i
+2310490195741
+</str>
+    <str name="issn"/>
+    <str name="mdt"/>
+    <str name="ddt"/>
+    <arr name="details">
+      <str>[1d] 
+                        ##Blank</str>
+    </arr>
+    <str name="img_full_mime">image/jp2</str>
+    <bool name="viewable">true</bool>
+    <arr name="pid_path">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723/uuid:68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20/uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726/uuid:6008b30c-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <arr name="parent_pid">
+      <str>uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726</str>
+    </arr>
+    <arr name="rels_ext_index">
+      <int>5</int>
+    </arr>
+    <arr name="model_path">
+      <str>periodical/periodicalvolume/periodicalitem/page</str>
+    </arr>
+    <str name="root_title">Horské prameny</str>
+    <str name="root_pid">uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    <int name="level">3</int>
+    <str name="datum_str">1937-1938</str>
+    <int name="datum_begin">1937</int>
+    <int name="datum_end">1938</int>
+    <long name="_version_">1553863202305998848</long>
+    <bool name="virtual">false</bool>
+    <int name="pages_count">0</int>
+    <int name="rok">0</int></doc>
+  <doc>
+    <str name="PID">uuid:6008b30d-06a9-11e4-bfd5-001b63bd97ba</str>
+    <str name="fedora.model">page</str>
+    <arr name="document_type">
+      <str>page</str>
+    </arr>
+    <str name="dc.title">[1e]</str>
+    <arr name="text">
+      <str>[1e]</str>
+      <str>﻿OBSAH
+ČLÁ N KY
+— adam Kritik divadelníkům...............................................................187
+Bílá Magda: Hory (báseň).................................................................178
+Cm.: Mistr Jar. Skrbek padesátiletý.......................................................45
+In memoriam Ant. Nečáska, českého novináře a spisovatele ...	77
+Josef Zajíček, opravdový kantor „Zapadlých vla^enců“ ....	79
+Čermáková A.: Pronikáni německého živlu do české obce................................116,183
+Cila Mik., brig. gen. v. v.: Český člověk v Podkrkonoší.............................141
+Dušek V.: Vzpomínka současníka...........................................................175
+Erban K.: Z povzdálí	 2
+Rybrcoul (báseň)	  10
+Svatvečer (báseň)............................................................55
+O Janu Kociánovi Studeneckém.................................................57
+Flégl E.: Sociologický výzkum našeho pohraničí  ..........................................15
+Krajináři z mařákovské	školy v	Podkrkonoší .	.	18
+751etý G. Hauptmann a	Krkonoše..........................................38
+Hendrych	Pr.: Život a dílo Maxe Lederera..................................................65
+Horáček J.: Nesmrtelným (báseň) .........................................................150
+Jilemnicko — světová válka a převrat...................................153
+Horák J.: Dr. Pr. Loskot	.......................................28,72
+Bejvávalo	.......................................52,99
+Kaizl Lad. MUDr.: Josef Jampílek......................................................86,133
+Kasal V.: Ig. H. Prokeš, vlastenecký učitel a spisovatel...........................61,103
+Tkadlec - legionář píše do Cech.............................................150
+Kocourek	J.: Mirov (báseň)..............................................................................................................94
+Loučení (báseň).............................................................109
+Laube Joa.: Smíšená manželství............................................................55
+Vrchlabsko v číslicích .....................................................167
+M. Pr.: 25 let hraničářské školy.........................................................159
+Machač Jos.: Z galerie krkonošských muzikantů I.—II.	12,36,119,189
+Machytka Jar. Dr.: Život Jos. K. Slejhara..........................................49, 97
+Utichlá cesta J. K. Slejhara................................................111
+Malířová H.: Příběhy jedné rodiny..................................................8, 39
+Oberpfalcer Pr. Dr.: Co zapsal „zapadlý vlastenec“ V. Metelka z Pasek	26, 60
+Co se dálo v Podkrkonoší....................................................112
+Panýr J.: Jak se začínalo ve Vrchlabí....................................................173
+Pleský M., plk. r. 1.: Za bratrem Ant. Vajsem............................................141
+Pluhařová R.: Naše divadlo.....................................  ,.................19,63
+Pochop Ant: Vzhůru (báseň) .	.	’........................14
+Pospíšil O.: Život a dílo Maxe Lederera................................................ 4,41
+Raichl H.: Desítiletí knihovnictví na Náchodsku...........................................32
+Redakce: Horským pramenům na cestu.........................................................1
+Z korespondence malíře Pr. Kavána (Sirův dopis)...............................6
+Koleda z Martinic............................................................25
+Pravdivá píseň o řemeslu tkalcovském.........................................82
+Z válečné korespondence spisovatele Jos. Síra................................84
+Sirova gratulace ze světové války...........................................110
+Nová píseň pod názvem ,,Nářek tkalcův“......................................114
+J. Mirovit Král: Ponaučení..................................................izo
+Význam, úkol a cíl Nár. gard................................................154
+Trnitou cestou	  178
+Rón Joska: Horácká jména ve Velké Praze...................................................88
+S. K.: Za starodružiníkem bratrem Vajsem.................................................146
+Sír Jos.: Na bitevní čáře ...............................................................162
+Šorfa J.: Dětská ozdravovna ve Františkově v Krkonoších...................................17
+Štika K.: Stanislav Sucharda................................................... 92.	122,	181
+</str>
+      <str/>
+      <str>[1e] 
+                        ##TableOfContents</str>
+    </arr>
+    <str name="title_sort"/>
+    <arr name="dc.identifier">
+      <str>uuid:6008b30d-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <str name="status">Active</str>
+    <str name="handle"/>
+    <date name="created_date">2014-07-08T16:12:53.728Z</date>
+    <date name="modified_date">2016-10-13T12:26:07.503Z</date>
+    <str name="dostupnost">private</str>
+    <str name="text_ocr">﻿OBSAH
+ČLÁ N KY
+— adam Kritik divadelníkům...............................................................187
+Bílá Magda: Hory (báseň).................................................................178
+Cm.: Mistr Jar. Skrbek padesátiletý.......................................................45
+In memoriam Ant. Nečáska, českého novináře a spisovatele ...	77
+Josef Zajíček, opravdový kantor „Zapadlých vla^enců“ ....	79
+Čermáková A.: Pronikáni německého živlu do české obce................................116,183
+Cila Mik., brig. gen. v. v.: Český člověk v Podkrkonoší.............................141
+Dušek V.: Vzpomínka současníka...........................................................175
+Erban K.: Z povzdálí	 2
+Rybrcoul (báseň)	  10
+Svatvečer (báseň)............................................................55
+O Janu Kociánovi Studeneckém.................................................57
+Flégl E.: Sociologický výzkum našeho pohraničí  ..........................................15
+Krajináři z mařákovské	školy v	Podkrkonoší .	.	18
+751etý G. Hauptmann a	Krkonoše..........................................38
+Hendrych	Pr.: Život a dílo Maxe Lederera..................................................65
+Horáček J.: Nesmrtelným (báseň) .........................................................150
+Jilemnicko — světová válka a převrat...................................153
+Horák J.: Dr. Pr. Loskot	.......................................28,72
+Bejvávalo	.......................................52,99
+Kaizl Lad. MUDr.: Josef Jampílek......................................................86,133
+Kasal V.: Ig. H. Prokeš, vlastenecký učitel a spisovatel...........................61,103
+Tkadlec - legionář píše do Cech.............................................150
+Kocourek	J.: Mirov (báseň)..............................................................................................................94
+Loučení (báseň).............................................................109
+Laube Joa.: Smíšená manželství............................................................55
+Vrchlabsko v číslicích .....................................................167
+M. Pr.: 25 let hraničářské školy.........................................................159
+Machač Jos.: Z galerie krkonošských muzikantů I.—II.	12,36,119,189
+Machytka Jar. Dr.: Život Jos. K. Slejhara..........................................49, 97
+Utichlá cesta J. K. Slejhara................................................111
+Malířová H.: Příběhy jedné rodiny..................................................8, 39
+Oberpfalcer Pr. Dr.: Co zapsal „zapadlý vlastenec“ V. Metelka z Pasek	26, 60
+Co se dálo v Podkrkonoší....................................................112
+Panýr J.: Jak se začínalo ve Vrchlabí....................................................173
+Pleský M., plk. r. 1.: Za bratrem Ant. Vajsem............................................141
+Pluhařová R.: Naše divadlo.....................................  ,.................19,63
+Pochop Ant: Vzhůru (báseň) .	.	’........................14
+Pospíšil O.: Život a dílo Maxe Lederera................................................ 4,41
+Raichl H.: Desítiletí knihovnictví na Náchodsku...........................................32
+Redakce: Horským pramenům na cestu.........................................................1
+Z korespondence malíře Pr. Kavána (Sirův dopis)...............................6
+Koleda z Martinic............................................................25
+Pravdivá píseň o řemeslu tkalcovském.........................................82
+Z válečné korespondence spisovatele Jos. Síra................................84
+Sirova gratulace ze světové války...........................................110
+Nová píseň pod názvem ,,Nářek tkalcův“......................................114
+J. Mirovit Král: Ponaučení..................................................izo
+Význam, úkol a cíl Nár. gard................................................154
+Trnitou cestou	  178
+Rón Joska: Horácká jména ve Velké Praze...................................................88
+S. K.: Za starodružiníkem bratrem Vajsem.................................................146
+Sír Jos.: Na bitevní čáře ...............................................................162
+Šorfa J.: Dětská ozdravovna ve Františkově v Krkonoších...................................17
+Štika K.: Stanislav Sucharda................................................... 92.	122,	181
+</str>
+    <str name="issn"/>
+    <str name="mdt"/>
+    <str name="ddt"/>
+    <arr name="details">
+      <str>[1e] 
+                        ##TableOfContents</str>
+    </arr>
+    <str name="img_full_mime">image/jp2</str>
+    <bool name="viewable">true</bool>
+    <arr name="pid_path">
+      <str>uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723/uuid:68a4ff6f-e0ee-4ca8-af6c-f725b68b2b20/uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726/uuid:6008b30d-06a9-11e4-bfd5-001b63bd97ba</str>
+    </arr>
+    <arr name="parent_pid">
+      <str>uuid:6e4ef3ab-5fb3-4427-889d-50f27eb2a726</str>
+    </arr>
+    <arr name="rels_ext_index">
+      <int>6</int>
+    </arr>
+    <arr name="model_path">
+      <str>periodical/periodicalvolume/periodicalitem/page</str>
+    </arr>
+    <str name="root_title">Horské prameny</str>
+    <str name="root_pid">uuid:2ba4984c-a8d9-4486-bd0e-d43d390b0723</str>
+    <int name="level">3</int>
+    <str name="datum_str">1937-1938</str>
+    <int name="datum_begin">1937</int>
+    <int name="datum_end">1938</int>
+    <long name="_version_">1553863202698166272</long>
+    <bool name="virtual">false</bool>
+    <int name="pages_count">0</int>
+    <int name="rok">0</int></doc>
+</result>
+</response>

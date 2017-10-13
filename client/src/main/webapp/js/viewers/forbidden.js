@@ -1,4 +1,20 @@
+
 /**
+ * Register listener -> Check language changes
+ */
+K5.eventsHandler.addHandler(function(type, configuration) {
+  if (type === "i18n/dictionary") {
+        
+        K5.i18n.askForText("k5security_fail",K5.i18n.ctx.language, function(data) {
+          var text = K5.i18n.ctx.texts["k5security_fail"];
+           $('#forbidden').html(text);
+       }); 
+
+  
+    }
+});
+
+  /**
  * Forbidden - only show forbidden message  
  * @constructor
  */

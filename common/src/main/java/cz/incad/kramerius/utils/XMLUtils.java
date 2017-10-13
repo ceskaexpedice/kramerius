@@ -335,6 +335,12 @@ public class XMLUtils {
         transformer.transform(source, result);
     }
 
+    /**
+     * Print document to given writer
+     * @param doc Printing document
+     * @param out Writer
+     * @throws TransformerException
+     */
     public static void print(Document doc, Writer out) throws TransformerException {
         TransformerFactory tFactory = TransformerFactory.newInstance();
         Transformer transformer = tFactory.newTransformer();
@@ -344,15 +350,12 @@ public class XMLUtils {
         transformer.transform(source, result);
     }
 
-    public static void print(Element elm, Writer out) throws TransformerException {
-        TransformerFactory tFactory = TransformerFactory.newInstance();
-        Transformer transformer = tFactory.newTransformer();
-
-        DOMSource source = new DOMSource(elm);
-        StreamResult result = new StreamResult(out);
-        transformer.transform(source, result);
-    }
-
+    /**
+     * Print part of document 
+     * @param elm Root element which should be written
+     * @param out OuputStream
+     * @throws TransformerException
+     */
     public static void print(Element elm, OutputStream out) throws TransformerException {
         TransformerFactory tFactory = TransformerFactory.newInstance();
         Transformer transformer = tFactory.newTransformer();
@@ -362,6 +365,35 @@ public class XMLUtils {
         transformer.transform(source, result);
     }
 
+    /**
+     * Print part of document 
+     * @param elm Root element which should be written
+     * @param out Writer
+     * @throws TransformerException
+     */
+    public static void print(Element elm, Writer out) throws TransformerException {
+        TransformerFactory tFactory = TransformerFactory.newInstance();
+        Transformer transformer = tFactory.newTransformer();
+
+        DOMSource source = new DOMSource(elm);
+        StreamResult result = new StreamResult(out);
+        transformer.transform(source, result);
+    }
+    
+    /**
+     * Create new empty document 
+     * @param rootName Name of root element
+     * @return
+     * @throws ParserConfigurationException
+     */
+    public static Document crateDocument(String rootName) throws ParserConfigurationException {
+        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = builderFactory.newDocumentBuilder();
+        Document document = docBuilder.newDocument();
+        Element rootElement = document.createElement(rootName);
+        document.appendChild(rootElement);
+        return document;
+    }
     
     /**
      * Elements filter 

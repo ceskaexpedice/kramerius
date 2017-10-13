@@ -52,6 +52,17 @@ public class GTransformer {
         config = KConfiguration.getInstance().getConfiguration();
     }
 
+    public static class ClasspathResolver implements URIResolver {
+
+        @Override
+        public Source resolve(String href, String base) throws TransformerException {
+            InputStream stream = this.getClass().getResourceAsStream("/cz/incad/kramerius/indexer/res/" + href);
+            if (href != null) {
+                return new StreamSource(stream);
+            } else  return null;
+        }
+    }
+    
     /**
      * 
      *
@@ -59,7 +70,8 @@ public class GTransformer {
      */
     public Transformer getTransformer(String xsltPath)
             throws Exception {
-        return getTransformer(xsltPath, null, true);
+        
+        return getTransformer(xsltPath, new ClasspathResolver(), true);
     }
 
     public Transformer getTransformer(String xsltPath, URIResolver uriResolver, boolean checkInHome)
@@ -87,6 +99,9 @@ public class GTransformer {
                 throw new Exception(xsltPath + " not found");
             }
             TransformerFactory tfactory = TransformerFactory.newInstance();
+            if (uriResolver != null) {
+                tfactory.setURIResolver(uriResolver);
+            }
             StreamSource xslt = new StreamSource(stylesheet);
             transformer = tfactory.newTransformer(xslt);
             if (uriResolver != null) {
@@ -120,7 +135,7 @@ public class GTransformer {
 
     public StringBuffer transform(String xsltName, Source sourceStream, HashMap<String, String> params)
             throws Exception {
-        return transform(xsltName, sourceStream, null, params, true);
+        return transform(xsltName, sourceStream, new GTransformer.ClasspathResolver(), params, true);
     }
 
     public StringBuffer transform(String xsltName, Source sourceStream,

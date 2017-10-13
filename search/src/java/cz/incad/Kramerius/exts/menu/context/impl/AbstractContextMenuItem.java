@@ -74,7 +74,7 @@ public abstract class AbstractContextMenuItem implements ContextMenuItem {
         template.setAttribute("href",href);
         
         String rendered = template.toString();
-        LOGGER.log(Level.INFO,"rendered item is '"+rendered+"'");
+        LOGGER.log(Level.FINEST,"rendered item is '"+rendered+"'");
         return rendered;
     }
 
@@ -95,13 +95,13 @@ public abstract class AbstractContextMenuItem implements ContextMenuItem {
         template.setAttribute("action", action);
         
         String rendered = template.toString();
-        LOGGER.log(Level.INFO,"rendered item is '"+rendered+"'");
+        LOGGER.log(Level.FINEST,"rendered item is '"+rendered+"'");
         return rendered;
     }
 
     
     /**
-     * Disable or enable item in configuration
+     * Disable or enable item by configuration
      */
     @Override
     public boolean isRenderable() {

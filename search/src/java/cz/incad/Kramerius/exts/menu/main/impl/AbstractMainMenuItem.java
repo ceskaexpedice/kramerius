@@ -29,6 +29,7 @@ import cz.incad.Kramerius.exts.menu.utils.GlobalRightsUtils;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Abstract main menu item
@@ -61,6 +62,16 @@ public abstract class AbstractMainMenuItem implements MainMenuItem {
         HttpServletRequest request = this.requestProvider.get();
         return GlobalRightsUtils.hasUserAllowedAction(actionFormalName, request);
     }
+    
+    /**
+     * Disable or enable item by configuration
+     */
+    public boolean isEnabledByconfiguration() {
+        String clzName = this.getClass().getName()+".enabled";
+        return KConfiguration.getInstance().getConfiguration().getBoolean(clzName,true);
+    }
+    
+
 
     protected String renderMainMenuItem(String href, String labelKey, boolean newWindow) throws IOException {
         String label = this.resourceBundleService.getResourceBundle("labels", this.localesProvider.get()).getString(labelKey);

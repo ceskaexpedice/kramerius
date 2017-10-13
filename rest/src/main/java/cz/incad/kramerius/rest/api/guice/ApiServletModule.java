@@ -54,10 +54,7 @@ import cz.incad.kramerius.rest.api.k5.client.item.decorators.ReplicatedFromDecor
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrContextDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrDataNode;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrRightsFlag;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.MonographUnitDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.PageDetailDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.PeriodicalItemDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.PeriodicalVolumeDecorator;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.*;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.PDFDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.ZoomDecorate;
 import cz.incad.kramerius.rest.api.k5.client.pdf.AsyncPDFResource;
@@ -91,6 +88,7 @@ public class ApiServletModule extends JerseyServletModule {
         // k5 - znovu...
         bind(ClientUserResource.class);
         bind(ItemResource.class);
+        
         bind(FeederResource.class);
         bind(ClientVirtualCollections.class);
         bind(SearchResource.class);
@@ -160,12 +158,12 @@ public class ApiServletModule extends JerseyServletModule {
         decs.addBinding().to(PageDetailDecorate.class);
         decs.addBinding().to(PeriodicalItemDecorate.class);
         decs.addBinding().to(PeriodicalVolumeDecorator.class);
+        decs.addBinding().to(InternalPartDecorate.class);
     }
 
     private void decorators() {
         Multibinder<JSONDecorator> decs = Multibinder.newSetBinder(binder(),
                 JSONDecorator.class);
-
         decoratorsBindings(decs);
     }
 

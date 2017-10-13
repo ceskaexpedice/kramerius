@@ -24,13 +24,13 @@ Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Mo
 
 Členové vývojového týmu:
 KNAV - M. Lhoták, M. Duda, I. Šlapáková; 
-NK ČR – P. Uhlíř, T. Foltýn, J. Polišenský; 
-MZK – P. Švástová, P. Žabička, M. Řehánek; 
-NTK – J. Řihák, M. Janíček; 
+NK ČR – T. Foltýn, R. Kreibich, V. Jiroušek, K. Košťálová; 
+MZK – L. Damborská, P. Žabička, M. Indrák; 
+NTK – J. Kolátor, J. Dobiášovský; 
 NLK – F. Kříž; 
-INCAD – P. Kocourek, V. Lahoda
+INCAD – P. Kocourek, P. Šťastný;
 
-Koordinátorem současného vývoje je Knihovna Akademie věd ČR zastoupená ředitelem Ing. Martinem Lhotákem.
+Koordinátorem současného vývoje je Knihovna Akademie věd ČR zastoupená Ing. Martinem Lhotákem.
 
 Kontakt:
 Ing. Martin Lhoták,
@@ -43,7 +43,9 @@ lhotak@knav.cz
 
 ##Financování
 
-V současné době je na roky 2012 - 2015 financování vývoje zajištěno díky projektu "Česká digitální knihovna a nástroje pro zajištění komplexních digitalizačních procesů" - DF12P01OVV002 z Programu aplikovaného výzkumu a vývoje národní a kulturní identity (NAKI) Ministerstva kultury ČR
+V současné době je financování vývoje zajištěno z krátkodobějších grantů MK ČR prostřednictvím dotačního programu VISK.
+
+V letech 2012 - 2015 bylo financování vývoje zajištěno díky projektu "Česká digitální knihovna a nástroje pro zajištění komplexních digitalizačních procesů" - DF12P01OVV002 z Programu aplikovaného výzkumu a vývoje národní a kulturní identity (NAKI) Ministerstva kultury ČR
 
 V předchozích letech byl vývoj systému Kramerius průběžně financován z různých dotačních programů Akademie věd ČR a Ministerstva kultury ČR. 
 
@@ -67,7 +69,7 @@ Při požadavku na přidání vlastní funkcionality do standardní distribuce s
 
 Mailová konference pro administrátory systému Kramerius: kramerius@lib.cas.cz
 
-První příhlášení do konference: https://mail.lib.cas.cz/mailman/listinfo/kramerius
+První příhlášení do konference: https://mailman.lib.cas.cz/mailman/listinfo/kramerius
 
 Do mailové konference je možné posílat hlášení chyb, návrhy na vylepšení a vývoj i na přispění ke zdrojovému kódu Krameria.
 

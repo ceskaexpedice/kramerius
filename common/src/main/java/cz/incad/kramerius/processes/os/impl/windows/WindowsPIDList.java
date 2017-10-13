@@ -33,7 +33,6 @@ public class WindowsPIDList extends PIDList {
 		if (exitValue != 0) {
 			LOGGER.warning("ps exiting with value '" + exitValue + "'");
 		}
-
 		BufferedReader reader = new BufferedReader(new StringReader(new String(bos.toByteArray(),"Windows-1250")));
 		return WindowsPIDListProcessOutput.pids(reader);
 	}

@@ -92,8 +92,22 @@ ClientAPIDev.prototype = {
      * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
-    askForCollections : function(whenready) {
-        $.getJSON("api/vc", _.bind(function(data) {
+    askForCollections : function(sort, sortType, whenready) {
+	  
+	  var url = "api/vc";
+	  if (sort) {
+		  if (!sortType) {
+			sortType = "ALPHABET"
+	  	  }
+		  url = "api/vc?sort="+sort+"&sortType="+sortType+"&langCode="		  	
+	      if (K5 && K5.i18n.ctx.language){ 
+    	    url += K5.i18n.ctx.language;
+      	  } else {
+        	url += 'cs'; 
+      	  }
+	  }			
+
+        $.getJSON(url, _.bind(function(data) {
             var collections = {};
             for (var i = 0; i < data.length; i++) {
                 var pid = data[i].pid;
@@ -494,8 +508,9 @@ ClientAPIDev.prototype = {
     gotoItemPage : function(pid, withParams) {
         var href = "";
         if (withParams) {
-            $('#search_form input[name="page"]').val("doc")
-            href += "index.vm?" + $("#search_form").serialize() + "#" + pid;
+            $('#search_form input[name="page"]').val("doc");
+            href += "index.vm?page=doc&" + $("#search_form").serialize() + "#" + pid;
+            $('#search_form input[name="page"]').val("search");
         } else {
             href += "index.vm?page=doc#" + pid;
         }

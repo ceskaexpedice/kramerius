@@ -1,4 +1,4 @@
-// $ANTLR 2.7.7 (2006-11-01): "/C:/Users/pstastny.SEARCH/nprojs/kramerius/common/src/main/java/cz/incad/kramerius/processes/os/impl/windows/csv/csv.g" -> "CSVParser.java"$
+// $ANTLR 2.7.7 (2006-11-01): "csv.g" -> "CSVParser.java"$
 
 	package cz.incad.kramerius.processes.os.impl.windows.csv;
 	import java.util.*;

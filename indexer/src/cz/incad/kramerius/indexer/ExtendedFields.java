@@ -9,6 +9,7 @@ import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.pdfparser.PDFParser;
@@ -25,6 +26,10 @@ import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,6 +37,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+
+//----------------------------------------
+import org.apache.commons.io.IOUtils;
+import java.io.File;
 
 /**
  *
@@ -102,20 +112,29 @@ public class ExtendedFields {
 
     public void setPDFDocument(String pid) throws Exception {
         if (!pdfPid.equals(pid)) {
+            InputStream is = null;
             try {
             pdfPid = "";
             closePDFDocument();
-                InputStream is = this.bridge.getStreamContent(pid, "IMG_FULL");
+                is = this.bridge.getStreamContent(pid, "IMG_FULL");
+
+                //File pdfImg = new File("/usr/local/tomcat/temp/"+pid+".tmp");
+
+                File pdfImg = File.createTempFile(pid,null);
+                pdfImg.deleteOnExit();
+                FileUtils.copyInputStreamToFile(is, pdfImg);
+
                 if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdf.loadNonSeq", false)){
-                    pdDoc = PDDocument.load(is, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
+                    pdDoc = PDDocument.load(pdfImg, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
                 }else{
-                    pdDoc = PDDocument.load(is, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
+                    pdDoc = PDDocument.load(pdfImg, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
                 }
                 pdfPid = pid;
 
 
             } catch (Exception ex) {
                 closePDFDocument();
+                IOUtils.closeQuietly(is);
                 logger.log(Level.WARNING, "Cannot parse PDF document", ex);
             }
 
@@ -146,7 +165,7 @@ public class ExtendedFields {
                 stripper.setEndPage(page);
             }
 
-            return StringEscapeUtils.escapeXml(stripper.getText(pdDoc));
+            return StringEscapeUtils.escapeXml10(stripper.getText(pdDoc));
         } catch (Exception ex) {
             return "";
         }

@@ -686,12 +686,13 @@ function GlobalActions() {
 	this.actionDialog = null;
 }
 // volano z hlavniho menu .
-GlobalActions.prototype.rigthsForAction=function(action) {
+GlobalActions.prototype.rigthsForAction=function(action,pid) {
 	// affected rights secured actions 
 	findObjectsDialog().securedActionTabs[action] = findObjectsDialog().createSecurityActionTab(action,"inc/admin/_display_rights_for_global_actions.jsp?pids={uuid\\:1}&securedaction="+action);
 	findObjectsDialog().securedActionTabs[action].retrieve = findObjectsDialog().securedActionTabs[action].retrieveGlobalContent;
 	
-	var url = "inc/admin/_display_rights_for_global_actions.jsp?pids={uuid\\:1}&securedaction="+action;
+	var pids = (pid ? pid : "{uuid\\:1}");
+	var url = "inc/admin/_display_rights_for_global_actions.jsp?pids="+pids+"&securedaction="+action;
 	$.get(url, bind(function(data) {
 		if (this.actionDialog) {
 			this.actionDialog.dialog('open');
@@ -759,6 +760,42 @@ GlobalActions.prototype.globalActions=function() {
         this.dialog.dialog( "option", "title", dictionary['rights.global.actions.title'] );
 
 		$("#globalActions").html(data);
+	}, this));
+}
+
+
+/** Open collection actions dialog */
+GlobalActions.prototype.collectionActions=function() {
+	var url = "inc/admin/_collection_actions.jsp";
+	$.get(url, bind(function(data) {
+		if (this.coldialog) {
+			this.coldialog.dialog('open');
+		} else {
+			var items = mapJQuerySelector(function (item) {
+				return items;
+			},$("#collectionActions"));
+
+			if (items || items.length == 0) {
+				$(document.body).append('<div id="collectionActions"></div>');
+			}
+		    
+		    this.coldialog = $('#collectionActions').dialog({
+		        width:700,
+		        height:400,
+		        modal:true,
+		        buttons: [{
+                      text:dictionary['common.close'],
+                      click:bind(function() {
+  		                  this.coldialog.dialog("close");
+                      },this)
+		        }]
+		    });
+		    
+		}
+    
+        //this.coldialog.dialog( "option", "title", dictionary['rights.global.actions.title'] );
+
+		$("#collectionActions").html(data);
 	}, this));
 }
 

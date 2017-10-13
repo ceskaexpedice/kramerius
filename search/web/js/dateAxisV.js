@@ -209,6 +209,8 @@ function doFilter(){
     
     page.setValue("da_od", decodeDate($("#" + fromField).val()));
     page.setValue("da_do", decodeDate($("#" + toField).val()));
+    
+    page.setValue("exactDay", $("#exactDay").is(':checked'));
     var newurl = "r.jsp?" + page.toString() + dateAxisAdditionalParams;
     
     document.location.href = newurl;

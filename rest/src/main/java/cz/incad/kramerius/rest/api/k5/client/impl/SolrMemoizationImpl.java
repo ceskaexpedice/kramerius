@@ -82,10 +82,12 @@ public class SolrMemoizationImpl implements SolrMemoization{
                 }
             } else {
                 Document doc = solrAccess.getSolrDataDocument(pid);
-                Element result = XMLUtils.findElement(doc.getDocumentElement(), "result");
-                if (result != null) {
-                    Element d = XMLUtils.findElement(result, "doc");
-                    this.elms.put(pid, d);
+                if (doc !=  null) {
+                    Element result = XMLUtils.findElement(doc.getDocumentElement(), "result");
+                    if (result != null) {
+                        Element d = XMLUtils.findElement(result, "doc");
+                        this.elms.put(pid, d);
+                    }
                 }
             }
         }
@@ -95,5 +97,13 @@ public class SolrMemoizationImpl implements SolrMemoization{
     @Override
     public void clearMemo() {
         this.elms.clear();
+    }
+
+    public SolrAccess getSolrAccess() {
+        return solrAccess;
+    }
+
+    public void setSolrAccess(SolrAccess solrAccess) {
+        this.solrAccess = solrAccess;
     }
 }

@@ -160,11 +160,17 @@ function enumerator() {
     });
 }
 
+function indexmigrations() {
+    showConfirmDialog(dictionary['administrator.dialogs.migrationindex.confirm'], function(){
+        noParamsProcess('migrationindex');
+    });
+}
+
+
 function replicationRights() {
     showConfirmDialog(dictionary['administrator.dialogs.replicationrights.confirm'], function(){
         noParamsProcess('replicationrights');
     });
- 
 }
 
 
@@ -712,10 +718,18 @@ ParameterizedProcess.prototype.openWaitDialog = function() {
     }
 }
 
+ParameterizedProcess.prototype.destroyDialog = function() {
+	if (typeof __destroyParametrizedDialog !== "undefined") {
+		__destroyParametrizedDialog();
+	}
+}
+
+
 /**
  * opens parameters dialog
  */
 ParameterizedProcess.prototype.open = function(definition, paramsMapping) {
+
 
     this.openWaitDialog();
     
@@ -752,6 +766,7 @@ ParameterizedProcess.prototype.open = function(definition, paramsMapping) {
                     {
                         text: dictionary['common.start'],
                         click: bind(function() {
+		                    this.destroyDialog();
                             window.onProcessFormSend();
                             this.dialog.dialog("close"); 
                         }, this)
@@ -759,6 +774,7 @@ ParameterizedProcess.prototype.open = function(definition, paramsMapping) {
                     {
                         text: dictionary["common.close"],
                         click:bind(function() {
+		                    this.destroyDialog();
                             this.dialog.dialog("close"); 
                         },this) 
                     }

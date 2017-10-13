@@ -1,20 +1,48 @@
 package cz.incad.Kramerius;
 
-import static cz.incad.kramerius.utils.IOUtils.copyStreams;
+import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.imaging.utils.ImageUtils;
+import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
+import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.apache.http.Header;
+import org.apache.http.HttpException;
+import org.apache.http.HttpResponse;
+import org.apache.http.nio.IOControl;
+import org.apache.http.nio.client.HttpAsyncClient;
+import org.apache.http.nio.client.methods.AsyncByteConsumer;
+import org.apache.http.nio.client.methods.HttpAsyncMethods;
+import org.apache.http.protocol.HttpContext;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-import java.awt.Rectangle;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.xpath.XPathExpressionException;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -22,40 +50,25 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.StringTemplateGroup;
-import org.antlr.stringtemplate.language.DefaultTemplateLexer;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
-import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.imaging.utils.ImageUtils;
-import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.RESTHelper;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.imgs.ImageMimeType;
-import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
-import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
+import cz.incad.kramerius.utils.*;
 
 public abstract class AbstractImageServlet extends GuiceServlet {
 
+    protected static final DateFormat[] XSD_DATE_FORMATS = {
+            new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S'Z'"),
+            new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+            new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S"),
+            new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
+            new SafeSimpleDateFormat("yyyy-MM-dd'Z'"),
+            new SafeSimpleDateFormat("yyyy-MM-dd") };
+
     /**
-	 * 
-	 */
+     *
+     */
     private static final long serialVersionUID = 1L;
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -73,16 +86,18 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     @Named("securedFedoraAccess")
     protected transient FedoraAccess fedoraAccess;
 
+    @Inject
+    protected transient HttpAsyncClient client;
+
     // @Inject
     // @Named("fedora3")
     // protected Provider<Connection> fedora3Provider;
 
     public static BufferedImage scale(BufferedImage img, Rectangle pageBounds,
-            HttpServletRequest req, ScalingMethod scalingMethod) {
+                                      HttpServletRequest req, ScalingMethod scalingMethod) {
         String spercent = req.getParameter(SCALE_PARAMETER);
         String sheight = req.getParameter(SCALED_HEIGHT_PARAMETER);
         String swidth = req.getParameter(SCALED_WIDTH_PARAMETER);
-        // System.out.println("REQUEST PARAMS: sheight:"+sheight+"swidth:"+swidth);
         if (spercent != null) {
             double percent = 1.0;
             {
@@ -128,21 +143,21 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     }
 
     protected BufferedImage rawFullImage(String uuid,
-            HttpServletRequest request, int page) throws IOException,
+                                         HttpServletRequest request, int page) throws IOException,
             MalformedURLException, XPathExpressionException {
         return KrameriusImageSupport.readImage(uuid,
                 FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, page);
     }
 
     protected BufferedImage rawImage(String uuid, String stream,
-            HttpServletRequest request, int page) throws IOException,
+                                     HttpServletRequest request, int page) throws IOException,
             MalformedURLException, XPathExpressionException {
         return KrameriusImageSupport.readImage(uuid, stream, this.fedoraAccess,
                 page);
     }
 
     protected void writeImage(HttpServletRequest req, HttpServletResponse resp,
-            BufferedImage image, OutputFormats format) throws IOException {
+                              BufferedImage image, OutputFormats format) throws IOException {
         if ((format.equals(OutputFormats.JPEG))
                 || (format.equals(OutputFormats.PNG))) {
             resp.setContentType(format.getMimeType());
@@ -155,7 +170,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     }
 
     protected void setDateHaders(String pid, String streamName,
-            HttpServletResponse resp) throws IOException {
+                                 HttpServletResponse resp) throws IOException {
         Date lastModifiedDate = lastModified(pid, streamName);
         Calendar instance = Calendar.getInstance();
         instance.roll(Calendar.YEAR, 1);
@@ -166,10 +181,11 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 
     private Date lastModified(String pid, String stream) throws IOException {
         return this.fedoraAccess.getStreamLastmodifiedFlag(pid, stream);
+
     }
 
     protected void setResponseCode(String pid, String streamName,
-            HttpServletRequest request, HttpServletResponse response)
+                                   HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         long dateHeader = request.getDateHeader("If-Modified-Since");
         if (dateHeader != -1) {
@@ -193,35 +209,52 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 
     public abstract boolean turnOnIterateScaling();
 
-    public void copyFromImageServer(String urlString, HttpServletRequest req, HttpServletResponse resp)
-            throws MalformedURLException, IOException {
-        InputStream inputStream = null;
-        try {
-            HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(urlString, "", "");
-            int responseCode = con.getResponseCode();
-            resp.setStatus(responseCode);
-            if (responseCode == 200) {
-                inputStream = con.getInputStream();
-                String contentType = con.getContentType();
 
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                copyStreams(inputStream, bos);
-                copyStreams(new ByteArrayInputStream(bos.toByteArray()),
-                        resp.getOutputStream());
+    public void copyFromImageServer(String urlString, final HttpServletResponse resp)
+            throws IOException {
+        final WritableByteChannel channel = Channels.newChannel(resp.getOutputStream());
 
-                resp.setContentType(contentType);
-                String headerFiled = con.getHeaderField("Cache-Control");
-                String lamodif = con.getHeaderField("Last-Modified");
-
-
-                resp.setHeader("Cache-Control", headerFiled);
-                resp.setHeader("Last-Modified", lamodif);
-                resp.setHeader("Access-Control-Allow-Origin", "*");
+        Future<Void> responseFuture = client.execute(HttpAsyncMethods.createGet(urlString), new AsyncByteConsumer<Void>() {
+            @Override
+            protected void onByteReceived(ByteBuffer byteBuffer, IOControl ioControl) throws IOException {
+                try {
+                    channel.write(byteBuffer);
+                } catch (IOException e) {
+                    if ("ClientAbortException".equals(e.getClass().getSimpleName())) {
+                        // Do nothing, request was cancelled by client. This is usual image viewers behavior.
+                    } else {
+                        throw e;
+                    }
+                }
             }
-            
-            
-        } finally {
-            IOUtils.tryClose(inputStream);
+
+            @Override
+            protected void onResponseReceived(HttpResponse response) throws HttpException, IOException {
+                int statusCode = response.getStatusLine().getStatusCode();
+                resp.setStatus(statusCode);
+                if (statusCode == 200) {
+                    resp.setContentType(response.getEntity().getContentType().getValue());
+                    resp.setHeader("Access-Control-Allow-Origin", "*");
+                    Header cacheControl = response.getLastHeader("Cache-Control");
+                    if (cacheControl != null) resp.setHeader(cacheControl.getName(), cacheControl.getValue());
+                    Header lastModified = response.getLastHeader("Last-Modified");
+                    if (lastModified != null) resp.setHeader(lastModified.getName(), lastModified.getValue());
+
+                }
+            }
+
+            @Override
+            protected Void buildResult(HttpContext httpContext) throws Exception {
+                return null;
+            }
+        }, null);
+
+        try {
+            responseFuture.get(); // wait for request
+        } catch (InterruptedException e) {
+            throw new IOException(e.getMessage());
+        } catch (ExecutionException e) {
+            throw new IOException(e.getMessage());
         }
     }
 
@@ -259,8 +292,8 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     }
 
     public static void setStringTemplateModel(String uuid,
-            String dataStreamPath, StringTemplate template,
-            FedoraAccess fedoraAccess) throws UnsupportedEncodingException,
+                                              String dataStreamPath, StringTemplate template,
+                                              FedoraAccess fedoraAccess) throws UnsupportedEncodingException,
             IOException {
 
         List<String> folderList = new ArrayList<String>();
@@ -318,11 +351,4 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         }
     }
 
-    public static void main(String[] args) {
-        String testUrl = "ahoj nevim co dal $neni$";
-        StringTemplate template = new StringTemplate(testUrl);
-        template.setAttribute("baseFolder", "some val");
-        template.setAttribute("neni", "Je");
-        System.out.println(template.toString());
-    }
 }

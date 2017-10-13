@@ -49,8 +49,6 @@ public class FeederResourceClient {
      * @return
      */
     public static String newest(String type, String limit, String offset) {
-        //newest?type=soundrecording&limit=3&offset=0
-        System.out.println("newest called ");
         Client c = Client.create();
         WebResource r = c
                 .resource("http://localhost:8080/search/api/v5.0/feed/newest");

@@ -50,7 +50,7 @@ import cz.incad.kramerius.utils.IOUtils;
 public class StartupServlet extends GuiceServlet {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(StartupServlet.class.getName());
-    
+
     @Inject
     @Named("kramerius4")
     Provider<Connection> connectionProvider = null;
@@ -60,61 +60,56 @@ public class StartupServlet extends GuiceServlet {
 
     @Inject
     GeneratePDFService pdfService;
-    
+
     @Inject
     VersionService versionService;
-    
 
-    @Inject 
+    @Inject
     LifeCycleHookRegistry lifecycleRegistry;
-    
+
     @Override
     public void init() throws ServletException {
         super.init();
 
         /**
-        try {
-            GuiceConfigBean.Grapher grapher = new GuiceConfigBean.Grapher();
-            grapher.graph("google-dependency.dot", getInjector());
-        } catch (IOException e1) {
-            LOGGER.log(Level.SEVERE, e1.getMessage(),e1);
-        }
-        **/
-        
+         * try { GuiceConfigBean.Grapher grapher = new
+         * GuiceConfigBean.Grapher(); grapher.graph("google-dependency.dot",
+         * getInjector()); } catch (IOException e1) { LOGGER.log(Level.SEVERE,
+         * e1.getMessage(),e1); }
+         **/
+
         Connection connection = this.connectionProvider.get();
         try {
             // read previous db version
             VersionInitializer.initDatabase(connection);
-            
-            
+
             // mostdesirable table
             MostDesirableDatabaseInitializator.initDatabase(connection, versionService);
             // all security tables
             SecurityDatabaseInitializator.initDatabase(connection, versionService);
-            // process tables - > must be after security tables and must be after logged user tables
+            // process tables - > must be after security tables and must be
+            // after logged user tables
             ProcessDatabaseInitializator.initDatabase(connection, versionService);
-            
-            // statistics tables 
+
+            // statistics tables
             StatisticDatabaseInitializator.initDatabase(connection, versionService);
-            
+
             // stores new db version to doatabase
             versionService.updateNewVersion();
-            
+
             this.pdfService.init();
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            if (connection != null) { DatabaseUtils.tryClose(connection); }
+            if (connection != null) {
+                DatabaseUtils.tryClose(connection);
+            }
         }
-        
+
         this.lifecycleRegistry.startNotification();
-        
-//        // find dead process
-//        this.gcScheduler.scheduleFindGCCandidates();
-//        // find process to start
-//        this.processScheduler.scheduleNextTask();
+
     }
 
     @Override
@@ -122,15 +117,12 @@ public class StartupServlet extends GuiceServlet {
         super.init(config);
     }
 
-	@Override
-	public void destroy() {
-		super.destroy();
-		
-		if (this.lifecycleRegistry != null) {
-			this.lifecycleRegistry.shutdownNotification();
-		}
+    @Override
+    public void destroy() {
+        super.destroy();
 
-//		this.gcScheduler.shutdown();
-//		this.processScheduler.shutdown();
-	}
+        if (this.lifecycleRegistry != null) {
+            this.lifecycleRegistry.shutdownNotification();
+        }
+    }
 }

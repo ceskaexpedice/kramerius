@@ -6,6 +6,8 @@
      "css/app-bar-cookie-info.css",
     "jplayer/skin/blue.monday/jplayer.blue.monday.css",
 
+    'js/sliders/nouislider.css',
+
     "resources/css/selector.css",
     "resources/css/styles.css",
     "resources/css/icons.css",
@@ -13,6 +15,7 @@
 
     "resources/css/small.css",
     "resources/css/waiting.css"
+    
 ]
 
 

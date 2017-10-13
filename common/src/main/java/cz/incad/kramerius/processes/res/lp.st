@@ -508,6 +508,14 @@
     </process>
 
 
+    <process>
+        <id>migrationindex</id>
+        <description>Index migrations</description>
+        <mainClass>cz.incad.kramerius.services.ParallelMigrateSolrIndexImpl</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>reindex</securedaction>
+    </process>
 
 
 </processes>

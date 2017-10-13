@@ -9,6 +9,7 @@
 
 <view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
 <view:kconfig var="collapsed_conf" key="search.query.collapsed" defaultValue="true" />
+
 <c:catch var="searchException">
     <c:set var="isCollapsed" value="${!isHome && (param.collapsed != 'false') && (collapsed_conf == 'true')}" scope="request"  />
     <c:set var="filterByType" value="false" scope="request" />
@@ -50,6 +51,9 @@
     <c:param name="ql" value="root_title^10,root_title_lemmatized^10,root_title_lemmatized_ascii^10,text,text_lemmatized,text_lemmatized_ascii" />
 
     
+
+    <c:param name="qf" value="root_title^10 root_title_lemmatized^10 root_title_lemmatized_ascii^10 text text_lemmatized text_lemmatized_ascii" />
+    
     <c:forEach var="fqs" items="${paramValues.fq}">
         <c:if test="${fn:startsWith(fqs, 'document_type')}">
             <c:set var="isCollapsed" value="false" scope="request" />
@@ -63,15 +67,33 @@
     <%-- datum --%>
     <c:if test="${param.da_od != null && !empty param.da_od}">
         <c:set var="fieldedSearch" value="true" scope="request" />
-        <c:set var="da">(rok:[${searchParams.yearFrom} TO ${searchParams.yearUntil}]) OR (datum_begin:[1 TO ${searchParams.yearUntil}] AND datum_end:[${searchParams.yearFrom} TO 3000])</c:set>
-        <c:if test="${param.da_od == param.da_do}">
-            <c:set var="da">
-                 ${da} OR (datum:"${searchParams.dateFromFormatted}")
-            </c:set>
-        </c:if>
+            <c:choose>
+                <c:when test="${param.exactDay == 'true'}" >
+		  <c:set var="da">datum_str:"${param.da_od}"</c:set>
+		  <c:set var="daNoZeroes"></c:set>
+		  <c:if test="${fn:startsWith(param.da_od, '0')}">
+		    <c:set var="daNoZeroes">${fn:substring(param.da_od, 1, -1)}</c:set>
+		  </c:if>
+		  <c:set var="daNoZeroes">${fn:replace(daNoZeroes, '.0', '.')}</c:set>
+		  <c:set var="da">${da} OR datum_str:"${daNoZeroes}"</c:set>
+                </c:when>
+                <c:otherwise>
+		  <c:set var="da">(rok:[${searchParams.yearFrom} TO ${searchParams.yearUntil}]) OR (datum_begin:[1 TO ${searchParams.yearUntil}] AND datum_end:[${searchParams.yearFrom} TO 3000])</c:set>
+		  <c:if test="${param.da_od == param.da_do}">
+		      <c:set var="da">
+			  ${da} OR (datum:"${searchParams.dateFromFormatted}")
+		      </c:set>
+		  </c:if>
+                </c:otherwise>
+            </c:choose>
         <c:param name="fq" value="${da}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
+
+    <c:if test="${!empty param.exactDay}">
+        <c:param name="exactDay" value="${param.da_exactDay}" />
+    </c:if>
+
     <c:if test="${!empty param.offset}">
         <c:param name="start" value="${param.offset}" />
     </c:if>
@@ -119,11 +141,28 @@
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
+
     <c:if test="${!empty param.ddc}">
         <c:param name="fq" value="ddt:\"${param.ddc}\"" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
         <c:set var="fieldedSearch" value="true" scope="request" />
     </c:if>
+    
+    <!-- shelf locator and physical location -->
+    <c:if test="${!empty param.shelfLocator}">
+        <c:param name="fq" value="mods.shelfLocator:\"${param.shelfLocator}\"" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
+    </c:if>
+    
+    <c:if test="${!empty param.physicalLocation}">
+        <c:param name="fq" value="mods.physicalLocation:\"${param.physicalLocation}\"" />
+        <c:set var="rows" value="${rowsdefault}" scope="request" />
+        <c:set var="fieldedSearch" value="true" scope="request" />
+    </c:if>
+    <!--~ // shelf locator and physical location -->
+
+    
     <c:if test="${!empty param.keywords}">
         <c:param name="fq" value="keywords:\"${param.keywords}\"" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />

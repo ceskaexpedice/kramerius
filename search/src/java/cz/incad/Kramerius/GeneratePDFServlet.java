@@ -53,7 +53,8 @@ import cz.incad.kramerius.utils.params.ParamsParser;
 
 @Deprecated
 public class GeneratePDFServlet extends GuiceServlet {
-
+    
+    //TODO: Delete it; it is not necessary; all requests are routing through Remote API
     // stores handle for pdf
     private static HashMap<String, File> PREPARED_FILES = new HashMap<String, File>();
 

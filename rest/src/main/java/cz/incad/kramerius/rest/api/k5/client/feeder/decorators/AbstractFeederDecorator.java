@@ -48,9 +48,10 @@ public abstract class AbstractFeederDecorator extends AbstractDecorator {
         return new TokenizedPath(true, retvals);
     }
 
-    protected boolean mostDesirableOrNewest(TokenizedPath fctx) {
+    protected boolean mostDesirableOrNewestOrCustom(TokenizedPath fctx) {
         return fctx.getRestPath().get(0).equals("mostdesirable")
-                || fctx.getRestPath().get(0).equals("newest");
+                || fctx.getRestPath().get(0).equals("newest")
+                || fctx.getRestPath().get(0).equals("custom");
     }
 
 }

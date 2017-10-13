@@ -47,7 +47,7 @@ public class AuthorCSVFormatter implements StatisticsReportFormatter {
         builder.append("count").append(',');
         builder.append("author");
 
-        this.os.write(builder.toString().getBytes("UTF-8"));
+        this.os.write(builder.toString().getBytes(DEFAULT_ENCODING));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class AuthorCSVFormatter implements StatisticsReportFormatter {
             builder.append(record.get("count")).append(',');
             builder.append(StringUtils.nullify((String)record.get("author_name")));
 
-            os.write(builder.toString().getBytes());
+            os.write(builder.toString().getBytes(DEFAULT_ENCODING));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }

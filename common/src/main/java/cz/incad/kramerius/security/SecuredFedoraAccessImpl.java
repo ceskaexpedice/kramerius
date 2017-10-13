@@ -18,6 +18,7 @@ package cz.incad.kramerius.security;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -61,7 +62,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     private DiscStrucutreForStore discStrucutreForStore;
 
     @Inject
-    public SecuredFedoraAccessImpl(@Named("rawFedoraAccess") FedoraAccess rawAccess, DiscStrucutreForStore discStrucutreForStore, SolrAccess solrAccess, IsActionAllowed actionAllowed) {
+    public SecuredFedoraAccessImpl(@Named("cachedFedoraAccess") FedoraAccess rawAccess, DiscStrucutreForStore discStrucutreForStore, SolrAccess solrAccess, IsActionAllowed actionAllowed) {
         super();
         this.rawAccess = rawAccess;
         this.discStrucutreForStore = discStrucutreForStore;
@@ -98,8 +99,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
                 return rawAccess.getImageFULL(pid);
             }
         }
-        throw new SecurityException("access denided");
-
+        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ,pid,FedoraUtils.IMG_FULL_STREAM));
     }
 
     @Override
@@ -230,7 +230,8 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
                     return rawAccess.getDataStream(pid, datastreamName);
                 }
             }
-            throw new SecurityException("access denided");
+            
+            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ,pid,datastreamName));
         } else {
             String[] securedStreamsExtension = KConfiguration.getInstance().getSecuredAditionalStreams();
             int indexOf = Arrays.asList(securedStreamsExtension).indexOf(datastreamName);
@@ -241,7 +242,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
                         return rawAccess.getDataStream(pid, datastreamName);
                     }
                 }
-                throw new SecurityException("access denided");
+                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ,pid,datastreamName));
             } else {
                 return rawAccess.getDataStream(pid, datastreamName);
             }
@@ -261,6 +262,12 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     @Override
     public boolean isStreamAvailable(String pid, String streamName) throws IOException {
         return this.rawAccess.isStreamAvailable(pid, streamName);
+    }
+    
+
+    @Override
+    public boolean isObjectAvailable(String pid) throws IOException {
+        return this.rawAccess.isObjectAvailable(pid);
     }
 
     @Override
@@ -286,10 +293,8 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
                 throw new IOException("preview not found");
             }
         } else {
-            throw new SecurityException("access denided");
+            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ,pid,FedoraUtils.IMG_PREVIEW_STREAM));
         }
-
-
     }
 
     @Override

@@ -18,16 +18,24 @@ package cz.incad.kramerius.utils.solr;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.httpclient.HttpClientError;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -187,7 +195,7 @@ public class SolrUtils   {
         return parseDocument;
     }
 
-    public static InputStream getSolrDataInternal(String query, String format) throws IOException, ParserConfigurationException, SAXException {
+    public static InputStream getSolrDataInternal(String query, String format) throws IOException {
         String solrHost = KConfiguration.getInstance().getSolrHost();
         String uri = solrHost +"/select?" +query;
         if (!uri.endsWith("&")) {
@@ -195,8 +203,15 @@ public class SolrUtils   {
         } else {
         	uri = uri+"wt="+format;
         }
-        InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
-        return inputStream;
+        HttpGet httpGet = new HttpGet(uri);
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpResponse response = client.execute(httpGet);
+        if (response.getStatusLine().getStatusCode() == 200) {
+            return response.getEntity().getContent();
+        } else {
+            throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        }
+
     }
 
     public static InputStream getSolrTermsInternal(String query, String format) throws IOException, ParserConfigurationException, SAXException {
@@ -210,4 +225,10 @@ public class SolrUtils   {
         InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
         return inputStream;
     }
+    
+    
+    
+    
+
+    
 }

@@ -148,7 +148,7 @@ public class Fedora4Repository implements Repository {
     }
 
     boolean exists(URI uri) throws RepositoryException {
-        try (FcrepoResponse response = new GetBuilder(uri,client).perform()) {
+        try (FcrepoResponse response = new HeadBuilder(uri,client).perform()) {
                 return response.getStatusCode() != 404;
         } catch (FcrepoOperationFailedException e) {
             throw new RepositoryException(e);

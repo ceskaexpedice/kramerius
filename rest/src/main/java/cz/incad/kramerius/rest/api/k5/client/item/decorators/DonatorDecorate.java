@@ -54,9 +54,7 @@ public class DonatorDecorate  extends AbstractItemDecorator{
             if (containsPidInJSON(jsonObject)) {
                 String pid = getPidFromJSON(jsonObject);
                 if (!PIDSupport.isComposedPID(pid)) {
-                    Document relsExt = RELSEXTDecoratorUtils
-                            .getRELSEXTPidDocument(pid, context,
-                                    this.fedoraAccess);
+                    Document relsExt = RELSEXTDecoratorUtils.getRELSEXTPidDocument(pid, context, this.fedoraAccess);
                     String donator = RelsExtHelper.getDonator(relsExt);
                     if (donator != null) {
                         jsonObject.put("donator",donator);
