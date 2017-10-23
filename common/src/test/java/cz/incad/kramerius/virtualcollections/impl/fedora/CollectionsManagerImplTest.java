@@ -37,6 +37,7 @@ public class CollectionsManagerImplTest extends TestCase {
         .withConstructor(KConfiguration.getInstance(), acLog)
         .addMockedMethod("getDataStream")
         .addMockedMethod("isStreamAvailable")
+        .addMockedMethod("isObjectAvailable")
         .addMockedMethod("getDC")
         .createMock();
 
@@ -69,7 +70,20 @@ public class CollectionsManagerImplTest extends TestCase {
         EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:a9dd018c-32ed-474b-9ee5-071ebecfdef5\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
         EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:25463364-b86b-4f2b-8fb3-598b55efa09f\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
 
-        
+
+        EasyMock.expect(fa.isObjectAvailable("vc:3d466a99-6dca-4113-87d9-831673bae580")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isObjectAvailable("vc:217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isObjectAvailable("vc:64b95a45-6ead-4bf1-aa93-c31b0ccbf646")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isObjectAvailable("vc:a9dd018c-32ed-474b-9ee5-071ebecfdef5")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isObjectAvailable("vc:25463364-b86b-4f2b-8fb3-598b55efa09f")).andReturn(true).anyTimes();
+
+        EasyMock.expect(fa.isStreamAvailable("vc:3d466a99-6dca-4113-87d9-831673bae580", "DC")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isStreamAvailable("vc:217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef","DC")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isStreamAvailable("vc:64b95a45-6ead-4bf1-aa93-c31b0ccbf646","DC")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isStreamAvailable("vc:a9dd018c-32ed-474b-9ee5-071ebecfdef5","DC")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isStreamAvailable("vc:25463364-b86b-4f2b-8fb3-598b55efa09f","DC")).andReturn(true).anyTimes();
+
+
         EasyMock.expect(fa.isStreamAvailable("vc:3d466a99-6dca-4113-87d9-831673bae580", "TEXT_cs")).andReturn(true).anyTimes();
         EasyMock.expect(fa.isStreamAvailable("vc:3d466a99-6dca-4113-87d9-831673bae580", "TEXT_en")).andReturn(true).anyTimes();
 
@@ -140,6 +154,8 @@ public class CollectionsManagerImplTest extends TestCase {
         .withConstructor(KConfiguration.getInstance(), acLog)
         .addMockedMethod("getDataStream")
         .addMockedMethod("isStreamAvailable")
+        .addMockedMethod("isObjectAvailable")
+
         .addMockedMethod("getDC")
         .createMock();
         
@@ -159,6 +175,19 @@ public class CollectionsManagerImplTest extends TestCase {
         Document document = XMLUtils.parseDocument(stream,true);
         EasyMock.expect(col.getCollectionListFromResourceIndex()).andReturn(document);
         EasyMock.expect(col.languages()).andReturn(Arrays.asList("cs","en")).anyTimes();
+
+        EasyMock.expect(fa.isObjectAvailable("vc:3d466a99-6dca-4113-87d9-831673bae580")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isObjectAvailable("vc:217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isObjectAvailable("vc:64b95a45-6ead-4bf1-aa93-c31b0ccbf646")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isObjectAvailable("vc:a9dd018c-32ed-474b-9ee5-071ebecfdef5")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isObjectAvailable("vc:25463364-b86b-4f2b-8fb3-598b55efa09f")).andReturn(true).anyTimes();
+
+        EasyMock.expect(fa.isStreamAvailable("vc:3d466a99-6dca-4113-87d9-831673bae580", "DC")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isStreamAvailable("vc:217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef","DC")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isStreamAvailable("vc:64b95a45-6ead-4bf1-aa93-c31b0ccbf646","DC")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isStreamAvailable("vc:a9dd018c-32ed-474b-9ee5-071ebecfdef5","DC")).andReturn(true).anyTimes();
+        EasyMock.expect(fa.isStreamAvailable("vc:25463364-b86b-4f2b-8fb3-598b55efa09f","DC")).andReturn(true).anyTimes();
+
 
         EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:3d466a99-6dca-4113-87d9-831673bae580\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();
         EasyMock.expect(sa.request("fq=level:0&q=collection:(\"vc:217d0320-5b5c-4bbd-8fd3-ee41cb81f1ef\")&rows=0")).andReturn(XMLUtils.parseDocument(CollectionsManagerImplTest.class.getResourceAsStream("solrresponse.xml"), true)).anyTimes();

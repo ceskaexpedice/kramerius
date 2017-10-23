@@ -35,8 +35,10 @@ public class Fedora4Utils {
     public static final String MODELS_PREFIX_PATH = "model";
     public static final String COLLECTIONS_PREFIX_PATH = "collections";
 
-    /** DEFAULT Date formatter*/
-    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
+//    /** DEFAULT Date formatter*/
+//    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 
     /**
@@ -54,6 +56,7 @@ public class Fedora4Utils {
         }
         return prefix.equals(DATA_PREFIX_PATH) ? dividePid(pid, prefix) : notDividedPid(pid, prefix);
     }
+
 
     /**
      * Utility method returns whole path from given containers
@@ -105,11 +108,25 @@ public class Fedora4Utils {
     }
 
 
+    public static List<String> link(String link) {
+        String endpoint = endpoint();
+        link = StringUtils.minus(link, endpoint);
+        if (link.endsWith("/")) {
+            link = StringUtils.minus(link, "/"+BOUND_CONTEXT+"/");
+        } else {
+            link = StringUtils.minus(link, "/"+BOUND_CONTEXT);
+        }
+        if (link.startsWith("/")) link = link.substring(1);
+        return Arrays.asList(link.split("/"));
+    }
+
+
     public static Date extractDate(InputStream body, String name, String namespace) throws ParserConfigurationException, SAXException, IOException, ParseException {
         Document document = XMLUtils.parseDocument(body, true);
         Element lastModified = XMLUtils.findElement(document.getDocumentElement(), name, namespace);
         if (lastModified != null) {
-            return Fedora4Utils.DATE_FORMAT.parse(lastModified.getTextContent());
+            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+            return dateFormat.parse(lastModified.getTextContent());
         } else return null;
     }
 

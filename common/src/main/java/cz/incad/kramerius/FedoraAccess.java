@@ -85,7 +85,7 @@ public interface FedoraAccess {
      * Returns models of given object
      *
      * @param pid Object's pid
-     * @return models
+     * @return modelsget
      * @throws IOException IO error has been occurred
      */
     public List<String> getModelsOfRel(String pid) throws IOException;
@@ -239,6 +239,7 @@ public interface FedoraAccess {
     public InputStream getImageFULL(String pid) throws IOException;
 
     /**
+     * TODO: Not used
      * Returns IMG_FULL profile
      *
      * @param pid Requested pid
@@ -280,7 +281,7 @@ public interface FedoraAccess {
     /**
      * Check if the object is available
      * @param pid Pid of object 
-     * @return true or false  - object exists or doesn't exist
+     * @return true or false  - object objectExists or doesn't exist
      * @throws IOException
      */
     public boolean isObjectAvailable(String pid) throws IOException;
@@ -299,6 +300,7 @@ public interface FedoraAccess {
      *
      * @return API-A stub
      */
+    @Deprecated
     public FedoraAPIA getAPIA();
 
     /**
@@ -306,6 +308,7 @@ public interface FedoraAccess {
      *
      * @return API-M stub
      */
+    @Deprecated
     public FedoraAPIM getAPIM();
 
     /**
@@ -358,6 +361,7 @@ public interface FedoraAccess {
 
     
     /**
+     * TODO: Not Used
      * Returns xml containing datastream data
      *
      * @param pid pid of reqested object
@@ -396,6 +400,7 @@ public interface FedoraAccess {
     public String getFedoraVersion() throws IOException;
 
     /**
+     * TODO: Not used
      * Returns profile for stream
      *
      * @param pid Requested pid
@@ -406,6 +411,7 @@ public interface FedoraAccess {
     Document getStreamProfile(String pid, String stream) throws IOException;
 
     /**
+     * TODO: Not used
      * Datastreams description document
      *
      * @param pid PID of requested object
@@ -415,6 +421,7 @@ public interface FedoraAccess {
     Document getObjectProfile(String pid) throws IOException;
 
     /**
+     * TODO: Not used
      * Returns document which describes datastrem of requested pid
      *
      * @param pid requested pid
@@ -436,8 +443,13 @@ public interface FedoraAccess {
     
     Date getObjectLastmodifiedFlag(String pid) throws IOException;
 
+    @Deprecated
     List<Map<String, String>> getStreamsOfObject(String pid)  throws IOException;
-    
+
+    InputStream getFoxml(String pid) throws IOException;
+
+
+
 //    private Date lastModified(String pid, String stream) throws IOException {
 //        Date date = null;
 //        Document streamProfile = fedoraAccess.getStreamProfile(pid, stream);

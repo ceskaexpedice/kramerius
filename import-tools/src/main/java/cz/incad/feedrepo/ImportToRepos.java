@@ -26,17 +26,22 @@ import javax.xml.transform.TransformerException;
 //import org.fcrepo.client.FedoraObject;
 //import org.fcrepo.client.FedoraRepository;
 //import org.fcrepo.client.FedoraResource;
+import com.google.inject.*;
+import com.google.inject.name.Names;
 import com.qbizm.kramerius.imp.jaxb.*;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.om.impl.Fedora4Repository;
-import org.apache.commons.io.IOUtils;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import com.google.inject.AbstractModule;
 
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
@@ -72,7 +77,6 @@ public class ImportToRepos {
             JAXBContext jaxbdatastreamContext = JAXBContext.newInstance(DatastreamType.class);
             datastreamMarshaller = jaxbdatastreamContext.createMarshaller();
 
-            repo = new Fedora4Repository();
         } catch (Exception e) {
             log.log(Level.SEVERE, "Cannot init JAXB", e);
             throw new RuntimeException(e);
@@ -212,7 +216,10 @@ public class ImportToRepos {
 
     public static void initialize(final String user, final String pwd) throws ClassNotFoundException, InstantiationException, IllegalAccessException  {
         of = new ObjectFactory();
-        repo = new Fedora4Repository();
+
+        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        repo = new Fedora4Repository(injector.getInstance(ProcessingIndexFeeder.class));
+
     }
 
     private static void visitAllDirsAndFiles(File importFile, Set<TitlePidTuple> roots, Set<String> sortRelations, boolean updateExisting) {
@@ -331,7 +338,6 @@ public class ImportToRepos {
     public static void ingest(DigitalObject dob, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException, LexerException, TransformerException, RepositoryException {
         long start = System.currentTimeMillis();
 
-
         List<PropertyType> properties = dob.getObjectProperties().getProperty();
         for (PropertyType pt :
                 properties) {
@@ -347,7 +353,7 @@ public class ImportToRepos {
 
         PIDParser pidPArser = new PIDParser(pid);
         pidPArser.objectPid();
-        String objId = pidPArser.getObjectId();
+        String objId = pidPArser.getObjectPid();
         
         RepositoryObject obj = repo.createOrFindObject( objId/*+"?mixin=fedora:object"*/);
         
@@ -361,12 +367,12 @@ public class ImportToRepos {
                     byte[] xmlContent = xmlContent(latestDs);
                     if (xmlContent != null) {
                         //String s = IOUtils.toString(xmlContent, "UTF-8");
-                        createDataStream(repo,obj, id, latestDs,xmlContent);
+                        createDataStream(repo,obj, id, latestDs,xmlContent, dob);
                     }
                 } else if (controlgroup.equals("M")) {
                     byte[] binaryContent = latestDs.getBinaryContent();
                     if (binaryContent != null) {
-                        createDataStream(repo, obj, id, latestDs, binaryContent);
+                        createDataStream(repo, obj, id, latestDs, binaryContent, dob);
                     }
                 } else if (controlgroup.equals("E")) {
                     ContentLocationType contentLocation = latestDs.getContentLocation();
@@ -385,7 +391,10 @@ public class ImportToRepos {
     }
 
     private static void createDataStream(Repository repo, RepositoryObject obj, String id,
-                                         DatastreamVersionType versionType, byte[] binaryContent) throws RepositoryException {
+                                         DatastreamVersionType versionType, byte[] binaryContent, DigitalObject dob) throws RepositoryException {
+        //TODO: do it better
+        if (id.equals("POLICY")) return;
+
         boolean relsExt = id.equals("RELS-EXT");
         String mimeType = relsExt ? "text/xml" : versionType.getMIMETYPE();
         if (relsExt) {
@@ -406,7 +415,6 @@ public class ImportToRepos {
         XMLUtils.print(any.get(0),ps);
         StringWriter writer = new StringWriter();
         XMLUtils.print(any.get(0),writer);
-        System.out.println("'"+writer.toString()+"'");
         return bos.toByteArray();
 
     }
@@ -586,7 +594,7 @@ public class ImportToRepos {
      * Checks if fedora contains object with given PID
      *
      * @param pid requested PID
-     * @return true if given object exists
+     * @return true if given object objectExists
      */
     public static boolean objectExists(String pid) {
         try {
@@ -689,11 +697,3 @@ class TitlePidTuple {
 }
 
 
-
-class ImportModule extends AbstractModule {
-
-    @Override
-    protected void configure() {
-        bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
-    }
-}

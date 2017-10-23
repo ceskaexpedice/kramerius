@@ -10,6 +10,9 @@ import java.util.Date;
  */
 public interface RepositoryDatastream {
 
+
+    public String getName() throws RepositoryException;
+
     public Document getMetadata() throws RepositoryException;
 
     public InputStream getContent() throws RepositoryException;
@@ -18,4 +21,5 @@ public interface RepositoryDatastream {
 
     public Date getLastModified()throws RepositoryException;
 
+    public void updateSPARQL(String sparql) throws RepositoryException;
 }

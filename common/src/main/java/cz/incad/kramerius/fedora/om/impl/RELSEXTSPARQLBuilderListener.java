@@ -5,7 +5,7 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 /**
  * Created by pstastny on 10/11/2017.
  */
-public interface SPARQLBuilderListener {
+public interface RELSEXTSPARQLBuilderListener {
 
-    public String inform(String path) throws RepositoryException;
+    public String inform(String path, String localName) throws RepositoryException;
 }

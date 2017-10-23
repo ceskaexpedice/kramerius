@@ -1,5 +1,7 @@
 package cz.incad.kramerius.indexer;
 
+import com.google.inject.name.Named;
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
@@ -9,17 +11,22 @@ import cz.incad.kramerius.utils.UTFSort;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import dk.defxws.fedoragsearch.server.TransformerToText;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
+//TODO: Zrusit pokud mozno
 public class FedoraOperations {
 
     private static final Logger logger =
@@ -32,13 +39,14 @@ public class FedoraOperations {
     protected String dsText;
     protected String[] params = null;
     String foxmlFormat;
-    FedoraAccessBridge bridge;
+    FedoraAccess  fa;
     IResourceIndex rindex;
     UTFSort utf_sort;
 
     @Inject
-    public FedoraOperations(FedoraAccessBridge brigde) throws Exception {
-        this.bridge = brigde;
+    public FedoraOperations(@Named("rawFedoraAccess") FedoraAccess fa, IResourceIndex resourceIndex) throws Exception {
+        this.fa = fa;
+        this.rindex = resourceIndex;
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
         utf_sort = new UTFSort();
         utf_sort.init();
@@ -48,7 +56,7 @@ public class FedoraOperations {
 
 //    public void updateIndex(String action, String value, ArrayList<String> requestParams) throws java.rmi.RemoteException, Exception {
 //        logger.log(Level.INFO, "updateIndex action={0} value={1}", new Object[]{action, value});
-//        SolrOperations ops = new SolrOperations(bridge,this);
+//        SolrOperations ops = new SolrOperations(fa,this);
 //        ops.updateIndex(action, value);
 //    }
 
@@ -57,7 +65,9 @@ public class FedoraOperations {
 
         try {
             //return fa.getAPIM().export(pid, foxmlFormat, "public");
-            return bridge.getFoxml(pid);
+            InputStream is = fa.getFoxml(pid);
+            return IOUtils.toByteArray(is);
+            //return fa.getFoxml(pid);
         } catch (Exception e) {
             throw new Exception("Fedora Object " + pid + " not found. ", e);
         }
@@ -67,32 +77,36 @@ public class FedoraOperations {
 
         logger.log(Level.INFO, "getFoxmlFromPid pid={0}", pid);
         try {
-            foxmlRecord = this.bridge.getFoxml(pid);// fa.getAPIM().export(pid, foxmlFormat, "public");
+            foxmlRecord = IOUtils.toByteArray(fa.getFoxml(pid));// fa.getAPIM().export(pid, foxmlFormat, "public");
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error getting object", e);
             throw new Exception("Fedora Object " + pid + " not found. ", e);
         }
     }
 
-    public int getPdfPagesCount_(String pid, String dsId) throws Exception {
-        ds = null;
-        if (dsId != null) {
+//    public int getPdfPagesCount_(String pid, String dsId) throws Exception {
+//        ds = null;
+//        if (dsId != null) {
 //            FedoraAPIA apia = fa.getAPIA();
 //            MIMETypedStream mts = apia.getDatastreamDissemination(pid,
 //                    dsId, null);
 //            if (mts == null) {
 //                return 1;
 //            }
-            
-            ds = bridge.getStreamContentAsArray(pid, dsId);// mts.getStream();
+//
+//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//            IOUtils.copy(this.fa.getDataStream(pid, dsId), bos);
+//            return bos.toByteArray();
+//
+//            ds = fa.getStreamContentAsArray(pid, dsId);// mts.getStream();
 //            getPDFDocument(pid);
 //            int ret = (pdDoc.getNumberOfPages() + 1);
 //            closePDFDocument();
 //            return ret;
-            return (new TransformerToText().getPdfPagesCount_(ds) + 1);
-        }
-        return 1;
-    }
+//            return (new TransformerToText().getPdfPagesCount_(ds) + 1);
+//        }
+//        return 1;
+//    }
 
     private List<String> getTreePredicates() {
         return Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.treePredicates"));
@@ -105,7 +119,7 @@ public class FedoraOperations {
         if (!p.isEmpty()) {
             String fedoraPid = "info:fedora/" + pid;
             for (String s : p) {
-                Document relsExt = bridge.getStreamContentAsDocument(s, FedoraUtils.RELS_EXT_STREAM);
+                Document relsExt = fa.getDataStreamXmlAsDocument(s, FedoraUtils.RELS_EXT_STREAM);
                 Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
                 List<Element> els = XMLUtils.getElements(descEl);
                 int i = 0;
@@ -141,7 +155,7 @@ public class FedoraOperations {
                 } else {
                     fedoraPid = "info:fedora/" + pids[pids.length - 1];
                     parent = pids[pids.length - 2];
-                    Document relsExt = bridge.getStreamContentAsDocument(parent, FedoraUtils.RELS_EXT_STREAM);
+                    Document relsExt = fa.getRelsExt(parent);
                     Element descEl = XMLUtils.findElement(relsExt.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
                     List<Element> els = XMLUtils.getElements(descEl);
                     int i = 0;
@@ -211,9 +225,6 @@ public class FedoraOperations {
 
     public List<String> getParentsArray(String pid) {
         try {
-            if (rindex == null) {
-                rindex = ResourceIndexService.getResourceIndexImpl();
-            }
             List<String> ret =  rindex.getParentsPids(pid);
             if(ret.contains(pid)){
                 logger.log(Level.WARNING, "Cyclic reference on {0}", pid);
@@ -248,9 +259,11 @@ public class FedoraOperations {
 //                return "";
 //            }
             //ds = mts.getStream();
-            ds = bridge.getStreamContentAsArray(pid, dsId);
+            this.ds = IOUtils.toByteArray(fa.getDataStream(pid, dsId));
+
+//            ds = fa.getStreamContentAsArray(pid, dsId);
 //            String mimetype = mts.getMIMEType();
-            String mimetype = bridge.getStreamMimeType(pid, dsId);
+            String mimetype = this.fa.getMimeTypeForStream(pid, dsId);
             if (ds != null) {
                 if (mimetype.equals("application/pdf")) {
                     //getPDFDocument(pid);

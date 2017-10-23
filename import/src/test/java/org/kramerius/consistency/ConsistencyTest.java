@@ -30,6 +30,7 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.statistics.impl.NullStatisticsAccessLogImpl;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
@@ -59,65 +60,10 @@ import cz.incad.kramerius.utils.pid.LexerException;
  */
 public class ConsistencyTest {
 
-    class _NoStatistics implements StatisticsAccessLog {
-
-        /* (non-Javadoc)
-         * @see cz.incad.kramerius.statistics.StatisticsAccessLog#reportAccess(java.lang.String, java.lang.String)
-         */
-        @Override
-        public void reportAccess(String pid, String streamName) throws IOException {
-            // TODO Auto-generated method stub
-            
-        }
-
-        /* (non-Javadoc)
-         * @see cz.incad.kramerius.statistics.StatisticsAccessLog#isReportingAccess(java.lang.String, java.lang.String)
-         */
-        @Override
-        public boolean isReportingAccess(String pid, String streamName) {
-            // TODO Auto-generated method stub
-            return false;
-        }
-
-
-        /* (non-Javadoc)
-         * @see cz.incad.kramerius.statistics.StatisticsAccessLog#getAllReports()
-         */
-        @Override
-        public StatisticReport[] getAllReports() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        /* (non-Javadoc)
-         * @see cz.incad.kramerius.statistics.StatisticsAccessLog#getReportById(java.lang.String)
-         */
-        @Override
-        public StatisticReport getReportById(String reportId) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup) {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void reportAccess(String pid, String streamName, String actionName) throws IOException {
-            // TODO Auto-generated method stub
-            
-        }
-        
-        
-        
-    }
-    
     @Test
     public void shouldPassProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException {
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(),new _NoStatistics())
+        .withConstructor(KConfiguration.getInstance(),new NullStatisticsAccessLogImpl())
         .addMockedMethod("getRelsExt")
         .createMock();
 
@@ -145,7 +91,7 @@ public class ConsistencyTest {
     @Test
     public void shouldFailProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException {
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(), new _NoStatistics())
+        .withConstructor(KConfiguration.getInstance(), new NullStatisticsAccessLogImpl())
         .addMockedMethod("getRelsExt")
         .createMock();
 

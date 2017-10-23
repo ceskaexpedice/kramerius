@@ -65,9 +65,13 @@ public class DCUtils {
 	public static String titleFromDC(org.w3c.dom.Document doc) {
 		Element elm = findElement(doc.getDocumentElement(), "title", DC_NAMESPACE_URI);	
 		if (elm == null) elm = findElement(doc.getDocumentElement(), "identifier", DC_NAMESPACE_URI);
-		String title = elm.getTextContent();
-		return title;
-	}
+		if (elm != null) {
+            String title = elm.getTextContent();
+            return title;
+
+        }
+        return null;
+    }
 	
 	/**
 	 * Returns model from dc stream

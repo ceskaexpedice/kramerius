@@ -25,12 +25,12 @@ package cz.incad.kramerius.fedora.om;
 public interface Repository {
 
     /**
-     * Returns true if object exists and if it is raw kramerius object
+     * Returns true if object objectExists and if it is raw kramerius object
      * @param ident
      * @return
      * @throws RepositoryException
      */
-    boolean exists(String ident) throws RepositoryException;
+    boolean objectExists(String ident) throws RepositoryException;
 
 
     public String getBoundContext() throws RepositoryException;
@@ -61,6 +61,13 @@ public interface Repository {
      */
     public RepositoryObject createOrFindObject(String ident) throws RepositoryException;
 
+    /**
+     * Returns object
+     * @param ident
+     * @return
+     * @throws RepositoryException
+     */
     public RepositoryObject getObject(String ident) throws RepositoryException;
+
 
 }

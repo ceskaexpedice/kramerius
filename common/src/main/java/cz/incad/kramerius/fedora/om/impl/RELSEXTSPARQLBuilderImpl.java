@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * Created by pstastny on 10/11/2017.
  */
-public class SPARQLBuilderImpl implements SPARQLBuilder {
+public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
 
     private FedoraNamespaceContext namespaceContext = new FedoraNamespaceContext();
 
@@ -29,7 +29,7 @@ public class SPARQLBuilderImpl implements SPARQLBuilder {
     }
 
     @Override
-    public String sparqlProps(String relsExt, SPARQLBuilderListener listener) throws IOException, SAXException, ParserConfigurationException, RepositoryException {
+    public String sparqlProps(String relsExt, RELSEXTSPARQLBuilderListener listener) throws IOException, SAXException, ParserConfigurationException, RepositoryException {
         StringBuilder builder = new StringBuilder();
 
         prefix(builder);
@@ -50,8 +50,7 @@ public class SPARQLBuilderImpl implements SPARQLBuilder {
                     String value = resource.getValue();
                     if (value.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
                         value = value.substring(PIDParser.INFO_FEDORA_PREFIX.length());
-                        //value = Fedora4Utils.normalizePath(value);
-                        value = listener.inform(value);
+                        value = listener.inform(value, localName);
                     }
                     map.put( new SPARQLBuilderRelation(namespaceURI,localName), new SPARQLBuilderObject(value, TYPE.refrence));
                 } else {

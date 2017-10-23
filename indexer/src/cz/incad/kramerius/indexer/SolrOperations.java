@@ -1,10 +1,8 @@
 package cz.incad.kramerius.indexer;
 
-import cz.incad.kramerius.Constants;
-import cz.incad.kramerius.FedoraNamespaceContext;
+import com.google.inject.name.Named;
+import cz.incad.kramerius.*;
 import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
@@ -69,18 +67,20 @@ public class SolrOperations {
     private boolean isSoftCommit = true;
     String pidSeparator;
     
-    private FedoraAccessBridge bridge;
+    //private FedoraAccessBridge fa;
     private FedoraOperations fedoraOperations;
-    
+    private FedoraAccess fa;
+
     @Inject
-    public SolrOperations(FedoraAccessBridge bridge, FedoraOperations _fedoraOperations) throws IOException {
+    public SolrOperations(@Named("rawFedoraAccess") FedoraAccess fa, FedoraOperations _fedoraOperations, IResourceIndex resourceIndex) throws IOException {
         fedoraOperations = _fedoraOperations;
+        this.rindex = resourceIndex;
         config = KConfiguration.getInstance().getConfiguration();
         isSoftCommit = config.getBoolean("indexer.isSoftCommit", false);
         pidSeparator = config.getString("indexer.pidSeparator", ";");
         transformer = new GTransformer();
         initCustomTransformations();
-        extendedFields = new ExtendedFields(bridge, this.fedoraOperations);
+        extendedFields = new ExtendedFields(fa, this.fedoraOperations);
     }
 
     public void updateIndex(String action, String value)
@@ -790,7 +790,7 @@ public class SolrOperations {
         for (int i = 0; i < nodeList.getLength(); i++) {
             node = nodeList.item(i);
             PID = node.getFirstChild().getNodeValue();
-            if (!bridge.existPid(PID)) {
+            if (!fa.isObjectAvailable(PID)) {
                 logger.log(Level.INFO, PID + " doesn't exist. Deleting...");
                 deletePid(PID);
             }

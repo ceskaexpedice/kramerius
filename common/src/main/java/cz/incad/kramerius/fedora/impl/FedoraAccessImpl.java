@@ -1213,4 +1213,8 @@ public class FedoraAccessImpl implements FedoraAccess {
     }
 
 
+    @Override
+    public InputStream getFoxml(String pid) throws IOException {
+        throw new UnsupportedOperationException("unsupported");
+    }
 }

@@ -40,9 +40,13 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
 
     private static Cache<String, Document> xmlscache;
     private static Cache<String, Boolean> existsCache;
+    private static Cache<String, Date> lastModifiedCache;
+
 
     private static final String XMLS_CACHE_ALIAS = "FedoraXMLSCache";
     private static final String EXISTS_CACHE_ALIAS = "FedoraExistsCache";
+    private static final String LAST_MODIFIED_CACHE_ALIAS = "FedoraLastmodifiedCache";
+
 
     private FedoraAccess fedoraAccess;
 
@@ -69,6 +73,17 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
                             .withExpiry(Expirations.timeToLiveExpiration(
                                     Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
         }
+
+        lastModifiedCache = cacheManager.getCache(LAST_MODIFIED_CACHE_ALIAS, String.class, Date.class);
+        if (lastModifiedCache == null) {
+            lastModifiedCache = cacheManager.createCache(LAST_MODIFIED_CACHE_ALIAS,
+                    CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, Date.class,
+                            ResourcePoolsBuilder.heap(3000).offheap(1, MemoryUnit.MB))
+                            .withExpiry(Expirations.timeToLiveExpiration(
+                                    Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
+        }
+
+
 
     }
 
@@ -104,12 +119,12 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
 
     @Override
     public Document getDC(String pid) throws IOException {
-        Document dc = xmlscache.get(cacheKey(pid, FedoraUtils.BIBLIO_MODS_STREAM));
+        Document dc = xmlscache.get(cacheKey(pid, FedoraUtils.DC_STREAM));
         if (dc != null) {
             return dc;
         } else {
             dc = this.fedoraAccess.getDC(pid);
-            xmlscache.put(cacheKey(pid, FedoraUtils.BIBLIO_MODS_STREAM), dc);
+            xmlscache.put(cacheKey(pid, FedoraUtils.DC_STREAM), dc);
         }
         return dc;
     }
@@ -345,12 +360,26 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
 
     @Override
     public Date getStreamLastmodifiedFlag(String pid, String stream) throws IOException {
-        return fedoraAccess.getStreamLastmodifiedFlag(pid, stream);
+        Date date = lastModifiedCache.get(cacheKey(pid, stream));
+        if (date != null) {
+            return date;
+        } else {
+            date = this.fedoraAccess.getStreamLastmodifiedFlag(pid, stream);
+            lastModifiedCache.put(cacheKey(pid, stream), date);
+        }
+        return date;
     }
 
     @Override
     public Date getObjectLastmodifiedFlag(String pid) throws IOException {
-        return fedoraAccess.getObjectLastmodifiedFlag(pid);
+        Date date = lastModifiedCache.get(pid);
+        if (date != null) {
+            return date;
+        } else {
+            date = this.fedoraAccess.getObjectLastmodifiedFlag(pid);
+            lastModifiedCache.put(pid, date);
+        }
+        return date;
     }
 
     @Override
@@ -358,4 +387,9 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
         return fedoraAccess.getStreamsOfObject(pid);
     }
 
+
+    @Override
+    public InputStream getFoxml(String pid) throws IOException {
+        return this.fedoraAccess.getFoxml(pid);
+    }
 }

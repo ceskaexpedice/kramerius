@@ -19,24 +19,17 @@ package cz.incad.kramerius.fedora.om.impl;
 
 import static cz.incad.kramerius.fedora.utils.Fedora4Utils.*;
 
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
-import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.fcrepo.client.*;
 
 import cz.incad.kramerius.fedora.om.RepositoryObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -49,11 +42,12 @@ public class Fedora4Repository implements Repository {
     public static final Logger LOGGER = Logger.getLogger(Fedora4Repository.class.getName());
 
     private FcrepoClient client;
+    private ProcessingIndexFeeder feeder;
 
-
-    public Fedora4Repository() {
+    public Fedora4Repository(ProcessingIndexFeeder feeder) {
         super();
         client = FcrepoClient.client().build();
+        this.feeder = feeder;
     }
 
     /* (non-Javadoc)
@@ -101,48 +95,57 @@ public class Fedora4Repository implements Repository {
      */
     @Override
     public RepositoryObject createOrFindObject(String ident) throws RepositoryException {
-        List<String> normalized = Fedora4Utils.normalizePath(ident);
-        if (exists(ident)) {
-            return new Fedora4Object(this, this.client,normalized);
-        } else {
-            try {
-                URI resources = createResources(normalized);
-                return new Fedora4Object(this, this.client, normalized);
-            } catch (FcrepoOperationFailedException e) {
-                throw new RepositoryException(e);
-            } catch (IOException e) {
-                throw new RepositoryException(e);
+
+            List<String> normalized = Fedora4Utils.normalizePath(ident);
+            if (objectExists(ident)) {
+                Fedora4Object obj = new Fedora4Object(this, this.client,normalized, ident, this.feeder);
+                obj.updateSPARQL(UPDATE_PID(ident));
+                return obj;
+            } else {
+                try {
+
+                    URI resources = createResources(normalized);
+                    Fedora4Object obj =  new Fedora4Object(this, this.client, normalized, ident, this.feeder);
+                    obj.deleteProcessingIndex();
+                    obj.updateSPARQL(UPDATE_PID(ident));
+                    return obj;
+                } catch (FcrepoOperationFailedException e) {
+                    throw new RepositoryException(e);
+                } catch (IOException e) {
+                    throw new RepositoryException(e);
+                } catch (SolrServerException e) {
+                    throw new RepositoryException(e);
+                }
             }
-        }
+
+
     }
 
 
     private URI createResources(List<String> parts) throws FcrepoOperationFailedException, RepositoryException, IOException {
-        URI processingURI = null;
-        StringBuilder builder = new StringBuilder(endpoint());
-        for (String p:  parts) {
-            if (!parts.toString().endsWith("/")) {
-                builder.append('/');
-            }
-            builder.append(p);
-            processingURI = URI.create(builder.toString());
-            if (!this.exists(processingURI)) {
-                LOGGER.info("URI: "+ processingURI);
-                try (FcrepoResponse response = new PutBuilder(processingURI, client).perform()) {
-                    LOGGER.info("Response status: "+ response.getStatusCode());
-                    if (response.getStatusCode()!= 201) {
-                        throw new RepositoryException("cannot create object :"+response.getStatusCode());
+            URI processingURI = null;
+            StringBuilder builder = new StringBuilder(endpoint());
+            for (String p:  parts) {
+                if (!parts.toString().endsWith("/")) {
+                    builder.append('/');
+                }
+                builder.append(p);
+                processingURI = URI.create(builder.toString());
+                if (!this.exists(processingURI)) {
+                    try (FcrepoResponse response = new PutBuilder(processingURI, client).perform()) {
+                        if (response.getStatusCode()!= 201) {
+                            throw new RepositoryException("cannot create object :"+response.getStatusCode());
+                        }
                     }
                 }
             }
-        }
-        return processingURI;
+            return processingURI;
     }
 
 
 
     @Override
-    public boolean exists(String ident) throws RepositoryException {
+    public boolean objectExists(String ident) throws RepositoryException {
         List<String> parts = Fedora4Utils.normalizePath(ident);
         return (exists(URI.create(endpoint() + Fedora4Utils.path(parts))));
     }
@@ -155,6 +158,16 @@ public class Fedora4Repository implements Repository {
         } catch (IOException e) {
             throw new RepositoryException(e);
         }
+    }
+
+    public static final String UPDATE_PID(String pid ) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n ");
+        builder.append(" PREFIX indexing: <http://fedora.info/definitions/v4/indexing#> \n ");
+        builder.append(" INSERT { \n ");
+        builder.append(" <> <info:fedora/fedora-system:def/foxml#PID> \""+pid+"\" } ");
+        builder.append(" WHERE { } ");
+        return builder.toString();
     }
 
     public static final String UPDATE_INDEXING_SPARQL() {
@@ -176,10 +189,6 @@ public class Fedora4Repository implements Repository {
     @Override
     public RepositoryObject getObject(String ident) throws RepositoryException {
         List<String> normalized = Fedora4Utils.normalizePath(ident);
-        if (exists(ident)) {
-            return new Fedora4Object(this, this.client, normalized);
-        } else {
-            return null;
-        }
+        return new Fedora4Object(this, this.client, normalized,ident,this.feeder);
     }
 }

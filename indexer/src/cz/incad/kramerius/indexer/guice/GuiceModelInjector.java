@@ -2,12 +2,13 @@ package cz.incad.kramerius.indexer.guice;
 
 import java.io.ByteArrayInputStream;
 
+import com.google.inject.*;
+import com.google.inject.name.Names;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.w3c.dom.Document;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Provides;
 
 import cz.incad.kramerius.indexer.FedoraOperations;
 import cz.incad.kramerius.indexer.SolrOperations;
@@ -35,9 +36,17 @@ public class GuiceModelInjector extends AbstractModule {
     public synchronized static Injector injector() {
         if (_injectorInstance == null) {
             _injectorInstance = Guice.createInjector(
-                    new RepoModule(), new GuiceModelInjector());
+                    new RepoModule(),
+                    new ResourceIndexModule(),
+                    new SolrModule(),
+                    new GuiceModelInjector()
+
+            );
         }
         return _injectorInstance;
+    }
+
+    public static void main(String[] args) {
     }
 
 }

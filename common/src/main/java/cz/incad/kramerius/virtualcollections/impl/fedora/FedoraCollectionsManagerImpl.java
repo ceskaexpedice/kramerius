@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.utils.FedoraUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -62,11 +63,27 @@ public class FedoraCollectionsManagerImpl extends AbstractCollectionManager {
                     Element itemElm = (Element) item;
                     String sparqlPid = sparqlPid(itemElm);
                     if (findCollection(sparqlPid, cols) == null) {
-                        Collection col = new Collection(sparqlPid, sparqlTitle(itemElm), sparqlType(itemElm));
-                        cols.add(col);
+
+                        if (this.fa.isObjectAvailable(sparqlPid)) {
+                            if (this.fa.isStreamAvailable(sparqlPid, FedoraUtils.DC_STREAM)) {
+                                Collection col = new Collection(sparqlPid, dcTitle(doc), dcType(doc));
+                                enhanceNumberOfDocs(col);
+                                enhanceDescriptions(col);
+                                cols.add(col);
+                            } else {
+                                LOGGER.warning("Collection '"+sparqlPid+"' doesn't defined DC Stream - title is missing, canLeave flag is missing");
+                                Collection col = new Collection(sparqlPid, "no-name", true);
+                                enhanceNumberOfDocs(col);
+                                cols.add(col);
+
+                            }
+                        } else {
+                            throw new CollectionException("Collection '"+sparqlPid+"' doesn't exist");
+                        }
                     }
                 }
             }
+            /*
             for (Collection col : cols) {
                 try {
                     this.enhanceNumberOfDocs(col);
@@ -74,7 +91,7 @@ public class FedoraCollectionsManagerImpl extends AbstractCollectionManager {
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
-            }
+            }*/
             return cols;
         } catch (ClassNotFoundException e) {
             throw new CollectionException(e);

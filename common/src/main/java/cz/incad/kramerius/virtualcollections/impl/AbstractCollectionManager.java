@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -15,6 +16,8 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import cz.incad.kramerius.utils.FedoraUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -27,7 +30,6 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.Collection;
@@ -38,13 +40,15 @@ import cz.incad.kramerius.virtualcollections.CollectionsManager.SortOrder;
 
 public abstract class AbstractCollectionManager implements CollectionsManager {
 
+    public static final Logger LOGGER = Logger.getLogger(AbstractCollectionManager.class.getName());
+
     public static final String TEXT_DS_PREFIX = "TEXT_";
     public static final String LONG_TEXT_DS_PREFIX = "LONG_TEXT_";
 
     protected static final String SPARQL_NS = "http://www.w3.org/2001/sw/DataAccess/rf1/result";
 
     @Inject
-    @Named("rawFedoraAccess")
+    @Named("cachedFedoraAccess")
     protected FedoraAccess fa;
 
     @Inject
@@ -117,29 +121,26 @@ public abstract class AbstractCollectionManager implements CollectionsManager {
     @Override
     public Collection getCollection(String pid) throws CollectionException {
         try {
-            Document doc = this.fa.getDC(pid);
-            Collection col = new Collection(pid, dcTitle(doc), dcType(doc));
-            enhanceNumberOfDocs(col);
-            enhanceDescriptions(col);
-            return col;
+            if (this.fa.isObjectAvailable(pid)) {
+                if (this.fa.isStreamAvailable(pid, FedoraUtils.DC_STREAM)) {
+                    Document doc = this.fa.getDC(pid);
+                    Collection col = new Collection(pid, dcTitle(doc), dcType(doc));
+                    enhanceNumberOfDocs(col);
+                    enhanceDescriptions(col);
+                    return col;
+                } else {
+                    LOGGER.warning("Collection '"+pid+"' doesn't defined DC Stream - title is missing, canLeave flag is missing");
+                    Collection col = new Collection(pid, "no-name", true);
+                    enhanceNumberOfDocs(col);
+                    return col;
+                }
+            } else throw new CollectionException("Collection '"+pid+"' doesn't exist");
         } catch (XPathExpressionException e) {
             throw new CollectionException(e);
         } catch (DOMException e) {
             throw new CollectionException(e);
         } catch (IOException e) {
-            exists(pid);
-            
-            
             throw new CollectionException(e);
-        }
-    }
-
-    protected boolean exists(String pid) {
-        try {
-            this.fa.getRelsExt(pid);
-            return true;
-        } catch (IOException e1) {
-            return false;
         }
     }
 
@@ -154,20 +155,18 @@ public abstract class AbstractCollectionManager implements CollectionsManager {
     }
     
     protected void enhanceDescriptions(Collection col) throws IOException, XPathExpressionException {
-        Document dc = this.fa.getDC(col.getPid());
-        boolean dcType = dcType(dc);
-        if (col.isCanLeaveFlag() != dcType) {
-            col.changeCanLeaveFlag(dcType);
+        if (this.fa.isStreamAvailable(col.getPid(), FedoraUtils.DC_STREAM)) {
+            Document dc = this.fa.getDC(col.getPid());
+            boolean dcType = dcType(dc);
+            if (col.isCanLeaveFlag() != dcType) {
+                col.changeCanLeaveFlag(dcType);
+            }
         }
         for (String lang : languages()) {
-
             String shortDsName = TEXT_DS_PREFIX + lang;
             String longDsName = LONG_TEXT_DS_PREFIX + lang;
-
-            String shorText = this.fa.isStreamAvailable(col.getPid(), shortDsName) ?  IOUtils.readAsString(this.fa.getDataStream(col.getPid(), shortDsName), Charset.forName("UTF8"),
-                    true) : null;
-            String longText = this.fa.isStreamAvailable(col.getPid(), longDsName) ?  IOUtils.readAsString(this.fa.getDataStream(col.getPid(), longDsName), Charset.forName("UTF8"),
-                    true) : null;
+            String shorText = this.fa.isStreamAvailable(col.getPid(), shortDsName) ?  IOUtils.toString(this.fa.getDataStream(col.getPid(), shortDsName), Charset.forName("UTF8")) : null;
+            String longText = this.fa.isStreamAvailable(col.getPid(), longDsName) ?  IOUtils.toString(this.fa.getDataStream(col.getPid(), longDsName), Charset.forName("UTF8")) : null;
             Collection.Description descObject = longText == null ?  new Collection.Description(lang,shortDsName,shorText) : new Collection.Description(lang,shortDsName, shorText, longDsName, longText);
             col.addDescription(descObject);
         }

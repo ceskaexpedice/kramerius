@@ -122,7 +122,7 @@ public class BatchUtils {
     // special not stored fields  browse_autor, browse_title
     public static void browseAuthorsAndTitles(Element sourceDocElm,Document ndoc, Element docElm)  {
         try {
-            FedoraOperations operations = new FedoraOperations(null);
+            FedoraOperations operations = new FedoraOperations(null,null);
             Element dcCreators = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
                 
                 @Override

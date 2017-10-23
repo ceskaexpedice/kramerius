@@ -6,9 +6,9 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
-public interface SPARQLBuilder {
+public interface RELSEXTSPARQLBuilder {
 
-    public String sparqlProps(String relsExt, SPARQLBuilderListener listener) throws IOException, SAXException, ParserConfigurationException, RepositoryException;
+    public String sparqlProps(String relsExt, RELSEXTSPARQLBuilderListener listener) throws IOException, SAXException, ParserConfigurationException, RepositoryException;
 
 
 }

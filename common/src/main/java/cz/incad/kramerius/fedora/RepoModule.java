@@ -1,12 +1,15 @@
 package cz.incad.kramerius.fedora;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
 import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.impl.DatabaseStatisticsAccessLogImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -20,6 +23,6 @@ public class RepoModule extends AbstractModule {
 
         this.bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(Fedora4AccessImpl.class)
                 .in(Scopes.SINGLETON);
-
     }
+
 }

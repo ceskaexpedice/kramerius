@@ -170,7 +170,11 @@ public abstract class AbstractFedoraAccess implements FedoraAccess {
             Document relsExt = null;
             try {
                 // should be from
-                relsExt = getRelsExt(pid);
+                if (isStreamAvailable(pid, FedoraUtils.RELS_EXT_STREAM)) {
+                    relsExt = getRelsExt(pid);
+                } else {
+                    LOGGER.warning("could not read root RELS-EXT, skipping object  (" + pid + ")");
+                }
             } catch (Exception ex) {
                 LOGGER.warning("could not read root RELS-EXT, skipping object  (" + pid + "):" + ex);
             }

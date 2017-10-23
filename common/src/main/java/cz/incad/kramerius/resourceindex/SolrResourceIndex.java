@@ -9,6 +9,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import org.apache.derby.impl.tools.sysinfo.Main;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -38,22 +40,20 @@ public class SolrResourceIndex implements IResourceIndex {
     public static final SimpleDateFormat XSD_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     public static final String DATE_FORMAT_TYPE = "http://www.w3.org/2001/XMLSchema#dateTime";
     
-    private String solrUrl;
-    private HttpSolrClient solrClient;
+    private SolrClient solrClient;
 
-    public SolrResourceIndex() {
+    @Inject
+    public SolrResourceIndex(@Named("processingQuery") SolrClient solrClient) {
         super();
-        this.solrUrl = KConfiguration.getInstance().getConfiguration().getString("processingSolrHost");
-        this.solrClient = new HttpSolrClient.Builder(this.solrUrl).build();
+        this.solrClient = solrClient;
     }
 
-    
- 
+
     @Override
     public List<String> getObjectsByModel(String model, int limit, int offset, String orderby, String orderDir) throws ResourceIndexException {
         try {
             List<String> retvals = new ArrayList<String>();
-            QueryResponse response = this.solrClient.query(new SolrQuery("model:"+model+" AND type:description").setRows(limit).setStart(offset));
+            QueryResponse response = this.solrClient.query(new SolrQuery("model:\""+model+"\" AND type:description").setRows(limit).setStart(offset));
             SolrDocumentList results = response.getResults();
             for (SolrDocument sDoc : results) {
                 retvals.add(sDoc.getFieldValue("source").toString());
@@ -163,18 +163,7 @@ public class SolrResourceIndex implements IResourceIndex {
         throw new UnsupportedOperationException("unsupported");
     }
     
-    public void testA() throws SolrServerException, IOException {
-        SimpleDateFormat f =  XSD_DATE_FORMAT;
-        QueryResponse response = this.solrClient.query(new SolrQuery("model:page AND type:description").setRows(10).setStart(0));
-        SolrDocumentList results = response.getResults();
-        for (SolrDocument sDoc : results) {
-            Object date = sDoc.getFieldValue("timestamp");
-            String formatted = f.format(date);
-            System.out.println(formatted);
-        }
 
-    }
-    
     
     
     @Override
@@ -186,7 +175,7 @@ public class SolrResourceIndex implements IResourceIndex {
             Element rootElement = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI, "sparql");
             rootElement.appendChild(createHeader(doc, "object","title","date"));
             
-            QueryResponse response = this.solrClient.query(new SolrQuery("model:"+model+" AND type:description").setRows(limit).setStart(offset));
+            QueryResponse response = this.solrClient.query(new SolrQuery("model:\""+model+"\" AND type:description").setRows(limit).setStart(offset));
             rootElement.appendChild(createHeader(doc, "object","title"));
             rootElement.appendChild(createDocumentResults(doc, response.getResults()));
 
@@ -208,11 +197,11 @@ public class SolrResourceIndex implements IResourceIndex {
         for (SolrDocument solrDocument : doclist) {
             Element result = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"result");
             
-            Object timestamp = solrDocument.getFieldValue("timestamp");
-            Element date = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"date");
-            date.setAttribute("datatype", DATE_FORMAT_TYPE);
-            date.setTextContent(XSD_DATE_FORMAT.format(timestamp));
-            result.appendChild(date);
+            //Object timestamp = solrDocument.getFieldValue("timestamp");
+            //Element date = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"date");
+            //date.setAttribute("datatype", DATE_FORMAT_TYPE);
+            //date.setTextContent(XSD_DATE_FORMAT.format(timestamp));
+            //result.appendChild(date);
             
             Element title = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"title");
             title.setTextContent(solrDocument.get("source").toString());

@@ -21,6 +21,7 @@ import org.w3c.dom.Document;
 
 import java.io.InputStream;
 import java.util.Date;
+import java.util.List;
 
 /**
  * This interface represents basic repository item;
@@ -48,6 +49,8 @@ public interface RepositoryObject {
      */
     public String getPath();
 
+    public List<RepositoryDatastream> getStreams() throws RepositoryException;
+
 
     /**
      * Create new substream
@@ -59,11 +62,20 @@ public interface RepositoryObject {
      */
     public RepositoryDatastream createStream(String streamId, String mimeType, InputStream input) throws RepositoryException;
 
+    // update properties by sparql
+    public void updateSPARQL(String sparql) throws RepositoryException;
+
+    // create redirected stream
     public RepositoryDatastream createRedirectedStream(String streamId, String url) throws RepositoryException;
 
+    //
     public RepositoryDatastream getStream(String streamId) throws RepositoryException;
+
+    public boolean streamExists(String streamId) throws RepositoryException;
 
     public Date getLastModified() throws RepositoryException;
 
     public Document getMetadata() throws RepositoryException;
+
+    public InputStream getFoxml() throws RepositoryException;
 }

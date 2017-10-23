@@ -111,11 +111,12 @@ subprojects {
 	}
 
 	repositories {
-
+		/** libraries doesn't exist in public repo */
 		flatDir {
 			dirs '../buildSrc/lib'
 		}
 
+		
 		maven {
 			url "http://kramerius.googlecode.com/svn/mvnrepo"
 		}
@@ -207,6 +208,7 @@ subprojects {
 	install.repositories.mavenInstaller.pom.whenConfigured {pom ->
 		pom.dependencies.removeAll { it.groupId == null || it.groupId.equals("") }
 	}
+	
 }
 
 /**

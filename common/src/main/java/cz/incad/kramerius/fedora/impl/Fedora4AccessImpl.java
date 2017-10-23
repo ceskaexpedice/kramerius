@@ -3,40 +3,28 @@ package cz.incad.kramerius.fedora.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.net.URI;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.AbstractFedoraAccess;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.impl.Fedora4Repository;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import org.apache.commons.io.IOUtils;
-import org.fcrepo.client.*;
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIM;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
 
 import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
@@ -48,11 +36,13 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
 
 
     private Repository repository;
+    private ProcessingIndexFeeder feeder;
 
     @Inject
-    public Fedora4AccessImpl(KConfiguration configuration, @Nullable StatisticsAccessLog accessLog) throws IOException {
+    public Fedora4AccessImpl(KConfiguration configuration, ProcessingIndexFeeder feeder,@Nullable StatisticsAccessLog accessLog) throws IOException {
         super(configuration, accessLog);
-        this.repository = new Fedora4Repository();
+        this.feeder  = feeder;
+        this.repository = new Fedora4Repository(this.feeder);
     }
 
     @Override
@@ -271,48 +261,31 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
 
 
     @Override
-    public List<Map<String, String>> getStreamsOfObject(String pid) {
-        throw new UnsupportedOperationException();
-        /*
+    public List<Map<String, String>> getStreamsOfObject(String pid) throws IOException {
         try {
-            List<Map<String,String>> maps = new ArrayList<Map<String,String>>();
-            FedoraObject object = this.repo.getObject(restPid(pid));
-            Iterator<Triple> objProps = object.getProperties();
-            while(objProps.hasNext()) {
-                Triple next = objProps.next();
-                Node tripleObject = next.getObject();
-                Node predicate = next.getPredicate();
-                Node tripleSubject = next.getSubject();
-                
-                if (predicate.toString().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
-                    if (tripleObject.toString().equals("http://fedora.info/definitions/v4/repository#Binary")) {
-                        String label = restOfPath(restPid(pid), tripleSubject.toString());
-                        if (find(maps, label).isEmpty()) {
-                            Map<String, String> map = createMap(label);
-                            maps.add(map);
-                        }
-                    }
-                    if (predicate.toString().equals("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#hasMimeType")) {
-                        if (tripleObject.isLiteral()) {
-                            Object objValue = tripleObject.getLiteral().getValue();
-                            String label = restOfPath(restPid(pid), tripleSubject.toString());
-                            List<Map<String, String>> collected = find(maps, label);
-                            Map<String, String> map = collected.isEmpty() ? null : collected.get(0);
-                            if (map == null) {
-                                map = createMap(label);
-                                maps.add(map);
-                            }
-                            map.put("mimeType", objValue.toString());
-                        }
-                    }
+            List<Map<String, String>> results = new ArrayList<>();
+            RepositoryObject obj = this.repository.getObject(pid);
+            return obj.getStreams().stream().filter((o)-> {
+                try {
+                    // policy stream -> should be ommited?
+                    return (!o.getName().equals("POLICY"));
+                } catch (RepositoryException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    return false;
                 }
-            }
-            return maps;
-        } catch (FedoraException e1) {
-            LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-            return new ArrayList<Map<String,String>>();
+            }).map((o) -> {
+                Map<String, String> map = null;
+                try {
+                    map = createMap(o.getName());
+                    map.put("mimetype", o.getMimeType());
+                } catch (RepositoryException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+                return map;
+            }).collect(Collectors.toList());
+        } catch (RepositoryException e) {
+            throw new IOException(e);
         }
-        */
     }
 
     private Map<String, String> createMap(String label) {
@@ -331,9 +304,8 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
     public boolean isStreamAvailable(String pid, String streamName) throws IOException {
         try {
             RepositoryObject object = this.repository.getObject(pid);
-            if (object != null) return object.getStream(streamName) != null;
-            else return false;
-        } catch (RepositoryException e) {
+            return object.streamExists(streamName);
+       } catch (RepositoryException e) {
             throw new IOException(e);
         }
     }
@@ -353,7 +325,19 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
     @Override
     public boolean isObjectAvailable(String pid) throws IOException {
         try {
-            return this.repository.exists(pid);
+            return this.repository.objectExists(pid);
+        } catch (RepositoryException e) {
+            throw new IOException(e);
+        }
+    }
+
+
+    @Override
+    public InputStream getFoxml(String pid) throws IOException {
+        try {
+            if (this.repository.objectExists(pid)) {
+                return this.repository.getObject(pid).getFoxml();
+            } else throw new IOException("pid '"+pid+"' not found");
         } catch (RepositoryException e) {
             throw new IOException(e);
         }

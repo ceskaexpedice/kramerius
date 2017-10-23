@@ -17,6 +17,7 @@ import javax.xml.transform.TransformerException;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -25,7 +26,6 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class FedoraAccessBridge {
@@ -42,34 +42,39 @@ public class FedoraAccessBridge {
 
     public byte[] getFoxml(String pid) throws IOException, ParserConfigurationException, SAXException, TransformerException {
         InputStream stream = FedoraAccessBridge.class.getResourceAsStream("res/foxml.stg");
-        String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
+        String string = IOUtils.toString(stream, Charset.forName("UTF-8"));
         StringTemplateGroup tmplGroup = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
         StringTemplate foxml = tmplGroup.getInstanceOf("FOXML");
 
-        String relsExtString = IOUtils.readAsString(this.fedoraAccess.getDataStream(pid, FedoraUtils.RELS_EXT_STREAM), Charset.forName("UTF-8"), true);
-        relsExtString = removeXmlInstruction(relsExtString);
-        foxml.setAttribute("relsext", relsExtString);
+        if (this.fedoraAccess.isObjectAvailable(pid)) {
+            String relsExtString = IOUtils.toString(this.fedoraAccess.getDataStream(pid, FedoraUtils.RELS_EXT_STREAM), Charset.forName("UTF-8"));
+            relsExtString = removeXmlInstruction(relsExtString);
+            foxml.setAttribute("relsext", relsExtString);
 
-        String biblioModsString = IOUtils.readAsString(this.fedoraAccess.getDataStream(pid, FedoraUtils.BIBLIO_MODS_STREAM), Charset.forName("UTF-8"), true);
-        biblioModsString = removeXmlInstruction(biblioModsString);
-        foxml.setAttribute("mods",biblioModsString);
+            String biblioModsString = IOUtils.toString(this.fedoraAccess.getDataStream(pid, FedoraUtils.BIBLIO_MODS_STREAM), Charset.forName("UTF-8"));
+            biblioModsString = removeXmlInstruction(biblioModsString);
+            foxml.setAttribute("mods",biblioModsString);
 
-        String dcString = IOUtils.readAsString(this.fedoraAccess.getDataStream(pid, FedoraUtils.DC_STREAM), Charset.forName("UTF-8"), true);
-        dcString = removeXmlInstruction(dcString);
-        foxml.setAttribute("dc",dcString);
+            String dcString = IOUtils.toString(this.fedoraAccess.getDataStream(pid, FedoraUtils.DC_STREAM), Charset.forName("UTF-8"));
+            dcString = removeXmlInstruction(dcString);
+            foxml.setAttribute("dc",dcString);
 
-        foxml.setAttribute("pid", pid);
-        Date date = this.fedoraAccess.getStreamLastmodifiedFlag(pid, FedoraUtils.RELS_EXT_STREAM);
-        foxml.setAttribute("date", SIMPLE_DATE_FORMAT.format(date));
-        List<String> streamNames = new ArrayList<String>();
-        List<Map<String,String>> streamsOfObject = this.fedoraAccess.getStreamsOfObject(pid);
-        for (Map<String, String> map : streamsOfObject) {
-            streamNames.add(map.get("dsid"));
+            foxml.setAttribute("pid", pid);
+            Date date = this.fedoraAccess.getStreamLastmodifiedFlag(pid, FedoraUtils.RELS_EXT_STREAM);
+            foxml.setAttribute("date", SIMPLE_DATE_FORMAT.format(date));
+            List<String> streamNames = new ArrayList<String>();
+            List<Map<String,String>> streamsOfObject = this.fedoraAccess.getStreamsOfObject(pid);
+            for (Map<String, String> map : streamsOfObject) {
+                streamNames.add(map.get("dsid"));
+            }
+            if (streamNames.contains(FedoraUtils.IMG_FULL_STREAM)) {
+                foxml.setAttribute("mimetype", this.fedoraAccess.getMimeTypeForStream(pid, FedoraUtils.IMG_FULL_STREAM));
+            }
+            return foxml.toString().getBytes("UTF-8");
+
+        } else {
+            throw new IOException("cannot read object '"+pid+"'");
         }
-        if (streamNames.contains(FedoraUtils.IMG_FULL_STREAM)) {
-            foxml.setAttribute("mimetype", this.fedoraAccess.getMimeTypeForStream(pid, FedoraUtils.IMG_FULL_STREAM));
-        }
-        return foxml.toString().getBytes("UTF-8");
     }
 
     private String removeXmlInstruction(String readAsString) {
@@ -101,7 +106,7 @@ public class FedoraAccessBridge {
 
     public byte[] getStreamContentAsArray(String pid, String dsId) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        IOUtils.copyStreams(this.getStreamContent(pid, dsId), bos);
+        IOUtils.copy(this.getStreamContent(pid, dsId), bos);
         return bos.toByteArray();
     }
 }
