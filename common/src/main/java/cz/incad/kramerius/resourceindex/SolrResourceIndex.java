@@ -2,7 +2,9 @@ package cz.incad.kramerius.resourceindex;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -48,11 +50,38 @@ public class SolrResourceIndex implements IResourceIndex {
         this.solrClient = solrClient;
     }
 
+    public List<Map<String,String>> getSubjects(String pid) throws ResourceIndexException {
+        try {
+            int limit = 1000;
+            int start = 0;
+            List<Map<String,String>> retvals = new ArrayList<>();
+
+            QueryResponse response = this.solrClient.query(new SolrQuery("targetPid:\""+pid+"\" AND type:description").setRows(limit).setStart(start));
+            long found = response.getResults().getNumFound();
+            while(start < found) {
+                for (SolrDocument sDoc : response.getResults()) {
+                    Map<String,String> map = new HashMap<>();
+                    map.put("source",sDoc.getFieldValue("source").toString());
+                    map.put("relation",sDoc.getFieldValue("relation").toString());
+                    map.put("targetPid",sDoc.getFieldValue("targetPid").toString());
+                    retvals.add(map);
+                }
+
+                response = this.solrClient.query(new SolrQuery("targetPid:\""+pid+"\" AND type:description").setRows(limit).setStart(start));
+                start += limit;
+            }
+            return retvals;
+        } catch (SolrServerException e) {
+            throw new ResourceIndexException(e);
+        } catch (IOException e) {
+            throw new ResourceIndexException(e);
+        }
+    }
 
     @Override
     public List<String> getObjectsByModel(String model, int limit, int offset, String orderby, String orderDir) throws ResourceIndexException {
         try {
-            List<String> retvals = new ArrayList<String>();
+            List<String> retvals = new ArrayList<>();
             QueryResponse response = this.solrClient.query(new SolrQuery("model:\""+model+"\" AND type:description").setRows(limit).setStart(offset));
             SolrDocumentList results = response.getResults();
             for (SolrDocument sDoc : results) {
@@ -121,8 +150,8 @@ public class SolrResourceIndex implements IResourceIndex {
     @Override
     public List<String> getParentsPids(String pid) throws ResourceIndexException {
         try {
-            List<String> retvals = new ArrayList<String>();
-            QueryResponse response = this.solrClient.query(new SolrQuery("targetPid:\""+pid+"\" AND type:relation"));
+            List<String> retvals = new ArrayList<>();
+            QueryResponse response = this.solrClient.query(new SolrQuery("targetPid:\""+pid+"\" AND type:relation").setRows(1000));
             SolrDocumentList results = response.getResults();
             for (SolrDocument sDoc : results) {
                 retvals.add(sDoc.getFieldValue("source").toString());
@@ -196,12 +225,6 @@ public class SolrResourceIndex implements IResourceIndex {
         Element results = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"results");
         for (SolrDocument solrDocument : doclist) {
             Element result = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"result");
-            
-            //Object timestamp = solrDocument.getFieldValue("timestamp");
-            //Element date = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"date");
-            //date.setAttribute("datatype", DATE_FORMAT_TYPE);
-            //date.setTextContent(XSD_DATE_FORMAT.format(timestamp));
-            //result.appendChild(date);
             
             Element title = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"title");
             title.setTextContent(solrDocument.get("source").toString());

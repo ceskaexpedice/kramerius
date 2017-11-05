@@ -4,6 +4,8 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ehcache.Cache;
@@ -287,6 +289,12 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
     }
 
     @Override
+    public Repository getInternalAPI() throws RepositoryException {
+        // clear caches
+        return this.fedoraAccess.getInternalAPI();
+    }
+
+    @Override
     public ObjectFactory getObjectFactory() {
         return fedoraAccess.getObjectFactory();
     }
@@ -391,5 +399,10 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
     @Override
     public InputStream getFoxml(String pid) throws IOException {
         return this.fedoraAccess.getFoxml(pid);
+    }
+
+    @Override
+    public Repository getTransactionAwareInternalAPI() throws RepositoryException {
+        return this.fedoraAccess.getTransactionAwareInternalAPI();
     }
 }

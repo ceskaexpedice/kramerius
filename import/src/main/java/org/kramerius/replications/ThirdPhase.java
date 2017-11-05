@@ -27,12 +27,14 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import net.sf.json.JSONObject;
 
 import org.kramerius.consistency.Consistency;
-import org.kramerius.consistency.Consistency.NotConsistentRelation;
-import org.kramerius.consistency.Consistency._Module;
-import org.kramerius.replications.SecondPhase.Emitter;
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
 import org.kramerius.replications.pidlist.PidsListCollect;
@@ -58,11 +60,12 @@ public class ThirdPhase extends AbstractPhase {
             List<String> paths = processIterateToFindRoot(getIterateFile());
             String rootPid = paths.isEmpty() ?  K4ReplicationProcess.pidFrom(url) : rootFromPaths(paths);
             LOGGER.info(" found root is "+rootPid);
-            
-            // check consistency 
+
+            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
             Consistency consistency = new Consistency();
-            Injector injector = Guice.createInjector(new _Module());
             injector.injectMembers(consistency);
+
+            // check consistency
             consistency.checkConsitency(rootPid, true);
 
             String title = "_"; //TODO: title
@@ -85,6 +88,8 @@ public class ThirdPhase extends AbstractPhase {
         } catch (RecognitionException e) {
             throw new PhaseException(this,e);
         } catch (TokenStreamException e) {
+            throw new PhaseException(this,e);
+        } catch (RepositoryException e) {
             throw new PhaseException(this,e);
         }
     }

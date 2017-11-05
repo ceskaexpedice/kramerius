@@ -17,12 +17,15 @@
 
 package cz.incad.kramerius.fedora.om;
 
+import cz.incad.kramerius.fedora.om.impl.Fedora4Repository;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+
 /**
  * The simple object model represents access to fedora 4 repository
  * It is basic tool for ingesting also it is basic point for FedoraAcces facade
  * @author pavels
  */
-public interface Repository {
+public abstract class Repository {
 
     /**
      * Returns true if object objectExists and if it is raw kramerius object
@@ -30,28 +33,22 @@ public interface Repository {
      * @return
      * @throws RepositoryException
      */
-    boolean objectExists(String ident) throws RepositoryException;
+    public abstract boolean  objectExists(String ident) throws RepositoryException;
 
 
-    public String getBoundContext() throws RepositoryException;
-
-    /**
-     * Start transaction
-     * @throws RepositoryException
-     */
-    public void startTransaction() throws RepositoryException;
+    public abstract String getBoundContext() throws RepositoryException;
 
     /**
      * Commit transaction
      * @throws RepositoryException
      */
-    public void commitTransaction() throws RepositoryException;
+    public abstract void commitTransaction() throws RepositoryException;
     
     /**
      * Rollback transaction
      * @throws RepositoryException
      */
-    public void rollbackTransaction()throws RepositoryException;
+    public abstract void rollbackTransaction()throws RepositoryException;
 
     /**
      * Create or find object
@@ -59,7 +56,7 @@ public interface Repository {
      * @return
      * @throws RepositoryException
      */
-    public RepositoryObject createOrFindObject(String ident) throws RepositoryException;
+    public abstract RepositoryObject createOrFindObject(String ident) throws RepositoryException;
 
     /**
      * Returns object
@@ -67,7 +64,13 @@ public interface Repository {
      * @return
      * @throws RepositoryException
      */
-    public RepositoryObject getObject(String ident) throws RepositoryException;
+    public abstract RepositoryObject getObject(String ident) throws RepositoryException;
 
+    public abstract void deleteobject(String pid) throws RepositoryException;
+
+
+        public static final Repository build(ProcessingIndexFeeder feeder, boolean transactionAware) throws RepositoryException {
+        return new Fedora4Repository(feeder, transactionAware);
+    }
 
 }

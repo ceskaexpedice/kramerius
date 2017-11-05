@@ -6,12 +6,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 import org.w3c.dom.Document;
@@ -88,7 +83,9 @@ public class SortingServiceImpl implements SortingService {
                 } catch (Exception ex) {
                 }
             }
-            String lastTime = fedoraAccess.getAPIA().getObjectProfile(pid, null).getObjLastModDate();
+            Date lastTime = fedoraAccess.getObjectLastmodifiedFlag(pid);
+
+            //String lastTime = fedoraAccess.getAPIA().getObjectProfile(pid, null).getObjLastModDate();
             RelationModel model = relationService.load(pid);
             for (KrameriusModels kind : model.getRelationKinds()) {
                 if (KrameriusModels.DONATOR.equals(kind))
@@ -109,7 +106,11 @@ public class SortingServiceImpl implements SortingService {
                     relations.add(new Relation(sortedPid, kind));
                 }
             }
-            String currTime = fedoraAccess.getAPIA().getObjectProfile(pid, null).getObjLastModDate();
+            Date currTime = fedoraAccess.getObjectLastmodifiedFlag(pid);
+
+            //String lastTime = fedoraAccess.getAPIA().getObjectProfile(pid, null).getObjLastModDate();
+            //String currTime = fedoraAccess.getAPIA().getObjectProfile(pid, null).getObjLastModDate();
+
             if (currTime.equals(lastTime)) {
                 relationService.save(pid, model);
                 if (startIndexer) {

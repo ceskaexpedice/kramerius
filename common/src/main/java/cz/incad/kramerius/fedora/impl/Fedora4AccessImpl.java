@@ -41,8 +41,22 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
     @Inject
     public Fedora4AccessImpl(KConfiguration configuration, ProcessingIndexFeeder feeder,@Nullable StatisticsAccessLog accessLog) throws IOException {
         super(configuration, accessLog);
-        this.feeder  = feeder;
-        this.repository = new Fedora4Repository(this.feeder);
+        try {
+            this.feeder  = feeder;
+            this.repository = Fedora4Repository.build(feeder, false );
+        } catch (RepositoryException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public Repository getInternalAPI() throws RepositoryException  {
+        return this.repository;
+    }
+
+    @Override
+    public Repository getTransactionAwareInternalAPI() throws RepositoryException {
+        return Fedora4Repository.build(feeder, true);
     }
 
     @Override
@@ -98,8 +112,11 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
         throw new UnsupportedOperationException("unsupported");
     }
 
-    
-    
+
+    @Override
+    public boolean isImageFULLAvailable(String pid) throws IOException {
+        return super.isImageFULLAvailable(pid);
+    }
 
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {

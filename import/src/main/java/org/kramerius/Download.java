@@ -1,9 +1,20 @@
 package org.kramerius;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -103,7 +114,11 @@ public class Download {
             boolean visible = Boolean.parseBoolean(defaultRights);
             download.replicateAll(rep, migrationDirectory);
             String uuid = Main.convert(migrationDirectory, targetDirectory, true, visible, rep.getID());
-            Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
+
+            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
+            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+            Import.ingest(fa, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
+
             logSuccess(rep.getID(), uuid);
             /*if (!KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
                 startIndexing(rep.getID(), uuid);

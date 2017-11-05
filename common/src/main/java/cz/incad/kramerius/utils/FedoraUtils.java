@@ -99,6 +99,7 @@ public class FedoraUtils {
         return pids;
     }
 
+    @Deprecated
     public static List<RelationshipTuple> getSubjectPids(String objectPid) {
         List<RelationshipTuple> retval = new ArrayList<RelationshipTuple>();
         String command = KConfiguration.getInstance().getFedoraHost() + "/risearch?type=triples&lang=spo&format=N-Triples&query=*%20*%20%3Cinfo:fedora/" + objectPid + "%3E";
@@ -127,9 +128,7 @@ public class FedoraUtils {
         return retval;
     }
 
-    public static void main(String[] args) {
-        getSubjectPids("uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6");
-    }
+
 
      public static String findFirstPagePid(String pid) {
 

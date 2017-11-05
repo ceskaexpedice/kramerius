@@ -20,10 +20,14 @@ package cz.incad.kramerius.relation.impl;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.*;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.RelationUtils;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.w3c.dom.*;
@@ -35,7 +39,9 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,9 +80,23 @@ public final class RelationServiceImpl implements RelationService {
             if (isModified(orig, model)) {
                 // XXX use also timestamp or checksum to detect concurrent modifications
                 String dsContent = Saver.save(relsExt, model);
-                fedoraAccess.getAPIM().modifyDatastreamByValue(pid, "RELS-EXT", null, null, null, null, dsContent.getBytes("UTF-8"), null, null, null, false);
 
-                List<String> movedPids = new ArrayList<String>();
+                Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)-> {
+                    try {
+                        if (repo.getObject(pid).streamExists(FedoraUtils.RELS_EXT_STREAM)) {
+                            repo.getObject(pid).removeRelationsByNamespace(FedoraNamespaces.KRAMERIUS_URI);
+                            repo.getObject(pid).removeRelationsByNameAndNamespace("isMemberOfCollection",FedoraNamespaces.RDF_NAMESPACE_URI);
+                            repo.getObject(pid).deleteStream(FedoraUtils.RELS_EXT_STREAM);
+                        }
+                        byte[] bytes = dsContent.getBytes("UTF-8");
+                        repo.getObject(pid).createStream(FedoraUtils.RELS_EXT_STREAM,"text/xml", new ByteArrayInputStream(bytes));
+                    } catch (UnsupportedEncodingException e) {
+                        throw new RepositoryException(e);
+                    }
+                });
+
+
+                List<String> movedPids = new ArrayList<>();
                 for (KrameriusModels kind : model.getRelationKinds()) {
                     if (KrameriusModels.DONATOR.equals(kind)) continue;
                     List<Relation> newRelations = model.getRelations(kind);
@@ -90,7 +110,8 @@ public final class RelationServiceImpl implements RelationService {
                     }
                 }
                 for (String movedPid:movedPids){
-                    fedoraAccess.getAPIM().modifyObject(movedPid,null,null,null,"Relation order changed.");
+                    // changed only because of message
+                    //fedoraAccess.getAPIM().modifyObject(movedPid,null,null,null,"Relation order changed.");
                 }
 
                 RelationModelImpl modelImpl = (RelationModelImpl) model;

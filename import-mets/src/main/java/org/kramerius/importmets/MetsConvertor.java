@@ -1,6 +1,17 @@
 package org.kramerius.importmets;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -37,7 +48,7 @@ public class MetsConvertor {
     private static Unmarshaller unmarshaller = null;
     private static boolean foundvalidPSP = false;
 
-    public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException,UnsupportedEncodingException {
+    public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException, UnsupportedEncodingException, RepositoryException {
 
         if (args.length  != 3) {
             System.out.println("ANL METS to FOXML conversion tool.\n");
@@ -63,7 +74,11 @@ public class MetsConvertor {
             if (!foundvalidPSP){
                 throw new RuntimeException("No valid PSP found.");
             }
-            Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), exportRoot);
+
+            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+
+            Import.ingest(fa, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), exportRoot);
 
         }
     }

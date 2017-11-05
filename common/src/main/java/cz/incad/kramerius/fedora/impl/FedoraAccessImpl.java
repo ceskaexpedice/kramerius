@@ -19,6 +19,8 @@ package cz.incad.kramerius.fedora.impl;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.*;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -69,16 +71,16 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     private StatisticsAccessLog accessLog;
 
+    @Override
+    public Repository getInternalAPI() {
+        return null;
+    }
+
+
     @Inject
     public FedoraAccessImpl(KConfiguration configuration,  @Nullable StatisticsAccessLog accessLog) throws IOException {
         super();
-        this.configuration = configuration;
-        this.xPathFactory = XPathFactory.newInstance();
-        // read template
-        InputStream stream = FedoraAccessImpl.class.getResourceAsStream("fedora_xpaths.stg");
-        String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
-        xpaths = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
-        this.accessLog = accessLog;
+        throw new UnsupportedOperationException("Unsupported");
     }
 
     @Override
@@ -158,6 +160,11 @@ public class FedoraAccessImpl implements FedoraAccess {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IllegalArgumentException(e);
         }
+    }
+
+    @Override
+    public Repository getTransactionAwareInternalAPI() throws RepositoryException {
+        return null;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package cz.incad.kramerius.virtualcollections.impl.fedora;
 
+import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
@@ -11,7 +12,9 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
 import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.w3c.dom.Document;
@@ -32,14 +35,17 @@ public class CollectionsManagerImplTest extends TestCase {
 
     public void testVirtualCollections() throws ClassNotFoundException, InstantiationException, IllegalAccessException, Exception {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
-        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(), acLog)
-        .addMockedMethod("getDataStream")
-        .addMockedMethod("isStreamAvailable")
-        .addMockedMethod("isObjectAvailable")
-        .addMockedMethod("getDC")
-        .createMock();
+        Fedora4AccessImpl fa = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .addMockedMethod("getRelsExt")
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("isObjectAvailable")
+                .addMockedMethod("getDC")
+                .addMockedMethod("getBiblioMods")
+                .addMockedMethod("getDataStream")
+                .createMock();
 
         FedoraCollectionsManagerImpl col = createMockBuilder(FedoraCollectionsManagerImpl.class)
         .withConstructor()
@@ -150,14 +156,17 @@ public class CollectionsManagerImplTest extends TestCase {
     public void testVirtualCollectionsWithLongTexts() throws ClassNotFoundException, InstantiationException, IllegalAccessException, Exception {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
 
-        FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(), acLog)
-        .addMockedMethod("getDataStream")
-        .addMockedMethod("isStreamAvailable")
-        .addMockedMethod("isObjectAvailable")
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
-        .addMockedMethod("getDC")
-        .createMock();
+        Fedora4AccessImpl fa = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .addMockedMethod("getRelsExt")
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("isObjectAvailable")
+                .addMockedMethod("getDC")
+                .addMockedMethod("getBiblioMods")
+                .addMockedMethod("getDataStream")
+                .createMock();
         
         SolrAccessImpl sa = createMockBuilder(SolrAccessImpl.class)
         		.withConstructor()

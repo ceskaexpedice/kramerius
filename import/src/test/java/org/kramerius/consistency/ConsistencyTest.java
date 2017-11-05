@@ -19,6 +19,7 @@
  */
 package org.kramerius.consistency;
 
+import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 import static org.kramerius.fedora.impl.ImportDataPrepare.narodniListyRelsExt;
@@ -30,6 +31,11 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.google.inject.Provides;
+import com.google.inject.name.Named;
+import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.impl.NullStatisticsAccessLogImpl;
 import junit.framework.Assert;
 
@@ -61,13 +67,24 @@ import cz.incad.kramerius.utils.pid.LexerException;
 public class ConsistencyTest {
 
     @Test
-    public void shouldPassProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException {
-        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(),new NullStatisticsAccessLogImpl())
-        .addMockedMethod("getRelsExt")
-        .createMock();
+    public void shouldPassProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException, RepositoryException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
-        narodniListyRelsExt(fa);
+        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .addMockedMethod("getRelsExt")
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("isObjectAvailable")
+                .createMock();
+
+
+        narodniListyRelsExt(fa4);
+
+        for (int i = 0; i < ImportDataPrepare.NARODNI_LISTY.length; i++) {
+            EasyMock.expect(fa4.isObjectAvailable(ImportDataPrepare.NARODNI_LISTY[i])).andReturn(true).anyTimes();
+        }
+
 
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = ImportDataPrepare.PATHS_MAPPING.keySet();
@@ -76,10 +93,10 @@ public class ConsistencyTest {
         }
         
 
-        replay(fa, solrAccess);
+        replay(fa4,feeder, solrAccess);
 
         Consistency consistency = new Consistency();
-        Injector injector = Guice.createInjector(new _Module(fa,  solrAccess));
+        Injector injector = Guice.createInjector(new _Module(fa4,  solrAccess));
         injector.injectMembers(consistency);
         
         List<NotConsistentRelation> notConsitent = consistency.checkConsitency("uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6", false);
@@ -89,13 +106,22 @@ public class ConsistencyTest {
 
 
     @Test
-    public void shouldFailProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException {
-        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(), new NullStatisticsAccessLogImpl())
-        .addMockedMethod("getRelsExt")
-        .createMock();
+    public void shouldFailProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException, RepositoryException {
+        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .addMockedMethod("getRelsExt")
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("isObjectAvailable")
+                .createMock();
 
-        notConsistentNarodniListyRelsExt(fa);
+        notConsistentNarodniListyRelsExt(fa4);
+
+        for (int i = 0; i < ImportDataPrepare.NARODNI_LISTY.length; i++) {
+            EasyMock.expect(fa4.isObjectAvailable(ImportDataPrepare.NARODNI_LISTY[i])).andReturn(true).anyTimes();
+        }
+
 
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = ImportDataPrepare.PATHS_MAPPING.keySet();
@@ -104,10 +130,10 @@ public class ConsistencyTest {
         }
         
 
-        replay(fa, solrAccess);
+        replay(fa4,feeder, solrAccess);
 
         Consistency consistency = new Consistency();
-        Injector injector = Guice.createInjector(new _Module(fa,  solrAccess));
+        Injector injector = Guice.createInjector(new _Module(fa4,  solrAccess));
         injector.injectMembers(consistency);
         
         List<NotConsistentRelation> notConsitent = consistency.checkConsitency("uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6", false);
@@ -129,11 +155,20 @@ public class ConsistencyTest {
         }
 
 
+        @Provides
+        @Named("rawFedoraAccess")
+        public FedoraAccess getFedoraAccess() {
+            return this.fedoraAccess;
+        }
+
+        @Provides
+        public SolrAccess getSolrAccess() {
+            return solrAccess;
+        }
+
         @Override
         protected void configure() {
             bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
-            bind(FedoraAccess.class).toInstance(fedoraAccess);
-            bind(SolrAccess.class).toInstance(solrAccess);
         }
     }
 

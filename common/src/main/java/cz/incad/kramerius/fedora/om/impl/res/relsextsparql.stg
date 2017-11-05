@@ -1,0 +1,81 @@
+group sparql;
+
+
+
+header() ::=<<
+PREFIX indexing: <http://fedora.info/definitions/v4/indexing#>
+PREFIX xsi: <http://www.w3.org/2001/XMLSchema-instance>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xs: <http://www.w3.org/2001/XMLSchema>
+PREFIX oai: <http://www.openarchives.org/OAI/2.0/>
+PREFIX apim: <http://www.fedora.info/definitions/1/0/management/>
+PREFIX premis: <http://www.loc.gov/premis/rdf/v1#>
+PREFIX fedora3model: <info:fedora/fedora-system:def/model#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX fedora: <http://fedora.info/definitions/v4/repository#>
+PREFIX xmlns: <http://www.w3.org/2000/xmlns/>
+PREFIX ldp: <http://www.w3.org/ns/ldp#>
+PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#>
+PREFIX sparql: <http://www.w3.org/2001/sw/DataAccess/rf1/result>
+PREFIX xml: <http://www.w3.org/XML/1998/namespace>
+PREFIX fedoraconfig: <http://fedora.info/definitions/v4/config#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX kramerius: <http://www.nsdl.org/ontologies/relationships#>
+PREFIX oai_dc: <http://www.openarchives.org/OAI/2.0/oai_dc/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX mods: <http://www.loc.gov/mods/v3>
+>>
+
+empty_delete() ::=<<
+DELETE {}
+>>
+
+rels_ext_insert(relations,ordering) ::=<<
+INSERT { <>
+     $ordering:{ k | $k.builderValue$ $relations.(k).builderValue$};separator=";\n"$.
+}
+>>
+
+empty_where() ::=<<
+WHERE {}
+>>
+
+
+relsext_sparql(relations,ordering) ::=<<
+    $header()$
+    $empty_delete()$
+    $rels_ext_insert(relations=relations,ordering=ordering)$
+    $empty_where()$
+>>
+
+indexable_sparql() ::=<<
+ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ PREFIX indexing: <http://fedora.info/definitions/v4/indexing#>
+ INSERT {
+    <> indexing:hasIndexingTransformation "default";
+       rdf:type indexing:Indexable
+ }
+  WHERE { }
+>>
+
+updatepid_sparql(pid) ::=<<
+ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ PREFIX indexing: <http://fedora.info/definitions/v4/indexing#>
+ INSERT {
+        <> <info:fedora/fedora-system:def/foxml#PID> "$pid$"
+ }
+ WHERE { }
+>>
+
+deleterelation_sparql(namespace, relation, target)::=<<
+    DELETE WHERE { <> <$namespace$$relation$> <$target$> }
+>>
+
+deleteliteral_sparql(namespace, relation, value)::=<<
+    DELETE WHERE { <> <$namespace$$relation$> "$value$" }
+>>
+
+delete_all_relations(namespace, relation)::=<<
+    DELETE WHERE { <> <$namespace$$relation$> ?anyValue }
+>>
+

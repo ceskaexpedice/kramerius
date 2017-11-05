@@ -1,5 +1,6 @@
 package cz.incad.kramerius.document;
 
+import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
@@ -13,6 +14,8 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import org.apache.commons.configuration.Configuration;
 import org.easymock.EasyMock;
 import org.xml.sax.SAXException;
@@ -38,14 +41,16 @@ public class _DocumentServiceTestPrepare {
             LexerException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = Locale.getDefault();
-        FedoraAccessImpl fa33 = _DocumentServiceTestPrepare.prepareFedoraAccess(acLog);
+        Fedora4AccessImpl fa4 = _DocumentServiceTestPrepare.prepareFedoraAccess(acLog);
+
+
         ResourceBundleService bundleService = _DocumentServiceTestPrepare.prepareBundleService(locale);
         SolrAccess solrAccess = _DocumentServiceTestPrepare.prepareSolrAccess();
     
         Object[] confObjects = _DocumentServiceTestPrepare.prepareConfiguration(pages, turnOffPdfCheck);
-        replay(fa33, solrAccess, bundleService,acLog,confObjects[0],confObjects[1]);
+        replay(fa4, solrAccess, bundleService,acLog,confObjects[0],confObjects[1]);
         
-        Injector injector = Guice.createInjector(new _DocumentServiceModule(locale, fa33, bundleService,solrAccess,(KConfiguration) confObjects[1]));
+        Injector injector = Guice.createInjector(new _DocumentServiceModule(locale, fa4, bundleService,solrAccess,(KConfiguration) confObjects[1]));
         return injector;
     }
 
@@ -66,38 +71,43 @@ public class _DocumentServiceTestPrepare {
         return solrAccess;
     }
 
-    public static FedoraAccessImpl prepareFedoraAccess(StatisticsAccessLog acLog)
+    public static Fedora4AccessImpl prepareFedoraAccess(StatisticsAccessLog acLog)
             throws NoSuchMethodException, IOException,
             ParserConfigurationException, SAXException, LexerException {
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(),acLog)
-        .addMockedMethod("getFedoraDescribeStream")
+
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+
+        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+
+        .withConstructor(KConfiguration.getInstance(), feeder ,acLog)
+        //.addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getRelsExt")
         .addMockedMethod("isImageFULLAvailable")
+        .addMockedMethod("isStreamAvailable")
         .addMockedMethod("getDC")
         .addMockedMethod("getBiblioMods")
-        .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
+        .addMockedMethod(Fedora4AccessImpl.class.getMethod("getKrameriusModelName", String.class))
         .createMock();
         
         
         
-        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
+        //EasyMock.expect(fa4.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
         
-        DataPrepare.drobnustkyRelsExt(fa33);
-        DataPrepare.drobnustkyWithIMGFULL(fa33);
-        DataPrepare.drobnustkyDCS(fa33);
-        DataPrepare.drobnustkyMODS(fa33);
+        DataPrepare.drobnustkyRelsExt(fa4);
+        DataPrepare.drobnustkyWithIMGFULL(fa4);
+        DataPrepare.drobnustkyDCS(fa4);
+        DataPrepare.drobnustkyMODS(fa4);
         
-        
+
         Set<String> keySet = DocumentServiceTest.MODELS_MAPPING.keySet();
         for (String key : keySet) {
             String model = DocumentServiceTest.MODELS_MAPPING.get(key);
             PIDParser pidParser = new PIDParser(model);
             pidParser.disseminationURI();
             String modelK4Name  = pidParser.getObjectId();
-            EasyMock.expect(fa33.getKrameriusModelName(key)).andReturn(modelK4Name).anyTimes();
+            EasyMock.expect(fa4.getKrameriusModelName(key)).andReturn(modelK4Name).anyTimes();
         }
-        return fa33;
+        return fa4;
     }
 
     public static Object[] prepareConfiguration(String pages, boolean turnOff) {

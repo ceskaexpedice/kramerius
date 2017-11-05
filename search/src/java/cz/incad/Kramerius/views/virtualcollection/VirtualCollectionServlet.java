@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.util.logging.Level;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,18 +19,15 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.CollectionUtils;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
-import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
 import cz.incad.kramerius.virtualcollections.impl.AbstractCollectionManager;
 
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -177,7 +173,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
                         ByteArrayOutputStream bos = new ByteArrayOutputStream();
                         IOUtils.copyStreams(inputStream, bos);;
                         LOGGER.info("Creating stream '"+streamName+"' for collection '"+collection+"'");
-                        CollectionUtils.modifyImageDatastream(collection, streamName, contentType, bos.toByteArray(), fedoraAccess);
+                        CollectionUtils.modifyDatastream(collection, streamName, contentType, bos.toByteArray(), fedoraAccess);
                     } else {
                         throw new IllegalArgumentException("illegal argument! ");
                     }

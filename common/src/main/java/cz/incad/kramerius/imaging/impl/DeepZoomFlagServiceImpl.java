@@ -17,10 +17,10 @@
 package cz.incad.kramerius.imaging.impl;
 
 import java.io.IOException;
-import java.util.List;
 
-import org.fedora.api.FedoraAPIM;
-import org.fedora.api.RelationshipTuple;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.RepositoryObject;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -30,7 +30,6 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
-import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 
 public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
@@ -42,7 +41,11 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     
     public void deleteFlagToPID(final String pid) throws IOException {
         if (fedoraAccess.isImageFULLAvailable(pid)) {
-            deleteFlagToPIDInternal(pid);
+            try {
+                deleteFlagToPIDInternal(pid);
+            } catch (RepositoryException e) {
+                throw new IOException(e);
+            }
         } else {
  
             try {
@@ -51,8 +54,11 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                     
                     @Override
                     public void process(String pid, int level) throws ProcessSubtreeException {
-                        deleteFlagToPIDInternal(pid);
-                        
+                        try {
+                            deleteFlagToPIDInternal(pid);
+                        } catch (RepositoryException e) {
+                            throw new ProcessSubtreeException(e);
+                        }
                     }
                     
                     @Override
@@ -68,34 +74,6 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                 });
 
                 
-//                fedoraAccess.processRelsExt(uuid, new RelsExtHandler() {
-//                    @Override
-//                    public void handle(Element elm, FedoraRelationship relation, String relationshipName, int level) {
-//                        if (relation.name().startsWith("has")) {
-//                            try {
-//                         
-//                                String pid = elm.getAttributeNS(RDF_NAMESPACE_URI, "resource");
-//                                PIDParser pidParse = new PIDParser(pid);
-//                                pidParse.disseminationURI();
-//                                String pageUuid = pidParse.getObjectId();
-//
-//                                deleteFlagToUUIDInternal(pageUuid);
-//                            } catch (LexerException e) {
-//                                throw new RuntimeException(e);
-//                            }
-//                        }
-//                    }
-//
-//                    @Override
-//                    public boolean breakProcess() {
-//                        return false;
-//                    }
-//
-//                    @Override
-//                    public boolean accept(FedoraRelationship relation, String relationShipName) {
-//                        return relation.name().startsWith("has");
-//                    }
-//                });
             } catch (Exception e) {
                 if ((e.getCause() != null) && (e.getCause() instanceof IOException)) {
                     throw (IOException)e.getCause();
@@ -109,27 +87,21 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     @Override
     public void setFlagToPID(final String pid, final String tilesUrl) throws IOException {
         if (fedoraAccess.isImageFULLAvailable(pid)) {
-            setFlagToPIDInternal(pid, tilesUrl);
-        } else {
- 
             try {
-                
-//                
-//                fedoraAccess.processSubtree(pid, new AbstractTreeNodeProcessorAdapter() {
-//
-//                    
-//                    @Override
-//                    public void processUuid(String pageUuid, int level) {
-//                        setFlagToUUIDInternal(pageUuid, tilesUrl);
-//                    }
-//
-//                });
+                setFlagToPIDInternal(pid, tilesUrl);
+            } catch (RepositoryException e) {
+                throw new IOException(e);
+            }
+        } else {
+            try {
                 fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
-                    
                     @Override
                     public void process(String pid, int level) throws ProcessSubtreeException {
-                        setFlagToPIDInternal(pid, tilesUrl);
-                        
+                        try {
+                            setFlagToPIDInternal(pid, tilesUrl);
+                        } catch (RepositoryException e) {
+                            throw new ProcessSubtreeException(e);
+                        }
                     }
                     
                     @Override
@@ -153,29 +125,33 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     }
 
 
-    void deleteFlagToPIDInternal(String pid) {
-        LOGGER.info("deleting uuid '"+pid+"'");
-        FedoraAPIM apim = fedoraAccess.getAPIM();
-        String tilesUrlNS = FedoraNamespaces.KRAMERIUS_URI+"tiles-url";
-        List<RelationshipTuple> relationships = apim.getRelationships(pid, tilesUrlNS);
-        if (!relationships.isEmpty()) {
-            apim.purgeRelationship(pid, tilesUrlNS,relationships.get(0).getObject(), relationships.get(0).isIsLiteral(), relationships.get(0).getDatatype());
-        } else {
-            LOGGER.warning("no relation found");
-        }
-    }
-    
-    void setFlagToPIDInternal(String pid, String tilesUrl) {
-        FedoraAPIM apim = fedoraAccess.getAPIM();
-        String tilesUrlNS = FedoraNamespaces.KRAMERIUS_URI+"tiles-url";
-        List<RelationshipTuple> relationships = apim.getRelationships(pid, tilesUrlNS);
-        if (relationships.isEmpty()) {
-            apim.addRelationship(pid, tilesUrlNS,tilesUrl, true, null);
-        } else {
-            if (!relationships.get(0).getObject().equals(tilesUrl)) {
-                apim.purgeRelationship(pid, tilesUrlNS, relationships.get(0).getObject(), relationships.get(0).isIsLiteral(), relationships.get(0).getDatatype());
-                apim.addRelationship(pid, tilesUrlNS,tilesUrl, true, null);
+    void deleteFlagToPIDInternal(String pid) throws RepositoryException {
+        LOGGER.info("deleting deep zoom url for '"+pid+"'");
+        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(),(repo)->{
+            if (repo.objectExists(pid)) {
+                RepositoryObject object = repo.getObject(pid);
+                boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                if (flag) {
+                    object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                }
             }
-        }
+        });
+   }
+    
+    void setFlagToPIDInternal(String pid, String tilesUrl) throws RepositoryException {
+        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(),(repo)->{
+            if (repo.objectExists(pid)) {
+                if (repo.objectExists(pid)) {
+                    RepositoryObject object = repo.getObject(pid);
+                    boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                    if (flag) {
+                        object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                    }
+                    object.addRelation("tiles-url", FedoraNamespaces.KRAMERIUS_URI, tilesUrl);
+                }
+            }
+        });
     }
+
+
 }

@@ -16,6 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
@@ -31,8 +32,15 @@ import org.apache.commons.configuration.Configuration;
 /**
  *
  * @author Alberto
+ *
  */
+@Deprecated
 public class MulgaraImpl implements IResourceIndex {
+
+    @Override
+    public List<Map<String, String>> getSubjects(String pid) throws ResourceIndexException {
+        return null;
+    }
 
     @Override
     public Document getVirtualCollections() throws ResourceIndexException {

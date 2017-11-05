@@ -49,6 +49,7 @@ public class ProcessingIndexFeeder {
 
     public UpdateResponse feedDescriptionDocument(SolrInputDocument doc) throws IOException, SolrServerException {
         UpdateResponse response = this.solrClient.add(doc);
+        this.solrClient.commit();
         return response;
     }
 
@@ -63,12 +64,28 @@ public class ProcessingIndexFeeder {
     }
 
     public UpdateResponse feedRelationDocument(SolrInputDocument sdoc) throws IOException, SolrServerException {
-        return this.solrClient.add(sdoc);
+        UpdateResponse resp = this.solrClient.add(sdoc);
+        this.solrClient.commit();
+        return resp;
     }
 
 
     public UpdateResponse deleteByPid(String pid) throws  IOException, SolrServerException {
         UpdateResponse response = this.solrClient.deleteByQuery("source:\"" + pid + "\"");
+        this.solrClient.commit();
+        return response;
+    }
+
+    public UpdateResponse deleteDescriptionByPid(String pid) throws  IOException, SolrServerException {
+        UpdateResponse response = this.solrClient.deleteByQuery("source:\"" + pid + "\" AND type:\"description\"");
+        this.solrClient.commit();
+        return response;
+   }
+
+    public UpdateResponse deleteByRelationsForPid(String pid) throws  IOException, SolrServerException {
+        String query = "source:\"" + pid + "\" AND type:\"relation\"";
+        UpdateResponse response = this.solrClient.deleteByQuery(query);
+        this.solrClient.commit();
         return response;
     }
 

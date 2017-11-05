@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.pdf.impl;
 
+import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
@@ -35,6 +36,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import junit.framework.Assert;
 
 import org.custommonkey.xmlunit.Diff;
@@ -192,19 +195,23 @@ public class FirstPagePDFServiceImplTest {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         //hyph-country="CZ" hyph-lang="cs"
         Locale locale = new Locale("cs","CZ");
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(),acLog)
-        .addMockedMethod("getFedoraDescribeStream").addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable").addMockedMethod("getDC").addMockedMethod("getBiblioMods")
-                //.addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
+        // test correct data - IMG_FULL in pages
+        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .addMockedMethod("getRelsExt")
+                .addMockedMethod("isImageFULLAvailable")
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("getDC")
+                .addMockedMethod("getBiblioMods")
                 .createMock();
 
-        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
 
-        DataPrepare.drobnustkyRelsExt(fa33);
-        DataPrepare.drobnustkyWithIMGFULL(fa33);
-        DataPrepare.drobnustkyDCS(fa33);
-        DataPrepare.drobnustkyMODS(fa33);
+        DataPrepare.drobnustkyRelsExt(fa4);
+        DataPrepare.drobnustkyWithIMGFULL(fa4);
+        DataPrepare.drobnustkyDCS(fa4);
+        DataPrepare.drobnustkyMODS(fa4);
 
 
         ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
@@ -218,9 +225,9 @@ public class FirstPagePDFServiceImplTest {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
 
-        replay(fa33, solrAccess, bundleService,acLog);
+        replay(fa4, solrAccess, bundleService,acLog);
 
-        Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
+        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
 
         FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
 
@@ -250,16 +257,23 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateParent_DROBNUSTKYPage() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException, OutOfRangeException {
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
 
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(), acLog)
-        .addMockedMethod("getFedoraDescribeStream").addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable").addMockedMethod("getDC").addMockedMethod("getBiblioMods")
-                .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
+
+        // test correct data - IMG_FULL in pages
+        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .addMockedMethod("getRelsExt")
+                .addMockedMethod("isImageFULLAvailable")
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("getDC")
+                .addMockedMethod("getBiblioMods")
+                .addMockedMethod(Fedora4AccessImpl.class.getMethod("getKrameriusModelName", String.class))
                 .createMock();
 
-        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
+
 
         for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
             String pid = DataPrepare.DROBNUSTKY_PIDS[i];
@@ -268,13 +282,13 @@ public class FirstPagePDFServiceImplTest {
             parser.disseminationURI();
             String objectId = parser.getObjectId();
 
-            EasyMock.expect(fa33.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
         }
 
-        DataPrepare.drobnustkyRelsExt(fa33);
-        DataPrepare.drobnustkyWithIMGFULL(fa33);
-        DataPrepare.drobnustkyDCS(fa33);
-        DataPrepare.drobnustkyMODS(fa33);
+        DataPrepare.drobnustkyRelsExt(fa4);
+        DataPrepare.drobnustkyWithIMGFULL(fa4);
+        DataPrepare.drobnustkyDCS(fa4);
+        DataPrepare.drobnustkyMODS(fa4);
 
 
         ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
@@ -288,9 +302,9 @@ public class FirstPagePDFServiceImplTest {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
 
-        replay(fa33, solrAccess, bundleService,acLog);
+        replay(fa4,feeder, solrAccess, bundleService,acLog);
 
-        Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
+        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
 
         FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
 
@@ -323,15 +337,21 @@ public class FirstPagePDFServiceImplTest {
     public void testGenerateSelection_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance(),acLog)
-        .addMockedMethod("getFedoraDescribeStream")
-        .addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable")
-        .addMockedMethod("getDC").addMockedMethod("getBiblioMods")
-        .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
-        .createMock();
 
-        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
+        // test correct data - IMG_FULL in pages
+        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .addMockedMethod("getRelsExt")
+                .addMockedMethod("isImageFULLAvailable")
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("getDC")
+                .addMockedMethod("getBiblioMods")
+                .addMockedMethod(Fedora4AccessImpl.class.getMethod("getKrameriusModelName", String.class))
+                .createMock();
+
+
 
         for (int i = 0; i < DataPrepare.NARODNI_LISTY.length; i++) {
             String pid = DataPrepare.NARODNI_LISTY[i];
@@ -340,7 +360,7 @@ public class FirstPagePDFServiceImplTest {
             parser.disseminationURI();
             String objectId = parser.getObjectId();
 
-            EasyMock.expect(fa33.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
         }
 
         for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
@@ -350,18 +370,18 @@ public class FirstPagePDFServiceImplTest {
             parser.disseminationURI();
             String objectId = parser.getObjectId();
 
-            EasyMock.expect(fa33.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
         }
 
-        DataPrepare.narodniListyRelsExt(fa33);
-        DataPrepare.narodniListyIMGFULL(fa33);
-        DataPrepare.narodniListyDCs(fa33);
-        DataPrepare.narodniListyMods(fa33);
+        DataPrepare.narodniListyRelsExt(fa4);
+        DataPrepare.narodniListyIMGFULL(fa4);
+        DataPrepare.narodniListyDCs(fa4);
+        DataPrepare.narodniListyMods(fa4);
 
-        DataPrepare.drobnustkyRelsExt(fa33);
-        DataPrepare.drobnustkyWithIMGFULL(fa33);
-        DataPrepare.drobnustkyDCS(fa33);
-        DataPrepare.drobnustkyMODS(fa33);
+        DataPrepare.drobnustkyRelsExt(fa4);
+        DataPrepare.drobnustkyWithIMGFULL(fa4);
+        DataPrepare.drobnustkyDCS(fa4);
+        DataPrepare.drobnustkyMODS(fa4);
 
 
         ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
@@ -377,9 +397,9 @@ public class FirstPagePDFServiceImplTest {
 
 
 
-        replay(fa33, solrAccess, bundleService,acLog);
+        replay(fa4,feeder, solrAccess, bundleService,acLog);
 
-        Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
+        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
 
         FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
 
@@ -425,15 +445,20 @@ public class FirstPagePDFServiceImplTest {
     public void testGenerateParent_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance(),acLog)
-        .addMockedMethod("getFedoraDescribeStream")
-        .addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable")
-        .addMockedMethod("getDC").addMockedMethod("getBiblioMods")
-        .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
-        .createMock();
 
-        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
+        // test correct data - IMG_FULL in pages
+        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .addMockedMethod("getRelsExt")
+                .addMockedMethod("isImageFULLAvailable")
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("getDC")
+                .addMockedMethod("getBiblioMods")
+                .addMockedMethod(Fedora4AccessImpl.class.getMethod("getKrameriusModelName", String.class))
+                .createMock();
+
 
         for (int i = 0; i < DataPrepare.NARODNI_LISTY.length; i++) {
             String pid = DataPrepare.NARODNI_LISTY[i];
@@ -442,7 +467,7 @@ public class FirstPagePDFServiceImplTest {
             parser.disseminationURI();
             String objectId = parser.getObjectId();
 
-            EasyMock.expect(fa33.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
         }
 
         for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
@@ -452,18 +477,18 @@ public class FirstPagePDFServiceImplTest {
             parser.disseminationURI();
             String objectId = parser.getObjectId();
 
-            EasyMock.expect(fa33.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
         }
 
-        DataPrepare.narodniListyRelsExt(fa33);
-        DataPrepare.narodniListyIMGFULL(fa33);
-        DataPrepare.narodniListyDCs(fa33);
-        DataPrepare.narodniListyMods(fa33);
+        DataPrepare.narodniListyRelsExt(fa4);
+        DataPrepare.narodniListyIMGFULL(fa4);
+        DataPrepare.narodniListyDCs(fa4);
+        DataPrepare.narodniListyMods(fa4);
 
-        DataPrepare.drobnustkyRelsExt(fa33);
-        DataPrepare.drobnustkyWithIMGFULL(fa33);
-        DataPrepare.drobnustkyDCS(fa33);
-        DataPrepare.drobnustkyMODS(fa33);
+        DataPrepare.drobnustkyRelsExt(fa4);
+        DataPrepare.drobnustkyWithIMGFULL(fa4);
+        DataPrepare.drobnustkyDCS(fa4);
+        DataPrepare.drobnustkyMODS(fa4);
 
 
         ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
@@ -480,8 +505,8 @@ public class FirstPagePDFServiceImplTest {
 
 
 
-        replay(fa33, solrAccess, bundleService,acLog);
-        Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
+        replay(fa4,feeder, solrAccess, bundleService,acLog);
+        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
         FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
         DocumentService docService = injector.getInstance(DocumentService.class);
 
@@ -536,15 +561,20 @@ public class FirstPagePDFServiceImplTest {
     public void testGenerateSelection_NarodniListyDrobnustky() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance(),acLog)
-        .addMockedMethod("getFedoraDescribeStream")
-        .addMockedMethod("getRelsExt").addMockedMethod("isImageFULLAvailable")
-        .addMockedMethod("getDC").addMockedMethod("getBiblioMods")
-        .addMockedMethod(FedoraAccessImpl.class.getMethod("getKrameriusModelName", String.class))
-        .createMock();
 
-        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
+        // test correct data - IMG_FULL in pages
+        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .addMockedMethod("getRelsExt")
+                .addMockedMethod("isImageFULLAvailable")
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("getDC")
+                .addMockedMethod("getBiblioMods")
+                .addMockedMethod(Fedora4AccessImpl.class.getMethod("getKrameriusModelName", String.class))
+                .createMock();
+
 
         for (int i = 0; i < DataPrepare.NARODNI_LISTY.length; i++) {
             String pid = DataPrepare.NARODNI_LISTY[i];
@@ -553,7 +583,7 @@ public class FirstPagePDFServiceImplTest {
             parser.disseminationURI();
             String objectId = parser.getObjectId();
 
-            EasyMock.expect(fa33.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
         }
 
 
@@ -564,18 +594,18 @@ public class FirstPagePDFServiceImplTest {
             parser.disseminationURI();
             String objectId = parser.getObjectId();
 
-            EasyMock.expect(fa33.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
         }
 
-        DataPrepare.narodniListyRelsExt(fa33);
-        DataPrepare.narodniListyIMGFULL(fa33);
-        DataPrepare.narodniListyDCs(fa33);
-        DataPrepare.narodniListyMods(fa33);
+        DataPrepare.narodniListyRelsExt(fa4);
+        DataPrepare.narodniListyIMGFULL(fa4);
+        DataPrepare.narodniListyDCs(fa4);
+        DataPrepare.narodniListyMods(fa4);
 
-        DataPrepare.drobnustkyRelsExt(fa33);
-        DataPrepare.drobnustkyWithIMGFULL(fa33);
-        DataPrepare.drobnustkyDCS(fa33);
-        DataPrepare.drobnustkyMODS(fa33);
+        DataPrepare.drobnustkyRelsExt(fa4);
+        DataPrepare.drobnustkyWithIMGFULL(fa4);
+        DataPrepare.drobnustkyDCS(fa4);
+        DataPrepare.drobnustkyMODS(fa4);
 
 
         ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
@@ -591,9 +621,9 @@ public class FirstPagePDFServiceImplTest {
 
 
 
-        replay(fa33, solrAccess, bundleService,acLog);
+        replay(fa4,feeder, solrAccess, bundleService,acLog);
 
-        Injector injector = Guice.createInjector(new _Module(locale, fa33, bundleService, solrAccess));
+        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
 
         FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
 

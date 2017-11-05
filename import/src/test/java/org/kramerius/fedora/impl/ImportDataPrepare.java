@@ -24,9 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
@@ -35,6 +33,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import cz.incad.kramerius.utils.FedoraUtils;
 import org.easymock.EasyMock;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -187,18 +186,26 @@ public class ImportDataPrepare {
     public static void narodniListyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
             String pid = NARODNI_LISTY[i];
+            expect(fa.isStreamAvailable(pid, FedoraUtils.RELS_EXT_STREAM)).andReturn(true).anyTimes();
             relsExt(fa, pid);
         }        
     }
     
     public static void notConsistentNarodniListyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
+        List<String> alist = Arrays.asList(NARODNI_LISTY_NOT_EXISTS);
+
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
             String pid = NARODNI_LISTY[i];
+            if (!alist.contains(pid)) {
+                expect(fa.isStreamAvailable(pid, FedoraUtils.RELS_EXT_STREAM)).andReturn(true).anyTimes();
+            }
             notConsistentRelsExt(fa, pid);
         }
         for (int i = 0; i < NARODNI_LISTY_NOT_EXISTS.length; i++) {
             String pid = NARODNI_LISTY_NOT_EXISTS[i];
-            expect(fa.getRelsExt(pid)).andThrow(new FileNotFoundException("Not found"));
+            expect(fa.isObjectAvailable(pid)).andReturn(false).anyTimes();
+            expect(fa.isStreamAvailable(pid, FedoraUtils.RELS_EXT_STREAM)).andReturn(false).anyTimes();
+            //expect(fa.getRelsExt(pid)).andThrow(new FileNotFoundException("Not found"));
         }
 
     }

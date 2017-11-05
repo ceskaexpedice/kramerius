@@ -21,17 +21,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
+import java.util.logging.Level;
 
 import javax.xml.transform.TransformerConfigurationException;
 
+import com.google.inject.*;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.*;
+import org.apache.commons.lang3.tuple.Triple;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.RelationshipTuple;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Scopes;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -41,10 +46,6 @@ import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.statistics.ReportedAction;
-import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -58,9 +59,9 @@ public class Consistency {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Consistency.class.getName());
     
     @Inject
+    @Named("rawFedoraAccess")
     FedoraAccess fedoraAccess;
 
-    FedoraAPIM port;
 
    /**
     * Check consitency of fedora objects
@@ -70,26 +71,28 @@ public class Consistency {
     * @throws ProcessSubtreeException Processing tree error has been occured
     * @throws LexerException PID Parsing error has been occured
     */
-    public List<NotConsistentRelation> checkConsitency(String rootPid, boolean repair) throws IOException, ProcessSubtreeException, LexerException {
+    public List<NotConsistentRelation> checkConsitency(String rootPid, boolean repair) throws IOException, ProcessSubtreeException, LexerException, RepositoryException {
         TreeProcess deep = new TreeProcess(this.fedoraAccess);
         this.fedoraAccess.processSubtree(rootPid, deep);
         List<NotConsistentRelation> relations = deep.getRelations();
         if (repair) {
-            port = fedoraAccess.getAPIM();
+
+
             LOGGER.fine("deleting inconsitencies");
             for (NotConsistentRelation nRelation : relations) {
                 List<String> children = nRelation.getChildren();
-                List<RelationshipTuple> existingWS = port.getRelationships(nRelation.getRootPid(), null);
-                for (RelationshipTuple rTuple : existingWS) {
-                    if (!rTuple.isIsLiteral()) {
-                        PIDParser parser = new PIDParser(rTuple.getObject());
-                        parser.disseminationURI();
-                        if (children.contains(parser.getObjectPid())) {
-                            LOGGER.fine("delete relationship "+rTuple.getSubject()+" "+rTuple.getPredicate()+" "+rTuple.getObject());
-                            boolean purgeRelationship = port.purgeRelationship(rTuple.getSubject(), rTuple.getPredicate(), rTuple.getObject(), rTuple.isIsLiteral(), rTuple.getDatatype());
-                            if (!purgeRelationship) throw new RuntimeException("cannot delete relation ");
+                List<Triple<String, String, String>> objectRelations = fedoraAccess.getInternalAPI().getObject(nRelation.getRootPid()).getRelations(null);
+                for (Triple<String, String, String> t : objectRelations) {
+
+                    if (children.contains(t.getRight())) {
+                        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+                            repo.getObject(nRelation.getRootPid()).removeRelation(t.getMiddle(), t.getLeft(), t.getRight());
+                        });
+                        if (fedoraAccess.getInternalAPI().getObject(nRelation.getRootPid()).relationExists(t.getMiddle(), t.getLeft(), t.getRight())) {
+                            throw new RuntimeException("cannot delete relation ");
                         }
                     }
+
                 }
             }
         }
@@ -133,14 +136,16 @@ public class Consistency {
         @Override
         public boolean skipBranch(String pid, int level) {
             try {
-                this.fa.getRelsExt(pid);
-                return false;
+                if (fa.isObjectAvailable(pid)) {
+                    return false;
+                } else {
+                    LOGGER.fine("deleting relation  to nonexisting pid "+pid);
+                    String peek = this.pidsStack.peek();
+                    this.relations.add(new NotConsistentRelation(peek, Arrays.asList(pid)));
+                    return true;
+                }
             } catch (IOException e) {
-                //e.printStackTrace();
-                LOGGER.fine("deleting relation  to nonexisting pid "+pid);
-                String peek = this.pidsStack.peek();
-                this.relations.add(new NotConsistentRelation(peek, Arrays.asList(pid)));
-                return true;
+                throw new RuntimeException(e);
             }
         }
 
@@ -194,54 +199,7 @@ public class Consistency {
         } else return objectPidsPath;
     }
 
-    /** guice module */
-    public static class _Module extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
-            bind(FedoraAccess.class).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-            bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
-        }
-    }
-    
-    public static class NoStatistics implements StatisticsAccessLog {
 
-        @Override
-        public StatisticReport[] getAllReports() {
-            return new StatisticReport[0];
-        }
-
-        @Override
-        public StatisticReport getReportById(String reportId) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public void reportAccess(String pid, String streamName) throws IOException {
-        }
-
-        @Override
-        public boolean isReportingAccess(String pid, String streamName) {
-            return true;
-        }
-
-        @Override
-        public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup) {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void reportAccess(String pid, String streamName, String actionName) throws IOException {
-            // TODO Auto-generated method stub
-            
-        }
-
-        
-        
-    }
-    
     /**
      * Main process method
      * @param pid Root pid
@@ -251,15 +209,15 @@ public class Consistency {
      * @throws LexerException
      */
     @Process
-    public static void process(String pid, Boolean flag) throws IOException, ProcessSubtreeException, LexerException {
-        Injector injector = Guice.createInjector(new _Module());
+    public static void process(String pid, Boolean flag) throws IOException, ProcessSubtreeException, LexerException, RepositoryException {
+        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         Consistency consistency = new Consistency();
         injector.injectMembers(consistency);
         List<NotConsistentRelation> inconsitencies = consistency.checkConsitency(pid, flag.booleanValue());
-        
+
     }
     
-    public static void main(String[] args) throws IOException, ProcessSubtreeException, LexerException, TransformerConfigurationException {
+    public static void main(String[] args) throws IOException, ProcessSubtreeException, LexerException, TransformerConfigurationException, RepositoryException {
         if (args.length ==2) {
             process(args[0], new Boolean(args[1]));
         }

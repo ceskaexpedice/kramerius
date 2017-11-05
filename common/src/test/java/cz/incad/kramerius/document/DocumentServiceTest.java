@@ -25,9 +25,14 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.utils.FedoraUtils;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Injector;
@@ -175,12 +180,20 @@ public class DocumentServiceTest {
         Injector injector = _DocumentServiceTestPrepare.prepareInjector("20", false);
         
         DocumentService docService = injector.getInstance(DocumentService.class);
+
+        FedoraAccess fa4 = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));
+        System.out.println(fa4);
+
+        boolean imageFULLAvailable = fa4.isImageFULLAvailable("uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6");
+        Document relsExt = fa4.getRelsExt("uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6");
+        boolean streamAvailable = fa4.isStreamAvailable("uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6", FedoraUtils.RELS_EXT_STREAM);
+
+
         PreparedDocument doc = docService.buildDocumentAsFlat(PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]),DataPrepare.DROBNUSTKY_PIDS[0], 2, new int[]{300,300});
         List<AbstractPage> pages = doc.getPages();
         Assert.assertTrue(pages.size() == 2);
 
         String[] relsExtOrder = new String[] {
-
                 "uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6",
                 "uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6",
                 "uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6",

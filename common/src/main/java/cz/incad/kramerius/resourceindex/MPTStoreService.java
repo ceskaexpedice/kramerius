@@ -38,6 +38,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Deprecated
 public class MPTStoreService implements IResourceIndex {
 
     private static final Logger logger = Logger.getLogger(MPTStoreService.class.getName());
@@ -70,6 +71,11 @@ public class MPTStoreService implements IResourceIndex {
     String table_model;
     String table_dcType;
     String table_collection;
+
+    @Override
+    public List<Map<String, String>> getSubjects(String pid) throws ResourceIndexException {
+        return null;
+    }
 
     private void loadTableNames() {
         try {

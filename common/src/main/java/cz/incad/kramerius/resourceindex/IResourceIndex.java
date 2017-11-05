@@ -7,6 +7,7 @@ package cz.incad.kramerius.resourceindex;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 
@@ -28,7 +29,8 @@ public interface IResourceIndex {
      */
     @Deprecated
     public Document getFedoraObjectsFromModelExt(String model, int limit, int offset, String orderby, String orderDir) throws ResourceIndexException;
-    
+
+
     /**
      * Returs rendered DOM in SPARQL format;  Used only in XSLT transformation and <b>SHOULD be removed<b> in the future.
      * @return
@@ -57,6 +59,7 @@ public interface IResourceIndex {
      */
     public List<String> getObjectsByModel(String model, int limit, int offset, String orderby, String orderDir) throws ResourceIndexException;
 
+    public List<Map<String,String>> getSubjects(String pid) throws ResourceIndexException;
 
     /**
      * Returns parent pids for given pid

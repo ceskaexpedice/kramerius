@@ -1,6 +1,7 @@
 package cz.incad.kramerius.fedora.om.impl;
 
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.fedora.om.NotFoundInRepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
@@ -11,7 +12,6 @@ import org.fcrepo.client.FcrepoOperationFailedException;
 import org.fcrepo.client.FcrepoResponse;
 import org.fcrepo.client.PatchBuilder;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,6 +42,9 @@ public class Fedora4Datastream implements RepositoryDatastream {
     private final String name;
     private final Type type;
 
+    private String transactionId;
+
+
     public Fedora4Datastream(Fedora4Repository repo, FcrepoClient client, List<String> path, String name, Type type) {
         super();
         this.client = client;
@@ -59,17 +62,31 @@ public class Fedora4Datastream implements RepositoryDatastream {
         this.type = Type.DIRECT;
     }
 
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
     @Override
     public String getName() throws RepositoryException {
         return this.name;
     }
 
     public InputStream getContent() throws RepositoryException {
-        URI uri = URI.create(Fedora4Utils.endpoint() + Fedora4Utils.path(path));
+        URI uri = URI.create(streamPath());
         try (FcrepoResponse response = client.get(uri).perform()) {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            int length = IOUtils.copy(response.getBody(), bos);
-            return new ByteArrayInputStream(bos.toByteArray());
+            if (response.getStatusCode()== 200) {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                int length = IOUtils.copy(response.getBody(), bos);
+                return new ByteArrayInputStream(bos.toByteArray());
+            } else if (response.getStatusCode() == 404) {
+                throw new NotFoundInRepositoryException("cannot find link "+uri);
+            } else {
+                throw new RepositoryException("cannot load content from find link "+uri+" status code "+response.getStatusCode());
+            }
         } catch (FcrepoOperationFailedException e) {
             throw new RepositoryException(e);
         } catch (IOException e) {
@@ -77,9 +94,17 @@ public class Fedora4Datastream implements RepositoryDatastream {
         }
     }
 
+    private String streamPath() {
+        if (this.transactionId != null) {
+            return endpoint() + (endpoint().endsWith("/") ? "" : "/") + this.transactionId +  Fedora4Utils.path(this.path);
+        } else {
+            return Fedora4Utils.endpoint() + Fedora4Utils.path(path);
+        }
+    }
+
     @Override
     public Document getMetadata() throws RepositoryException {
-        URI uri = URI.create(Fedora4Utils.endpoint() + Fedora4Utils.path(path)+"/fcr:metadata");
+        URI uri = URI.create(streamPath()+"/fcr:metadata");
         try (FcrepoResponse response = client.get(uri).perform()) {
             return XMLUtils.parseDocument(response.getBody(), true);
         } catch (FcrepoOperationFailedException e) {
@@ -95,7 +120,7 @@ public class Fedora4Datastream implements RepositoryDatastream {
 
     @Override
     public String getMimeType() throws RepositoryException {
-        URI uri = URI.create(Fedora4Utils.endpoint() + Fedora4Utils.path(this.path)+"/fcr:metadata");
+        URI uri = URI.create(this.streamPath()+"/fcr:metadata");
         try (FcrepoResponse response = client.get(uri).accept("application/rdf+xml").perform()) {
             InputStream body = response.getBody();
             String mimeType = externalMimeType(Fedora4Utils.extractText(body, "hasMimeType", FedoraNamespaces.EBUCORE_NAMESPACE_URI));
@@ -137,7 +162,7 @@ public class Fedora4Datastream implements RepositoryDatastream {
         URI uri = URI.create(Fedora4Utils.endpoint() + Fedora4Utils.path(this.path)+"/fcr:metadata");
         try (FcrepoResponse response = client.get(uri).accept("application/rdf+xml").perform()) {
             InputStream body = response.getBody();
-            Date date  = Fedora4Utils.extractDate(body, "lastModified", FedoraNamespaces.FEDORA_NAMESPACE_URI);
+            Date date  = Fedora4Utils.extractDate(body, "lastModified", FedoraNamespaces.FEDORA_4_NAMESPACE_URI);
             return date;
         } catch (FcrepoOperationFailedException e) {
             throw new RepositoryException(e);
@@ -154,12 +179,12 @@ public class Fedora4Datastream implements RepositoryDatastream {
 
     @Override
     public void updateSPARQL(String sparql) throws RepositoryException {
-        URI updatingPath = URI.create(endpoint()+Fedora4Utils.path(this.path)+"/fcr:metadata");
+        URI updatingPath = URI.create(this.streamPath()+"/fcr:metadata");
         LOGGER.info("Updating path "+updatingPath);
         try (FcrepoResponse streamResp = new PatchBuilder(updatingPath, client).body(new ByteArrayInputStream(sparql.getBytes("UTF-8"))).perform()) {
             if (streamResp.getStatusCode() != 204) {
                 String s = IOUtils.toString(streamResp.getBody(), "UTF-8");
-                throw new RepositoryException("Cannot update properties for  stream "+this.path+" due to "+s);
+                throw new RepositoryException("Cannot update properties for  stream "+this.path+" due to "+s +"("+streamResp.getStatusCode()+")");
             }
         } catch (FcrepoOperationFailedException e) {
             throw new RepositoryException(e);

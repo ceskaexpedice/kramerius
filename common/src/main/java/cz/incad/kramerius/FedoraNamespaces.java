@@ -84,7 +84,7 @@ public interface FedoraNamespaces {
 
     public static final String XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
 
-    public static final String FEDORA_NAMESPACE_URI ="http://fedora.info/definitions/v4/repository#";
+    public static final String FEDORA_4_NAMESPACE_URI ="http://fedora.info/definitions/v4/repository#";
 
     public static final String XML_NAMESPACE_URI ="http://www.w3.org/XML/1998/namespace";
 

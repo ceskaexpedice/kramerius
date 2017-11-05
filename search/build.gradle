@@ -40,7 +40,6 @@ dependencies {
     compile project(':rest')
     compile project(':mw-process')
     compile project(':authfilters')
-    compile project(':import-tools')
     compile project(':solr-migration')
 
     compile 'javax.servlet:jstl:1.1.2'   

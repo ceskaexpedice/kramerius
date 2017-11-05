@@ -67,3 +67,41 @@ foxml(pid, title, canLeave, text) ::= <<
 </foxml:datastream>
 </foxml:digitalObject>
 >>
+
+/**
+* DC Stream
+*/
+dc(pid, title, canLeave) ::= <<
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+    <dc:title>$title$</dc:title>
+    <dc:identifier>$pid$</dc:identifier>
+    <dc:type>$canLeave$</dc:type>
+</oai_dc:dc>
+>>
+
+/**
+* RELS-EXT stream
+*/
+relsext(pid) ::= <<
+<rdf:RDF xmlns:fedora-model="info:fedora/fedora-system:def/model#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+         xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#">
+    <rdf:Description rdf:about="info:fedora/$pid$">
+        <fedora-model:hasModel rdf:resource="info:fedora/model:collection"/>
+    </rdf:Description>
+</rdf:RDF>
+>>
+
+// text cs
+text_cs(text) ::=<<
+$text.cs$
+>>
+
+// text en
+text_en(text) ::=<<
+$text.en$
+>>

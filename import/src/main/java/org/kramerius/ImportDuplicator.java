@@ -18,12 +18,28 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.TransformerException;
 import javax.xml.ws.soap.SOAPFaultException;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.service.SortingService;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
+import cz.incad.kramerius.utils.pid.LexerException;
+import org.apache.commons.lang3.tuple.Triple;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.ObjectFactory;
@@ -41,24 +57,22 @@ import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ImportDuplicator {
-    static FedoraAPIMService service;
-    static FedoraAPIM port;
+
+//    static FedoraAPIMService service;
+//    static FedoraAPIM port;
+
+    static FedoraAccess fedoraAccess;
     static ObjectFactory of;
     static int counter = 0;
 
     private static final Logger log = Logger.getLogger(ImportDuplicator.class.getName());
-
     private static Unmarshaller unmarshaller = null;
-
     private static List<String> rootModels = null;
-
 
     static{
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance( DigitalObject.class);
-
             unmarshaller = jaxbContext.createUnmarshaller();
-
 
         } catch (Exception e) {
             log.log(Level.SEVERE,"Cannot init JAXB", e);
@@ -104,15 +118,19 @@ public class ImportDuplicator {
              }
            });
 
-        FedoraAccess fedoraAccess = null;
-        try {
-            fedoraAccess = new FedoraAccessImpl(null,null);
-            log.info("Instantiated FedoraAccess");
-        } catch (IOException e) {
-            log.log(Level.SEVERE,"Cannot instantiate FedoraAccess",e);
-            throw new RuntimeException(e);
-        }
-        port = fedoraAccess.getAPIM();
+
+        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
+        fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+
+//        FedoraAccess fedoraAccess = null;
+//        try {
+//            fedoraAccess = new FedoraAccessImpl(null,null);
+//            log.info("Instantiated FedoraAccess");
+//        } catch (IOException e) {
+//            log.log(Level.SEVERE,"Cannot instantiate FedoraAccess",e);
+//            throw new RuntimeException(e);
+//        }
+        //port = fedoraAccess.getAPIM();
 
 
         of = new ObjectFactory();
@@ -240,7 +258,19 @@ public class ImportDuplicator {
 
             String pid = "";
             try {
-                pid = port.ingest(bytes, "info:fedora/fedora-system:FOXML-1.1", "Initial ingest");
+                Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+                    try {
+                        Import.ingest(repo, new ByteArrayInputStream(bytes), null,null, null,false);
+                    } catch (IOException e) {
+                        throw new RepositoryException(e);
+                    } catch (JAXBException e) {
+                        throw new RepositoryException(e);
+                    } catch (LexerException e) {
+                        throw new RepositoryException(e);
+                    } catch (TransformerException e) {
+                        throw new RepositoryException(e);
+                   }
+                });
             } catch (SOAPFaultException sfex) {
 
                 if (sfex.getMessage().contains("ObjectExistsException")) {
@@ -261,27 +291,34 @@ public class ImportDuplicator {
 
 
 
-    private static void merge(byte[] bytes) {
+    private static void merge(byte[] bytes) throws RepositoryException {
         List<RDFTuple> ingested = readRDF(bytes);
         if (ingested.isEmpty()) {
             return;
         }
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
-        List<RelationshipTuple> existingWS = port.getRelationships(pid, null);
-        List<RDFTuple> existing = new ArrayList<RDFTuple>(existingWS.size());
-        for (RelationshipTuple t : existingWS) {
-            existing.add(new RDFTuple(t.getSubject(), t.getPredicate(), t.getObject()));
-        }
-        ingested.removeAll(existing);
-        for (RDFTuple t : ingested) {
-            if (t.object != null){
-                try{
-                    port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, false, null);
-                }catch (Exception ex){
-                    log.severe("WARNING- could not add relationship:"+t+"("+ex+")");
+        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+            List<Triple<String, String, String>> relations = repo.getObject(pid).getRelations(null);
+            List<Triple<String, String, String>> literals = repo.getObject(pid).getLiterals(null);
+
+            List<RDFTuple> existing = new ArrayList<>();
+            for (Triple<String,String,String> t : relations) {
+                existing.add(new RDFTuple(t.getLeft(), t.getMiddle(), t.getRight()));
+            }
+            ingested.removeAll(existing);
+            for (RDFTuple t : ingested) {
+                if (t.object != null){
+                    try{
+
+                        repo.getObject(pid).addRelation(t.predicate, t.subject, t.object);
+                    }catch (Exception ex){
+                        log.severe("WARNING- could not add relationship:"+t+"("+ex+")");
+                    }
                 }
             }
-        }
+
+        });
+        //List<RelationshipTuple> existingWS = port.getRelationships(pid, null);
     }
 
     private static List<RDFTuple> readRDF(byte[] bytes) {

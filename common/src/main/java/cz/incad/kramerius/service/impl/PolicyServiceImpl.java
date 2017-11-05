@@ -3,9 +3,11 @@ package cz.incad.kramerius.service.impl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
@@ -18,6 +20,19 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathExpression;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.fedora.om.RepositoryDatastream;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
+import cz.incad.kramerius.utils.FedoraUtils;
 import org.fedora.api.MIMETypedStream;
 import org.fedora.api.RelationshipTuple;
 import org.w3c.dom.DOMConfiguration;
@@ -60,20 +75,20 @@ public class PolicyServiceImpl implements PolicyService {
         }
     }
 
-    public void setPolicyForNode(String pid, String policyName) {
+    public void setPolicyForNode(String pid, String policyName) throws RepositoryException {
         LOGGER.info("Set policy pid: "+pid+" policy: "+policyName);
         setPolicyDC(pid, policyName);
         setPolicyRELS_EXT(pid, policyName);
         setPolicyPOLICY(pid, policyName);
     }
 
-    private void setPolicyDC(String pid, String policyName) {
-        MIMETypedStream stream = fedoraAccess.getAPIA().getDatastreamDissemination(pid, "DC", null);
+    private void setPolicyDC(String pid, String policyName) throws RepositoryException {
+        RepositoryDatastream dcStream = fedoraAccess.getInternalAPI().getObject(pid).getStream(FedoraUtils.DC_STREAM);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(new ByteArrayInputStream(stream.getStream()));
+            Document doc = db.parse(dcStream.getContent());
             NodeList nodes = selectPolicyDCNodes(doc);
             for (int i = 0; i < nodes.getLength(); i++) {
                 Node node = nodes.item(i);
@@ -95,7 +110,8 @@ public class PolicyServiceImpl implements PolicyService {
             StringWriter swr = new StringWriter();
             lso.setCharacterStream(swr);
             ser.write(doc, lso);
-            fedoraAccess.getAPIM().modifyDatastreamByValue(pid, "DC", null, null, null, null, swr.getBuffer().toString().getBytes("UTF-8"), null, null, "", false);
+            fedoraAccess.getInternalAPI().getObject(pid).deleteStream(FedoraUtils.DC_STREAM);
+            fedoraAccess.getInternalAPI().getObject(pid).createStream(FedoraUtils.DC_STREAM, "text/xml", new ByteArrayInputStream(swr.getBuffer().toString().getBytes("UTF-8")));
         } catch (Throwable t) {
             LOGGER.severe("Error while setting DC policy" + t);
             throw new RuntimeException(t);
@@ -156,16 +172,21 @@ public class PolicyServiceImpl implements PolicyService {
     private static final String POLICY_PREDICATE = "http://www.nsdl.org/ontologies/relationships#policy";
     private static final String INFO = "info:fedora/";
 
-    private void setPolicyRELS_EXT(String pid, String policyName) {
-        for (RelationshipTuple t:fedoraAccess.getAPIM().getRelationships(INFO+pid, POLICY_PREDICATE)){
-            fedoraAccess.getAPIM().purgeRelationship(INFO+pid, POLICY_PREDICATE, t.getObject(), true, null);
-        }
-        fedoraAccess.getAPIM().addRelationship(INFO+pid, POLICY_PREDICATE, "policy:"+policyName, true, null);
+    private void setPolicyRELS_EXT(String pid, String policyName) throws RepositoryException {
+        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)-> {
+            if (repo.getObject(pid).relationsExists("policy", FedoraNamespaces.KRAMERIUS_URI)) {
+                repo.getObject(pid).removeRelationsByNameAndNamespace("policy",FedoraNamespaces.KRAMERIUS_URI);
+            }
+
+            repo.getObject(pid).addLiteral("policy",FedoraNamespaces.KRAMERIUS_URI, "policy:"+policyName);
+        });
+
     }
 
     private void setPolicyPOLICY(String pid, String policyName) {
-        fedoraAccess.getAPIM().purgeDatastream(pid,"POLICY",null,null,"", false);
-        fedoraAccess.getAPIM().addDatastream(pid, "POLICY", null, null, false,"application/rdf+xml", null, "http://local.fedora.server/fedora/get/policy:" + policyName + "/POLICYDEF", "E", "A", "DISABLED", null, "");
+        // We don't need this
+        //fedoraAccess.getAPIM().purgeDatastream(pid,"POLICY",null,null,"", false);
+        //fedoraAccess.getAPIM().addDatastream(pid, "POLICY", null, null, false,"application/rdf+xml", null, "http://local.fedora.server/fedora/get/policy:" + policyName + "/POLICYDEF", "E", "A", "DISABLED", null, "");
         //fedoraAccess.getAPIM().modifyDatastreamByReference(pid, "POLICY", null, null, null, null, "http://local.fedora.server/fedora/get/policy:" + policyName + "/POLICYDEF", null, null, null, false);
     }
 
@@ -179,13 +200,24 @@ public class PolicyServiceImpl implements PolicyService {
         LOGGER.info("PolicyService: "+Arrays.toString(args));
         if (args.length >= 2) {
             //TODO: I18N
-            ProcessStarter.updateName("Priznak  '"+args[0]+" pro titul "+args[1]);
+            try {
+                ProcessStarter.updateName("Priznak  '"+args[0]+" pro titul "+args[1]);
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING,e.getMessage(),e);
+            }
         }
         PolicyServiceImpl inst = new PolicyServiceImpl();
-        inst.fedoraAccess = new FedoraAccessImpl(null, null);
+
+        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        inst.fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+
         inst.configuration = KConfiguration.getInstance();
         inst.setPolicy(args[1], args[0]);
-        IndexerProcessStarter.spawnIndexer(true, "Reindex policy "+args[1]+":"+args[0], args[1]);
+        try {
+            IndexerProcessStarter.spawnIndexer(true, "Reindex policy "+args[1]+":"+args[0], args[1]);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING,e.getMessage(),e);
+        }
         LOGGER.info("PolicyService finished.");
     }
 }

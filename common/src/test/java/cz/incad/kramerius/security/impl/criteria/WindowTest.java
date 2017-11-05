@@ -1,5 +1,6 @@
 package cz.incad.kramerius.security.impl.criteria;
 
+import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
@@ -8,6 +9,8 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
@@ -51,19 +54,22 @@ public class WindowTest {
 
     public EvaluatingResult window(String firstYearFromGUI,String secondYearFromGUI, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
-        FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
-        .withConstructor(KConfiguration.getInstance(), acLog)
-        .addMockedMethod("getFedoraDescribeStream")
-        .addMockedMethod("getBiblioMods")
-        .addMockedMethod("getDC")
-        .createMock();
-        
-        EasyMock.expect(fa33.getFedoraDescribeStream()).andReturn(DataPrepare.fedoraProfile33());
-        DataPrepare.drobnustkyMODS(fa33);
-        DataPrepare.drobnustkyDCS(fa33);
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+
+        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .addMockedMethod("getRelsExt")
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("getDC")
+                .addMockedMethod("getBiblioMods")
+                .createMock();
+
+
+        DataPrepare.drobnustkyMODS(fa4);
+        DataPrepare.drobnustkyDCS(fa4);
  
-        DataPrepare.narodniListyMods(fa33);
-        DataPrepare.narodniListyDCs(fa33);
+        DataPrepare.narodniListyMods(fa4);
+        DataPrepare.narodniListyDCs(fa4);
  
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
@@ -71,10 +77,10 @@ public class WindowTest {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key)}).anyTimes();
         }
         
-        replay(fa33, solrAccess,acLog);
+        replay(fa4,feeder, solrAccess,acLog);
 
         RightCriteriumContextFactoryImpl contextFactory = new RightCriteriumContextFactoryImpl();
-        contextFactory.setFedoraAccess(fa33);
+        contextFactory.setFedoraAccess(fa4);
         contextFactory.setSolrAccess(solrAccess);
         
         RightCriteriumContext context = contextFactory.create(requestedPID, null, null, "localhost", "127.0.0.1");

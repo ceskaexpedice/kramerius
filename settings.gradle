@@ -23,7 +23,7 @@ include	'search'
 include 'client'
 include 'mw-process'
 include 'authfilters'
-include 'import-tools'
+//include 'import-tools'
 
 include 'solr-migration'
 

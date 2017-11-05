@@ -51,7 +51,7 @@ public class FedoraNamespaceContext implements NamespaceContext {
         MAP_PREFIX2URI.put("xmlns", XMLNS_NAMESPACE_URI);
         MAP_PREFIX2URI.put("fedora3model", FEDORA_MODELS_URI);
         MAP_PREFIX2URI.put("fedoraaccess", FEDORA_ACCESS_NAMESPACE_URI);
-        MAP_PREFIX2URI.put("fedora", FEDORA_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("fedora", FEDORA_4_NAMESPACE_URI);
         MAP_PREFIX2URI.put("xml", XML_NAMESPACE_URI);
         MAP_PREFIX2URI.put("ebucore", EBUCORE_NAMESPACE_URI);
         MAP_PREFIX2URI.put("ldp", LDP_NAMESPACE_URI);

@@ -18,6 +18,7 @@ package cz.incad.kramerius.service.impl;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -28,6 +29,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
 
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -155,7 +157,8 @@ public class ReplicationServiceImpl implements ReplicationService{
     public byte[] getExportedFOXML(String pid, FormatType fType) throws ReplicateException,IOException {
         ReplicationFormat  format = formatInstantiate(fType.getClazz());
         try {
-            byte[] exported = fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
+            InputStream foxml = fedoraAccess.getFoxml(pid);
+            byte[] exported = IOUtils.toByteArray(foxml);
             if (format != null) {
                 return format.formatFoxmlData(exported, null, null);
             } else return exported;
@@ -176,7 +179,7 @@ public class ReplicationServiceImpl implements ReplicationService{
 			Object... formatParams) throws ReplicateException, IOException {
         ReplicationFormat  format = formatInstantiate(fType.getClazz());
         try {
-            byte[] exported = fedoraAccess.getAPIM().export(pid, "info:fedora/fedora-system:FOXML-1.1", "archive");
+            byte[] exported = IOUtils.toByteArray(fedoraAccess.getFoxml(pid));
             if (format != null) {
             	if (formatParams != null && formatParams.length >= 1) {
                     return format.formatFoxmlData(exported, formatParams);

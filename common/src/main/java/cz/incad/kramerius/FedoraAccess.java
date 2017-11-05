@@ -17,6 +17,8 @@
 package cz.incad.kramerius;
 
 import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 
 import java.io.IOException;
@@ -41,7 +43,6 @@ import org.w3c.dom.Element;
  * @see SecuredFedoraAccessImpl
  * @author pavels
  * 
- * @todo Change it; Rename object; change methods; move instances to repo pacakge
  */
 public interface FedoraAccess {
 
@@ -295,6 +296,7 @@ public interface FedoraAccess {
      */
     public boolean isContentAccessible(String pid) throws IOException;
 
+
     /**
      * Creates and returns API-A stub
      *
@@ -302,6 +304,10 @@ public interface FedoraAccess {
      */
     @Deprecated
     public FedoraAPIA getAPIA();
+
+    public Repository getInternalAPI() throws RepositoryException;
+
+    public Repository getTransactionAwareInternalAPI() throws RepositoryException;
 
     /**
      * Creates and returns API-M stub
@@ -338,8 +344,7 @@ public interface FedoraAccess {
     public Set<String> getPids(String pid) throws IOException;
 
     
-    
-    
+
     /**
      * Returns data from datastream
      *

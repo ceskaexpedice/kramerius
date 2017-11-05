@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -19,6 +20,9 @@ import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
@@ -54,6 +58,8 @@ public class GenerateThumbnail {
                 LOGGER.severe(e.getMessage());
             } catch (LexerException e) {
                 LOGGER.severe(e.getMessage());
+            } catch (RepositoryException e) {
+                LOGGER.severe(e.getMessage());
             }
         } else {
             try {
@@ -70,6 +76,8 @@ public class GenerateThumbnail {
                         } catch (IOException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(),e);
                         } catch (LexerException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                        } catch (RepositoryException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(),e);
                         }
                     }
@@ -129,7 +137,7 @@ public class GenerateThumbnail {
         }
     }
 
-    public static void prepareThumbnail(String pid, FedoraAccess fedoraAccess, DiscStrucutreForStore discStruct, DeepZoomTileSupport tileSupport) throws IOException, XPathExpressionException, LexerException {
+    public static void prepareThumbnail(String pid, FedoraAccess fedoraAccess, DiscStrucutreForStore discStruct, DeepZoomTileSupport tileSupport) throws IOException, XPathExpressionException, LexerException, RepositoryException {
         PIDParser pidParser = new PIDParser(pid);
         pidParser.objectPid();
         String uuid = pidParser.getObjectId();
@@ -141,19 +149,23 @@ public class GenerateThumbnail {
             FileOutputStream fos = new FileOutputStream(tmpFile);
             try {
                 KrameriusImageSupport.writeImageToStream(scaled, "jpeg", fos);
-                if (fedoraAccess.isFullthumbnailAvailable(pid)) {
-                    LOGGER.info("Purge previous IMG_PREVIEW datastream ... for pid "+pid);
-                    fedoraAccess.getAPIM().purgeDatastream(pid, FedoraUtils.IMG_PREVIEW_STREAM, 
-                            null, null, null, false);
-                }
-                    // vytvori novy ds
-                LOGGER.info("Adding new IMG_PREVIEW datastream ... for pid "+pid);
-                fedoraAccess.getAPIM().addDatastream("uuid:"+uuid, FedoraUtils.IMG_PREVIEW_STREAM, null, null, false, "image/jpeg", null, 
-                        tmpFile.toURI().toString(), "M", "A", "MD5", null, "noLog");
-//                    fedoraAccess.getAPIM().modifyDatastreamByValue(pid,  FedoraUtils.IMG_PREVIEW_STREAM, null, null, null, null, bos, null, null, null, false);
-                
+                Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo) -> {
+                    try {
+                        if (fedoraAccess.isFullthumbnailAvailable(pid)) {
+                            LOGGER.info("Purge previous IMG_PREVIEW datastream ... for pid "+pid);
 
-                
+                            if (repo.getObject(pid).streamExists(FedoraUtils.IMG_PREVIEW_STREAM)) {
+                                repo.getObject(pid).deleteStream(FedoraUtils.IMG_PREVIEW_STREAM);
+                            }
+                            repo.getObject(pid).deleteStream(FedoraUtils.IMG_PREVIEW_STREAM);
+                        }
+                        LOGGER.info("Adding new IMG_PREVIEW datastream ... for pid "+pid);
+                        repo.getObject(pid).createStream(FedoraUtils.IMG_PREVIEW_STREAM, "image/jpeg", new FileInputStream(tmpFile));
+                    } catch (IOException e) {
+                        throw new RepositoryException(e);
+                    }
+                });
+
             } finally {
                 fos.close();
                 tmpFile.delete();

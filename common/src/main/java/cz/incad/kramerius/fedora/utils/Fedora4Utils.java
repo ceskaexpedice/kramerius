@@ -1,6 +1,8 @@
 package cz.incad.kramerius.fedora.utils;
 
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -12,17 +14,23 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by pstastny on 10/10/2017.
  */
 public class Fedora4Utils {
+
+    public static final Logger LOGGER = Logger.getLogger(Fedora4Utils.class.getName());
 
     // divide factor for storing in repo
     public static final int DIVIDE_FACTOR = 3;
@@ -136,5 +144,19 @@ public class Fedora4Utils {
         if (hasMimeType != null) {
             return hasMimeType.getTextContent();
         } else throw new IOException("cannot find  mimetype element");
+    }
+
+    public static void doInTransaction(Repository rep, Operations op) throws RepositoryException {
+        try {
+            op.inTransaction(rep);
+            rep.commitTransaction();
+        }catch(Throwable e) {
+            rep.rollbackTransaction();
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+    }
+
+    public static interface  Operations {
+        public void inTransaction(Repository rep) throws RepositoryException, UnsupportedEncodingException;
     }
 }

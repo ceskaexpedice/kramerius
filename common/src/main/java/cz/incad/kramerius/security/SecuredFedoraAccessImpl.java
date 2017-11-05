@@ -27,6 +27,8 @@ import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.ObjectFactory;
@@ -366,5 +368,14 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public Date getObjectLastmodifiedFlag(String pid) throws IOException {
         return rawAccess.getObjectLastmodifiedFlag(pid);
     }
-    
+
+    @Override
+    public Repository getInternalAPI() throws RepositoryException {
+        return rawAccess.getInternalAPI();
+    }
+
+    @Override
+    public Repository getTransactionAwareInternalAPI() throws RepositoryException {
+        return rawAccess.getTransactionAwareInternalAPI();
+    }
 }

@@ -18,8 +18,20 @@ package org.kramerius.replications;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.service.SortingService;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -111,8 +123,18 @@ public class SecondPhase extends AbstractPhase  {
         LOGGER.info("ingesting '"+foxmlfile.getAbsolutePath()+"'");
         Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
         try {
-            Import.ingest(foxmlfile, null, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
+
+            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+
+            Fedora4Utils.doInTransaction(fa.getTransactionAwareInternalAPI(), (repo)-> {
+                Import.ingest(repo, foxmlfile, null, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
+            });
+
         } catch (RuntimeException e) {
+            if (e.getCause() != null) throw new PhaseException(this, e.getCause());
+            else throw new PhaseException(this,e);
+        } catch (RepositoryException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
             else throw new PhaseException(this,e);
         }

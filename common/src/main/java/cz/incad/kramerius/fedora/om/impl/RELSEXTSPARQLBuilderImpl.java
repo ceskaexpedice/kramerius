@@ -1,17 +1,24 @@
 package cz.incad.kramerius.fedora.om.impl;
 
+import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
+import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,11 +37,10 @@ public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
 
     @Override
     public String sparqlProps(String relsExt, RELSEXTSPARQLBuilderListener listener) throws IOException, SAXException, ParserConfigurationException, RepositoryException {
-        StringBuilder builder = new StringBuilder();
-
-        prefix(builder);
+        StringTemplateGroup strGroup = SPARQL_TEMPLATES();
 
         Map<SPARQLBuilderRelation,SPARQLBuilderObject> map = new HashMap<>();
+        List<SPARQLBuilderRelation> ordering = new ArrayList<>();
 
         Document document = XMLUtils.parseDocument(new StringReader(relsExt), true);
         Element description = XMLUtils.findElement(document.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
@@ -50,53 +56,45 @@ public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
                     String value = resource.getValue();
                     if (value.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
                         value = value.substring(PIDParser.INFO_FEDORA_PREFIX.length());
-                        value = listener.inform(value, localName);
+                        if (listener != null) {
+                            value = listener.inform(value, localName);
+                        }
                     }
-                    map.put( new SPARQLBuilderRelation(namespaceURI,localName), new SPARQLBuilderObject(value, TYPE.refrence));
+
+                    SPARQLBuilderRelation relation = new SPARQLBuilderRelation(namespaceURI, localName, value);
+                    map.put(relation, new SPARQLBuilderObject(value, TYPE.refrence));
+                    ordering.add(relation);
                 } else {
-                    map.put( new SPARQLBuilderRelation(namespaceURI,localName), new SPARQLBuilderObject(elm.getTextContent(), TYPE.literal));
+                    SPARQLBuilderRelation relation = new SPARQLBuilderRelation(namespaceURI,localName, elm.getTextContent());
+                    map.put( relation , new SPARQLBuilderObject(elm.getTextContent(), TYPE.literal));
+                    ordering.add(relation);
                 }
             }
         }
-        delete(builder);
-        insert(builder,map);
-        where(builder);
-        return builder.toString();
+
+        StringTemplate sparql = strGroup.getInstanceOf("relsext_sparql");
+        sparql.setAttribute("relations",map);
+        sparql.setAttribute("ordering",ordering);
+        return sparql.toString();
     }
 
-    void delete(StringBuilder builder) {
-        builder.append("DELETE {}").append('\n');
+    public static StringTemplateGroup SPARQL_TEMPLATES() throws IOException {
+        InputStream stream = RELSEXTSPARQLBuilderImpl.class.getResourceAsStream("res/relsextsparql.stg");
+        String string = org.apache.commons.io.IOUtils.toString(stream, Charset.forName("UTF-8"));
+        return new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
     }
 
-    void where(StringBuilder builder) {
-        builder.append("WHERE {}");
-    }
-
-
-    void insert(StringBuilder sbuilder, Map<SPARQLBuilderRelation, SPARQLBuilderObject> values) {
-        sbuilder.append("INSERT { <> ");
-
-        List<SPARQLBuilderRelation> keysList =  new ArrayList<>(values.keySet());
-        for (int i = 0,ll=keysList.size(); i < ll; i++) {
-            SPARQLBuilderRelation s = keysList.get(i);
-            sbuilder.append("  ");
-            SPARQLBuilderObject builder = values.get(s);
-            sbuilder.append(s.getBuilderValue(this.namespaceContext)).append(" ").append(values.get(s).getBuilderValue());
-            if (i<ll-1) { sbuilder.append(" ;"); }
-            else { sbuilder.append(" ."); }
-            sbuilder.append('\n').append("       ");
-        }
-        sbuilder.append("}\n");
-    }
 
     public static class SPARQLBuilderRelation {
 
         private String namespace;
         private String property;
+        private String object;
 
-        public SPARQLBuilderRelation(String namespace, String property) {
+        public SPARQLBuilderRelation(String namespace, String property, String object) {
             this.namespace = namespace;
             this.property = property;
+            this.object = object;
         }
 
         public String getNamespace() {
@@ -107,7 +105,7 @@ public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
             return property;
         }
 
-        public String getBuilderValue(NamespaceContext namespaceContext) {
+        public String getBuilderValue() {
             return "<"+this.namespace+(this.namespace.endsWith("#")? "" :"#")+this.property+">";
         }
 
@@ -115,16 +113,21 @@ public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
+
             SPARQLBuilderRelation that = (SPARQLBuilderRelation) o;
+
             if (getNamespace() != null ? !getNamespace().equals(that.getNamespace()) : that.getNamespace() != null)
                 return false;
-            return getProperty() != null ? getProperty().equals(that.getProperty()) : that.getProperty() == null;
+            if (getProperty() != null ? !getProperty().equals(that.getProperty()) : that.getProperty() != null)
+                return false;
+            return object != null ? object.equals(that.object) : that.object == null;
         }
 
         @Override
         public int hashCode() {
             int result = getNamespace() != null ? getNamespace().hashCode() : 0;
             result = 31 * result + (getProperty() != null ? getProperty().hashCode() : 0);
+            result = 31 * result + (object != null ? object.hashCode() : 0);
             return result;
         }
     }

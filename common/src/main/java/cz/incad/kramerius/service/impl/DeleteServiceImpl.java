@@ -1,15 +1,28 @@
 package cz.incad.kramerius.service.impl;
 
+import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.document.model.utils.DCContentUtils;
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
 import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.resourceindex.IResourceIndex;
+import cz.incad.kramerius.resourceindex.ResourceIndexException;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.DeleteService;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.fedora.api.RelationshipTuple;
@@ -30,6 +43,9 @@ public class DeleteServiceImpl implements DeleteService {
     @Inject
     KConfiguration configuration;
 
+    @Inject
+    IResourceIndex resourceIndex;
+
     private List<String> predicates;
 
     public static final Logger LOGGER = Logger.getLogger(DeleteServiceImpl.class.getName());
@@ -37,71 +53,48 @@ public class DeleteServiceImpl implements DeleteService {
     private static final String INFO = "info:fedora/";
 
     @Override
-    public void deleteTree(String pid, String pidPath, String message, boolean deleteEmptyParents) throws IOException {
+    public void deleteTree(String pid, String pidPath, String message, boolean deleteEmptyParents) throws IOException, RepositoryException, ResourceIndexException {
         Set<String> pids = fedoraAccess.getPids(pid);
         boolean purge = KConfiguration.getInstance().getConfiguration().getBoolean("delete.purgeObjects", true);
         for (String s : pids) {
             String p = s.replace(INFO, "");
             if (purge){
                 LOGGER.info("Purging object: "+p);
-                try{
-                    fedoraAccess.getAPIM().purgeObject(p, message, false);
-                }catch(Exception ex){
-                    LOGGER.warning("Cannot purge object "+p+", skipping: "+ex);
-                }
+                Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo) -> {
+                    repo.deleteobject(p);
+                });
             }else{
-                LOGGER.info("Marking object as deleted: "+p);
-                try{
-                    fedoraAccess.getAPIM().modifyObject(p, "D", null, null, message);
-                }catch(Exception ex){
-                    LOGGER.warning("Cannot mark object "+p+" as deleted, skipping: "+ex);
-                }
+                throw new UnsupportedOperationException("This is not supported operaiton");
             }
         }
+
         IndexerProcessStarter.spawnIndexRemover(pidPath, pid);
 
-        List<RelationshipTuple> parents = FedoraUtils.getSubjectPids(pid);
-        for (RelationshipTuple parent:parents){
-            try{
-                String parentPid = parent.getSubject();
-                fedoraAccess.getAPIM().purgeRelationship(parentPid, parent.getPredicate(), parent.getObject(), parent.isIsLiteral(), parent.getDatatype());
-                LOGGER.info("Removed relation from parent:"+parentPid+" "+ parent.getPredicate()+" "+ parent.getObject());
 
-                boolean parentRemoved = false;
-                if (deleteEmptyParents) {
+        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo) -> {
+            try {
+                List<String> parents = resourceIndex.getParentsPids(pid);
+                for (String parentPid : parents) {
+                    boolean parentRemoved = false;
+                    repo.getObject(parentPid).removeRelationsByTarget(pid);
 
-                    List<RelationshipTuple> existingWS = fedoraAccess.getAPIM().getRelationships(parentPid, null);
-                    boolean foundRelation = false;
-                    outerLoop:
-                    for (RelationshipTuple rel : existingWS) {
-                        for (String predicate : predicates) {
-                            if (rel.getPredicate().endsWith(predicate)) {
-                                foundRelation = true;
-                                break outerLoop;
-                            }
-                        }
+                    if (deleteEmptyParents) {
+                        parentPid = parentPid.replace(INFO, "");
+                        String parentPidPath = pidPath.replace("/"+pid,"");
+                        LOGGER.info("Deleting empty parent:" +parentPid+" "+parentPidPath );
+                        deleteTree(parentPid,parentPidPath,message,deleteEmptyParents);
+                        parentRemoved = true;
                     }
-
-                    if (foundRelation)
-                        continue;
-
-                    parentPid = parentPid.replace(INFO, "");
-                    String parentPidPath = pidPath.replace("/"+pid,"");
-                    LOGGER.info("Deleting empty parent:" +parentPid+" "+parentPidPath );
-                    deleteTree(parentPid,parentPidPath,message,deleteEmptyParents);
-                    parentRemoved = true;
-
+                    if (!parentRemoved) {
+                        IndexerProcessStarter.spawnIndexer(true, "Reindex parent after delete " + pid, parentPid.replace(INFO, ""));
+                    }
                 }
-                if (!parentRemoved) {
-                    IndexerProcessStarter.spawnIndexer(true, "Reindex parent after delete " + pid, parentPid.replace(INFO, ""));
-                }
-
-            }catch (Exception e){
-                LOGGER.warning("Cannot delete object relation for"+parent.getSubject()+", skipping: "+e);
+            } catch (ResourceIndexException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        }
-
-
+        });
     }
 
 
@@ -112,15 +105,19 @@ public class DeleteServiceImpl implements DeleteService {
      * args[2] deleteEmptyParents (optional)
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException, RepositoryException, ResourceIndexException {
+
         LOGGER.info("DeleteService: "+Arrays.toString(args));
 
-
         DeleteServiceImpl inst = new DeleteServiceImpl();
-        inst.fedoraAccess = new FedoraAccessImpl(null, null);
+
+
+        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        inst.fedoraAccess = fa;
         inst.predicates =  KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates");
         SolrAccess solrAccess = new SolrAccessImpl();
-        
+
         Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(inst.fedoraAccess, solrAccess, Arrays.asList(args[0]));
         List<DCConent> list = dcs.get(args[0]);
         DCConent dcConent = DCConent.collectFirstWin(list);
@@ -133,7 +130,7 @@ public class DeleteServiceImpl implements DeleteService {
 
         inst.deleteTree(args[0], args[1], "Marked as deleted", deleteEmptyParents);
 
-        
+
         LOGGER.info("DeleteService finished.");
     }
 

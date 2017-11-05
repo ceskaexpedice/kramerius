@@ -7,7 +7,7 @@ import cz.incad.kramerius.statistics.impl.DatabaseStatisticsAccessLogImpl;
 /**
  * Created by pstastny on 10/19/2017.
  */
-public class StatisticsModule extends AbstractModule {
+public class DatabaseStatisticsModule extends AbstractModule {
 
     @Override
     protected void configure() {

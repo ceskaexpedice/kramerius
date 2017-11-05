@@ -2,6 +2,7 @@ package cz.incad.kramerius.service.impl;
 
 
 import com.sun.javafx.collections.MappingChange;
+import com.sun.xml.messaging.saaj.util.ByteInputStream;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -55,9 +56,8 @@ public class ExportServiceImpl implements ExportService {
             for (int i = 1; i < set.length ; i++) {
                 String childPid = set[i];
                 String subChild = set[i-1];
-                byte[] archives = fedoraAccess.getAPIM().export(childPid, "info:fedora/fedora-system:FOXML-1.1", "archive");
-                // remove everything but child
-                Document doc = XMLUtils.parseDocument(new ByteArrayInputStream(archives), true);
+                InputStream foxml = fedoraAccess.getFoxml(childPid);
+                Document doc = XMLUtils.parseDocument(foxml, true);
 
                 Element relsExt = XMLUtils.findElement(doc.getDocumentElement(),(element) -> {
                     return element.getLocalName().equals("datastream") && element.getAttribute("ID").equals("RELS-EXT");
@@ -96,7 +96,7 @@ public class ExportServiceImpl implements ExportService {
                 elems.stream().forEach((e) -> {e.getParentNode().removeChild(e);});
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 XMLUtils.print(doc, bos);
-                store(exportDirectory, childPid, bos.toByteArray());
+                store(exportDirectory, childPid, new ByteArrayInputStream(bos.toByteArray()));
 
             }
         }
@@ -132,7 +132,8 @@ public class ExportServiceImpl implements ExportService {
             String p = s.replace(INFO, "");
             LOGGER.info("Exporting "+exportDirectory+" "+p);
             try{
-                store(exportDirectory, p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
+                InputStream foxml = fedoraAccess.getFoxml(p);
+                store(exportDirectory, p,foxml);
             }catch(Exception ex){
                 LOGGER.warning("Cannot export object "+p+", skipping: "+ex);
             }
@@ -146,13 +147,11 @@ public class ExportServiceImpl implements ExportService {
     }
 
 
-    private void store(File exportDirectory, String name, byte[] contents) {
+    private void store(File exportDirectory, String name, InputStream is) {
         String convertedName = name.replace("uuid:", "").replaceAll(":", "_")+ ".xml";
         File toFile = new File(exportDirectory, convertedName);
         OutputStream os = null;
-        InputStream is = null;
         try {
-            is = new ByteArrayInputStream(contents);
             os = new FileOutputStream(toFile);
             byte[] buf = new byte[BUFFER_SIZE];
             for (int byteRead; (byteRead = is.read(buf, 0, BUFFER_SIZE)) >= 0;) {

@@ -1,12 +1,8 @@
 package cz.incad.kramerius.virtualcollections;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +10,15 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.RepositoryObject;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.utils.FedoraUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.fedora.api.RelationshipTuple;
 import org.json.JSONException;
@@ -31,7 +32,7 @@ import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
-import cz.incad.kramerius.utils.IOUtils;
+
 import cz.incad.kramerius.virtualcollections.Collection.Description;
 import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
 
@@ -87,7 +88,7 @@ public class CollectionUtils {
     
     
     /** Methods bellow are mostly moved from previous implementation of virtual collections */
-    public static String create(FedoraAccess fedoraAccess,String title,boolean canLeaveFlag, Map<String, String>plainTexts, CollectionWait wait) throws IOException, InterruptedException {
+    public static String create(FedoraAccess fedoraAccess,String title,boolean canLeaveFlag, Map<String, String>plainTexts, CollectionWait wait) throws IOException, InterruptedException, RepositoryException {
 
         Map<String, String> encodedTexts = new HashMap<String, String>();
         for (String k : plainTexts.keySet()) {
@@ -97,107 +98,138 @@ public class CollectionUtils {
         }
         String pid = "vc:" + UUID.randomUUID().toString();
         InputStream stream = CollectionUtils.class.getResourceAsStream("vc_template.stg");
-        String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
-        StringTemplateGroup grp = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
-        StringTemplate template = grp.getInstanceOf("foxml");
-        template.setAttribute("pid", pid);
-        template.setAttribute("title", title != null ? title : pid);
-        template.setAttribute("canLeave", canLeaveFlag);
-        template.setAttribute("text", encodedTexts);
-        
-        fedoraAccess.getAPIM().ingest(template.toString().getBytes("UTF-8"), "info:fedora/fedora-system:FOXML-1.1", "Create virtual collection");
-        
-        if (wait != null) {
-            LOGGER.log(Level.INFO, "Waiting until condition is true");
-            int counter = 0;
-            while(! wait.condition(pid)) {
-                counter+=1;
-                Thread.sleep(WAIT_TIMENOUT);
-                // there is counter which prevent waiting forever
-                if (counter == MAX_WAIT_ITERATION) break;
-            }
-        }
+        String content = IOUtils.toString(stream, Charset.forName("UTF-8"));
+
+        StringTemplateGroup grp = new StringTemplateGroup(new StringReader(content), DefaultTemplateLexer.class);
+
+        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)-> {
+            RepositoryObject collection = repo.createOrFindObject(pid);
+
+            StringTemplate dcTemplate = grp.getInstanceOf("dc");
+            dcTemplate.setAttribute("pid", pid);
+            dcTemplate.setAttribute("title", title != null ? title : pid);
+            dcTemplate.setAttribute("canLeave", canLeaveFlag);
+            collection.createStream(FedoraUtils.DC_STREAM, "text/xml", new ByteArrayInputStream(dcTemplate.toString().getBytes(Charset.forName("UTF-8"))));
+
+            StringTemplate textCSTemplate = grp.getInstanceOf("text_cs");
+            textCSTemplate.setAttribute("text", encodedTexts);
+            collection.createStream("TEXT_cs", "text/xml", new ByteArrayInputStream(textCSTemplate.toString().getBytes(Charset.forName("UTF-8"))));
+
+            StringTemplate textENTemplate = grp.getInstanceOf("text_en");
+            textENTemplate.setAttribute("text", encodedTexts);
+            collection.createStream("TEXT_en", "text/xml", new ByteArrayInputStream(textENTemplate.toString().getBytes(Charset.forName("UTF-8"))));
+
+            StringTemplate relsextTemplate = grp.getInstanceOf("relsext");
+            relsextTemplate.setAttribute("pid", pid);
+            collection.createStream(FedoraUtils.RELS_EXT_STREAM, "text/xml", new ByteArrayInputStream(relsextTemplate.toString().getBytes(Charset.forName("UTF-8"))));
+
+        });
+
+
+//        if (wait != null) {
+//            LOGGER.log(Level.INFO, "Waiting until condition is true");
+//            int counter = 0;
+//            while(! wait.condition(pid)) {
+//                counter+=1;
+//                Thread.sleep(WAIT_TIMENOUT);
+//                // there is counter which prevent waiting forever
+//                if (counter == MAX_WAIT_ITERATION) break;
+//            }
+//        }
         return pid;
     }
-
+    /*
     public static String create(FedoraAccess fedoraAccess) throws IOException {
         String pid = "vc:" + UUID.randomUUID().toString();
+
+        try {
+            Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+                repo.createOrFindObject(pid);
+
+            });
+        } catch (RepositoryException e) {
+            throw new IOException(e);
+        }
+
         InputStream is = CollectionUtils.class.getResourceAsStream("vc.xml");
         String s = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        String s = IOUtils.toString(is, Charset.forName("UTF-8"))
         s = s.replaceAll("##title##", StringEscapeUtils.escapeXml(pid)).replaceAll("##pid##", pid);
         fedoraAccess.getAPIM().ingest(s.getBytes(), "info:fedora/fedora-system:FOXML-1.1", "Create virtual collection");
         return pid;
     }
+    */
 
     public static void deleteWOIndexer(String pid, FedoraAccess fedoraAccess) throws Exception {
         CollectionUtils.removeDocumentsFromCollection(pid, fedoraAccess);
-        fedoraAccess.getAPIM().purgeObject(pid, "Virtual collection deleted", true);
+        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)-> {
+            repo.deleteobject(pid);
+        });
     }
 
     public static void delete(String pid, FedoraAccess fedoraAccess) throws Exception {
         CollectionUtils.removeDocumentsFromCollection(pid, fedoraAccess);
-        fedoraAccess.getAPIM().purgeObject(pid, "Virtual collection deleted", true);
+
+        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)-> {
+            repo.deleteobject(pid);
+        });
         CollectionUtils.startIndexer(pid, "reindexCollection", "Reindex docs in collection");
     }
 
     public static void removeDocumentsFromCollection(String collection, FedoraAccess fedoraAccess) throws Exception {
-        final String predicate = FedoraNamespaces.RDF_NAMESPACE_URI + "isMemberOfCollection";
-        final String fedoraColl = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
         IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
         List<String> pids = g.getObjectsInCollection(collection, 1000, 0);
         for (String pid : pids) {
-            String fedoraPid = pid.startsWith("info:fedora/") ? pid : "info:fedora/" + pid;
-            fedoraAccess.getAPIM().purgeRelationship(fedoraPid, predicate, fedoraColl, false, null);
+            Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+                repo.getObject(pid).removeRelation("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,collection);
+            });
             LOGGER.log(Level.INFO, "{0} removed from collection {1}", new Object[]{pid, collection});
         }
     }
 
-    public static void modify(String pid, String label, boolean canLeave, FedoraAccess fedoraAccess) throws IOException {
-        fedoraAccess.getAPIM().modifyObject(pid, "A", label, "K4", "Virtual collection modified");
+    public static void modify(String pid, String label, boolean canLeave, FedoraAccess fedoraAccess) throws IOException, RepositoryException {
         String dcContent = "<oai_dc:dc xmlns:oai_dc=\"http://www.openarchives.org/OAI/2.0/oai_dc/\" "
                 + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd\"> "
                 + "<dc:title>" + StringEscapeUtils.escapeXml(label) + "</dc:title><dc:identifier>" + pid + "</dc:identifier>"
                 + "<dc:type>canLeave:" + canLeave + "</dc:type>"
                 + "</oai_dc:dc>";
-        System.out.println(dcContent);
-        fedoraAccess.getAPIM().modifyDatastreamByValue(pid, "DC", null, "Dublin Core Record for this object", "text/xml", null, dcContent.getBytes(), "DISABLED", null, "Virtual collection modified", true);
+
+        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+            if (repo.getObject(pid).streamExists(FedoraUtils.DC_STREAM)) {
+                repo.getObject(pid).deleteStream(FedoraUtils.DC_STREAM);
+            }
+            repo.getObject(pid).createStream(FedoraUtils.DC_STREAM, "text/xml", new ByteArrayInputStream(dcContent.getBytes(Charset.forName("UTF-8"))));
+        });
     }
 
 
-    public static void modifyImageDatastream(String pid, String streamName, String mimeType, byte[] data, FedoraAccess fedoraAccess) throws IOException {
+    public static void modifyDatastream(String pid, String streamName, String mimeType, byte[] data, FedoraAccess fedoraAccess) throws IOException, RepositoryException {
         //String url = k4url + "?action=TEXT&content=" + URLEncoder.encode(ds, "UTF8");
-        File tmpFile = File.createTempFile("collections", "content");
-        tmpFile.createNewFile();
-        IOUtils.saveToFile(data, tmpFile);
-        if (!fedoraAccess.isStreamAvailable(pid, streamName)) {
-            fedoraAccess.getAPIM().addDatastream(pid, streamName, null, "Description " +streamName, false, mimeType, null, tmpFile.toURI().toString(), "M", "A", "DISABLED", null, "Add image ("+streamName+")");
-            LOGGER.log(Level.INFO, "Datastream added");
+        if (fedoraAccess.isStreamAvailable(pid, streamName)) {
+            Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+                repo.getObject(pid).deleteStream(streamName);
+                repo.getObject(pid).createStream(streamName, mimeType, new ByteArrayInputStream(data));
+            });
         } else {
-            fedoraAccess.getAPIM().modifyDatastreamByReference(pid, streamName, null, "Description " + streamName, mimeType, null, tmpFile.toURI().toString(), "DISABLED", null, "Change image ("+streamName+")", true);
-            LOGGER.log(Level.INFO, "Datastream modified");
+            Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+                repo.getObject(pid).createStream(streamName, mimeType, new ByteArrayInputStream(data));
+            });
         }
+
     }
 
-    public static void modifyLangDatastream(String pid, String lang, String ds, FedoraAccess fedoraAccess) throws IOException {
+    public static void modifyLangDatastream(String pid, String lang, String ds, FedoraAccess fedoraAccess) throws IOException, RepositoryException {
         String dsName = VirtualCollectionsManager.TEXT_DS_PREFIX + lang;
         modifyLangDatastream(pid, lang, dsName, ds, fedoraAccess);
     }
 
-    public static void modifyLangDatastream(String pid, String lang,String dsName, String ds, FedoraAccess fedoraAccess) throws IOException {
-        File tmpFile = File.createTempFile("collections", "content");
-        tmpFile.createNewFile();
-        IOUtils.saveToFile(ds.getBytes("UTF-8"), tmpFile);
-        if (!fedoraAccess.isStreamAvailable(pid, dsName)) {
-            fedoraAccess.getAPIM().addDatastream(pid, dsName, null, "Description " + lang, false, "text/plain", null, tmpFile.toURI().toString(), "M", "A", "DISABLED", null, "Add text description");
-            LOGGER.log(Level.INFO, "Datastream added");
-        } else {
-            fedoraAccess.getAPIM().modifyDatastreamByReference(pid, dsName, null, "Description " + lang, "text/plain", null, tmpFile.toURI().toString(), "DISABLED", null, "Change text description", true);
-            LOGGER.log(Level.INFO, "Datastream modified");
-        }
+    public static void modifyLangDatastream(String pid, String lang,String dsName, String ds, FedoraAccess fedoraAccess) throws IOException, RepositoryException {
+        byte[] bytes = ds.getBytes("UTF-8");
+        modifyDatastream(pid, dsName, "text/plain",bytes, fedoraAccess);
     }
 
-    public static void modifyTexts(String pid, FedoraAccess fedoraAccess, Map<String, String> textsMap) throws IOException {
+    public static void modifyTexts(String pid, FedoraAccess fedoraAccess, Map<String, String> textsMap) throws IOException, RepositoryException {
     
         String texts = "<texts>";
         for (String lang : textsMap.keySet()) {
@@ -207,40 +239,39 @@ public class CollectionUtils {
             }
         }
         texts += "</texts>";
-        fedoraAccess.getAPIM().modifyDatastreamByValue(pid, "TEXT", null, "Localized texts for this object", "text/plain", null, texts.getBytes(), "DISABLED", null, "Change text description", true);
+
+        final byte[] data = texts.getBytes(Charset.forName("UTF-8"));
+        if (fedoraAccess.isStreamAvailable(pid, "TEXT")) {
+            Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+                repo.getObject(pid).deleteStream("TEXT");
+                repo.getObject(pid).createStream("TEXT", "text/plain", new ByteArrayInputStream(data));
+            });
+        } else {
+            Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+                repo.getObject(pid).createStream("TEXT", "text/plain", new ByteArrayInputStream(data));
+            });
+        }
     }
 
-    public static boolean isInCollection(String pid, String collection, final FedoraAccess fedoraAccess) throws IOException {
-        String fedoraPid = pid.startsWith("info:fedora/") ? pid : "info:fedora/" + pid;
-        String fedoraColl = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
-        List<RelationshipTuple> rels = fedoraAccess.getAPIM().getRelationships(fedoraPid, FedoraNamespaces.RDF_NAMESPACE_URI + "isMemberOfCollection");
-        for (RelationshipTuple rel : rels) {
-            if (rel.getObject().equals(fedoraColl)) {
-                return true;
-            }
-        }
-        return false;
+    public static boolean isInCollection(String pid, String collection, final FedoraAccess fedoraAccess) throws IOException, RepositoryException {
+        return fedoraAccess.getInternalAPI().getObject(pid).relationExists("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,collection);
     }
 
     public static void addPidToCollection(String pid, String collection, final FedoraAccess fedoraAccess) throws IOException {
         final String predicate = FedoraNamespaces.RDF_NAMESPACE_URI + "isMemberOfCollection";
         final String fedoraColl = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
-    
         try {
-    
-            String fedoraPid = pid.startsWith("info:fedora/") ? pid : "info:fedora/" + pid;
-            fedoraAccess.getAPIM().addRelationship(fedoraPid, predicate, fedoraColl, false, null);
+            Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+                repo.getObject(pid).addRelation("rdf:isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  collection);
+            });
             LOGGER.log(Level.INFO, "{0} added to collection {1}", new Object[]{pid, fedoraColl});
-    
         } catch (Exception e) {
             throw new IOException(e);
         }
     }
 
     public static void addToCollection(String pid, String collection, final FedoraAccess fedoraAccess) throws IOException {
-        final String predicate = FedoraNamespaces.RDF_NAMESPACE_URI + "isMemberOfCollection";
         final String fedoraColl = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
-    
         try {
             fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
                 boolean breakProcess = false;
@@ -254,8 +285,11 @@ public class CollectionUtils {
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
                     try {
-                        String fedoraPid = pid.startsWith("info:fedora/") ? pid : "info:fedora/" + pid;
-                        fedoraAccess.getAPIM().addRelationship(fedoraPid, predicate, fedoraColl, false, null);
+                        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+                            if (!repo.getObject(pid).relationExists("isMemberOfCollection",FedoraNamespaces.RDF_NAMESPACE_URI,  collection)) {
+                                repo.getObject(pid).addRelation("rdf:isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  collection);
+                            }
+                        });
                         LOGGER.log(Level.INFO, pid + " added to collection " + fedoraColl);
                     } catch (Exception e) {
                         throw new ProcessSubtreeException(e);
@@ -273,7 +307,6 @@ public class CollectionUtils {
     }
 
     public static void removeFromCollection(String pid, String collection, final FedoraAccess fedoraAccess) throws IOException {
-        final String predicate = FedoraNamespaces.RDF_NAMESPACE_URI + "isMemberOfCollection";
         final String fedoraColl = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
         try {
             fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
@@ -288,8 +321,11 @@ public class CollectionUtils {
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
                     try {
-                        String fedoraPid = pid.startsWith("info:fedora/") ? pid : "info:fedora/" + pid;
-                        fedoraAccess.getAPIM().purgeRelationship(fedoraPid, predicate, fedoraColl, false, null);
+
+                        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+                            repo.getObject(pid).removeRelation("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  collection);
+                        });
+
                         LOGGER.log(Level.INFO, pid + " removed from collection " + fedoraColl);
                     } catch (Exception e) {
                         throw new ProcessSubtreeException(e);
@@ -325,37 +361,37 @@ public class CollectionUtils {
         }
     }
 
-    public static void removeCollections(String pid, final FedoraAccess fedoraAccess) throws Exception {
-        final String predicate = FedoraNamespaces.RDF_NAMESPACE_URI + "isMemberOfCollection";
-        try {
-            fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
-                boolean breakProcess = false;
-                int previousLevel = 0;
-    
-                @Override
-                public boolean breakProcessing(String pid, int level) {
-                    return breakProcess;
-                }
-    
-                @Override
-                public void process(String pid, int level) throws ProcessSubtreeException {
-                    try {
-                        String fedoraPid = pid.startsWith("info:fedora/") ? pid : "info:fedora/" + pid;
-                        fedoraAccess.getAPIM().purgeRelationship(fedoraPid, predicate, null, true, null);
-                    } catch (Exception e) {
-                        throw new ProcessSubtreeException(e);
-                    }
-                }
-    
-                @Override
-                public boolean skipBranch(String pid, int level) {
-                    return false;
-                }
-            });
-        } catch (ProcessSubtreeException e) {
-            throw new IOException(e);
-        }
-    }
+//    public static void removeCollections(String pid, final FedoraAccess fedoraAccess) throws Exception {
+//        final String predicate = FedoraNamespaces.RDF_NAMESPACE_URI + "isMemberOfCollection";
+//        try {
+//            fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
+//                boolean breakProcess = false;
+//                int previousLevel = 0;
+//
+//                @Override
+//                public boolean breakProcessing(String pid, int level) {
+//                    return breakProcess;
+//                }
+//
+//                @Override
+//                public void process(String pid, int level) throws ProcessSubtreeException {
+//                    try {
+//                        String fedoraPid = pid.startsWith("info:fedora/") ? pid : "info:fedora/" + pid;
+//                        fedoraAccess.getAPIM().purgeRelationship(fedoraPid, predicate, null, true, null);
+//                    } catch (Exception e) {
+//                        throw new ProcessSubtreeException(e);
+//                    }
+//                }
+//
+//                @Override
+//                public boolean skipBranch(String pid, int level) {
+//                    return false;
+//                }
+//            });
+//        } catch (ProcessSubtreeException e) {
+//            throw new IOException(e);
+//        }
+//    }
 
     
     public static JSONObject virtualCollectionTOJSON(Collection vc) throws JSONException {

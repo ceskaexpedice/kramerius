@@ -1,26 +1,34 @@
 package org.kramerius;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Scopes;
+import com.google.inject.*;
 import com.google.inject.name.Names;
-import com.qbizm.kramerius.imp.jaxb.DatastreamType;
-import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.XmlContentType;
+import com.qbizm.kramerius.imp.jaxb.*;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.RepositoryObject;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.service.impl.SortingServiceImpl;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
+import org.apache.commons.lang3.tuple.Triple;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.ObjectFactory;
@@ -29,6 +37,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
@@ -49,10 +58,13 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 public class Import {
 
-    static FedoraAPIMService service;
-    static FedoraAPIM port;
+    //static FedoraAPIMService service;
+
+    //static FedoraAPIM port;
+
     static ObjectFactory of;
     static int counter = 0;
     private static final Logger log = Logger.getLogger(Import.class.getName());
@@ -88,16 +100,21 @@ public class Import {
      * @param args
      * @throws UnsupportedEncodingException 
      */
-    public static void main(String[] args) throws UnsupportedEncodingException {
+    public static void main(String[] args) throws UnsupportedEncodingException, RepositoryException {
+
+        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
+        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        sortingService = injector.getInstance(SortingService.class);
+
         String importDirectory = System.getProperties().containsKey("import.directory") ? System.getProperty("import.directory") : KConfiguration.getInstance().getProperty("import.directory");
-        Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
+        Import.ingest(fa, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
     }
     
 
-    public static void ingest(final String url, final String user, final String pwd, String importRoot) throws UnsupportedEncodingException {
+    public static void ingest(FedoraAccess fa, final String url, final String user, final String pwd, String importRoot) throws UnsupportedEncodingException {
         log.finest("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
-        Injector injector = Guice.createInjector(new ImportModule());
-        sortingService = injector.getInstance(SortingService.class);
+//        Injector injector = Guice.createInjector(new ImportModule());
+//        sortingService = injector.getInstance(SortingService.class);
 
         // system property 
         String skipIngest = System.getProperties().containsKey("ingest.skip") ? System.getProperty("ingest.skip") : KConfiguration.getInstance().getConfiguration().getString("ingest.skip", "false");
@@ -123,7 +140,7 @@ public class Import {
         Set<TitlePidTuple> roots = new HashSet<TitlePidTuple>();
         Set<String> sortRelations = new HashSet<String>();
         if (importFile.isDirectory()) {
-            visitAllDirsAndFiles(importFile, roots, sortRelations, updateExisting);
+            visitAllDirsAndFiles(fa, importFile, roots, sortRelations, updateExisting);
         } else {
             BufferedReader reader = null;
             try {
@@ -147,7 +164,7 @@ public class Import {
                         continue;
                     }
                     log.info("Importing " + importItem.getAbsolutePath());
-                    visitAllDirsAndFiles(importItem, roots, sortRelations, updateExisting);
+                    visitAllDirsAndFiles(fa, importItem, roots, sortRelations, updateExisting);
                 }
                 reader.close();
             } catch (IOException e) {
@@ -186,8 +203,13 @@ public class Import {
                     }
                     pids.append(tpt.pid);
                 }
-                IndexerProcessStarter.spawnIndexer(true, importFile.getName(), pids.toString());
-                log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
+
+                try {
+                    IndexerProcessStarter.spawnIndexer(true, importFile.getName(), pids.toString());
+                    log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
+                } catch (Exception e) {
+                    log.log(Level.WARNING, e.getMessage(),e);
+                }
             }
         } else {
             log.info("AUTO INDEXING DISABLED.");
@@ -202,21 +224,11 @@ public class Import {
             }
         });
 
-        FedoraAccess fedoraAccess = null;
-        try {
-            fedoraAccess = new FedoraAccessImpl(null, null);
-            log.info("Instantiated FedoraAccess");
-        } catch (IOException e) {
-            log.log(Level.SEVERE, "Cannot instantiate FedoraAccess", e);
-            throw new RuntimeException(e);
-        }
-        port = fedoraAccess.getAPIM();
-
 
         of = new ObjectFactory();
     }
 
-    private static void visitAllDirsAndFiles(File importFile, Set<TitlePidTuple> roots, Set<String> sortRelations, boolean updateExisting) {
+    private static void visitAllDirsAndFiles(FedoraAccess fa, File importFile, Set<TitlePidTuple> roots, Set<String> sortRelations, boolean updateExisting) {
         if (importFile == null) {
             return;
         }
@@ -235,7 +247,7 @@ public class Import {
                 Arrays.sort(children);
             }
             for (int i = 0; i < children.length; i++) {
-                visitAllDirsAndFiles(children[i], roots, sortRelations, updateExisting);
+                visitAllDirsAndFiles(fa, children[i], roots, sortRelations, updateExisting);
             }
         } else {
             DigitalObject dobj = null;
@@ -270,13 +282,30 @@ public class Import {
                                     } catch (TransformerException e) {
                                         throw new RuntimeException(e);
                                     }
-                                    port.modifyDatastreamByValue(dobj.getPID(), ds.getID(), null, null, null, null, outputStream.toByteArray(), null, null, "Datastream updated by import process", false);
+
+                                    final DigitalObject transactionDigitalObject = dobj;
+
+                                    Fedora4Utils.doInTransaction(fa.getTransactionAwareInternalAPI(), (repo)->{
+                                        String mimeType = "text/xml";
+                                        if (repo.getObject(transactionDigitalObject.getPID()).streamExists(ds.getID())) {
+                                            mimeType = repo.getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
+                                            repo.getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
+                                        }
+                                        repo.getObject(transactionDigitalObject.getPID()).createStream(ds.getID(), mimeType, new ByteArrayInputStream(outputStream.toByteArray()));
+                                    });
 
                                 } else if (dsversion.getBinaryContent() != null) {
                                     throw new RuntimeException("Update of managed binary datastream content is not supported.");
                                 } else if (dsversion.getContentLocation() != null) {
-                                    port.purgeDatastream(dobj.getPID(), ds.getID(), null, null, "Datastream updated by import process", false);
-                                    port.addDatastream(dobj.getPID(), ds.getID(), null, null, false, dsversion.getMIMETYPE(), null, dsversion.getContentLocation().getREF(), ds.getCONTROLGROUP(), ds.getSTATE().value(), "DISABLED", null, "Datastream updated by import process");
+
+                                    final DigitalObject transactionDigitalObject = dobj;
+
+                                    Fedora4Utils.doInTransaction(fa.getTransactionAwareInternalAPI(), (repo)->{
+                                        String mimeType = repo.getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
+                                        repo.getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
+                                        repo.getObject(transactionDigitalObject.getPID()).createRedirectedStream(ds.getID(),dsversion.getContentLocation().getREF());
+                                    });
+
                                 }
                             }
                         }
@@ -287,8 +316,13 @@ public class Import {
                         log.info("Added updated object for indexing:" + dobj.getPID());
                     }
                 } else {
-                    ingest(importFile, dobj.getPID(), sortRelations, roots, updateExisting);
-                    checkRoot(dobj, roots);
+                    final DigitalObject transactionDigitalObject = dobj;
+
+                    Fedora4Utils.doInTransaction(fa.getTransactionAwareInternalAPI(), (repo)->{
+                        ingest(repo, importFile, transactionDigitalObject.getPID(), sortRelations, roots, updateExisting);
+                        checkRoot(transactionDigitalObject, roots);
+                    });
+
                 }
             }catch (Throwable t){
                 log.severe("Error when ingesting PID: "+dobj.getPID()+", "+ t.getMessage());
@@ -329,14 +363,17 @@ public class Import {
         }
     }
 
-    public static void ingest(InputStream is, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException {
+    public static void ingest(Repository repo, InputStream is, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException, RepositoryException, JAXBException, LexerException, TransformerException {
         
         long start = System.currentTimeMillis();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         IOUtils.copyStreams(is, bos);
         byte[] bytes = bos.toByteArray();
+        DigitalObject obj = null;
         try {
-            port.ingest(bytes, "info:fedora/fedora-system:FOXML-1.1", "Initial ingest");
+            obj = (DigitalObject) unmarshaller.unmarshal(new ByteArrayInputStream(bytes));
+            pid = ((DigitalObject) obj).getPID();
+            ingest(repo, obj, pid,updateExisting);
         } catch (SOAPFaultException sfex) {
 
             //if (sfex.getMessage().contains("ObjectExistsException")) {
@@ -344,14 +381,16 @@ public class Import {
                 if (updateExisting){
                     log.info("Replacing existing object " + pid);
                     try{
-                        port.purgeObject(pid, "", false);
+                        repo.deleteobject(pid);
                         log.info("purged old object "+pid);
                     }catch(Exception ex){
                         log.severe("Cannot purge object " + pid + ", skipping: " + ex);
                         throw new RuntimeException(ex);
                     }
                     try {
-                        port.ingest(bytes, "info:fedora/fedora-system:FOXML-1.1", "Initial ingest");
+                        if (obj != null) {
+                            ingest(repo, obj, pid,updateExisting);
+                        }
                         log.info("Ingested new object "+pid);
                     } catch (SOAPFaultException rsfex) {
                         log.severe("Replace ingest SOAP fault:" + rsfex);
@@ -364,7 +403,7 @@ public class Import {
                     }
                 }else {
                     log.info("Merging with existing object " + pid);
-                    if (merge(bytes)) {
+                    if (merge(repo, bytes)) {
                         if (sortRelations != null) {
                             sortRelations.add(pid);
                             log.info("Added merged object for sorting relations:" + pid);
@@ -388,7 +427,7 @@ public class Import {
         log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
 
-    public static void ingest(File file, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) {
+    public static void ingest(Repository repo, File file, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) {
         if (pid == null) {
             try {
                 Object obj = unmarshaller.unmarshal(file);
@@ -402,30 +441,42 @@ public class Import {
 
         try {
             FileInputStream is = new FileInputStream(file);
-            ingest(is, pid, sortRelations, roots, updateExisting);
+            ingest(repo , is, pid, sortRelations, roots, updateExisting);
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Ingestion error ", ex);
             throw new RuntimeException(ex);
         }
     }
 
-    private static boolean merge(byte[] bytes) {
+    private static boolean merge(Repository repo, byte[] bytes) throws RepositoryException {
         List<RDFTuple> ingested = readRDF(bytes);
         if (ingested.isEmpty()) {
             return false;
         }
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
-        List<RelationshipTuple> existingWS = port.getRelationships(pid, null);
-        List<RDFTuple> existing = new ArrayList<RDFTuple>(existingWS.size());
-        for (RelationshipTuple t : existingWS) {
-            existing.add(new RDFTuple(t.getSubject(), t.getPredicate(), t.getObject(), t.isIsLiteral()));
+        List<Triple<String, String, String>> relations = repo.getObject(pid).getRelations(null);
+        List<Triple<String, String, String>> literals = repo.getObject(pid).getLiterals(null);
+
+        List<RDFTuple> existing = new ArrayList<>(relations.size());
+        for (Triple<String, String, String> t : relations) {
+            existing.add(new RDFTuple(t.getLeft(), t.getMiddle(), t.getRight(), false));
+        }
+        for (Triple<String, String, String> t : literals) {
+            existing.add(new RDFTuple(t.getLeft(), t.getMiddle(), t.getRight(), true));
         }
         ingested.removeAll(existing);
+
+
         boolean touched = false;
         for (RDFTuple t : ingested) {
             if (t.object != null) {
                 try {
-                    port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, t.literal, null);
+                    if (t.literal) {
+                        repo.getObject(pid).addLiteral(t.predicate, t.subject, t.object);
+                    } else {
+                        repo.getObject(pid).addRelation(t.predicate, t.subject, t.object);
+                    }
+                    //port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, t.literal, null);
                     touched = true;
                 } catch (Exception ex) {
                     log.severe("WARNING- could not add relationship:" + t + "(" + ex + ")");
@@ -489,6 +540,96 @@ public class Import {
         }
     }
 */
+
+
+    public static void ingest(Repository repo, DigitalObject dob, String pid, boolean updateExisting) throws IOException, LexerException, TransformerException, RepositoryException {
+        long start = System.currentTimeMillis();
+
+        List<PropertyType> properties = dob.getObjectProperties().getProperty();
+        for (PropertyType pt :
+                properties) {
+            String name = pt.getNAME();
+            String[] splitted = name.split("#");
+            if (splitted.length == 2) {
+                //FedoraNamespaces.
+            } else {
+                log.log(Level.SEVERE, "expecting value size "+splitted.length);
+            }
+            String value = pt.getVALUE();
+        }
+
+        PIDParser pidPArser = new PIDParser(pid);
+        pidPArser.objectPid();
+        String objId = pidPArser.getObjectPid();
+
+        RepositoryObject obj = repo.createOrFindObject( objId/*+"?mixin=fedora:object"*/);
+
+        List<DatastreamType> datastream = dob.getDatastream();
+        for (DatastreamType ds : datastream) {
+            String id = ds.getID();
+            String controlgroup = ds.getCONTROLGROUP();
+            DatastreamVersionType latestDs =  ds.getDatastreamVersion().isEmpty() ? null : ds.getDatastreamVersion().get(ds.getDatastreamVersion().size()-1);
+            if (latestDs != null) {
+                if (controlgroup.equals("X")) {
+                    byte[] xmlContent = xmlContent(latestDs);
+                    if (xmlContent != null) {
+                        //String s = IOUtils.toString(xmlContent, "UTF-8");
+                        createDataStream(repo,obj, id, latestDs,xmlContent, dob, updateExisting);
+                    }
+                } else if (controlgroup.equals("M")) {
+                    byte[] binaryContent = latestDs.getBinaryContent();
+                    if (binaryContent != null) {
+                        createDataStream(repo, obj, id, latestDs, binaryContent, dob,updateExisting);
+                    }
+                } else if (controlgroup.equals("E")) {
+                    ContentLocationType contentLocation = latestDs.getContentLocation();
+                    String ref = contentLocation.getREF();
+                    createRelationDataStream(repo, obj, id, ref);
+                }
+            }
+        }
+        counter++;
+        log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
+    }
+    private static void createRelationDataStream(Repository repo, RepositoryObject obj, String id, String url) throws RepositoryException {
+        obj.createRedirectedStream(id, url);
+    }
+
+    private static void createDataStream(Repository repo, RepositoryObject obj, String id,
+                                         DatastreamVersionType versionType, byte[] binaryContent, DigitalObject dob, boolean updateExisting) throws RepositoryException {
+        boolean relsExt = id.equals(FedoraUtils.RELS_EXT_STREAM);
+        String mimeType = relsExt ? "text/xml" : versionType.getMIMETYPE();
+        try {
+            //TODO: do it better
+            if (id.equals("POLICY")) return;
+
+            obj.createStream(id, mimeType, new ByteArrayInputStream(binaryContent));
+        } catch (RepositoryException e) {
+            if (updateExisting && obj.streamExists(id)) {
+                if (relsExt) {
+                    obj.removeRelationsAndRelsExt();
+                } else {
+                    obj.deleteStream(id);
+                }
+                obj.createStream(id, mimeType, new ByteArrayInputStream(binaryContent));
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    public static byte[] xmlContent(DatastreamVersionType dstype) throws TransformerException {
+        XmlContentType xmlContent = dstype.getXmlContent();
+        List<Element> any = xmlContent.getAny();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(bos);
+        XMLUtils.print(any.get(0),ps);
+        StringWriter writer = new StringWriter();
+        XMLUtils.print(any.get(0),writer);
+        return bos.toByteArray();
+
+    }
+
     /**
      * Parse FOXML file and if it has model in fedora.topLevelModels, add its
      * PID to roots list. Objects in the roots list then will be submitted to
@@ -657,8 +798,6 @@ class ImportModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-        bind(StatisticsAccessLog.class).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);

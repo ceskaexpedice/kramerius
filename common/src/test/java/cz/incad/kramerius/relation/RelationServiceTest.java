@@ -48,6 +48,7 @@ import static org.junit.Assert.*;
  *
  * @author Jan Pokorsky
  */
+@Ignore // should be rewritten
 public class RelationServiceTest {
 
     private interface ModelHandler {

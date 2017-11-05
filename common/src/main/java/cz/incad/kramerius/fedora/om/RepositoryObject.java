@@ -17,6 +17,8 @@
 
 package cz.incad.kramerius.fedora.om;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.w3c.dom.Document;
 
 import java.io.InputStream;
@@ -29,19 +31,6 @@ import java.util.List;
  */
 public interface RepositoryObject {
 
-    /**
-     * Sets model to underlaying object
-     * @param model Model of the object
-     * @throws RepositoryException
-     */
-    public void setModel(String model) throws RepositoryException;
-
-    /**
-     * Returns model of the underlaying object
-     * @return
-     * @throws RepositoryException
-     */
-    public String getModel() throws RepositoryException;
 
     /**
      * Get path within repository
@@ -49,11 +38,16 @@ public interface RepositoryObject {
      */
     public String getPath();
 
+    /**
+     * Return list of streams
+     * @return
+     * @throws RepositoryException
+     */
     public List<RepositoryDatastream> getStreams() throws RepositoryException;
 
 
     /**
-     * Create new substream
+     * Create new stream
      * @param streamId Stream id
      * @param mimeType Mimetype of the stream
      * @param input Binary content
@@ -61,6 +55,13 @@ public interface RepositoryObject {
      * @throws RepositoryException
      */
     public RepositoryDatastream createStream(String streamId, String mimeType, InputStream input) throws RepositoryException;
+
+    /**
+     * Delete stream
+     * @param streamId
+     * @throws RepositoryException
+     */
+    public void deleteStream(String streamId)  throws RepositoryException;
 
     // update properties by sparql
     public void updateSPARQL(String sparql) throws RepositoryException;
@@ -78,4 +79,36 @@ public interface RepositoryObject {
     public Document getMetadata() throws RepositoryException;
 
     public InputStream getFoxml() throws RepositoryException;
+
+
+    //apim.addRelationship(pid, tilesUrlNS,tilesUrl, true, null);
+    public void addRelation(String relation, String namespace, String targetRelation) throws RepositoryException;
+
+    public void addLiteral(String relation, String namespace, String value) throws RepositoryException;
+
+    public void removeRelation(String relation, String namespace, String targetRelation) throws RepositoryException;
+
+    public void removeRelationsByNameAndNamespace(String relation, String namespace) throws RepositoryException;
+
+    public void removeRelationsByNamespace(String namespace) throws RepositoryException;
+
+    public void removeRelationsByTarget(String target) throws RepositoryException;
+
+
+    public void removeLiteral(String relation, String namespace, String value) throws RepositoryException;
+
+    public boolean relationExists(String relation, String namespace, String targetRelation) throws RepositoryException;
+
+    public boolean relationsExists(String relation, String namespace) throws RepositoryException;
+
+    public boolean literalExists(String relation, String namespace, String value) throws RepositoryException;
+
+    public List<Triple<String, String, String>> getRelations(String namespace) throws RepositoryException;
+
+    public List<Triple<String, String, String>>  getLiterals(String namespace) throws RepositoryException;
+
+
+    public void removeRelationsAndRelsExt() throws RepositoryException;
+
+    public String getFullPath() throws RepositoryException;
 }

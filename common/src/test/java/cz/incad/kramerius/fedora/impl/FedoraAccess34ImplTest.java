@@ -29,6 +29,7 @@ import javax.xml.xpath.XPathExpressionException;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -36,6 +37,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+@Ignore
 public class FedoraAccess34ImplTest {
 
     /** Test getFedoraVersion method - fa 3.3 and also 3.4.x */

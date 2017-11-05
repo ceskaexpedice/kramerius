@@ -26,12 +26,14 @@ import java.net.MalformedURLException;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+@Ignore
 public class FedoraAccess33ImplTest {
 
     @Test
