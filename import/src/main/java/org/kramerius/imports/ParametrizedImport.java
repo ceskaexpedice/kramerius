@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.kramerius.Import;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
@@ -42,7 +43,7 @@ public class ParametrizedImport {
     @Process
     public static void process( @ParameterName("importDirectory") File importDirectory, 
             @ParameterName("startIndexer")Boolean startIndexer,
-            @ParameterName("updateExisting")Boolean updateExisting) throws UnsupportedEncodingException, ClassNotFoundException, InstantiationException, IllegalAccessException, RepositoryException {
+            @ParameterName("updateExisting")Boolean updateExisting) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, RepositoryException, SolrServerException {
 
         System.setProperty("import.directory", importDirectory.getAbsolutePath());
         System.setProperty("ingest.startIndexer", startIndexer.toString());

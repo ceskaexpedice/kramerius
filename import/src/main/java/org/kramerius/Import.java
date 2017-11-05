@@ -14,6 +14,7 @@ import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
@@ -29,6 +30,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.ObjectFactory;
@@ -100,119 +102,123 @@ public class Import {
      * @param args
      * @throws UnsupportedEncodingException 
      */
-    public static void main(String[] args) throws UnsupportedEncodingException, RepositoryException {
-
+    public static void main(String[] args) throws IOException, RepositoryException, SolrServerException {
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         sortingService = injector.getInstance(SortingService.class);
-
         String importDirectory = System.getProperties().containsKey("import.directory") ? System.getProperty("import.directory") : KConfiguration.getInstance().getProperty("import.directory");
-        Import.ingest(fa, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
+        ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
+        Import.ingest(fa, feeder , KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
+
     }
     
 
-    public static void ingest(FedoraAccess fa, final String url, final String user, final String pwd, String importRoot) throws UnsupportedEncodingException {
+    public static void ingest(FedoraAccess fa, ProcessingIndexFeeder feeder, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
         log.finest("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
-//        Injector injector = Guice.createInjector(new ImportModule());
-//        sortingService = injector.getInstance(SortingService.class);
 
         // system property 
-        String skipIngest = System.getProperties().containsKey("ingest.skip") ? System.getProperty("ingest.skip") : KConfiguration.getInstance().getConfiguration().getString("ingest.skip", "false");
-        if (new Boolean(skipIngest)) {
-            log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
-            return;
-        }
-
-        boolean updateExisting = Boolean.valueOf (System.getProperties().containsKey("ingest.updateExisting") ? System.getProperty("ingest.updateExisting") : KConfiguration.getInstance().getConfiguration().getString("ingest.updateExisting", "false"));
-        log.info("INGEST updateExisting: "+updateExisting);
-
-
-        long start = System.currentTimeMillis();
-
-        File importFile = new File(importRoot);
-        if (!importFile.exists()) {
-            log.severe("Import root folder or control file doesn't exist: " + importFile.getAbsolutePath());
-            throw new RuntimeException("Import root folder or control file doesn't exist: " + importFile.getAbsolutePath());
-        }
-
-        initialize(user, pwd);
-
-        Set<TitlePidTuple> roots = new HashSet<TitlePidTuple>();
-        Set<String> sortRelations = new HashSet<String>();
-        if (importFile.isDirectory()) {
-            visitAllDirsAndFiles(fa, importFile, roots, sortRelations, updateExisting);
-        } else {
-            BufferedReader reader = null;
-            try {
-                reader = new BufferedReader(new FileReader(importFile));
-            } catch (FileNotFoundException e) {
-                log.severe("Import file list " + importFile + " not found: " + e);
-                throw new RuntimeException(e);
+        try {
+            String skipIngest = System.getProperties().containsKey("ingest.skip") ? System.getProperty("ingest.skip") : KConfiguration.getInstance().getConfiguration().getString("ingest.skip", "false");
+            if (new Boolean(skipIngest)) {
+                log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
+                return;
             }
-            try {
-                for (String line; (line = reader.readLine()) != null;) {
-                    if ("".equals(line)) {
-                        continue;
-                    }
-                    File importItem = new File(line);
-                    if (!importItem.exists()) {
-                        log.severe("Import folder doesn't exist: " + importItem.getAbsolutePath());
-                        continue;
-                    }
-                    if (!importItem.isDirectory()) {
-                        log.severe("Import item is not a folder: " + importItem.getAbsolutePath());
-                        continue;
-                    }
-                    log.info("Importing " + importItem.getAbsolutePath());
-                    visitAllDirsAndFiles(fa, importItem, roots, sortRelations, updateExisting);
-                }
-                reader.close();
-            } catch (IOException e) {
-                log.severe("Exception reading import list file: " + e);
-                throw new RuntimeException(e);
+
+            boolean updateExisting = Boolean.valueOf (System.getProperties().containsKey("ingest.updateExisting") ? System.getProperty("ingest.updateExisting") : KConfiguration.getInstance().getConfiguration().getString("ingest.updateExisting", "false"));
+            log.info("INGEST updateExisting: "+updateExisting);
+
+
+            long start = System.currentTimeMillis();
+
+            File importFile = new File(importRoot);
+            if (!importFile.exists()) {
+                log.severe("Import root folder or control file doesn't exist: " + importFile.getAbsolutePath());
+                throw new RuntimeException("Import root folder or control file doesn't exist: " + importFile.getAbsolutePath());
             }
-        }
-        log.info("FINISHED INGESTION IN " + ((System.currentTimeMillis() - start) / 1000.0) + "s, processed " + counter + " files");
 
-        String startSortProperty = System.getProperties().containsKey("ingest.sortRelations") ? System.getProperty("ingest.sortRelations") : KConfiguration.getInstance().getConfiguration().getString("ingest.sortRelations", "true");
-        if (new Boolean(startSortProperty)) {
+            initialize(user, pwd);
 
-
-            if (sortRelations.isEmpty()) {
-                log.info("NO MERGED OBJECTS FOR RELATIONS SORTING FOUND.");
+            Set<TitlePidTuple> roots = new HashSet<TitlePidTuple>();
+            Set<String> sortRelations = new HashSet<String>();
+            if (importFile.isDirectory()) {
+                visitAllDirsAndFiles(fa, importFile, roots, sortRelations, updateExisting);
             } else {
-                for (String sortPid : sortRelations) {
-                    sortingService.sortRelations(sortPid, false);
-                }
-                log.info("ALL MERGED OBJECTS RELATIONS SORTED.");
-            }
-        } else {
-            log.info("RELATIONS SORTING DISABLED.");
-        }
-
-        String startIndexerProperty = System.getProperties().containsKey("ingest.startIndexer") ? System.getProperty("ingest.startIndexer") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true");
-        if (new Boolean(startIndexerProperty)) {
-            if (roots.isEmpty()) {
-                log.info("NO ROOT OBJECTS FOR INDEXING FOUND.");
-            } else {
-                StringBuilder pids = new StringBuilder();
-                String pidSeparator = KConfiguration.getInstance().getConfiguration().getString("indexer.pidSeparator", ";");
-                for (TitlePidTuple tpt : roots) {
-                    if (pids.length()>0){
-                        pids.append(pidSeparator);
-                    }
-                    pids.append(tpt.pid);
-                }
-
+                BufferedReader reader = null;
                 try {
-                    IndexerProcessStarter.spawnIndexer(true, importFile.getName(), pids.toString());
-                    log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
-                } catch (Exception e) {
-                    log.log(Level.WARNING, e.getMessage(),e);
+                    reader = new BufferedReader(new FileReader(importFile));
+                } catch (FileNotFoundException e) {
+                    log.severe("Import file list " + importFile + " not found: " + e);
+                    throw new RuntimeException(e);
+                }
+                try {
+                    for (String line; (line = reader.readLine()) != null;) {
+                        if ("".equals(line)) {
+                            continue;
+                        }
+                        File importItem = new File(line);
+                        if (!importItem.exists()) {
+                            log.severe("Import folder doesn't exist: " + importItem.getAbsolutePath());
+                            continue;
+                        }
+                        if (!importItem.isDirectory()) {
+                            log.severe("Import item is not a folder: " + importItem.getAbsolutePath());
+                            continue;
+                        }
+                        log.info("Importing " + importItem.getAbsolutePath());
+                        visitAllDirsAndFiles(fa, importItem, roots, sortRelations, updateExisting);
+                    }
+                    reader.close();
+                } catch (IOException e) {
+                    log.severe("Exception reading import list file: " + e);
+                    throw new RuntimeException(e);
                 }
             }
-        } else {
-            log.info("AUTO INDEXING DISABLED.");
+            log.info("FINISHED INGESTION IN " + ((System.currentTimeMillis() - start) / 1000.0) + "s, processed " + counter + " files");
+
+            String startSortProperty = System.getProperties().containsKey("ingest.sortRelations") ? System.getProperty("ingest.sortRelations") : KConfiguration.getInstance().getConfiguration().getString("ingest.sortRelations", "true");
+            if (new Boolean(startSortProperty)) {
+
+
+                if (sortRelations.isEmpty()) {
+                    log.info("NO MERGED OBJECTS FOR RELATIONS SORTING FOUND.");
+                } else {
+                    for (String sortPid : sortRelations) {
+                        sortingService.sortRelations(sortPid, false);
+                    }
+                    log.info("ALL MERGED OBJECTS RELATIONS SORTED.");
+                }
+            } else {
+                log.info("RELATIONS SORTING DISABLED.");
+            }
+
+            String startIndexerProperty = System.getProperties().containsKey("ingest.startIndexer") ? System.getProperty("ingest.startIndexer") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true");
+            if (new Boolean(startIndexerProperty)) {
+                if (roots.isEmpty()) {
+                    log.info("NO ROOT OBJECTS FOR INDEXING FOUND.");
+                } else {
+                    StringBuilder pids = new StringBuilder();
+                    String pidSeparator = KConfiguration.getInstance().getConfiguration().getString("indexer.pidSeparator", ";");
+                    for (TitlePidTuple tpt : roots) {
+                        if (pids.length()>0){
+                            pids.append(pidSeparator);
+                        }
+                        pids.append(tpt.pid);
+                    }
+
+                    try {
+                        IndexerProcessStarter.spawnIndexer(true, importFile.getName(), pids.toString());
+                        log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
+                    } catch (Exception e) {
+                        log.log(Level.WARNING, e.getMessage(),e);
+                    }
+                }
+            } else {
+                log.info("AUTO INDEXING DISABLED.");
+            }
+        } finally {
+            if (feeder != null) {
+                feeder.commit();
+            }
         }
 
     }
@@ -285,14 +291,14 @@ public class Import {
 
                                     final DigitalObject transactionDigitalObject = dobj;
 
-                                    Fedora4Utils.doInTransaction(fa.getTransactionAwareInternalAPI(), (repo)->{
-                                        String mimeType = "text/xml";
-                                        if (repo.getObject(transactionDigitalObject.getPID()).streamExists(ds.getID())) {
-                                            mimeType = repo.getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
-                                            repo.getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
-                                        }
-                                        repo.getObject(transactionDigitalObject.getPID()).createStream(ds.getID(), mimeType, new ByteArrayInputStream(outputStream.toByteArray()));
-                                    });
+
+                                    String mimeType = "text/xml";
+                                    if (fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).streamExists(ds.getID())) {
+                                        mimeType = fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
+                                        fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
+                                    }
+                                    fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).createStream(ds.getID(), mimeType, new ByteArrayInputStream(outputStream.toByteArray()));
+
 
                                 } else if (dsversion.getBinaryContent() != null) {
                                     throw new RuntimeException("Update of managed binary datastream content is not supported.");
@@ -300,11 +306,10 @@ public class Import {
 
                                     final DigitalObject transactionDigitalObject = dobj;
 
-                                    Fedora4Utils.doInTransaction(fa.getTransactionAwareInternalAPI(), (repo)->{
-                                        String mimeType = repo.getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
-                                        repo.getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
-                                        repo.getObject(transactionDigitalObject.getPID()).createRedirectedStream(ds.getID(),dsversion.getContentLocation().getREF());
-                                    });
+                                    String mimeType = fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
+                                    fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
+                                    fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).createRedirectedStream(ds.getID(),dsversion.getContentLocation().getREF());
+
 
                                 }
                             }
@@ -318,10 +323,10 @@ public class Import {
                 } else {
                     final DigitalObject transactionDigitalObject = dobj;
 
-                    Fedora4Utils.doInTransaction(fa.getTransactionAwareInternalAPI(), (repo)->{
-                        ingest(repo, importFile, transactionDigitalObject.getPID(), sortRelations, roots, updateExisting);
-                        checkRoot(transactionDigitalObject, roots);
-                    });
+                    ingest(fa.getInternalAPI(), importFile, transactionDigitalObject.getPID(), sortRelations, roots, updateExisting);
+                    checkRoot(transactionDigitalObject, roots);
+//                    Fedora4Utils.doInTransaction(fa.getTransactionAwareInternalAPI(), (repo)->{
+//                    });
 
                 }
             }catch (Throwable t){
@@ -565,6 +570,7 @@ public class Import {
         RepositoryObject obj = repo.createOrFindObject( objId/*+"?mixin=fedora:object"*/);
 
         List<DatastreamType> datastream = dob.getDatastream();
+
         for (DatastreamType ds : datastream) {
             String id = ds.getID();
             String controlgroup = ds.getCONTROLGROUP();
@@ -581,13 +587,14 @@ public class Import {
                     if (binaryContent != null) {
                         createDataStream(repo, obj, id, latestDs, binaryContent, dob,updateExisting);
                     }
-                } else if (controlgroup.equals("E")) {
+                } else if ((controlgroup.equals("E") || (controlgroup.equals("R")))) {
                     ContentLocationType contentLocation = latestDs.getContentLocation();
                     String ref = contentLocation.getREF();
                     createRelationDataStream(repo, obj, id, ref);
                 }
             }
         }
+
         counter++;
         log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
@@ -599,11 +606,13 @@ public class Import {
                                          DatastreamVersionType versionType, byte[] binaryContent, DigitalObject dob, boolean updateExisting) throws RepositoryException {
         boolean relsExt = id.equals(FedoraUtils.RELS_EXT_STREAM);
         String mimeType = relsExt ? "text/xml" : versionType.getMIMETYPE();
+
         try {
             //TODO: do it better
             if (id.equals("POLICY")) return;
 
             obj.createStream(id, mimeType, new ByteArrayInputStream(binaryContent));
+
         } catch (RepositoryException e) {
             if (updateExisting && obj.streamExists(id)) {
                 if (relsExt) {

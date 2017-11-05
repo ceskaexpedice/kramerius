@@ -128,7 +128,6 @@ public class Fedora4Repository extends Repository {
      */
     @Override
     public RepositoryObject createOrFindObject(String ident) throws RepositoryException {
-        try {
             List<String> normalized = Fedora4Utils.normalizePath(ident);
             if (objectExists(ident)) {
                 Fedora4Object obj = new Fedora4Object(this, this.client,normalized, ident, this.feeder);
@@ -155,9 +154,6 @@ public class Fedora4Repository extends Repository {
                     throw new RepositoryException(e);
                 }
             }
-        } catch (IOException e) {
-            throw new RepositoryException(e);
-        }
     }
 
 

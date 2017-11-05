@@ -34,6 +34,7 @@ import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
@@ -62,6 +63,7 @@ public class ImportDuplicator {
 //    static FedoraAPIM port;
 
     static FedoraAccess fedoraAccess;
+    static ProcessingIndexFeeder feeder;
     static ObjectFactory of;
     static int counter = 0;
 
@@ -121,16 +123,7 @@ public class ImportDuplicator {
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
         fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-
-//        FedoraAccess fedoraAccess = null;
-//        try {
-//            fedoraAccess = new FedoraAccessImpl(null,null);
-//            log.info("Instantiated FedoraAccess");
-//        } catch (IOException e) {
-//            log.log(Level.SEVERE,"Cannot instantiate FedoraAccess",e);
-//            throw new RuntimeException(e);
-//        }
-        //port = fedoraAccess.getAPIM();
+        feeder = injector.getInstance(ProcessingIndexFeeder.class);
 
 
         of = new ObjectFactory();
@@ -258,19 +251,7 @@ public class ImportDuplicator {
 
             String pid = "";
             try {
-                Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
-                    try {
-                        Import.ingest(repo, new ByteArrayInputStream(bytes), null,null, null,false);
-                    } catch (IOException e) {
-                        throw new RepositoryException(e);
-                    } catch (JAXBException e) {
-                        throw new RepositoryException(e);
-                    } catch (LexerException e) {
-                        throw new RepositoryException(e);
-                    } catch (TransformerException e) {
-                        throw new RepositoryException(e);
-                   }
-                });
+                Import.ingest(fedoraAccess.getInternalAPI(), new ByteArrayInputStream(bytes), null,null, null,false);
             } catch (SOAPFaultException sfex) {
 
                 if (sfex.getMessage().contains("ObjectExistsException")) {
@@ -279,6 +260,8 @@ public class ImportDuplicator {
                     log.severe("Ingest SOAP fault:"+sfex);
                     throw new RuntimeException(sfex);
                 }
+            } finally {
+                if (feeder != null) feeder.commit();
             }
             counter++;
             //log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:"+counter);

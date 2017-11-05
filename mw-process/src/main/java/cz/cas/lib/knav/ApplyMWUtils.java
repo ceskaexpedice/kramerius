@@ -10,6 +10,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import cz.incad.kramerius.fedora.om.RepositoryException;
 import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,7 +51,7 @@ public class ApplyMWUtils {
     public static void applyMWOverPidsArray(FedoraAccess fa, SolrAccess sa,
             CollectPidForIndexing coll, String userValue, String[] pids)
             throws IOException, RightCriteriumException,
-            XPathExpressionException {
+            XPathExpressionException, RepositoryException {
         String title = ApplyMWUtils.updateMovingWallTitle(pids, sa);
         ApplyMovingWall.LOGGER.info("Apply moving wall for " + title);
         try {
@@ -73,8 +74,6 @@ public class ApplyMWUtils {
     /**
      * Human readable title of the process
      * 
-     * @param pid
-     *            Proccess pid
      * @param sa
      *            SolrAccess
      */
@@ -138,7 +137,7 @@ public class ApplyMWUtils {
      */
     public static void movingWallOnTree(String masterPid, String userValue, FedoraAccess fa, SolrAccess sa,
             CollectPidForIndexing coll) throws IOException,
-            RightCriteriumException, XPathExpressionException {
+            RightCriteriumException, XPathExpressionException, RepositoryException {
         ApplyMovingWall.LOGGER.info("Setting public | private flag for pid " + masterPid);
         ApplyMWUtils.process(fa, sa, masterPid, userValue, coll);
         Set<String> pids = fa.getPids(masterPid);
@@ -176,7 +175,7 @@ public class ApplyMWUtils {
      */
     public static void process(FedoraAccess fa, SolrAccess sa, String onePid, String userValue,
             CollectPidForIndexing coll) throws IOException,
-            RightCriteriumException, XPathExpressionException {
+            RightCriteriumException, XPathExpressionException, RepositoryException {
         ProcessCriteriumContext ctx = new ProcessCriteriumContext(onePid, fa,
                 sa);
 
@@ -235,7 +234,7 @@ public class ApplyMWUtils {
      */
     public static void setPolicyFlag(String pid, boolean b, FedoraAccess fa,
             String previousState, CollectPidForIndexing coll)
-            throws IOException {
+            throws IOException, RepositoryException {
         if (ApplyMWUtils.detectChange(b, previousState)) {
             PolicyServiceImpl policy = new PolicyServiceImpl();
             policy.setFedoraAccess(fa);

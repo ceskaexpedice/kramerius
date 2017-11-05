@@ -28,6 +28,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
@@ -39,6 +40,7 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 import org.apache.kahadb.util.ByteArrayInputStream;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.kramerius.Import;
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
@@ -122,14 +124,13 @@ public class SecondPhase extends AbstractPhase  {
     public void ingest(File foxmlfile) throws PhaseException{
         LOGGER.info("ingesting '"+foxmlfile.getAbsolutePath()+"'");
         Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
+        ProcessingIndexFeeder feeder = null;
         try {
 
             Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
             FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-
-            Fedora4Utils.doInTransaction(fa.getTransactionAwareInternalAPI(), (repo)-> {
-                Import.ingest(repo, foxmlfile, null, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
-            });
+            feeder = injector.getInstance(ProcessingIndexFeeder.class);
+            Import.ingest(fa.getInternalAPI(), foxmlfile, null, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
 
         } catch (RuntimeException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
@@ -137,6 +138,14 @@ public class SecondPhase extends AbstractPhase  {
         } catch (RepositoryException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
             else throw new PhaseException(this,e);
+        } finally {
+            try {
+                if (feeder != null) feeder.commit();
+            } catch (IOException e) {
+                throw new PhaseException(this, e);
+            } catch (SolrServerException e) {
+                throw new PhaseException(this, e);
+            }
         }
     }
     

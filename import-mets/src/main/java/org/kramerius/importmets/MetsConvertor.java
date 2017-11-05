@@ -9,6 +9,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -17,6 +18,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.kramerius.Import;
 import org.kramerius.importmets.convertor.MetsPeriodicalConvertor;
 import org.kramerius.importmets.valueobj.ConvertorConfig;
@@ -48,7 +50,7 @@ public class MetsConvertor {
     private static Unmarshaller unmarshaller = null;
     private static boolean foundvalidPSP = false;
 
-    public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException, UnsupportedEncodingException, RepositoryException {
+    public static void main(String[] args) throws InterruptedException, JAXBException, IOException, SAXException, ServiceException, RepositoryException, SolrServerException {
 
         if (args.length  != 3) {
             System.out.println("ANL METS to FOXML conversion tool.\n");
@@ -77,8 +79,9 @@ public class MetsConvertor {
 
             Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
             FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+            ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
 
-            Import.ingest(fa, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), exportRoot);
+            Import.ingest(fa,feeder,KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), exportRoot);
 
         }
     }

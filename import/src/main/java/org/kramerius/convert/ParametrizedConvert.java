@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import javax.xml.bind.JAXBException;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.kramerius.Convert;
 import org.kramerius.Import;
 import org.xml.sax.SAXException;
@@ -48,7 +49,7 @@ public class ParametrizedConvert {
             @ParameterName("convertTargetDirectory") File convertTargetDirectory, 
             @ParameterName("ingestSkip") Boolean ingestSkip,
             @ParameterName("startIndexer")Boolean startIndexer, 
-            @ParameterName("defaultRights")Boolean defaultRights) throws FileNotFoundException, InterruptedException, JAXBException, SAXException, ServiceException, UnsupportedEncodingException, RepositoryException {
+            @ParameterName("defaultRights")Boolean defaultRights) throws IOException, InterruptedException, JAXBException, SAXException, ServiceException, RepositoryException, SolrServerException {
         
 
         

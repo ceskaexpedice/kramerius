@@ -205,12 +205,16 @@ public class Fedora4Object implements RepositoryObject {
                         URI location = response.getLocation();
                         if (streamId.equals(FedoraUtils.RELS_EXT_STREAM)) {
                             // process rels-ext and create all children and relations
+
                             this.feeder.deleteByRelationsForPid(pid);
                             RELSEXTSPARQLBuilder sparqlBuilder = new RELSEXTSPARQLBuilderImpl();
+                            long startProcessing = System.currentTimeMillis();
+                            // index after callect
                             String sparql = sparqlBuilder.sparqlProps(new String(Arrays.copyOf(bos.getBytes(), length), "UTF-8").trim(), (object, localName)->{
+
                                 if(localName.equals("hasModel")) {
                                     try {
-                                        // TODO: dc.title
+
                                         if (this.streamExists(FedoraUtils.DC_STREAM)) {
                                             try {
                                                 InputStream stream = this.getStream(FedoraUtils.DC_STREAM).getContent();

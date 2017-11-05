@@ -30,13 +30,13 @@ public class ParametrizedImport extends AbstractMainMenuItem implements AdminMen
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedPlanProcess("parametrizedimport_jackrabbit"));
+        return (hasUserAllowedPlanProcess("parametrizedimport"));
     }
 
     @Override
     public String getRenderedItem() throws IOException {
         return renderMainMenuItem(
-            "javascript:parametrizedProcess.open('parametrizedimport_jackrabbit'); javascript:hideAdminMenu();",
+            "javascript:parametrizedProcess.open('parametrizedimport'); javascript:hideAdminMenu();",
             "administrator.menu.dialogs.parametrizedimport.title", false);
     }
 }

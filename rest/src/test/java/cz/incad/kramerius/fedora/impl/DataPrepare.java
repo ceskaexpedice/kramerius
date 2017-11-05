@@ -28,6 +28,7 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.utils.FedoraUtils;
 import org.easymock.EasyMock;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -156,6 +157,7 @@ public class DataPrepare {
     public static void narodniListyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
             String pid = NARODNI_LISTY[i];
+            expect(fa.isStreamAvailable(pid, FedoraUtils.RELS_EXT_STREAM)).andReturn(true).anyTimes();
             relsExt(fa, pid);
         }        
     }
@@ -163,6 +165,7 @@ public class DataPrepare {
     public static void drobnustkyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
         for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
             String pid = DROBNUSTKY_PIDS[i];
+            expect(fa.isStreamAvailable(pid, FedoraUtils.RELS_EXT_STREAM)).andReturn(true).anyTimes();
             relsExt(fa, pid);
         }        
     }

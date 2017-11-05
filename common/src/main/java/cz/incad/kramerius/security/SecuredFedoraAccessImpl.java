@@ -18,7 +18,6 @@ package cz.incad.kramerius.security;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -29,8 +28,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import org.fedora.api.FedoraAPIA;
-import org.fedora.api.FedoraAPIM;
 import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -179,16 +176,6 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
             }
         }
         return false;
-    }
-
-    @Override
-    public FedoraAPIA getAPIA() {
-        return rawAccess.getAPIA();
-    }
-
-    @Override
-    public FedoraAPIM getAPIM() {
-        return rawAccess.getAPIM();
     }
 
     @Override

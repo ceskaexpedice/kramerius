@@ -297,25 +297,9 @@ public interface FedoraAccess {
     public boolean isContentAccessible(String pid) throws IOException;
 
 
-    /**
-     * Creates and returns API-A stub
-     *
-     * @return API-A stub
-     */
-    @Deprecated
-    public FedoraAPIA getAPIA();
-
     public Repository getInternalAPI() throws RepositoryException;
 
     public Repository getTransactionAwareInternalAPI() throws RepositoryException;
-
-    /**
-     * Creates and returns API-M stub
-     *
-     * @return API-M stub
-     */
-    @Deprecated
-    public FedoraAPIM getAPIM();
 
     /**
      * Creates and returns objectFactory

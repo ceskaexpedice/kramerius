@@ -15,8 +15,6 @@ import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.config.units.MemoryUnit;
 import org.ehcache.expiry.Duration;
 import org.ehcache.expiry.Expirations;
-import org.fedora.api.FedoraAPIA;
-import org.fedora.api.FedoraAPIM;
 import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -276,16 +274,6 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
     @Override
     public boolean isContentAccessible(String pid) throws IOException {
         return fedoraAccess.isContentAccessible(pid);
-    }
-
-    @Override
-    public FedoraAPIA getAPIA() {
-        return fedoraAccess.getAPIA();
-    }
-
-    @Override
-    public FedoraAPIM getAPIM() {
-        return fedoraAccess.getAPIM();
     }
 
     @Override

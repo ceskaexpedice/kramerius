@@ -9,6 +9,7 @@ import cz.cas.lib.knav.indexer.CollectPidForIndexing;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -24,7 +25,7 @@ public class ApplyMovingWall {
             .getName());
 
     public static void main(String[] args) throws IOException,
-            RightCriteriumException, XPathExpressionException {
+            RightCriteriumException, XPathExpressionException, RepositoryException {
 
         FedoraAccess fa = new FedoraAccessImpl(KConfiguration.getInstance(),
                 null);

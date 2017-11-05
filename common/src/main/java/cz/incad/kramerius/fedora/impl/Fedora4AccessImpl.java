@@ -19,8 +19,6 @@ import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.impl.Fedora4Repository;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import org.apache.commons.io.IOUtils;
-import org.fedora.api.FedoraAPIA;
-import org.fedora.api.FedoraAPIM;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -57,16 +55,6 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
     @Override
     public Repository getTransactionAwareInternalAPI() throws RepositoryException {
         return Fedora4Repository.build(feeder, true);
-    }
-
-    @Override
-    public FedoraAPIA getAPIA() {
-        throw new UnsupportedOperationException("unsupported operation!");
-    }
-
-    @Override
-    public FedoraAPIM getAPIM() {
-        throw new UnsupportedOperationException("unsupported operation!");
     }
 
     @Override

@@ -32,7 +32,6 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
-import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.fedora.api.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -46,7 +45,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
@@ -701,22 +699,6 @@ public class FedoraAccessImpl implements FedoraAccess {
     private FedoraAPIM APIMport;
     private FedoraAPIA APIAport;
     private ObjectFactory of;
-
-    @Override
-    public FedoraAPIA getAPIA() {
-        if (APIAport == null) {
-            initAPIA();
-        }
-        return APIAport;
-    }
-
-    @Override
-    public FedoraAPIM getAPIM() {
-        if (APIMport == null) {
-            initAPIM();
-        }
-        return APIMport;
-    }
 
     @Override
     public ObjectFactory getObjectFactory() {

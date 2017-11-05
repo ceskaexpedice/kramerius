@@ -58,6 +58,7 @@ public abstract class Repository {
      */
     public abstract RepositoryObject createOrFindObject(String ident) throws RepositoryException;
 
+
     /**
      * Returns object
      * @param ident

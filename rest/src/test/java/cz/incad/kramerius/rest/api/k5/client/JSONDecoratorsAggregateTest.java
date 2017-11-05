@@ -22,6 +22,7 @@ import static cz.incad.kramerius.fedora.impl.DataPrepare.drobnustkyWithIMGFULL;
 import static cz.incad.kramerius.fedora.impl.DataPrepare.narodniListyRelsExt;
 import static cz.incad.kramerius.solr.impl.SolrPrepare.solrDataDocument;
 import static cz.incad.kramerius.solr.impl.SolrPrepare.solrMemoPrepare;
+import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
@@ -35,6 +36,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import org.easymock.EasyMock;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -69,8 +72,12 @@ public class JSONDecoratorsAggregateTest {
         StatisticsAccessLog aclog = EasyMock
                 .createMock(StatisticsAccessLog.class);
 
-        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-                .withConstructor(KConfiguration.getInstance(), aclog)
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+
+        Fedora4AccessImpl fa = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("getRelsExt")
                 .createMock();
 
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class).createMock();
@@ -101,9 +108,14 @@ public class JSONDecoratorsAggregateTest {
         StatisticsAccessLog aclog = EasyMock
                 .createMock(StatisticsAccessLog.class);
 
-        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-                .withConstructor(KConfiguration.getInstance(), aclog)
-                .addMockedMethod("getRelsExt").createMock();
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+
+        Fedora4AccessImpl fa = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("getRelsExt")
+                .createMock();
+
 
         narodniListyRelsExt(fa);
         drobnustkyRelsExt(fa);
@@ -155,10 +167,13 @@ public class JSONDecoratorsAggregateTest {
             SecurityException, NoSuchMethodException, JSONException {
         StatisticsAccessLog aclog = EasyMock
                 .createMock(StatisticsAccessLog.class);
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
-        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-                .withConstructor(KConfiguration.getInstance(), aclog)
-                .addMockedMethod("getRelsExt").createMock();
+        Fedora4AccessImpl fa = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("getRelsExt")
+                .createMock();
 
         narodniListyRelsExt(fa);
         drobnustkyRelsExt(fa);
@@ -209,9 +224,12 @@ public class JSONDecoratorsAggregateTest {
 
         StatisticsAccessLog aclog = EasyMock
                 .createMock(StatisticsAccessLog.class);
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
-        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-                .withConstructor(KConfiguration.getInstance(), aclog)
+        Fedora4AccessImpl fa = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .addMockedMethod("isStreamAvailable")
+                .addMockedMethod("getRelsExt")
                 .createMock();
 
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
@@ -278,20 +296,21 @@ public class JSONDecoratorsAggregateTest {
     public void testDecorateBasic() throws IOException,
             ParserConfigurationException, SAXException, LexerException,
             SecurityException, NoSuchMethodException, JSONException {
+        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
         StatisticsAccessLog aclog = EasyMock
                 .createMock(StatisticsAccessLog.class);
 
-        FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
-                .withConstructor(KConfiguration.getInstance(), aclog)
+        Fedora4AccessImpl fa = createMockBuilder(Fedora4AccessImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
-                .addMockedMethod("isImageFULLAvailable")
-                .addMockedMethod("getFedoraDataStreamsList").createMock();
+                .createMock();
 
         // narodniListyRelsExt(fa);
         drobnustkyRelsExt(fa);
         drobnustkyWithIMGFULL(fa);
-        dataStreams(fa, DataPrepare.DROBNUSTKY_PIDS[0]);
+        //dataStreams(fa, DataPrepare.DROBNUSTKY_PIDS[0]);
 
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
                 .addMockedMethod(

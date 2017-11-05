@@ -8,6 +8,7 @@ import cz.cas.lib.knav.indexer.CollectPidForIndexing;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
@@ -18,7 +19,7 @@ public class ParametrizedApplyMovingWall {
 
 
     @Process
-    public static void process(@ParameterName("userValue") String uVal, @ParameterName("pids") String pidsString) throws XPathExpressionException, IOException, RightCriteriumException {
+    public static void process(@ParameterName("userValue") String uVal, @ParameterName("pids") String pidsString) throws XPathExpressionException, IOException, RightCriteriumException, RepositoryException {
 
         FedoraAccess fa = new FedoraAccessImpl(KConfiguration.getInstance(),null);
         SolrAccess sa = new SolrAccessImpl();
