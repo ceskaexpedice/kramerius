@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+    <mods:mods ID="MODS_SUPPLEMENT_0026" version="3.4">
+        <mods:genre type="issue_supplement">supplement</mods:genre>
+
+        <mods:titleInfo>
+            <mods:partNumber>177</mods:partNumber>
+        </mods:titleInfo>
+
+        <mods:originInfo>
+            <mods:place>
+                <mods:placeTerm>Brno</mods:placeTerm>
+            </mods:place>
+
+            <mods:publisher>Vilém Burkart</mods:publisher>
+            <mods:dateIssued>05.08.1911</mods:dateIssued>
+        </mods:originInfo>
+
+        <mods:language>
+            <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+        </mods:language>
+
+        <mods:physicalDescription>
+            <mods:form authority="marcform">print</mods:form>
+            <mods:extent>print</mods:extent>
+        </mods:physicalDescription>
+
+        <mods:identifier type="urnnbn">urn:nbn:cz:mzk-001q7a</mods:identifier>
+        <mods:identifier type="uuid">3a7ca870-834f-11e3-a70e-005056822549</mods:identifier>
+        <mods:identifier type="ccnb">cnb002367546</mods:identifier>
+    </mods:mods>
+</mods:modsCollection>
