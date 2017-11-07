@@ -1,0 +1,121 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+    <mods:mods xmlns="" ID="MODS_VOLUME_0001" version="3.4">
+
+        <mods:titleInfo>
+
+            <mods:title>-- vyprávění o straně</mods:title>
+        </mods:titleInfo>
+
+        <mods:name type="personal">
+
+            <mods:namePart>Hrala, Milan</mods:namePart>
+
+            <mods:namePart type="date">1931-</mods:namePart>
+
+            <mods:role>
+
+                <mods:roleTerm authority="marcrelator" type="code">com</mods:roleTerm>
+            </mods:role>
+        </mods:name>
+
+        <mods:typeOfResource>text</mods:typeOfResource>
+
+        <mods:genre>volume</mods:genre>
+
+        <mods:originInfo>
+
+            <mods:place>
+
+                <mods:placeTerm authority="marccountry" type="text">xr</mods:placeTerm>
+            </mods:place>
+
+            <mods:place>
+
+                <mods:placeTerm type="text">Praha</mods:placeTerm>
+            </mods:place>
+
+            <mods:publisher>Lidové nakladatelství</mods:publisher>
+
+            <mods:edition>1. vyd.</mods:edition>
+
+            <mods:issuance>single unit</mods:issuance>
+
+            <mods:dateIssued>1987</mods:dateIssued>
+        </mods:originInfo>
+
+        <mods:language>
+
+            <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+        </mods:language>
+
+        <mods:language objectPart="translation">
+
+            <mods:languageTerm authority="iso639-2b" type="code">rus</mods:languageTerm>
+        </mods:language>
+
+        <mods:physicalDescription>
+
+            <mods:form authority="marcform">print</mods:form>
+
+            <mods:form authority="marccategory">text</mods:form>
+
+            <mods:form authority="marcsmd">regular print</mods:form>
+
+            <mods:extent>791 s.</mods:extent>
+        </mods:physicalDescription>
+
+        <mods:targetAudience authority="marctarget">adult</mods:targetAudience>
+
+        <mods:note type="statement of responsibility">z ruských originálů vybral Milan Hrala ; přeložila Miluška
+            Hančilová, ... [et al.]
+        </mods:note>
+
+        <mods:classification authority="udc">329.15(47)(0.062)</mods:classification>
+
+        <mods:location>
+
+            <mods:physicalLocation authority="siglaADR">BOA001</mods:physicalLocation>
+
+            <mods:shelfLocator>2-0918.388</mods:shelfLocator>
+        </mods:location>
+
+        <mods:relatedItem type="otherVersion">
+
+            <mods:titleInfo>
+
+                <mods:title>Rasskazy o partii</mods:title>
+            </mods:titleInfo>
+        </mods:relatedItem>
+
+        <mods:identifier type="urnnbn">urn:nbn:cz:mzk-0032mx</mods:identifier>
+
+        <mods:identifier type="barCode">2619331013</mods:identifier>
+
+        <mods:identifier type="uuid">9d63a020-341f-11e4-8e0d-005056827e51</mods:identifier>
+
+        <mods:identifier type="ccnb">cnb000032466</mods:identifier>
+
+        <mods:identifier type="oclc">39406354</mods:identifier>
+
+        <mods:recordInfo>
+
+            <mods:descriptionStandard>aacr</mods:descriptionStandard>
+
+            <mods:recordContentSource authority="marcorg">BOA001</mods:recordContentSource>
+
+            <mods:recordCreationDate encoding="iso8601">2007-02-05T00:00:00Z</mods:recordCreationDate>
+
+            <mods:recordChangeDate encoding="iso8601">2007-02-05T11:16:02Z</mods:recordChangeDate>
+
+            <mods:recordIdentifier source="CZ-BrMZK">000840425</mods:recordIdentifier>
+
+            <mods:recordOrigin>machine generated</mods:recordOrigin>
+
+            <mods:languageOfCataloging>
+
+                <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+            </mods:languageOfCataloging>
+        </mods:recordInfo>
+    </mods:mods>
+</mods:modsCollection>

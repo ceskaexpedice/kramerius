@@ -544,18 +544,21 @@ public class SolrOperations {
         }
     }
 
-    
-    public static String prepareDocForIndexing(String rawXML) throws ParserConfigurationException, SAXException, IOException,
+    public static String prepareDocForIndexing(boolean compositeId, String rawXML) throws ParserConfigurationException, SAXException, IOException,
             TransformerException, UnsupportedEncodingException {
         Document document = XMLUtils.parseDocument(new StringReader(rawXML));
         Element docroot = document.getDocumentElement();
-        boolean compsoiteId  = KConfiguration.getInstance().getConfiguration().getBoolean("indexer.compositeId", false);
-        if (compsoiteId) {
+        if (compositeId) {
             PrepareIndexDocUtils.enhanceByCompositeId(document, document.getDocumentElement());
         }
         rawXML = PrepareIndexDocUtils.wrapByAddCommand(document);
         String docSrc = removeTroublesomeCharacters(rawXML);
         return docSrc;
+    }
+
+    public static String prepareDocForIndexing(String rawXML) throws ParserConfigurationException, SAXException, IOException,
+            TransformerException, UnsupportedEncodingException {
+        return prepareDocForIndexing(KConfiguration.getInstance().getConfiguration().getBoolean("indexer.compositeId", false), rawXML);
     }
 
     
