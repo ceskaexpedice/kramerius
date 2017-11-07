@@ -18,19 +18,16 @@ package cz.incad.kramerius.utils.solr;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.httpclient.HttpClientError;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpGet;
@@ -46,6 +43,8 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
+import static org.apache.http.HttpStatus.SC_OK;
 
 /**
  * Utility helper class for SolrAccess
@@ -206,7 +205,7 @@ public class SolrUtils   {
         HttpGet httpGet = new HttpGet(uri);
         CloseableHttpClient client = HttpClients.createDefault();
         HttpResponse response = client.execute(httpGet);
-        if (response.getStatusLine().getStatusCode() == 200) {
+        if (response.getStatusLine().getStatusCode() == SC_OK) {
             return response.getEntity().getContent();
         } else {
             throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
