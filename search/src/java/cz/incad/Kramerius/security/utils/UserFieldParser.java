@@ -114,17 +114,4 @@ public class UserFieldParser {
     }
     
     
-    public static void main(String[] args) {
-        try {
-            //String user = "alberto@incad.cz (Alberto Hernandez) (Uzivatel)";
-            String user = "pavels@incad.cz (Pavel Šťastný) (Uživatel)";
-            UserFieldParser ufp = new UserFieldParser(user);
-            ufp.parseUser();
-            System.out.println(ufp.getUserValue());
-            
-        } catch (LexerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
 }

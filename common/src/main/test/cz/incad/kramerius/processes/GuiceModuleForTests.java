@@ -20,7 +20,8 @@ public class GuiceModuleForTests extends AbstractModule {
 		KConfiguration testConf = KConfiguration.getKConfiguration();
 		bind(KConfiguration.class).toInstance(testConf);
 		bind(DefinitionManager.class).to(LRProcessDefinitionManagerImpl.class).in(Scopes.SINGLETON);
-		bind(LRProcessManager.class).to(DatabaseProcessManager.class).in(Scopes.SINGLETON);
+		//bind(LRProcessManager.class).to(DatabaseProcessManager.class).in(Scopes.SINGLETON);
 		//bind(Connection.class).toProvider(DefaultConnectionProvider.class);
 	}
+
 }

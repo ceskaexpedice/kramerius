@@ -30,6 +30,7 @@ import java.util.logging.Logger;
  */
 public class Fedora4Utils {
 
+
     public static final Logger LOGGER = Logger.getLogger(Fedora4Utils.class.getName());
 
     // divide factor for storing in repo

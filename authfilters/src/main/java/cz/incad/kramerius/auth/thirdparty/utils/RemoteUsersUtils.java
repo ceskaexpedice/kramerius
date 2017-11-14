@@ -111,19 +111,5 @@ public class RemoteUsersUtils {
         return t;
     }
 
-    public static void main(String[] args) throws JSONException, Exception {
-        String str = "_third_party_googleplus_114387057939312155006";
-        JSONArray user = getUser(str);
-        System.out.println(user);
-        System.out.println(user.length());
-        
-        
-        //        String str = "{\"lname\":\"_tthird_party_googleplus_114387057939312155006\",\"firstname\":\"Pavel\",\"password\":\".dlPGvYJT4iW\",\"surname\":\"Stastny\"}";
-//
-//        String createUser = createUser(new JSONObject(str));
-//        System.out.println(createUser);
-        
-    }
-    
-    
+
 }

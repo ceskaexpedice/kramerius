@@ -63,7 +63,6 @@ import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.impl.DocumentServiceImpl;
 import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.OutOfRangeException;
@@ -541,7 +540,6 @@ public class FirstPagePDFServiceImplTest {
         cmnds.load(renderedDoc.getDocumentElement(), cmnds);
 
         File tmpFile = File.createTempFile("prefix", "postfix");
-        System.out.println(tmpFile);
         FileOutputStream fos = new FileOutputStream(tmpFile);
 
         com.lowagie.text.Document pdfDoc = new com.lowagie.text.Document();

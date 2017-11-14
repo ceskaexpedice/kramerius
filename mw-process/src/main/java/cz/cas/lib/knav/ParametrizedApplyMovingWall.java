@@ -7,7 +7,6 @@ import javax.xml.xpath.XPathExpressionException;
 import cz.cas.lib.knav.indexer.CollectPidForIndexing;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.processes.annotations.ParameterName;

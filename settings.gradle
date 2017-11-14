@@ -27,7 +27,6 @@ include 'authfilters'
 
 include 'solr-migration'
 
-
 // filter property -DremoveProjs=projectA,projectB,..
 rootProject.children.removeAll { project ->
 	String filterProjs = System.getProperty("removeProjs");
@@ -35,6 +34,4 @@ rootProject.children.removeAll { project ->
 		String[] projs = filterProjs.split(",");
 		return Arrays.asList(projs).indexOf(project.name) >= 0;
 	} else return false;
-}	
-  
-
+}

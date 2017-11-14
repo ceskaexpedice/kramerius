@@ -92,9 +92,8 @@ public class CollectionUtils {
 
         Map<String, String> encodedTexts = new HashMap<String, String>();
         for (String k : plainTexts.keySet()) {
-            String encoded = Base64.encodeBase64String(plainTexts.get(k).getBytes("UTF-8"));;
-
-            encodedTexts.put(k, encoded);
+            //String encoded = Base64.encodeBase64String(plainTexts.get(k).getBytes("UTF-8"));;
+            encodedTexts.put(k, plainTexts.get(k));
         }
         String pid = "vc:" + UUID.randomUUID().toString();
         InputStream stream = CollectionUtils.class.getResourceAsStream("vc_template.stg");
@@ -111,19 +110,22 @@ public class CollectionUtils {
             dcTemplate.setAttribute("canLeave", canLeaveFlag);
             collection.createStream(FedoraUtils.DC_STREAM, "text/xml", new ByteArrayInputStream(dcTemplate.toString().getBytes(Charset.forName("UTF-8"))));
 
-            StringTemplate textCSTemplate = grp.getInstanceOf("text_cs");
-            textCSTemplate.setAttribute("text", encodedTexts);
-            collection.createStream("TEXT_cs", "text/xml", new ByteArrayInputStream(textCSTemplate.toString().getBytes(Charset.forName("UTF-8"))));
+            if (plainTexts.containsKey("cs")) {
+                byte[] textCsBytes = plainTexts.get("cs").getBytes(Charset.forName("UTF-8"));
+                collection.createStream("TEXT_cs", "text/xml", new ByteArrayInputStream(textCsBytes));
+            }
 
-            StringTemplate textENTemplate = grp.getInstanceOf("text_en");
-            textENTemplate.setAttribute("text", encodedTexts);
-            collection.createStream("TEXT_en", "text/xml", new ByteArrayInputStream(textENTemplate.toString().getBytes(Charset.forName("UTF-8"))));
+            if (plainTexts.containsKey("en")) {
+                byte[] textEnBytes = plainTexts.get("en").getBytes(Charset.forName("UTF-8"));
+                collection.createStream("TEXT_en", "text/xml", new ByteArrayInputStream(textEnBytes));
+            }
 
             StringTemplate relsextTemplate = grp.getInstanceOf("relsext");
             relsextTemplate.setAttribute("pid", pid);
             collection.createStream(FedoraUtils.RELS_EXT_STREAM, "text/xml", new ByteArrayInputStream(relsextTemplate.toString().getBytes(Charset.forName("UTF-8"))));
 
         });
+
 
 
 //        if (wait != null) {

@@ -26,9 +26,7 @@ public class ReplicationRights extends AbstractMainMenuItem implements AdminMenu
 
     @Override
     public boolean isRenderable() {
-        return false;
-        // DISABLED because of POC
-        //return hasUserAllowedPlanProcess("replicationrights");
+        return hasUserAllowedPlanProcess("replicationrights");
     }
 
     @Override

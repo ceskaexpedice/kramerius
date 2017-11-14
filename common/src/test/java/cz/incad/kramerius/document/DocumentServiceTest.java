@@ -182,7 +182,6 @@ public class DocumentServiceTest {
         DocumentService docService = injector.getInstance(DocumentService.class);
 
         FedoraAccess fa4 = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));
-        System.out.println(fa4);
 
         boolean imageFULLAvailable = fa4.isImageFULLAvailable("uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6");
         Document relsExt = fa4.getRelsExt("uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6");
@@ -260,41 +259,6 @@ public class DocumentServiceTest {
         }   
     }
     
-    // vytvori dokument od urciteho pidu
-    @Test
-    public void testDocumentServiceTreeFromPid() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException {
-        Injector injector = _DocumentServiceTestPrepare.prepareInjector("20",false);
-        
-        DocumentService docService = injector.getInstance(DocumentService.class);
-        ObjectPidsPath path = PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]);
-        PreparedDocument doc = docService.buildDocumentAsTree(path, path.getLeaf(), new int[]{300,300});
-        
-        String model = doc.getModel();
-        List<AbstractPage> pages = doc.getPages();
-        for (AbstractPage page : pages) {
-            System.out.println(page);
-        }
-        
-        OutlineItem itemRoot = doc.getOutlineItemRoot();
-        OutlineItem[] children = itemRoot.getChildren();
-        for (OutlineItem itm : children) {
-            System.out.println(itm);
-        }
-
-//        List<AbstractPage> pages = doc.getPages();
-//        Assert.assertTrue(pages.size() == 3);
-//        
-//
-//        String[] relsExtOrder = new String[] {
-//                "uuid:4a7ec660-af36-11dd-a782-000d606f5dc6",
-//                "uuid:4314ab50-b03b-11dd-89db-000d606f5dc6",
-//                "uuid:4a80c230-af36-11dd-ace4-000d606f5dc6"};
-//        for (int i = 0; i < relsExtOrder.length; i++) {
-//            AbstractPage page = pages.get(i);
-//            String pid = relsExtOrder[i];
-//            Assert.assertEquals(pid, page.getUuid());
-//        }   
-    }
 
 }
 

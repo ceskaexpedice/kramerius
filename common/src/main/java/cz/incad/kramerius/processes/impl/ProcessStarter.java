@@ -201,8 +201,6 @@ public class ProcessStarter {
 
     public static void updateStatus(States state) throws MalformedURLException, IOException {
         String uuid = System.getProperty(UUID_KEY);
-//        LOGGER.info("user.home:"+System.getProperty("user.home"));
-//        System.getProperties().store(System.out,"");
         String lrURl = ProcessUtils.getLrServlet();
         String restURL = lrURl + "?action=updateStatus&uuid=" + uuid + "&state=" + state;
         httpGet(restURL);

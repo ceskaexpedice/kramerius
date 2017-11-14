@@ -54,44 +54,31 @@ public class FedoraCollectionsManagerImpl extends AbstractCollectionManager {
     @Override
     public List<Collection> getCollections() throws CollectionException {
         try {
-            List<Collection> cols = new ArrayList<Collection>();
-            Document doc = getCollectionListFromResourceIndex();
-            NodeList nodes = doc.getDocumentElement().getElementsByTagNameNS(SPARQL_NS, "result");
-            for (int i = 0, ll = nodes.getLength(); i < ll; i++) {
-                Node item = nodes.item(i);
-                if (item.getNodeType() == Node.ELEMENT_NODE) {
-                    Element itemElm = (Element) item;
-                    String sparqlPid = sparqlPid(itemElm);
-                    if (findCollection(sparqlPid, cols) == null) {
-
-                        if (this.fa.isObjectAvailable(sparqlPid)) {
-                            if (this.fa.isStreamAvailable(sparqlPid, FedoraUtils.DC_STREAM)) {
-                                Collection col = new Collection(sparqlPid, dcTitle(doc), dcType(doc));
-                                enhanceNumberOfDocs(col);
-                                enhanceDescriptions(col);
-                                cols.add(col);
-                            } else {
-                                LOGGER.warning("Collection '"+sparqlPid+"' doesn't defined DC Stream - title is missing, canLeave flag is missing");
-                                Collection col = new Collection(sparqlPid, "no-name", true);
-                                enhanceNumberOfDocs(col);
-                                cols.add(col);
-
-                            }
+            List<Collection> cols = new ArrayList<>();
+            IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
+            List<String> collectionPids = g.getCollections();
+            for (String cPid : collectionPids) {
+                if (findCollection(cPid, cols) == null) {
+                    if (this.fa.isObjectAvailable(cPid)) {
+                        if (this.fa.isStreamAvailable(cPid, FedoraUtils.DC_STREAM)) {
+                            Document dc = fa.getDC(cPid);
+                            Collection col = new Collection(cPid, dcTitle(dc), dcType(dc));
+                            enhanceNumberOfDocs(col);
+                            enhanceDescriptions(col);
+                            cols.add(col);
                         } else {
-                            throw new CollectionException("Collection '"+sparqlPid+"' doesn't exist");
+                            LOGGER.warning("Collection '"+cPid+"' doesn't defined DC Stream - title is missing, canLeave flag is missing");
+                            Collection col = new Collection(cPid, "no-name", true);
+                            enhanceNumberOfDocs(col);
+                            cols.add(col);
+
                         }
+                    } else {
+                        LOGGER.warning("Collection '"+cPid+"' doesn't exist");
+                        //throw new CollectionException("Collection '"+cPid+"' doesn't exist");
                     }
                 }
             }
-            /*
-            for (Collection col : cols) {
-                try {
-                    this.enhanceNumberOfDocs(col);
-                    this.enhanceDescriptions(col);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            }*/
             return cols;
         } catch (ClassNotFoundException e) {
             throw new CollectionException(e);
@@ -101,8 +88,6 @@ public class FedoraCollectionsManagerImpl extends AbstractCollectionManager {
             throw new CollectionException(e);
         } catch (DOMException e) {
             throw new CollectionException(e);
-        } catch (LexerException e) {
-            throw new CollectionException(e);
         } catch (IOException e) {
             throw new CollectionException(e);
         } catch (Exception e) {
@@ -110,42 +95,7 @@ public class FedoraCollectionsManagerImpl extends AbstractCollectionManager {
         }
     }
 
-    Document getCollectionListFromResourceIndex()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, Exception {
-        IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
-        Document doc = g.getVirtualCollections();
-        return doc;
-    }
 
-    protected String sparqlPid(Element result) throws LexerException {
-        Element findElement = XMLUtils.findElement(result, "object");
-        if (findElement != null) {
-            String text = findElement.getAttribute("uri");
-            PIDParser pidParser = new PIDParser(text);
-            pidParser.disseminationURI();
-            return pidParser.getObjectPid();
-        }
-        return "";
-    }
 
-    protected String sparqlTitle(Element result) {
-        Element findElement = XMLUtils.findElement(result, "title");
-        if (findElement != null) {
-            String text = findElement.getTextContent();
-            return text;
-        }
-        return "";
-    }
 
-    protected boolean sparqlType(Element result) {
-        Element findElement = XMLUtils.findElement(result, "canLeave");
-        if (findElement != null) {
-            String text = findElement.getTextContent();
-            if (text.startsWith("\"")) text=text.substring(1);
-            if (text.endsWith("\"")) text=text.substring(0,text.length()-1);
-            return "canLeave:true".equals(text);
-        }
-        return false;
-    }
-    
 }

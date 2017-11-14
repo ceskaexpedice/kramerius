@@ -19,7 +19,9 @@ import org.apache.commons.configuration.Configuration;
  * @author Alberto
  */
 public class ResourceIndexService {
-    
+
+
+    //TODO: get rid off
     public static IResourceIndex getResourceIndexImpl() throws ClassNotFoundException, InstantiationException, IllegalAccessException{
         /*
         Configuration config = KConfiguration.getInstance().getConfiguration();

@@ -26,9 +26,7 @@ public class ParametrizedConvert extends AbstractMainMenuItem implements AdminMe
 
     @Override
     public boolean isRenderable() {
-        return false;
-        // DISABLED because of POC
-        //return (hasUserAllowedPlanProcess("parametrizedconvert"));
+        return (hasUserAllowedPlanProcess("parametrizedconvert"));
     }
 
     @Override
@@ -38,6 +36,4 @@ public class ParametrizedConvert extends AbstractMainMenuItem implements AdminMe
             "javascript:parametrizedProcess.open('parametrizedconvert'); javascript:hideAdminMenu();",
             "administrator.menu.dialogs.parametrizedconvert.title", false);
     }
-
-    
 }

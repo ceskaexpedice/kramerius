@@ -259,7 +259,6 @@ public class DataPrepare {
             if (objectId.equals("page")) {
                 URL url = new URL(String.format(template, pid));
                 File file = new File(System.getProperty("user.home")+File.separator+"tmp"+File.separator+pid.substring("uuid:".length())+".jpg");
-                System.out.println("Saving file:"+file.getAbsolutePath());
                 file.createNewFile();
                 IOUtils.saveToFile(url.openStream(), file,true);
             }

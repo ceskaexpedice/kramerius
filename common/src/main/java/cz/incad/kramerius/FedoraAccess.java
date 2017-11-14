@@ -16,7 +16,6 @@
  */
 package cz.incad.kramerius;
 
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
@@ -30,8 +29,6 @@ import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.fedora.api.FedoraAPIA;
-import org.fedora.api.FedoraAPIM;
 import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

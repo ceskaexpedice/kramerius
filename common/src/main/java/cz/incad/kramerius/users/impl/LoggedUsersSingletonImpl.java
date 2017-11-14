@@ -205,6 +205,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
     public synchronized boolean isLoggedUser(Provider<HttpServletRequest> provider) {
         HttpSession session = provider.get().getSession(true);
         String userKey = (String) session.getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
+
         return userKey != null ? isLoggedUser(userKey) : false;
     }
 

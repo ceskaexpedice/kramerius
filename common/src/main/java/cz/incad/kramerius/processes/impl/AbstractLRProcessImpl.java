@@ -63,7 +63,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     private String loginname;
     private String firstname;
     private String surname;
-    
+
     private User user;
     private String loggedUserKey;
 

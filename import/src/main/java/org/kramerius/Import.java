@@ -4,14 +4,10 @@ import com.google.inject.*;
 import com.google.inject.name.Names;
 import com.qbizm.kramerius.imp.jaxb.*;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
-import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
@@ -21,7 +17,6 @@ import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.service.impl.SortingServiceImpl;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
@@ -31,10 +26,7 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.fedora.api.FedoraAPIM;
-import org.fedora.api.FedoraAPIMService;
 import org.fedora.api.ObjectFactory;
-import org.fedora.api.RelationshipTuple;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -109,7 +101,6 @@ public class Import {
         String importDirectory = System.getProperties().containsKey("import.directory") ? System.getProperty("import.directory") : KConfiguration.getInstance().getProperty("import.directory");
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
         Import.ingest(fa, feeder , KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
-
     }
     
 

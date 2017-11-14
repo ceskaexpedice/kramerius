@@ -22,6 +22,7 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.params.SolrParams;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -97,6 +98,7 @@ public class SolrResourceIndex implements IResourceIndex {
 
 
     @Override
+    // TODO: rewrite it
     public Document getFedoraModels() throws ResourceIndexException {
         try {
             QueryResponse response = this.solrClient.query(new SolrQuery("type:description").setRows(0).setFacet(true).addFacetField("model"));
@@ -135,7 +137,6 @@ public class SolrResourceIndex implements IResourceIndex {
             object.setAttribute("uri", "info:fedora/model:"+count.getName());
             result.appendChild(object);
             
-
             Element title = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"title");
             title.setTextContent(count.getName());
             result.appendChild(title);
@@ -172,16 +173,45 @@ public class SolrResourceIndex implements IResourceIndex {
 
     @Override
     public List<String> getObjectsInCollection(String collection, int limit, int offset) throws ResourceIndexException {
-        throw new UnsupportedOperationException("unsupported");
+        List<String> returnList = new ArrayList<>();
+        try {
+            String queryString = "type:\"description\" AND model:\"model:collection\"";
+            SolrQuery solrQuery = new SolrQuery(queryString);
+            solrQuery.setFields("source");
+            if (limit > 0) solrQuery.setRows(limit);
+            if (offset > 0) solrQuery.setStart(offset);
+            QueryResponse response = this.solrClient.query(solrQuery);
+            SolrDocumentList results = response.getResults();
+            for (SolrDocument doc : results) {
+                returnList.add(doc.get("source").toString());
+            }
+            return returnList;
+        } catch (SolrServerException e) {
+            throw new ResourceIndexException(e);
+        } catch (IOException e) {
+            throw new ResourceIndexException(e);
+        }
     }
 
     @Override
     public boolean existsPid(String pid) throws ResourceIndexException {
-        return false;
+        try {
+            String queryString = "type:\"description\" AND pid:\""+pid+"\"";
+            SolrQuery solrQuery = new SolrQuery(queryString);
+            solrQuery.setFields("source");
+            QueryResponse query = this.solrClient.query(solrQuery);
+            long numFound = query.getResults().getNumFound();
+            return numFound > 0;
+        } catch (SolrServerException e) {
+            throw new ResourceIndexException(e);
+        } catch (IOException e) {
+            throw new ResourceIndexException(e);
+        }
     }
 
     @Override
     public Document getVirtualCollections() throws ResourceIndexException {
+
         throw new UnsupportedOperationException("unsupported");
     }
 
@@ -191,10 +221,34 @@ public class SolrResourceIndex implements IResourceIndex {
     public List<String> getFedoraPidsFromModel(String model, int limit, int offset) throws ResourceIndexException {
         throw new UnsupportedOperationException("unsupported");
     }
-    
 
-    
-    
+
+    @Override
+    public List<String> getCollections() throws ResourceIndexException {
+        List<String> retlist = new ArrayList<>();
+        long  numberOfResults = Long.MAX_VALUE;
+        int page = 1000;
+        int start = 0;
+        try {
+            while(start < numberOfResults) {
+                QueryResponse response = this.solrClient.query(new SolrQuery("model:\"model:collection\" AND type:description").setRows(page).setStart(start).setFields("source"));
+                SolrDocumentList results = response.getResults();
+                numberOfResults = results.getNumFound();
+                for (SolrDocument doc: results) {
+                    Object source = doc.getFieldValue("source");
+                    retlist.add(source.toString());
+                }
+                start += page;
+            }
+            return retlist;
+        } catch (SolrServerException e) {
+            throw new ResourceIndexException(e);
+        } catch (IOException e) {
+            throw new ResourceIndexException(e);
+        }
+    }
+
+
     @Override
     public Document getFedoraObjectsFromModelExt(String model, int limit, int offset, String orderby, String orderDir)
             throws ResourceIndexException {

@@ -55,7 +55,6 @@ public class DeleteGeneratedDeepZoomCache {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GenerateThumbnail.class.getName());
 
     public static void main(String[] args) throws IOException, ProcessSubtreeException {
-        System.out.println("Delete deepZoomCache :" + Arrays.asList(args));
         if (args.length == 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module());
             FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));

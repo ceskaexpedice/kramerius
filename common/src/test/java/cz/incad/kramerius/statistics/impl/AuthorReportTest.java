@@ -80,7 +80,6 @@ public class AuthorReportTest {
         str = statRecord.toString();
         Assert.assertFalse(str.contains("SIMILAR TO"));
 
-        //System.out.println(str);
         Assert.assertTrue(str.contains(" offset "));
         Assert.assertTrue(str.contains(" limit "));
         Assert.assertNotNull(str);

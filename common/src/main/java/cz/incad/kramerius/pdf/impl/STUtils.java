@@ -59,8 +59,6 @@ public class STUtils {
 	}
 	
 	private static String createBundleURL(Locale locale, String i18nUrl) {
-		// http://localhost:8080/search/i18n
-		//?action=bundle&amp;lang=cs&amp;country=CZ&amp;name=base
 		String localeURl = i18nUrl+"?action=bundle&amp;lang="+locale.getLanguage()+"&amp;country="+locale.getCountry()+"&amp;name=base";
 		LOGGER.info("i18n url = "+localeURl);
 		return localeURl;
@@ -198,32 +196,6 @@ public class STUtils {
 	}
 
 	
-//	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, TransformerException {
-//		DocumentBuilderFactory fact = DocumentBuilderFactory.newInstance();
-//		fact.setNamespaceAware(true);
-//		DocumentBuilder builder = fact.newDocumentBuilder();
-//		//URL url = new URL("http://194.108.215.227:8080/fedora/get/uuid:046b1546-32f0-11de-992b-00145e5790ea/BIBLIO_MODS");
-//		URL url = new URL("http://194.108.215.227:8080/fedora/get/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6/BIBLIO_MODS");
-//		
-//		Document source = builder.parse(url.openStream());
-//		
-//		
-//		Map map = prepareBiblioModsModel(source.getDocumentElement());
-//		System.out.println(map);
-//		StringTemplate template = getGroup().lookupTemplate("MONOGRAPH");
-//		template.setAttribute("bibliomods",map);
-//		System.out.println(template.toString());
-		
-		
-//		URL xslUrl = TemplatesUtils.class.getResource("templates/biblio.xsl");
-//		//Document xsl = builder.parse(xslUrl.openStream());
-//		
-//		
-//		TransformerFactory transFact = TransformerFactory.newInstance();
-//        Transformer trans = transFact.newTransformer(new StreamSource(xslUrl.openStream()));
-//        
-//        trans.transform(new StreamSource(url.openStream()), new StreamResult(System.out));
-//	}
-	
+
 	
 }

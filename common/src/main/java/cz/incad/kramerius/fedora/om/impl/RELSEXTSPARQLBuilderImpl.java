@@ -1,10 +1,8 @@
 package cz.incad.kramerius.fedora.om.impl;
 
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.antlr.stringtemplate.StringTemplate;
@@ -13,7 +11,6 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
