@@ -141,14 +141,12 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     void setFlagToPIDInternal(String pid, String tilesUrl) throws RepositoryException {
         Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(),(repo)->{
             if (repo.objectExists(pid)) {
-                if (repo.objectExists(pid)) {
-                    RepositoryObject object = repo.getObject(pid);
-                    boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
-                    if (flag) {
-                        object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
-                    }
-                    object.addRelation("tiles-url", FedoraNamespaces.KRAMERIUS_URI, tilesUrl);
+                RepositoryObject object = repo.getObject(pid);
+                boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                if (flag) {
+                    object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
                 }
+                object.addRelation("tiles-url", FedoraNamespaces.KRAMERIUS_URI, tilesUrl);
             }
         });
     }

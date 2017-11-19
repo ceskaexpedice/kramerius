@@ -26,8 +26,6 @@ import com.google.inject.Injector;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.fedora.AbstractFedoraAccess;
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.conf.KConfiguration;

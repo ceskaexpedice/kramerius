@@ -36,7 +36,6 @@ public class DatabaseUtilsTest extends AbstractGuiceTestCase {
 	@Test
 	public void tableExistsAndCreateTableTest() throws SQLException {
 		Connection connection = connection();
-		System.out.println("Connection "+System.identityHashCode(connection));
 		boolean firstAssert = false;
 		try {
 			firstAssert = DatabaseUtils.tableExists(connection);
@@ -48,13 +47,11 @@ public class DatabaseUtilsTest extends AbstractGuiceTestCase {
 		Assert.assertFalse(firstAssert);
 		Assert.assertTrue(secondAssert);
 		connection.close();
-		System.out.println("Connection is closed "+connection.isClosed());
 	}
 
 	@Test
 	public void insertInto() throws SQLException {
 		Connection connection = connection();
-		System.out.println("Connection "+System.identityHashCode(connection));
 		LRProcessDefinitionImpl def = new LRProcessDefinitionImpl(null,null);
 		UnixLRProcessImpl ulp = new UnixLRProcessImpl(def,null,null);
 		DatabaseUtils.createTable(connection);
@@ -64,7 +61,6 @@ public class DatabaseUtilsTest extends AbstractGuiceTestCase {
 		ResultSet rs = stm.executeQuery("select * from processes");
 		Assert.assertTrue(rs.next());
 		connection.close();
-		System.out.println("Connection is closed "+connection.isClosed());
 	}
 	
 	@Test
@@ -104,7 +100,6 @@ public class DatabaseUtilsTest extends AbstractGuiceTestCase {
 		DatabaseUtils.updateProcessState(connection, ulp.getUuid(), ulp.getProcessState());
 		matchState(connection, States.FAILED.getVal());
 
-		//System.out.println(status);
 		connection.close();
 	}
 

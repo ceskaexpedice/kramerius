@@ -2,6 +2,7 @@ package cz.incad.kramerius.imaging.lp;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -20,8 +21,7 @@ public class GenerateDeepZoomCache {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GenerateDeepZoomCache.class.getName());
 
     public static void main(String[] args) throws IOException, ProcessSubtreeException {
-        System.getProperties().list(System.out);
-        System.out.println("Generate deep zoom cache :" + Arrays.asList(args));
+        LOGGER.log(Level.INFO,"Generate deep zoom cache :" + Arrays.asList(args));
         if (args.length >= 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module());
             int numberStepsOverTile = KConfiguration.getInstance().getConfiguration().getInt("deepZoom.numberStepsOverTile",1);

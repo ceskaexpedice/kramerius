@@ -7,12 +7,15 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  *
  * @author alberto
  */
 public class UTFSort {
+
+    public static final Logger LOGGER = Logger.getLogger(UTFSort.class.getName());
 
     Map<String, String> maps = new HashMap<String, String>();
     
@@ -64,19 +67,5 @@ public class UTFSort {
         return newStr.replace("CH", "H|");
     }
     
-    public void printMap(){
-        Iterator it = maps.keySet().iterator();
-        String key;
-        while(it.hasNext()){
-            key = (String) it.next();
-            System.out.println(key + " -> " + maps.get(key));
-        }
-    }
-    
-    public static void main(String[] args) throws IOException{
-            UTFSort u = new UTFSort();
-            u.init();
-            //u.printMap();
-            System.out.println(u.translate("která mají řadicí platnost (tj. č,ř,š,ž)"));
-    }
+
 }

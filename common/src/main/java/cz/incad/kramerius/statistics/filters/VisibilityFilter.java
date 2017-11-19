@@ -34,8 +34,8 @@ public class VisibilityFilter implements StatisticsFilter {
         VisbilityType[] values = VisbilityType.values();
         for (VisbilityType t : values) {
             boolean b = t == selected;
-            retVal.put(t.name().toUpperCase(), new Boolean(b));
-            retVal.put(t.name().toLowerCase(), new Boolean(b));
+            retVal.put(t.name().toUpperCase(), Boolean.valueOf(b));
+            retVal.put(t.name().toLowerCase(), Boolean.valueOf(b));
         }
         return retVal;
     }

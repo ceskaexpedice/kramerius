@@ -18,6 +18,7 @@ import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.core.CoreContainer;
 import org.junit.*;
 
@@ -30,7 +31,7 @@ import static com.hp.hpl.jena.enhanced.BuiltinPersonalities.model;
  * Created by pstastny on 10/20/2017.
  */
 
-public class FeederTest {
+public class ProcessingFeederTest {
 
     private static CoreContainer container;
     private static EmbeddedSolrServer solrServer;
@@ -78,6 +79,9 @@ public class FeederTest {
         feeder.feedDescriptionDocument("uuid:abc-page","page","Title","http://localhost:18080/rest");
         feeder.feedDescriptionDocument("uuid:def-page","page","Title","http://localhost:18080/rest");
 
+
+        QueryResponse query = solrServer.query(new SolrQuery("source:\"uuid:abc-monograph\""));
+        SolrDocumentList results = query.getResults();
 
         IResourceIndex instance = this.injector.getInstance(IResourceIndex.class);
         List<String> monograph = instance.getObjectsByModel("monograph", 10, 0, null, null);

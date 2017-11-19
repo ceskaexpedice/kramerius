@@ -16,7 +16,9 @@
  */
 package cz.incad.kramerius.processes.impl;
 
-import static cz.incad.kramerius.processes.database.ProcessDatabaseUtils.registerProcess;
+import static cz.incad.kramerius.processes.database
+        .ProcessDatabaseUtils
+        .registerProcess;
 
 import java.io.File;
 import java.io.IOException;

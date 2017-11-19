@@ -94,7 +94,9 @@ public interface IResourceIndex {
      */
     @Deprecated
     public Document getVirtualCollections() throws ResourceIndexException;
-    
+
+    public List<String> getCollections() throws ResourceIndexException;
+
     /**
      * Returns all objects in collection
      * @param collection Given collection

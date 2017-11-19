@@ -33,9 +33,7 @@ public class ParametrizedK3Replication extends AbstractMainMenuItem implements A
 
     @Override
     public boolean isRenderable() {
-        return false;
-        // DISABLEd because of POC
-        //return (hasUserAllowedPlanProcess("k3_replication"));
+        return (hasUserAllowedPlanProcess("k3_replication"));
     }
 
     @Override

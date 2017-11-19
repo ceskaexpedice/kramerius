@@ -26,7 +26,6 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
@@ -67,7 +66,8 @@ public class SortingServiceImpl implements SortingService {
 
     public static void main(String[] args) throws IOException {
         LOGGER.info("SortRelations service: " + Arrays.toString(args));
-        Injector injector = Guice.createInjector(new SortingModule());
+        com.google.inject.Injector injector = com.google.inject.Guice.createInjector(new SortingModule(), new cz.incad.kramerius.solr.SolrModule(), new cz.incad.kramerius.resourceindex.ResourceIndexModule(), new cz.incad.kramerius.fedora.RepoModule(), new cz.incad.kramerius.statistics.NullStatisticsModule());
+        FedoraAccess fa = injector.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("rawFedoraAccess")));
         SortingService inst = injector.getInstance(SortingService.class);
         inst.sortRelations(args[0], true);
         LOGGER.info("SortRelations finished.");
@@ -179,9 +179,6 @@ public class SortingServiceImpl implements SortingService {
 class SortingModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-        bind(StatisticsAccessLog.class).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
-        bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);
     }

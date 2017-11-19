@@ -36,7 +36,6 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.statistics.impl.NullStatisticsAccessLogImpl;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
@@ -53,11 +52,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
-import cz.incad.kramerius.statistics.ReportedAction;
-import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 

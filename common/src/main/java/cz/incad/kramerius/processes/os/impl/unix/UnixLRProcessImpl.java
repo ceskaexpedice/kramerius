@@ -76,7 +76,6 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 				// pak ctu vypis procesu
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
 				IOUtils.copyStreams(inputStream, bos);
-				//System.out.println(new String(bos.toByteArray()));
 				BufferedReader reader = new BufferedReader(new StringReader(new String(bos.toByteArray())));
 				String line = null;
 				boolean firstLine = false;
@@ -84,7 +83,7 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 					if (!firstLine) firstLine = true;
 					else {
 						String[] array = line.split(" ");
-						LOGGER.info("ps data == "+Arrays.asList(array));
+						LOGGER.fine("ps data == "+Arrays.asList(array));
 						data.add(array);
 					}
 				}
@@ -103,29 +102,4 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 
 
 	
-	public static void main(String[] args) throws IOException, InterruptedException {
-	    for (int i = 0; i < 2222; i++) {
-            PIDList createPIDList = UnixPIDList.createPIDList();
-            Thread.sleep(2500);
-            System.out.println(createPIDList);
-	    }
-	}
-	
-	private static void test() throws IOException, InterruptedException {
-//		List<String> command = new ArrayList<String>();
-//		command.add("ps");
-//		command.add("-p");
-//		command.add(getPid());
-//		command.add("-o");
-//		command.add("pid,time,cmd");
-//		ProcessBuilder processBuilder = new ProcessBuilder(command);
-//		Process psProcess = processBuilder.start();
-//		InputStream inputStream = psProcess.getInputStream();
-//		// pockam az bude konec
-//		int exitValue = psProcess.waitFor();
-//		// pak ctu vypis procesu
-//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//		IOUtils.copyStreams(inputStream, System.out);
-//		System.out.println(new String(bos.toByteArray()));
-	}
 }

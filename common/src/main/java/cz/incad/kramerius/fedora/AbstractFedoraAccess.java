@@ -348,9 +348,7 @@ public abstract class AbstractFedoraAccess implements FedoraAccess {
                         pid = el.getAttributes().getNamedItem("rdf:resource").getNodeValue();
                         pids.add(pid);
                         models.add(getKrameriusModelName(pid));
-                        // return getFirstViewablePath(pids, models);
-                        boolean hit = getFirstViewablePath(pids, models);
-                        if (hit) {
+                        if (getFirstViewablePath(pids, models)) {
                             return true;
                         } else {
                             pids.remove(pids.size() - 1);

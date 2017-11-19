@@ -10,7 +10,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.METSService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
@@ -45,11 +44,6 @@ public class METSServiceImpl implements METSService {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		LOGGER.info("METS Service: "+Arrays.toString(args));
-		METSServiceImpl inst = new METSServiceImpl();
-		inst.fedoraAccess = new FedoraAccessImpl(null, null);
-		inst.configuration = KConfiguration.getInstance();
-		inst.exportMETS("uuid:" + args[0],System.out);
-		LOGGER.info("METS Service finished.");
+		throw new UnsupportedOperationException("this is unsupported in fedora 4 implemeantion");
 	}
 }

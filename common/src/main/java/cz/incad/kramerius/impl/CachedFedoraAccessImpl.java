@@ -83,8 +83,6 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
                                     Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
         }
 
-
-
     }
 
 
@@ -393,4 +391,6 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
     public Repository getTransactionAwareInternalAPI() throws RepositoryException {
         return this.fedoraAccess.getTransactionAwareInternalAPI();
     }
+
+
 }

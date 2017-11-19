@@ -6,14 +6,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 import com.ibm.icu.text.Collator;
 
 
-public class NaturalOrderCollator implements Comparator<String>
+public class NaturalOrderCollator implements Comparator<String>  {
 
-
-{
+    public static final Logger LOGGER = Logger.getLogger(NaturalOrderCollator.class.getName());
 
     Collator stringCollator;
 
@@ -25,17 +25,16 @@ public class NaturalOrderCollator implements Comparator<String>
 
         List<String> orig = Arrays.asList(strings);
 
-        System.out.println("Original: " + orig);
+        LOGGER.info("Original: " + orig);
 
         List<String> scrambled = Arrays.asList(strings);
         Collections.shuffle(scrambled);
 
-        System.out.println("Scrambled: " + scrambled);
-
+        LOGGER.info("Scrambled: " + scrambled);
         Collections.sort(scrambled, new NaturalOrderCollator());
         //Collections.sort(scrambled, Collator.getInstance(new Locale("cs")));
 
-        System.out.println("Sorted: " + scrambled);
+        LOGGER.info("Sorted: " + scrambled);
     }
 
     public NaturalOrderCollator(Collator stringCollator) {

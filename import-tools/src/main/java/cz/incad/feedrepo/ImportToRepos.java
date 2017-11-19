@@ -129,7 +129,7 @@ public class ImportToRepos {
             }
             initialize(user, pwd);
             //repo.open();
-            repo.startTransaction();
+            //repo.startTransaction();
             Set<TitlePidTuple> roots = new HashSet<TitlePidTuple>();
             Set<String> sortRelations = new HashSet<String>();
             if (importFile.isDirectory()) {
@@ -214,11 +214,11 @@ public class ImportToRepos {
         }
     }
 
-    public static void initialize(final String user, final String pwd) throws ClassNotFoundException, InstantiationException, IllegalAccessException  {
+    public static void initialize(final String user, final String pwd) throws ClassNotFoundException, InstantiationException, IllegalAccessException, RepositoryException {
         of = new ObjectFactory();
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
-        repo = new Fedora4Repository(injector.getInstance(ProcessingIndexFeeder.class));
+        repo = new Fedora4Repository(injector.getInstance(ProcessingIndexFeeder.class), false);
 
     }
 
@@ -293,7 +293,7 @@ public class ImportToRepos {
                         log.info("Added updated object for indexing:" + dobj.getPID());
                     }
                 } else {
-                    ingest(dobj, dobj.getPID(), sortRelations, roots, updateExisting);
+                    ingest(dobj, dobj.getPID());
                     checkRoot(dobj, roots);
                 }
             }catch (Throwable t){
@@ -335,7 +335,7 @@ public class ImportToRepos {
         }
     }
 
-    public static void ingest(DigitalObject dob, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException, LexerException, TransformerException, RepositoryException {
+    public static void ingest(DigitalObject dob, String pid) throws IOException, LexerException, TransformerException, RepositoryException {
         long start = System.currentTimeMillis();
 
         List<PropertyType> properties = dob.getObjectProperties().getProperty();
@@ -399,9 +399,6 @@ public class ImportToRepos {
         String mimeType = relsExt ? "text/xml" : versionType.getMIMETYPE();
         if (relsExt) {
             String model = getModel(versionType);
-            if (model != null) {
-                obj.setModel(model);
-            }
         }
 
         obj.createStream(id, mimeType, new ByteArrayInputStream(binaryContent));

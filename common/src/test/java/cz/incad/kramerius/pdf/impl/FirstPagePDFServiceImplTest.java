@@ -63,7 +63,6 @@ import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.impl.DocumentServiceImpl;
 import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.OutOfRangeException;
@@ -536,25 +535,24 @@ public class FirstPagePDFServiceImplTest {
     }
 
 
-    public void toTmpPDF(Document renderedDoc, GeneratePDFService pdfService) throws InstantiationException, IllegalAccessException, IOException, FileNotFoundException, DocumentException {
-        ITextCommands cmnds = new ITextCommands();
-        cmnds.load(renderedDoc.getDocumentElement(), cmnds);
-
-        File tmpFile = File.createTempFile("prefix", "postfix");
-        System.out.println(tmpFile);
-        FileOutputStream fos = new FileOutputStream(tmpFile);
-
-        com.lowagie.text.Document pdfDoc = new com.lowagie.text.Document();
-
-        PdfWriter writer = PdfWriter.getInstance(pdfDoc, fos);
-        pdfDoc.open();
-
-        FedoraAccess fa = new FedoraAccessImpl(KConfiguration.getInstance(), null);
-        RenderPDF render = new RenderPDF(new FontMap(pdfService.fontsFolder()), fa);
-        render.render(pdfDoc,writer, cmnds);
-
-        pdfDoc.close();
-    }
+//    public void toTmpPDF(Document renderedDoc, GeneratePDFService pdfService) throws InstantiationException, IllegalAccessException, IOException, FileNotFoundException, DocumentException {
+//        ITextCommands cmnds = new ITextCommands();
+//        cmnds.load(renderedDoc.getDocumentElement(), cmnds);
+//
+//        File tmpFile = File.createTempFile("prefix", "postfix");
+//        FileOutputStream fos = new FileOutputStream(tmpFile);
+//
+//        com.lowagie.text.Document pdfDoc = new com.lowagie.text.Document();
+//
+//        PdfWriter writer = PdfWriter.getInstance(pdfDoc, fos);
+//        pdfDoc.open();
+//
+//        FedoraAccess fa = new FedoraAccessImpl(KConfiguration.getInstance(), null);
+//        RenderPDF render = new RenderPDF(new FontMap(pdfService.fontsFolder()), fa);
+//        render.render(pdfDoc,writer, cmnds);
+//
+//        pdfDoc.close();
+//    }
 
 
     @Test

@@ -312,14 +312,5 @@ public class KConfiguration {
         return url;
     }
 
-    /*public static void main(String[] args) throws IOException {
-        KConfiguration kconf = KConfiguration.getInstance();
-        Configuration conf = kconf.findAllConfigurations();
-        System.out.println(conf);
-        System.out.println(conf.getString("exportConf"));
-
-        System.out.println(conf.getString("_fedoraTomcatHost"));
-        System.out.println(conf.getString("indexerHost"));
-    }*/
 
 }

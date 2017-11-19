@@ -14,7 +14,6 @@ import cz.incad.kramerius.imaging.impl.DeepZoomFlagServiceImpl;
 import cz.incad.kramerius.imaging.impl.FileSystemCacheServiceImpl;
 import cz.incad.kramerius.imaging.impl.SimpleMemoryCacheServiceWrapper;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
@@ -27,7 +26,7 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
     protected void configure() {
         // mapped plain fedoraAccess as secured. In this process it is not
         // necessary to have checked access to fedora.
-        bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class)
+        bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(cz.incad.kramerius.fedora.impl.Fedora4AccessImpl.class)
                 .in(Scopes.SINGLETON);
         bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());

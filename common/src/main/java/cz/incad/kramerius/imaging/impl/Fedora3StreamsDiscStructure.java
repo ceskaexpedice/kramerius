@@ -35,7 +35,6 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.paths.Path;
 import cz.incad.kramerius.imaging.paths.impl.DirPathImpl;
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 
@@ -52,46 +51,20 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
     @Named("securedFedoraAccess")
     private FedoraAccess fedoraAccess;
 
-    private StringTemplateGroup xpaths;
 
     
     @Inject
     public Fedora3StreamsDiscStructure(@Named("securedFedoraAccess") FedoraAccess fedoraAccess) throws IOException {
         super();
         this.fedoraAccess = fedoraAccess;
-        readXPATHTemplateGroup();
-    }
-
-    public void readXPATHTemplateGroup() throws IOException {
-        InputStream stream = FedoraAccessImpl.class.getResourceAsStream("fedora_xpaths.stg");
-        String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
-        xpaths = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
     }
 
     
-    private static File getUUIDFile(String uuid, List<String> relativeDataStreamPath, File rootDir) throws IOException {
-        if ((relativeDataStreamPath != null) && (relativeDataStreamPath.size() > 1)) {
-            File curDir = rootDir;
-            for (int i = relativeDataStreamPath.size() - 2; i > 0; i--) {
-                curDir = new File(curDir, relativeDataStreamPath.get(i));
-                if (!curDir.exists()) {
-                    if (!curDir.mkdirs()) {
-                        throw new IOException("cannot create dir '" + rootDir.getAbsolutePath() + "'");
-                    }
-                }
-            }
-            return new File(curDir, uuid);
-        } else {
-            return null;
-        }
-    }
 
     @Override
     public Path getUUIDFile(String uuid,  String rootPath) throws IOException {
         try {
             Date dateFromFedora = this.fedoraAccess.getStreamLastmodifiedFlag("uuid:"+uuid, FedoraUtils.IMG_FULL_STREAM);
-//            Document profile = fedoraAccess.getStreamProfile("uuid:"+uuid, FedoraUtils.IMG_FULL_STREAM);
-//            Date dateFromProfile = disectCreateDate(this.xpaths, profile, fedoraAccess.getFedoraVersion());
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(dateFromFedora);
             
@@ -123,24 +96,6 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
     }
     
     
-    public static Date disectCreateDate(StringTemplateGroup xpathGrp, Document doc, String fedoraVersion) throws XPathExpressionException, DatatypeConfigurationException {
-        String templateName = "dscreatedate"+FedoraUtils.getVersionCompatibilityPrefix(fedoraVersion);
-        StringTemplate xpathTemplate = xpathGrp.getInstanceOf(templateName);
-
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xpath = factory.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
-
-        XPathExpression expr = xpath.compile(xpathTemplate.toString());
-        Node oneNode = (Node) expr.evaluate(doc, XPathConstants.NODE);
-        if (oneNode != null && oneNode.getNodeType() == Node.TEXT_NODE) {
-            String data = ((Text)oneNode).getData();
-            Date date = disectCreateDate(data);
-            return date;
-        }
-        
-        return null;
-    }
 
     public static Date disectCreateDate(String data) throws DatatypeConfigurationException {
         XMLGregorianCalendar gregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(data);

@@ -43,6 +43,8 @@ import java.util.logging.Logger;
  */
 public class Fedora4Repository extends Repository {
 
+
+
     public static final Logger LOGGER = Logger.getLogger(Fedora4Repository.class.getName());
 
     private FcrepoClient client;

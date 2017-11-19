@@ -8,9 +8,9 @@ import com.google.inject.name.Names;
 import cz.incad.kramerius.ConProvider4T;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
+import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
 import cz.incad.kramerius.imaging.impl.FileSystemCacheServiceImpl;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcessManager;
@@ -26,7 +26,7 @@ public class ImagingModuleForTest extends AbstractModule {
         bind(KConfiguration.class).toInstance(testConf);
         // "kramerius4"
         bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(ConProvider4T.class);
-        bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class);
+        bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(Fedora4AccessImpl.class);
 
         // long running process modul
         bind(DefinitionManager.class).to(LRProcessDefinitionManagerImpl.class);

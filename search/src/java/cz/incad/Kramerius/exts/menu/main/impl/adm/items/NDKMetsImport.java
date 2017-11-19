@@ -33,9 +33,7 @@ public class NDKMetsImport extends AbstractMainMenuItem implements AdminMenuItem
 
     @Override
     public boolean isRenderable() {
-        return false;
-        // DISABLED because of POC
-        //return (hasUserAllowedPlanProcess("ndkmets"));
+        return (hasUserAllowedPlanProcess("ndkmets"));
     }
 
     

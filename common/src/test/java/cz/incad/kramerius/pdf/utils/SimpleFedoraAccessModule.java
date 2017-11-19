@@ -20,7 +20,7 @@ import com.google.inject.AbstractModule;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.impl.FedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -29,7 +29,7 @@ public class SimpleFedoraAccessModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
-        bind(FedoraAccess.class).to(FedoraAccessImpl.class);
+        bind(FedoraAccess.class).to(Fedora4AccessImpl.class);
         bind(SolrAccess.class).to(SolrAccessImpl.class);
     }
 }
