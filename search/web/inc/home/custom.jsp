@@ -17,11 +17,13 @@
             String[] pids = kconfig.getPropertyList("search.home.tab.custom.uuids");
             pageContext.setAttribute("pids", pids); 
 %>
+
 <c:forEach varStatus="status" var="pid" items="${pids}">
     <c:set var="pid" value="${pid}" />
     <c:url var="url" value="${kconfig.solrHost}/select" >
         <c:param name="q" value="PID:\"${pid}\"" />
         <c:param name="fl" value="root_title" />
+        <c:param name="wt" value="xml" />
     </c:url>
     <c:catch var="exceptions">
         <c:import url="${url}" var="xml" charEncoding="UTF-8" />

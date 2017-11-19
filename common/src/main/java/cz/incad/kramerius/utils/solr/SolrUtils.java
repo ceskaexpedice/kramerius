@@ -181,7 +181,7 @@ public class SolrUtils   {
 
     public static Document getSolrDataInternalOffset(String query, String offset) throws IOException, ParserConfigurationException, SAXException {
         String solrHost = KConfiguration.getInstance().getSolrHost();
-        String uri = solrHost +"/select?" +query+"&start="+offset;
+        String uri = solrHost +"/select?" +query+"&start="+offset+"&wt=xml";
         InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
         Document parseDocument = XMLUtils.parseDocument(inputStream);
         return parseDocument;
@@ -189,7 +189,7 @@ public class SolrUtils   {
 
     public static Document getSolrDataInternal(String query) throws IOException, ParserConfigurationException, SAXException {
         String solrHost = KConfiguration.getInstance().getSolrHost();
-        String uri = solrHost +"/select?" +query;
+        String uri = solrHost +"/select?" +query+"&wt=xml";
         InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
         Document parseDocument = XMLUtils.parseDocument(inputStream);
         return parseDocument;

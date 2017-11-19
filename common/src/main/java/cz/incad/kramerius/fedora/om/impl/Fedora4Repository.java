@@ -130,14 +130,19 @@ public class Fedora4Repository extends Repository {
     public RepositoryObject createOrFindObject(String ident) throws RepositoryException {
             List<String> normalized = Fedora4Utils.normalizePath(ident);
             if (objectExists(ident)) {
-                Fedora4Object obj = new Fedora4Object(this, this.client,normalized, ident, this.feeder);
-                if (this.inTransactionFlag && this.transactionId != null) {
-                    obj.setTransactionId(this.transactionId);
+                try {
+                    Fedora4Object obj = new Fedora4Object(this, this.client,normalized, ident, this.feeder);
+                    if (this.inTransactionFlag && this.transactionId != null) {
+                        obj.setTransactionId(this.transactionId);
+                    }
+                    obj.updateSPARQL(UPDATE_PID(ident));
+                    return obj;
+                } catch (IOException e) {
+                    throw new RepositoryException(e);
                 }
-                obj.updateSPARQL(UPDATE_PID(ident));
-                return obj;
             } else {
                 try {
+
                     URI resources = createResources(normalized);
                     Fedora4Object obj =  new Fedora4Object(this, this.client, normalized, ident, this.feeder);
                     if (this.inTransactionFlag && this.transactionId != null) {

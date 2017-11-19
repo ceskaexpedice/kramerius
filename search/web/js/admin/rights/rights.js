@@ -321,11 +321,11 @@ AffectedObjectsRights.prototype.createSecurityActionTab = function(/** String */
  */
 AffectedObjectsRights.prototype.url = function(/** String */baseUrl, /** Array */ pids) {
 	if (!pids) pids = this.pids;
-	baseUrl = baseUrl+"{"+reduce(function(base, item, status) {
-    	base = base+item.pid.replaceAll(":","\\:")+ (status.last ? "": ";");
+	baseUrl = baseUrl+encodeURI("{")+reduce(function(base, item, status) {
+    	base = base+encodeURI(item.pid.replaceAll(":","\\:"))+ (status.last ? "": ";");
         return base;
         
-    }, "",pids)+"}";        
+    }, "",pids)+encodeURI("}");
 	return baseUrl;
 }
 

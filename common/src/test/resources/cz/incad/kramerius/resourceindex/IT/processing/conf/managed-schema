@@ -65,6 +65,7 @@
   <field name="name" type="string" indexed="true" stored="true"/>
   <field name="parent" type="strings" indexed="true" stored="true"/>
   <field name="pid" type="string" indexed="true" stored="true"/>
+  <field name="ref" type="string" indexed="true" stored="true"/>
   <field name="relation" type="string" indexed="true" stored="true"/>
   <field name="source" type="string" indexed="true" stored="true"/>
   <field name="targetPid" type="string" indexed="true" stored="true"/>

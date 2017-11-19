@@ -37,12 +37,13 @@ public class ProcessingIndexFeeder {
     }
     
     
-    public UpdateResponse feedDescriptionDocument(String pid, String model, String title) throws IOException, SolrServerException {
+    public UpdateResponse feedDescriptionDocument(String pid, String model, String title, String ref) throws IOException, SolrServerException {
         SolrInputDocument sdoc = new SolrInputDocument();
         sdoc.addField("source",pid);
         sdoc.addField("type", TYPE_DESC);
         sdoc.addField("model",model);
         sdoc.addField("dc.title",title);
+        sdoc.addField("ref",ref);
         return feedDescriptionDocument(sdoc);
     }
 

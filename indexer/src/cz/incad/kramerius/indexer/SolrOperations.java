@@ -211,7 +211,7 @@ public class SolrOperations {
 
     private int getDocCount() {
         try {
-            String urlStr = config.getString("solrHost") + "/select/?q=*:*&rows=0";
+            String urlStr = config.getString("solrHost") + "/select/?q=*:*&rows=0&wt=xml";
             factory = XPathFactory.newInstance();
             xpath = factory.newXPath();
             java.net.URL url = new java.net.URL(urlStr);
@@ -244,7 +244,7 @@ public class SolrOperations {
             return 0;
         }
         try {
-            String urlStr = config.getString("solrHost") + "/select/?q=PID:\"" + uuid + "\"";
+            String urlStr = config.getString("solrHost") + "/select/?q=PID:\"" + uuid + "\"&wt=xml";
 
             fedoraOperations.getFoxmlFromPid(uuid);
             //contentDom = getDocument(new ByteArrayInputStream(fedoraOperations.foxmlRecord));

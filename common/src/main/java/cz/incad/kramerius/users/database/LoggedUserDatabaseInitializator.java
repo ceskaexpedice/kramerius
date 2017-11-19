@@ -39,6 +39,8 @@ import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
+import static cz.incad.kramerius.utils.DatabaseUtils.*;
+
 public class LoggedUserDatabaseInitializator {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LoggedUserDatabaseInitializator.class.getName());
@@ -72,11 +74,14 @@ public class LoggedUserDatabaseInitializator {
             
             @Override
             public Object executeJDBCCommand(Connection con) throws SQLException {
-                StringTemplate sql = stGroup.getInstanceOf("deleteAllAssociationOfSessionKeys");
-                PreparedStatement prepareStatement = connection.prepareStatement( sql.toString());
-                int r = prepareStatement.executeUpdate();
-                LOGGER.log(Level.FINEST, "DELETED TABLE ASSOCIATION OF SESSION_KEYS: deleted rows {0}", r);
-                return null;
+                boolean processTokenExists = tableExists(con, "process_2_token");
+                if (processTokenExists) {
+                    StringTemplate sql = stGroup.getInstanceOf("deleteAllAssociationOfSessionKeys");
+                    PreparedStatement prepareStatement = connection.prepareStatement( sql.toString());
+                    int r = prepareStatement.executeUpdate();
+                    LOGGER.log(Level.FINEST, "DELETED TABLE ASSOCIATION OF SESSION_KEYS: deleted rows {0}", r);
+                    return null;
+                } else return null;
             }
         };
         
@@ -85,11 +90,14 @@ public class LoggedUserDatabaseInitializator {
             
             @Override
             public Object executeJDBCCommand(Connection con) throws SQLException {
-                StringTemplate sql = stGroup.getInstanceOf("deleteAllSessionKeys");
-                PreparedStatement prepareStatement = connection.prepareStatement( sql.toString());
-                int r = prepareStatement.executeUpdate();
-                LOGGER.log(Level.FINEST, "DELETED TABLE SESSION_KEYS: deleted rows {0}", r);
-                return null;
+                boolean sessionKeysExists = tableExists(con, "SESSION_KEYS");
+                if (sessionKeysExists) {
+                    StringTemplate sql = stGroup.getInstanceOf("deleteAllSessionKeys");
+                    PreparedStatement prepareStatement = connection.prepareStatement( sql.toString());
+                    int r = prepareStatement.executeUpdate();
+                    LOGGER.log(Level.FINEST, "DELETED TABLE SESSION_KEYS: deleted rows {0}", r);
+                    return null;
+                } else return null;
             }
         };
         
@@ -98,7 +106,7 @@ public class LoggedUserDatabaseInitializator {
     
 
     public static void createLoggedUsersTablesIfNotExists(final Connection connection) throws SQLException, IOException {
-            boolean loggedUserTable = DatabaseUtils.tableExists(connection, "ACTIVE_USERS");
+            boolean loggedUserTable = tableExists(connection, "ACTIVE_USERS");
             if (!loggedUserTable) {
                 createLoggedUsersTables(connection);
             }

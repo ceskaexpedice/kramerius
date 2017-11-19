@@ -53,13 +53,13 @@ form(rootNode, lang, country ) ::=<<
                                         
 
             if (\$('#DVD').is(":checked")) { vals = vals + ';medium=DVD'; } else { vals = vals + ';medium=CD'; }
-            var url = "lr?action=form_post&def=parametrized_static_export&paramsMapping={"+vals+"}&out=text";
+            var url = "lr?action=form_post&def=parametrized_static_export&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             processStarter("parametrized_static_export").start(url);
         }
-        
-        
+
+
         window._pidsDisect = function() {
-            
+
             var pids = map(function(pid) {
                   var divided = pid.split("_");
                   var structure = {

@@ -361,13 +361,15 @@
 
         var autoLoaded = [];
         function loadTreeNode(id){
+
             if(autoLoaded[id]){
                 renderNode(id, autoLoaded[id]);
                 return;
             }
+
             var pid = id.split('_')[1];
-            
             var path = id.split('_')[0];
+
             var url = 'inc/details/treeNode.jsp?pid=' + pid + '&model_path=' + path;
             $.get(url, function(data){
                 var d = trim10(data);

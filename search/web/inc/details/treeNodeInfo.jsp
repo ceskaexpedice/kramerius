@@ -24,7 +24,7 @@
     <c:param name="q" >
         PID:"${param.pid}"
     </c:param>
-    
+    <c:param name="wt" value="xml" />
 </c:url>
 <c:import url="${url}" var="xml" charEncoding="UTF-8" />
 <jsp:useBean id="xml" type="java.lang.String" />

@@ -735,13 +735,13 @@ ParameterizedProcess.prototype.open = function(definition, paramsMapping) {
     
     paramsMapping = paramsMapping ? paramsMapping : {};
 
-    var pMappingsUrl = "{"+reduce(function(base, element, status) {
+    var pMappingsUrl = encodeURI("{")+reduce(function(base, element, status) {
     	if (!status.first) {
         	base = base + ";";
         }
     	base = base + element;
     	return base; 
-    }, "", this._asArr(paramsMapping))+"}";
+    }, "", this._asArr(paramsMapping))+encodeURI("{");
     		  
     var url = "lr?action=form_get&def="+definition;
 

@@ -216,6 +216,7 @@ public class Fedora4Object implements RepositoryObject {
                                     try {
 
                                         if (this.streamExists(FedoraUtils.DC_STREAM)) {
+
                                             try {
                                                 InputStream stream = this.getStream(FedoraUtils.DC_STREAM).getContent();
                                                 Element title = XMLUtils.findElement(XMLUtils.parseDocument(stream, true).getDocumentElement(), "title", FedoraNamespaces.DC_NAMESPACE_URI);
@@ -281,8 +282,11 @@ public class Fedora4Object implements RepositoryObject {
     }
 
     private void indexDescription(String model, String dctitle) throws IOException, SolrServerException {
+        List<String> paths = Fedora4Utils.normalizePath(this.getPid());
+        String link = endpoint()+Fedora4Utils.path(paths);
+
         this.feeder.deleteDescriptionByPid(this.getPid());
-        this.feeder.feedDescriptionDocument(this.getPid(), model, dctitle);
+        this.feeder.feedDescriptionDocument(this.getPid(), model, dctitle, link);
     }
 
     public void deleteProcessingIndex() throws IOException, SolrServerException {

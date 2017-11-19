@@ -7,6 +7,7 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -44,9 +45,11 @@ public class Fedora4Utils {
     public static final String COLLECTIONS_PREFIX_PATH = "collections";
 
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    public static final String DATE_FORMAT_WITHOUTMILIS = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
 //    /** DEFAULT Date formatter*/
 //    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
 
 
     /**
@@ -133,8 +136,13 @@ public class Fedora4Utils {
         Document document = XMLUtils.parseDocument(body, true);
         Element lastModified = XMLUtils.findElement(document.getDocumentElement(), name, namespace);
         if (lastModified != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-            return dateFormat.parse(lastModified.getTextContent());
+            try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+                return dateFormat.parse(lastModified.getTextContent());
+            } catch (ParseException e) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_WITHOUTMILIS);
+                return dateFormat.parse(lastModified.getTextContent());
+            }
         } else return null;
     }
 

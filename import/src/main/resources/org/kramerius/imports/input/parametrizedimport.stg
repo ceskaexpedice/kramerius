@@ -46,7 +46,7 @@ form(postfixdiv, importDirectory,importRootDirectory,  startIndexer, updateExist
                 +';startIndexer='+startIndexer+';updateExisting='+updateExisting
                 ;
             
-            var url = "lr?action=form_post&def=parametrizedimport&paramsMapping={"+vals+"}&out=text";
+            var url = "lr?action=form_post&def=parametrizedimport&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             processStarter("parametrizedimport").start(url);
         }
 

@@ -74,9 +74,9 @@ public class FeederTest {
     @Test
     public void testFeed() throws IOException, SolrServerException, ResourceIndexException {
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        feeder.feedDescriptionDocument("uuid:abc-monograph","monograph","Title");
-        feeder.feedDescriptionDocument("uuid:abc-page","page","Title");
-        feeder.feedDescriptionDocument("uuid:def-page","page","Title");
+        feeder.feedDescriptionDocument("uuid:abc-monograph","monograph","Title", "http://localhost:18080/rest");
+        feeder.feedDescriptionDocument("uuid:abc-page","page","Title","http://localhost:18080/rest");
+        feeder.feedDescriptionDocument("uuid:def-page","page","Title","http://localhost:18080/rest");
 
 
         IResourceIndex instance = this.injector.getInstance(IResourceIndex.class);

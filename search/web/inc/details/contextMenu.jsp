@@ -646,7 +646,7 @@
           var action;
           var coll;
           var hasChanges = false;
-          urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={virtualcollections;";
+          urlbuffer = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"virtualcollections;";
           if(pids.length==1){
               var pidpath = getPidPath(pids[0]);
               var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
@@ -670,10 +670,10 @@
                           urlbuffer=urlbuffer + ";";
                       }
                       j++;
-                      urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(coll, ":","\\:")+"}";
+                      urlbuffer=urlbuffer+encodeURI("{")+action+";"+encodeURI(replaceAll(pid, ":","\\:"))+";"+encodeURI(replaceAll(coll, ":","\\:"))+encodeURI("}");
                   }
               });
-              urlbuffer=urlbuffer+"}";
+              urlbuffer=urlbuffer+encodeURI("}");
           }else{
               var j = 0;
               hasChanges = true;
@@ -692,10 +692,10 @@
                           urlbuffer=urlbuffer + ";";
                       }
                       j++;
-                      urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(coll, ":","\\:")+"}";
+                      urlbuffer=urlbuffer+encodeURI("{")+action+";"+encodeURI(replaceAll(pid, ":","\\:"))+";"+encodeURI(replaceAll(coll, ":","\\:"))+encodeURI("}");
                   });
               }
-              urlbuffer=urlbuffer+"}";
+              urlbuffer=urlbuffer+encodeURI("}");
 
           }
 
@@ -800,7 +800,7 @@
               escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
               urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
           }else{
-              urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
+              urlbuffer = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"reindex;"
               for(var i=0; i<pids.length; i++){
                   var pidpath = getPidPath(pids[i]);
                   var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
@@ -809,12 +809,12 @@
                   var escapedTitle = replaceAll(title, ',', '');
                   escapedTitle = replaceAll(escapedTitle, '\n', '');
                   escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-                  urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
+                  urlbuffer=urlbuffer+encodeURI("{")+action+";"+encodeURI(replaceAll(pid, ":","\\:"))+";"+encodeURI(replaceAll(escapedTitle, ":","\\:"))+encodeURI("}");
                   if (i<pids.length-1) {
                       urlbuffer=urlbuffer+";"
                   }
               }
-              urlbuffer=urlbuffer+"}";
+              urlbuffer=urlbuffer+encodeURI("}");
           }
 
           processStarter("reindex").start(urlbuffer);
@@ -837,7 +837,7 @@
                   escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
                   urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
               }else{
-                  urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
+                  urlbuffer = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"reindex;"
                   for(var i=0; i<pids.length; i++){
                       var pidpath = getPidPath(pids[i]);
                       var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
@@ -845,12 +845,12 @@
                       var escapedTitle = replaceAll(title, ',', '');
                       escapedTitle = replaceAll(escapedTitle, '\n', '');
                       escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-                      urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
+                      urlbuffer=urlbuffer+encodeURI("{")+action+";"+encodeURI(replaceAll(pid, ":","\\:"))+";"+replaceAll(escapedTitle, ":","\\:")+encodeURI("}");
                       if (i<pids.length-1) {
                           urlbuffer=urlbuffer+";"
                       }
                   }
-                  urlbuffer=urlbuffer+"}";
+                  urlbuffer=urlbuffer+encodeURI("}");
               }
 
               processStarter("reindex").start(urlbuffer);
@@ -860,7 +860,7 @@
 
       function serverSort() {
           var structs = pidstructs();
-          var u = "lr?action=start&def=sort&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
+          var u = "lr?action=start&def=sort&out=text&nparams="+encodeURI("{")+encodeURI(structs[0].pid.replaceAll(":","\\:"))+encodeURI("}");
           processStarter("sort").start(u);
       }
 
@@ -868,11 +868,11 @@
 		  var pids = getAffectedPids();
 
           showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
-              var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={delete;"
+              var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"delete;"
               for(var i=0; i<pids.length; i++){
                   var pidpath = getPidPath(pids[i]);
                   var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                  urlbuffer=urlbuffer+"{"+replaceAll(pid, ":","\\:")+";"+replaceAll(pidpath, ":","\\:")+"}";
+                  urlbuffer=urlbuffer+encodeURI("{")+encodeURI(replaceAll(pid, ":","\\:"))+";"+encodeURI(replaceAll(pidpath, ":","\\:"))+encodeURI("}");
                   if (i<pids.length-1) {
                       urlbuffer=urlbuffer+";"
                   }
@@ -886,7 +886,7 @@
       function exportFOXML(){
           var structs = pidstructs();
           if (structs.length > 1) {
-              var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={export;",structs)+"}";
+              var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"export;",structs)+encodeURI("}");
               processStarter("export").start(u);
           } else {
               var u = urlWithPids("lr?action=start&def=export&out=text&nparams=",structs);
@@ -897,14 +897,14 @@
       function exportToCD(img, i18nServlet, country,language) {
           var structs = pidstructs();
           if (structs.length > 0) {
-              var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
+              var u = "lr?action=start&def=static_export_CD&out=text&nparams="+encodeURI("{")+""+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+encodeURI("}");
               processStarter("static_export_CD").start(u);
           }
       }
       function exportToDVD(img, i18nServlet, country,language) {
           var structs = pidstructs();
           if (structs.length > 0) {
-              var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
+              var u = "lr?action=start&def=static_export_CD&out=text&nparams="+encodeURI("{")+""+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+ encodeURI("}");
               processStarter("static_export_DVD").start(u);
           }
       }
@@ -913,7 +913,7 @@
       function applyMovingWall(){
           var structs = pidstructs();
           if (structs.length > 1) {
-              var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={applymw;",structs)+"}";
+              var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"applymw;",structs)+encodeURI("}");
               processStarter("applymw").start(u);
           } else {
               var u = urlWithPids("lr?action=start&def=applymw&out=text&nparams=",structs);
@@ -924,14 +924,14 @@
 
       function generateDeepZoomTiles(){
           var structs = pidstructs();
-          var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={generateDeepZoomTiles;",structs);
+          var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"generateDeepZoomTiles;",structs);
           processStarter("generateDeepZoomTiles").start(u);
       }
 
       function deleteGeneratedDeepZoomTiles(){
           var pids = getAffectedPids();
           var structs = pidstructs();
-          var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={deleteGeneratedDeepZoomTiles;",structs);
+          var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"deleteGeneratedDeepZoomTiles;",structs);
           processStarter("deleteGeneratedDeepZoomTiles").start(u);
       }
 
@@ -982,7 +982,7 @@
           function _url(/** String */baseUrl, /** Array */ pids) {
               return baseUrl+""+reduce(function(base, item, status) {
                   
-                  base = base+"{"+item.pid.replaceAll(":","\\:")+ (status.last ? "}": "};");
+                  base = base+encodeURI("{")+encodeURI(item.pid.replaceAll(":","\\:"))+ (status.last ? encodeURI("}"): encodeURI("};"));
                   return base;
               }, "",pids)+"";        
           }
@@ -991,7 +991,7 @@
           this.policyName = value;
           var structs = pidstructs();     
           this.aggregate = structs.length > 1;
-          var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams={"+this.policyName+";",structs)+"}" : "lr?action=start&out=text&def="+this.policyName+"&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
+          var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams="+encodeURI("{")+this.policyName+";",structs)+encodeURI("}") : "lr?action=start&out=text&def="+this.policyName+"&nparams="+encodeURI("{")+encodeURI(structs[0].pid.replaceAll(":","\\:"))+encodeURI("}");
           
           processStarter(this.policyName).start(u);
       }

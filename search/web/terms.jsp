@@ -44,6 +44,8 @@
             <c:param name="facet.limit" value="50" />
             <c:param name="rows" value="0" />
             <c:param name="facet" value="true" />
+            <c:param name="wt" value="xml" />
+
         </c:url>
     </c:when>
     <c:otherwise>
@@ -53,6 +55,9 @@
             <c:param name="terms.sort" value="index" />
             <c:param name="terms.limit" value="50" />
             <c:param name="terms.lower" value="${term}" />
+
+            <c:param name="wt" value="xml" />
+
         </c:url>
     </c:otherwise>
 </c:choose>

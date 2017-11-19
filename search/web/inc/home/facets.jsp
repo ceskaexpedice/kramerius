@@ -44,6 +44,8 @@
     <c:param name="facet.field" value="dostupnost" />
     <c:param name="facet" value="true" />
     <c:param name="facet.mincount" value="1" />
+    <c:param name="wt" value="xml" />
+
 </c:url>
 <c:import url="${url}" var="xml" charEncoding="UTF-8" />
 <jsp:useBean id="xml" type="java.lang.String" />

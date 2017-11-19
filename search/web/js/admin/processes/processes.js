@@ -55,13 +55,13 @@ ProcessessFilter.prototype.filterPostfix = function() {
 }
 
 ProcessessFilter.prototype.curl=function() {
-	return "{"+reduce(function(base, item, status) {
+	return encodeURI("{")+reduce(function(base, item, status) {
     	base = base+reduceItem(item)+ (status.last ? "": ";");
         return base;
-    }, "",this.filter)+"}";    
+    }, "",this.filter)+encodeURI("}");
 	
 	function reduceItem(item) {
-		return "{"+item.name+";"+item.op+";"+item.val.replaceAll(":","\\:")+"}";
+		return encodeURI("{")+item.name+";"+item.op+";"+encodeURI(item.val.replaceAll(":","\\:"))+encodeURI("}");
 	}
 }
 
