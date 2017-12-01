@@ -8,11 +8,12 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Locale;
 import java.util.logging.Level;
 
-import javax.swing.border.TitledBorder;
-
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.w3c.dom.Document;
 
 import com.google.inject.Guice;
@@ -24,18 +25,14 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.lp.guice.ArgumentLocalesProvider;
-import cz.incad.kramerius.lp.guice.PDFModule;
 import cz.incad.kramerius.lp.utils.DecriptionHTML;
 import cz.incad.kramerius.lp.utils.FileUtils;
 import cz.incad.kramerius.lp.utils.PackUtils;
 import cz.incad.kramerius.pdf.GeneratePDFService;
-import cz.incad.kramerius.pdf.utils.TitlesUtils;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
-import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
@@ -93,13 +90,14 @@ public class PDFExport {
 				FileUtils.deleteRecursive(uuidFolder);
 				if (!uuidFolder.delete()) throw new RuntimeException("cannot delete folder '"+uuidFolder.getAbsolutePath()+"'");
 			}
-			
-			Injector injector = Guice.createInjector(new PDFModule());
+
+			Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+			FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+
 			String titleFromDC = null;
 			if (System.getProperty("uuid") != null) {
 				titleFromDC = updateProcessName(pid, injector, medium);
 			} else {
-				FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess"))); 
 				Document dc = fa.getDC(pid);
 				titleFromDC = DCUtils.titleFromDC(dc);
 			}

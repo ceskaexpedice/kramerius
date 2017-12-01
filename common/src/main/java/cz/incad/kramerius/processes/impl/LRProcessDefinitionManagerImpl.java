@@ -55,7 +55,7 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 			/*String configFile*/) {
 		super();
 		this.configuration = configuration;
-		//this.processManager = processManager;
+		this.processManager = processManager;
 		LOGGER.fine("loading configuration ...");
 		this.load();
 		

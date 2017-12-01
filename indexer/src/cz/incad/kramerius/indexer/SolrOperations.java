@@ -5,7 +5,9 @@ import cz.incad.kramerius.*;
 import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
+import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
+import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
@@ -43,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * performs the Solr specific parts of the operations
@@ -74,6 +77,7 @@ public class SolrOperations {
     @Inject
     public SolrOperations(@Named("rawFedoraAccess") FedoraAccess fa, FedoraOperations _fedoraOperations, IResourceIndex resourceIndex) throws IOException {
         fedoraOperations = _fedoraOperations;
+        this.fa = fa;
         this.rindex = resourceIndex;
         config = KConfiguration.getInstance().getConfiguration();
         isSoftCommit = config.getBoolean("indexer.isSoftCommit", false);
@@ -178,7 +182,7 @@ public class SolrOperations {
 //                reindexDoc(value, true);
 //                commit();
             } else if ("checkIntegrity".equals(action)) {
-                checkIntegrity();
+                checkIntegrityByPids();
             } else if ("checkIntegrityByModel".equals(action)) {
                 checkIntegrityByModel(value);
             } else if ("checkIntegrityByDocument".equals(action)) {
@@ -599,7 +603,7 @@ public class SolrOperations {
     }
 
     private void deleteModel(String path) throws Exception {
-        StringBuilder sb = new StringBuilder("<delete><query>model_path:" + path + "*</query></delete>");
+        StringBuilder sb = new StringBuilder("<delete><query>model_path:" + SolrUtils.escapeQuery(path) + "*</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
         postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
         commit();
@@ -808,6 +812,67 @@ public class SolrOperations {
         }
         commit();
     }
+    private void checkIntegrityByPids() throws Exception {
+        int offset = 0;
+        int numHits = 10;
+
+        final List<String> pidsToRemove = new ArrayList<>();
+
+        String urlStr = config.getString("solrHost") + "/select/?q=*:*&fl=PID,pid_path&start="
+                + offset + "&rows=" + numHits+"&wt=xml";
+
+        InputStream inputStream = RESTHelper.inputStream(urlStr, null, null);
+        Document document = XMLUtils.parseDocument(inputStream, true);
+
+        String numFound = XMLUtils.findElement(document.getDocumentElement(), (elm) -> (elm.getNodeName().equals("result"))).getAttribute("numFound");
+
+        if (numFound != null) {
+            long number = Long.parseLong(numFound);
+
+            while(offset < number) {
+                List<Element> docs = XMLUtils.getElementsRecursive(document.getDocumentElement(), (elm) -> {
+                    return elm.getNodeName().equals("doc");
+                });
+                List<String> pids = docs.stream().map((doc) -> {
+                    Element element = XMLUtils.findElement(doc, (fieldElm) -> {
+                        return (fieldElm.getNodeName().equals("str") && fieldElm.getAttribute("name").equals("PID"));
+                    });
+                    return element.getTextContent();
+                }).collect(Collectors.toList());
+
+                pids.stream().forEach((pid)->{
+                    try {
+                        if (!pid.contains("@")) {
+                            if (!fa.isObjectAvailable(pid) || !rindex.existsPid(pid)) {
+                                logger.info(" pid "+pid+" has been marked for delete ");
+                                pidsToRemove.add(pid);
+                            }
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    } catch (ResourceIndexException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+                offset += numHits;
+                urlStr = config.getString("solrHost") + "/select/?q=*:*&fl=PID,pid_path&start="
+                        + offset + "&rows=" + numHits+"&wt=xml";
+                document = XMLUtils.parseDocument(RESTHelper.inputStream(urlStr, null, null), true);
+            }
+
+        }
+        pidsToRemove.forEach((pid)->{
+            try {
+                logger.log(Level.INFO, pid + " doesn't exist. Deleting...");
+                deletePid(pid);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        commit();
+    }
+
 
     private void checkIntegrityByModel(String model) throws Exception {
         int offset = 0;
@@ -826,7 +891,7 @@ public class SolrOperations {
         String PID;
         String pid_path;
         String urlStr = config.getString("solrHost") + "/select/?q=model_path:" + model + "*&fl=PID,pid_path&start="
-                + offset + "&rows=" + numHits;
+                + offset + "&rows=" + numHits+"&wt=xml";
         factory = XPathFactory.newInstance();
         xpath = factory.newXPath();
         java.net.URL url = new java.net.URL(urlStr);
@@ -842,8 +907,7 @@ public class SolrOperations {
         for (int i = 0; i < nodeList.getLength(); i++) {
             node = nodeList.item(i);
             PID = node.getFirstChild().getNodeValue();
-            pid_path = node.getNextSibling().getFirstChild().getNodeValue();
-            
+
             //PID with @ are virtual only in index. Test parent.
             String simplePid = PID;
             if(PID.indexOf("/@")>-1){
@@ -851,7 +915,7 @@ public class SolrOperations {
             }
             
 
-            if(!rindex.existsPid(simplePid)){
+            if(!rindex.existsPid(simplePid) || !fa.isObjectAvailable(simplePid)){
                 logger.log(Level.INFO, simplePid + " doesn't exist. Deleting...");
                 deletePid(PID);
             }

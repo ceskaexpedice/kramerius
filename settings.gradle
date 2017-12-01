@@ -1,5 +1,4 @@
 include 'security-core'
-include	'fedora-api'
 include	'common' 
 	
 include	'import'

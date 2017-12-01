@@ -11,7 +11,6 @@ compileJava {
 
 dependencies {
     compile project(':security-core')
-    compile project(':fedora-api')
     compile project(':common')
     
     compile project(':import')     

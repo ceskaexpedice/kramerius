@@ -16,12 +16,8 @@
  */
 package cz.incad.kramerius.fedora.om.impl;
 
-import com.sun.xml.messaging.saaj.util.ByteOutputStream;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.fedora.om.NotFoundInRepositoryException;
-import cz.incad.kramerius.fedora.om.RepositoryDatastream;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.RepositoryObject;
+import cz.incad.kramerius.fedora.om.*;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -185,7 +181,7 @@ public class Fedora4Object implements RepositoryObject {
     @Override
     public RepositoryDatastream createStream(String streamId, String mimeType, InputStream input) throws RepositoryException {
         try {
-            ByteOutputStream bos = new ByteOutputStream();
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
             int length = IOUtils.copy(input, bos);
 
             URI childUri = URI.create(this.objectPath() + "/" + streamId);
@@ -201,7 +197,7 @@ public class Fedora4Object implements RepositoryObject {
             }
 
             if (!repo.exists(childUri)) {
-                try (FcrepoResponse response = new PutBuilder(childUri, client).body(new ByteArrayInputStream(Arrays.copyOf(bos.getBytes(), length)), mimeType).perform()) {
+                try (FcrepoResponse response = new PutBuilder(childUri, client).body(new ByteArrayInputStream(Arrays.copyOf(bos.toByteArray(), length)), mimeType).perform()) {
                     if (response.getStatusCode() == 201) {
                         URI location = response.getLocation();
                         if (streamId.equals(FedoraUtils.RELS_EXT_STREAM)) {
@@ -210,8 +206,8 @@ public class Fedora4Object implements RepositoryObject {
                             this.feeder.deleteByRelationsForPid(pid);
                             RELSEXTSPARQLBuilder sparqlBuilder = new RELSEXTSPARQLBuilderImpl();
                             long startProcessing = System.currentTimeMillis();
-                            // index after callect
-                            String sparql = sparqlBuilder.sparqlProps(new String(Arrays.copyOf(bos.getBytes(), length), "UTF-8").trim(), (object, localName) -> {
+
+                            String sparql = sparqlBuilder.sparqlProps(new String(Arrays.copyOf(bos.toByteArray(), length), "UTF-8").trim(), (object, localName) -> {
 
                                 if (localName.equals("hasModel")) {
                                     try {
@@ -284,7 +280,7 @@ public class Fedora4Object implements RepositoryObject {
 
     private void indexDescription(String model, String dctitle) throws IOException, SolrServerException {
         this.feeder.deleteDescriptionByPid(this.getPid());
-        this.feeder.feedDescriptionDocument(this.getPid(), model, dctitle, this.objectPath());
+        this.feeder.feedDescriptionDocument(this.getPid(), model, dctitle, this.objectPath(), new Date());
     }
 
     public void deleteProcessingIndex() throws IOException, SolrServerException {
@@ -545,6 +541,25 @@ public class Fedora4Object implements RepositoryObject {
             if (this.transactionId == null) {
                 LOGGER.warning("Operation is not in transaction; it could end with inconsistant state");
             }
+            // zruseni jedne vazby
+            Document metadata = getMetadata();
+            List<Triple<String, String, String>> relationsToDelete = Fedora4Utils.triplesToDeleteByPid(this.repo,metadata, relation, namespace, targetRelation);
+            this.updateSPARQL(Fedora4Repository.DELETE_RELATIONS(relationsToDelete));
+
+            //nalezeni vsech vazeb z metadat a smazani
+            List<Element> metadataElms = XMLUtils.getElementsRecursive(metadata.getDocumentElement(), (element) -> {
+                String elmNamespace = element.getNamespaceURI();
+                String elmName = element.getLocalName();
+                return (elmName.equals(relation) && namespace.equals(elmNamespace));
+            });
+            if (!metadataElms.isEmpty()) {
+                List<List<Triple<String, String, String>>> deleteBuckets = removeRelations(metadataElms);
+                for (List<Triple<String, String, String>> bucket :  deleteBuckets) {
+                    this.updateSPARQL(Fedora4Repository.DELETE_RELATIONS(bucket));
+                }
+            }
+
+
             final String targetPID = targetRelation.startsWith(PIDParser.INFO_FEDORA_PREFIX) ? targetRelation : PIDParser.INFO_FEDORA_PREFIX + targetRelation;
             RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
             Document document = XMLUtils.parseDocument(stream.getContent(), true);
@@ -555,6 +570,7 @@ public class Fedora4Object implements RepositoryObject {
                 return (elmNamespace.equals(namespace)) && (elmLocalname.equals(relation)) && elmResourceAttribute.equals(targetPID);
             });
 
+            // Change RELS-EXT relations
             if (relationElement != null) {
                 relationElement.getParentNode().removeChild(relationElement);
                 changeRelations(document);
@@ -562,9 +578,6 @@ public class Fedora4Object implements RepositoryObject {
                 LOGGER.warning("Cannot find relation '" + namespace + relation);
             }
 
-            //String path = getFullPath(targetRelation);
-
-            this.updateSPARQL(Fedora4Repository.DELETE_RELATION(relation, namespace, this.repo.getObject(targetRelation).getFullPath()));
 
         } catch (ParserConfigurationException e) {
             throw new RepositoryException(e);
@@ -576,6 +589,8 @@ public class Fedora4Object implements RepositoryObject {
             throw new RepositoryException(e);
         }
     }
+
+
 
     public String getFullPath() throws RepositoryException {
         return this.transactionId != null ? "/" + this.repo.getBoundContext() + "/" + this.transactionId + this.getPath() : "/" + this.repo.getBoundContext() + this.getPath();
@@ -706,10 +721,10 @@ public class Fedora4Object implements RepositoryObject {
             if (relationElement != null) {
                 relationElement.getParentNode().removeChild(relationElement);
                 changeRelations(document);
-                this.updateSPARQL(Fedora4Repository.DELETE_LITERAL(relation, namespace, value));
             } else {
                 LOGGER.warning("Cannot find literal '" + namespace + relation);
             }
+            this.updateSPARQL(Fedora4Repository.DELETE_LITERAL(relation, namespace, value));
         } catch (ParserConfigurationException e) {
             throw new RepositoryException(e);
         } catch (SAXException e) {
@@ -719,62 +734,44 @@ public class Fedora4Object implements RepositoryObject {
         } catch (TransformerException e) {
             throw new RepositoryException(e);
         }
-    }
-
-    @Override
-    public void removeRelationsByTarget(String target) throws RepositoryException {
-        try {
-            RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
-            Document document = XMLUtils.parseDocument(stream.getContent(), true);
-            List<Element> elms = XMLUtils.getElementsRecursive(document.getDocumentElement(), (element) -> {
-                String resource = element.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
-                return (resource.equals(target));
-            });
-            if (!elms.isEmpty()) {
-                removeRelations(document, elms);
-                changeRelations(document);
-            }
-            Document metadata = this.getMetadata();
-            List<Element> metadataElms = XMLUtils.getElementsRecursive(metadata.getDocumentElement(), (element) -> {
-                String resource = element.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
-                return (resource.equals(target));
-            });
-            if (!metadataElms.isEmpty()) {
-                removeRelations(document, metadataElms);
-            }
-
-        } catch (ParserConfigurationException e) {
-            throw new RepositoryException(e);
-        } catch (SAXException e) {
-            throw new RepositoryException(e);
-        } catch (IOException e) {
-            throw new RepositoryException(e);
-        } catch (TransformerException e) {
-            throw new RepositoryException(e);
-        }
-
     }
 
     @Override
     public void removeRelationsByNamespace(String namespace) throws RepositoryException {
         try {
-            RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
-            Document document = XMLUtils.parseDocument(stream.getContent(), true);
-            List<Element> elms = XMLUtils.getElementsRecursive(document.getDocumentElement(), (element) -> {
-                String elmNamespace = element.getNamespaceURI();
-                return (namespace.equals(elmNamespace));
-            });
-            if (!elms.isEmpty()) {
-                removeRelations(document, elms);
-                changeRelations(document);
+            if (this.transactionId == null) {
+                LOGGER.warning("Operation is not in transaction; it could end with inconsistant state");
             }
             Document metadata = getMetadata();
+
+            //nalezeni vsech vazeb z metadat a smazani
             List<Element> metadataElms = XMLUtils.getElementsRecursive(metadata.getDocumentElement(), (element) -> {
                 String elmNamespace = element.getNamespaceURI();
                 return (namespace.equals(elmNamespace));
             });
             if (!metadataElms.isEmpty()) {
-                removeRelations(document, metadataElms);
+                List<List<Triple<String, String, String>>> deleteBuckets = removeRelations(metadataElms);
+                for (List<Triple<String, String, String>> bucket :  deleteBuckets) {
+                    this.updateSPARQL(Fedora4Repository.DELETE_RELATIONS(bucket));
+                }
+            }
+
+            RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
+            Document document = XMLUtils.parseDocument(stream.getContent(), true);
+            List<Element> relationElements = XMLUtils.getElementsRecursive(document.getDocumentElement(), (element) -> {
+                String elmNamespace = element.getNamespaceURI();
+                return (elmNamespace.equals(namespace)) ;
+            });
+
+
+            // Change RELS-EXT relations
+            if (!relationElements.isEmpty()) {
+                relationElements.stream().forEach((elm)->{
+                    elm.getParentNode().removeChild(elm);
+                });
+                changeRelations(document);
+            } else {
+                LOGGER.warning("Cannot find relation '" + namespace);
             }
 
         } catch (ParserConfigurationException e) {
@@ -791,27 +788,43 @@ public class Fedora4Object implements RepositoryObject {
     @Override
     public void removeRelationsByNameAndNamespace(String relation, String namespace) throws RepositoryException {
         try {
-            // in case of incosistency
-            RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
-            Document document = XMLUtils.parseDocument(stream.getContent(), true);
-            List<Element> elms = XMLUtils.getElementsRecursive(document.getDocumentElement(), (element) -> {
-                String elmNamespace = element.getNamespaceURI();
-                String elmName = element.getLocalName();
-                return (elmName.equals(relation) && namespace.equals(elmNamespace));
-            });
-            if (!elms.isEmpty()) {
-                removeRelations(document, elms);
-                changeRelations(document);
+            if (this.transactionId == null) {
+                LOGGER.warning("Operation is not in transaction; it could end with inconsistant state");
             }
             Document metadata = getMetadata();
+
+            //nalezeni vsech vazeb z metadat a smazani
             List<Element> metadataElms = XMLUtils.getElementsRecursive(metadata.getDocumentElement(), (element) -> {
                 String elmNamespace = element.getNamespaceURI();
                 String elmName = element.getLocalName();
                 return (elmName.equals(relation) && namespace.equals(elmNamespace));
             });
             if (!metadataElms.isEmpty()) {
-                removeRelations(document, metadataElms);
+                List<List<Triple<String, String, String>>> deleteBuckets = removeRelations(metadataElms);
+                for (List<Triple<String, String, String>> bucket :  deleteBuckets) {
+                    this.updateSPARQL(Fedora4Repository.DELETE_RELATIONS(bucket));
+                }
             }
+
+
+            RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
+            Document document = XMLUtils.parseDocument(stream.getContent(), true);
+            List<Element> relationElements = XMLUtils.getElementsRecursive(document.getDocumentElement(), (element) -> {
+                String elmNamespace = element.getNamespaceURI();
+                String elmLocalname = element.getLocalName();
+                return (elmNamespace.equals(namespace)) && (elmLocalname.equals(relation));
+            });
+
+            // Change RELS-EXT relations
+            if (!relationElements.isEmpty()) {
+                relationElements.stream().forEach((elm)->{
+                    elm.getParentNode().removeChild(elm);
+                });
+                changeRelations(document);
+            } else {
+                LOGGER.warning("Cannot find relation '" + namespace + relation);
+            }
+
         } catch (ParserConfigurationException e) {
             throw new RepositoryException(e);
         } catch (SAXException e) {
@@ -823,27 +836,35 @@ public class Fedora4Object implements RepositoryObject {
         }
     }
 
-    private void removeRelations(Document document, List<Element> elms) throws RepositoryException, TransformerException {
+    private List<List<Triple<String,String,String>>> removeRelations(List<Element> elms) throws RepositoryException, TransformerException {
+        // zruseni sparql vazeb
+        List<List<Triple<String,String,String>>> retList = new ArrayList<>();
+        Document metadata = getMetadata();
         for (Element relationElement : elms) {
+            List<Triple<String,String,String>> bucket = new ArrayList<>();
+            String namespace = relationElement.getNamespaceURI();
+            String relation = relationElement.getLocalName();
             if (relationElement.hasAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource")) {
                 try {
-                    String pid = relationElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
-                    if (pid.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
-                        pid = pid.substring(PIDParser.INFO_FEDORA_PREFIX.length());
+                    String target = relationElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                    if (target.startsWith("http://") || target.startsWith("https://")) {
+                        bucket.addAll(Fedora4Utils.triplesToDeleteByHref(this.repo, metadata, relation, namespace, target));
+                    } else {
+                        if (target.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
+                            target = target.substring(PIDParser.INFO_FEDORA_PREFIX.length());
+                        }
+                        bucket.addAll(Fedora4Utils.triplesToDeleteByPid(this.repo, metadata, relation, namespace, target));
                     }
-                    this.updateSPARQL(Fedora4Repository.DELETE_RELATION(relationElement.getLocalName(), relationElement.getNamespaceURI(), repo.getObject(pid).getFullPath()));
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }
             } else {
-                try {
-                    this.updateSPARQL(Fedora4Repository.DELETE_LITERAL(relationElement.getLocalName(), relationElement.getNamespaceURI(), relationElement.getTextContent()));
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
+                bucket.add(new ImmutableTriple<>("<>","<"+namespace+relation+">", '"'+relationElement.getTextContent()+'"'));
             }
             relationElement.getParentNode().removeChild(relationElement);
+            retList.add(bucket);
         }
+        return retList;
     }
 
     @Override
@@ -871,14 +892,6 @@ public class Fedora4Object implements RepositoryObject {
             this.removeRelationsByNamespace(FedoraNamespaces.KRAMERIUS_URI);
             this.removeRelationsByNameAndNamespace("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI);
             this.deleteStream(FedoraUtils.RELS_EXT_STREAM);
-            /*
-            try {
-                this.feeder.deleteByPid(this.pid);
-            } catch (IOException e) {
-                throw new RepositoryException(e);
-            } catch (SolrServerException e) {
-                throw new RepositoryException(e);
-            }*/
         }
     }
 }

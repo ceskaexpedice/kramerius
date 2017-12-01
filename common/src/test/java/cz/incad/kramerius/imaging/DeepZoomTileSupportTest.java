@@ -63,8 +63,6 @@ public class DeepZoomTileSupportTest extends AbstractGuiceTestCase {
             bind(DeepZoomTileSupport.class).toInstance(tis);
             
             
-            // TODO Auto-generated method stub
-            
         }
     }
 }

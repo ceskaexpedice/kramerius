@@ -20,17 +20,12 @@
 package org.kramerius.importmets.parametrized;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-
-import javax.xml.bind.JAXBException;
 
 import org.kramerius.importmets.MetsConvertor;
-import org.kramerius.importmets.valueobj.ServiceException;
-import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 
 /**
  * Parametrized mets NKD import

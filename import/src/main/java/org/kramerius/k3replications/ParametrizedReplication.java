@@ -21,7 +21,6 @@ package org.kramerius.k3replications;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.logging.Level;
@@ -32,8 +31,7 @@ import org.kramerius.Download;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
-import cz.incad.kramerius.service.impl.IndexerProcessStarter;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 
 /**
  * Parametrized replication process

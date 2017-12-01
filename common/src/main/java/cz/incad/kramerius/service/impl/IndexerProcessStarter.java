@@ -1,18 +1,12 @@
 package cz.incad.kramerius.service.impl;
 
-import cz.incad.kramerius.intconfig.InternalConfiguration;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.BasicAuthenticationFilter;
 import cz.incad.kramerius.utils.IPAddressUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.ws.rs.core.MediaType;
@@ -26,7 +20,6 @@ import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.ClientFilter;
-import com.sun.jersey.core.util.Base64;
 
 public class IndexerProcessStarter {
 

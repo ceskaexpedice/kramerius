@@ -92,8 +92,6 @@ public interface RepositoryObject {
 
     public void removeRelationsByNamespace(String namespace) throws RepositoryException;
 
-    public void removeRelationsByTarget(String target) throws RepositoryException;
-
 
     public void removeLiteral(String relation, String namespace, String value) throws RepositoryException;
 

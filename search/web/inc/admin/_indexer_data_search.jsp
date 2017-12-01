@@ -1,44 +1,26 @@
-<%@ page pageEncoding="UTF-8" %>
-<%@page import="com.google.inject.Injector"%>
-<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
-<%@page import="cz.incad.Kramerius.I18NServlet"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+
 <%@ taglib uri="/WEB-INF/tlds/securedContent.tld" prefix="scrd" %>
-<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view"%>
+<%@ taglib uri="/WEB-INF/tlds/cmn.tld" prefix="view" %>
 
 <%@ page isELIgnored="false"%>
-<%
-            Injector ctxInj = (Injector) application.getAttribute(Injector.class.getName());
-            LocalizationContext lctx = ctxInj.getProvider(LocalizationContext.class).get();
-            String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
-            pageContext.setAttribute("i18nServlet", i18nServlet);
-%>
-<scrd:securedContent action="reindex" sendForbidden="true">
+<%@ page import="java.util.*"%>
+<%@page import="com.google.inject.Injector"%>
+<%@page import="javax.servlet.jsp.jstl.fmt.LocalizationContext"%>
 
-<view:kconfig var="fedoraHost" key="fedoraHost" />
-<c:catch var="ex">
-<c:url var="url" value="${fedoraHost}/objects" >
-    <c:param name="query" >title~'${param.s}'</c:param>
-    <c:param name="resultFormat" value="xml" />
-    <c:param name="pid" value="true" />
-    <c:param name="title" value="true" />
-    <c:param name="mDate" value="true" />
-    <c:param name="type" value="true" />
-    <c:param name="maxResults" value="${param.rows}" />
-</c:url>
-    <c:import url="${url}" var="doc" charEncoding="UTF-8"  />
-<c:import url="indexer_search.xsl" var="xsltPage" charEncoding="UTF-8"  />
-<x:transform doc="${doc}"  xslt="${xsltPage}"  >
-    <x:param name="bundle_url" value="${i18nServlet}"/>
-    <x:param name="rows" value="${param.rows}" />
-    <x:param name="offset" value="${param.offset}" />
-</x:transform>
-</c:catch>
-<c:choose>
-    <c:when test="${ex!=null}">
-        <tr><td>Error: ${ex}</td></tr>
-    </c:when>
-</c:choose>
-</scrd:securedContent>
+<view:object name="indexerData" clz="cz.incad.Kramerius.views.inc.admin.IndexerAdminModelViewObject"></view:object>
+
+<c:forEach var="object" items="${indexerData.searchedObjects}" varStatus="status">
+<tr class="indexer_result" pid="${object.source}">
+<td class="indexer_result_status">&nbsp;</td>
+<td width="100%"><a title="index document" href="javascript:indexDoc('${object.source}', '${object['dc.title']}');">${object['dc.title']}</a></td><td style="min-width:240px;" width="240px"></td>
+<td style="min-width:138px;">${object.source}</td>
+<td style="min-width:138px;"><a href="${object.ref}" target="_blank">${object.ref}</a></td>
+<td style="min-width:138px;">${object.date}</td>
+</tr>
+
+ </c:forEach>

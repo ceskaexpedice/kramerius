@@ -70,7 +70,7 @@ public abstract class Repository {
     public abstract void deleteobject(String pid) throws RepositoryException;
 
 
-        public static final Repository build(ProcessingIndexFeeder feeder, boolean transactionAware) throws RepositoryException {
+    public static final Repository build(ProcessingIndexFeeder feeder, boolean transactionAware) throws RepositoryException {
         return new Fedora4Repository(feeder, transactionAware);
     }
 

@@ -208,7 +208,18 @@ subprojects {
 	install.repositories.mavenInstaller.pom.whenConfigured {pom ->
 		pom.dependencies.removeAll { it.groupId == null || it.groupId.equals("") }
 	}
-	
+
+	/*
+	afterEvaluate { project ->
+		if (project.hasTests) {
+			println "Adding test task to $project"
+			project.task('test') {
+				doLast {
+					println "Running tests for $project"
+				}
+			}
+		}
+	}*/
 }
 
 /**
@@ -252,7 +263,7 @@ task zipInstallDir(type:Zip) {
 
 // disabled distributions
 task zipAllJavadocs(type: Zip) {
-	String[] _spr = ["common","fedora-api","security-core","rest","search"];
+	String[] _spr = ["common","security-core","rest","search"];
 	description "create javadocs for ${_spr} and zip it"
 	baseName "kramerius-javadoc"
 	for(String project in _spr) {

@@ -35,9 +35,11 @@ import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.States;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.io.IOUtils;
 
 public abstract class AbstractLRProcessImpl implements LRProcess {
 
@@ -127,7 +129,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     }
 
     @Override
-    public void startMe(boolean wait, String krameriusAppLib, 
+    public void startMe(boolean wait, String krameriusAppLib,
             String... additionalJarFiles) {
         try {
             File processWorkingDir = processWorkingDirectory();
@@ -224,6 +226,11 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
             // pokracuje dal.. rozhoduje se, jestli pocka na vysledek procesu
             if (wait) {
                 int val = process.waitFor();
+                if (val != 0) {
+                    InputStream errorStream = process.getErrorStream();
+                    String s = IOUtils.toString(errorStream, "UTF-8");
+                    LOGGER.info(s);
+                }
                 LOGGER.info("return value exiting process '" + val + "'");
             }
 
@@ -255,8 +262,10 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     }
 
     public File processWorkingDirectory() {
-        File processWorkingDir = new File(DefinitionManager.DEFAULT_LP_WORKDIR
+        String key = LRProcess.class.getName() + ".workingdir";
+        String value = System.getProperty(key, DefinitionManager.DEFAULT_LP_WORKDIR
                 + File.separator + uuid);
+        File processWorkingDir = new File(value);
         if (!processWorkingDir.exists()) {
             boolean mkdirs = processWorkingDir.mkdirs();
             if (!mkdirs)

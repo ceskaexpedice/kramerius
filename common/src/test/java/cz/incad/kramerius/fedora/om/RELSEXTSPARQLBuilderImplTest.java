@@ -26,19 +26,13 @@ public class RELSEXTSPARQLBuilderImplTest extends TestCase{
         String s = IOUtils.toString(resource.openStream(), "UTF-8");
         RELSEXTSPARQLBuilderImpl impl = new RELSEXTSPARQLBuilderImpl();
         String sparqlProps = impl.sparqlProps(s, null);
-        Assert.assertTrue(sparqlProps.contains("<info:fedora/fedora-system:def/model#hasModel> <model:monograph>;"));
-        Assert.assertTrue(sparqlProps.contains("<http://www.openarchives.org/OAI/2.0/#itemID> \"uuid:5035a48a-5e2e-486c-8127-2fa650842e46\";"));
+        System.out.println(sparqlProps);
+        Assert.assertTrue(sparqlProps.contains("<> <info:fedora/fedora-system:def/model#hasModel> <model:monograph>."));
+        Assert.assertTrue(sparqlProps.contains("<> <http://www.openarchives.org/OAI/2.0/#itemID> \"uuid:5035a48a-5e2e-486c-8127-2fa650842e46\"."));
 
-
-        int number = 0;
-        int index = sparqlProps.indexOf("<http://www.nsdl.org/ontologies/relationships#hasPage>");
-        while(index != -1) {
-            sparqlProps = sparqlProps.substring(index+"<http://www.nsdl.org/ontologies/relationships#hasPage>".length());
-            index = sparqlProps.indexOf("<http://www.nsdl.org/ontologies/relationships#hasPage>");
-            number += 1;
+        for(int i=1;i<=36;i++) {
+            Assert.assertTrue(sparqlProps.contains("<> <http://www.nsdl.org/ontologies/relationships#hasPage> <#"+i+">."));
         }
-
-        Assert.assertTrue( number == 36);
     }
 
 }

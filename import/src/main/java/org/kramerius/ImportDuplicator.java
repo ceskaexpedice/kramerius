@@ -36,7 +36,6 @@ import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.apache.commons.lang3.tuple.Triple;
-import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -50,12 +49,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ImportDuplicator {
 
-//    static FedoraAPIMService service;
-//    static FedoraAPIM port;
-
     static FedoraAccess fedoraAccess;
     static ProcessingIndexFeeder feeder;
-    static ObjectFactory of;
     static int counter = 0;
 
     private static final Logger log = Logger.getLogger(ImportDuplicator.class.getName());
@@ -117,7 +112,6 @@ public class ImportDuplicator {
         feeder = injector.getInstance(ProcessingIndexFeeder.class);
 
 
-        of = new ObjectFactory();
 
         List<TitlePidTuple> roots = new ArrayList<TitlePidTuple>();
         if (importFile.isDirectory()){

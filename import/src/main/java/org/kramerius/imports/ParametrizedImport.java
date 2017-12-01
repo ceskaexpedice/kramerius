@@ -18,7 +18,6 @@ package org.kramerius.imports;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
@@ -27,7 +26,7 @@ import org.kramerius.Import;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 
 /**
  * Parametrized import proces

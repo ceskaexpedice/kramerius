@@ -26,7 +26,6 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 

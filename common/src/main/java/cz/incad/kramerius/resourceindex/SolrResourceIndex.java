@@ -1,10 +1,7 @@
 package cz.incad.kramerius.resourceindex;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -13,6 +10,9 @@ import javax.xml.transform.TransformerException;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.solr.SolrUtils;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.derby.impl.tools.sysinfo.Main;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -40,15 +40,49 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  */
 public class SolrResourceIndex implements IResourceIndex {
 
+
+
     public static final SimpleDateFormat XSD_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     public static final String DATE_FORMAT_TYPE = "http://www.w3.org/2001/XMLSchema#dateTime";
-    
+
+
     private SolrClient solrClient;
 
     @Inject
     public SolrResourceIndex(@Named("processingQuery") SolrClient solrClient) {
         super();
         this.solrClient = solrClient;
+    }
+
+
+    @Override
+    public List<Map<String, String>> search(String query, int limit, int offset) throws ResourceIndexException {
+        // searching pid or title
+        String escapedQuery = SolrUtils.escapeQuery(query);
+        SolrQuery solrQuery = query.toLowerCase().startsWith("uuid") ?
+                new SolrQuery("(source:\"" + query + "\" OR source_edge:"+escapedQuery+ " ) AND type:\"description\"") :
+                new SolrQuery("(dc.title_czech:" + escapedQuery+" OR dc.title_edge:"+ escapedQuery+" ) AND type:\"description\"");
+        try {
+            List<Map<String, String>> retvals = new ArrayList<>();
+            QueryResponse response = this.solrClient.query(solrQuery);
+            for (SolrDocument doc : response.getResults()) {
+                    retvals.add(createMap(doc));
+
+            }
+            return retvals;
+        } catch (SolrServerException e) {
+            throw new ResourceIndexException(e);
+        } catch (IOException e) {
+            throw new ResourceIndexException(e);
+        }
+    }
+
+    private Map<String,String> createMap(SolrDocument doc) {
+        Map<String,String> m = new HashMap<>();
+        doc.keySet().stream().filter(item-> !item.equals("pid")).forEach((item) -> {
+            m.put(item, doc.getFieldValue(item).toString());
+        });
+        return m;
     }
 
     public List<Map<String,String>> getSubjects(String pid) throws ResourceIndexException {
@@ -61,11 +95,7 @@ public class SolrResourceIndex implements IResourceIndex {
             long found = response.getResults().getNumFound();
             while(start < found) {
                 for (SolrDocument sDoc : response.getResults()) {
-                    Map<String,String> map = new HashMap<>();
-                    map.put("source",sDoc.getFieldValue("source").toString());
-                    map.put("relation",sDoc.getFieldValue("relation").toString());
-                    map.put("targetPid",sDoc.getFieldValue("targetPid").toString());
-                    retvals.add(map);
+                    retvals.add(createMap(sDoc));
                 }
 
                 response = this.solrClient.query(new SolrQuery("targetPid:\""+pid+"\" AND type:description").setRows(limit).setStart(start));
@@ -167,11 +197,6 @@ public class SolrResourceIndex implements IResourceIndex {
     }
 
     @Override
-    public List<String> getPidPaths(String pid) throws ResourceIndexException {
-        return ResourceIndexUtils.getPidPaths(pid, this);
-    }
-
-    @Override
     public List<String> getObjectsInCollection(String collection, int limit, int offset) throws ResourceIndexException {
         List<String> returnList = new ArrayList<>();
         try {
@@ -196,7 +221,7 @@ public class SolrResourceIndex implements IResourceIndex {
     @Override
     public boolean existsPid(String pid) throws ResourceIndexException {
         try {
-            String queryString = "type:\"description\" AND pid:\""+pid+"\"";
+            String queryString = "type:\"description\" AND source:\""+pid+"\"";
             SolrQuery solrQuery = new SolrQuery(queryString);
             solrQuery.setFields("source");
             QueryResponse query = this.solrClient.query(solrQuery);
@@ -248,24 +273,19 @@ public class SolrResourceIndex implements IResourceIndex {
         }
     }
 
-
     @Override
-    public Document getFedoraObjectsFromModelExt(String model, int limit, int offset, String orderby, String orderDir)
-            throws ResourceIndexException {
+    public List<Map<String, String>> getObjects(String model, int limit, int offset, String orderby, String orderDir) throws ResourceIndexException {
         try {
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = builder.newDocument();
-            Element rootElement = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI, "sparql");
-            rootElement.appendChild(createHeader(doc, "object","title","date"));
-            
-            QueryResponse response = this.solrClient.query(new SolrQuery("model:\""+model+"\" AND type:description").setRows(limit).setStart(offset));
-            rootElement.appendChild(createHeader(doc, "object","title"));
-            rootElement.appendChild(createDocumentResults(doc, response.getResults()));
+            List<Map<String, String>> list = new ArrayList<>();
+            QueryResponse response = (StringUtils.isAnyString(orderby))  ?
+                    this.solrClient.query(new SolrQuery("model:\""+model+"\" AND type:description").setSort(orderby, SolrQuery.ORDER.valueOf(orderDir)).setRows(limit).setStart(offset)) :
+                    this.solrClient.query(new SolrQuery("model:\""+model+"\" AND type:description").setRows(limit).setStart(offset));
 
-            doc.appendChild(rootElement);
-            return doc;
-        } catch (ParserConfigurationException e) {
-            throw new ResourceIndexException(e);
+            SolrDocumentList results = response.getResults();
+            for (SolrDocument doc :  results) {
+                list.add(createMap(doc));
+            }
+            return list;
         } catch (SolrServerException e) {
             throw new ResourceIndexException(e);
         } catch (IOException e) {
@@ -281,11 +301,15 @@ public class SolrResourceIndex implements IResourceIndex {
             Element result = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"result");
             
             Element title = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"title");
-            title.setTextContent(solrDocument.get("source").toString());
+            title.setTextContent(solrDocument.get("dc.title").toString());
             result.appendChild(title);
-            
+
+            Element date = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"date");
+            date.setTextContent(solrDocument.get("date").toString());
+            result.appendChild(date);
+
             Element object = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI,"object");
-            object.setTextContent("info:fedora/"+solrDocument.get("source").toString());
+            object.setAttribute("uri", solrDocument.getFieldValue("ref").toString());
             result.appendChild(object);
             
             results.appendChild(result);

@@ -7,6 +7,8 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -163,6 +165,48 @@ public class Fedora4Utils {
             rep.rollbackTransaction();
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
+    }
+
+    public static List<Triple<String,String,String>> triplesToDeleteByHref(Repository repo, Document metadata, final String relation, final String namespace, String target) throws RepositoryException, IOException {
+        // update sparql
+        List<Triple<String,String,String>> deletingTriples = new ArrayList<>();
+        deletingTriples.add(new ImmutableTriple<>("<>","<"+namespace+relation+">", "<"+target+">"));
+        if (target.contains("#")) {
+            deletingTriples.add(new ImmutableTriple<>("<"+target+">","?anyRelation", "?anyValue "));
+        }
+        return deletingTriples;
+    }
+
+    public static List<Triple<String,String,String>> triplesToDeleteByPid(Repository repo, Document metadata, final String relation, final String namespace, String target) throws RepositoryException, IOException {
+        final String targetFullPath = repo.getObject(target).getFullPath();
+        String toRemoveReference = targetFullPath;
+        boolean indirectReference = false;
+        // get metadata - detect reference
+        Element sameAsElement = XMLUtils.findElement(metadata.getDocumentElement(), (element)->{
+            String elocalName = element.getLocalName();
+            String enamespace = element.getNamespaceURI();
+            if (elocalName.equals("sameAs") && enamespace.equals("http://www.w3.org/2002/07/owl#")) {
+                String resource = element.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                if ((resource != null) && (resource.endsWith(targetFullPath))) {
+                    return true;
+                } else return false;
+            } else return false;
+        });
+
+        if (sameAsElement != null) {
+            String about = ((Element)sameAsElement.getParentNode()).getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "about");
+            if (about != null) {
+                toRemoveReference = about;
+                indirectReference = true;
+            }
+        }
+        // update sparql
+        List<Triple<String,String,String>> deletingTriples = new ArrayList<>();
+        deletingTriples.add(new ImmutableTriple<>("<>","<"+namespace+relation+">", "<"+toRemoveReference+">"));
+        if (indirectReference) {
+            deletingTriples.add(new ImmutableTriple<>("<"+toRemoveReference+">","?anyRelation", "?anyValue "));
+        }
+        return deletingTriples;
     }
 
     public static interface  Operations {

@@ -28,7 +28,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -177,10 +176,6 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return false;
     }
 
-    @Override
-    public ObjectFactory getObjectFactory() {
-        return rawAccess.getObjectFactory();
-    }
 
     @Override
     public void processSubtree(String pid, TreeNodeProcessor processor) throws ProcessSubtreeException, IOException {

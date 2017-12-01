@@ -44,6 +44,8 @@ import java.io.File;
  * Handles and manages the fields not directly present in doc FOXML
  * 
  */
+
+//TODO: Zrusit
 public class ExtendedFields {
 
     private static final Logger logger = Logger.getLogger(ExtendedFields.class.getName());
@@ -51,8 +53,6 @@ public class ExtendedFields {
     private ArrayList<Integer> rels_ext_indexes;
     private ArrayList<String> pid_paths;
     private ArrayList<String> model_paths;
-//    private FedoraOperations fo;
-//    FedoraAccess fa;
     HashMap<String, String> models_cache;
     HashMap<String, String> dates_cache;
     HashMap<String, String> root_title_cache;
@@ -249,7 +249,7 @@ public class ExtendedFields {
             root_title = root_title_cache.get(root_pid);
         } else {
             String dc = IOUtils.toString(fa.getDataStream(root_pid, FedoraUtils.DC_STREAM), "UTF-8");
-            Document doc = XMLUtils.parseDocument(new StringReader(dc.trim()), false);
+            Document doc = XMLUtils.parseDocument(new StringReader(dc.trim()), true);
             xPathStr = "//dc:title/text()";
             expr = xpath.compile(xPathStr);
             Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
@@ -277,6 +277,7 @@ public class ExtendedFields {
                     return;
                 }
                 xPathStr = prefix + "mods:part/mods:date/text()";
+
                 expr = xpath.compile(xPathStr);
                 Node node = (Node) expr.evaluate(foxml, XPathConstants.NODE);
                 if (node != null) {

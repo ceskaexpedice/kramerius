@@ -44,7 +44,7 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.template.ProcessInputTemplate;
 import cz.incad.kramerius.service.ResourceBundleService;
 

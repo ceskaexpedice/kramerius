@@ -30,10 +30,13 @@ public class PDFModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        /*
         bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class)
                 .in(Scopes.SINGLETON);
         bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class)
                 .in(Scopes.SINGLETON);
+        */
+
         bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
         bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
         bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);

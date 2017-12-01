@@ -29,8 +29,6 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
-import org.fedora.api.ArrayOfString;
-import org.fedora.api.FedoraAPIM;
 import org.junit.*;
 
 import java.io.InputStream;

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.processes.impl;
+package cz.incad.kramerius.processes.starter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -90,21 +90,17 @@ public class ProcessStarter {
             
             setDefaultLoggingIfNecessary();
 
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-
-                @Override
-                public void run() {
-                    try {
-                        if (!STATUS_UPDATED) {
-                            updateStatus(States.KILLED);
-                        }
-                    } catch (MalformedURLException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    } catch (IOException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    if (!STATUS_UPDATED) {
+                        updateStatus(States.KILLED);
                     }
+                } catch (MalformedURLException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
-            });
+            }));
             
             Class<?> clz = Class.forName(mainClass);
             
@@ -200,52 +196,41 @@ public class ProcessStarter {
     }
 
     public static void updateStatus(States state) throws MalformedURLException, IOException {
-        String uuid = System.getProperty(UUID_KEY);
-        String lrURl = ProcessUtils.getLrServlet();
-        String restURL = lrURl + "?action=updateStatus&uuid=" + uuid + "&state=" + state;
-        httpGet(restURL);
-        STATUS_UPDATED = true;
+        try {
+            STATUS_UPDATED = ProcessUpdatingChannel.getChannel().updateStatus(state);
+        } catch (ClassNotFoundException e) {
+            throw new IOException(e);
+        } catch (IllegalAccessException e) {
+            throw new IOException(e);
+        } catch (InstantiationException e) {
+            throw new IOException(e);
+        }
     }
 
     public static void updatePID(String pid) throws IOException {
-        String uuid = System.getProperty(UUID_KEY);
-        String lrURl = ProcessUtils.getLrServlet();
-        
-        String restURL = lrURl + "?action=updatePID&uuid=" + uuid + "&pid=" + pid;
-        httpGet(restURL);
+        try {
+            STATUS_UPDATED = ProcessUpdatingChannel.getChannel().updatePID(pid);
+        } catch (ClassNotFoundException e) {
+            throw new IOException(e);
+        } catch (IllegalAccessException e) {
+            throw new IOException(e);
+        } catch (InstantiationException e) {
+            throw new IOException(e);
+        }
     }
 
     public static void updateName(String name) throws IOException {
-        String uuid = System.getProperty(UUID_KEY);
-        String lrURl = ProcessUtils.getLrServlet();
-        
-        String restURL = lrURl + "?action=updateName&uuid=" + uuid + "&name=" + URLEncoder.encode(name, "UTF-8");
-        LOGGER.info("requesting url :" + restURL);
-        httpGet(restURL);
-    }
-
-    public static byte[] httpGet(String restURL) throws MalformedURLException, IOException {
         try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            URL url = new URL(restURL);
-            URLConnection connection = url.openConnection();
-            // authentication token -> identify user
-            connection.addRequestProperty("auth-token",System.getProperty(AUTH_TOKEN_KEY));
-            connection.addRequestProperty(IPAddressUtils.X_IP_FORWARD, System.getProperty(IPAddressUtils.X_IP_FORWARD));
-            InputStream inputStream = connection.getInputStream();
-            byte[] buffer = new byte[1 << 12];
-            int read = -1;
-            while ((read = inputStream.read(buffer)) > 0) {
-                bos.write(buffer,0,read);
-            }
-            ;
-            
-            return buffer;
-        } catch (Exception ex) {
-            LOGGER.severe("Problem connecting to REST URL: " + restURL + " - " + ex);
-            throw new RuntimeException(ex);
+            STATUS_UPDATED = ProcessUpdatingChannel.getChannel().updateName(name);
+        } catch (ClassNotFoundException e) {
+            throw new IOException(e);
+        } catch (IllegalAccessException e) {
+            throw new IOException(e);
+        } catch (InstantiationException e) {
+            throw new IOException(e);
         }
     }
+
 
     /**
      * Returns PID of process

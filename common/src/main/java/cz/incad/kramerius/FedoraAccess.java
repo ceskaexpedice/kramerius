@@ -29,14 +29,12 @@ import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  * This is main point to access to fedora through REST-API
  *
- * @see FedoraAccessImpl
  * @see SecuredFedoraAccessImpl
  * @author pavels
  * 
@@ -298,12 +296,6 @@ public interface FedoraAccess {
 
     public Repository getTransactionAwareInternalAPI() throws RepositoryException;
 
-    /**
-     * Creates and returns objectFactory
-     *
-     * @return {@link ObjectFactory}
-     */
-    public ObjectFactory getObjectFactory();
 
     /**
      * Process fedora object tree

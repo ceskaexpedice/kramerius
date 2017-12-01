@@ -56,6 +56,7 @@ public class SolrUtils   {
     
     public static final Logger LOGGER = Logger.getLogger(SolrUtils.class.getName());
 
+
     /** PID query */
     public static final String UUID_QUERY="q=PID:";
     /** Handle query */
@@ -226,7 +227,67 @@ public class SolrUtils   {
         return inputStream;
     }
     
-    
+    public static String escapeQuery(String sourceQuery) {
+        char[] chars = sourceQuery.toCharArray();
+        StringBuilder builder = new StringBuilder();
+        for(int i=0;i<chars.length;i++) {
+            char ch = chars[i];
+            switch (ch) {
+                case '+':
+                case '-':
+                case '!':
+                case  '(':
+                case ')':
+                case '{':
+                case '}':
+                case '[':
+                case ']':
+                case '^':
+                case '\'':
+                case '~':
+                case '*':
+                case '?':
+                case ':':
+                case '\\':
+                case '/':
+                    builder.append('\\').append(ch);
+                break;
+                case '&':
+                    if (i<chars.length) {
+                        ch = chars[i+1];
+                        if (ch == '&') {
+                            builder.append('\\').append("&&");
+                            i++;
+                        } else {
+                            builder.append('\\').append('&');
+                        }
+                    } else {
+                        builder.append('\\').append(ch);
+                    }
+                    break;
+                case '|':
+                    if (i<chars.length) {
+                        ch = chars[i+1];
+                        if (ch == '|') {
+                            builder.append('\\').append("||");
+                            i++;
+                        } else {
+                            builder.append('\\').append('|');
+                        }
+                    } else {
+                        builder.append('\\').append(ch);
+                    }
+
+                    break;
+                default:
+                    builder.append(ch);
+
+            }
+
+        }
+        return builder.toString();
+
+    }
     
     
 

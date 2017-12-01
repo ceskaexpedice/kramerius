@@ -15,10 +15,6 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
  */
 public class SolrModule extends AbstractModule {
 
-    // query - processing
-    // update - processing
-    // query - kramerius
-    // update - processing
 
     @Override
     protected void configure() {}

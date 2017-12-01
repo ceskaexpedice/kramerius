@@ -15,20 +15,23 @@ import org.w3c.dom.Document;
  *
  * @author Alberto
  */
-public interface IResourceIndex { 
+public interface IResourceIndex {
+
 
     /**
-     * Returs rendered DOM in SPARQL format;  Used only in XSLT transformation and <b>SHOULD be removed<b> in the future.
-     * @param model Model 
-     * @param limit Limit
-     * @param offset Offset 
-     * @param orderby Order by field
-     * @param orderDir Order dir field
-     * @return Returs rendered DOM in SPARQL format
+     * Return objects from processing index by model
+     * @param model
+     * @param limit
+     * @param offset
+     * @param orderby
+     * @param orderDir
+     * @return
      * @throws ResourceIndexException
      */
-    @Deprecated
-    public Document getFedoraObjectsFromModelExt(String model, int limit, int offset, String orderby, String orderDir) throws ResourceIndexException;
+    public List<Map<String,String>> getObjects(String model, int limit, int offset, String orderby, String orderDir) throws ResourceIndexException;
+
+
+    public List<Map<String,String>> search(String query, int limit, int offset) throws ResourceIndexException;
 
 
     /**
@@ -68,16 +71,8 @@ public interface IResourceIndex {
      * @throws ResourceIndexException
      */
     public List<String> getParentsPids(String pid) throws ResourceIndexException;
-    
-    /**
-     * Returns whole pidpaths for given pid
-     * @param pid Pid of the exploring object
-     * @return
-     * @throws ResourceIndexException
-     */
-    public List<String> getPidPaths(String pid) throws ResourceIndexException;
-    
-    
+
+
     /**
      * Returns true if the pid exists in underlaying resource index db
      * @param pid

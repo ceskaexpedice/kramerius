@@ -45,7 +45,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.service.PolicyService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

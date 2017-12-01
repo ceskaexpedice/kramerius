@@ -22,8 +22,7 @@ sourceSets {
 
 dependencies {
     compile project(':security-core')
-    compile project(':fedora-api')
-    compile project(':common') 
+    compile project(':common')
 
 	compile group: 'org.jsoup', name: 'jsoup', version: '1.10.1'
 

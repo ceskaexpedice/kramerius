@@ -2,6 +2,7 @@ package cz.incad.kramerius.processes.impl;
 
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +26,7 @@ public class IterateNonParametrized {
 
     public static RepositoryItemsSupport repoItems;
     
-    public static void main(String[] args) throws JSONException {
+    public static void main(String[] args) throws JSONException, UnsupportedEncodingException {
         if (args.length == 2) {
             // first is definiton
             String def = args[0];

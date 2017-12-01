@@ -17,7 +17,6 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.fedora.api.ObjectFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -44,7 +43,6 @@ public abstract class AbstractFedoraAccess implements FedoraAccess {
     public static final Logger LOGGER = Logger.getLogger(AbstractFedoraAccess.class.getName());
     protected XPathFactory xPathFactory;
     protected KConfiguration configuration;
-    protected ObjectFactory of;
 
     @Inject
     public AbstractFedoraAccess(KConfiguration configuration, @Nullable StatisticsAccessLog accessLog)
@@ -126,14 +124,6 @@ public abstract class AbstractFedoraAccess implements FedoraAccess {
                         pidParser.disseminationURI();
                         String objectId = pidParser.getObjectPid();
                         if (pidParser.getNamespaceId().equals("uuid")) {
-                            // StringBuffer buffer = new StringBuffer();
-                            // { // debug print
-                            // for (int k = 0; k < level; k++) {
-                            // buffer.append(" ");
-                            // }
-                            // LOGGER.fine(buffer.toString() + " processing pid
-                            // [" + attVal + "]");
-                            // }
                             if (!processor.skipBranch(objectId, level + 1)) {
                                 Document iterationgRelsExt = null;
 
@@ -397,14 +387,5 @@ public abstract class AbstractFedoraAccess implements FedoraAccess {
         return getModelsOfRel(getRelsExt(pid));
     }
 
-    @Override
-    public ObjectFactory getObjectFactory() {
-        if (of == null) {
-            of = new ObjectFactory();
-        }
-        return of;
-    }
 
-    
-    
 }

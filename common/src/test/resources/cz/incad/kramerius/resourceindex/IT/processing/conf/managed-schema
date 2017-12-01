@@ -60,6 +60,7 @@
   <fieldType name="tlongs" class="solr.TrieLongField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="8"/>
   <field name="_root_" type="string" docValues="false" indexed="true" stored="false"/>
   <field name="_version_" type="long" indexed="true" stored="true"/>
+  <field name="date" type="tdates"/>
   <field name="dc.title" type="string" indexed="true" stored="true"/>
   <field name="model" type="string"/>
   <field name="name" type="string" indexed="true" stored="true"/>

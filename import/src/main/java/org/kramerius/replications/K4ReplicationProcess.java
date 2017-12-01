@@ -16,33 +16,15 @@
  */
 package org.kramerius.replications;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.Enumeration;
 import java.util.logging.Level;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.util.JSONBuilder;
-import net.sf.json.util.JSONTokener;
-
-import org.apache.commons.codec.binary.Base64InputStream;
-import org.apache.commons.configuration.SubnodeConfiguration;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.utils.ApplicationURL;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;

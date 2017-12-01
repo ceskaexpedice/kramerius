@@ -17,10 +17,8 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.fedora.api.RelationshipTuple;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,7 +26,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
@@ -357,7 +355,7 @@ public class CollectionUtils {
     
         LOGGER.info("indexer URL:" + url);
         try {
-            ProcessStarter.httpGet(url);
+            ProcessUtils.httpGet(url);
         } catch (Exception e) {
             LOGGER.severe("Error starting indexer for " + pid + ":" + e);
         }

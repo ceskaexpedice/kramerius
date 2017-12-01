@@ -16,15 +16,18 @@
  */
 package cz.incad.kramerius.processes.utils;
 
-import java.io.StringReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 
-import cz.incad.kramerius.processes.BatchStates;
-import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
+import cz.incad.kramerius.processes.starter.ProcessUpdatingChannel;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
@@ -56,7 +59,6 @@ public class ProcessUtils {
      */
     public static String getLrServlet() {
         String lrServlet = KConfiguration.getInstance().getApplicationURL() + '/' + LR_SERVLET_NAME;
-//        LOGGER.info("APPURL :"+KConfiguration.getInstance().getApplicationURL());
         return lrServlet;
     }
 
@@ -72,7 +74,7 @@ public class ProcessUtils {
         String url = base + "?action=start&def="+processDef+"&nparams="+nparams+"&token="+System.getProperty(ProcessStarter.TOKEN_KEY);
         byte[] output = new byte[0];
         try {
-            output = ProcessStarter.httpGet(url);
+            output = httpGet(url);
         } catch (RuntimeException e) {
             throw e;
         }
@@ -83,12 +85,12 @@ public class ProcessUtils {
      * @param processDef Process definition
      * @param params Process parameters
      */
-    public static void startProcess(String processDef, String[] params) {
+    public static void startProcess(String processDef, String[] params) throws UnsupportedEncodingException {
         LOGGER.info(" spawn process '"+processDef+"'");
         String base = ProcessUtils.getLrServlet();    
         String url = base + "?action=start&def="+processDef+"&nparams="+nparams(params)+"&token="+System.getProperty(ProcessStarter.TOKEN_KEY);
         try {
-            ProcessStarter.httpGet(url);
+            httpGet(url);
         } catch (Exception e) {
             LOGGER.severe("Error spawning indexer for "+processDef+":"+e);
         }
@@ -103,7 +105,7 @@ public class ProcessUtils {
         String base = ProcessUtils.getLrServlet();    
         String url = base + "?action=closeToken&uuid="+processUuid;
         try {
-            ProcessStarter.httpGet(url);
+            httpGet(url);
         } catch (Exception e) {
             LOGGER.severe("Error closing token for "+processUuid+":"+e);
         }
@@ -114,15 +116,15 @@ public class ProcessUtils {
      * @param params Params parameters
      * @return crated string
      */
-    public static String nparams(String[] params) {
-        StringBuffer buffer = new StringBuffer("{");
+    public static String nparams(String[] params) throws UnsupportedEncodingException {
+        StringBuffer buffer = new StringBuffer(URLEncoder.encode("{", "UTF-8"));
         for (int i = 0; i < params.length; i++) {
-            buffer.append(nparam(params[i]));
+            buffer.append(URLEncoder.encode(nparam(params[i]),"UTF-8"));
             if (i < params.length -1) {
                 buffer.append(";");
             }
         }
-        buffer.append("}");
+        buffer.append(URLEncoder.encode("}", "UTF-8"));
         return buffer.toString();
     }
     
@@ -140,6 +142,28 @@ public class ProcessUtils {
         }
         return string;
     }
-    
-    
+
+
+    public static byte[] httpGet(String restURL) throws MalformedURLException, IOException {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            URL url = new URL(restURL);
+            URLConnection connection = url.openConnection();
+            // authentication token -> identify user
+            connection.addRequestProperty("auth-token",System.getProperty(ProcessStarter.AUTH_TOKEN_KEY));
+            connection.addRequestProperty(IPAddressUtils.X_IP_FORWARD, System.getProperty(IPAddressUtils.X_IP_FORWARD));
+            InputStream inputStream = connection.getInputStream();
+            byte[] buffer = new byte[1 << 12];
+            int read = -1;
+            while ((read = inputStream.read(buffer)) > 0) {
+                bos.write(buffer,0,read);
+            }
+            ;
+
+            return buffer;
+        } catch (Exception ex) {
+            ProcessUpdatingChannel.LOGGER.severe("Problem connecting to REST URL: " + restURL + " - " + ex);
+            throw new RuntimeException(ex);
+        }
+    }
 }

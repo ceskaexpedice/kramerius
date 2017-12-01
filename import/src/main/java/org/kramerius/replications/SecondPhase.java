@@ -39,7 +39,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
-import org.apache.kahadb.util.ByteArrayInputStream;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.kramerius.Import;
 import org.kramerius.replications.pidlist.PIDsListLexer;

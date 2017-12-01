@@ -30,7 +30,6 @@ dependencies {
     providedCompile 'javax.servlet:jsp-api:2.0'
     providedCompile 'javax.portlet:portlet-api:2.0'
 
-    compile project(':fedora-api')
     compile project(':common')
     compile project(':static-export')
     compile project(':indexer')

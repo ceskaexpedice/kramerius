@@ -15,7 +15,6 @@ import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.config.units.MemoryUnit;
 import org.ehcache.expiry.Duration;
 import org.ehcache.expiry.Expirations;
-import org.fedora.api.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -280,10 +279,6 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
         return this.fedoraAccess.getInternalAPI();
     }
 
-    @Override
-    public ObjectFactory getObjectFactory() {
-        return fedoraAccess.getObjectFactory();
-    }
 
     @Override
     public void processSubtree(String pid, TreeNodeProcessor processor) throws ProcessSubtreeException, IOException {

@@ -17,7 +17,7 @@ import biz.sourcecode.base64Coder.Base64Coder;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.IOUtils;
@@ -39,7 +39,6 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.fedora.api.ObjectProfile;
 
 public class VirtualCollectionServlet extends GuiceServlet {
 
@@ -231,8 +230,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
                         if(token!=null){
                             url += "&token=" + token;
                         }
-                        //ProcessUtils.startProcess("virtualcollections", url)
-                        ProcessStarter.httpGet(url);
+                        ProcessUtils.httpGet(url);
                     }
                 }
                 String[] collections = req.getParameterValues("add");
@@ -243,7 +241,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
                         if(token!=null){
                             url += "&token=" + token;
                         }
-                        ProcessStarter.httpGet(url);
+                        ProcessUtils.httpGet(url);
                     }
                 }
 
@@ -251,7 +249,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
 
                 LOGGER.info("indexer URL:" + url);
                 try {
-                    ProcessStarter.httpGet(url);
+                    ProcessUtils.httpGet(url);
                 } catch (Exception e) {
                     LOGGER.severe("Error spawning indexer for " + pid + ":" + e);
                 }

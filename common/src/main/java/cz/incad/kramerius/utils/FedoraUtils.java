@@ -18,7 +18,6 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.fedora.api.RelationshipTuple;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -99,38 +98,8 @@ public class FedoraUtils {
         return pids;
     }
 
-    @Deprecated
-    public static List<RelationshipTuple> getSubjectPids(String objectPid) {
-        List<RelationshipTuple> retval = new ArrayList<RelationshipTuple>();
-        String command = KConfiguration.getInstance().getFedoraHost() + "/risearch?type=triples&lang=spo&format=N-Triples&query=*%20*%20%3Cinfo:fedora/" + objectPid + "%3E";
-        try {
-            String result = IOUtils.readAsString(RESTHelper.inputStream(command, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass()), Charset.forName("UTF-8"), true);
-            String[] lines = result.split("\n");
-            for (String line : lines) {
-                String[] tokens = line.split(" ");
-                if (tokens.length < 3) {
-                    continue;
-                }
-                try {
-                    RelationshipTuple tuple = new RelationshipTuple();
-                    tuple.setSubject(tokens[0].substring(1, tokens[0].length() - 1));
-                    tuple.setPredicate(tokens[1].substring(1, tokens[1].length() - 1));
-                    tuple.setObject(tokens[2].substring(1, tokens[2].length() - 1));
-                    tuple.setIsLiteral(false);
-                    retval.add(tuple);
-                } catch (Exception ex) {
-                    LOGGER.info("Problem parsing RDF, skipping line:" + Arrays.toString(tokens) + " : " + ex);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-        return retval;
-    }
 
-
-
-     public static String findFirstPagePid(String pid) {
+    public static String findFirstPagePid(String pid) {
 
         ArrayList<String> pids = new ArrayList<String>();
         try {
@@ -166,7 +135,6 @@ public class FedoraUtils {
 
     /**
      * Returns url stream 
-     * @param uuid of object
      * @return
      */
     public static String getDjVuImage(KConfiguration configuration, String pid) {
@@ -177,7 +145,6 @@ public class FedoraUtils {
     /**
      * Returns path to fedora stream
      * @param conf KConfiguraiton 
-     * @param uuid UUID of the object 
      * @param stream Stream ID
      * @return
      */
@@ -231,7 +198,6 @@ public class FedoraUtils {
 
     /**
      * Returns thumb stream
-     * @param uuid UUID of the object
      * @return
      */
     public static String getThumbnailFromFedora(KConfiguration configuration, String pid) {
@@ -242,7 +208,6 @@ public class FedoraUtils {
     /**
      * Returns list of fedora streams
      * @param configuration KConfiguration configuration object
-     * @param uuid UUID reqested object
      * @return
      */
     public static String getFedoraDatastreamsList(KConfiguration configuration, String pid) {

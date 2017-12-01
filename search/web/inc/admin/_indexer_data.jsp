@@ -99,8 +99,16 @@
             <input type="button" onclick="confirmIndexDocByPid($('#pid_to_index').val(), '');" value="index_pid" class="ui-state-default ui-corner-all" />
         </div>
         <div class="section">
-            <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message>&nbsp;
-            <input type="button"  id="check_integrity" onclick="checkIndexIntegrity();" value="check" class="ui-state-default ui-corner-all" />    
+            <table>
+                <tr>
+                    <td><fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message></td>
+                    <td><input type="button"  id="check_integrity" onclick="checkIndexIntegrity();" value="Check searching index" class="ui-state-default ui-corner-all" /></td>
+                </tr>
+                <tr>
+                    <td><fmt:message bundle="${lctx}">administrator.menu.dialogs.check_processing_integrity</fmt:message></td>
+                    <td><input type="button"  id="check_integrity_processing" onclick="checkIndexIntegrityProcessingIndex();" value="Check processing index" class="ui-state-default ui-corner-all" /></td>
+                </tr>
+            </table>
         </div>
     </div>
     <div id="indexer_browse_models" class="indexer_data_container">  
@@ -117,6 +125,7 @@
                 <fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message>
                 </th>
                 <th style="min-width:240px;" align="left">PID</th>
+                <th style="min-width:240px;" align="left">Link</th>
                 <th style="min-width:138px;" align="left">
                     <input type="hidden" id="indexer_order_dir" value="${order_dir}" />
                     <input type="hidden" id="indexer_offset" value="0" />
@@ -130,7 +139,11 @@
                     </c:choose>
                     
                     <span id="date_order_arrow" class="ui-icon ui-icon-arrowthick-1-n">order</span>
-                </th></tr></thead>
+                </th>
+                </tr>
+
+                </thead>
+
             <tbody style="overflow:auto;display:block;width:100%;"><tr><td align="center" colspan="3" width="768"><img src="img/loading.gif" /></td></tr></tbody>
             <tfoot class="indexer_head">
                 <tr>

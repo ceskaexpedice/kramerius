@@ -2,10 +2,8 @@ package cz.incad.kramerius.processes.mock;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.logging.Handler;
-import java.util.logging.Logger;
 
-import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 
 public class MockLPProcess {
 

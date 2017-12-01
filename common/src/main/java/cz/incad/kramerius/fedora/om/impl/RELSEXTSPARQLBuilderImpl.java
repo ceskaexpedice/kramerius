@@ -4,10 +4,13 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -26,6 +29,7 @@ import java.util.Map;
  */
 public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
 
+
     private FedoraNamespaceContext namespaceContext = new FedoraNamespaceContext();
 
     void prefix(StringBuilder builder) {
@@ -36,18 +40,25 @@ public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
     public String sparqlProps(String relsExt, RELSEXTSPARQLBuilderListener listener) throws IOException, SAXException, ParserConfigurationException, RepositoryException {
         StringTemplateGroup strGroup = SPARQL_TEMPLATES();
 
-        Map<SPARQLBuilderRelation,SPARQLBuilderObject> map = new HashMap<>();
-        List<SPARQLBuilderRelation> ordering = new ArrayList<>();
 
         Document document = XMLUtils.parseDocument(new StringReader(relsExt), true);
         Element description = XMLUtils.findElement(document.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
         NodeList childNodes = description.getChildNodes();
-        for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
+
+        List<Triple<String,String,String>> triples = new ArrayList<>();
+
+        for (int i = 0,counter=0,ll=childNodes.getLength(); i < ll; i++) {
             Node n = childNodes.item(i);
+
             if (n.getNodeType() == Node.ELEMENT_NODE) {
                 Element elm = (Element) n;
                 String localName = elm.getLocalName();
                 String namespaceURI = elm.getNamespaceURI();
+
+                String relation =  "<"+namespaceURI+(namespaceURI.endsWith("#")? "" :"#")+localName+">";
+                //String relation
+                List<Triple<String,String, String>> aList = new ArrayList<>();
+
                 Attr resource = elm.getAttributeNodeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
                 if (resource != null) {
                     String value = resource.getValue();
@@ -55,23 +66,31 @@ public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
                         value = value.substring(PIDParser.INFO_FEDORA_PREFIX.length());
                         if (listener != null) {
                             value = listener.inform(value, localName);
+
                         }
                     }
+                    // indirect reference - in order to preserve index
+                    // https://wiki.duraspace.org/display/FEDORA4x/Ordering
+                    if (namespaceURI.equals(FedoraNamespaces.KRAMERIUS_URI)) {
+                        String reference = "#"+(++counter);
+                        Triple<String, String, String> refTriple = new ImmutableTriple<>("<>",relation, "<"+reference+">");
+                        Triple<String, String, String> rawTripleRef = new ImmutableTriple<>("<"+reference+">","<http://www.w3.org/2002/07/owl#sameAs>", "<"+value+">");
+                        Triple<String, String, String> rawTripleOrdering = new ImmutableTriple<>("<"+reference+">","<https://schema.org/Order>", "'"+counter+"'");
 
-                    SPARQLBuilderRelation relation = new SPARQLBuilderRelation(namespaceURI, localName, value);
-                    map.put(relation, new SPARQLBuilderObject(value, TYPE.refrence));
-                    ordering.add(relation);
+                        triples.add(refTriple);
+                        triples.add(rawTripleRef);
+                        triples.add(rawTripleOrdering);
+                    } else {
+                        triples.add(new ImmutableTriple<>("<>",relation, "<"+value+">"));
+                    }
                 } else {
-                    SPARQLBuilderRelation relation = new SPARQLBuilderRelation(namespaceURI,localName, elm.getTextContent());
-                    map.put( relation , new SPARQLBuilderObject(elm.getTextContent(), TYPE.literal));
-                    ordering.add(relation);
+                    triples.add(new ImmutableTriple<>("<>",relation, '"'+elm.getTextContent().trim()+'"'));
                 }
             }
         }
 
         StringTemplate sparql = strGroup.getInstanceOf("relsext_sparql");
-        sparql.setAttribute("relations",map);
-        sparql.setAttribute("ordering",ordering);
+        sparql.setAttribute("triples",triples);
         return sparql.toString();
     }
 
@@ -82,86 +101,8 @@ public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
     }
 
 
-    public static class SPARQLBuilderRelation {
-
-        private String namespace;
-        private String property;
-        private String object;
-
-        public SPARQLBuilderRelation(String namespace, String property, String object) {
-            this.namespace = namespace;
-            this.property = property;
-            this.object = object;
-        }
-
-        public String getNamespace() {
-            return namespace;
-        }
-
-        public String getProperty() {
-            return property;
-        }
-
-        public String getBuilderValue() {
-            return "<"+this.namespace+(this.namespace.endsWith("#")? "" :"#")+this.property+">";
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            SPARQLBuilderRelation that = (SPARQLBuilderRelation) o;
-
-            if (getNamespace() != null ? !getNamespace().equals(that.getNamespace()) : that.getNamespace() != null)
-                return false;
-            if (getProperty() != null ? !getProperty().equals(that.getProperty()) : that.getProperty() != null)
-                return false;
-            return object != null ? object.equals(that.object) : that.object == null;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = getNamespace() != null ? getNamespace().hashCode() : 0;
-            result = 31 * result + (getProperty() != null ? getProperty().hashCode() : 0);
-            result = 31 * result + (object != null ? object.hashCode() : 0);
-            return result;
-        }
-    }
 
 
-    public  static enum TYPE {
-        literal,
-        refrence
-    };
 
-    public static  class SPARQLBuilderObject {
-        private String value;
-        private TYPE type;
-
-        public SPARQLBuilderObject(String value, TYPE type) {
-            this.value = value;
-            this.type = type;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public String getBuilderValue() {
-            switch (this.type) {
-                case literal:
-                    return '"' + this.value + '"';
-                case refrence:
-                    return '<' + this.value + '>';
-                default:
-                    throw new IllegalStateException("bad type");
-            }
-        }
-
-        public TYPE getType() {
-            return type;
-        }
-    }
 
 }

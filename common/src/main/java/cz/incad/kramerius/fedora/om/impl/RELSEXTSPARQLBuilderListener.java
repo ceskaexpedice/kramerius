@@ -8,4 +8,5 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 public interface RELSEXTSPARQLBuilderListener {
 
     public String inform(String path, String localName) throws RepositoryException;
+
 }

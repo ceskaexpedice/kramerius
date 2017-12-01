@@ -3,7 +3,6 @@ package cz.incad.kramerius.utils.pid;
 import java.util.Arrays;
 import java.util.List;
 
-import org.fedora.api.GetDatastream;
 
 import cz.incad.kramerius.utils.pid.Token.TokenType;
 

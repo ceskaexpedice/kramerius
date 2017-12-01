@@ -1,6 +1,10 @@
 package cz.incad.kramerius.resourceindex;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import com.google.inject.Guice;
@@ -10,8 +14,11 @@ import com.google.inject.Key;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 
 /**
@@ -37,13 +44,14 @@ public class ProcessingIndexFeeder {
     }
     
     
-    public UpdateResponse feedDescriptionDocument(String pid, String model, String title, String ref) throws IOException, SolrServerException {
+    public UpdateResponse feedDescriptionDocument(String pid, String model, String title, String ref, Date date) throws IOException, SolrServerException {
         SolrInputDocument sdoc = new SolrInputDocument();
         sdoc.addField("source",pid);
         sdoc.addField("type", TYPE_DESC);
         sdoc.addField("model",model);
         sdoc.addField("dc.title",title);
         sdoc.addField("ref",ref);
+        sdoc.addField("date", date);
         return feedDescriptionDocument(sdoc);
     }
 
@@ -67,32 +75,51 @@ public class ProcessingIndexFeeder {
 
     public UpdateResponse feedRelationDocument(SolrInputDocument sdoc) throws IOException, SolrServerException {
         UpdateResponse resp = this.solrClient.add(sdoc);
-        //this.solrClient.commit();
         return resp;
     }
 
 
+
     public UpdateResponse deleteByPid(String pid) throws  IOException, SolrServerException {
         UpdateResponse response = this.solrClient.deleteByQuery("source:\"" + pid + "\"");
-        //this.solrClient.commit();
         return response;
     }
 
     public UpdateResponse deleteDescriptionByPid(String pid) throws  IOException, SolrServerException {
         UpdateResponse response = this.solrClient.deleteByQuery("source:\"" + pid + "\" AND type:\"description\"");
-        //this.solrClient.commit();
         return response;
    }
 
     public UpdateResponse deleteByRelationsForPid(String pid) throws  IOException, SolrServerException {
         String query = "source:\"" + pid + "\" AND type:\"relation\"";
         UpdateResponse response = this.solrClient.deleteByQuery(query);
-        //this.solrClient.commit();
         return response;
     }
 
+    public void iterateProcessing(Consumer<SolrDocument> action) throws IOException, SolrServerException {
+        String query = "*:*";
+
+        SolrQuery solrQuery = new SolrQuery(query);
+        int offset = 0;
+        int rows = 10;
+        long numFound = Integer.MAX_VALUE;
+        solrQuery.setStart(offset).setRows(rows);
+        QueryResponse response = this.solrClient.query(solrQuery);
+        while(offset < numFound) {
+            response.getResults().forEach((doc)->{
+                action.accept(doc);
+            });
+
+            offset += rows;
+            solrQuery.setStart(offset).setRows(rows);
+            response = this.solrClient.query(solrQuery);
+            numFound = response.getResults().getNumFound();
+        }
+
+    }
 
     public void commit() throws IOException, SolrServerException {
         this.solrClient.commit();
     }
+
 }

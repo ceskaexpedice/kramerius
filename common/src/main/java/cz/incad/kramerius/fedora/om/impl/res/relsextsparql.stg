@@ -24,15 +24,17 @@ PREFIX kramerius: <http://www.nsdl.org/ontologies/relationships#>
 PREFIX oai_dc: <http://www.openarchives.org/OAI/2.0/oai_dc/>
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX mods: <http://www.loc.gov/mods/v3>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX schema: <https://schema.org/>
 >>
 
 empty_delete() ::=<<
 DELETE {}
 >>
 
-rels_ext_insert(relations,ordering) ::=<<
-INSERT { <>
-     $ordering:{ k | $k.builderValue$ $relations.(k).builderValue$};separator=";\n"$.
+rels_ext_insert(triples) ::=<<
+INSERT {
+     $triples:{ t | $t.left$ $t.middle$ $t.right$};separator=".\n"$.
 }
 >>
 
@@ -41,10 +43,10 @@ WHERE {}
 >>
 
 
-relsext_sparql(relations,ordering) ::=<<
+relsext_sparql(triples) ::=<<
     $header()$
     $empty_delete()$
-    $rels_ext_insert(relations=relations,ordering=ordering)$
+    $rels_ext_insert(triples=triples)$
     $empty_where()$
 >>
 
@@ -79,3 +81,11 @@ delete_all_relations(namespace, relation)::=<<
     DELETE WHERE { <> <$namespace$$relation$> ?anyValue }
 >>
 
+
+delete_general(triples)::=<<
+    DELETE WHERE {
+        $triples:{ t |
+            $t.left$  $t.middle$ $t.right$ .
+        }$
+    }
+>>

@@ -13,7 +13,6 @@ import java.io.IOException;
 public class NullStatisticsAccessLogImpl implements StatisticsAccessLog {
 
     public NullStatisticsAccessLogImpl() {
-        System.out.println("instance");
     }
 
     @Override

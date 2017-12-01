@@ -3,7 +3,6 @@ description "Import library"
 
 dependencies {
     compile project(':security-core')
-    compile project(':fedora-api')
     compile project(':common')
     compile project(':import-jaxb')
     compile project(':import-cmdtool')

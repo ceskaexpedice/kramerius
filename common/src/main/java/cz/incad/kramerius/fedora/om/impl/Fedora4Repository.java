@@ -26,6 +26,7 @@ import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.StringUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.fcrepo.client.*;
 
@@ -33,6 +34,7 @@ import cz.incad.kramerius.fedora.om.RepositoryObject;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -245,6 +247,12 @@ public class Fedora4Repository extends Repository {
         deleteRelation.setAttribute("namespace", namespace);
         deleteRelation.setAttribute("relation",relation);
         deleteRelation.setAttribute("target",target);
+        return deleteRelation.toString();
+    }
+
+    public static final String DELETE_RELATIONS(Collection<Triple<String,String,String>> triples) throws IOException {
+        StringTemplate deleteRelation = RELSEXTSPARQLBuilderImpl.SPARQL_TEMPLATES().getInstanceOf("delete_general");
+        deleteRelation.setAttribute("triples", triples);
         return deleteRelation.toString();
     }
 

@@ -401,6 +401,14 @@ var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['admin
     });
 }
 
+function checkIndexIntegrityProcessingIndex(){
+var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['administrator.menu.dialogs.check_processing_integrity'];
+    showConfirmDialog(text, function(){
+      var url = "lr?action=start&def=processing_check&out=text";
+      processStarter("processing_check").start(url);
+    });
+}
+
 function indexDoc(pid, title){
     showConfirmDialog('Confirm index dokumentu', function(){
     var prefix = "info\:fedora\/";

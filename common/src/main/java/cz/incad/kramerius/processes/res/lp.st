@@ -1,33 +1,47 @@
+<!--
 
+List if embedded processes;
+Every process could have following structure:
+
+<process>
+    <id>ident</id> - process indentifier
+    <description>Description</description> -  Process descritpion
+    <mainClass>cz.incad.kramerius.processes.mock.MockLPProcess</mainClass> - Main class of process
+    <standardOs>lrOut</standardOs> - Folder for standard output - default value is lrOut
+    <errOs>lrErr</errOs> - Folder for standard error -default value is lrErr
+    <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters> - Standard java process parameters
+    <parameters>one two</parameters> - Parameters for starting mainClass
+
+    <templates>
+        <input class="cz.incad.kramerius.processes.mock.wizard.FolderTemplates"></input> - class is responsible for rendering template for user inputs
+        <output class="cz.incad.kramerius.processes.mock.logs.LogsOutputTemplate"></output> - class is responsible for rendering process output results
+    </templates>
+
+    <securedaction>mock</securedaction> - security action associated with the process - only the user who has right to start 'mock' porcesses is allowed to start
+                                        - this process
+
+</process>
+
+-->
 <processes>
+    <!-- process for testing purposes -->
     <process>
-        <!-- identifikator  -->
         <id>mock</id>
-        <!-- jenom popis -->
         <description>mock</description>
-        <!-- spoustena trida -->
         <mainClass>cz.incad.kramerius.processes.mock.MockLPProcess</mainClass>
-        <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
-        <!-- err vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <parameters>one two</parameters>
-		
 		<checkErrorStream>false</checkErrorStream>
-		
     </process>
 
+    <!-- process for testing purposes -->
     <process>
-        <!-- wiz...  -->
         <id>wmock</id>
-        <!-- jenom popis -->
         <description>Mocked process</description>
-        <!-- spoustena trida -->
         <mainClass>cz.incad.kramerius.processes.mock.wizard.WizardMockLPProcess</mainClass>
-        <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
-        <!-- err vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <parameters>/home/pavels/tmp two</parameters>
@@ -40,14 +54,12 @@
         <securedaction>mock</securedaction>
     </process>
 
+    <!-- process for testing purposes -->
     <process>
         <id>defaultmock</id>
         <description>Mocked process</description>
-        <!-- spoustena trida -->
         <mainClass>cz.incad.kramerius.processes.mock.wizard.DefaultWizardMockLPProcess</mainClass>
-        <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
-        <!-- err vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <parameters>lp-name lp-value</parameters>
@@ -59,7 +71,7 @@
         
     </process>
 
-
+    <!-- Static export with input templates; suited for use in UI -->
     <process>
         <id>parametrized_static_export</id>
         <description>Parametrized static export</description>
@@ -72,7 +84,7 @@
         <securedaction>export</securedaction>
     </process>
 
-
+    <!-- Static pdf export to CD medium  -->
     <process>
         <id>static_export_CD</id>
         <description>Statický export do PDF na CD</description>
@@ -89,12 +101,10 @@
         <securedaction>export</securedaction>
     </process>
 
+    <!-- Static pdf export to DVD medium  -->
     <process>
-        <!-- identifikator  -->
         <id>static_export_DVD</id>
-        <!-- jenom popis -->
         <description>Statický export do PDF na DVD</description>
-        <!-- spoustena trida -->
         <mainClass>cz.incad.kramerius.lp.PDFExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
@@ -108,6 +118,7 @@
         <securedaction>export</securedaction>
     </process>
 
+    <!-- Index & Reindex process -->
     <process>
         <id>reindex</id>
         <description>Reindexace</description>
@@ -125,6 +136,7 @@
 
     </process>
 
+    <!-- Index & Reindex process -->
     <process>
         <id>virtualcollections</id>
         <description>Virtual Collections manager</description>
@@ -134,6 +146,7 @@
         <securedaction>virtualcollection_manage</securedaction>
     </process>
 
+    <!-- K3 replication process - deprecated - it will be removed in the future -->
     <process>
         <id>k3_replication</id>
         <description>Parametrizovany replikator</description>
@@ -148,6 +161,7 @@
         <securedaction>replikator_k3</securedaction>
     </process>
 
+    <!-- K3 replication process - deprecated - it will be removed in the future -->
     <process>
         <id>replikator_monographs</id>
         <description>Replikator (monografie)</description>
@@ -174,6 +188,7 @@
 
     </process>
 
+    <!-- K3 replication process - deprecated - it will be removed in the future -->
     <process>
         <id>replikator_periodicals</id>
         <description>Replikator (periodika)</description>
@@ -200,6 +215,7 @@
 
     </process>
 
+    <!-- K3 replication process - deprecated - it will be removed in the future -->
     <processes>
         <id>enumerator</id>
         <description>Enumerator</description>
@@ -208,6 +224,7 @@
         <errOs>lrErr</errOs>
     </processes>
 
+    <!-- K3 replication process - deprecated - it will be removed in the future -->
     <process>
         <id>replicationrights</id>
         <description>Replication rights</description>
@@ -216,6 +233,7 @@
         <errOs>lrErr</errOs>
     </process>
 
+    <!-- Set public process -->
     <process>
         <id>setpublic</id>
         <description>Set public</description>
@@ -230,6 +248,7 @@
         -->
     </process>
 
+    <!-- Set private process -->
     <process>
         <id>setprivate</id>
         <description>Set private</description>
@@ -244,7 +263,7 @@
         -->
     </process>
 
-
+    <!-- Delete something from fedora - it should be followed by reindex process -->
     <process>
         <id>delete</id>
         <description>Delete</description>
@@ -253,6 +272,7 @@
         <errOs>lrErr</errOs>
     </process>
 
+    <!-- Sort relation process - it should be followed by reindex process -->
     <process>
         <id>sort</id>
         <description>Sort relations</description>
@@ -261,6 +281,8 @@
         <errOs>lrErr</errOs>
     </process>
 
+
+    <!-- Export FOXML processs  -->
     <process>
         <id>export</id>
         <description>Export</description>
@@ -269,7 +291,7 @@
         <errOs>lrErr</errOs>
     </process>
 
-
+    <!-- K3 replication process - deprecated - it will be removed in the future -->
     <process>
         <id>parametrizedconvert</id>
         <description>Convert and import</description>
@@ -286,6 +308,7 @@
         
     </process>
 
+    <!-- Import NDK METS data  -->
     <process>
         <id>ndkmets</id>
         <description>Import NDK METs</description>
@@ -302,6 +325,7 @@
         
     </process>
 
+    <!-- K3 replication process - deprecated - it will be removed in the future -->
     <process>
         <id>convert</id>
         <description>Convert and import</description>
@@ -312,21 +336,8 @@
     </process>
 
 
-    <!-- Parametrizovany process importu - novy repositar -->
-    <process>
-        <id>parametrizedimport_jackrabbit</id>
-        <description>Import JACKRABBIT | FCREPO FOXML</description>
-        <mainClass>cz.incad.feedrepo.impl.processes.ParametrizedImport</mainClass>
-        <standardOs>lrOut</standardOs>
-        <errOs>lrErr</errOs>
-        <templates>
-            <input class="cz.incad.feedrepo.impl.processes.input.ParametrizedImportInputTemplate"></input>
-        </templates>
-        
-        <securedaction>import</securedaction>
-    </process>
 
-    <!-- parametrizovany process importu -->
+    <!-- Parametrized import FOXML - dedicated for use  in UI  -->
     <process>
         <id>parametrizedimport</id>
         <description>Import FOXML</description>
@@ -340,6 +351,7 @@
         <securedaction>import</securedaction>
     </process>
 
+    <!-- Import FOXML process -->
     <process>
         <id>import</id>
         <description>Import FOXML</description>
@@ -348,7 +360,7 @@
         <errOs>lrErr</errOs>
     </process>
 
-    <!-- Proces  generovani deepZoomDlazdic -->
+    <!-- Generating Deep Zoom tiles process -->
     <process>
         <id>generateDeepZoomTiles</id>
         <description>Generate cache for  Deep Zoom </description>
@@ -358,7 +370,7 @@
         <javaProcessParameters>-Xmx3072m -Xms512m -Dcz.incad.kramerius.imaging.lp.GenerateDeepZoomFlag=true -Dcz.incad.kramerius.imaging.lp.GenerateThumbnail=true</javaProcessParameters>
     </process>
 
-    <!-- Proces generovani priznaku do RELS-EXT -->
+    <!-- Set flag into RELS-EXT -->
     <process>
         <id>generateDeepZoomFlag</id>
         <description>Generate deep zoom flag to RELS-EXT</description>
@@ -368,7 +380,7 @@
         <javaProcessParameters>-Xmx3072m -Xms512m</javaProcessParameters>
     </process>
 
-    <!-- smazani cache pro dlazdice -->
+    <!-- Deleting Deep Zoom tiles and flags -->
     <process>
         <id>deleteGeneratedDeepZoomTiles</id>
         <description>Delete generated deepZoomCache </description>
@@ -378,6 +390,7 @@
         <javaProcessParameters>-Xmx1024m -Xms512m -Dcz.incad.kramerius.imaging.lp.GenerateDeepZoomFlag=true</javaProcessParameters>
     </process>
 
+    <!-- Generate thumbnails -->
     <process>
         <id>generateFullThumb</id>
         <description>Generate full thumbs </description>
@@ -388,6 +401,7 @@
     </process>
 
 
+    <!-- Generic aggregate process - it could wrap an start several child subprocess -->
     <process>
         <id>aggregate</id>
         <description>Process aggregator</description>
@@ -399,7 +413,7 @@
     </process>
 
 
-    <!-- k4 replication process -->
+    <!-- K4 replication process -->
     <process>
         <id>k4_replication</id>
         <description>K4 Replication process</description>
@@ -418,7 +432,7 @@
     </process>
 
 
-    <!-- delete old processes -->
+    <!-- Deleting ald process -->
     <process>
         <id>delete_processes</id>
         <description>Delete old processes</description>
@@ -448,11 +462,8 @@
     <process>
         <id>parametrizedapplymw</id>
         <description>parametrized apply moving wall</description>
-        <!-- spoustena trida -->
         <mainClass>cz.cas.lib.knav.ParametrizedApplyMovingWall</mainClass>
-        <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
-        <!-- err vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
 
@@ -497,7 +508,8 @@
         <parameters>mock ["$pid$","$model$","$index$"]</parameters>
         <securedaction>aggregate</securedaction>
     </process>
-    
+
+    <!-- batch indexer -->
     <process>
         <id>batchindexer</id>
         <description>Batch indexer </description>
@@ -507,11 +519,21 @@
         <securedaction>reindex</securedaction>
     </process>
 
-
+    <!-- migration search index -->
     <process>
         <id>migrationindex</id>
         <description>Index migrations</description>
         <mainClass>cz.incad.kramerius.services.ParallelMigrateSolrIndexImpl</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>reindex</securedaction>
+    </process>
+
+
+    <process>
+        <id>processing_check</id>
+        <description>Check processing index</description>
+        <mainClass>cz.incad.kramerius.resourceindex.ProcessingIndexCheck</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <securedaction>reindex</securedaction>

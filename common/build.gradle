@@ -1,4 +1,4 @@
-description "Common Kramerius library" 
+description "Common Kramerius library"
 
 
 sourceSets {
@@ -11,8 +11,7 @@ sourceSets {
 
 dependencies {
     compile project(':security-core')
-    compile project(':fedora-api')
-    // Nullable annotation	    
+    // Nullable annotation
     compile 'com.google.code.findbugs:jsr305:1.3.9'
     compile 'javax.servlet:servlet-api:2.5'
     compile 'org.json:json:20140107'
@@ -38,6 +37,7 @@ dependencies {
     compile "commons-configuration:commons-configuration:1.6"
     compile "org.apache.commons:commons-lang3:3.5"
 
+    /*
     compile ("com.yourmediashelf.fedora.client:fedora-client-core:0.7") {
       exclude group:"com.hp.hpl.jena", module:"jena"
       exclude group:"ch.qos.logback", module:"logback-classic"
@@ -46,7 +46,7 @@ dependencies {
     compile ("com.yourmediashelf.fedora.client:fedora-client-messaging:0.7") {
       exclude group:"com.hp.hpl.jena", module:"jena"
       exclude group:"ch.qos.logback", module:"logback-classic"
-    }
+    }*/
 
 	compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.4.2'
 
@@ -63,7 +63,6 @@ dependencies {
     compile module(name:"jai_imageio-1.1") {
     	dependencies name:"jai_core-1.1.3"
     }
-    compile "org.fcrepo:mptstore:0.9.4"
 
     compile "commons-dbcp:commons-dbcp:1.4"
     compile "net.sf.json-lib:json-lib:2.3:jdk15"
@@ -91,7 +90,7 @@ dependencies {
        exclude group:"ch.qos.logback", module:"logback-classic"
     }
 
-	compile 'javax.jcr:jcr:2.0'
+    compile 'javax.jcr:jcr:2.0'
     compile 'org.apache.jackrabbit:jackrabbit-core:2.12.1'
     compile 'org.apache.jackrabbit:jackrabbit-jcr2dav:2.12.1'
     compile 'org.apache.jackrabbit:jackrabbit-jcr-rmi:2.12.1'
@@ -100,22 +99,9 @@ dependencies {
     compile 'org.ehcache:ehcache:3.3.0'
     compile 'org.apache.httpcomponents:httpclient:4.3.2'
  
- 	// https://mvnrepository.com/artifact/org.apache.solr/solr-core
-	// jackrabbit dependency
-	//compile group: 'org.apache.lucene', name: 'lucene-analyzers', version: '3.6.0'
 
     compile group: 'org.fcrepo.client', name: 'fcrepo-java-client', version: '0.3.0'
 
-    /*
-    compile group: 'org.apache.solr', name: 'solr-core', version: '6.2.1'
-    compile group: 'org.apache.solr', name: 'solr-solrj', version: '6.2.1'
-    */
- 
-	/*
-	compile group: 'org.apache.zookeeper', name: 'zookeeper', version: '3.4.6'
-	runtime group: 'org.apache.solr', name: 'solr-core', version: '6.2.1'
-	runtime group: 'org.apache.zookeeper', name: 'zookeeper', version: '3.4.6'
-	*/
     // dependencies in maven profile
     testCompile "xmlunit:xmlunit:1.3"
 
@@ -125,18 +111,30 @@ dependencies {
 }
 
 
-// Download fedora in order to run that in tests
-/*
-task downloadFedora(type: Download) {
-    src 'https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-4.7.4/fcrepo-webapp-4.7.4-jetty-console.jar'
-    dest buildDir
-}*/
-
-
 eclipse {
 
   classpath {
     plusConfigurations += [ configurations.runtime ]
 
   }
+}
+
+def file = "fcrepo-webapp-4.7.4-jetty-console.jar"
+def fedora = "fcrepo-4.7.4"
+def url = "https://github.com/fcrepo4/fcrepo4/releases/download/${fedora}/${file}"
+
+task copyCompileLibs(type: Copy) {
+	into "${System.getProperty('user.home')}/.kramerius4/IT"
+	from configurations.compile.filter { it.name.startsWith("commons")}
+}
+
+task downloadFile {
+    doLast {
+        def folder = new File("${System.getProperty('user.home')}/.kramerius4/IT");
+        if (!folder.exists()) folder.mkdirs();
+        def f = new File(folder, "${file}")
+        if (!f.exists()) {
+            new URL(url).withInputStream{ i -> f.withOutputStream{ it << i }}
+        }
+    }
 }

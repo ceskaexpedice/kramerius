@@ -32,6 +32,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
 import org.easymock.EasyMock;
 import org.w3c.dom.Attr;
@@ -145,41 +146,6 @@ public class ImportDataPrepare {
         
     };
     
-    public static InputStream datastreams33() {
-        String path = "/org/kramerius/fedora/res/datastreams_3_3";
-        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
-
-    public static InputStream datastreams34() {
-        String path = "/org/kramerius/fedora/res/datastreams_3_4";
-        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
-
-    public static InputStream dsProfile33() {
-        String path = "/org/kramerius/fedora/res/dsprofile_3_3";
-        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
-
-    public static InputStream dsProfile34() {
-        String path = "/org/kramerius/fedora/res/dsprofile_3_4";
-        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
-
-    public static InputStream fedoraProfile33() {
-        String path = "/org/kramerius/fedora/res/describe_3_3";
-        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
-
-    public static InputStream fedoraProfile34() {
-        String path = "/org/kramerius/fedora/res/describe_3_4";
-        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
 
     public static void narodniListyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
@@ -221,7 +187,7 @@ public class ImportDataPrepare {
         String objectId = pidParser.getObjectId();
         
         String path = "/org/kramerius/fedora/res/"+objectId+".xml";
-        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
         expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true)).anyTimes();
     }
 
@@ -231,7 +197,7 @@ public class ImportDataPrepare {
         String objectId = pidParser.getObjectId();
         
         String path = "/org/kramerius/fedora/res/"+objectId+".nonconsistent.xml";
-        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
         expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true)).anyTimes();
     }
 
@@ -299,7 +265,7 @@ public class ImportDataPrepare {
         pidParser.objectPid();
 
         String path = "/org/kramerius/fedora/res/"+pidParser.getObjectId()+".dc.xml";
-        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
         Document document = XMLUtils.parseDocument(resStream, true);
         EasyMock.expect(fa.getDC(pid)).andReturn(document).anyTimes();
     }
@@ -309,7 +275,7 @@ public class ImportDataPrepare {
         pidParser.objectPid();
 
         String path = "/org/kramerius/fedora/res/"+pidParser.getObjectId()+".mods.xml";
-        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
         Document document = XMLUtils.parseDocument(resStream, true);
         EasyMock.expect(fa.getBiblioMods(pid)).andReturn(document).anyTimes();
     }
@@ -319,7 +285,7 @@ public class ImportDataPrepare {
         pidParser.objectPid();
 
         String path = "/org/kramerius/fedora/res/"+pidParser.getObjectId()+".datastreams.xml";
-        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
         expect(fa.getFedoraDataStreamsList(pid)).andReturn(resStream);
     }
         

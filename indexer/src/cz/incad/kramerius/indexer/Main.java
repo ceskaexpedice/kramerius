@@ -4,7 +4,7 @@
  */
 package cz.incad.kramerius.indexer;
 
-import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.utils.IOUtils;
 import java.io.File;
 import java.io.FileOutputStream;

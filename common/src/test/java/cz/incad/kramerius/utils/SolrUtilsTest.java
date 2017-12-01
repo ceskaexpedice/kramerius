@@ -33,6 +33,7 @@ import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
+import static cz.incad.kramerius.utils.solr.SolrUtils.*;
 
 
 public class SolrUtilsTest {
@@ -40,7 +41,7 @@ public class SolrUtilsTest {
     @Test
     public void disectPIDPath() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         Document parsed = solrDocument();
-        List<String> disected = SolrUtils.disectPidPaths(parsed);
+        List<String> disected = disectPidPaths(parsed);
         Assert.assertTrue(disected.size() == 2);
         Assert.assertEquals("uuid:cd2b2ad0-62d4-11dd-ac0e-000d606f5dc6/uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6/uuid:28286e70-64a6-11dd-981a-000d606f5dc6",disected.get(0));
         Assert.assertEquals("uuid:cd2b2ad0-62d4-11dd-ac0e-000d606f5dc6/uuid:5fe0b160-62d5-11dd-bdc7-000d606f5dc6/uuid:f0da6570-8f3b-11dd-b796-000d606f5dc6/uuid:28286e70-64a6-11dd-981a-000d606f5dc6",disected.get(1));
@@ -49,7 +50,7 @@ public class SolrUtilsTest {
     @Test
     public void disectPIDPath2() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         Document parsed = solrDocument2();
-        List<String> disected = SolrUtils.disectPidPaths(parsed);
+        List<String> disected = disectPidPaths(parsed);
         Assert.assertTrue(disected.size() == 1);
         Assert.assertEquals("uuid:bdc405b0-e5f9-11dc-bfb2-000d606f5dc6/uuid:b236d435-435d-11dd-b505-00145e5790ea/uuid:b7df7f2b-435d-11dd-b505-00145e5790ea/uuid:55219067-435f-11dd-b505-00145e5790ea", disected.get(0));
     }
@@ -57,7 +58,7 @@ public class SolrUtilsTest {
     @Test
     public void disectPID() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         Document parsed = solrDocument2();
-        String disectedPid = SolrUtils.disectPid(parsed);
+        String disectedPid = disectPid(parsed);
         Assert.assertNotNull(disectedPid);
         Assert.assertEquals("uuid:55219067-435f-11dd-b505-00145e5790ea", disectedPid);
     }
@@ -76,13 +77,13 @@ public class SolrUtilsTest {
                 return element.getNodeName().equals("doc");
             }
         });
-        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8", SolrUtils.disectPid(elements.get(0)));
-        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@1", SolrUtils.disectPid(elements.get(1)));
-        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@2", SolrUtils.disectPid(elements.get(2)));
-        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@3", SolrUtils.disectPid(elements.get(3)));
-        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@4", SolrUtils.disectPid(elements.get(4)));
-        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@5", SolrUtils.disectPid(elements.get(5)));
-        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@6", SolrUtils.disectPid(elements.get(6)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8", disectPid(elements.get(0)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@1", disectPid(elements.get(1)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@2", disectPid(elements.get(2)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@3", disectPid(elements.get(3)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@4", disectPid(elements.get(4)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@5", disectPid(elements.get(5)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@6", disectPid(elements.get(6)));
     }
 
     public static Document solrDocument() throws ParserConfigurationException, SAXException, IOException {
@@ -113,9 +114,20 @@ public class SolrUtilsTest {
     @Test
     public void disectModels() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         Document parsed = solrDocument();
-        List<String> disected = SolrUtils.disectModelPaths(parsed);
+        List<String> disected = disectModelPaths(parsed);
         Assert.assertTrue(disected.size() == 2);
         Assert.assertEquals("monograph/monographunit/page",disected.get(0));
         Assert.assertEquals("monograph/monographunit/internalpart/page",disected.get(1));
     }    
+
+    @Test
+    public void testQueryEscape() {
+        String query = "uuid:aa3016bf-2471-11e4-9632-001b63bd97ba";
+        String s = escapeQuery(query);
+        Assert.assertEquals(s, "uuid\\:aa3016bf\\-2471\\-11e4\\-9632\\-001b63bd97ba");
+
+        query = "pokus & pokus2 && pokus3";
+        s = escapeQuery(query);
+        Assert.assertEquals(s, "pokus \\& pokus2 \\&& pokus3");
+    }
 }

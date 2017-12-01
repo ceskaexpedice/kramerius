@@ -8,7 +8,6 @@ package cz.incad.kramerius.indexer;
  *
  * @author Incad
  */
-// TODO: Rewrite it !!
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,6 +32,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.indexer.guice.GuiceModelInjector;
 
+// TODO: Rewrite it !!
 public class Indexer {
 
     private static final Logger logger = Logger.getLogger(Indexer.class.getName());

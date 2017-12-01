@@ -7,6 +7,7 @@ import com.google.inject.Key;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.document.model.utils.DCContentUtils;
@@ -14,7 +15,7 @@ import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.impl.SolrAccessImpl;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
@@ -22,6 +23,7 @@ import cz.incad.kramerius.service.DeleteService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -72,7 +74,13 @@ public class DeleteServiceImpl implements DeleteService {
                 List<String> parents = resourceIndex.getParentsPids(pid);
                 for (String parentPid : parents) {
                     boolean parentRemoved = false;
-                    repo.getObject(parentPid).removeRelationsByTarget(pid);
+
+                    List<Triple<String, String, String>> relations = repo.getObject(parentPid).getRelations(FedoraNamespaces.KRAMERIUS_URI);
+                    for (Triple<String, String, String> triple: relations) {
+                        if (triple.getRight().equals(pid)) {
+                            repo.getObject(parentPid).removeRelation(triple.getLeft(),triple.getMiddle(),pid);
+                        }
+                    }
 
                     if (deleteEmptyParents) {
                         parentPid = parentPid.replace(INFO, "");

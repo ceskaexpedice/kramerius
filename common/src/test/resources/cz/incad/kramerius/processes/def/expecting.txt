@@ -11,7 +11,7 @@
                         vals = vals +  ';second='+$('#second').val().escapeChars(charsThatMustBeEscaped);
                         
             
-            var url = "lr?action=form_post&def=_4test_&paramsMapping={"+vals+"}&out=text";
+            var url = "lr?action=form_post&def=_4test_&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             processStarter("_4test_").start(url);
                                     
         }
