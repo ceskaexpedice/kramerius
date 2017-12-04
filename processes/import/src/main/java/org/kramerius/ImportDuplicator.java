@@ -265,7 +265,7 @@ public class ImportDuplicator {
             return;
         }
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
-        Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
+        Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
             List<Triple<String, String, String>> relations = repo.getObject(pid).getRelations(null);
             List<Triple<String, String, String>> literals = repo.getObject(pid).getLiterals(null);
 

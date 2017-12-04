@@ -88,7 +88,7 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
     ResourceBundleService resourceBundleService;
     
     @Inject
-    @Named("solr")
+    @Named("fedora")
     CollectionsManager collectionGet;
     
     public DisplayRightsForObjectsView() {

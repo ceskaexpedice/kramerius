@@ -218,6 +218,10 @@ public class Fedora4Repository extends Repository {
         }
     }
 
+    @Override
+    public ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException {
+        return this.feeder;
+    }
 
     @Override
     public boolean objectExists(String ident) throws RepositoryException {

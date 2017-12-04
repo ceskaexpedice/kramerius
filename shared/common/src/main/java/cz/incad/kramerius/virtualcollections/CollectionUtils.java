@@ -3,10 +3,7 @@ package cz.incad.kramerius.virtualcollections;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -123,63 +120,49 @@ public class CollectionUtils {
         relsextTemplate.setAttribute("pid", pid);
         collection.createStream(FedoraUtils.RELS_EXT_STREAM, "text/xml", new ByteArrayInputStream(relsextTemplate.toString().getBytes(Charset.forName("UTF-8"))));
 
-
-
-
-//        if (wait != null) {
-//            LOGGER.log(Level.INFO, "Waiting until condition is true");
-//            int counter = 0;
-//            while(! wait.condition(pid)) {
-//                counter+=1;
-//                Thread.sleep(WAIT_TIMENOUT);
-//                // there is counter which prevent waiting forever
-//                if (counter == MAX_WAIT_ITERATION) break;
-//            }
-//        }
         return pid;
     }
-    /*
-    public static String create(FedoraAccess fedoraAccess) throws IOException {
-        String pid = "vc:" + UUID.randomUUID().toString();
-
-        try {
-            Fedora4Utils.doInTransaction(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
-                repo.createOrFindObject(pid);
-
-            });
-        } catch (RepositoryException e) {
-            throw new IOException(e);
-        }
-
-        InputStream is = CollectionUtils.class.getResourceAsStream("vc.xml");
-        String s = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
-        String s = IOUtils.toString(is, Charset.forName("UTF-8"))
-        s = s.replaceAll("##title##", StringEscapeUtils.escapeXml(pid)).replaceAll("##pid##", pid);
-        fedoraAccess.getAPIM().ingest(s.getBytes(), "info:fedora/fedora-system:FOXML-1.1", "Create virtual collection");
-        return pid;
-    }
-    */
 
     public static void deleteWOIndexer(String pid, FedoraAccess fedoraAccess) throws Exception {
-        CollectionUtils.removeDocumentsFromCollection(pid, fedoraAccess);
-        fedoraAccess.getInternalAPI().deleteobject(pid);
+        Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(),(repo)->{
+            try {
+                CollectionUtils.removeDocumentsFromCollection(pid, repo);
+                repo.deleteobject(pid);
+            } catch (Exception e) {
+                throw new RepositoryException(e);
+            }
+        });
 
     }
 
     public static void delete(String pid, FedoraAccess fedoraAccess) throws Exception {
-        CollectionUtils.removeDocumentsFromCollection(pid, fedoraAccess);
-        fedoraAccess.getInternalAPI().deleteobject(pid);
+        Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(),(repo)->{
+            try {
+                CollectionUtils.removeDocumentsFromCollection(pid, repo);
+                repo.deleteobject(pid);
+            } catch (Exception e) {
+                throw new RepositoryException(e);
+            }
+        });
         CollectionUtils.startIndexer(pid, "reindexCollection", "Reindex docs in collection");
     }
 
-    public static void removeDocumentsFromCollection(String collection, FedoraAccess fedoraAccess) throws Exception {
+    public static void removeDocumentsFromCollection(String collection, Repository repo) throws Exception {
         IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
-        List<String> pids = g.getObjectsInCollection(collection, 1000, 0);
-        for (String pid : pids) {
-            Repository repo = fedoraAccess.getInternalAPI();
+        List<String> allPids = new ArrayList<>();
+
+        int offset = 0;
+        List<String> pids = g.getObjectsInCollection(collection, 1000, offset);
+        do {
+            allPids.addAll(pids);
+            pids = g.getObjectsInCollection(collection, 1000, offset);
+        }while(!pids.isEmpty());
+
+        for (String pid : allPids) {
             repo.getObject(pid).removeRelation("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,collection);
             LOGGER.log(Level.INFO, "{0} removed from collection {1}", new Object[]{pid, collection});
         }
+
     }
 
     public static void modify(String pid, String label, boolean canLeave, FedoraAccess fedoraAccess) throws IOException, RepositoryException {

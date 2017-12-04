@@ -74,7 +74,7 @@ public class VirtualCollectionViewObject {
     CollectionsManager fedoraManager;
 
     @Inject
-    @Named("solr")
+    @Named("fedora")
     CollectionsManager solrManager;
 
     public List<CollectionItemViewObject> getVirtualCollections() throws Exception {

@@ -19,13 +19,12 @@ import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.impl.AbstractCollectionManager;
 
+
+//TODO: Delete it; it is not necessary to keep different collection manager implementation
 public class SolrCollectionManagerImpl extends AbstractCollectionManager {
 
-    
     public static final Logger LOGGER = Logger.getLogger(SolrCollectionManagerImpl.class.getName());
-    
-    
-    
+
     @Override
     public List<Collection> getCollections() throws CollectionException {
         try {
@@ -34,7 +33,7 @@ public class SolrCollectionManagerImpl extends AbstractCollectionManager {
             String solrHost = KConfiguration.getInstance().getSolrHost();
             String uri = solrHost + col.constructQueryString();
             InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
-            JSONObject json = new JSONObject(IOUtils.readAsString(inputStream, Charset.forName("UTF-8"), true));
+            JSONObject json = new JSONObject(org.apache.commons.io.IOUtils.toString(inputStream, "UTF-8"));
             JSONArray ja = col.disectArray(json);
             String pid = "";
             for (int i = 0; i < ja.length(); i = i + 2) {

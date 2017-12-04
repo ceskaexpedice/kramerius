@@ -49,7 +49,7 @@ public class DownloadOriginalViewObject extends AbstractViewObject {
     FedoraAccess fedoraAccess;
     
     @Inject
-    @Named("solr")
+    @Named("fedora")
     CollectionsManager collectionGet;
     
     public List<DownloadItem> getDownloadItems() throws RecognitionException, TokenStreamException, IOException, CollectionException {

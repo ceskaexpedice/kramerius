@@ -56,7 +56,7 @@ public class ClientRightsResource {
     SolrAccess solrAccess;
     
     @Inject
-    @Named("solr")
+    @Named("fedora")
     CollectionsManager colGet;
 
     @GET

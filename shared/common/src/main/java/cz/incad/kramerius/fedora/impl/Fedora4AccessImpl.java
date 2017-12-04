@@ -248,21 +248,6 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
     }
 
 
-    /*
-    private String restOfPath(String pid, String path) {
-       int indexOf = path.indexOf(pid);
-       return path.substring(indexOf+pid.length()+1);
-    }
-    
-    private List<Map<String, String>> find(List<Map<String,String>> maps, String dsId) {
-        for (Map<String, String> m : maps) {
-            if (m.containsKey("dsid") && m.get("dsid").equals(dsId)) {
-                return Arrays.asList(m);
-            }
-        }
-        return new ArrayList<Map<String, String>>();
-    }
-    */
 
 
     @Override

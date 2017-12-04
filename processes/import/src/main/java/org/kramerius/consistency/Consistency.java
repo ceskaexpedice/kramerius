@@ -69,8 +69,6 @@ public class Consistency {
         this.fedoraAccess.processSubtree(rootPid, deep);
         List<NotConsistentRelation> relations = deep.getRelations();
         if (repair) {
-
-
             LOGGER.fine("deleting inconsitencies");
             for (NotConsistentRelation nRelation : relations) {
                 List<String> children = nRelation.getChildren();

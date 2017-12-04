@@ -84,8 +84,6 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
 
     }
 
-
-
     private String cacheKey(String pid, String stream) {
         return pid +"/"+stream;
     }

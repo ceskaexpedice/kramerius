@@ -42,4 +42,13 @@ gradlew*
 
 **/build
 **/out
+**/nbactions.xml
+
+**/index/_1i*
+**/index/_2i*
+**/index/segments*
+
+**/tlog/*
+
+
 

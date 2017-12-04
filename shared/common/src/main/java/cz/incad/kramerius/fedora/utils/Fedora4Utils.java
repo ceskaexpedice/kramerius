@@ -9,7 +9,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
-import org.w3c.dom.DOMException;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -157,14 +156,29 @@ public class Fedora4Utils {
         } else throw new IOException("cannot find  mimetype element");
     }
 
+//    TODO: Change it, must be done together with processing index
+//    public static void doInTransaction(Repository rep, OperationsHandler op) throws RepositoryException {
+//        try {
+//            op.operations(rep);
+//            rep.commitTransaction();
+//        }catch(Throwable e) {
+//            rep.rollbackTransaction();
+//            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+//        }
+//    }
+
     // it doesn't make sense - processing index contains everything
-    public static void doInTransaction(Repository rep, Operations op) throws RepositoryException {
+    public static void doWithProcessingIndexCommit(Repository rep, OperationsHandler op) throws RepositoryException {
         try {
-            op.inTransaction(rep);
-            rep.commitTransaction();
-        }catch(Throwable e) {
-            rep.rollbackTransaction();
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            op.operations(rep);
+        } finally {
+            try {
+                rep.getProcessingIndexFeeder().commit();
+            } catch (IOException e) {
+                throw new RepositoryException(e);
+            } catch (SolrServerException e) {
+                throw new RepositoryException(e);
+            }
         }
     }
 
@@ -210,7 +224,7 @@ public class Fedora4Utils {
         return deletingTriples;
     }
 
-    public static interface  Operations {
-        public void inTransaction(Repository rep) throws RepositoryException, UnsupportedEncodingException;
+    public static interface OperationsHandler {
+        public void operations(Repository rep) throws RepositoryException;
     }
 }

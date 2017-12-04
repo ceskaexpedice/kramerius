@@ -128,26 +128,30 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
     void deleteFlagToPIDInternal(String pid) throws RepositoryException {
         LOGGER.info("deleting deep zoom url for '"+pid+"'");
-        Repository repo = fedoraAccess.getInternalAPI();
-        if (repo.objectExists(pid)) {
-            RepositoryObject object = repo.getObject(pid);
-            boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
-            if (flag) {
-                object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+        Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(), (repo)->{
+            if (repo.objectExists(pid)) {
+                RepositoryObject object = repo.getObject(pid);
+
+                boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                if (flag) {
+                    object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                }
             }
-        }
+
+        });
    }
     
     void setFlagToPIDInternal(String pid, String tilesUrl) throws RepositoryException {
-        Repository repo = fedoraAccess.getInternalAPI();
-        if (repo.objectExists(pid)) {
-            RepositoryObject object = repo.getObject(pid);
-            boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
-            if (flag) {
-                object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+        Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(), (repo)->{
+            if (repo.objectExists(pid)) {
+                RepositoryObject object = repo.getObject(pid);
+                boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                if (flag) {
+                    object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                }
+                object.addLiteral("tiles-url", FedoraNamespaces.KRAMERIUS_URI, tilesUrl);
             }
-            object.addRelation("tiles-url", FedoraNamespaces.KRAMERIUS_URI, tilesUrl);
-        }
+        });
     }
 
 

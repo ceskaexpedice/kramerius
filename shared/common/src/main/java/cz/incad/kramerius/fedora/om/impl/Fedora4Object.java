@@ -210,7 +210,6 @@ public class Fedora4Object implements RepositoryObject {
 
                             this.feeder.deleteByRelationsForPid(pid);
                             RELSEXTSPARQLBuilder sparqlBuilder = new RELSEXTSPARQLBuilderImpl();
-                            long startProcessing = System.currentTimeMillis();
 
                             String sparql = sparqlBuilder.sparqlProps(new String(Arrays.copyOf(bos.toByteArray(), length), "UTF-8").trim(), (object, localName) -> {
 
