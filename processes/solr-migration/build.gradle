@@ -1,0 +1,8 @@
+
+
+dependencies {
+    compile project(':security:security-core')
+    compile project(':shared:common')
+    compile project(':processes:indexer')
+   
+}

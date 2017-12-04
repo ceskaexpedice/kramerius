@@ -10,6 +10,11 @@ configurations {
 }
 
 dependencies {
+
+    compile project(':shared:common')
+    compile project(':rest')
+    compile project(':security:authfilters')
+
     compile group: 'commons-io', name: 'commons-io', version: '1.4'
     compile group: 'org.apache.velocity', name:'velocity', version:'1.7'
     compile ("org.apache.velocity:velocity-tools:2.0")
@@ -37,9 +42,6 @@ dependencies {
     testCompile "junit:junit:4.1"
     testCompile "org.easymock:easymock:3.0"
 
-    compile project(':common')
-    compile project(':rest')
-    compile project(':authfilters')
 
     compile "com.sun.media:jai_imageio:1.1"
     compile "net.sf:simplecaptcha:1.2.1"

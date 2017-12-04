@@ -2,11 +2,9 @@ description "Remote API"
 
 
 dependencies {
-    
-    //all *.exclude group: "net.sf.json-lib", module: "json-lib"    
-	
-    compile project(':common') 
-    compile project(':security-core')
+
+    compile project(':shared:common')
+    compile project(':security:security-core')
 
     compile name:"iiif-presentation-model-api-3.2.5"
     compile name:"iiif-presentation-model-impl-3.2.5"

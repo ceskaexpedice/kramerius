@@ -1,0 +1,20 @@
+description "Static export process"
+
+sourceSets {
+    main {
+    	    resources {
+    	    	    srcDir 'src/main/java'
+    	    }
+    }
+}
+
+
+dependencies {
+    compile project(':shared:common')
+}
+
+
+
+
+
+

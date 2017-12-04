@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:fedora-model="info:fedora/fedora-system:def/model#"
+         xmlns:fedora-rels-ext="info:fedora/fedora-system:def/relations-external#"
+         xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#"
+         xmlns:proarc-rels="http://proarc.lib.cas.cz/relations#">
+    <rdf:Description rdf:about="info:fedora/uuid:05aa3058-2b8f-455f-84fe-3b2f3a7a4ccd">
+        <fedora-model:hasModel rdf:resource="info:fedora/model:page"></fedora-model:hasModel>
+        <kramerius:file>309018_00004_L.tif</kramerius:file>
+        <oai:itemID xmlns:oai="http://www.openarchives.org/OAI/2.0/">uuid:05aa3058-2b8f-455f-84fe-3b2f3a7a4ccd</oai:itemID>
+        <kramerius:policy>policy:private</kramerius:policy>
+    </rdf:Description>
+</rdf:RDF>

@@ -39,3 +39,7 @@ classes
 deploy
 gradle/wrapper
 gradlew*
+
+**/build
+**/out
+

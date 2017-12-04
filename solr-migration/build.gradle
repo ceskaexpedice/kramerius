@@ -1,8 +1,0 @@
-
-
-dependencies {
-    compile project(':security-core')
-    compile project(':common')
-    compile project(':indexer') 
-   
-}

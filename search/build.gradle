@@ -30,16 +30,18 @@ dependencies {
     providedCompile 'javax.servlet:jsp-api:2.0'
     providedCompile 'javax.portlet:portlet-api:2.0'
 
-    compile project(':common')
-    compile project(':static-export')
-    compile project(':indexer')
-    compile project(':import')
-    compile project(':import-mets')
-    compile project(':security-core')
+    compile project(':shared:common')
     compile project(':rest')
-    compile project(':mw-process')
-    compile project(':authfilters')
-    compile project(':solr-migration')
+
+    compile project(':security:security-core')
+    compile project(':security:authfilters')
+
+    compile project(':processes:mw-process')
+    compile project(':processes:static-export')
+    compile project(':processes:indexer')
+    compile project(':processes:import')
+    compile project(':processes:import-mets')
+    compile project(':processes:solr-migration')
 
     compile 'javax.servlet:jstl:1.1.2'   
     compile 'taglibs:standard:1.1.2'   

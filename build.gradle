@@ -113,7 +113,10 @@ subprojects {
 	repositories {
 		/** libraries doesn't exist in public repo */
 		flatDir {
-			dirs '../buildSrc/lib'
+			dirs "../buildSrc/lib"
+		}
+		flatDir {
+			dirs "../../buildSrc/lib"
 		}
 
 		
@@ -209,17 +212,7 @@ subprojects {
 		pom.dependencies.removeAll { it.groupId == null || it.groupId.equals("") }
 	}
 
-	/*
-	afterEvaluate { project ->
-		if (project.hasTests) {
-			println "Adding test task to $project"
-			project.task('test') {
-				doLast {
-					println "Running tests for $project"
-				}
-			}
-		}
-	}*/
+
 }
 
 /**
@@ -263,7 +256,7 @@ task zipInstallDir(type:Zip) {
 
 // disabled distributions
 task zipAllJavadocs(type: Zip) {
-	String[] _spr = ["common","security-core","rest","search"];
+	String[] _spr = ["shared:common","security:security-core","rest","search"];
 	description "create javadocs for ${_spr} and zip it"
 	baseName "kramerius-javadoc"
 	for(String project in _spr) {
