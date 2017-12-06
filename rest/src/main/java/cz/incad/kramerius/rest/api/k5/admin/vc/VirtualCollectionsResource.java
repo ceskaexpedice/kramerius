@@ -36,6 +36,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -81,7 +83,7 @@ public class VirtualCollectionsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response post(JSONObject jsonObj) {
+    public Response post(JSONObject jsonObj) throws SolrServerException {
         if (permit(this.userProvider.get())) {
             try {
                 Collection collection = null;
@@ -99,11 +101,13 @@ public class VirtualCollectionsResource {
                     }
 
                     collectionPid = CollectionUtils.create(this.fedoraAccess, label, canLeaveFlag, map, null);
+                    this.fedoraAccess.getInternalAPI().commitTransaction();
+                    this.fedoraAccess.getInternalAPI().getProcessingIndexFeeder().commit();
                     collection = this.manager.getCollection(collectionPid);
                 } else {
                     collectionPid = CollectionUtils.create(this.fedoraAccess, label, canLeaveFlag, new HashMap<>(), null);
+                    this.fedoraAccess.getInternalAPI().getProcessingIndexFeeder().commit();
                     collection = this.manager.getCollection(collectionPid);
-
                 }
                 return Response.ok().entity(virtualCollectionTOJSON(collection).toString()).build();
             } catch (InterruptedException e) {

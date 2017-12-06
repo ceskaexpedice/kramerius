@@ -134,7 +134,7 @@ public final class RelationServiceImpl implements RelationService {
     }
 
 
-    private static final class Saver {
+    protected static final class Saver {
 
         private final Document relsExt;
         private final RelationModel model;
@@ -260,7 +260,7 @@ public final class RelationServiceImpl implements RelationService {
         }
     }
 
-    private static final class Loader {
+    protected static final class Loader {
         private Map<KrameriusModels, List<Relation>> krameriusRelations;
         private KrameriusModels krameriusModel;
 

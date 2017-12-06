@@ -3,6 +3,7 @@ package cz.incad.kramerius.fedora.om.impl;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -19,10 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by pstastny on 10/11/2017.
@@ -47,7 +45,8 @@ public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
 
         List<Triple<String,String,String>> triples = new ArrayList<>();
 
-        for (int i = 0,counter=0,ll=childNodes.getLength(); i < ll; i++) {
+        Map<String, Integer> counters = new HashMap<>();
+        for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
             Node n = childNodes.item(i);
 
             if (n.getNodeType() == Node.ELEMENT_NODE) {
@@ -69,13 +68,25 @@ public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
 
                         }
                     }
+                    if (!counters.containsKey(localName)) {
+                        counters.put(localName,new Integer(0));
+                    }
+
+                    // increment counters
+                    counters.put(localName, counters.get(localName)+1);
+
                     // indirect reference - in order to preserve index
                     // https://wiki.duraspace.org/display/FEDORA4x/Ordering
-                    if (namespaceURI.equals(FedoraNamespaces.KRAMERIUS_URI)) {
-                        String reference = "#"+(++counter);
+                    List<String> treePredicates = Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.treePredicates"));
+
+                    if (namespaceURI.equals(FedoraNamespaces.KRAMERIUS_URI) && treePredicates.contains(localName)) {
+                        String bRelationName = localName.startsWith("has") ? StringUtils.minus(localName, "has").toLowerCase():
+                                localName.startsWith("is") ? StringUtils.minus(localName, "is").toLowerCase() : localName.toLowerCase();
+
+                        String reference = "#"+bRelationName+(counters.get(localName));
                         Triple<String, String, String> refTriple = new ImmutableTriple<>("<>",relation, "<"+reference+">");
                         Triple<String, String, String> rawTripleRef = new ImmutableTriple<>("<"+reference+">","<http://www.w3.org/2002/07/owl#sameAs>", "<"+value+">");
-                        Triple<String, String, String> rawTripleOrdering = new ImmutableTriple<>("<"+reference+">","<https://schema.org/Order>", "'"+counter+"'");
+                        Triple<String, String, String> rawTripleOrdering = new ImmutableTriple<>("<"+reference+">","<https://schema.org/Order>", "'"+counters.get(localName)+"'");
 
                         triples.add(refTriple);
                         triples.add(rawTripleRef);

@@ -35,6 +35,9 @@ public class Fedora4UtilsTest extends TestCase  {
         path = Fedora4Utils.normalizePath("model:page");
         Assert.assertTrue(path.size() == 2);
         Assert.assertTrue(path.get(0).equals("model"));
+
+        path = Fedora4Utils.normalizePath("donator:norway");
+        System.out.println(path);
     }
 
     public void testPath() {

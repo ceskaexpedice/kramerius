@@ -179,8 +179,8 @@ public abstract class AbstractFedoraAccess implements FedoraAccess {
     }
 
     @Override
-    public Set<String> getPids(String pid) throws IOException {
-        final Set<String> retval = new HashSet<String>();
+    public List<String> getPids(String pid) throws IOException {
+        final List<String> retval = new ArrayList<>();
         try {
             processSubtree(pid, new TreeNodeProcessor() {
                 @Override

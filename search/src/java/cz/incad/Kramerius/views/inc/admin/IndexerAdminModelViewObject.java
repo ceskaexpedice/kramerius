@@ -2,7 +2,6 @@ package cz.incad.Kramerius.views.inc.admin;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
 
@@ -10,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
-import static com.hp.hpl.jena.enhanced.BuiltinPersonalities.model;
 
 public class IndexerAdminModelViewObject {
 

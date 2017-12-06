@@ -31,7 +31,7 @@ public class RELSEXTSPARQLBuilderImplTest extends TestCase{
         Assert.assertTrue(sparqlProps.contains("<> <http://www.openarchives.org/OAI/2.0/#itemID> \"uuid:5035a48a-5e2e-486c-8127-2fa650842e46\"."));
 
         for(int i=1;i<=36;i++) {
-            Assert.assertTrue(sparqlProps.contains("<> <http://www.nsdl.org/ontologies/relationships#hasPage> <#"+i+">."));
+            Assert.assertTrue(sparqlProps.contains("<> <http://www.nsdl.org/ontologies/relationships#hasPage> <#page"+i+">."));
         }
     }
 

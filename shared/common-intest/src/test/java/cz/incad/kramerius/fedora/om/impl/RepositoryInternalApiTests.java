@@ -1,31 +1,21 @@
 package cz.incad.kramerius.fedora.om.impl;
 
-import com.google.inject.*;
-import com.google.inject.name.Named;
+import cz.incad.kramerius.ITTestSupport;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.fedora.it.ITSupport;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import junit.framework.Assert;
-import org.apache.commons.io.IOUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.core.CoreContainer;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -34,61 +24,30 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static cz.incad.kramerius.fedora.om.impl.Fedora4Repository.*;
 import static cz.incad.kramerius.fedora.utils.Fedora4Utils.*;
 
-public class FedoraRelationRepositoryTest {
-
-    private static CoreContainer container;
-    private static EmbeddedSolrServer solrServer;
-    private Injector injector;
-
-    private static Map<String, byte[]> resources = new HashMap<>();
+public class RepositoryInternalApiTests extends ITTestSupport {
 
     @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        resources.put("page-RELS-EXT.xml",IOUtils.toByteArray(FedoraRelationRepositoryTest.class.getResourceAsStream("page-RELS-EXT.xml")));
-        resources.put("monograph-RELS-EXT.xml",IOUtils.toByteArray(FedoraRelationRepositoryTest.class.getResourceAsStream("monograph-RELS-EXT.xml")));
-
-        container = new CoreContainer("src/test/resources/cz/incad/kramerius/resourceindex/IT");
-        container.load();
-        solrServer = new EmbeddedSolrServer( container, "processing" );
-        ITSupport.Commands.CONTROL.command();
-
+    public static void beforeClass() throws Exception {
+        setUpBeforeClass();
     }
 
+    @AfterClass
+    public static void afterClass() throws Exception {
+        tearDownAfterClass();
+    }
 
     @Before
-    public void setUp() throws Exception {
-        this.injector = Guice.createInjector(new AbstractModule() {
-            @Override
-            protected void configure() {}
-
-            @Provides
-            @Named("processingQuery")
-            @Singleton
-            public SolrClient processingQueryClient() {
-                return solrServer;
-            }
-
-            @Provides
-            @Named("processingUpdate")
-            @Singleton
-            public SolrClient processingUpdateClient() {
-                return solrServer;
-            }
-
-        }, new ResourceIndexModule());
-        UpdateResponse response = solrServer.deleteByQuery("*:*");
+    public void setUpTest() throws Exception {
+        setUp();
     }
 
     @Test
@@ -127,7 +86,6 @@ public class FedoraRelationRepositoryTest {
         RepositoryObject object = repository.createOrFindObject("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
         RepositoryDatastream stream = object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
 
-        //consider about the commit
         feeder.commit();
 
         QueryResponse response = solrServer.query(new SolrQuery("*:*"));
@@ -154,7 +112,6 @@ public class FedoraRelationRepositoryTest {
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         RepositoryDatastream stream = object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
 
-        //consider about the commit
         feeder.commit();
 
         QueryResponse response = solrServer.query(new SolrQuery("*:*"));
@@ -214,7 +171,6 @@ public class FedoraRelationRepositoryTest {
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
 
-        //consider about the commit
         feeder.commit();
 
         // metadata check
@@ -223,7 +179,7 @@ public class FedoraRelationRepositoryTest {
             boolean namespaceEq = element.getNamespaceURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
             boolean nameEq = element.getLocalName().equals("Description");
             if (namespaceEq && nameEq) {
-                return (element.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about").endsWith("data/503/5a4/8a5/e2e/486/c81/272/fa6/508/42e/46#1"));
+                return (element.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about").endsWith("data/503/5a4/8a5/e2e/486/c81/272/fa6/508/42e/46#page1"));
             } else return false;
         });
 
@@ -245,7 +201,7 @@ public class FedoraRelationRepositoryTest {
             boolean namespaceEq = element.getNamespaceURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
             boolean nameEq = element.getLocalName().equals("Description");
             if (namespaceEq && nameEq) {
-                return (element.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about").endsWith("data/503/5a4/8a5/e2e/486/c81/272/fa6/508/42e/46#1"));
+                return (element.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about").endsWith("data/503/5a4/8a5/e2e/486/c81/272/fa6/508/42e/46#page1"));
             } else return false;
         });
         Assert.assertNotNull(oneElement);
@@ -270,7 +226,6 @@ public class FedoraRelationRepositoryTest {
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
 
-        //consider about the commit
         feeder.commit();
 
         // rels-ext check
@@ -327,7 +282,6 @@ public class FedoraRelationRepositoryTest {
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
 
-        //consider about the commit
         feeder.commit();
 
         QueryResponse response = solrServer.query(new SolrQuery("source:\"uuid:5035a48a-5e2e-486c-8127-2fa650842e46\" AND type:\"relation\"").setRows(100));
@@ -357,7 +311,6 @@ public class FedoraRelationRepositoryTest {
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
 
-        //consider about the commit
         feeder.commit();
 
         Assert.assertFalse(object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI));
@@ -395,11 +348,9 @@ public class FedoraRelationRepositoryTest {
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
 
-        //consider about the commit
         feeder.commit();
 
         object.removeRelationsByNamespace(FedoraNamespaces.KRAMERIUS_URI);
-
 
         RepositoryDatastream relsExtStream = object.getStream("RELS-EXT");
         Document relsExt = XMLUtils.parseDocument(relsExtStream.getContent(), true);
@@ -444,7 +395,6 @@ public class FedoraRelationRepositoryTest {
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
 
-        //consider about the commit
         feeder.commit();
 
         object.addRelation("rdf:isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  "vc:5035a48a-5e2e-486c-9129-9fa650842e99");
@@ -455,4 +405,53 @@ public class FedoraRelationRepositoryTest {
         Assert.assertTrue(response.getResults().size() == 1);
         Assert.assertTrue(object.relationExists("isMemberOfCollection",FedoraNamespaces.RDF_NAMESPACE_URI,  "vc:5035a48a-5e2e-486c-9129-9fa650842e99"));
    }
+
+    @Test
+    public void testMonographDelete_ProcessIndex() throws RepositoryException, IOException, SolrServerException, TransformerException, ParserConfigurationException, SAXException {
+        byte[] bytes = resources.get("monograph-RELS-EXT.xml");
+
+        ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
+        Repository repository = build(feeder, false);
+        if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
+            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+        }
+        RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+        object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
+
+        feeder.commit();
+
+        QueryResponse response = solrServer.query(new SolrQuery("source:\"uuid:5035a48a-5e2e-486c-8127-2fa650842e46\"").setRows(100));
+        Assert.assertTrue(response.getResults().getNumFound() == 37);
+        repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+
+        feeder.commit();
+
+        response = solrServer.query(new SolrQuery("source:\"uuid:5035a48a-5e2e-486c-8127-2fa650842e46\"").setRows(100));
+        Assert.assertTrue(response.getResults().getNumFound() == 0);
+    }
+
+    @Test
+    @Ignore
+    public void testMonographDeleteOnePage_ProcessIndex() throws RepositoryException, IOException, SolrServerException, TransformerException, ParserConfigurationException, SAXException {
+        byte[] bytes = resources.get("monograph-RELS-EXT.xml");
+
+        ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
+        Repository repository = build(feeder, false);
+        if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
+            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+        }
+        RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+        object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
+
+        feeder.commit();
+
+
+        try {
+            repository.deleteobject("uuid:86c0425f-11fd-406b-8def-6726ad87982b");
+            Assert.fail();
+        } catch (RepositoryException e) {
+            // ok
+            System.out.println(e.getMessage());
+        }
+    }
 }

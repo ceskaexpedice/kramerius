@@ -17,6 +17,7 @@ import biz.sourcecode.base64Coder.Base64Coder;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.security.SecurityException;
@@ -26,7 +27,6 @@ import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.CollectionUtils;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
-import cz.incad.kramerius.virtualcollections.impl.AbstractCollectionManager;
 
 import java.io.PrintWriter;
 import java.net.URL;
@@ -35,6 +35,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -149,7 +150,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
                 String encodedProfile = req.getParameter("encodedData");
                 byte[] decoded = Base64Coder.decode(encodedProfile);
 
-                CollectionUtils.modifyLangDatastream(collection, language, AbstractCollectionManager.LONG_TEXT_DS_PREFIX+language,new String(decoded, "UTF-8"), fedoraAccess);
+                CollectionUtils.modifyLangDatastream(collection, language, FedoraCollectionsManagerImpl.LONG_TEXT_DS_PREFIX +language,new String(decoded, "UTF-8"), fedoraAccess);
             }
         },
 
@@ -324,8 +325,9 @@ public class VirtualCollectionServlet extends GuiceServlet {
                         plainTexts.put(langCode, req.getParameter(p));
                     }
                 }
-                
+
                 String pid = CollectionUtils.create(fedoraAccess, null, canLeave, plainTexts, new CollectionUtils.CollectionManagerWait(colMan));
+
                 resp.setContentType("text/plain");
                 vc.writeOutput(req, resp, pid);
             }

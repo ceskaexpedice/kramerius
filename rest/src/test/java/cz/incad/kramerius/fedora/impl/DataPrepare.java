@@ -238,15 +238,7 @@ public class DataPrepare {
         }
     }
 
-//    
-//    public static void relsExt(FedoraAccess fa, String pid) throws IOException, ParserConfigurationException, SAXException, LexerException {
-//        PIDParser pidParser = new PIDParser(pid);
-//        pidParser.objectPid();
-//        String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".xml";
-//        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
-//        expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true));
-//    }
-    
+
     public static void dc(FedoraAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
         PIDParser pidParser = new PIDParser(pid);
         pidParser.objectPid();

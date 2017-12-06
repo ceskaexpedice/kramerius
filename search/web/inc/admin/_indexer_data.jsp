@@ -115,7 +115,6 @@
         <div class="section">
             <fmt:message bundle="${lctx}">fedora.model</fmt:message>: 
             <%@include file="_indexer_models.jsp" %>&nbsp;
-        <fmt:message bundle="${lctx}">administrator.menu.dialogs.rows</fmt:message>: <input type="text" id="doc_rows" value="50" size="4" style="text-align: right;" />
             <input type="button" onclick="confirmIndexModel($('#top_models_select').val());" value="<fmt:message bundle="${lctx}">administrator.menu.dialogs.index_model</fmt:message>" class="ui-state-default ui-corner-all" />
         </div> 
         <table id="indexer_data_model" cellpadding="0" cellspacing="0" class="indexer_selected" style="display:none;" width="100%">
@@ -146,6 +145,7 @@
 
             <tbody style="overflow:auto;display:block;width:100%;"><tr><td align="center" colspan="3" width="768"><img src="img/loading.gif" /></td></tr></tbody>
             <tfoot class="indexer_head">
+                <table width
                 <tr>
                 <td width="100%" class="pager"  align="center">
                     <span class="prev"><a href="javascript:prevFedoraDocuments();">previous</a></span>&nbsp;&nbsp;&nbsp;
@@ -196,7 +196,8 @@
     $('#indexer_tabs').tabs();
 function prevFedoraDocuments(){
     var rows = parseInt($('#doc_rows').val());
-    loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())-rows, "");
+    var offset = Math.max(parseInt($('#indexer_offset').val())-rows,0);
+    loadFedoraDocuments($('#top_models_select').val(),offset , "");
 }
 function nextFedoraDocuments(){
     var rows = parseInt($('#doc_rows').val());
@@ -257,7 +258,7 @@ function loadFedoraDocuments(model, offset, sort, rows){
         }else{
             $("#indexer_data_model .prev").hide();
         }
-        if($('#indexer_result_rows').length>0){
+        if($('.indexer_result').length>0){
             $("#indexer_data_model .next").show();
         }else{
             $("#indexer_data_model .next").hide();

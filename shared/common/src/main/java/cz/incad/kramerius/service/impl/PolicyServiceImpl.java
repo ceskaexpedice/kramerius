@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,7 +62,7 @@ public class PolicyServiceImpl implements PolicyService {
 
     @Override
     public void setPolicy(String pid, String policyName) throws IOException {
-        Set<String> pids = fedoraAccess.getPids(pid);
+        List<String> pids = fedoraAccess.getPids(pid);
         for (String s : pids) {
             String p = s.replace(INFO, "");
             try{

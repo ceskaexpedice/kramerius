@@ -213,6 +213,7 @@ public class Fedora4Object implements RepositoryObject {
 
                             String sparql = sparqlBuilder.sparqlProps(new String(Arrays.copyOf(bos.toByteArray(), length), "UTF-8").trim(), (object, localName) -> {
 
+
                                 if (localName.equals("hasModel")) {
                                     try {
 

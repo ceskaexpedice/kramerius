@@ -1,9 +1,6 @@
 package cz.incad.kramerius.impl;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.StreamHeadersObserver;
-import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.*;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -26,7 +23,6 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
@@ -35,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Martin Rumanek
  */
-public class CachedFedoraAccessImpl  implements FedoraAccess {
+public class CachedFedoraAccessImpl  implements FedoraAccess, FedoraCacheAwareness {
 
     private static Cache<String, Document> xmlscache;
     private static Cache<String, Boolean> existsCache;
@@ -284,7 +280,7 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
     }
 
     @Override
-    public Set<String> getPids(String pid) throws IOException {
+    public List<String> getPids(String pid) throws IOException {
         return fedoraAccess.getPids(pid);
     }
 
@@ -385,5 +381,8 @@ public class CachedFedoraAccessImpl  implements FedoraAccess {
         return this.fedoraAccess.getTransactionAwareInternalAPI();
     }
 
+    @Override
+    public void changeNotification() {
 
+    }
 }

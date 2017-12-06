@@ -20,10 +20,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +41,16 @@ public class Fedora4Utils {
     // prefixes used in repo for string stuff
     public static final String DATA_PREFIX_PATH = "data";
     public static final String MODELS_PREFIX_PATH = "model";
+    public static final String DONATORS_PREFIX_PATH = "donator";
     public static final String COLLECTIONS_PREFIX_PATH = "collections";
+
+    public static final Map<String,String> PREFIX_PATH_MAPPING = new HashMap<>();
+    static {
+        PREFIX_PATH_MAPPING.put("vc",COLLECTIONS_PREFIX_PATH);
+        PREFIX_PATH_MAPPING.put("model",MODELS_PREFIX_PATH);
+        PREFIX_PATH_MAPPING.put("donator",DONATORS_PREFIX_PATH);
+
+    }
 
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     public static final String DATE_FORMAT_WITHOUTMILIS = "yyyy-MM-dd'T'HH:mm:ss'Z'";
@@ -63,7 +69,11 @@ public class Fedora4Utils {
         if (pid.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
             pid = StringUtils.minus(pid, PIDParser.INFO_FEDORA_PREFIX);
         }
-        String prefix = (pid.toLowerCase().startsWith("model:") || pid.toLowerCase().startsWith("vc:")) ? (pid.toLowerCase().startsWith("model:") ? MODELS_PREFIX_PATH : COLLECTIONS_PREFIX_PATH) : DATA_PREFIX_PATH;
+        String prefix =  DATA_PREFIX_PATH;
+        String[] splitted = pid.split(":");
+        if (splitted.length > 1 && PREFIX_PATH_MAPPING.containsKey(splitted[0])) {
+            prefix = PREFIX_PATH_MAPPING.get(splitted[0]);
+        }
         if (pid.contains(":")) {
             pid = pid.substring(pid.indexOf(':')+1);
         }

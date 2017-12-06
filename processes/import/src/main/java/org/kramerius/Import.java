@@ -521,20 +521,7 @@ public class Import {
         return retval;
     }
 
-   /* public static void main TestReadRDF (String[] args){
-        try{
-            File file = new File("/Work/Kramerius/data/prvnidavka-converted/40114/0eaa6730-9068-11dd-97de-000d606f5dc6.xml");
-            FileInputStream is = new FileInputStream(file);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            IOUtils.copyStreams(is, bos);
-            byte[] bytes = bos.toByteArray();
-            List<RDFTuple> rdf = readRDF(bytes);
-            System.out.print(rdf);
-        }catch(Throwable th){
-            System.out.print(th);
-        }
-    }
-*/
+
 
 
     public static void ingest(Repository repo, DigitalObject dob, String pid, boolean updateExisting) throws IOException, LexerException, TransformerException, RepositoryException {
@@ -573,9 +560,15 @@ public class Import {
                         createDataStream(repo,obj, id, latestDs,xmlContent, dob, updateExisting);
                     }
                 } else if (controlgroup.equals("M")) {
-                    byte[] binaryContent = latestDs.getBinaryContent();
-                    if (binaryContent != null) {
-                        createDataStream(repo, obj, id, latestDs, binaryContent, dob,updateExisting);
+                    ContentLocationType contentLocation = latestDs.getContentLocation();
+                    if (contentLocation != null) {
+
+                    } else {
+                        byte[] binaryContent = latestDs.getBinaryContent();
+                        if (binaryContent != null) {
+                            createDataStream(repo, obj, id, latestDs, binaryContent, dob,updateExisting);
+                        }
+
                     }
                 } else if ((controlgroup.equals("E") || (controlgroup.equals("R")))) {
                     ContentLocationType contentLocation = latestDs.getContentLocation();

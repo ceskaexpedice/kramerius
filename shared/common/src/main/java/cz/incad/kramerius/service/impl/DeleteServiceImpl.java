@@ -24,13 +24,15 @@ import cz.incad.kramerius.service.DeleteService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.solr.client.solrj.SolrServerException;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 public class DeleteServiceImpl implements DeleteService {
@@ -39,21 +41,34 @@ public class DeleteServiceImpl implements DeleteService {
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
+
     @Inject
     KConfiguration configuration;
 
     @Inject
     IResourceIndex resourceIndex;
 
-    private List<String> predicates;
+    List<String> predicates;
+
+
 
     public static final Logger LOGGER = Logger.getLogger(DeleteServiceImpl.class.getName());
 
     private static final String INFO = "info:fedora/";
 
     @Override
-    public void deleteTree(String pid, String pidPath, String message, boolean deleteEmptyParents) throws IOException, RepositoryException, ResourceIndexException {
-        Set<String> pids = fedoraAccess.getPids(pid);
+    public void deleteTree(Repository repo, String pid, String pidPath, String message, boolean deleteEmptyParents) throws IOException, RepositoryException, ResourceIndexException, SolrServerException {
+
+        List<String> pids = fedoraAccess.getPids(pid);
+        for (String deletingPids:  pids) {
+            List<Pair<String, String>> pairs = repo.getProcessingIndexFeeder().findByTargetPid(pid);
+            for (Pair<String, String> p: pairs) {
+                String right = p.getRight();
+                String left = p.getLeft();
+                repo.getObject(left).removeRelation(right, FedoraNamespaces.KRAMERIUS_URI, deletingPids);
+            }
+        }
+
         boolean purge = KConfiguration.getInstance().getConfiguration().getBoolean("delete.purgeObjects", true);
         for (String s : pids) {
             String p = s.replace(INFO, "");
@@ -65,10 +80,8 @@ public class DeleteServiceImpl implements DeleteService {
             }
         }
 
-        IndexerProcessStarter.spawnIndexRemover(pidPath, pid);
+        spawnIndexRemover(pid, pidPath);
 
-
-        Repository repo = fedoraAccess.getInternalAPI();
         List<String> parents = resourceIndex.getParentsPids(pid);
         for (String parentPid : parents) {
             boolean parentRemoved = false;
@@ -84,15 +97,23 @@ public class DeleteServiceImpl implements DeleteService {
                 parentPid = parentPid.replace(INFO, "");
                 String parentPidPath = pidPath.replace("/"+pid,"");
                 LOGGER.info("Deleting empty parent:" +parentPid+" "+parentPidPath );
-                deleteTree(parentPid,parentPidPath,message,deleteEmptyParents);
+                deleteTree(repo, parentPid,parentPidPath,message,deleteEmptyParents);
                 parentRemoved = true;
             }
             if (!parentRemoved) {
-                IndexerProcessStarter.spawnIndexer(true, "Reindex parent after delete " + pid, parentPid.replace(INFO, ""));
+                spawnIndexer(pid, parentPid);
             }
         }
+
     }
 
+    void spawnIndexer(String pid, String parentPid) throws UnsupportedEncodingException {
+        IndexerProcessStarter.spawnIndexer(true, "Reindex parent after delete " + pid, parentPid.replace(INFO, ""));
+    }
+
+    void spawnIndexRemover(String pid, String pidPath) {
+        IndexerProcessStarter.spawnIndexRemover(pidPath, pid);
+    }
 
 
     /**
@@ -101,7 +122,7 @@ public class DeleteServiceImpl implements DeleteService {
      * args[2] deleteEmptyParents (optional)
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException, RepositoryException, ResourceIndexException {
+    public static void main(final String[] args) throws IOException, RepositoryException, ResourceIndexException, SolrServerException {
 
         LOGGER.info("DeleteService: "+Arrays.toString(args));
 
@@ -112,6 +133,7 @@ public class DeleteServiceImpl implements DeleteService {
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         inst.fedoraAccess = fa;
         inst.predicates =  KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates");
+        inst.resourceIndex = injector.getInstance(IResourceIndex.class);
         SolrAccess solrAccess = new SolrAccessImpl();
 
         Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(inst.fedoraAccess, solrAccess, Arrays.asList(args[0]));
@@ -119,13 +141,18 @@ public class DeleteServiceImpl implements DeleteService {
         DCConent dcConent = DCConent.collectFirstWin(list);
         ProcessStarter.updateName("Mazání objektu '" + (dcConent != null ? dcConent.getTitle() : "bez názvu") + "'");
 
-        boolean deleteEmptyParents = false;
-        if (args.length>2){
-            deleteEmptyParents = Boolean.parseBoolean(args[2]);
-        }
 
-        inst.deleteTree(args[0], args[1], "Marked as deleted", deleteEmptyParents);
-
+        Fedora4Utils.doWithProcessingIndexCommit(inst.fedoraAccess.getInternalAPI(), (repo)->{
+            try {
+                inst.deleteTree(repo,args[0], args[1], "Marked as deleted", args.length>2 ? Boolean.parseBoolean(args[2]) : false);
+            } catch (IOException e) {
+                throw new RepositoryException(e);
+            } catch (ResourceIndexException e) {
+                throw new RepositoryException(e);
+            } catch (SolrServerException e) {
+                throw new RepositoryException(e);
+            }
+        });
 
         LOGGER.info("DeleteService finished.");
     }

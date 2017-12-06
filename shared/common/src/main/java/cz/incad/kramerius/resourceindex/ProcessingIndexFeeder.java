@@ -13,6 +13,8 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -28,6 +30,8 @@ import org.apache.solr.common.SolrInputDocument;
  *
  */
 public class ProcessingIndexFeeder {
+
+    public static final String DEFAULT_ITERATE_QUERY = "*:*";
 
     private static final String TYPE_RELATION = "relation";
     private static final String TYPE_DESC = "description";
@@ -84,6 +88,11 @@ public class ProcessingIndexFeeder {
         return response;
     }
 
+    public UpdateResponse deleteByTargetPid(String pid) throws  IOException, SolrServerException {
+        UpdateResponse response = this.solrClient.deleteByQuery("targetPid:\"" + pid + "\"");
+        return response;
+    }
+
     public UpdateResponse deleteDescriptionByPid(String pid) throws  IOException, SolrServerException {
         UpdateResponse response = this.solrClient.deleteByQuery("source:\"" + pid + "\" AND type:\"description\"");
         return response;
@@ -95,12 +104,12 @@ public class ProcessingIndexFeeder {
         return response;
     }
 
-    public void iterateProcessing(Consumer<SolrDocument> action) throws IOException, SolrServerException {
-        String query = "*:*";
+    public void iterateProcessing(String query, Consumer<SolrDocument> action) throws IOException, SolrServerException {
+        ///String query = "*:*";
 
         SolrQuery solrQuery = new SolrQuery(query);
         int offset = 0;
-        int rows = 10;
+        int rows = 100;
         long numFound = Integer.MAX_VALUE;
         solrQuery.setStart(offset).setRows(rows);
         QueryResponse response = this.solrClient.query(solrQuery);
@@ -117,14 +126,19 @@ public class ProcessingIndexFeeder {
 
     }
 
+    public List<Pair<String,String>> findByTargetPid(String pid) throws IOException, SolrServerException {
+        final List<Pair<String,String>> retvals = new ArrayList<>();
+        this.iterateProcessing("targetPid:\""+pid+"\"", (doc)->{
+            Pair<String,String> pair = new ImmutablePair<>(doc.getFieldValue("source").toString(), doc.getFieldValue("relation").toString());
+            retvals.add(pair);
+        });
+        return retvals;
+    }
+
     // commit to solr
     public void commit() throws IOException, SolrServerException {
         this.solrClient.commit();
     }
 
-    public void commitedTransaction(String s) throws IOException, SolrServerException {
-
-        this.commit();
-    }
 
 }

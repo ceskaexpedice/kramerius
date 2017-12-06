@@ -77,7 +77,7 @@ dependencies {
     compile "com.sun.jersey.contribs:jersey-apache-client:${jerseyversion}"
     compile "com.sun.jersey.contribs:jersey-guice:${jerseyversion}"
 
-
+    /*
     compile("org.fcrepo:fcrepo4-client:4.4.1-SNAPSHOT") {
        exclude group:"ch.qos.logback", module:"logback-classic"
     }
@@ -88,12 +88,8 @@ dependencies {
      
     compile("org.fcrepo:fcrepo-client-impl:4.4.1-SNAPSHOT") {
        exclude group:"ch.qos.logback", module:"logback-classic"
-    }
+    }*/
 
-    compile 'javax.jcr:jcr:2.0'
-    compile 'org.apache.jackrabbit:jackrabbit-core:2.12.1'
-    compile 'org.apache.jackrabbit:jackrabbit-jcr2dav:2.12.1'
-    compile 'org.apache.jackrabbit:jackrabbit-jcr-rmi:2.12.1'
 
     // for audio support 
     compile 'org.ehcache:ehcache:3.3.0'

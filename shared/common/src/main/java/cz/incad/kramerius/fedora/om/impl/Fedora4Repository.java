@@ -197,6 +197,15 @@ public class Fedora4Repository extends Repository {
                 try (FcrepoResponse thombStoneResponse = new DeleteBuilder(URI.create(this.objectPath(Fedora4Utils.normalizePath(pid))+"/fcr:tombstone"), client).perform()) {
                     if (thombStoneResponse.getStatusCode() != 204) {
                         throw new RepositoryException("Cannot delete tombstone for object "+pid);
+                    } else {
+                        try {
+                            // delete description and relations
+                            this.feeder.deleteByPid(pid);
+                            // delete relations which point to this pid
+                            this.feeder.deleteByTargetPid(pid);
+                        } catch (SolrServerException e) {
+                            throw new RepositoryException("Cannot delete data from processing index for  "+pid+" please start processing index update");
+                        }
                     }
                 }
             }  else {
@@ -207,7 +216,6 @@ public class Fedora4Repository extends Repository {
         } catch (IOException e) {
             throw new RepositoryException(e);
         }
-
     }
 
     private String objectPath(List<String> path) {

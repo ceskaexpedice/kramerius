@@ -13,7 +13,6 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.apache.commons.collections.map.HashedMap;
-import org.apache.derby.impl.tools.sysinfo.Main;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;

@@ -5,16 +5,21 @@ apply plugin: 'java'
 dependencies {
     compile project(':shared:common')
     compile project(':security:security-core')
-    testCompile 'org.apache.solr:solr-core:6.3.0'
+
+    testCompile('org.apache.solr:solr-core:6.3.0')
 }
 
 
-
+configurations {
+    all*.exclude group: 'org.ow2.asm'
+}
 
 tasks.withType(Test) {
     it.dependsOn "startFedora"
     it.finalizedBy "stopFedora"
 }
+
+
 
 def file = "fcrepo-webapp-4.7.4-jetty-console.jar"
 def fedora = "fcrepo-4.7.4"

@@ -119,7 +119,7 @@ public class ExportServiceImpl implements ExportService {
     @Override
     public void exportTree(String pid) throws IOException {
 
-        Set<String> pids = fedoraAccess.getPids(pid);
+        List<String> pids = fedoraAccess.getPids(pid);
         if (pids.isEmpty())
             return;
 

@@ -40,7 +40,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
-import cz.incad.kramerius.virtualcollections.impl.solr.SolrCollectionManagerImpl;
 import org.apache.http.nio.client.HttpAsyncClient;
 import org.ehcache.CacheManager;
 
@@ -92,8 +91,7 @@ public class BaseModule extends AbstractModule {
         bind(Collection.class).toProvider(VirtualCollectionProvider.class);
         
         bind(CollectionsManager.class).annotatedWith(Names.named("fedora")).to(FedoraCollectionsManagerImpl.class);
-        bind(CollectionsManager.class).annotatedWith(Names.named("solr")).to(SolrCollectionManagerImpl.class);
-        
+
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
 

@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -314,7 +313,7 @@ public interface FedoraAccess {
      * @return all subtree as set
      * @throws IOException IO error has been occurred
      */
-    public Set<String> getPids(String pid) throws IOException;
+    public List<String> getPids(String pid) throws IOException;
 
     
 

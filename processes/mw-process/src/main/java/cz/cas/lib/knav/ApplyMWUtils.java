@@ -2,6 +2,7 @@ package cz.cas.lib.knav;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.xpath.XPath;
@@ -140,7 +141,7 @@ public class ApplyMWUtils {
             RightCriteriumException, XPathExpressionException, RepositoryException {
         ApplyMovingWall.LOGGER.info("Setting public | private flag for pid " + masterPid);
         ApplyMWUtils.process(fa, sa, masterPid, userValue, coll);
-        Set<String> pids = fa.getPids(masterPid);
+        List<String> pids = fa.getPids(masterPid);
 
         String[] root;
         ObjectPidsPath[] path = sa.getPath(masterPid);

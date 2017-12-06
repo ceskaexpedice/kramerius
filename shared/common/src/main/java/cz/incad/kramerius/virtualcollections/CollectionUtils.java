@@ -85,42 +85,51 @@ public class CollectionUtils {
     
     /** Methods bellow are mostly moved from previous implementation of virtual collections */
     public static String create(FedoraAccess fedoraAccess,String title,boolean canLeaveFlag, Map<String, String>plainTexts, CollectionWait wait) throws IOException, InterruptedException, RepositoryException {
+        final List<String> retvals =new ArrayList<>();
+        Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(), (repo)->{
+            String pid = null;
+            try {
+                Map<String, String> encodedTexts = new HashMap<String, String>();
+                for (String k : plainTexts.keySet()) {
+                    //String encoded = Base64.encodeBase64String(plainTexts.get(k).getBytes("UTF-8"));;
+                    encodedTexts.put(k, plainTexts.get(k));
+                }
+                pid = "vc:" + UUID.randomUUID().toString();
+                InputStream stream = CollectionUtils.class.getResourceAsStream("vc_template.stg");
+                String content = IOUtils.toString(stream, Charset.forName("UTF-8"));
 
-        Map<String, String> encodedTexts = new HashMap<String, String>();
-        for (String k : plainTexts.keySet()) {
-            //String encoded = Base64.encodeBase64String(plainTexts.get(k).getBytes("UTF-8"));;
-            encodedTexts.put(k, plainTexts.get(k));
-        }
-        String pid = "vc:" + UUID.randomUUID().toString();
-        InputStream stream = CollectionUtils.class.getResourceAsStream("vc_template.stg");
-        String content = IOUtils.toString(stream, Charset.forName("UTF-8"));
+                StringTemplateGroup grp = new StringTemplateGroup(new StringReader(content), DefaultTemplateLexer.class);
 
-        StringTemplateGroup grp = new StringTemplateGroup(new StringReader(content), DefaultTemplateLexer.class);
+                RepositoryObject collection = repo.createOrFindObject(pid);
 
-        Repository repo = fedoraAccess.getInternalAPI();
-        RepositoryObject collection = repo.createOrFindObject(pid);
+                StringTemplate dcTemplate = grp.getInstanceOf("dc");
+                dcTemplate.setAttribute("pid", pid);
+                dcTemplate.setAttribute("title", title != null ? title : pid);
+                dcTemplate.setAttribute("canLeave", canLeaveFlag);
+                collection.createStream(FedoraUtils.DC_STREAM, "text/xml", new ByteArrayInputStream(dcTemplate.toString().getBytes(Charset.forName("UTF-8"))));
 
-        StringTemplate dcTemplate = grp.getInstanceOf("dc");
-        dcTemplate.setAttribute("pid", pid);
-        dcTemplate.setAttribute("title", title != null ? title : pid);
-        dcTemplate.setAttribute("canLeave", canLeaveFlag);
-        collection.createStream(FedoraUtils.DC_STREAM, "text/xml", new ByteArrayInputStream(dcTemplate.toString().getBytes(Charset.forName("UTF-8"))));
+                if (plainTexts.containsKey("cs")) {
+                    byte[] textCsBytes = plainTexts.get("cs").getBytes(Charset.forName("UTF-8"));
+                    collection.createStream("TEXT_cs", "text/xml", new ByteArrayInputStream(textCsBytes));
+                }
 
-        if (plainTexts.containsKey("cs")) {
-            byte[] textCsBytes = plainTexts.get("cs").getBytes(Charset.forName("UTF-8"));
-            collection.createStream("TEXT_cs", "text/xml", new ByteArrayInputStream(textCsBytes));
-        }
+                if (plainTexts.containsKey("en")) {
+                    byte[] textEnBytes = plainTexts.get("en").getBytes(Charset.forName("UTF-8"));
+                    collection.createStream("TEXT_en", "text/xml", new ByteArrayInputStream(textEnBytes));
+                }
 
-        if (plainTexts.containsKey("en")) {
-            byte[] textEnBytes = plainTexts.get("en").getBytes(Charset.forName("UTF-8"));
-            collection.createStream("TEXT_en", "text/xml", new ByteArrayInputStream(textEnBytes));
-        }
+                StringTemplate relsextTemplate = grp.getInstanceOf("relsext");
+                relsextTemplate.setAttribute("pid", pid);
+                collection.createStream(FedoraUtils.RELS_EXT_STREAM, "text/xml", new ByteArrayInputStream(relsextTemplate.toString().getBytes(Charset.forName("UTF-8"))));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            retvals.add(pid);
+        });
 
-        StringTemplate relsextTemplate = grp.getInstanceOf("relsext");
-        relsextTemplate.setAttribute("pid", pid);
-        collection.createStream(FedoraUtils.RELS_EXT_STREAM, "text/xml", new ByteArrayInputStream(relsextTemplate.toString().getBytes(Charset.forName("UTF-8"))));
-
-        return pid;
+        if (!retvals.isEmpty()) {
+            return retvals.get(0);
+        } else throw new RepositoryException("Cannot create collection");
     }
 
     public static void deleteWOIndexer(String pid, FedoraAccess fedoraAccess) throws Exception {

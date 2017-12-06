@@ -71,6 +71,13 @@ public abstract class Repository {
 
     public abstract ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException;
 
+    /**
+     * Create new repository object
+     * @param feeder Feeder instance
+     * @param transactionAware TransactionAwarness is not fully supported at this moment.
+     * @return
+     * @throws RepositoryException
+     */
     public static final Repository build(ProcessingIndexFeeder feeder, boolean transactionAware) throws RepositoryException {
         return new Fedora4Repository(feeder, transactionAware);
     }

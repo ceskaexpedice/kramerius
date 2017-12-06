@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -183,7 +182,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     }
 
     @Override
-    public Set<String> getPids(String pid) throws IOException {
+    public List<String> getPids(String pid) throws IOException {
         return rawAccess.getPids(pid);
     }
 

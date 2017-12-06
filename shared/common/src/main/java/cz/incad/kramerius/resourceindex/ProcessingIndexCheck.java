@@ -29,7 +29,7 @@ public class ProcessingIndexCheck {
         final ProcessingIndexFeeder instance = injector.getInstance(ProcessingIndexFeeder.class);
 
         List<String> pidsToDelete = new ArrayList<>();
-        instance.iterateProcessing((SolrDocument doc) ->{
+        instance.iterateProcessing(ProcessingIndexFeeder.DEFAULT_ITERATE_QUERY, (SolrDocument doc) ->{
             try {
                 Object source = doc.getFieldValue("source");
                 if (!repo.objectExists(source.toString())) {

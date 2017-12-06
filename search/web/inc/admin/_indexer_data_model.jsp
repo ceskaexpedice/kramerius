@@ -14,6 +14,7 @@
 
 <view:object name="indexerData" clz="cz.incad.Kramerius.views.inc.admin.IndexerAdminModelViewObject"></view:object>
 
+
 <c:forEach var="object" items="${indexerData.objects}" varStatus="status">
 <tr class="indexer_result" pid="${object.source}">
 <td class="indexer_result_status">&nbsp;</td>

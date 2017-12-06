@@ -9,6 +9,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -45,14 +46,15 @@ public class ProcessingFeederTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-
         container = new CoreContainer("src/test/resources/cz/incad/kramerius/resourceindex/IT");
         container.load();
         solrServer = new EmbeddedSolrServer( container, "processing" );
-
     }
 
-
+    @AfterClass
+    public static void afterClass() throws IOException {
+        solrServer.close();
+    }
 
     @Before
     public void setUp() throws IOException, SolrServerException {
@@ -132,6 +134,29 @@ public class ProcessingFeederTest {
     }
 
 
+    @Test
+    public void testFindByTargetPid() throws IOException, SolrServerException, ResourceIndexException {
+        ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
+        feeder.feedDescriptionDocument("uuid:abc-periodical","periodical","Title", "http://localhost:18080/rest", new Date());
+        feeder.feedDescriptionDocument("uuid:abc-periodicalvolume","periodicalvolume","Title", "http://localhost:18080/rest", new Date());
+        feeder.feedDescriptionDocument("uuid:abc-periodicalissue","periodicalissue","Title", "http://localhost:18080/rest", new Date());
+        feeder.feedDescriptionDocument("uuid:abc-page","page","Title","http://localhost:18080/rest", new Date());
+        feeder.feedDescriptionDocument("uuid:def-page","page","Title","http://localhost:18080/rest", new Date());
+
+
+        feeder.feedRelationDocument("uuid:abc-periodical", "hasVolume","uuid:abc-periodicalvolume");
+        feeder.feedRelationDocument("uuid:abc-periodicalvolume", "hasIssue","uuid:abc-periodicalissue");
+        feeder.feedRelationDocument("uuid:abc-periodicalissue", "hasPage","uuid:abc-page");
+        feeder.feedRelationDocument("uuid:abc-periodicalissue", "hasPage","uuid:def-page");
+
+        feeder.commit();
+
+        List<Pair<String, String>> byTargetPid = feeder.findByTargetPid("uuid:abc-page");
+        Assert.assertTrue(byTargetPid.size() == 1);
+        Assert.assertTrue(byTargetPid.get(0).getLeft().equals("uuid:abc-periodicalissue"));
+        Assert.assertTrue(byTargetPid.get(0).getRight().equals("hasPage"));
+
+    }
 
     @AfterClass
     public static void tearDownAfterClass() {
