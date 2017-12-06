@@ -1,5 +1,5 @@
 package cz.incad.kramerius.fedora.impl;
-import static cz.incad.kramerius.ITTestSupport.*;
+import static cz.incad.kramerius.ITTestsSetup.*;
 
 import com.google.inject.*;
 import com.google.inject.name.Names;

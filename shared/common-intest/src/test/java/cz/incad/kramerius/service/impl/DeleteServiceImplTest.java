@@ -2,7 +2,7 @@ package cz.incad.kramerius.service.impl;
 
 import static org.easymock.EasyMock.*;
 
-import static cz.incad.kramerius.ITTestSupport.*;
+import static cz.incad.kramerius.ITTestsSetup.*;
 
 import com.google.inject.Key;
 import com.google.inject.name.Names;

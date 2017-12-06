@@ -1,6 +1,6 @@
 package cz.incad.kramerius.fedora.om.impl;
 
-import cz.incad.kramerius.ITTestSupport;
+import cz.incad.kramerius.ITTestsSetup;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import static cz.incad.kramerius.fedora.om.impl.Fedora4Repository.*;
 import static cz.incad.kramerius.fedora.utils.Fedora4Utils.*;
 
-public class RepositoryInternalApiTests extends ITTestSupport {
+public class RepositoryInternalApiTests extends ITTestsSetup {
 
     @BeforeClass
     public static void beforeClass() throws Exception {

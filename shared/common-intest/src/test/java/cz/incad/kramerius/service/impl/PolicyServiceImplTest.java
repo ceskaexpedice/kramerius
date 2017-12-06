@@ -1,6 +1,6 @@
 package cz.incad.kramerius.service.impl;
 
-import static cz.incad.kramerius.ITTestSupport.*;
+import static cz.incad.kramerius.ITTestsSetup.*;
 import static cz.incad.kramerius.fedora.om.Repository.build;
 import static cz.incad.kramerius.utils.XMLUtils.*;
 

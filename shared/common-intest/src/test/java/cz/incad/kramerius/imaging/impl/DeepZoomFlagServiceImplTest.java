@@ -21,8 +21,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static cz.incad.kramerius.ITTestSupport.*;
-import static cz.incad.kramerius.ITTestSupport.resources;
+import static cz.incad.kramerius.ITTestsSetup.*;
+import static cz.incad.kramerius.ITTestsSetup.resources;
 import static cz.incad.kramerius.utils.XMLUtils.findElement;
 
 public class DeepZoomFlagServiceImplTest {

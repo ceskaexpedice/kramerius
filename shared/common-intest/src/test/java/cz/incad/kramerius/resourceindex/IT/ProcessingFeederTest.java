@@ -2,7 +2,6 @@ package cz.incad.kramerius.resourceindex.IT;
 
 import com.google.inject.*;
 import com.google.inject.name.Named;
-import com.hp.hpl.jena.sparql.pfunction.library.container;
 import cz.incad.kramerius.resourceindex.*;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.hp.hpl.jena.enhanced.BuiltinPersonalities.model;
 
 /**
  * Created by pstastny on 10/20/2017.

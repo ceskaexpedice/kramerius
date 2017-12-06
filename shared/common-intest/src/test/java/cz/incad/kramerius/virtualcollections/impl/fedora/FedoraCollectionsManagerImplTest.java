@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static cz.incad.kramerius.ITTestSupport.*;
+import static cz.incad.kramerius.ITTestsSetup.*;
 import static cz.incad.kramerius.fedora.om.Repository.build;
 import static org.easymock.EasyMock.isA;
 
