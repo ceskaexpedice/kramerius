@@ -16,8 +16,6 @@
  */
 package cz.incad.Kramerius.exts.menu.context.guice;
 
-import javax.print.attribute.standard.PrinterLocation;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
@@ -31,11 +29,8 @@ import cz.incad.Kramerius.exts.menu.context.impl.adm.items.DeleteFromIndex;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.DeleteGeneratedDeepZoom;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.DeletePid;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.Editor;
-import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ExportCd;
-import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ExportDvd;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ExportFoxml;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.GenerateDeepZoom;
-import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ParametrizedPdfExport;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.Reindex;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.Rights;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ServerSort;
@@ -85,16 +80,12 @@ public class ContextMenuConfiguration extends AbstractModule {
         Multibinder<AdminContextMenuItem> adminMenuItems
         = Multibinder.newSetBinder(binder(), AdminContextMenuItem.class);
 
-//        adminMenuItems.addBinding().to(ServerPrint.class);
         adminMenuItems.addBinding().to(Reindex.class);
         adminMenuItems.addBinding().to(ServerSort.class);
         adminMenuItems.addBinding().to(DeleteFromIndex.class);
         adminMenuItems.addBinding().to(DeletePid.class);
         adminMenuItems.addBinding().to(SetPolicyFlag.class);
-//        adminMenuItems.addBinding().to(ExportCD.class);
-//        adminMenuItems.addBinding().to(ExportDVD.class);
         adminMenuItems.addBinding().to(ExportFoxml.class);
-        adminMenuItems.addBinding().to(ParametrizedPdfExport.class);
         adminMenuItems.addBinding().to(GenerateDeepZoom.class);
         adminMenuItems.addBinding().to(DeleteGeneratedDeepZoom.class);
         adminMenuItems.addBinding().to(ShowStatistics.class);

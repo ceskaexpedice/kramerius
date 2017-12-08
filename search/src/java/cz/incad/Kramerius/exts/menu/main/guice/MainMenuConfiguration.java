@@ -24,25 +24,7 @@ import cz.incad.Kramerius.exts.menu.main.MainMenuPart;
 import cz.incad.Kramerius.exts.menu.main.impl.MainMenuImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuPartImpl;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.CollectionsRightsAdministration;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.CriteriaEditor;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.DeleteProcesses;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Enumerator;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.GlobalRightsAdministration;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerAdministration;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerMigration;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MetadataEditor;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MovingWallProcess;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.NDKMetsImport;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedConvert;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedImport;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedK3Replication;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedK4Replication;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ProcessesDialog;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ReplicationRights;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.RolesEditor;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ShowStatistics;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.UsersAdministration;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.*;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMenuPartImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.items.ChangePassword;
@@ -77,7 +59,6 @@ public class MainMenuConfiguration extends AbstractModule {
         = Multibinder.newSetBinder(binder(), AdminMenuItem.class);
         adminItems.addBinding().to(ProcessesDialog.class);
         adminItems.addBinding().to(IndexerAdministration.class);
-        adminItems.addBinding().to(IndexerMigration.class);
 
         adminItems.addBinding().to(UsersAdministration.class);
         adminItems.addBinding().to(RolesEditor.class);
@@ -91,24 +72,14 @@ public class MainMenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(MovingWallProcess.class);
 
 
-        adminItems.addBinding().to(Enumerator.class);
-        adminItems.addBinding().to(ReplicationRights.class);
-        adminItems.addBinding().to(ParametrizedK3Replication.class);
-        
-        // replicate 
-//      adminItems.addBinding().to(ImportMonographs.class);
-//      adminItems.addBinding().to(ImportPeriodicals.class);
 
-        //adminItems.addBinding().to(ParametrizedConvert.class);
-        //adminItems.addBinding().to(ImportMets.class);
-
-        
         // pridani parametrizovanych procesu
-        adminItems.addBinding().to(ParametrizedConvert.class);
         adminItems.addBinding().to(ParametrizedImport.class);
         adminItems.addBinding().to(NDKMetsImport.class);
         adminItems.addBinding().to(ParametrizedK4Replication.class);
-        
+
+        adminItems.addBinding().to(DataMigration.class);
+
         adminItems.addBinding().to(ShowStatistics.class);
         adminItems.addBinding().to(DeleteProcesses.class);
         

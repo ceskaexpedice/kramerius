@@ -539,5 +539,20 @@ Every process could have following structure:
         <securedaction>reindex</securedaction>
     </process>
 
+    <!-- migrace dat z Krameria do Krameria -->
+    <process>
+        <id>data_migration</id>
+        <description>Check processing index</description>
+        <mainClass>org.kramerius.replications.FedoraDataMigrationProcess</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>import</securedaction>
+
+        <templates>
+            <input class="org.kramerius.replications.input.DataMigrationInputTemplate"></input>
+        </templates>
+    </process>
+
+
 
 </processes>

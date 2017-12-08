@@ -15,12 +15,12 @@ sourceSets {
     }
 
     test {
-	java {
+	    java {
             srcDir 'src/test'
 	}
 	resources {
-	    srcDir 'src/test'
-	}
+	        srcDir 'src/test'
+    	}
     }
 }
 
@@ -42,6 +42,7 @@ dependencies {
     compile project(':processes:import')
     compile project(':processes:import-mets')
     compile project(':processes:solr-migration')
+    compile project(':processes:data-migration')
 
     compile 'javax.servlet:jstl:1.1.2'   
     compile 'taglibs:standard:1.1.2'   

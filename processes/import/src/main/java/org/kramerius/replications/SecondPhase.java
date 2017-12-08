@@ -49,6 +49,11 @@ import org.w3c.dom.Document;
 import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.util.Stack;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.Executors.*;
 
 public class SecondPhase extends AbstractPhase  {
 
@@ -56,17 +61,43 @@ public class SecondPhase extends AbstractPhase  {
 
     static String DONE_FOLDER_NAME = "DONE";
     static int MAXITEMS=30000;
-    
+
+    //TODO: move it to configuration
+    static int NUMBER_OF_THREADS = 2;
+    static int MAX_RUNNING_DAYS = 365;
+
     private DONEController controller = null;
     private boolean findPid = false;
     private String replicationCollections;
-    
+    private Injector injector;
+
+    private ExecutorService executorService = null;
+
+
+
     @Override
     public void start(String url, String userName, String pswd, String replicationCollections) throws PhaseException {
-        this.findPid = false;
-        this.controller = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
-        this.replicationCollections = replicationCollections;
-        this.processIterate(url, userName, pswd);
+        try {
+            this.executorService = newFixedThreadPool(NUMBER_OF_THREADS);
+            this.findPid = false;
+            this.controller = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
+            this.replicationCollections = replicationCollections;
+            // initalize import
+            Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
+            this.injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            this.processIterate(url, userName, pswd);
+
+        } finally {
+            try {
+                ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
+                if (feeder != null) feeder.commit();
+            } catch (IOException e) {
+                throw new PhaseException(this, e);
+            } catch (SolrServerException e) {
+                throw new PhaseException(this, e);
+            }
+
+        }
     }
 
     public void pidEmitted(String pid, String url, String userName, String pswd) throws PhaseException {
@@ -77,11 +108,12 @@ public class SecondPhase extends AbstractPhase  {
                 File foxmlfile = null;
                 InputStream inputStream = null;
                 try {
+                    long foxmlStart = System.currentTimeMillis();
                     inputStream = rawFOXMLData(pid, url, userName, pswd);
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    IOUtils.copyStreams(inputStream, bos);
+                    foxmlfile = foxmlFile(inputStream, pid);
+                    long foxmlStop = System.currentTimeMillis();
+                    LOGGER.fine("\t downloading foxml took "+(foxmlStop - foxmlStart)+" ms");
 
-                    foxmlfile = foxmlFile(new ByteArrayInputStream(bos.toByteArray()), pid);
                     ingest(foxmlfile);
                     createFOXMLDone(pid);
                 } catch (LexerException e) {
@@ -122,13 +154,10 @@ public class SecondPhase extends AbstractPhase  {
 
     public void ingest(File foxmlfile) throws PhaseException{
         LOGGER.info("ingesting '"+foxmlfile.getAbsolutePath()+"'");
-        Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
-        ProcessingIndexFeeder feeder = null;
+        //Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
         try {
 
-            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
             FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-            feeder = injector.getInstance(ProcessingIndexFeeder.class);
             Import.ingest(fa.getInternalAPI(), foxmlfile, null, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
 
         } catch (RuntimeException e) {
@@ -137,14 +166,6 @@ public class SecondPhase extends AbstractPhase  {
         } catch (RepositoryException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
             else throw new PhaseException(this,e);
-        } finally {
-            try {
-                if (feeder != null) feeder.commit();
-            } catch (IOException e) {
-                throw new PhaseException(this, e);
-            } catch (SolrServerException e) {
-                throw new PhaseException(this, e);
-            }
         }
     }
     
@@ -193,6 +214,7 @@ public class SecondPhase extends AbstractPhase  {
     
 
     private void processIterate(String url, String userName, String pswd) throws PhaseException {
+
         try {
             PIDsListLexer lexer = new PIDsListLexer(new FileReader(getIterateFile()));
             PIDsListParser parser = new PIDsListParser(lexer);
@@ -211,6 +233,14 @@ public class SecondPhase extends AbstractPhase  {
             } else if (thr != null) {
                 throw new PhaseException(this,thr);
             } else throw new PhaseException(this,e);
+        } finally {
+            LOGGER.info("All pids have been processed .. ");
+            try {
+                this.executorService.shutdown();
+                this.executorService.awaitTermination(MAX_RUNNING_DAYS, TimeUnit.DAYS);
+            } catch (InterruptedException e) {
+                throw new PhaseException(this,e);
+            }
         }
     }
 
@@ -220,6 +250,10 @@ public class SecondPhase extends AbstractPhase  {
     public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd, String replicationCollections) throws PhaseException {
         try {
             if (!phaseCompleted) {
+                // initalize import
+                Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
+                this.injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+
                 this.findPid = true;
                 IOUtils.copyFolders(new File(previousProcessRoot, DONE_FOLDER_NAME),new File(DONE_FOLDER_NAME));
                 this.controller = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
@@ -307,14 +341,19 @@ public class SecondPhase extends AbstractPhase  {
 
         @Override
         public void pidEmitted(String pid)  {
-            try {
-                if ((pid.startsWith("'")) || (pid.startsWith("\""))) {
-                    pid = pid.substring(1,pid.length()-1);
-                }
-                SecondPhase.this.pidEmitted(pid, this.url, this.userName, this.pswd);
-            } catch (PhaseException e) {
-                throw new RuntimeException(e);
+            if ((pid.startsWith("'")) || (pid.startsWith("\""))) {
+                pid = pid.substring(1,pid.length()-1);
             }
+            final String fpid = pid;
+            SecondPhase.this.executorService.submit(()-> {
+                try {
+                    LOGGER.info("Submitting task for pid "+fpid);
+                    SecondPhase.this.pidEmitted(fpid, this.url, this.userName, this.pswd);
+                } catch (PhaseException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
         }
 
 

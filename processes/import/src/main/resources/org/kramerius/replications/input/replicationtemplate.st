@@ -18,7 +18,7 @@ form(bundle, handle) ::=<<
 			
 			var replicateCollections =  \$( "#collections:checked" ).length ==1 ? "true" : "false"; 
             
-            var url = "lr?action=form_post&def=k4_replication&paramsMapping="+encodeURI("{")+"url="+handle+";username="+user+";pswd="+encodeURI(password)+";replicateCollections="+replicateCollections+encodeURI("}")+"&out=text";
+            var url = "lr?action=form_post&def=k4_replication&paramsMapping="+encodeURI("{")+"url="+encodeURIComponent(handle)+";username="+user+";pswd="+encodeURI(password)+";replicateCollections="+replicateCollections+encodeURI("}")+"&out=text";
             processStarter("k4_replication").start(url);
             
         }

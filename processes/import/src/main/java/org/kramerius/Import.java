@@ -54,9 +54,6 @@ import java.util.logging.Logger;
 
 public class Import {
 
-    //static FedoraAPIMService service;
-
-    //static FedoraAPIM port;
 
     static ObjectFactory of;
     static int counter = 0;
@@ -315,8 +312,6 @@ public class Import {
 
                     ingest(fa.getInternalAPI(), importFile, transactionDigitalObject.getPID(), sortRelations, roots, updateExisting);
                     checkRoot(transactionDigitalObject, roots);
-//                    Fedora4Utils.doInTransaction(fa.getTransactionAwareInternalAPI(), (repo)->{
-//                    });
 
                 }
             }catch (Throwable t){
@@ -417,9 +412,6 @@ public class Import {
             }
 
         }
-
-        counter++;
-        log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
 
     public static void ingest(Repository repo, File file, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) {

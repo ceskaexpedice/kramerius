@@ -105,7 +105,7 @@ deleteAllSessionKeys() ::=<<
 
 /** delete all assocations  - with exception assication which points to planned(5) processes - They must survive */
 deleteAllAssociationOfSessionKeys() ::=<<
-    DELETE FROM process_2_token WHERE session_keys_id IN (SELECT session_keys_id FROM SESSION_KEYS); 
+    DELETE FROM process_2_token;
 >>
 
 

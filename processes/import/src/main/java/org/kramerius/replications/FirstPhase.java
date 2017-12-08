@@ -68,6 +68,7 @@ public class FirstPhase extends AbstractPhase  {
             PIDsListLexer lexer = new PIDsListLexer(new FileReader(getIterateFile()));
             PIDsListParser parser = new PIDsListParser(lexer);
             parser.pids();
+
         } catch (FileNotFoundException e) {
             throw new PhaseException(this,e);
             

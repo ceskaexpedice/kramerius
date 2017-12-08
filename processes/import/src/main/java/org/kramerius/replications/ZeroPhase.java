@@ -39,7 +39,7 @@ public class ZeroPhase extends AbstractPhase {
     			try {
     				validate(version);
     			} catch (PhaseException e) {
-    				List<Integer> ints = new ArrayList<Integer>();
+    				List<Integer> ints = new ArrayList<>();
     				for (Integer integer : version) { ints.add(integer); }
     				LOGGER.warning("Cannot replicate virtual collections; invalid version on the source "+ints);
 				}

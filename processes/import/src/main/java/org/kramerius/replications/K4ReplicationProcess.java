@@ -58,11 +58,11 @@ public class K4ReplicationProcess {
             String muserDir = System.getProperty("user.dir");
             File previousProcessFolder = new File(new File(muserDir).getParentFile(), previousProcessUUID);
             if (previousProcessFolder.exists()) {
-                restart(previousProcessUUID, previousProcessFolder, url, userName, pswd,replicateCollections);
+                restart(previousProcessUUID, previousProcessFolder, url, userName, pswd,replicateCollections,PHASES);
             } else throw new RuntimeException("expect of existing folder '"+previousProcessFolder.getAbsolutePath()+"'");
         } else {
             // start
-            start(url, userName, pswd,replicateCollections);
+            start(url, userName, pswd,replicateCollections,PHASES);
         }
     }
 
@@ -86,9 +86,9 @@ public class K4ReplicationProcess {
         }
     }
     
-    public static void restart(String processUUID, File previousProcessFolder, String url, String userName, String pswd, String replicateCollections) throws IOException {
+    public static void restart(String processUUID, File previousProcessFolder, String url, String userName, String pswd, String replicateCollections,Phase[] phases) throws IOException {
         try {
-            for (Phase ph : PHASES) {
+            for (Phase ph : phases) {
                 LOGGER.info("RESTARTING PHASE '"+ph.getClass().getName()+"'");
                 ph.restart(processUUID, previousProcessFolder, isPhaseCompleted(previousProcessFolder, ph), url, userName, pswd, replicateCollections);
                 phaseCompleted(ph);
@@ -103,10 +103,10 @@ public class K4ReplicationProcess {
 
     
     
-    public static void start(String url, String userName, String pswd, String replicateCollections) throws IOException {
+    public static void start(String url, String userName, String pswd, String replicateCollections,Phase[] phases) throws IOException {
         try {
-            ProcessStarter.updateName("Replikace titulu '"+url+"'");
-            for (Phase ph : PHASES) {
+            ProcessStarter.updateName("Replikace '"+url+"'");
+            for (Phase ph : phases) {
                 LOGGER.info("STARTING PHASE '"+ph.getClass().getName()+"'");
                 ph.start(url, userName, pswd, replicateCollections);
                 phaseCompleted(ph);

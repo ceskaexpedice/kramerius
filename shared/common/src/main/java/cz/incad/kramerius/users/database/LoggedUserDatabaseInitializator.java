@@ -71,10 +71,10 @@ public class LoggedUserDatabaseInitializator {
         
         // delete assications
         JDBCCommand deleteAssociation = new JDBCCommand() {
-            
+
             @Override
             public Object executeJDBCCommand(Connection con) throws SQLException {
-                boolean processTokenExists = tableExists(con, "process_2_token");
+                boolean processTokenExists = tableExists(con, "PROCESS_2_TOKEN");
                 if (processTokenExists) {
                     StringTemplate sql = stGroup.getInstanceOf("deleteAllAssociationOfSessionKeys");
                     PreparedStatement prepareStatement = connection.prepareStatement( sql.toString());
@@ -84,7 +84,7 @@ public class LoggedUserDatabaseInitializator {
                 } else return null;
             }
         };
-        
+
         // delete keys in session keys
         JDBCCommand deleteKeys = new JDBCCommand() {
             
@@ -101,7 +101,7 @@ public class LoggedUserDatabaseInitializator {
             }
         };
         
-        transaction.updateWithTransaction(deleteAssociation, deleteKeys);
+        transaction.updateWithTransaction(deleteAssociation,deleteKeys);
     }
     
 
