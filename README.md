@@ -1,4 +1,6 @@
-###Novinky
+### Novinky
+
+Přechod na repozitář Fedora 4 commons
 
 Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub (https://github.com/ceskaexpedice/kramerius/releases/latest)
 
@@ -6,7 +8,7 @@ Zapojení do České digitální knihovny je možné od verze Kramerius 5.
 
 ----
 
-#Systém Kramerius 
+# Systém Kramerius 
 
 je softwarové řešení pro zpřístupnění digitálních dokumentů. Primárně je určen pro digitalizované knihovní sbírky, monografie a periodika. Využit může být ke zpřístupnění dalších typů dokumentů např. map, hudebnin a starých tisků, případně částí dokumentů jako jsou články a kapitoly. Systém je vhodný také pro tzv. digital born dokumenty, tedy dokumenty, které vznikly v elektronické podobě. Kramerius je průběžně upravován tak, aby struktura metadat odpovídala standardům vyhlašovaným Národní knihovnou České republiky. Systém poskytuje rozhraní pro přístup koncových uživatelů, zajišťující vyhledávání v metadatech a v plných textech, generování vícestránkových PDF dokumentů z vybraných stran, vytváření virtuálních sbírek a další operace nad uloženou sbírkou digitálních dokumentů.
 
@@ -14,11 +16,11 @@ Aktuální verze 5 vychází koncepčně z verze 4, která byla vyvíjena a prů
 
 Uživatelské rozhraní je přístupné ve většině současných webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer.
 
-##Licence
+## Licence
 
 Kramerius je open source systém, který je vyvíjen pod licencí GNU GPL v3. http://www.gnu.org/licenses/gpl-3.0.en.html
 
-##Vývojový tým
+## Vývojový tým
 
 Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Moravské zemské knihovny v Brně, Národní technické knihovny a Národní lékařské knihovny. Technologickým partnerem je na základě výběrového řízení firma INCAD, s.r.o.
 
@@ -41,7 +43,7 @@ lhotak@knav.cz
 
 
 
-##Financování
+## Financování
 
 V současné době je financování vývoje zajištěno z krátkodobějších grantů MK ČR prostřednictvím dotačního programu VISK.
 
@@ -61,7 +63,7 @@ Službu instalace lze také objednat na http://www.unidata.cz/system-kramerius
 
 Distribuovanou instalaci u společnosti Incad, která zajišťuje analytické a programátorské práce http://www.incad.cz
 
-##Komunikace
+## Komunikace
 Hlášení o chybách a požadavky na novou funkcionalitu zadávejte pomocí formuláře New Issue v sekci Issues. 
 
 Při požadavku na přidání vlastní funkcionality do standardní distribuce systému Kramerius prosím kontaktujte administrátory projektu. Jednodušší změny v rámci existujících modulů bude možné řešit připravením pull requestu, složitější úpravy bude třeba řešit individuálně.
@@ -74,7 +76,7 @@ První příhlášení do konference: https://mailman.lib.cas.cz/mailman/listinf
 Do mailové konference je možné posílat hlášení chyb, návrhy na vylepšení a vývoj i na přispění ke zdrojovému kódu Krameria.
 
 
-##Podpora systému Kramerius
+## Podpora systému Kramerius
 
 Systém Kramerius je open source řešení. SW podporu poskytuje vývojový tým. Pro garantované termíny musí mít instituce uzavřenu samostatnou smlouvu o podpoře.
 
