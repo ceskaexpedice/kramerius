@@ -1,100 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<<<<<<< HEAD
-<!--
- Licensed to the Apache Software Foundation (ASF) under one or more
- contributor license agreements.  See the NOTICE file distributed with
- this work for additional information regarding copyright ownership.
- The ASF licenses this file to You under the Apache License, Version 2.0
- (the "License"); you may not use this file except in compliance with
- the License.  You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
-
-<!--  
- This is the Solr schema file. This file should be named "schema.xml" and
- should be in the conf directory under the solr home
- (i.e. ./solr/conf/schema.xml by default) 
- or located where the classloader for the Solr webapp can find it.
-
- This example schema is the recommended starting point for users.
- It should be kept correct and concise, usable out-of-the-box.
-
- For more information, on how to customize this file, please see
- http://wiki.apache.org/solr/SchemaXml
-
- PERFORMANCE NOTE: this schema includes many optional features and should not
- be used for benchmarking.  To improve performance one could
-  - set stored="false" for all fields possible (esp large fields) when you
-    only need to search on the field but don't need to return the original
-    value.
-  - set indexed="false" if you don't need to search on the field, but only
-    return the field as a result of searching on other indexed fields.
-  - remove all unneeded copyField statements
-  - for best index size and searching performance, set "index" to false
-    for all general text fields, use copyField to copy them to the
-    catchall "text" field, and use that for searching.
-  - For maximum indexing performance, use the StreamingUpdateSolrServer
-    java client.
-  - Remember to run the JVM in server mode, and use a higher logging level
-    that avoids logging every request
--->
-
-<schema name="kramerius" version="1.4">
-  <!-- attribute "name" is the name of this schema and is only used for display purposes.
-       Applications should change this to reflect the nature of the search collection.
-       version="1.4" is Solr's version number for the schema syntax and semantics.  It should
-       not normally be changed by applications.
-       1.0: multiValued attribute did not exist, all fields are multiValued by nature
-       1.1: multiValued attribute introduced, false by default 
-       1.2: omitTermFreqAndPositions attribute introduced, true by default except for text fields.
-       1.3: removed optional field compress feature
-       1.4: default auto-phrase (QueryParser feature) to off
-     -->
-
-  <types>
-    <!-- field type definitions. The "name" attribute is
-       just a label to be used by field definitions.  The "class"
-       attribute and any other attributes determine the real
-       behavior of the fieldType.
-         Class names starting with "solr" refer to java classes in the
-       org.apache.solr.analysis package.
-    -->
-
-    <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
-    <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
-
-    <!-- boolean type: "true" or "false" -->
-    <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
-    <!--Binary data type. The data should be sent/retrieved in as Base64 encoded Strings -->
-	<fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
-
-    <fieldtype name="binary" class="solr.BinaryField"/>
-
-    <!-- The optional sortMissingLast and sortMissingFirst attributes are
-         currently supported on types that are sorted internally as strings.
-	       This includes "string","boolean","sint","slong","sfloat","sdouble","pdate"
-       - If sortMissingLast="true", then a sort on this field will cause documents
-         without the field to come after documents with the field,
-         regardless of the requested sort order (asc or desc).
-       - If sortMissingFirst="true", then a sort on this field will cause documents
-         without the field to come before documents with the field,
-         regardless of the requested sort order.
-       - If sortMissingLast="false" and sortMissingFirst="false" (the default),
-         then default lucene sorting will be used which places docs without the
-         field first in an ascending sort and last in a descending sort.
-    -->    
-
-    <!--
-      Default numeric field types. For faster range queries, consider the tint/tfloat/tlong/tdouble types.
-    -->
-=======
 
 <schema name="kramerius" version="1.4">
   <types>
@@ -103,31 +7,10 @@
 	<fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
 
     <fieldtype name="binary" class="solr.BinaryField"/>
->>>>>>> master
     <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-<<<<<<< HEAD
-
-    <!--
-     Numeric field types that index each value at various levels of precision
-     to accelerate range queries when the number of values between the range
-     endpoints is large. See the javadoc for NumericRangeQuery for internal
-     implementation details.
-
-     Smaller precisionStep values (specified in bits) will lead to more tokens
-     indexed per value, slightly larger index size, and faster range queries.
-     A precisionStep of 0 disables indexing at different precision levels.
-    -->
-    <!--
-	<fieldType name="tint" class="solr.TrieIntField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="tfloat" class="solr.TrieFloatField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="tlong" class="solr.TrieLongField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="tdouble" class="solr.TrieDoubleField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
-	-->
-=======
->>>>>>> master
 	
 	<fieldType name="tint" class="solr.TrieIntField" docValues="true" precisionStep="8" positionIncrementGap="0"/>
     <fieldType name="tfloat" class="solr.TrieFloatField" docValues="true" precisionStep="8" positionIncrementGap="0"/>
@@ -139,110 +22,12 @@
     <fieldType name="tlongs" class="solr.TrieLongField" docValues="true" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
     <fieldType name="tdoubles" class="solr.TrieDoubleField" docValues="true" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
 
-<<<<<<< HEAD
-
-    <!-- The format for this date field is of the form 1995-12-31T23:59:59Z, and
-         is a more restricted form of the canonical representation of dateTime
-         http://www.w3.org/TR/xmlschema-2/#dateTime    
-         The trailing "Z" designates UTC time and is mandatory.
-         Optional fractional seconds are allowed: 1995-12-31T23:59:59.999Z
-         All other components are mandatory.
-
-         Expressions can also be used to denote calculations that should be
-         performed relative to "NOW" to determine the value, ie...
-
-               NOW/HOUR
-                  ... Round to the start of the current hour
-               NOW-1DAY
-                  ... Exactly 1 day prior to now
-               NOW/DAY+6MONTHS+3DAYS
-                  ... 6 months and 3 days in the future from the start of
-                      the current day
-                      
-         Consult the DateField javadocs for more information.
-
-         Note: For faster range queries, consider the tdate type
-      -->
-    <fieldType name="tdate" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0"/>
-
-	<fieldType name="tdates" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0" multiValued="true"/>
-
-    <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
-
-
-
-    <!--
-      Note:
-      These should only be used for compatibility with existing indexes (created with older Solr versions)
-      or if "sortMissingFirst" or "sortMissingLast" functionality is needed. Use Trie based fields instead.
-
-      Plain numeric field types that store and index the text
-      value verbatim (and hence don't support range queries, since the
-      lexicographic ordering isn't equal to the numeric ordering)
-    <fieldType name="pint" class="solr.IntField" omitNorms="true"/>
-    <fieldType name="plong" class="solr.LongField" omitNorms="true"/>
-    <fieldType name="pfloat" class="solr.FloatField" omitNorms="true"/>
-    <fieldType name="pdouble" class="solr.DoubleField" omitNorms="true"/>
-    <fieldType name="pdate" class="solr.DateField" sortMissingLast="true" omitNorms="true"/>
-    -->
-
-
-    <!--
-      Note:
-      These should only be used for compatibility with existing indexes (created with older Solr versions)
-      or if "sortMissingFirst" or "sortMissingLast" functionality is needed. Use Trie based fields instead.
-
-      Numeric field types that manipulate the value into
-      a string value that isn't human-readable in its internal form,
-      but with a lexicographic ordering the same as the numeric ordering,
-      so that range queries work correctly.
-    <fieldType name="sint" class="solr.SortableIntField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="slong" class="solr.SortableLongField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="sfloat" class="solr.SortableFloatField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="sdouble" class="solr.SortableDoubleField" sortMissingLast="true" omitNorms="true"/>
-    -->
-
-
-    <!-- The "RandomSortField" is not used to store or search any
-         data.  You can declare fields of this type it in your schema
-         to generate pseudo-random orderings of your docs for sorting 
-         purposes.  The ordering is generated based on the field name 
-         and the version of the index, As long as the index version
-         remains unchanged, and the same field name is reused,
-         the ordering of the docs will be consistent.  
-         If you want different psuedo-random orderings of documents,
-         for the same version of the index, use a dynamicField and
-         change the name
-     -->
-    <fieldType name="random" class="solr.RandomSortField" indexed="true" />
-
-    <!-- solr.TextField allows the specification of custom text analyzers
-         specified as a tokenizer and a list of token filters. Different
-         analyzers may be specified for indexing and querying.
-
-         The optional positionIncrementGap puts space between multiple fields of
-         this type on the same document, with the purpose of preventing false phrase
-         matching across fields.
-
-         For more info on customizing your analyzer chain, please see
-         http://wiki.apache.org/solr/AnalyzersTokenizersTokenFilters
-     -->
-
-    <!-- One can also specify an existing Analyzer class that has a
-         default constructor via the class attribute on the analyzer element
-    <fieldType name="text_greek" class="solr.TextField">
-      <analyzer class="org.apache.lucene.analysis.el.GreekAnalyzer"/>
-    </fieldType>
-    -->
-
-=======
     <fieldType name="tdate" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0"/>
 	<fieldType name="tdates" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0" multiValued="true"/>
     <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
 
     <fieldType name="random" class="solr.RandomSortField" indexed="true" />
 
->>>>>>> master
     <!-- A text field that only splits on whitespace for exact matching of words -->
     <fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
@@ -278,17 +63,6 @@
 
 		</analyzer>
 		
-<<<<<<< HEAD
-		<analyzer type="multiterm">
-			<tokenizer class="solr.StandardTokenizerFactory"/>
-			<filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
-			<filter class="solr.LowerCaseFilterFactory"/>
-			<filter class="solr.ASCIIFoldingFilterFactory" />
-			<filter class="solr.RemoveDuplicatesTokenFilterFactory" />
-      </analyzer>
-    </fieldType>
-
-=======
     </fieldType>
 
 	<!-- hunspell analyzer; czech language only ascii -->
@@ -341,7 +115,6 @@
 		</analyzer>
 		
     </fieldType>
->>>>>>> master
 
 	
     <!-- A general text field that has reasonable, generic
@@ -571,8 +344,6 @@
         <tokenizer class="solr.PathHierarchyTokenizerFactory"/>
       </analyzer>
     </fieldType>
-<<<<<<< HEAD
-=======
 
    <fieldType name="pid_path" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
@@ -583,7 +354,6 @@
       </analyzer>
    </fieldType>
 
->>>>>>> master
     
     <!-- A text field that only splits on whitespace for exact matching of words -->
         <fieldType name="string_lower" class="solr.TextField" sortMissingLast="true" omitNorms="true" positionIncrementGap="100">
@@ -645,58 +415,6 @@
        boosting for the field, and saves some memory).  Only full-text
        fields or fields that need an index-time boost need norms.
    -->
-<<<<<<< HEAD
-       <field name="_version_" type="long" indexed="true" stored="true"/>
-
-        <field name="PID" type="string" indexed="true" stored="true" required="true" /> 
-   
-   <!-- catchall field, containing all other searchable text fields (implemented
-        via copyField further on in this schema  -->
-        <field name="text" type="text_general_lemmatized" indexed="true" stored="true" multiValued="true"/>
-        <field name="text_no_lemmatized" type="text_general_lemmatized" indexed="true" stored="true" multiValued="true"/>
-		<!--
-        <field name="_text_" type="text_general" indexed="true" stored="true" multiValued="true"/>
-        -->
-		
-   <!-- Here, default is used to create a "timestamp" field indicating
-        When each document was indexed.
-     -->
-        <field name="timestamp" type="date" indexed="true" stored="false" default="NOW" multiValued="false"/>
-   
-
-   <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
-        will be used if the name matches any of the patterns.
-        RESTRICTION: the glob-like pattern in the name attribute must have
-        a "*" only at the start or the end.
-        EXAMPLE:  name="*_i" will match any field ending in _i (like myid_i, z_i)
-        Longer patterns will be matched first.  if equal size patterns
-        both match, the first appearing in the schema will be used.
-  -->
-        <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
-        <dynamicField name="*_s"  type="string"  indexed="true"  stored="true"/>
-        <dynamicField name="*_l"  type="long"   indexed="true"  stored="true"/>
-        <dynamicField name="*_t"  type="text_general"    indexed="true"  stored="true"/>
-        <dynamicField name="*_b"  type="boolean" indexed="true"  stored="true"/>
-        <dynamicField name="*_f"  type="float"  indexed="true"  stored="true"/>
-        <dynamicField name="*_d"  type="double" indexed="true"  stored="true"/>
-        <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
-        <dynamicField name="dsm.*" type="text_general"  indexed="true"  stored="false" multiValued="true"/>
-        <dynamicField name="rdf.*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
-        <dynamicField name="dc.*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
-        <dynamicField name="mods.*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
-   <!-- uncomment the following to ignore any fields that don't already match an existing 
-        field name or dynamic field, rather than reporting them as an error. 
-        alternately, change the type="ignored" to some other type e.g. "text" if you want 
-        unknown fields indexed and/or stored by default -->
-        
-        
-        <field name="fedora.model" type="string"  indexed="true"  stored="true" />
-        <field name="document_type" type="string"  indexed="true"  stored="true" multiValued="true" />
-        <field name="handle" type="string"  indexed="true"  stored="true" />
-        <field name="status" type="string"  indexed="true"  stored="true" />
-        <field name="created_date" type="date"  indexed="true"  stored="true" />
-        <field name="modified_date" type="date"  indexed="true"  stored="true" />
-=======
 		<field name="_version_" type="long" indexed="true" stored="true"/>
 		<!-- PID - identification -->
 		<field name="PID" type="string" indexed="true" stored="true" required="true" /> 
@@ -716,7 +434,6 @@
         <field name="status" type="string"  indexed="true"  stored="true" />
         <field name="created_date" type="date"  indexed="true"  stored="true" docValues="true"/>
         <field name="modified_date" type="date"  indexed="true"  stored="true" docValues="true" />
->>>>>>> master
         
         <field name="parent_model" type="string"  indexed="true"  stored="true" />
         <field name="parent_pid" type="string"  indexed="true"  stored="true" multiValued="true" />
@@ -724,10 +441,6 @@
         
         <field name="root_model" type="string"  indexed="true"  stored="true" />
         <field name="root_pid" type="string"  indexed="true"  stored="true" />
-<<<<<<< HEAD
-        <field name="root_title" type="string"  indexed="true"  stored="true"  />
-        
-=======
         
 		<field name="root_title" type="string"  indexed="true"  stored="true"  />
         <!-- root title search --> 
@@ -735,16 +448,11 @@
 		<field name="root_title_lemmatized_ascii" type="text_general_lemmatized_ascii"  indexed="true"  stored="false"  />
 		
 		
->>>>>>> master
         <field name="pages_count" type="int" default="0" indexed="true" stored="true"  />
         
         <field name="datum_str" type="string" indexed="true" stored="true"  />
         <field name="datum" type="date" indexed="true" stored="true" required="false" />
-<<<<<<< HEAD
-        <field name="rok" type="int" default="0" indexed="true"  stored="true"  />
-=======
         <field name="rok" type="int" default="0" indexed="true"  stored="true"  docValues="true"/>
->>>>>>> master
         <field name="datum_begin" type="int" default="0"  indexed="true"  stored="true"  />
         <field name="datum_end" type="int" default="0"  indexed="true"  stored="true"  />
         <field name="datum_page" type="string"  indexed="true"  stored="true"  />
@@ -753,25 +461,11 @@
         <field name="mdt" type="string"  indexed="true"  stored="true"  />
         <field name="ddt" type="string"  indexed="true"  stored="true"  />
         <field name="dostupnost" type="string"  indexed="true"  stored="true"  />
-<<<<<<< HEAD
-        <field name="keywords" type="string"  indexed="true"  stored="true" multiValued="true"  />
-=======
         <field name="keywords" type="string"  indexed="true"  stored="true" multiValued="true"  docValues="true"/>
->>>>>>> master
         <field name="collection" type="string"  indexed="true"  stored="true" multiValued="true"  />
         
         <field name="sec" type="string"  indexed="true"  stored="true"  />
         
-<<<<<<< HEAD
-        <field name="model_path" type="string"  indexed="true"  stored="true" multiValued="true"  />
-        <field name="pid_path" type="string_lower"  indexed="true"  stored="true" multiValued="true"  />
-        <field name="rels_ext_index" type="int" indexed="true"  stored="true" multiValued="true"  />
-        <field name="level" type="int" indexed="true"  stored="true"  />
-        <field name="dc.title" type="text_fgs"  indexed="true"  stored="true" />
-        <field name="title_sort" type="string"  indexed="true"  stored="true" />
-        <field name="dc.creator" type="text_fgs"  indexed="true"  stored="true" multiValued="true" />
-        <field name="language" type="string"  indexed="true"  stored="true" multiValued="true"  />
-=======
         <field name="model_path" type="text_path"  indexed="true"  stored="true" multiValued="true"  />
         <field name="pid_path" type="pid_path"  indexed="true"  stored="true" multiValued="true"  />
 		
@@ -781,25 +475,16 @@
         <field name="title_sort" type="string"  indexed="true"  stored="true" docValues="true" />
         <field name="dc.creator" type="text_fgs"  indexed="true"  stored="true" multiValued="true" />
         <field name="language" type="string"  indexed="true"  stored="true" multiValued="true"  docValues="true"/>
->>>>>>> master
 		
         <field name="dc.description" type="text_fgs"  indexed="true"  stored="true" multiValued="true" />
         <field name="text_ocr" type="text_general_lemmatized"  indexed="true"  stored="true" />
         <field name="details" type="string"  indexed="true"  stored="true" multiValued="true"  />
 		
-<<<<<<< HEAD
-        <field name="facet_title" type="string"  indexed="true"  stored="false"  />
-        <field name="browse_title" type="string"  indexed="true"  stored="false" />
-        <field name="search_title" type="text_fgs"  indexed="true"  stored="false"  />
-        <field name="facet_autor" type="string"  indexed="true"  stored="true" multiValued="true"  />
-        <field name="browse_autor" type="string"  indexed="true" stored="false" multiValued="true" />
-=======
         <field name="facet_title" type="string"  indexed="true"  stored="false"  docValues="true"/>
         <field name="browse_title" type="string"  indexed="true"  stored="false" docValues="true"/>
         <field name="search_title" type="text_fgs"  indexed="true"  stored="false"  />
         <field name="facet_autor" type="string"  indexed="true"  stored="true" multiValued="true" docValues="true" />
         <field name="browse_autor" type="string"  indexed="true" stored="false" multiValued="true" docValues="true"/>
->>>>>>> master
         <field name="search_autor" type="string_lower"  indexed="true"  stored="false" multiValued="true"  />
         
         <field name="img_full_mime" type="string"  indexed="true"  stored="true"  />
@@ -808,37 +493,20 @@
         
     </fields>
 
-<<<<<<< HEAD
- <!-- Field to use to determine and enforce document uniqueness. 
-      Unless this field is marked with required="false", it will be a required field
-   -->
-    <uniqueKey>PID</uniqueKey>
-
- <!-- field for the QueryParser to use when an explicit fieldname is absent -->
-    <defaultSearchField>text</defaultSearchField>
-
- <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
-    <solrQueryParser defaultOperator="AND"/>
-
-  <!-- copyField commands copy one field to another at the time a document
-        is added to the index.  It's used either to index the same field differently,
-        or to add multiple fields to the same field for easier/faster searching.  -->
-	<dynamicField name="rdf.*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
-	<dynamicField name="dc.*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
-	<dynamicField name="mods.*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
-
-=======
 	<!-- Field to use to determine and enforce document uniqueness. 
       Unless this field is marked with required="false", it will be a required field
 	-->
     <uniqueKey>PID</uniqueKey>
 
 	<!-- field for the QueryParser to use when an explicit fieldname is absent -->
-    <defaultSearchField>text</defaultSearchField>
+    <!--defaultSearchField>text</defaultSearchField-->
 
 	<!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
-    <solrQueryParser defaultOperator="AND"/>
 
+	<!--	    	
+	<solrQueryParser defaultOperator="AND"/>
+	-->
+	
 	<!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
@@ -847,7 +515,6 @@
 	<dynamicField name="dc.*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
 	<dynamicField name="mods.*" type="text_fgs"  indexed="true"  stored="true" multiValued="true"/>
  
->>>>>>> master
 	<copyField source="dc.title" dest="text"/>
     <copyField source="keywords" dest="text"/>
     <copyField source="dc.description" dest="text"/>
@@ -855,12 +522,6 @@
     <copyField source="details" dest="text"/>
     <copyField source="issn" dest="text"/>
     <copyField source="text_ocr" dest="text"/>
-<<<<<<< HEAD
-	<!--
-    <copyField source="text" dest="_text_"/>
-	-->
-	
-=======
 
 	<!-- lemmatized fields; text -->
     <copyField source="dc.title" dest="text_lemmatized"/>
@@ -885,28 +546,11 @@
     <copyField source="root_title" dest="root_title_lemmatized"/>
     <copyField source="root_title" dest="root_title_lemmatized_ascii"/>
 		
->>>>>>> master
     <copyField source="browse_title" dest="search_title"/>
     <copyField source="dc.creator" dest="facet_autor"/>
     <copyField source="dc.creator" dest="search_autor"/>
  
 
-<<<<<<< HEAD
- <!-- Similarity is the scoring routine for each document vs. a query.
-      A custom similarity may be specified here, but the default is fine
-      for most applications.  -->
- <!-- <similarity class="org.apache.lucene.search.DefaultSimilarity"/> -->
- <!-- ... OR ...
-      Specify a SimilarityFactory class name implementation
-      allowing parameters to be used.
- -->
- <!--
- <similarity class="com.example.solr.CustomSimilarityFactory">
-   <str name="paramkey">param value</str>
- </similarity>
- -->
-=======
->>>>>>> master
 
 
 </schema>
