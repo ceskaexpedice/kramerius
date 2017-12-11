@@ -1,6 +1,7 @@
 package cz.incad.kramerius.resourceindex;
 
 import java.io.IOException;
+import java.text.BreakIterator;
 import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -56,11 +57,20 @@ public class SolrResourceIndex implements IResourceIndex {
 
     @Override
     public List<Map<String, String>> search(String query, int limit, int offset) throws ResourceIndexException {
-        // searching pid or title
-        String escapedQuery = SolrUtils.escapeQuery(query);
-        SolrQuery solrQuery = query.toLowerCase().startsWith("uuid") ?
-                new SolrQuery("(source:\"" + query + "\" OR source_edge:"+escapedQuery+ " ) AND type:\"description\"") :
-                new SolrQuery("(dc.title_czech:" + escapedQuery+" OR dc.title_edge:"+ escapedQuery+" ) AND type:\"description\"");
+        String[] words = query.split("\\s+");
+        StringBuilder builder = new StringBuilder("type:\"description\"");
+        for (int i = 0,ll=words.length; i <ll ; i++) {
+            String word = words[i];
+            if (word.trim().equals("")) continue;
+
+            String escapedWord = SolrUtils.escapeQuery(word);
+            builder.append(" AND ");
+            String q = word.toLowerCase().startsWith("uuid") ?
+                    "(source:\"" + word + "\" OR source_edge:"+escapedWord+ " )" :
+                    "(dc.title_czech:" + escapedWord+" OR dc.title_edge:"+ escapedWord+" )";
+            builder.append(q);
+        }
+        SolrQuery solrQuery = new SolrQuery(builder.toString());
         try {
             List<Map<String, String>> retvals = new ArrayList<>();
             QueryResponse response = this.solrClient.query(solrQuery);

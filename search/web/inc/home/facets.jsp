@@ -25,13 +25,13 @@
             pageContext.setAttribute("i18nServlet", i18nServlet);
             
 %>
+<view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
 <c:url var="url" value="${kconfig.solrHost}/select/" >
     <c:param name="q" >
         *:*
     </c:param>
         
     
-    <view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
     <c:if test="${cols.current != null}">
         <c:param name="fq" value="collection:\"${cols.current.pid}\"" />
     </c:if>

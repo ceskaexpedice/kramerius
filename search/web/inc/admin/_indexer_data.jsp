@@ -160,7 +160,6 @@
     <div class="section">
         <input id="search_fedora_text" type="text" />
         <a href="javascript:searchFedora(0);"><img border="0" align="top" src="img/lupa_orange.png" alt="Search"></a>&nbsp;
-        <fmt:message bundle="${lctx}">administrator.menu.dialogs.rows</fmt:message>: <input type="text" id="indexer_search_doc_rows" value="25" size="4" style="text-align: right;" />
     </div>
     <table id="indexer_data_search" cellpadding="0" cellspacing="0" class="indexer_selected" style="display:none;" width="100%">
         <thead class="indexer_head"><tr style="display:block;width:100%;">
@@ -170,6 +169,7 @@
             (<fmt:message bundle="${lctx}">document.type</fmt:message>)
             </th>
             <th style="min-width:240px;" align="left">PID</th>
+            <th style="min-width:240px;" align="left">Link</th>
             <th style="min-width:138px;" align="left"><span><fmt:message>common.date</fmt:message></span></th></tr></thead>
         <tbody style="overflow:auto;display:block;width:100%;">
             <tr>

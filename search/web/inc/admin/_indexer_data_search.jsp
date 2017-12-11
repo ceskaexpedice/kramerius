@@ -17,7 +17,7 @@
 <c:forEach var="object" items="${indexerData.searchedObjects}" varStatus="status">
 <tr class="indexer_result" pid="${object.source}">
 <td class="indexer_result_status">&nbsp;</td>
-<td width="100%"><a title="index document" href="javascript:indexDoc('${object.source}', '${object['dc.title']}');">${object['dc.title']}</a></td><td style="min-width:240px;" width="240px"></td>
+<td width="100%"><a title="index document" href="javascript:indexDoc('${object.source}', '${object['dc.title']}');">${object['dc.title']} (${object['model']})</a></td><td style="min-width:240px;" width="240px"></td>
 <td style="min-width:138px;">${object.source}</td>
 <td style="min-width:138px;"><a href="${object.ref}" target="_blank">${object.ref}</a></td>
 <td style="min-width:138px;">${object.date}</td>
