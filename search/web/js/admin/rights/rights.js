@@ -688,11 +688,11 @@ function GlobalActions() {
 // volano z hlavniho menu .
 GlobalActions.prototype.rigthsForAction=function(action,pid) {
 	// affected rights secured actions 
-	findObjectsDialog().securedActionTabs[action] = findObjectsDialog().createSecurityActionTab(action,"inc/admin/_display_rights_for_global_actions.jsp?pids={uuid\\:1}&securedaction="+action);
+	findObjectsDialog().securedActionTabs[action] = findObjectsDialog().createSecurityActionTab(action,"inc/admin/_display_rights_for_global_actions.jsp?pids="+encodeURIComponent("{uuid\\:1}")+"&securedaction="+action);
 	findObjectsDialog().securedActionTabs[action].retrieve = findObjectsDialog().securedActionTabs[action].retrieveGlobalContent;
 	
 	var pids = (pid ? pid : "{uuid\\:1}");
-	var url = "inc/admin/_display_rights_for_global_actions.jsp?pids="+pids+"&securedaction="+action;
+	var url = "inc/admin/_display_rights_for_global_actions.jsp?pids="+encodeURIComponent(pids)+"&securedaction="+action;
 	$.get(url, bind(function(data) {
 		if (this.actionDialog) {
 			this.actionDialog.dialog('open');

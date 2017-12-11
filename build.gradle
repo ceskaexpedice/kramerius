@@ -34,6 +34,7 @@ configurations {
 	editors {
 		transitive = false
 	}
+
 }
 
 
@@ -47,6 +48,8 @@ dependencies {
 	editors group: "cz.incad.kramerius", name: "editor", version: "5.1.0", ext: "war"
 	// rightseditor dependency
 	editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.0", ext: "war"
+
+
 }
 
 
@@ -64,7 +67,7 @@ allprojects {
 /**
  * Inject to all subprojects
  */
-subprojects {
+allprojects {
 
 	apply plugin:'java'
 	apply plugin: 'eclipse'
@@ -74,21 +77,25 @@ subprojects {
 
 
 	ext.guiceversion ='3.0'
-	ext.postgresversion = '8.4-702.jdbc4'
+	ext.postgresversion = '42.1.4'
 	ext.slf4jversion='1.6.0'
 	ext.jerseyversion = '1.17.1'
 
 	ext.generatedSources = "generated-sources"
 
 
-
 	sourceCompatibility = 1.8
 	targetCompatibility= 1.8
+
+    configurations {
+        database
+    }
 
 	dependencies {
 
 		// postgresql to all subprojects
-		compile "postgresql:postgresql:${postgresversion}"
+		compile "org.postgresql:postgresql:${postgresversion}"
+        database "org.postgresql:postgresql:${postgresversion}"
 
 		// guice to all subprojects
 		compile "com.google.inject:guice:${guiceversion}"
@@ -224,13 +231,15 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
 	group "Distribution"
 	from {'client/build/libs'}
 	from {'search/build/libs'}
-	from {'security-core/build/libs'}
+	from {'security/security-core/build/libs'}
 	from configurations.editors
+    from configurations.database
 	from {'build/installation'}
-	from 'build/distributions/kramerius-javadoc.zip'
-	eachFile {
-		it.path = it.path.replace('-5.1.0.war', '.war')
-	}
+    eachFile {
+        it.path = it.path.replace('-5.1.0.war', '.war')
+    }
+
+	//from 'build/distributions/kramerius-javadoc.zip'
 }
 /**
  * Patch distribution task
