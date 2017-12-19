@@ -19,10 +19,21 @@ package cz.incad.kramerius.pdf.commands;
 import org.w3c.dom.Element;
 
 public abstract class AbstractITextCommand implements ITextCommand {
-    
+
+
     protected ITextCommand parentCommand;
     protected Hyphenation hyphenation;
-    
+
+    @Override
+    public ITextCommands getRoot() {
+        ITextCommand parent = this.getParent();
+        while(parent.getParent() != null) {
+            parent = parent.getParent();
+        }
+        return (ITextCommands) parent;
+    }
+
+
     @Override
     public ITextCommand getParent() {
         return this.parentCommand;

@@ -16,8 +16,6 @@
  */
 package cz.incad.kramerius.pdf.commands;
 
-import java.util.ArrayList;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -32,7 +30,7 @@ public class Paragraph extends AbstractITextCommand  {
     
     private int spacingAfter = -1;
     private int spacingBefore = -1;
-    
+    private String alignment = null;
     
     
     @Override
@@ -45,7 +43,11 @@ public class Paragraph extends AbstractITextCommand  {
             if (notEmptyAttribute(elm,"spacing-before")) {
                 this.spacingBefore = Integer.parseInt(elm.getAttribute("spacing-before"));
             }
-            
+
+            if (notEmptyAttribute(elm,"alignment")) {
+                this.alignment = elm.getAttribute("alignment");
+            }
+
             this.hyphenation = this.hyphenationFromAttibutes(elm);
             
             NodeList nList = elm.getChildNodes();
@@ -94,7 +96,16 @@ public class Paragraph extends AbstractITextCommand  {
     public int getSpacingBefore() {
         return spacingBefore;
     }
-    
+
+    public String getAlignment() {
+        return this.alignment;
+    }
+
+    public void setAlignment(String a) {
+        this.alignment = a;
+    }
+
+
     @Override
     public void process(ITextCommandProcessListener procsListener) {
         procsListener.before(this);
@@ -108,6 +119,10 @@ public class Paragraph extends AbstractITextCommand  {
         
         procsListener.after(this);
     }
-    
-    
+
+
+    public boolean isAlignmentDefined() {
+        return this.alignment != null;
+    }
+
 }

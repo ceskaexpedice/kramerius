@@ -23,6 +23,8 @@ import org.w3c.dom.Element;
  */
 public interface ITextCommand {
 
+    public ITextCommands getRoot();
+
     /**
      * Load command 
      * @param elm XML element 

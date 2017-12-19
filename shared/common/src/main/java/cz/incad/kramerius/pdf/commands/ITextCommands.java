@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import cz.incad.kramerius.utils.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -35,9 +36,11 @@ public class ITextCommands extends AbstractITextCommand implements ITextCommand 
     
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ITextCommands.class.getName());
 
-    private java.util.List<ITextCommand> loadedCommans = new ArrayList<ITextCommand>();
-    
-    private static Map<String, Class> CLZ_MAPPING = new HashMap<String, Class>(); {
+    private java.util.List<ITextCommand> loadedCommands = new ArrayList<>();
+    private String footer;
+    private String header;
+
+    private static Map<String, Class> CLZ_MAPPING = new HashMap<>(); {
         CLZ_MAPPING.put("item",ListItem.class);
         CLZ_MAPPING.put("list",List.class);
         CLZ_MAPPING.put("break", Line.class);
@@ -62,6 +65,15 @@ public class ITextCommands extends AbstractITextCommand implements ITextCommand 
 
     @Override
     public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
+        String pageFooter = elm.getAttribute("page-footer");
+        if (StringUtils.isAnyString(pageFooter)) {
+            this.footer = pageFooter;
+        }
+        String pageHeader = elm.getAttribute("page-header");
+        if (StringUtils.isAnyString(pageHeader)) {
+            this.header = pageHeader;
+        }
+
         if (elm.getNodeName().equals("commands")) {
             NodeList nNodes = elm.getChildNodes();
             for (int i = 0,ll=nNodes.getLength(); i < ll; i++) {
@@ -71,7 +83,7 @@ public class ITextCommands extends AbstractITextCommand implements ITextCommand 
                     if (cmd != null) {
                         cmd.load((Element) node, cmnds);
                         cmd.setParent(this);
-                        this.loadedCommans.add(cmd);
+                        this.loadedCommands.add(cmd);
                     } else LOGGER.warning("uknown component :"+node.getNodeName());
                 }
             }
@@ -79,17 +91,31 @@ public class ITextCommands extends AbstractITextCommand implements ITextCommand 
     }
     
     public java.util.List<ITextCommand> getCommands() {
-        return this.loadedCommans;
+        return this.loadedCommands;
     }
 
     @Override
     public void process(ITextCommandProcessListener procsListener) {
         procsListener.before(this);
-        for (ITextCommand cmd : this.loadedCommans) {
+        for (ITextCommand cmd : this.loadedCommands) {
             cmd.process(procsListener);
         }
         procsListener.after(this);
     }
-    
-    
+
+    public void setFooter(String footer) {
+        this.footer = footer;
+    }
+
+    public String getFooter() {
+        return footer;
+    }
+
+    public String getHeader() {
+        return header;
+    }
+
+    public void setHeader(String header) {
+        this.header = header;
+    }
 }

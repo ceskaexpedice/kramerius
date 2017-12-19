@@ -18,9 +18,6 @@ package cz.incad.kramerius.pdf.commands.render;
 
 import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.writeImageToStream;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -29,6 +26,7 @@ import java.util.logging.Level;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.lowagie.text.pdf.*;
 import org.xml.sax.SAXException;
 
 import com.lowagie.text.BadElementException;
@@ -40,12 +38,9 @@ import com.lowagie.text.ElementListener;
 import com.lowagie.text.Font;
 import com.lowagie.text.Phrase;
 import com.lowagie.text.TextElementArray;
-import com.lowagie.text.pdf.HyphenationAuto;
-import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.draw.LineSeparator;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.pdf.commands.AbstractITextCommand.Hyphenation;
 import cz.incad.kramerius.pdf.commands.ITextCommand;
 import cz.incad.kramerius.pdf.commands.ITextCommandProcessListener;
@@ -65,7 +60,6 @@ import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.knav.pdf.PdfTextUnderImage;
 
 public class RenderPDF   {
@@ -86,7 +80,7 @@ public class RenderPDF   {
     }
 
     public void render(final com.lowagie.text.Document pdfDoc, PdfWriter pdfWriter , ITextCommands commands) {
-        commands.process(new Processor(pdfDoc, pdfWriter, this.fedoraAccess));
+        commands.process(new Processor(pdfDoc, pdfWriter, this.fedoraAccess,commands.getFooter(), commands.getHeader()));
     }
 
     public boolean notEmptyString(String fName) {
@@ -178,23 +172,63 @@ public class RenderPDF   {
             return 0;
         }
     }
-    
+
+    class FooterAndHeader extends PdfPageEventHelper {
+
+        private String footer;
+        private String header;
+
+        public FooterAndHeader(String footer, String header) {
+            this.footer = footer;
+            this.header = header;
+        }
+
+        public void onEndPage(PdfWriter writer, Document document) {
+            PdfContentByte cb = writer.getDirectContent();
+            if (this.footer != null) {
+                ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, footer(),
+                        (document.right() - document.left()) / 2 + document.leftMargin(),
+                        document.bottom() - 10, 0);
+            }
+            if (this.header != null) {
+                ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, header(),
+                        (document.right() - document.left()) / 2 + document.leftMargin(),
+                        document.top() + 10, 0);
+            }
+        }
+        private Phrase header() {
+            Phrase p = new Phrase(this.header,getFont("normal"));
+            return p;
+        }
+        private Phrase footer() {
+            Phrase p = new Phrase(this.footer,getFont("normal"));
+            return p;
+        }
+    }
     
     class Processor implements ITextCommandProcessListener {
-        
+
         private Document pdfDoc;
         private PdfWriter pdfWriter;
         private FedoraAccess fedoraAccess;
         
-        private Stack<Element> createdElm  = new Stack<Element>();
+        private Stack<Element> createdElm  = new Stack<>();
 
-        
-        public Processor(Document pdfDoc, PdfWriter pdfWriter, FedoraAccess fedoraAccess) {
+        private final String footer;
+        private final String header;
+
+        public Processor(Document pdfDoc, PdfWriter pdfWriter, FedoraAccess fedoraAccess, String footer, String header) {
             super();
             this.pdfDoc = pdfDoc;
             this.pdfWriter = pdfWriter;
             this.fedoraAccess = fedoraAccess;
             this.createdElm.push(new DocumentWrapper(this.pdfDoc));
+            this.footer = footer;
+            this.header = header;
+            if (this.footer != null || this.header != null) {
+                pdfWriter.setPageEvent(new FooterAndHeader(footer, header));
+            }
+
         }
 
         @Override
@@ -223,6 +257,8 @@ public class RenderPDF   {
             if (cmd instanceof Paragraph) {
                 Paragraph cmdPar = (Paragraph) cmd;
                 com.lowagie.text.Paragraph par = new com.lowagie.text.Paragraph();
+
+
                 if (cmdPar.isSpacingAfterDefined()) {
                     par.setSpacingAfter(cmdPar.getSpacingAfter());
                 }
@@ -230,7 +266,11 @@ public class RenderPDF   {
                     int spacingBefore = cmdPar.getSpacingBefore();
                     par.setSpacingBefore(spacingBefore);
                 }
-        
+
+                if (cmdPar.isAlignmentDefined()) {
+                    par.setAlignment(cmdPar.getAlignment());
+                }
+
                 Hyphenation hyphenation = cmdPar.getHyphenation();
                 if (hyphenation != null) {
                     par.setHyphenation(new HyphenationAuto(hyphenation.getCountry(), hyphenation.getLang(), 2, 2));
@@ -399,8 +439,11 @@ public class RenderPDF   {
  
                         String file = cmdImage.getFile();
                         com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
-                     
-                        Float ratio = ratio(pdfDoc, 1.0f, img);
+
+                        ITextCommands root = cmdImage.getRoot();
+
+                        float percentage = (root.getFooter() != null || root.getHeader() != null) ? 0.9f : 1.0f;
+                        Float ratio = ratio(pdfDoc, percentage, img);
 
                         int fitToPageWidth = (int) (img.getWidth() * ratio);
                         int fitToPageHeight = (int) (img.getHeight() * ratio);
