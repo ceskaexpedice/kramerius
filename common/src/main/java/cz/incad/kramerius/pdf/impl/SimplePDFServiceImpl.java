@@ -138,8 +138,18 @@ public class SimplePDFServiceImpl implements SimplePDFService {
     public static String template(PreparedDocument rdoc, FedoraAccess fa, TextsService textsService, Locale locale) throws IOException,
             FileNotFoundException {
         StringWriter strWriter = new StringWriter();
-        strWriter.write("<commands>\n");
-        
+
+        String pdfHeader = textsService.getText("pdf_header",locale);
+        String pdfFooter = textsService.getText("pdf_footer",locale);
+        strWriter.write("<commands");
+        if (pdfHeader != null) {
+            strWriter.write(" page-header='"+pdfHeader+"'");
+        }
+        if (pdfFooter != null) {
+        strWriter.write(" page-footer='"+pdfFooter+"'");
+        }
+        strWriter.write(">\n");
+
         List<AbstractPage> pages = new ArrayList<AbstractPage>(rdoc.getPages());
         for (int i = 0,ll=pages.size(); i < ll; i++) {
             AbstractPage apage = pages.get(i);
