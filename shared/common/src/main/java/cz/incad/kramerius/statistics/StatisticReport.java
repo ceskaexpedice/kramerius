@@ -32,7 +32,9 @@ import cz.incad.kramerius.utils.database.Offset;
 public interface StatisticReport {
 
     /** Simple date format */
-    public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy.MM.dd");
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy.MM.dd");
+    //"2017-11-19 22:52:42.738"
+    public static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     public static final String COUNT_KEY = "count";
     public static final String PID_KEY = "pid";
@@ -40,16 +42,17 @@ public interface StatisticReport {
     public static final String MODEL_KEY = "model";
     public static final String ACTION_KEY = "action";
 
+    public static final String DATE_FROM = "from";
+    public static final String DATE_TO = "to";
+
     /**
      * Returns reporting page
      * 
      * @param reportedAction
      *            Report action
-     * @param dateFilter
      *            Date filter
      * @param rOffset
      *            Offset
-     * @param specificFilteredValue
      *            Specific value
      * @return
      */
@@ -72,8 +75,6 @@ public interface StatisticReport {
     /**
      * Prepares view necessary for rendering plot
      * @param action
-     * @param dateFilter
-     * @param filteredValue
      */
     public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) throws StatisticsReportException ;
     

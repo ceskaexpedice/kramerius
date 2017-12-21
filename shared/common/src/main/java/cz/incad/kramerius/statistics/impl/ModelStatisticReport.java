@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,9 +57,12 @@ import cz.incad.kramerius.utils.database.Offset;
  */
 public class ModelStatisticReport implements StatisticReport {
 
+
     public static final Logger LOGGER = Logger.getLogger(ModelStatisticReport.class.getName());
 
     public static final String REPORT_ID = "model";
+
+
 
     @Inject
     @Named("kramerius4")
@@ -87,12 +91,11 @@ public class ModelStatisticReport implements StatisticReport {
             List<Map<String, Object>> returns = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
-                    Map<String, Object> val = new HashMap<String, Object>();
+                    Map<String, Object> val = new HashMap<>();
                     val.put(COUNT_KEY, rs.getInt("count"));
                     val.put(PID_KEY, rs.getString("pid"));
                     val.put(TITLE_KEY, rs.getString("title"));
                     val.put(MODEL_KEY, rs.getString("model"));
-
                     returnsList.add(val);
                     return super.handleRow(rs, returnsList);
                 }
@@ -193,6 +196,8 @@ public class ModelStatisticReport implements StatisticReport {
                     val.put(PID_KEY, rs.getString("pid"));
                     val.put(TITLE_KEY, rs.getString("title"));
                     val.put(MODEL_KEY, rs.getString("model"));
+
+
                     sup.processReportRecord(val);
                     returnsList.add(val);
 
