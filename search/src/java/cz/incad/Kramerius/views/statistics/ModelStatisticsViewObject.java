@@ -22,12 +22,14 @@ package cz.incad.Kramerius.views.statistics;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
+import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
 
 /**
@@ -61,9 +63,9 @@ public class ModelStatisticsViewObject extends AbstractStatisticsViewObject {
         String str = resBundle.getString("fedora.model."+type);
         return str;
     }
-    
-    
-    
+
+
+
     public List<String> getModels() {
         StatisticReport report = statisticsAccessLog.getReportById(ModelStatisticReport.REPORT_ID);
         return report.getOptionalValues();

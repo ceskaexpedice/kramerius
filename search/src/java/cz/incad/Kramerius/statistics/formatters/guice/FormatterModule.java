@@ -26,6 +26,7 @@ import cz.incad.Kramerius.statistics.formatters.main.StatisticsExportMainLogForm
 import cz.incad.Kramerius.statistics.formatters.main.impl.CSVFormatter;
 import cz.incad.Kramerius.statistics.formatters.main.impl.XMLFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.StatisticsReportFormatter;
+import cz.incad.Kramerius.statistics.formatters.report.annual.AnnualCSVFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.author.AuthorCSVFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.author.AuthorXMLFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.lang.LangCSVFormatter;
@@ -58,5 +59,7 @@ public class FormatterModule extends AbstractModule {
 
         reportFormatter.addBinding().to(AuthorCSVFormatter.class);
         reportFormatter.addBinding().to(AuthorXMLFormatter.class);
+
+        reportFormatter.addBinding().to(AnnualCSVFormatter.class);
     }
 }
