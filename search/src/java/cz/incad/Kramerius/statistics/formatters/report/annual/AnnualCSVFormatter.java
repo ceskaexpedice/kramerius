@@ -18,10 +18,7 @@ import java.util.logging.Level;
 
 public class AnnualCSVFormatter implements StatisticsReportFormatter {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LangCSVFormatter.class.getName());
-
     private OutputStream os;
-    private boolean firstLine;
 
     private Map<String, Integer> cumulativeMap = new HashMap<>();
 
@@ -52,7 +49,6 @@ public class AnnualCSVFormatter implements StatisticsReportFormatter {
     public void beforeProcess(HttpServletResponse response) throws IOException {
         this.os = response.getOutputStream();
         this.cumulativeMap = new HashMap<>();
-        this.firstLine = true;
     }
 
     @Override
@@ -67,7 +63,6 @@ public class AnnualCSVFormatter implements StatisticsReportFormatter {
         }
         os.write(builder.toString().getBytes(DEFAULT_ENCODING));
         this.os = null;
-        this.firstLine = false;
     }
 
     @Override

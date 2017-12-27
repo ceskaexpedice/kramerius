@@ -60,6 +60,9 @@ public class StatisticsExportServlet extends GuiceServlet {
     public static final String ACTION_ATTRIBUTE = "action";
     public static final String VISIBILITY_ATTRIBUTE = "visibility";
 
+    public static final String ANNUAL_YEAR = "annualyear";
+
+
     
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(StatisticsExportServlet.class.getName());
     
@@ -82,7 +85,11 @@ public class StatisticsExportServlet extends GuiceServlet {
         String reportId = req.getParameter(REPORT_ID_ATTRIBUTE);
         String filteredValue = req.getParameter(MODEL_ATTRIBUTE);
         String visibilityValue = req.getParameter(VISIBILITY_ATTRIBUTE);
-        
+
+        String annual = req.getParameter(ANNUAL_YEAR);
+        AnnualYearFilter annualYearFilter = new AnnualYearFilter();
+        annualYearFilter.setAnnualYear(annual);
+
         DateFilter dateFilter = new DateFilter();
         dateFilter.setFromDate(dateFrom != null && (!dateFrom.trim().equals("")) ? dateFrom : null);
         dateFilter.setToDate(dateTo != null && (!dateTo.trim().equals("")) ? dateTo : null);
@@ -115,8 +122,8 @@ public class StatisticsExportServlet extends GuiceServlet {
                     resp.setContentType(selectedFormatter.getMimeType());
                     resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
                     //TODO: Syncrhonization
-                    report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter, ipAddr, multimodelFilter}));
-                    report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter,ipAddr, multimodelFilter}));
+                    report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter, ipAddr, multimodelFilter, annualYearFilter}));
+                    report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter,ipAddr, multimodelFilter, annualYearFilter}));
                     selectedFormatter.afterProcess(resp);
                 }
             } catch (StatisticsReportException e) {
