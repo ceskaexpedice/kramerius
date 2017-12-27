@@ -20,10 +20,7 @@
 package cz.incad.Kramerius.views.statistics;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -66,10 +63,27 @@ public class ModelStatisticsViewObject extends AbstractStatisticsViewObject {
 
 
 
+    public String getCurrentYear() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        return ""+year;
+    }
+
+
+    public String getPreviousYear() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        return ""+(year-1);
+    }
+
+
+
     public List<String> getModels() {
         StatisticReport report = statisticsAccessLog.getReportById(ModelStatisticReport.REPORT_ID);
         return report.getOptionalValues();
     }
+
+
 
     
     public String getPrev() {

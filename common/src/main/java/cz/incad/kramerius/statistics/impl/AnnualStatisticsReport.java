@@ -30,12 +30,10 @@ public class AnnualStatisticsReport implements StatisticReport {
     public static final String REPORT_ID = "annual";
 
     private Provider<Connection> connectionProvider;
-    private List<ModelStatisticReport> subReports;
 
     @Inject
     public AnnualStatisticsReport(@Named("kramerius4") Provider<Connection> connectionProvider) {
         this.connectionProvider = connectionProvider;
-        this.subReports = new ArrayList<>();
     }
 
     @Override
@@ -62,7 +60,7 @@ public class AnnualStatisticsReport implements StatisticReport {
             modelFilter.setModel(model);
             StatisticsFilter[] filters = new StatisticsFilter[] {
                     modelFilter,
-                    getDateFilter(),
+                    getDateFilter(container.getFilter(AnnualYearFilter.class)),
                     container.getFilter(IPAddressFilter.class),
                     new VisibilityFilter()
             };
@@ -82,7 +80,7 @@ public class AnnualStatisticsReport implements StatisticReport {
             modelFilter.setModel(model);
             StatisticsFilter[] filters = new StatisticsFilter[]{
                     modelFilter,
-                    getDateFilter(),
+                    getDateFilter(container.getFilter(AnnualYearFilter.class)),
                     container.getFilter(IPAddressFilter.class),
                     new VisibilityFilter()
             };
@@ -93,11 +91,11 @@ public class AnnualStatisticsReport implements StatisticReport {
         }
     }
 
-    public static StatisticsFilter getDateFilter() {
+    public static StatisticsFilter getDateFilter(AnnualYearFilter afilter) {
+
         DateFilter filter = new DateFilter();
-
         Calendar start = Calendar.getInstance();
-
+        start.set(Calendar.YEAR, Integer.parseInt(afilter.getAnnualYear()));
         start.set(Calendar.MONTH, Calendar.JANUARY);
         start.set(Calendar.DAY_OF_MONTH, 1);
         start.set(Calendar.HOUR, 0);
@@ -109,6 +107,7 @@ public class AnnualStatisticsReport implements StatisticReport {
 
 
         Calendar stop = Calendar.getInstance();
+        stop.set(Calendar.YEAR, Integer.parseInt(afilter.getAnnualYear()));
         stop.set(Calendar.MONTH, Calendar.DECEMBER);
         stop.set(Calendar.DAY_OF_MONTH, 31);
         stop.set(Calendar.HOUR, 23);

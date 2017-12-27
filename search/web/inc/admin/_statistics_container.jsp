@@ -151,7 +151,27 @@
         </tr>
 
         <tr><td colspan="3"> <hr/></td></tr>    
-        <tr><td colspan="3"> <strong> <view:msg>statistics.report.exports</view:msg></strong></td></tr>    
+        <tr>
+            <td colspan="2"><strong><view:msg>statistics.report.annualreport</view:msg></strong></td>
+            <td style="text-align: right;">
+            <script type="text/javascript">
+              function _current_annual() {
+                 window.open('stats?format=CSV&report=annual&visibility=all&annualyear=${statistics.currentYear}', '_blank');
+              }
+              function _previous_annual() {
+                 window.open('stats?format=CSV&report=annual&visibility=all&annualyear=${statistics.previousYear}', '_blank');
+              }
+             </script>
+
+            <a href="javascript:_current_annual();" class="buttons">${statistics.currentYear}</a>
+            <a href="javascript:_previous_annual();" class="buttons">${statistics.previousYear}</a>
+
+            </td>
+        </tr>
+
+        <tr><td colspan="3"> <hr/></td></tr>
+
+        <tr><td colspan="3"> <strong> <view:msg>statistics.report.exports</view:msg></strong></td></tr>
         <tr>
             <td colspan="2"></td>
             <td style="text-align: right;">
