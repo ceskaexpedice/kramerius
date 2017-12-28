@@ -199,10 +199,31 @@ LeftThumbs.prototype = {
         }
         cleanWindow();
     },
+
+    _params: function() {
+        var params = {};
+        if (location.search) {
+            var parts = location.search.substring(1).split('&');
+
+            for (var i = 0; i < parts.length; i++) {
+                var nv = parts[i].split('=');
+                if (!nv[0]) continue;
+                params[nv[0]] = nv[1] || true;
+            }
+        }
+        return params;
+    },
+
     getHits: function(showalert) {
-        if ($("#q").val() === "") {
+
+        var authorFlag = typeof this._params()['author'] !== 'undefined' && this._params()['author'] !== null;
+        var searchFlag = $("#q").val() !== ""  &&  $("#q").val() !== null  &&  typeof $("#q").val() !== 'undefined';
+        if (!authorFlag && !searchFlag) {
             return;
         }
+
+
+
         if (jQuery.isEmptyObject(this.hits)) {
             var pid = K5.api.ctx["item"]["selected"];
             var root_pid = K5.api.ctx["item"][pid].root_pid;
@@ -211,12 +232,22 @@ LeftThumbs.prototype = {
             for (var i = 0; i < context.length-1; i++) {
                 pid_path += context[i].pid + "/";
             }
-            var q = "q=" + $("#q").val() + "&rows=5000&fq=pid_path:" + pid_path.replace(/:/g, "\\:") + "*";
-            var hl = "&hl=true&hl.fl=text_ocr&hl.mergeContiguous=true&hl.snippets=2";
+
+            var q = "q=";
+            if(searchFlag && authorFlag){
+                q += "(text:" + $("#q").val()+" OR dc.creator:"+this._params()['author']+")";
+            } else if(searchFlag){
+                q += "(text:" + $("#q").val()+")";
+            } else if(authorFlag){
+                q += "(dc.creator:"+this._params()['author']+")";
+            }
+
+            q += "&rows=5000&fq=pid_path:" + pid_path.replace(/:/g, "\\:") + "*";
+            var hl = authorFlag ? "&hl=true&hl.fl=text_ocr,dc.creator&hl.mergeContiguous=true&hl.snippets=2" : "&hl=true&hl.fl=text_ocr&hl.mergeContiguous=true&hl.snippets=2";
+
             K5.api.askForSolr(q + hl, _.bind(function(data) {
                 var numFound = data.response.numFound;
                 console.log("Hits: " + data.response.numFound);
-                //console.log(JSON.stringify(data));
                 this.hits = data.response.docs;
                 this.highlighting = data.highlighting;
                 this.setHitClass();
