@@ -258,10 +258,25 @@ LeftThumbs.prototype = {
                         key = 'common.page.plural_2';
                     } else if (numFound > 1) {
                         key = 'common.page.plural_1';
+                    } else if (numFound > 1) {
+                        key = 'common.page.plural_1';
                     } else {
                         key = 'common.page.singural';
                     }
-                    alert(K5.i18n.ctx.dictionary["common.found"] + " " + numFound + " " + K5.i18n.ctx.dictionary[key]);
+
+                    if (numFound == 0) {
+                        var sel = K5.api.ctx.item.selected;
+                        var textOcr = typeof K5.api.ctx.item[sel].streams['TEXT_OCR'] !== 'undefined' ;
+                        var pdf = typeof K5.api.ctx.item[sel]['pdf'] !== 'undefined' ;
+                        if (!textOcr && !pdf) {
+                            alert(K5.i18n.ctx.dictionary["common.notfoundandnotexist"]);
+                        } else {
+                            alert(K5.i18n.ctx.dictionary["common.found"] + " " + numFound + " " + K5.i18n.ctx.dictionary[key]);
+                        }
+                    } else {
+                        alert(K5.i18n.ctx.dictionary["common.found"] + " " + numFound + " " + K5.i18n.ctx.dictionary[key]);
+                    }
+
                 }
             }, this));
         } else {
