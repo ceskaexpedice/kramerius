@@ -222,6 +222,11 @@
                     <xsl:value-of select="."/>
                 </field>
             </xsl:for-each>
+            <xsl:for-each select="mods:subject/mods:geographic/text()">
+                <field name="geographic_names" >
+                    <xsl:value-of select="."/>
+                </field>
+            </xsl:for-each>
             <xsl:for-each select="mods:identifier">
                 <field name="dc.identifier"><xsl:value-of select="."/></field>
             </xsl:for-each>
