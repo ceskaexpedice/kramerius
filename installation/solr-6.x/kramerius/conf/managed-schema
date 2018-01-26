@@ -485,6 +485,7 @@
         <field name="ddt" type="string" indexed="true" stored="true"/>
         <field name="dostupnost" type="string" indexed="true" stored="true"/>
         <field name="keywords" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="geographic_names" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
         <field name="collection" type="string" indexed="true" stored="true" multiValued="true"/>
 
         <field name="sec" type="string" indexed="true" stored="true"/>
