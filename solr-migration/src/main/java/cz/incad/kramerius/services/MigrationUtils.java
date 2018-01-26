@@ -1,11 +1,6 @@
 package cz.incad.kramerius.services;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -49,9 +45,9 @@ public class MigrationUtils {
     
     
     public static final String DEFAULT_QEURY = "*:*";
-    public static final int DEFAULT_NUMBER_OF_ROWS = 100;
-    public static final int DEFAULT_NUMBER_OF_THREADS = 4;
-    public static final int DEFAULT_BATCHSIZE = 10;
+    public static final int DEFAULT_NUMBER_OF_ROWS = 500;
+    public static final int DEFAULT_NUMBER_OF_THREADS =4;
+    public static final int DEFAULT_BATCHSIZE = 500;
     public static final int START = 0;
     
     public static final Logger LOGGER = Logger.getLogger(MigrationUtils.class.getName());
@@ -59,6 +55,7 @@ public class MigrationUtils {
     private MigrationUtils() {
     }
 
+    public static int counter = 0;
     
     public static void sendToDest(Client client, Document batchDoc)  throws MigrateSolrIndexException {
         try {
@@ -72,10 +69,6 @@ public class MigrationUtils {
                 ByteArrayOutputStream bos  = new ByteArrayOutputStream();
                 InputStream entityInputStream = resp.getEntityInputStream();
                 IOUtils.copyStreams(entityInputStream, bos);
-                LOGGER.log(Level.SEVERE, new String(bos.toByteArray()));
-                StringWriter batch = new StringWriter();
-                XMLUtils.print(batchDoc, batch);
-                LOGGER.log(Level.SEVERE, "critical batch is " + batch.toString());
             }
         } catch (UniformInterfaceException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -229,7 +222,7 @@ public class MigrationUtils {
     public static Element querySolr(Client client, String solrQuery, int rows, int cursor)
             throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
         String formatted = solrQuery+String.format("&rows=%d&start=%d",rows, cursor);
-        SolrWorker.LOGGER.info(String.format("processing %s",formatted));
+        LOGGER.info(String.format("["+Thread.currentThread().getName()+"] processing %s",formatted));
         
         WebResource r = client.resource(formatted);
         String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
@@ -246,14 +239,6 @@ public class MigrationUtils {
         return result;
     }
     
-    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException, TransformerException {
-        Client client = Client.create();
 
-        String solrQuery = constructedQueryURL();
-        System.out.println(solrQuery);
-    //        Element sourceRequest = MigrationUtils.querySolr(client, solrQuery, 0,0);
-//        XMLUtils.print(sourceRequest, System.out);
-        
-    }
 
 }

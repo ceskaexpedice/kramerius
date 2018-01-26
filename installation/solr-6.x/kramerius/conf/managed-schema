@@ -48,10 +48,7 @@
         <fieldType name="text_general_lemmatized" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
                 <tokenizer class="solr.StandardTokenizerFactory"/>
-                <!-- in this example, we will only use synonyms at query time
-                <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
-                -->
-                <filter class="solr.LowerCaseFilterFactory"/>
+                   <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords_cz.txt"/>
 
                 <filter class="solr.HunspellStemFilterFactory" dictionary="cs_CZ.dic" affix="cs_CZ.aff"
@@ -106,14 +103,12 @@
 
         </fieldType>
 
-        <!-- general text  -->
+        <!-- general not lemmatized text with czech stop words  -->
         <fieldType name="text_general_not_lemmatized" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
                 <tokenizer class="solr.StandardTokenizerFactory"/>
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.ASCIIFoldingFilterFactory"/>
-                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords_cz_ascii.txt"/>
-
                 <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
 
             </analyzer>
@@ -121,11 +116,11 @@
                 <tokenizer class="solr.StandardTokenizerFactory"/>
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.ASCIIFoldingFilterFactory"/>
-                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords_cz_ascii.txt"/>
                 <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
            </analyzer>
 
         </fieldType>
+
 
 
         <!-- A general text field that has reasonable, generic
@@ -406,14 +401,20 @@
          -->
         <fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
 
-        <!-- A specialized field for geospatial search. If indexed, this fieldType must not be multivalued. -->
-        <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
+        <!-- Location RPT field -->
+        <fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType"
+                   geo="true" distErrPct="0.025" maxDistErr="0.000009"  />
+
+        <!-- box field -->
+        <fieldType name="bbox" class="solr.BBoxField"  geo="true"  numberType="_bbox_coord" storeSubFields="false"/>
+        <fieldType name="_bbox_coord" class="solr.TrieDoubleField" precisionStep="8" docValues="true" stored="false"/>
 
         <!--
          A Geohash is a compact representation of a latitude longitude pair in a single field.
          See http://wiki.apache.org/solr/SpatialSearch
         -->
         <fieldtype name="geohash" class="solr.GeoHashField"/>
+
     </types>
 
 
@@ -459,10 +460,15 @@
         <field name="root_model" type="string" indexed="true" stored="true"/>
         <field name="root_pid" type="string" indexed="true" stored="true"/>
 
+        <!-- root title -->
         <field name="root_title" type="text_general_not_lemmatized" indexed="true" stored="true"/>
-        <!-- root title search -->
         <field name="root_title_lemmatized" type="text_general_lemmatized" indexed="true" stored="false"/>
         <field name="root_title_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="false"/>
+
+        <!-- dc title -->
+        <field name="title" type="text_general_not_lemmatized" indexed="true" stored="true"/>
+        <field name="title_lemmatized" type="text_general_lemmatized" indexed="true" stored="false"/>
+        <field name="title_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="false"/>
 
 
         <field name="pages_count" type="int" default="0" indexed="true" stored="true"/>
@@ -492,22 +498,30 @@
         <field name="title_sort" type="string" indexed="true" stored="true" docValues="true"/>
         <field name="dc.creator" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
         <field name="language" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-
         <field name="dc.description" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
-        <field name="text_ocr" type="text_general_lemmatized" indexed="true" stored="true"/>
+
+        <!-- text ocr -->
+        <field name="text_ocr" type="text_general_not_lemmatized" indexed="true" stored="true" />
+        <field name="text_ocr_lemmatized" type="text_general_lemmatized" indexed="true" stored="true"/>
+        <field name="text_ocr_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="true"/>
+
         <field name="details" type="string" indexed="true" stored="true" multiValued="true"/>
 
-        <field name="facet_title" type="string" indexed="true" stored="false" docValues="true"/>
-        <field name="browse_title" type="string" indexed="true" stored="false" docValues="true"/>
-        <field name="search_title" type="text_fgs" indexed="true" stored="false"/>
+        <field name="facet_title" type="string" indexed="true" stored="true" docValues="true"/>
+        <field name="browse_title" type="string" indexed="true" stored="true" docValues="true"/>
+        <field name="search_title" type="text_fgs" indexed="true" stored="true"/>
         <field name="facet_autor" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-        <field name="browse_autor" type="string" indexed="true" stored="false" multiValued="true" docValues="true"/>
-        <field name="search_autor" type="string_lower" indexed="true" stored="false" multiValued="true"/>
+        <field name="browse_autor" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="search_autor" type="string_lower" indexed="true" stored="true" multiValued="true"/>
 
         <field name="img_full_mime" type="string" indexed="true" stored="true"/>
         <field name="viewable" type="boolean" indexed="true" stored="true"/>
         <field name="virtual" type="boolean" indexed="true" stored="true" default="false"/>
 
+        <!-- geo coordinates -->
+        <field name="location" type="location_rpt" indexed="true" stored="true" multiValued="true"/>
+        <!-- geo coordinates for defined as box -->
+        <field name="range" type="bbox"/>
     </fields>
 
     <!-- Field to use to determine and enforce document uniqueness.
@@ -529,6 +543,7 @@
     <dynamicField name="dc.*" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
     <dynamicField name="mods.*" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
 
+    <!-- text -->
     <copyField source="dc.title" dest="text"/>
     <copyField source="keywords" dest="text"/>
     <copyField source="dc.description" dest="text"/>
@@ -556,13 +571,21 @@
     <copyField source="text_ocr" dest="text_lemmatized_ascii"/>
 
 
-    <!-- lemmatized fields; root_title -->
+    <!-- root title; lemmatized fields -->
     <copyField source="root_title" dest="root_title_lemmatized"/>
     <copyField source="root_title" dest="root_title_lemmatized_ascii"/>
+
+    <!-- title fields -->
+    <copyField source="dc.title" dest="title"/>
+    <copyField source="dc.title" dest="title_lemmatized"/>
+    <copyField source="dc.title" dest="title_lemmatized_ascii"/>
+
+    <!-- text_ocr -->
+    <copyField source="text_ocr" dest="text_ocr_lemmatized"/>
+    <copyField source="text_ocr" dest="text_ocr_lemmatized_ascii"/>
 
     <copyField source="browse_title" dest="search_title"/>
     <copyField source="dc.creator" dest="facet_autor"/>
     <copyField source="dc.creator" dest="search_autor"/>
-
 
 </schema>

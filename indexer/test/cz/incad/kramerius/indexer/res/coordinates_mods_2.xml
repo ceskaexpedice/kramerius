@@ -1,0 +1,108 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+    <mods:mods>
+        <mods:titleInfo>
+            <mods:title>Archiducatus Austriae</mods:title>
+            <mods:subTitle>Ertz-Hertzogthum Oesterreich</mods:subTitle>
+        </mods:titleInfo>
+        <mods:titleInfo type="alternative">
+            <mods:title>Ertz-Hertzogthum Oesterreich</mods:title>
+        </mods:titleInfo>
+        <mods:name type="personal" usage="primary">
+            <mods:namePart>Sandrart, Joachim von</mods:namePart>
+            <mods:namePart type="date">1606-1688</mods:namePart>
+            <mods:role>
+                <mods:roleTerm authority="marcrelator" type="code">aut</mods:roleTerm>
+            </mods:role>
+        </mods:name>
+        <mods:typeOfResource>cartographic</mods:typeOfResource>
+        <mods:genre authority="marcgt">map</mods:genre>
+        <mods:genre authority="czenas">historické mapy</mods:genre>
+        <mods:originInfo>
+            <mods:place>
+                <mods:placeTerm type="code" authority="marccountry">xx</mods:placeTerm>
+            </mods:place>
+            <mods:place>
+                <mods:placeTerm type="text">S.l</mods:placeTerm>
+            </mods:place>
+            <mods:publisher>s.n.</mods:publisher>
+            <mods:dateIssued>mezi 1651 a 1688]</mods:dateIssued>
+            <mods:dateIssued encoding="marc" point="start" qualifier="questionable">1651</mods:dateIssued>
+            <mods:dateIssued encoding="marc" point="end" qualifier="questionable">1688</mods:dateIssued>
+            <mods:issuance>single unit</mods:issuance>
+        </mods:originInfo>
+        <mods:language>
+            <mods:languageTerm authority="iso639-2b" type="code">lat</mods:languageTerm>
+        </mods:language>
+        <mods:language>
+            <mods:languageTerm authority="iso639-2b" type="code">ger</mods:languageTerm>
+        </mods:language>
+        <mods:physicalDescription>
+            <mods:form authority="gmd">kartografický dokument]</mods:form>
+            <mods:form authority="gmd">kartografický dokument</mods:form>
+            <mods:form authority="marccategory">map</mods:form>
+            <mods:form authority="marcsmd">map</mods:form>
+            <mods:extent>1 mapa : mědirytina, podlepená papírem ; 27 x 38 cm na listu 39 x 50 cm</mods:extent>
+        </mods:physicalDescription>
+        <mods:note>Autorství Joachima von Sandrart uvedeno v původním katalogu k Mollově sbírce, podle zpracování mapy by se však mohlo jednat i o mladší vydání</mods:note>
+        <mods:note>Podlepeno papírem o velikosti 53 x 62 cm</mods:note>
+        <mods:note>Výzdoba: V levé horní části znak obojích Rakous, ve spodní části názvová deska, grafické měřítko, v mapovém rámci geografické souřadnice</mods:note>
+        <mods:note type="language">Souběžný latinský a německý název</mods:note>
+        <mods:subject>
+            <mods:geographicCode authority="marcgac">e-au---</mods:geographicCode>
+        </mods:subject>
+        <mods:subject>
+            <mods:cartographics>
+                <mods:scale>Měřítko [ca 1:4 000 000]. 7,5 cm = 7 Milliaria Germanica com</mods:scale>
+            </mods:cartographics>
+            <mods:cartographics>
+                <mods:coordinates>(014°17´10&quot; v.d.--017°07´00&quot; v.d./048°50´56&quot; s.š.--047°06´00&quot; s.š.)</mods:coordinates>
+            </mods:cartographics>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:name type="corporate">
+                <mods:namePart>Moravská zemská knihovna (Brno, Česko).</mods:namePart>
+                <mods:namePart>Mapová sbírka B.P. Molla</mods:namePart>
+            </mods:name>
+        </mods:subject>
+        <mods:subject>
+            <mods:topic>Mollova mapová sbírka</mods:topic>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:topic>mapové sbírky</mods:topic>
+            <mods:geographic>Česko</mods:geographic>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:geographic>Dolní Rakousko (Rakousko)</mods:geographic>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:geographic>Horní Rakousko (Rakousko)</mods:geographic>
+        </mods:subject>
+        <mods:classification authority="udc">(084.3)</mods:classification>
+        <mods:classification authority="udc">(436.2)</mods:classification>
+        <mods:classification authority="udc">(436.9)</mods:classification>
+        <mods:classification authority="udc">912.43:069.5</mods:classification>
+        <mods:location>
+            <mods:physicalLocation authority="siglaADR">BOA001</mods:physicalLocation>
+            <mods:shelfLocator>Moll-0000.027</mods:shelfLocator>
+            <mods:url displayLabel="Digitalizovaný dokument" usage="primary display">http://www.digitalniknihovna.cz/mzk/uuid/uuid:e4e071b7-02ad-4d9b-a163-69408a59b263</mods:url>
+        </mods:location>
+        <mods:relatedItem type="isReferencedBy">
+            <mods:titleInfo>
+                <mods:title>Kuchař, K. Mapová sbírka B.P. Molla,</mods:title>
+            </mods:titleInfo>
+            <mods:note>s. 171</mods:note>
+        </mods:relatedItem>
+        <mods:recordInfo>
+            <mods:descriptionStandard>aacr</mods:descriptionStandard>
+            <mods:recordContentSource authority="marcorg">BOA001</mods:recordContentSource>
+            <mods:recordCreationDate encoding="marc">070212</mods:recordCreationDate>
+            <mods:recordChangeDate encoding="iso8601">20171007214320.0</mods:recordChangeDate>
+            <mods:recordIdentifier source="CZ BrMZK">mzk03001045297</mods:recordIdentifier>
+            <mods:recordOrigin>machine generated</mods:recordOrigin>
+            <mods:languageOfCataloging>
+                <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+            </mods:languageOfCataloging>
+        </mods:recordInfo>
+    </mods:mods>
+</mods:modsCollection>
