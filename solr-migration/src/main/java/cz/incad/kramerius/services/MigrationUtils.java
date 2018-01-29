@@ -35,6 +35,8 @@ public class MigrationUtils {
 
     private static final String DEST_SOLR_HOST = ".dest.solrHost";
     private static final String SOLR_MIGRATION_QUERY_KEY = ".migration.solr.query";
+    private static final String SOLR_MIGRATION_FIELD_LIST_KEY = ".migration.solr.fieldlist";
+
     private static final String SOLR_MIGRATION_ROWS_KEY = ".migration.solr.rows";
     
     private static final String SOLR_MIGRATION_THREAD_KEY = ".migration.threads";
@@ -45,8 +47,16 @@ public class MigrationUtils {
     
     
     public static final String DEFAULT_QEURY = "*:*";
+    public static final String DEFAULT_FIELDLIST = "PID timestamp fedora.model document_type handle status create_date modified_date parent_model " +
+            "parent_pid parent_pid parent_title root_model root_pid root_title text_ocr pages_count " +
+            "datum_str datum rok datum_begin datum_end datum_page issn mdt ddt dostupnost keywords " +
+            "geographic_names collection sec model_path pid_path rels_ext_index level dc.title title_sort " +
+            "title_sort dc.creator language dc.description details facet_title browse_title browse_autor img_full_mime viewable " +
+            "virtual location range";
+
+
     public static final int DEFAULT_NUMBER_OF_ROWS = 500;
-    public static final int DEFAULT_NUMBER_OF_THREADS =4;
+    public static final int DEFAULT_NUMBER_OF_THREADS = 4   ;
     public static final int DEFAULT_BATCHSIZE = 500;
     public static final int START = 0;
     
@@ -186,7 +196,8 @@ public class MigrationUtils {
     public static String configuredMigrationQuery() throws MigrateSolrIndexException {
         try {
             String query = KConfiguration.getInstance().getConfiguration().getString(SOLR_MIGRATION_QUERY_KEY, DEFAULT_QEURY);
-            return "select?q="+URLEncoder.encode(query, "UTF-8");
+            String fieldlist = KConfiguration.getInstance().getConfiguration().getString(SOLR_MIGRATION_FIELD_LIST_KEY, DEFAULT_FIELDLIST);
+            return "select?q="+URLEncoder.encode(query, "UTF-8")+"&fl="+URLEncoder.encode(fieldlist, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new MigrateSolrIndexException(e.getMessage());

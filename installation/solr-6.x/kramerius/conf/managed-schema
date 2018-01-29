@@ -44,6 +44,32 @@
             </analyzer>
         </fieldType>
 
+
+        <!-- hunspell analyzer; czech language; not stopwords -->
+        <fieldType name="text_general_lemmatized_no_stopwords" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.HunspellStemFilterFactory" dictionary="cs_CZ.dic" affix="cs_CZ.aff"
+                        ignoreCase="true"/>
+
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.HunspellStemFilterFactory" dictionary="cs_CZ.dic" affix="cs_CZ.aff"
+                        ignoreCase="true"/>
+
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+
+            </analyzer>
+
+        </fieldType>
+
         <!-- hunspell analyzer; czech language -->
         <fieldType name="text_general_lemmatized" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
@@ -438,9 +464,11 @@
         <field name="PID" type="string" indexed="true" stored="true" required="true"/>
 
         <!-- text search - default field  -->
-        <field name="text" type="text_general_not_lemmatized" indexed="true" stored="true" multiValued="true"/>
-        <field name="text_lemmatized" type="text_general_lemmatized" indexed="true" stored="false" multiValued="true"/>
-        <field name="text_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="false"
+        <field name="text" type="text_general_not_lemmatized" indexed="true" stored="true" multiValued="true" />
+        <field name="text_lemmatized" type="text_general_lemmatized" indexed="true" stored="true" multiValued="true" />
+        <field name="text_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="true"
+               multiValued="true"/>
+        <field name="text_lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="true"
                multiValued="true"/>
 
         <field name="timestamp" type="date" indexed="true" stored="false" default="NOW" multiValued="false"/>
@@ -464,11 +492,20 @@
         <field name="root_title" type="text_general_not_lemmatized" indexed="true" stored="true"/>
         <field name="root_title_lemmatized" type="text_general_lemmatized" indexed="true" stored="false"/>
         <field name="root_title_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="false"/>
+        <field name="root_title_lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="false"/>
 
-        <!-- dc title -->
+        <!-- title -->
         <field name="title" type="text_general_not_lemmatized" indexed="true" stored="true"/>
         <field name="title_lemmatized" type="text_general_lemmatized" indexed="true" stored="false"/>
         <field name="title_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="false"/>
+        <field name="title_lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="false"/>
+
+
+        <!-- text ocr -->
+        <field name="text_ocr" type="text_general_not_lemmatized" indexed="true" stored="true" storeOffsetsWithPositions="true" />
+        <field name="text_ocr_lemmatized" type="text_general_lemmatized" indexed="true" stored="true" storeOffsetsWithPositions="true"/>
+        <field name="text_ocr_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="true" storeOffsetsWithPositions="true"/>
+        <field name="text_ocr_lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="true" storeOffsetsWithPositions="true"/>
 
 
         <field name="pages_count" type="int" default="0" indexed="true" stored="true"/>
@@ -501,10 +538,6 @@
         <field name="language" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
         <field name="dc.description" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
 
-        <!-- text ocr -->
-        <field name="text_ocr" type="text_general_not_lemmatized" indexed="true" stored="true" />
-        <field name="text_ocr_lemmatized" type="text_general_lemmatized" indexed="true" stored="true"/>
-        <field name="text_ocr_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="true"/>
 
         <field name="details" type="string" indexed="true" stored="true" multiValued="true"/>
 
@@ -544,7 +577,7 @@
     <dynamicField name="dc.*" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
     <dynamicField name="mods.*" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
 
-    <!-- text -->
+    <!-- text; exact; no stopwords -->
     <copyField source="dc.title" dest="text"/>
     <copyField source="keywords" dest="text"/>
     <copyField source="dc.description" dest="text"/>
@@ -553,7 +586,7 @@
     <copyField source="issn" dest="text"/>
     <copyField source="text_ocr" dest="text"/>
 
-    <!-- lemmatized fields; text -->
+    <!-- lemmatized fields; stop words -->
     <copyField source="dc.title" dest="text_lemmatized"/>
     <copyField source="keywords" dest="text_lemmatized"/>
     <copyField source="dc.description" dest="text_lemmatized"/>
@@ -562,7 +595,7 @@
     <copyField source="details" dest="text_lemmatized"/>
     <copyField source="text_ocr" dest="text_lemmatized"/>
 
-
+    <!-- lemmatized ascii fields; stop words -->
     <copyField source="dc.title" dest="text_lemmatized_ascii"/>
     <copyField source="keywords" dest="text_lemmatized_ascii"/>
     <copyField source="dc.description" dest="text_lemmatized_ascii"/>
@@ -571,19 +604,32 @@
     <copyField source="details" dest="text_lemmatized_ascii"/>
     <copyField source="text_ocr" dest="text_lemmatized_ascii"/>
 
+    <!-- lemmatized  fields; text; no stopwords -->
+    <copyField source="dc.title" dest="text_lemmatized_nostopwords"/>
+    <copyField source="keywords" dest="text_lemmatized_nostopwords"/>
+    <copyField source="dc.description" dest="text_lemmatized_nostopwords"/>
+    <copyField source="dc.title" dest="text_lemmatized_nostopwords"/>
+    <copyField source="dc.creator" dest="text_lemmatized_nostopwords"/>
+    <copyField source="details" dest="text_lemmatized_nostopwords"/>
+    <copyField source="text_ocr" dest="text_lemmatized_nostopwords"/>
+
 
     <!-- root title; lemmatized fields -->
     <copyField source="root_title" dest="root_title_lemmatized"/>
     <copyField source="root_title" dest="root_title_lemmatized_ascii"/>
+    <copyField source="root_title" dest="root_title_lemmatized_nostopwords"/>
 
     <!-- title fields -->
     <copyField source="dc.title" dest="title"/>
     <copyField source="dc.title" dest="title_lemmatized"/>
     <copyField source="dc.title" dest="title_lemmatized_ascii"/>
+    <copyField source="dc.title" dest="title_lemmatized_nostopwords"/>
 
     <!-- text_ocr -->
     <copyField source="text_ocr" dest="text_ocr_lemmatized"/>
     <copyField source="text_ocr" dest="text_ocr_lemmatized_ascii"/>
+    <copyField source="text_ocr" dest="text_ocr_lemmatized_nostopwords"/>
+
 
     <copyField source="browse_title" dest="search_title"/>
     <copyField source="dc.creator" dest="facet_autor"/>
