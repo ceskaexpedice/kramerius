@@ -42,7 +42,7 @@ form(postfixdiv, importDirectory,importRootDirectory,  startIndexer, updateExist
             var startIndexer = \$('#startIndexer').attr('checked');
             var updateExisting = \$('#updateExisting').attr('checked');
             var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
-            var vals = 'importDirectory='+\$('#importDirectory').val().escapeChars(charsThatMustBeEscaped)
+            var vals = 'importDirectory='+encodeURI(\$('#importDirectory').val().escapeChars(charsThatMustBeEscaped))
                 +';startIndexer='+startIndexer+';updateExisting='+updateExisting
                 ;
             
