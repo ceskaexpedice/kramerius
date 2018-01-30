@@ -1,11 +1,6 @@
 package cz.incad.kramerius.services;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -39,6 +35,8 @@ public class MigrationUtils {
 
     private static final String DEST_SOLR_HOST = ".dest.solrHost";
     private static final String SOLR_MIGRATION_QUERY_KEY = ".migration.solr.query";
+    private static final String SOLR_MIGRATION_FIELD_LIST_KEY = ".migration.solr.fieldlist";
+
     private static final String SOLR_MIGRATION_ROWS_KEY = ".migration.solr.rows";
     
     private static final String SOLR_MIGRATION_THREAD_KEY = ".migration.threads";
@@ -49,9 +47,17 @@ public class MigrationUtils {
     
     
     public static final String DEFAULT_QEURY = "*:*";
-    public static final int DEFAULT_NUMBER_OF_ROWS = 100;
-    public static final int DEFAULT_NUMBER_OF_THREADS = 4;
-    public static final int DEFAULT_BATCHSIZE = 10;
+    public static final String DEFAULT_FIELDLIST = "PID timestamp fedora.model document_type handle status create_date modified_date parent_model " +
+            "parent_pid parent_pid parent_title root_model root_pid root_title text_ocr pages_count " +
+            "datum_str datum rok datum_begin datum_end datum_page issn mdt ddt dostupnost keywords " +
+            "geographic_names collection sec model_path pid_path rels_ext_index level dc.title title_sort " +
+            "title_sort dc.creator language dc.description details facet_title browse_title browse_autor img_full_mime viewable " +
+            "virtual location range";
+
+
+    public static final int DEFAULT_NUMBER_OF_ROWS = 500;
+    public static final int DEFAULT_NUMBER_OF_THREADS = 4   ;
+    public static final int DEFAULT_BATCHSIZE = 500;
     public static final int START = 0;
     
     public static final Logger LOGGER = Logger.getLogger(MigrationUtils.class.getName());
@@ -59,6 +65,7 @@ public class MigrationUtils {
     private MigrationUtils() {
     }
 
+    public static int counter = 0;
     
     public static void sendToDest(Client client, Document batchDoc)  throws MigrateSolrIndexException {
         try {
@@ -72,10 +79,6 @@ public class MigrationUtils {
                 ByteArrayOutputStream bos  = new ByteArrayOutputStream();
                 InputStream entityInputStream = resp.getEntityInputStream();
                 IOUtils.copyStreams(entityInputStream, bos);
-                LOGGER.log(Level.SEVERE, new String(bos.toByteArray()));
-                StringWriter batch = new StringWriter();
-                XMLUtils.print(batchDoc, batch);
-                LOGGER.log(Level.SEVERE, "critical batch is " + batch.toString());
             }
         } catch (UniformInterfaceException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -193,7 +196,8 @@ public class MigrationUtils {
     public static String configuredMigrationQuery() throws MigrateSolrIndexException {
         try {
             String query = KConfiguration.getInstance().getConfiguration().getString(SOLR_MIGRATION_QUERY_KEY, DEFAULT_QEURY);
-            return "select?q="+URLEncoder.encode(query, "UTF-8");
+            String fieldlist = KConfiguration.getInstance().getConfiguration().getString(SOLR_MIGRATION_FIELD_LIST_KEY, DEFAULT_FIELDLIST);
+            return "select?q="+URLEncoder.encode(query, "UTF-8")+"&fl="+URLEncoder.encode(fieldlist, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new MigrateSolrIndexException(e.getMessage());
@@ -229,7 +233,7 @@ public class MigrationUtils {
     public static Element querySolr(Client client, String solrQuery, int rows, int cursor)
             throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
         String formatted = solrQuery+String.format("&rows=%d&start=%d",rows, cursor);
-        SolrWorker.LOGGER.info(String.format("processing %s",formatted));
+        LOGGER.info(String.format("["+Thread.currentThread().getName()+"] processing %s",formatted));
         
         WebResource r = client.resource(formatted);
         String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
@@ -246,14 +250,6 @@ public class MigrationUtils {
         return result;
     }
     
-    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException, TransformerException {
-        Client client = Client.create();
 
-        String solrQuery = constructedQueryURL();
-        System.out.println(solrQuery);
-    //        Element sourceRequest = MigrationUtils.querySolr(client, solrQuery, 0,0);
-//        XMLUtils.print(sourceRequest, System.out);
-        
-    }
 
 }
