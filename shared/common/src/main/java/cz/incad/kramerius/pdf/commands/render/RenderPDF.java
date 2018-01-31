@@ -88,6 +88,7 @@ public class RenderPDF   {
     }
 
 
+
     class DocumentWrapper implements com.lowagie.text.TextElementArray {
 
         private Document document;
@@ -217,7 +218,7 @@ public class RenderPDF   {
         private final String footer;
         private final String header;
 
-        public Processor(Document pdfDoc, PdfWriter pdfWriter, FedoraAccess fedoraAccess, String footer, String header) {
+        public Processor(Document pdfDoc, PdfWriter pdfWriter, FedoraAccess fedoraAccess,String footer, String header) {
             super();
             this.pdfDoc = pdfDoc;
             this.pdfWriter = pdfWriter;
@@ -228,7 +229,6 @@ public class RenderPDF   {
             if (this.footer != null || this.header != null) {
                 pdfWriter.setPageEvent(new FooterAndHeader(footer, header));
             }
-
         }
 
         @Override
@@ -275,7 +275,9 @@ public class RenderPDF   {
                 if (hyphenation != null) {
                     par.setHyphenation(new HyphenationAuto(hyphenation.getCountry(), hyphenation.getLang(), 2, 2));
                 }
-                
+                if (cmdPar.isAlignmentDefined()) {
+                    par.setAlignment(cmdPar.getAlignment());
+                }
                 return par;
             } else if (cmd instanceof Text) {
                 Text txt = (Text) cmd;
@@ -392,7 +394,9 @@ public class RenderPDF   {
                 		String file = cmdImage.getFile();
 						com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
              
-						Float ratio = ratio(pdfDoc, 1.0f, img);
+                        ITextCommands root = cmdImage.getRoot();
+                        float percentage = (root.getFooter() != null || root.getHeader() != null) ? 0.9f : 1.0f;
+                        Float ratio = ratio(pdfDoc, percentage, img);
 
 						int fitToPageWidth = (int) (img.getWidth() * ratio);
 						int fitToPageHeight = (int) (img.getHeight() * ratio);
@@ -441,7 +445,6 @@ public class RenderPDF   {
                         com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
 
                         ITextCommands root = cmdImage.getRoot();
-
                         float percentage = (root.getFooter() != null || root.getHeader() != null) ? 0.9f : 1.0f;
                         Float ratio = ratio(pdfDoc, percentage, img);
 

@@ -277,4 +277,3 @@ task zipAllJavadocs(type: Zip) {
 	}
 }
 
-

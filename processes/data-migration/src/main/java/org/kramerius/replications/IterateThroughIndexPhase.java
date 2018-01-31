@@ -28,7 +28,7 @@ public class IterateThroughIndexPhase extends  AbstractPhase {
     public static final String POSTFIX = "api/v5.0/search?q=*:*";
 
     @Override
-    public void start(String url, String userName, String pswd, String replicationCollections) throws PhaseException {
+    public void start(String url, String userName, String pswd, String replicationCollections, String replicateImages) throws PhaseException {
         try {
             StringBuilder builder = new StringBuilder("{'pids':[");
             boolean first = true;
@@ -93,7 +93,7 @@ public class IterateThroughIndexPhase extends  AbstractPhase {
 
 
     @Override
-    public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd, String replicationCollections) throws PhaseException {
+    public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd, String replicationCollections, String replicateImages) throws PhaseException {
         throw new UnsupportedOperationException("This is unsupported in iterate phase");
     }
 }

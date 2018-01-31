@@ -206,7 +206,7 @@
 
     
     <xsl:template match="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" mode="biblioMods">
-        <xsl:for-each select="mods:language[@objectPart != 'translation']/mods:languageTerm/text()">
+        <xsl:for-each select="mods:language[not(@objectPart) or @objectPart != 'translation']/mods:languageTerm/text()">
         <field name="language">
             <xsl:value-of select="." />
         </field>
@@ -219,6 +219,11 @@
         <xsl:if test="$PAGENUM=0">
             <xsl:for-each select="mods:subject/mods:topic/text()">
                 <field name="keywords" >
+                    <xsl:value-of select="."/>
+                </field>
+            </xsl:for-each>
+            <xsl:for-each select="mods:subject/mods:geographic/text()">
+                <field name="geographic_names" >
                     <xsl:value-of select="."/>
                 </field>
             </xsl:for-each>

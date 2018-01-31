@@ -25,6 +25,7 @@ import com.google.inject.name.Names;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
@@ -34,19 +35,38 @@ import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.kramerius.Import;
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
 import org.kramerius.replications.pidlist.PidsListCollect;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import javax.ws.rs.core.MediaType;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.*;
 import java.util.Stack;
 import java.util.concurrent.ExecutorService;
@@ -72,16 +92,19 @@ public class SecondPhase extends AbstractPhase  {
     private Injector injector;
 
     private ExecutorService executorService = null;
+    private boolean replicationImages = false;
 
 
 
     @Override
-    public void start(String url, String userName, String pswd, String replicationCollections) throws PhaseException {
+    public void start(String url, String userName, String pswd, String replicationCollections,String replicationImages) throws PhaseException {
         try {
             this.executorService = newFixedThreadPool(NUMBER_OF_THREADS);
             this.findPid = false;
             this.controller = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
             this.replicationCollections = replicationCollections;
+            this.replicationImages = Boolean.parseBoolean(replicationImages);
+
             // initalize import
             Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
             this.injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
@@ -112,8 +135,10 @@ public class SecondPhase extends AbstractPhase  {
                     inputStream = rawFOXMLData(pid, url, userName, pswd);
                     foxmlfile = foxmlFile(inputStream, pid);
                     long foxmlStop = System.currentTimeMillis();
+                    if (this.replicationImages) {
+                        replicateImg(pid, url, foxmlfile);
+                    }
                     LOGGER.fine("\t downloading foxml took "+(foxmlStop - foxmlStart)+" ms");
-
                     ingest(foxmlfile);
                     createFOXMLDone(pid);
                 } catch (LexerException e) {
@@ -138,6 +163,48 @@ public class SecondPhase extends AbstractPhase  {
             }
         } catch (LexerException e) {
             throw new PhaseException(this,e);
+        }
+    }
+
+    private void replicateImg(String pid, String url, File foxml) throws PhaseException {
+        try {
+            String handlePid = K4ReplicationProcess.pidFrom(url);
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(foxml);
+            String relsExt = RelsExtHelper.getRelsExtTilesUrl(document); // url of tiles
+
+            if (relsExt != null) {
+                InputStream stream = orignalImgData(pid, url);
+                String imageserverDir = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerDirectory");
+                String path = imageserverDir + File.separator + handlePid.substring(5) + File.separator;
+                FileUtils.forceMkdir(new File(path));
+                File replicatedImage = new File(path + pid.substring(5) + ".jp2");
+                FileUtils.copyInputStreamToFile(stream, replicatedImage);
+
+                XPathFactory xpfactory = XPathFactory.newInstance();
+                XPath xpath = xpfactory.newXPath();
+                xpath.setNamespaceContext(new FedoraNamespaceContext());
+
+                Node nodeTilesUrl = (Node) xpath.evaluate("//kramerius:tiles-url", document, XPathConstants.NODE);
+                String imageServerTilesUrl = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerTilesURLPrefix");
+
+                String suffixTiles = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.tiles");
+                String imageTilesUrl;
+                if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerSuffix.removeFilenameExtensions", false)) {
+                    imageTilesUrl = imageServerTilesUrl + "/" +  handlePid.substring(5) + pid.substring(5) + suffixTiles;
+                } else {
+                    imageTilesUrl = imageServerTilesUrl + "/" +  handlePid.substring(5) + pid.substring(5) + ".jp2" + suffixTiles;
+                }
+                nodeTilesUrl.setTextContent(imageTilesUrl);
+
+                Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                transformer.transform(new DOMSource(document), new StreamResult(foxml));
+            }
+        } catch (ParserConfigurationException | IOException | XPathExpressionException | SAXException
+                | TransformerException e) {
+            throw new PhaseException(this, e);
         }
     }
 
@@ -186,6 +253,14 @@ public class SecondPhase extends AbstractPhase  {
         WebResource r = c.resource(K4ReplicationProcess.foxmlURL(url, pid, this.replicationCollections));
         r.addFilter(new BasicAuthenticationClientFilter(userName, pswd));
         InputStream t = r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
+        return t;
+    }
+
+    public InputStream orignalImgData(String pid, String url) {
+        Client c = Client.create();
+        WebResource r = c.resource(K4ReplicationProcess.imgOriginalURL(url, pid));
+        //r.addFilter(new BasicAuthenticationClientFilter(userName, pswd));
+        InputStream t = r.accept("image/jp2").get(InputStream.class); // memory?
         return t;
     }
     
@@ -247,7 +322,8 @@ public class SecondPhase extends AbstractPhase  {
 
 
     @Override
-    public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd, String replicationCollections) throws PhaseException {
+    public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd,
+                        String replicationCollections, String replicationImages) throws PhaseException {
         try {
             if (!phaseCompleted) {
                 // initalize import
@@ -364,8 +440,8 @@ public class SecondPhase extends AbstractPhase  {
             }
             SecondPhase.this.pathEmmited(path, this.url, this.userName, this.pswd);
         }
-        
-        
+
+
     }
     
 

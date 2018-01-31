@@ -73,7 +73,6 @@ public class ITextCommands extends AbstractITextCommand implements ITextCommand 
         if (StringUtils.isAnyString(pageHeader)) {
             this.header = pageHeader;
         }
-
         if (elm.getNodeName().equals("commands")) {
             NodeList nNodes = elm.getChildNodes();
             for (int i = 0,ll=nNodes.getLength(); i < ll; i++) {

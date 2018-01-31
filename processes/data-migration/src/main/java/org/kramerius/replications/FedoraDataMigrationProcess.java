@@ -24,7 +24,12 @@ public class FedoraDataMigrationProcess {
 
 
     @Process
-    public static void replications(@ParameterName("url") String url, @ParameterName("username") String userName, @ParameterName("pswd")String pswd, @ParameterName("replicateCollections")String replicateCollections, @ParameterName("previousProcess")String previousProcessUUID) throws IOException {
-        start(url, userName, pswd, replicateCollections, PHASES);
+    public static void replications(@ParameterName("url") String url,
+                                    @ParameterName("username") String userName,
+                                    @ParameterName("pswd")String pswd,
+                                    @ParameterName("replicateCollections")String replicateCollections,
+                                    @ParameterName("replicateImages")String replicateImages,
+                                    @ParameterName("previousProcess")String previousProcessUUID) throws IOException {
+        start(url, userName, pswd, replicateCollections, replicateImages, PHASES);
     }
 }

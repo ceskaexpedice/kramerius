@@ -18,6 +18,7 @@ import org.w3c.dom.Element;
 import com.google.inject.Inject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,9 +53,13 @@ public class FedoraOperations {
         utf_sort.init();
     }
 
+    public FedoraOperations() throws IOException {
+        foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
+        utf_sort = new UTFSort();
+        utf_sort.init();
+    }
 
-
-//    public void updateIndex(String action, String value, ArrayList<String> requestParams) throws java.rmi.RemoteException, Exception {
+    //    public void updateIndex(String action, String value, ArrayList<String> requestParams) throws java.rmi.RemoteException, Exception {
 //        logger.log(Level.INFO, "updateIndex action={0} value={1}", new Object[]{action, value});
 //        SolrOperations ops = new SolrOperations(fa,this);
 //        ops.updateIndex(action, value);

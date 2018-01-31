@@ -159,6 +159,8 @@ public class ApiServletModule extends JerseyServletModule {
         decs.addBinding().to(PeriodicalItemDecorate.class);
         decs.addBinding().to(PeriodicalVolumeDecorator.class);
         decs.addBinding().to(InternalPartDecorate.class);
+        decs.addBinding().to(InternalPartDecorate.class);
+        decs.addBinding().to(SupplementDecorator.class);
     }
 
     private void decorators() {

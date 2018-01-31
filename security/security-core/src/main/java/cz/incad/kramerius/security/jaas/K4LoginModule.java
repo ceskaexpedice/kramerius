@@ -34,6 +34,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
@@ -86,6 +87,8 @@ public class K4LoginModule implements LoginModule {
                 this.logged = checkPswd(foundUser.getLoginname(), foundPswd, pswd);
             } else {
                 this.logged = false;
+                LOGGER.info("Login failed for user \"" + loginName + "\": invalid username or password!");
+                throw new FailedLoginException("Invalid username or password!");
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

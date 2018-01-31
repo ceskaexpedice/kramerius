@@ -23,7 +23,6 @@ import org.w3c.dom.Element;
  */
 public interface ITextCommand {
 
-    public ITextCommands getRoot();
 
     /**
      * Load command 
@@ -33,7 +32,9 @@ public interface ITextCommand {
      * @throws IllegalAccessException Could not initalize commnad
      */
     public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException;
-    
+
+    public ITextCommands getRoot();
+
     /**
      * Returns parent command
      * @return parent command

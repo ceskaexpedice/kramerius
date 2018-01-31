@@ -150,7 +150,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
         }
         strWriter.write(">\n");
 
-        List<AbstractPage> pages = new ArrayList<>(rdoc.getPages());
+        List<AbstractPage> pages = new ArrayList<AbstractPage>(rdoc.getPages());
         for (int i = 0,ll=pages.size(); i < ll; i++) {
             AbstractPage apage = pages.get(i);
             if (apage instanceof ImagePage) {

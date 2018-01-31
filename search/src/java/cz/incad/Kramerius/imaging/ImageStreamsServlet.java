@@ -148,11 +148,11 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                     actionToDo.doPerform(this, this.fedoraAccess, pid, stream, page, req, resp);
                 } catch (FedoraIOException e1) {
                     // fedora exception
-                    LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    LOGGER.log(Level.WARNING, "Missing " + stream + " datastream for " + pid);
                     resp.setStatus(e1.getContentResponseCode());
                     resp.getWriter().write(e1.getContentResponseBody());
                 } catch (FileNotFoundException e1) {
-                    LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    LOGGER.log(Level.WARNING, e1.getMessage());
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 } catch (IOException e1) {
                     if ("ClientAbortException".equals(e1.getClass().getSimpleName())) {

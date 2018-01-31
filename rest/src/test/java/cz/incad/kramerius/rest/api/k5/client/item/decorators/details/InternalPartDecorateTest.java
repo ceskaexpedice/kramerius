@@ -38,6 +38,7 @@ public class InternalPartDecorateTest extends TestCase {
         EasyMock.replay(sa);
 
         InternalPartDecorate dec = new InternalPartDecorate();
+
         dec.solrAccess = sa;
         dec.memo = memoization;
 
@@ -46,6 +47,7 @@ public class InternalPartDecorateTest extends TestCase {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("pid", "uuid:0bf8e0f3-9c1a-40ca-a23f-c8a52e9e0359");
         Map<String, Object> runtimeContext = new HashMap<String, Object>();
+
         dec.decorate(jsonObject, runtimeContext);
 
         Assert.assertNotNull(jsonObject.getJSONObject("details"));

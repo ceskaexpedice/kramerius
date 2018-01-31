@@ -120,7 +120,10 @@ public class ServletAudioHttpRequestForwarder extends AbstractAudioHttpRequestFo
                     && (ex.getCause().getMessage().equals(CONNECTION_RESET) || ex.getCause().getMessage().equals(BROKEN_PIPE))) {
                 LOGGER.warning("Connection reset probably by client (or by repository)");
             } else {
-                LOGGER.log(Level.SEVERE, null, ex);
+                if (!"ClientAbortException".equals(ex.getClass().getSimpleName())) {
+                    LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                    // Do nothing, request was cancelled by client. This is usual audio player behavior.
+                }
             }
         } finally {
             try {

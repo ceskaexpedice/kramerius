@@ -47,7 +47,8 @@ public abstract class AbstractITextCommand implements ITextCommand {
     public Hyphenation getHyphenation() {
         return hyphenation;
     }
-    
+
+
 
     /**
      * Helper method. Returns true if given element contains attribute with any value 
