@@ -40,14 +40,7 @@ public class RESTHelper {
             HttpURLConnection httpUrl = (HttpURLConnection) uc;
             if (httpUrl != null) {
                 int responseCode = httpUrl.getResponseCode();
-                LOGGER.severe("status code "+responseCode);
-                
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                InputStream errorStream = httpUrl.getErrorStream();
-                if (errorStream != null) {
-                    IOUtils.copyStreams(errorStream, bos);
-                    LOGGER.severe(new String(bos.toByteArray(),"UTF-8"));
-                }
+                LOGGER.severe(urlString + " returned status code " + responseCode);
             }
             throw e;
         }
