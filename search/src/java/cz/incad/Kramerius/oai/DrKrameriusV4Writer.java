@@ -22,6 +22,8 @@ import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -56,6 +58,7 @@ public class DrKrameriusV4Writer implements OaiWriter {
     private static final QName RECORD_QNAME = new QName(DR_NS_URI, "record", DR_NS_PREFIX);
     private static final QName UUID_QNAME = new QName(DR_NS_URI, "uuid", DR_NS_PREFIX);
     private static final QName TYPE_QNAME = new QName(DR_NS_URI, "type", DR_NS_PREFIX);
+    private static final QName POLICY_QNAME = new QName(DR_NS_URI, "policy", DR_NS_PREFIX);
     private static final QName RELATION_QNAME = new QName(DR_NS_URI, "relation", DR_NS_PREFIX);
     private static final QName DESCRIPTOR_QNAME = new QName(DR_NS_URI, "descriptor", DR_NS_PREFIX);
 
@@ -149,6 +152,11 @@ public class DrKrameriusV4Writer implements OaiWriter {
         writer.add(eventFactory.createStartElement(TYPE_QNAME, null, null));
         writer.add(eventFactory.createCharacters(ctx.getModel().getKind().toString()));
         writer.add(eventFactory.createEndElement(TYPE_QNAME, null));
+        
+        // <policy>
+        writer.add(eventFactory.createStartElement(POLICY_QNAME, null, null));
+        writer.add(eventFactory.createCharacters(getDCPolicy(ctx.getPid())));
+        writer.add(eventFactory.createEndElement(POLICY_QNAME, null));
 
         // <descriptor>
         writer.add(eventFactory.createStartElement(DESCRIPTOR_QNAME, null, null));
@@ -165,6 +173,20 @@ public class DrKrameriusV4Writer implements OaiWriter {
         }
 
         writer.add(eventFactory.createEndElement(RECORD_QNAME, null));
+    }
+
+    private String getDCPolicy(String pid) throws IOException {
+        String rights;
+        Document document = fedora.getDC(pid);
+        NodeList policyElements = document.getElementsByTagName("dc:rights");
+
+        if (policyElements != null && policyElements.getLength() != 0) {
+            rights = policyElements.item(0).getTextContent();
+        } else {
+            LOG.warning("Missing rights for " + pid);
+            rights = "unknown";
+        }
+        return rights;
     }
 
     private void generate(Context ctx) throws XMLStreamException, IOException {

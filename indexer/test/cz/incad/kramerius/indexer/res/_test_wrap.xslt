@@ -26,10 +26,11 @@
 
     
      <xsl:template match="mods:modsCollection/mods:mods" mode="biblioMods">
-        <xsl:for-each select="mods:language[@objectPart != 'translation']/mods:languageTerm/text()">
+        <xsl:for-each select="mods:language[not(@objectPart) or @objectPart != 'translation']/mods:languageTerm/text()">
         <field name="language">
             <xsl:value-of select="." />
         </field>
+        <xsl:text>&#xa;</xsl:text>
         </xsl:for-each>
         <!-- <mods:location  -->
         <xsl:apply-templates select="mods:location" />

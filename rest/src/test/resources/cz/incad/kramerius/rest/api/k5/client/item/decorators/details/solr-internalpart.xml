@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+    <lst name="responseHeader">
+        <int name="status">0</int>
+        <int name="QTime">0</int>
+        <lst name="params">
+            <str name="wt">xml</str>
+            <str name="q">PID:"uuid:0bf8e0f3-9c1a-40ca-a23f-c8a52e9e0359"</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="1" start="0">
+        <doc>
+            <str name="PID">uuid:0bf8e0f3-9c1a-40ca-a23f-c8a52e9e0359</str>
+            <date name="created_date">2016-04-05T21:55:26Z</date>
+            <int name="datum_begin">1666</int>
+            <int name="datum_end">1666</int>
+            <str name="datum_str">1666</str>
+            <arr name="dc.identifier">
+                <str>uuid:0bf8e0f3-9c1a-40ca-a23f-c8a52e9e0359</str>
+                <str>0bf8e0f3-9c1a-40ca-a23f-c8a52e9e0359</str>
+            </arr>
+            <str name="dc.title">[První část]</str>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>internalpart##[První část]##Des Wund-Artzneyischen Zeug-Hauses des ersten Theils Erste Tafel. Von
+                    mancherley Instrumenten, mit welcher jetziger Zeit die Fontanellen in unterschiedlichen Theilen des
+                    menschlichen Leibs gebrennt werden##4-263
+                </str>
+            </arr>
+            <arr name="document_type">
+                <str>internalpart</str>
+                <str>internalpart</str>
+            </arr>
+            <str name="dostupnost">public</str>
+            <str name="fedora.model">internalpart</str>
+            <str name="handle"/>
+            <str name="issn"/>
+            <int name="level">1</int>
+            <str name="mdt"/>
+            <arr name="model_path">
+                <str>monograph/internalpart</str>
+            </arr>
+            <date name="modified_date">2016-04-05T20:06:40.781Z</date>
+            <int name="pages_count">0</int>
+            <arr name="rels_ext_index">
+                <int>695</int>
+            </arr>
+            <int name="rok">1666</int>
+            <str name="root_pid">uuid:MED00148805-85d363cb-7708-4f79-ae54-8509bd1108fa</str>
+            <str name="root_title">D. Ioannis Sculteti ... Wund-artzneyisches Zeug-Hauss : ... welches auss dem
+                Lateinischen von dess authoris Brudern Sohn, Herrn Iohann Schultes ... reformirten, verb. und an vielen
+                Orten verm. ... in die teutsche Sprach übersetzet hat ... Amadeus Megerlin ...
+            </str>
+            <str name="status">Active</str>
+            <str name="title_sort">D IOANNIS SCULTETI WUND ARTZNEYISH|ES ZEUG HAUSS</str>
+            <bool name="virtual">false</bool>
+            <arr name="parent_pid">
+                <str>uuid:MED00148805-85d363cb-7708-4f79-ae54-8509bd1108fa</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:MED00148805-85d363cb-7708-4f79-ae54-8509bd1108fa/uuid:0bf8e0f3-9c1a-40ca-a23f-c8a52e9e0359
+                </str>
+            </arr>
+        </doc>
+    </result>
+</response>

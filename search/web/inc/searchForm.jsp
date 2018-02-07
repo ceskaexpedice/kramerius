@@ -23,14 +23,21 @@
         <input type="hidden" id="da_od" name="da_od" value="${param.da_od}" />
         <input type="hidden" id="da_do" name="da_do" value="${param.da_do}" />
     </c:if>
-    <c:choose>
-        <c:when test="${empty param.q && !searching && !fieldedSearch}" >
-            <c:set var="qclass" >searchQuery ui-corner-all</c:set>
-        </c:when>
-        <c:otherwise>
-            <c:set var="qclass" >searchQuery ui-corner-all searching</c:set>
-        </c:otherwise>
-    </c:choose>
+
+    <c:if test="${!empty param.exactDay}" >
+        <input type="hidden" id="exactDay" name="exactDay" value="${param.exactDay}" />
+    </c:if>
+
+<c:choose>
+    <c:when test="${empty param.q && !searching && !fieldedSearch}" >
+        <c:set var="qclass" >searchQuery ui-corner-all</c:set>
+    </c:when>
+    <c:otherwise>
+        <c:set var="qclass" >searchQuery ui-corner-all searching</c:set>
+    </c:otherwise>
+</c:choose>
+
+
     <input id="debug" name="debug" type="hidden" value="${param.debug}" /> 
     <input id="sort" name="sort" type="hidden" value="${param.sort}" /> 
     <input type="text"

@@ -36,7 +36,16 @@ public abstract class AbstractITextCommand implements ITextCommand {
     public Hyphenation getHyphenation() {
         return hyphenation;
     }
-    
+
+    @Override
+    public ITextCommands getRoot() {
+        ITextCommand parent = this.getParent();
+        while(parent.getParent() != null) {
+            parent = parent.getParent();
+        }
+        return (ITextCommands) parent;
+    }
+
 
     /**
      * Helper method. Returns true if given element contains attribute with any value 

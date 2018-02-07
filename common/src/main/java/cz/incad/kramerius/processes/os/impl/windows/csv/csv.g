@@ -52,7 +52,7 @@ class CSVLexer extends Lexer;
 options{
 		charVocabulary='\u0003'..'\u7FFE';
 }
-RECORD  : '"' (~('\r'|'\n'|'"'))+ '"'  ;
+RECORD  : '"' (~('\r'|'\n'|'"'))* '"'  ;
 COMMA   : ',' ;
 NEWLINE : ('\r''\n')=> '\r''\n' //DOS
         | '\r'                  //MAC

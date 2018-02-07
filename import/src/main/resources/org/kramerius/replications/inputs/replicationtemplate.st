@@ -16,9 +16,14 @@ form(bundle, handle) ::=<<
             var user = \$('#user').val().escapeChars(charsThatMustBeEscaped);
             var password = \$('#pswd').val().escapeChars(charsThatMustBeEscaped);
 			
-			var replicateCollections =  \$( "#collections:checked" ).length ==1 ? "true" : "false"; 
+			var replicateCollections =  \$( "#collections:checked" ).length ==1 ? "true" : "false";
+			var replicateImages = \$( "#images:checked" ).length ==1 ? "true" : "false";
             
-            var url = "lr?action=form_post&def=k4_replication&paramsMapping={url="+handle+";username="+user+";pswd="+password+";replicateCollections="+replicateCollections+"}&out=text";
+            var url = "lr?action=form_post&def=k4_replication&paramsMapping={url="+handle+";username="+user+";pswd="+password
+                +";replicateCollections="+replicateCollections
+                +";replicateImages="+replicateImages
+                +"}&out=text";
+
             processStarter("k4_replication").start(url);
             
         }
@@ -37,6 +42,7 @@ form(bundle, handle) ::=<<
     <input type="password" style="width:100%" id="pswd" value=""></input><br>
 
     <input type="checkbox" id="collections">$bundle.("process.k4_replications.inputs.replicationCollections")$</input>
+    <input type="checkbox" id="images">$bundle.("process.k4_replications.inputs.replicationImages")$</input>
 
 </form>
 

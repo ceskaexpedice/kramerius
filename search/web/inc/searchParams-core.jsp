@@ -87,6 +87,11 @@
         <c:param name="fq" value="${da}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
+
+    <c:if test="${!empty param.exactDay}">
+        <c:param name="exactDay" value="${param.da_exactDay}" />
+    </c:if>
+
     <c:if test="${!empty param.offset}">
         <c:param name="start" value="${param.offset}" />
     </c:if>

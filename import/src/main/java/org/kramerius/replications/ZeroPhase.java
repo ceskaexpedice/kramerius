@@ -23,7 +23,7 @@ public class ZeroPhase extends AbstractPhase {
 	
 	
 	@Override
-	public void start(String url, String userName, String pswd, String replicationCollections) throws PhaseException {
+	public void start(String url, String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
         validate(url, replicationCollections);
 	}
 
@@ -96,7 +96,7 @@ public class ZeroPhase extends AbstractPhase {
 	
 	@Override
 	public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url,
-			String userName, String pswd, String replicationCollections) throws PhaseException {
+			String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
         validate(url, replicationCollections);
 	}
 

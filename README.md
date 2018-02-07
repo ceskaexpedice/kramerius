@@ -24,13 +24,13 @@ Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Mo
 
 Členové vývojového týmu:
 KNAV - M. Lhoták, M. Duda, I. Šlapáková; 
-NK ČR – T. Foltýn, R. Kreibich, V. Jiroušek, K. Košťálová; 
+NK ČR – T. Foltýn, Z. Vozár, V. Jiroušek, K. Košťálová; 
 MZK – L. Damborská, P. Žabička, M. Indrák; 
 NTK – J. Kolátor, J. Dobiášovský; 
 NLK – F. Kříž; 
 INCAD – P. Kocourek, P. Šťastný;
 
-Koordinátorem současného vývoje je Knihovna Akademie věd ČR zastoupená ředitelem Ing. Martinem Lhotákem.
+Koordinátorem současného vývoje je Knihovna Akademie věd ČR zastoupená Ing. Martinem Lhotákem.
 
 Kontakt:
 Ing. Martin Lhoták,

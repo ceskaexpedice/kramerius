@@ -54,7 +54,7 @@ public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
                 int from = i*forOneThread;
                 int to = (i == threads-1 ? numberOfResults :   (i+1)*forOneThread);
                 SolrWorker worker = new SolrWorker(barrier, from,to);
-                new Thread(worker).start();
+                new Thread(worker, "migrate-"+i).start();
             }
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -72,7 +72,8 @@ public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
             try {
                 barrier.await();
                 long stop = System.currentTimeMillis();
-                System.out.println("Finished  in "+(stop - start)+" ms");
+                LOGGER.info("Finished  in "+(stop - start)+" ms");
+                MigrationUtils.commit(this.client, MigrationUtils.confiugredDestinationServer());
             } catch (InterruptedException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw new MigrateSolrIndexException(e);

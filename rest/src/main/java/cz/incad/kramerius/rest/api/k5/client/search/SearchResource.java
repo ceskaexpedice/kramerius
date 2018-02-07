@@ -70,6 +70,8 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
+
 
 @Path("/v5.0/search")
 public class SearchResource {
@@ -127,8 +129,13 @@ public class SearchResource {
 
             return strWriter.toString();
         } catch (HttpResponseException e) {
-            LOGGER.log(Level.INFO, e.getMessage(), e);
-            throw new BadRequestException(e.getMessage());
+            if (e.getStatusCode() == SC_BAD_REQUEST) {
+                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                throw new BadRequestException(e.getMessage());
+            } else {
+                LOGGER.log(Level.INFO, e.getMessage(), e);
+                throw new GenericApplicationException(e.getMessage());
+            }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());
@@ -217,8 +224,13 @@ public class SearchResource {
 
             return jsonObject.toString();
         } catch (HttpResponseException e) {
-            LOGGER.log(Level.INFO, e.getMessage(), e);
-            throw new BadRequestException(e.getMessage());
+            if (e.getStatusCode() == SC_BAD_REQUEST) {
+                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                throw new BadRequestException(e.getMessage());
+            } else {
+                LOGGER.log(Level.INFO, e.getMessage(), e);
+                throw new GenericApplicationException(e.getMessage());
+            }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());

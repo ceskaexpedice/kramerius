@@ -241,7 +241,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
                     if ("ClientAbortException".equals(e.getClass().getSimpleName())) {
                         // Do nothing, request was cancelled by client. This is usual image viewers behavior.
                     } else {
-                        throw new IOException(e);
+                        throw e;
                     }
                 }
             }

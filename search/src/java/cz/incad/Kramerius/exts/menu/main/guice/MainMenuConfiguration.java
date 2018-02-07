@@ -25,14 +25,10 @@ import cz.incad.Kramerius.exts.menu.main.impl.MainMenuImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuPartImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.CollectionsRightsAdministration;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Convert;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.CriteriaEditor;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.DeleteProcesses;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Enumerator;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.GlobalRightsAdministration;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Import;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ImportMonographs;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ImportPeriodicals;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerMigration;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MetadataEditor;
@@ -47,7 +43,6 @@ import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ReplicationRights;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.RolesEditor;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ShowStatistics;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.items.UsersAdministration;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.VirtualCollectionsAdministration;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMenuPartImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.items.ChangePassword;
@@ -89,7 +84,6 @@ public class MainMenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(GlobalRightsAdministration.class);
         adminItems.addBinding().to(CriteriaEditor.class);
         // administrace
-        adminItems.addBinding().to(VirtualCollectionsAdministration.class);
         // prava
         adminItems.addBinding().to(CollectionsRightsAdministration.class);
  

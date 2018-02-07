@@ -30,9 +30,10 @@ public interface Phase {
      * @param userName User name
      * @param pswd Password
      * @param replicationCollections TODO
+     * @param replicateImages copy images to target kramerius (true|false)
      * @throws PhaseException
      */
-    public void start(String url, String userName, String pswd, String replicationCollections) throws PhaseException;
+    public void start(String url, String userName, String pswd, String replicationCollections, String replicateImages) throws PhaseException;
     
     /**
      * Restart previous phase
@@ -45,6 +46,7 @@ public interface Phase {
      * @param replicationCollections TODO
      * @throws PhaseException
      */
-    public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd, String replicationCollections) throws PhaseException;
+    public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd,
+                        String replicationCollections, String replicateImages) throws PhaseException;
 
 }

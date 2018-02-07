@@ -5,36 +5,29 @@ import antlr.TokenStreamException;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.indexer.coordinates.ParsingCoordinates;
 import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
-import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.pdfbox.cos.COSDocument;
-import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 //import org.apache.pdfbox.util.PDFTextStripper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,6 +67,10 @@ public class ExtendedFields {
     DateFormat df;
     DateFormat solrDateFormat;
 
+    // geo coordinates range
+    private List<String> coordinates;
+
+
     public ExtendedFields(FedoraOperations fo) throws IOException {
         this.fo = fo;
         KConfiguration config = KConfiguration.getInstance();
@@ -102,8 +99,11 @@ public class ExtendedFields {
         for (String s : pid_paths) {
             model_paths.add(getModelPath(s));
         }
+        Document biblioMods = fa.getBiblioMods(pid);
         setRootTitle();
-        setDate();
+        setDate(biblioMods);
+        // coordinates
+        this.coordinates = ParsingCoordinates.processBibloModsCoordinates(biblioMods, this.factory);
     }
     PDDocument pdDoc = null;
     String pdfPid = "";
@@ -243,6 +243,14 @@ public class ExtendedFields {
         if (!datum_end.equals("")) {
             sb.append("<field name=\"datum_end\">").append(datum_end).append("</field>");
         }
+
+
+        if (this.coordinates != null) {
+            coordinates.stream().forEach((loc)->{
+                sb.append(loc);
+            });
+        }
+
         return sb.toString();
     }
 
@@ -262,7 +270,9 @@ public class ExtendedFields {
         }
     }
 
-    private void setDate() throws Exception {
+
+
+    private void setDate(Document biblioMods) throws Exception {
         datum_str = "";
         rok = "";
         datum_begin = "";
@@ -272,7 +282,7 @@ public class ExtendedFields {
             String[] pid_path = pid_paths.get(j).split("/");
             for (int i = pid_path.length - 1; i > -1; i--) {
                 String pid = pid_path[i];
-                Document foxml = fa.getBiblioMods(pid);
+                //Document biblioMods = fa.getBiblioMods(pid);
                 if (dates_cache.containsKey(pid)) {
                     datum_str = dates_cache.get(pid);
                     parseDatum(datum_str);
@@ -280,7 +290,7 @@ public class ExtendedFields {
                 }
                 xPathStr = prefix + "mods:part/mods:date/text()";
                 expr = xpath.compile(xPathStr);
-                Node node = (Node) expr.evaluate(foxml, XPathConstants.NODE);
+                Node node = (Node) expr.evaluate(biblioMods, XPathConstants.NODE);
                 if (node != null) {
                     datum_str = node.getNodeValue();
                     parseDatum(datum_str);
@@ -289,7 +299,7 @@ public class ExtendedFields {
                 } else {
                     xPathStr = prefix + "mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()";
                     expr = xpath.compile(xPathStr);
-                    node = (Node) expr.evaluate(foxml, XPathConstants.NODE);
+                    node = (Node) expr.evaluate(biblioMods, XPathConstants.NODE);
                     if (node != null) {
                         datum_str = node.getNodeValue();
                         parseDatum(datum_str);
@@ -298,7 +308,7 @@ public class ExtendedFields {
                     }else{
                         xPathStr = prefix + "mods:originInfo/mods:dateIssued/text()";
                         expr = xpath.compile(xPathStr);
-                        node = (Node) expr.evaluate(foxml, XPathConstants.NODE);
+                        node = (Node) expr.evaluate(biblioMods, XPathConstants.NODE);
                         if (node != null) {
                             datum_str = node.getNodeValue();
                             parseDatum(datum_str);
