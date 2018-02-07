@@ -48,7 +48,7 @@ public class BatchUtils {
         return batches;
     }
 
-    static void printPid(Element sourceDocElm) {
+    static String pid(Element sourceDocElm) {
         Element pidElm = XMLUtils.findElement(sourceDocElm,  new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {
@@ -59,11 +59,12 @@ public class BatchUtils {
             }
         });
         if (pidElm != null) {
-            System.out.println(pidElm.getTextContent());
-        }
+            return pidElm.getTextContent().trim();
+        } else return "";
     }
 
     public static void transform(Element sourceDocElm, Document destDocument,Element destDocElem) throws MigrateSolrIndexException  {
+        String pid = pid(sourceDocElm);
         if (sourceDocElm.getNodeName().equals("doc")) {
             NodeList childNodes = sourceDocElm.getChildNodes();
             for (int j = 0,lj=childNodes.getLength(); j < lj; j++) {
@@ -71,9 +72,9 @@ public class BatchUtils {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     List<String> primitiveVals = Arrays.asList("str","int","bool", "date");
                     if (primitiveVals.contains(node.getNodeName())) {
-                        simpleValue(destDocument,destDocElem, node,null);
+                        simpleValue(pid, destDocument,destDocElem, node,null);
                     } else {
-                        arrayValue(destDocument,destDocElem,node);
+                        arrayValue(pid, destDocument,destDocElem,node);
                     }
                 }
             }
@@ -111,10 +112,10 @@ public class BatchUtils {
         compositeIdElm.setAttribute("name", compositeIdName);
         compositeIdElm.setTextContent(txt);
         docElm.appendChild(compositeIdElm);
-        
+
     }
     
-    public static void simpleValue(Document ndoc, Element docElm, Node node, String derivedName) {
+    public static void simpleValue(String pid, Document ndoc, Element docElm, Node node, String derivedName) {
         String attributeName = derivedName != null ? derivedName : ((Element)node).getAttribute("name");
         if (!nonCopiingField(attributeName)) {
             Element strElm = ndoc.createElement("field");
@@ -125,22 +126,43 @@ public class BatchUtils {
         }
     }
 
-    public static void arrayValue(Document ndoc, Element docElm, Node node) {
+    public static void arrayValue(String pid, Document ndoc, Element docElm, Node node) {
         String attributeName = ((Element) node).getAttribute("name");
         if (!nonCopiingField(attributeName)) {
-            NodeList childNodes = node.getChildNodes();
-            for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
-                Node n = childNodes.item(i);
-                if (n.getNodeType() == Node.ELEMENT_NODE) {
-                    simpleValue(ndoc,docElm, n, attributeName);
+            if (exceptionField(attributeName) && pid.contains("/@")) {
+                NodeList childNodes = node.getChildNodes();
+                for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
+                    Node n = childNodes.item(i);
+                    if (n.getNodeType() == Node.ELEMENT_NODE) {
+                        simpleValue(pid, ndoc,docElm, n, attributeName);
+                    }
+                }
+            } else if (!exceptionField(attributeName)) {
+                NodeList childNodes = node.getChildNodes();
+                for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
+                    Node n = childNodes.item(i);
+                    if (n.getNodeType() == Node.ELEMENT_NODE) {
+                        simpleValue(pid, ndoc,docElm, n, attributeName);
+                    }
                 }
             }
         }
     }
 
-    public static final List<String> COPIED_FIELDS = Arrays.asList("text","title", "search_title","facet_autor","search_autor");
+    // text is copied but not for PDF; uuugrrrr !!! Terrible
+    public static final List<String> EXCEPTION_FIELDS = Arrays.asList("text");
 
+    // copied
+    public static final List<String> COPIED_FIELDS = Arrays.asList("title", "search_title","facet_autor","search_autor");
+    // copied but identified by postfix
     public static final List<String> COPIED_POSTFIXES = Arrays.asList("_lemmatized","_lemmatized_ascii","_lemmatized_nostopwords");
+
+    private static boolean exceptionField(String attributeName) {
+        if (EXCEPTION_FIELDS.contains(attributeName)) {
+            return true;
+        }
+        return false;
+    }
 
     private static boolean nonCopiingField(String attributeName) {
         if (COPIED_FIELDS.contains(attributeName)) {

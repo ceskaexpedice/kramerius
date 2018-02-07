@@ -36,23 +36,26 @@ public class MigrationUtils {
     private static final String DEST_SOLR_HOST = ".dest.solrHost";
     private static final String SOLR_MIGRATION_QUERY_KEY = ".migration.solr.query";
     private static final String SOLR_MIGRATION_FIELD_LIST_KEY = ".migration.solr.fieldlist";
+    private static final String SOLR_MIGRATION_SORT_FIELD_KEY = ".migration.solr.sort";
 
     private static final String SOLR_MIGRATION_ROWS_KEY = ".migration.solr.rows";
     
     private static final String SOLR_MIGRATION_THREAD_KEY = ".migration.threads";
     private static final String SOLR_MIGRATION_BATCHSIZE_KEY = ".migration.solr.batchsize";
-    
+
 
     private static final String SOLR_MIGRATION_BUIDLD_COMPOSITE =".migration.build.composite";
     
     
     public static final String DEFAULT_QEURY = "*:*";
-    public static final String DEFAULT_FIELDLIST = "PID timestamp fedora.model document_type handle status create_date modified_date parent_model " +
+    public static final String DEFAULT_FIELDLIST = "PID timestamp fedora.model document_type handle status created_date modified_date parent_model " +
             "parent_pid parent_pid parent_title root_model root_pid root_title text_ocr pages_count " +
             "datum_str datum rok datum_begin datum_end datum_page issn mdt ddt dostupnost keywords " +
             "geographic_names collection sec model_path pid_path rels_ext_index level dc.title title_sort " +
-            "title_sort dc.creator language dc.description details facet_title browse_title browse_autor img_full_mime viewable " +
-            "virtual location range";
+            "title_sort dc.creator dc.identifier language dc.description details facet_title browse_title browse_autor img_full_mime viewable " +
+            "virtual location range mods.shelfLocator mods.physicalLocation text";
+
+    public static final String DEFAULT_SORT_FIELD="modified_date asc";
 
 
     public static final int DEFAULT_NUMBER_OF_ROWS = 500;
@@ -197,7 +200,8 @@ public class MigrationUtils {
         try {
             String query = KConfiguration.getInstance().getConfiguration().getString(SOLR_MIGRATION_QUERY_KEY, DEFAULT_QEURY);
             String fieldlist = KConfiguration.getInstance().getConfiguration().getString(SOLR_MIGRATION_FIELD_LIST_KEY, DEFAULT_FIELDLIST);
-            return "select?q="+URLEncoder.encode(query, "UTF-8")+"&fl="+URLEncoder.encode(fieldlist, "UTF-8");
+            String sortfield = KConfiguration.getInstance().getConfiguration().getString(SOLR_MIGRATION_SORT_FIELD_KEY, DEFAULT_SORT_FIELD);
+            return "select?q="+URLEncoder.encode(query, "UTF-8")+"&fl="+URLEncoder.encode(fieldlist, "UTF-8") +"&sort="+URLEncoder.encode(sortfield, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new MigrateSolrIndexException(e.getMessage());
