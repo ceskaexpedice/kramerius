@@ -216,7 +216,7 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
         description "Create full distribution zip"
 	baseName "kramerius"
 	group "Distribution"
-        from {'client/build/libs'}
+        classifier "NKP"
         from {'search/build/libs'}
         from {'security-core/build/libs'}
         from configurations.editors
