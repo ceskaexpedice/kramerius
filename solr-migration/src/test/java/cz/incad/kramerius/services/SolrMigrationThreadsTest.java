@@ -234,7 +234,7 @@ public class SolrMigrationThreadsTest extends TestCase {
     public void testConstructQuery() throws MigrateSolrIndexException {
     	KConfiguration.getInstance().getConfiguration().setProperty(".migration.solr.query", "*:*");
         String url =MigrationUtils.constructedQueryURL();
-        Assert.assertTrue(url.endsWith("select?q=*%3A*&fl=PID+timestamp+fedora.model+document_type+handle+status+created_date+modified_date+parent_model+parent_pid+parent_pid+parent_title+root_model+root_pid+root_title+text_ocr+pages_count+datum_str+datum+rok+datum_begin+datum_end+datum_page+issn+mdt+ddt+dostupnost+keywords+geographic_names+collection+sec+model_path+pid_path+rels_ext_index+level+dc.title+title_sort+title_sort+dc.creator+language+dc.description+details+facet_title+browse_title+browse_autor+img_full_mime+viewable+virtual+location+range"));
+        Assert.assertTrue(url.endsWith("select?q=*%3A*&fl=PID+timestamp+fedora.model+document_type+handle+status+created_date+modified_date+parent_model+parent_pid+parent_pid+parent_title+root_model+root_pid+root_title+text_ocr+pages_count+datum_str+datum+rok+datum_begin+datum_end+datum_page+issn+mdt+ddt+dostupnost+keywords+geographic_names+collection+sec+model_path+pid_path+rels_ext_index+level+dc.title+title_sort+title_sort+dc.creator+dc.identifier+language+dc.description+details+facet_title+browse_title+browse_autor+img_full_mime+viewable+virtual+location+range"));
         KConfiguration.getInstance().getConfiguration().setProperty(".migration.solr.query", "*:* AND parent_pid:uuid\\:xxxx");
         KConfiguration.getInstance().getConfiguration().setProperty(".migration.solr.fieldlist", "*:* AND parent_pid:uuid\\:xxxx&fl=PID");
         url =MigrationUtils.constructedQueryURL();
