@@ -590,7 +590,6 @@
     <copyField source="dc.title" dest="text_lemmatized"/>
     <copyField source="keywords" dest="text_lemmatized"/>
     <copyField source="dc.description" dest="text_lemmatized"/>
-    <copyField source="dc.title" dest="text_lemmatized"/>
     <copyField source="dc.creator" dest="text_lemmatized"/>
     <copyField source="details" dest="text_lemmatized"/>
     <copyField source="text_ocr" dest="text_lemmatized"/>
@@ -599,7 +598,6 @@
     <copyField source="dc.title" dest="text_lemmatized_ascii"/>
     <copyField source="keywords" dest="text_lemmatized_ascii"/>
     <copyField source="dc.description" dest="text_lemmatized_ascii"/>
-    <copyField source="dc.title" dest="text_lemmatized_ascii"/>
     <copyField source="dc.creator" dest="text_lemmatized_ascii"/>
     <copyField source="details" dest="text_lemmatized_ascii"/>
     <copyField source="text_ocr" dest="text_lemmatized_ascii"/>
@@ -608,7 +606,6 @@
     <copyField source="dc.title" dest="text_lemmatized_nostopwords"/>
     <copyField source="keywords" dest="text_lemmatized_nostopwords"/>
     <copyField source="dc.description" dest="text_lemmatized_nostopwords"/>
-    <copyField source="dc.title" dest="text_lemmatized_nostopwords"/>
     <copyField source="dc.creator" dest="text_lemmatized_nostopwords"/>
     <copyField source="details" dest="text_lemmatized_nostopwords"/>
     <copyField source="text_ocr" dest="text_lemmatized_nostopwords"/>

@@ -352,8 +352,10 @@ public class Search {
 
     private String getBoost(String q) {
         String ret = "";
-        ret = "&defType=edismax&qf=text+"
+        ret = "&defType=edismax&qf=text+text_lemmatized+text_lemmatized_ascii^0.2+"
                 + fieldsConfig.getMappedField("title") + "^4.0+"
+                + "title_lemmatized^4.0+"
+                + "title_lemmatized_ascii+"
                 + fieldsConfig.getMappedField("autor") + "^1.5&bq=(level:0)^4.5"
                 + "&bq=" + fieldsConfig.getMappedField("dostupnost") + ":\"public\"^1.2"
                 + "&pf=text^10";

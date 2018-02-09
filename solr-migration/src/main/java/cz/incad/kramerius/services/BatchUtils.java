@@ -48,6 +48,19 @@ public class BatchUtils {
         return batches;
     }
 
+
+    /** find element by attribute */
+    static Element findByAttribute(Element sourceDocElm, String attName) {
+        Element elemName = XMLUtils.findElement(sourceDocElm,  new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                return element.getAttribute("name").equals(attName);
+            }
+        });
+        return elemName;
+    }
+
+    /** find pid in source doc */
     static String pid(Element sourceDocElm) {
         Element pidElm = XMLUtils.findElement(sourceDocElm,  new XMLUtils.ElementsFilter() {
             @Override
@@ -72,9 +85,9 @@ public class BatchUtils {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     List<String> primitiveVals = Arrays.asList("str","int","bool", "date");
                     if (primitiveVals.contains(node.getNodeName())) {
-                        simpleValue(pid, destDocument,destDocElem, node,null);
+                        simpleValue(pid, destDocument,destDocElem, node,null, false);
                     } else {
-                        arrayValue(pid, destDocument,destDocElem,node);
+                        arrayValue(pid,sourceDocElm, destDocument,destDocElem,node);
                     }
                 }
             }
@@ -115,18 +128,18 @@ public class BatchUtils {
 
     }
     
-    public static void simpleValue(String pid, Document ndoc, Element docElm, Node node, String derivedName) {
+    public static void simpleValue(String pid, Document feedDoc, Element feedDocElm, Node node, String derivedName, boolean dontCareAboutNonCopiingFields) {
         String attributeName = derivedName != null ? derivedName : ((Element)node).getAttribute("name");
-        if (!nonCopiingField(attributeName)) {
-            Element strElm = ndoc.createElement("field");
+        if (dontCareAboutNonCopiingFields || !nonCopiingField(attributeName)) {
+            Element strElm = feedDoc.createElement("field");
             strElm.setAttribute("name", attributeName);
-            docElm.appendChild(strElm);
+            feedDocElm.appendChild(strElm);
             String content = StringEscapeUtils.escapeXml(node.getTextContent());
             strElm.setTextContent(content);
         }
     }
 
-    public static void arrayValue(String pid, Document ndoc, Element docElm, Node node) {
+    public static void arrayValue(String pid,Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node) {
         String attributeName = ((Element) node).getAttribute("name");
         if (!nonCopiingField(attributeName)) {
             if (exceptionField(attributeName) && pid.contains("/@")) {
@@ -134,7 +147,17 @@ public class BatchUtils {
                 for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
                     Node n = childNodes.item(i);
                     if (n.getNodeType() == Node.ELEMENT_NODE) {
-                        simpleValue(pid, ndoc,docElm, n, attributeName);
+                        // exception again !!! uuugrrrr !!;
+
+                        // bug in pdf; text is filled directly to text field although text is copied field
+                        // first we have to find text_ocr, if it doesn't exist, copy whole text to text, text_lemmatized, text_lemmatized_ascii and text_lemmatized_nostopwords
+                        Element textOcr = findByAttribute(sourceDocElement, "text_ocr");
+                        if (textOcr == null) {
+                            simpleValue(pid, feedDoc,feedDocElement, n, attributeName, false);
+                            simpleValue(pid, feedDoc, feedDocElement, n,"text_lemmatized", true);
+                            simpleValue(pid, feedDoc, feedDocElement, n,"text_lemmatized_ascii", true);
+                            simpleValue(pid, feedDoc, feedDocElement, n,"text_lemmatized_nostopwords", true);
+                        }
                     }
                 }
             } else if (!exceptionField(attributeName)) {
@@ -142,7 +165,7 @@ public class BatchUtils {
                 for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
                     Node n = childNodes.item(i);
                     if (n.getNodeType() == Node.ELEMENT_NODE) {
-                        simpleValue(pid, ndoc,docElm, n, attributeName);
+                        simpleValue(pid, feedDoc,feedDocElement, n, attributeName, false);
                     }
                 }
             }

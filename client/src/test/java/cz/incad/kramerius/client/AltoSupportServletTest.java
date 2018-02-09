@@ -6,8 +6,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,13 +23,13 @@ import junit.framework.TestCase;
 
 public class AltoSupportServletTest extends TestCase {
 
-    public void testFindTerms() throws IOException, ParserConfigurationException, SAXException {
+    public void testFindTerms() throws IOException, ParserConfigurationException, SAXException, TransformerException {
         URL url = AltoSupportServletTest.class.getResource("solr.xml");
         InputStream openStream = url.openStream();
         Document document = XMLUtils.parseDocument(openStream);
-        List<String> terms = AltoSupportServlet.findHighlightTerm(document.getDocumentElement(),"uuid:5c243d40-3425-11e3-bd38-5ef3fc9ae867");
+        Set<String> terms = AltoSupportServlet.findHighlightTerm(document.getDocumentElement(),"uuid:5c243d40-3425-11e3-bd38-5ef3fc9ae867");
         Assert.assertTrue(terms.size() == 1);
-        Assert.assertTrue(terms.get(0).equals("PROSA"));
+        Assert.assertTrue(terms.iterator().next().equals("PROSA"));
     }
 
     public void testFindAltos() throws ParserConfigurationException, SAXException, IOException {
@@ -38,8 +40,8 @@ public class AltoSupportServletTest extends TestCase {
 
         openStream = alto.openStream();
         Document altoDocument = XMLUtils.parseDocument(openStream);
-        
-        List<String> terms = AltoSupportServlet.findHighlightTerm(solrDocument.getDocumentElement(),"uuid:5c243d40-3425-11e3-bd38-5ef3fc9ae867");
+
+        Set<String> terms = AltoSupportServlet.findHighlightTerm(solrDocument.getDocumentElement(),"uuid:5c243d40-3425-11e3-bd38-5ef3fc9ae867");
         for (String sterm : terms) {
             AltoDisected disected = ALTOUtils.disectAlto(sterm, altoDocument);
             Assert.assertNotNull(disected);

@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+    <lst name="responseHeader">
+        <int name="status">0</int>
+        <int name="QTime">0</int>
+        <lst name="params">
+            <str name="q">PID:"uuid:aa3016bf-2471-11e4-9632-001b63bd97ba/@38"</str>
+            <str name="indent">on</str>
+            <str name="wt">xml</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="1" start="0">
+        <doc>
+            <str name="PID">uuid:aa3016bf-2471-11e4-9632-001b63bd97ba/@38</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>page</str>
+            </arr>
+            <bool name="virtual">true</bool>
+            <str name="dc.title">38</str>
+            <arr name="text">
+                <str>38</str>
+                <str>- 36 - Popelová
+                    c h a r a k t e r u j i z v y po IM ( 5 9 ) . Přítomnost kolaterál v akutní
+                    fázi IM l i m i t u j e v e l i k o s t infarktového ložiska a zabrání
+                    v z n i k u aneurysmatu (60,61).
+                    V naší skupině pacientů s AIM došlo k remodelací levé
+                    komory d l e námi zvolených kritérií u 9 z 2 0 pacientů, kteří
+                    se d o s t a v i l i ke k o n t r o l e po 6-12 měsících od AIM, t o j e ve
+                    45% . U těchto pacientů došlo k signifikantnímu zvýšení
+                    diastolického in d e x u s f e r i c i t y , na rozdíl od pacientů bez
+                    remodelace, u kterých se i n d e x s f e r i c i t y signifikantně
+                    nezměnil.
+                    Metoda hodnocení remodelace pouhým srovnáním rozměrů
+                    levé komory není z c e l a ideální, avšak na rozdíl od jiných
+                    navrhovaných metod j e v e l m i jednoduchá, dobře
+                    reprodukovateIná, s nízkou interindividuální v a r i a b i l i t o u
+                    měření a nevyžaduje počítačovou t e c h n i k u a zvláštní zařízení.
+                    Při porovnání nálezů v obou skupinách b y l ve skupině
+                    s remodelací levé komory vyšší počet asynergických segmentů
+                    v časné fázi AIM, avšak nález n e b y l s t a t i s t i c k y významný. Při
+                    k o n t r o l e po roce se počet asynergických segmentů v obou
+                    skupinách nelišil. V obou skupinách n e b y l signifikantní
+                    rozdíl v počtu segmentů se zlepšením k i n e t i k y při DE a n i
+                    v počtu segmentů se spontánním zlepšením k i n e t i k y . Nebyl
+                    rovněž rozdíl ve včasnosti podání trombolytické t e r a p i e ,
+                    v obou skupinách se j e d n a l o o průměrnou dobu kratší než 4
+                    hodiny, n e b y l rozdíl ve druhu trombolytické léčby, ve všech
+                    případech se j e d n a l o o streptokinázu. Trombolytická t e r a p i e
+                    b y l a d l e klinických kritérií častěji úspěšná ve skupině bez
+                    remodelace, rozdíl však n e b y l s t a t i s t i c k y významný.
+                    S u t t o n n a l e z l d i l a t a c i levé komory po AIM v 33-38%
+                    a dále n a l e z l k o r e l a c i mezi diastolickým indexem s f e r i c i t y
+                    a m o r t a l i t o u či srdečním selháním ( 1 7 ) .
+                    N e p o t v r d i l i jsme nález Modeny, který prokázal, že
+                    p a c i e n t i s viabilním myokardem v o b l a s t i infarktové tepny
+                    mají nízké r i z i k o remodelace ( 8 0 ) . Důvodem může být ztráta
+                    v i a b i l i t y i relativně malý počet našich pacientů.
+                </str>
+            </arr>
+            <arr name="text_lemmatized">
+                <str>38</str>
+                <str>- 36 - Popelová
+                    c h a r a k t e r u j i z v y po IM ( 5 9 ) . Přítomnost kolaterál v akutní
+                    fázi IM l i m i t u j e v e l i k o s t infarktového ložiska a zabrání
+                    v z n i k u aneurysmatu (60,61).
+                    V naší skupině pacientů s AIM došlo k remodelací levé
+                    komory d l e námi zvolených kritérií u 9 z 2 0 pacientů, kteří
+                    se d o s t a v i l i ke k o n t r o l e po 6-12 měsících od AIM, t o j e ve
+                    45% . U těchto pacientů došlo k signifikantnímu zvýšení
+                    diastolického in d e x u s f e r i c i t y , na rozdíl od pacientů bez
+                    remodelace, u kterých se i n d e x s f e r i c i t y signifikantně
+                    nezměnil.
+                    Metoda hodnocení remodelace pouhým srovnáním rozměrů
+                    levé komory není z c e l a ideální, avšak na rozdíl od jiných
+                    navrhovaných metod j e v e l m i jednoduchá, dobře
+                    reprodukovateIná, s nízkou interindividuální v a r i a b i l i t o u
+                    měření a nevyžaduje počítačovou t e c h n i k u a zvláštní zařízení.
+                    Při porovnání nálezů v obou skupinách b y l ve skupině
+                    s remodelací levé komory vyšší počet asynergických segmentů
+                    v časné fázi AIM, avšak nález n e b y l s t a t i s t i c k y významný. Při
+                    k o n t r o l e po roce se počet asynergických segmentů v obou
+                    skupinách nelišil. V obou skupinách n e b y l signifikantní
+                    rozdíl v počtu segmentů se zlepšením k i n e t i k y při DE a n i
+                    v počtu segmentů se spontánním zlepšením k i n e t i k y . Nebyl
+                    rovněž rozdíl ve včasnosti podání trombolytické t e r a p i e ,
+                    v obou skupinách se j e d n a l o o průměrnou dobu kratší než 4
+                    hodiny, n e b y l rozdíl ve druhu trombolytické léčby, ve všech
+                    případech se j e d n a l o o streptokinázu. Trombolytická t e r a p i e
+                    b y l a d l e klinických kritérií častěji úspěšná ve skupině bez
+                    remodelace, rozdíl však n e b y l s t a t i s t i c k y významný.
+                    S u t t o n n a l e z l d i l a t a c i levé komory po AIM v 33-38%
+                    a dále n a l e z l k o r e l a c i mezi diastolickým indexem s f e r i c i t y
+                    a m o r t a l i t o u či srdečním selháním ( 1 7 ) .
+                    N e p o t v r d i l i jsme nález Modeny, který prokázal, že
+                    p a c i e n t i s viabilním myokardem v o b l a s t i infarktové tepny
+                    mají nízké r i z i k o remodelace ( 8 0 ) . Důvodem může být ztráta
+                    v i a b i l i t y i relativně malý počet našich pacientů.
+                </str>
+            </arr>
+            <arr name="text_lemmatized_ascii">
+                <str>38</str>
+                <str>- 36 - Popelová
+                    c h a r a k t e r u j i z v y po IM ( 5 9 ) . Přítomnost kolaterál v akutní
+                    fázi IM l i m i t u j e v e l i k o s t infarktového ložiska a zabrání
+                    v z n i k u aneurysmatu (60,61).
+                    V naší skupině pacientů s AIM došlo k remodelací levé
+                    komory d l e námi zvolených kritérií u 9 z 2 0 pacientů, kteří
+                    se d o s t a v i l i ke k o n t r o l e po 6-12 měsících od AIM, t o j e ve
+                    45% . U těchto pacientů došlo k signifikantnímu zvýšení
+                    diastolického in d e x u s f e r i c i t y , na rozdíl od pacientů bez
+                    remodelace, u kterých se i n d e x s f e r i c i t y signifikantně
+                    nezměnil.
+                    Metoda hodnocení remodelace pouhým srovnáním rozměrů
+                    levé komory není z c e l a ideální, avšak na rozdíl od jiných
+                    navrhovaných metod j e v e l m i jednoduchá, dobře
+                    reprodukovateIná, s nízkou interindividuální v a r i a b i l i t o u
+                    měření a nevyžaduje počítačovou t e c h n i k u a zvláštní zařízení.
+                    Při porovnání nálezů v obou skupinách b y l ve skupině
+                    s remodelací levé komory vyšší počet asynergických segmentů
+                    v časné fázi AIM, avšak nález n e b y l s t a t i s t i c k y významný. Při
+                    k o n t r o l e po roce se počet asynergických segmentů v obou
+                    skupinách nelišil. V obou skupinách n e b y l signifikantní
+                    rozdíl v počtu segmentů se zlepšením k i n e t i k y při DE a n i
+                    v počtu segmentů se spontánním zlepšením k i n e t i k y . Nebyl
+                    rovněž rozdíl ve včasnosti podání trombolytické t e r a p i e ,
+                    v obou skupinách se j e d n a l o o průměrnou dobu kratší než 4
+                    hodiny, n e b y l rozdíl ve druhu trombolytické léčby, ve všech
+                    případech se j e d n a l o o streptokinázu. Trombolytická t e r a p i e
+                    b y l a d l e klinických kritérií častěji úspěšná ve skupině bez
+                    remodelace, rozdíl však n e b y l s t a t i s t i c k y významný.
+                    S u t t o n n a l e z l d i l a t a c i levé komory po AIM v 33-38%
+                    a dále n a l e z l k o r e l a c i mezi diastolickým indexem s f e r i c i t y
+                    a m o r t a l i t o u či srdečním selháním ( 1 7 ) .
+                    N e p o t v r d i l i jsme nález Modeny, který prokázal, že
+                    p a c i e n t i s viabilním myokardem v o b l a s t i infarktové tepny
+                    mají nízké r i z i k o remodelace ( 8 0 ) . Důvodem může být ztráta
+                    v i a b i l i t y i relativně malý počet našich pacientů.
+                </str>
+            </arr>
+            <arr name="text_lemmatized_nostopwords">
+                <str>38</str>
+                <str>- 36 - Popelová
+                    c h a r a k t e r u j i z v y po IM ( 5 9 ) . Přítomnost kolaterál v akutní
+                    fázi IM l i m i t u j e v e l i k o s t infarktového ložiska a zabrání
+                    v z n i k u aneurysmatu (60,61).
+                    V naší skupině pacientů s AIM došlo k remodelací levé
+                    komory d l e námi zvolených kritérií u 9 z 2 0 pacientů, kteří
+                    se d o s t a v i l i ke k o n t r o l e po 6-12 měsících od AIM, t o j e ve
+                    45% . U těchto pacientů došlo k signifikantnímu zvýšení
+                    diastolického in d e x u s f e r i c i t y , na rozdíl od pacientů bez
+                    remodelace, u kterých se i n d e x s f e r i c i t y signifikantně
+                    nezměnil.
+                    Metoda hodnocení remodelace pouhým srovnáním rozměrů
+                    levé komory není z c e l a ideální, avšak na rozdíl od jiných
+                    navrhovaných metod j e v e l m i jednoduchá, dobře
+                    reprodukovateIná, s nízkou interindividuální v a r i a b i l i t o u
+                    měření a nevyžaduje počítačovou t e c h n i k u a zvláštní zařízení.
+                    Při porovnání nálezů v obou skupinách b y l ve skupině
+                    s remodelací levé komory vyšší počet asynergických segmentů
+                    v časné fázi AIM, avšak nález n e b y l s t a t i s t i c k y významný. Při
+                    k o n t r o l e po roce se počet asynergických segmentů v obou
+                    skupinách nelišil. V obou skupinách n e b y l signifikantní
+                    rozdíl v počtu segmentů se zlepšením k i n e t i k y při DE a n i
+                    v počtu segmentů se spontánním zlepšením k i n e t i k y . Nebyl
+                    rovněž rozdíl ve včasnosti podání trombolytické t e r a p i e ,
+                    v obou skupinách se j e d n a l o o průměrnou dobu kratší než 4
+                    hodiny, n e b y l rozdíl ve druhu trombolytické léčby, ve všech
+                    případech se j e d n a l o o streptokinázu. Trombolytická t e r a p i e
+                    b y l a d l e klinických kritérií častěji úspěšná ve skupině bez
+                    remodelace, rozdíl však n e b y l s t a t i s t i c k y významný.
+                    S u t t o n n a l e z l d i l a t a c i levé komory po AIM v 33-38%
+                    a dále n a l e z l k o r e l a c i mezi diastolickým indexem s f e r i c i t y
+                    a m o r t a l i t o u či srdečním selháním ( 1 7 ) .
+                    N e p o t v r d i l i jsme nález Modeny, který prokázal, že
+                    p a c i e n t i s viabilním myokardem v o b l a s t i infarktové tepny
+                    mají nízké r i z i k o remodelace ( 8 0 ) . Důvodem může být ztráta
+                    v i a b i l i t y i relativně malý počet našich pacientů.
+                </str>
+            </arr>
+            <str name="title">38</str>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2014-08-15T13:45:33.316Z</date>
+            <date name="modified_date">2018-02-06T09:18:10.122Z</date>
+            <str name="dostupnost">private</str>
+            <str name="img_full_mime">application/pdf</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:c4dcf9c1-ca82-4b95-99ef-089e77ef3e93</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:MED00111593/uuid:aa3016bf-2471-11e4-9632-001b63bd97ba/@38</str>
+            </arr>
+            <arr name="parent_pid">
+                <str>uuid:aa3016bf-2471-11e4-9632-001b63bd97ba</str>
+            </arr>
+            <str name="text_ocr">- 36 - Popelová
+                c h a r a k t e r u j i z v y po IM ( 5 9 ) . Přítomnost kolaterál v akutní
+                fázi IM l i m i t u j e v e l i k o s t infarktového ložiska a zabrání
+                v z n i k u aneurysmatu (60,61).
+                V naší skupině pacientů s AIM došlo k remodelací levé
+                komory d l e námi zvolených kritérií u 9 z 2 0 pacientů, kteří
+                se d o s t a v i l i ke k o n t r o l e po 6-12 měsících od AIM, t o j e ve
+                45% . U těchto pacientů došlo k signifikantnímu zvýšení
+                diastolického in d e x u s f e r i c i t y , na rozdíl od pacientů bez
+                remodelace, u kterých se i n d e x s f e r i c i t y signifikantně
+                nezměnil.
+                Metoda hodnocení remodelace pouhým srovnáním rozměrů
+                levé komory není z c e l a ideální, avšak na rozdíl od jiných
+                navrhovaných metod j e v e l m i jednoduchá, dobře
+                reprodukovateIná, s nízkou interindividuální v a r i a b i l i t o u
+                měření a nevyžaduje počítačovou t e c h n i k u a zvláštní zařízení.
+                Při porovnání nálezů v obou skupinách b y l ve skupině
+                s remodelací levé komory vyšší počet asynergických segmentů
+                v časné fázi AIM, avšak nález n e b y l s t a t i s t i c k y významný. Při
+                k o n t r o l e po roce se počet asynergických segmentů v obou
+                skupinách nelišil. V obou skupinách n e b y l signifikantní
+                rozdíl v počtu segmentů se zlepšením k i n e t i k y při DE a n i
+                v počtu segmentů se spontánním zlepšením k i n e t i k y . Nebyl
+                rovněž rozdíl ve včasnosti podání trombolytické t e r a p i e ,
+                v obou skupinách se j e d n a l o o průměrnou dobu kratší než 4
+                hodiny, n e b y l rozdíl ve druhu trombolytické léčby, ve všech
+                případech se j e d n a l o o streptokinázu. Trombolytická t e r a p i e
+                b y l a d l e klinických kritérií častěji úspěšná ve skupině bez
+                remodelace, rozdíl však n e b y l s t a t i s t i c k y významný.
+                S u t t o n n a l e z l d i l a t a c i levé komory po AIM v 33-38%
+                a dále n a l e z l k o r e l a c i mezi diastolickým indexem s f e r i c i t y
+                a m o r t a l i t o u či srdečním selháním ( 1 7 ) .
+                N e p o t v r d i l i jsme nález Modeny, který prokázal, že
+                p a c i e n t i s viabilním myokardem v o b l a s t i infarktové tepny
+                mají nízké r i z i k o remodelace ( 8 0 ) . Důvodem může být ztráta
+                v i a b i l i t y i relativně malý počet našich pacientů.
+            </str>
+            <str name="text_ocr_lemmatized">- 36 - Popelová
+                c h a r a k t e r u j i z v y po IM ( 5 9 ) . Přítomnost kolaterál v akutní
+                fázi IM l i m i t u j e v e l i k o s t infarktového ložiska a zabrání
+                v z n i k u aneurysmatu (60,61).
+                V naší skupině pacientů s AIM došlo k remodelací levé
+                komory d l e námi zvolených kritérií u 9 z 2 0 pacientů, kteří
+                se d o s t a v i l i ke k o n t r o l e po 6-12 měsících od AIM, t o j e ve
+                45% . U těchto pacientů došlo k signifikantnímu zvýšení
+                diastolického in d e x u s f e r i c i t y , na rozdíl od pacientů bez
+                remodelace, u kterých se i n d e x s f e r i c i t y signifikantně
+                nezměnil.
+                Metoda hodnocení remodelace pouhým srovnáním rozměrů
+                levé komory není z c e l a ideální, avšak na rozdíl od jiných
+                navrhovaných metod j e v e l m i jednoduchá, dobře
+                reprodukovateIná, s nízkou interindividuální v a r i a b i l i t o u
+                měření a nevyžaduje počítačovou t e c h n i k u a zvláštní zařízení.
+                Při porovnání nálezů v obou skupinách b y l ve skupině
+                s remodelací levé komory vyšší počet asynergických segmentů
+                v časné fázi AIM, avšak nález n e b y l s t a t i s t i c k y významný. Při
+                k o n t r o l e po roce se počet asynergických segmentů v obou
+                skupinách nelišil. V obou skupinách n e b y l signifikantní
+                rozdíl v počtu segmentů se zlepšením k i n e t i k y při DE a n i
+                v počtu segmentů se spontánním zlepšením k i n e t i k y . Nebyl
+                rovněž rozdíl ve včasnosti podání trombolytické t e r a p i e ,
+                v obou skupinách se j e d n a l o o průměrnou dobu kratší než 4
+                hodiny, n e b y l rozdíl ve druhu trombolytické léčby, ve všech
+                případech se j e d n a l o o streptokinázu. Trombolytická t e r a p i e
+                b y l a d l e klinických kritérií častěji úspěšná ve skupině bez
+                remodelace, rozdíl však n e b y l s t a t i s t i c k y významný.
+                S u t t o n n a l e z l d i l a t a c i levé komory po AIM v 33-38%
+                a dále n a l e z l k o r e l a c i mezi diastolickým indexem s f e r i c i t y
+                a m o r t a l i t o u či srdečním selháním ( 1 7 ) .
+                N e p o t v r d i l i jsme nález Modeny, který prokázal, že
+                p a c i e n t i s viabilním myokardem v o b l a s t i infarktové tepny
+                mají nízké r i z i k o remodelace ( 8 0 ) . Důvodem může být ztráta
+                v i a b i l i t y i relativně malý počet našich pacientů.
+            </str>
+            <str name="text_ocr_lemmatized_ascii">- 36 - Popelová
+                c h a r a k t e r u j i z v y po IM ( 5 9 ) . Přítomnost kolaterál v akutní
+                fázi IM l i m i t u j e v e l i k o s t infarktového ložiska a zabrání
+                v z n i k u aneurysmatu (60,61).
+                V naší skupině pacientů s AIM došlo k remodelací levé
+                komory d l e námi zvolených kritérií u 9 z 2 0 pacientů, kteří
+                se d o s t a v i l i ke k o n t r o l e po 6-12 měsících od AIM, t o j e ve
+                45% . U těchto pacientů došlo k signifikantnímu zvýšení
+                diastolického in d e x u s f e r i c i t y , na rozdíl od pacientů bez
+                remodelace, u kterých se i n d e x s f e r i c i t y signifikantně
+                nezměnil.
+                Metoda hodnocení remodelace pouhým srovnáním rozměrů
+                levé komory není z c e l a ideální, avšak na rozdíl od jiných
+                navrhovaných metod j e v e l m i jednoduchá, dobře
+                reprodukovateIná, s nízkou interindividuální v a r i a b i l i t o u
+                měření a nevyžaduje počítačovou t e c h n i k u a zvláštní zařízení.
+                Při porovnání nálezů v obou skupinách b y l ve skupině
+                s remodelací levé komory vyšší počet asynergických segmentů
+                v časné fázi AIM, avšak nález n e b y l s t a t i s t i c k y významný. Při
+                k o n t r o l e po roce se počet asynergických segmentů v obou
+                skupinách nelišil. V obou skupinách n e b y l signifikantní
+                rozdíl v počtu segmentů se zlepšením k i n e t i k y při DE a n i
+                v počtu segmentů se spontánním zlepšením k i n e t i k y . Nebyl
+                rovněž rozdíl ve včasnosti podání trombolytické t e r a p i e ,
+                v obou skupinách se j e d n a l o o průměrnou dobu kratší než 4
+                hodiny, n e b y l rozdíl ve druhu trombolytické léčby, ve všech
+                případech se j e d n a l o o streptokinázu. Trombolytická t e r a p i e
+                b y l a d l e klinických kritérií častěji úspěšná ve skupině bez
+                remodelace, rozdíl však n e b y l s t a t i s t i c k y významný.
+                S u t t o n n a l e z l d i l a t a c i levé komory po AIM v 33-38%
+                a dále n a l e z l k o r e l a c i mezi diastolickým indexem s f e r i c i t y
+                a m o r t a l i t o u či srdečním selháním ( 1 7 ) .
+                N e p o t v r d i l i jsme nález Modeny, který prokázal, že
+                p a c i e n t i s viabilním myokardem v o b l a s t i infarktové tepny
+                mají nízké r i z i k o remodelace ( 8 0 ) . Důvodem může být ztráta
+                v i a b i l i t y i relativně malý počet našich pacientů.
+            </str>
+            <str name="text_ocr_lemmatized_nostopwords">- 36 - Popelová
+                c h a r a k t e r u j i z v y po IM ( 5 9 ) . Přítomnost kolaterál v akutní
+                fázi IM l i m i t u j e v e l i k o s t infarktového ložiska a zabrání
+                v z n i k u aneurysmatu (60,61).
+                V naší skupině pacientů s AIM došlo k remodelací levé
+                komory d l e námi zvolených kritérií u 9 z 2 0 pacientů, kteří
+                se d o s t a v i l i ke k o n t r o l e po 6-12 měsících od AIM, t o j e ve
+                45% . U těchto pacientů došlo k signifikantnímu zvýšení
+                diastolického in d e x u s f e r i c i t y , na rozdíl od pacientů bez
+                remodelace, u kterých se i n d e x s f e r i c i t y signifikantně
+                nezměnil.
+                Metoda hodnocení remodelace pouhým srovnáním rozměrů
+                levé komory není z c e l a ideální, avšak na rozdíl od jiných
+                navrhovaných metod j e v e l m i jednoduchá, dobře
+                reprodukovateIná, s nízkou interindividuální v a r i a b i l i t o u
+                měření a nevyžaduje počítačovou t e c h n i k u a zvláštní zařízení.
+                Při porovnání nálezů v obou skupinách b y l ve skupině
+                s remodelací levé komory vyšší počet asynergických segmentů
+                v časné fázi AIM, avšak nález n e b y l s t a t i s t i c k y významný. Při
+                k o n t r o l e po roce se počet asynergických segmentů v obou
+                skupinách nelišil. V obou skupinách n e b y l signifikantní
+                rozdíl v počtu segmentů se zlepšením k i n e t i k y při DE a n i
+                v počtu segmentů se spontánním zlepšením k i n e t i k y . Nebyl
+                rovněž rozdíl ve včasnosti podání trombolytické t e r a p i e ,
+                v obou skupinách se j e d n a l o o průměrnou dobu kratší než 4
+                hodiny, n e b y l rozdíl ve druhu trombolytické léčby, ve všech
+                případech se j e d n a l o o streptokinázu. Trombolytická t e r a p i e
+                b y l a d l e klinických kritérií častěji úspěšná ve skupině bez
+                remodelace, rozdíl však n e b y l s t a t i s t i c k y významný.
+                S u t t o n n a l e z l d i l a t a c i levé komory po AIM v 33-38%
+                a dále n a l e z l k o r e l a c i mezi diastolickým indexem s f e r i c i t y
+                a m o r t a l i t o u či srdečním selháním ( 1 7 ) .
+                N e p o t v r d i l i jsme nález Modeny, který prokázal, že
+                p a c i e n t i s viabilním myokardem v o b l a s t i infarktové tepny
+                mají nízké r i z i k o remodelace ( 8 0 ) . Důvodem může být ztráta
+                v i a b i l i t y i relativně malý počet našich pacientů.
+            </str>
+            <arr name="rels_ext_index">
+                <int>2</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/page/page</str>
+            </arr>
+            <str name="root_title">Echokardiografické hodnocení viabilního a nekrotického myokardu</str>
+            <str name="root_pid">uuid:MED00111593</str>
+            <int name="level">2</int>
+            <str name="datum_str">1997</str>
+            <int name="rok">1997</int>
+            <int name="datum_begin">1997</int>
+            <int name="datum_end">1997</int>
+            <long name="_version_">1591832449265958912</long>
+            <int name="pages_count">0</int></doc>
+    </result>
+</response>

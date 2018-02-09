@@ -201,8 +201,11 @@ public class ExtendedFields {
             String[] pids = s.split("/");
             if (pageNum != 0) {
                 sb.append("<field name=\"parent_pid\">").append(pids[pids.length - 1]).append("</field>");
-                sb.append("<field name=\"text\">").append(getPDFPage(pageNum)).append("</field>");
-                
+                // TODO: Do it better. For now, i have to use any field which is aldrady defined
+                // in the future consider of interoducing field text_pdf
+                String pdfText = getPDFPage(pageNum);
+                sb.append("<field name=\"text_ocr\">").append(pdfText).append("</field>");
+
             } else {
                 if (pids.length == 1) {
                     sb.append("<field name=\"parent_pid\">").append(pids[0]).append("</field>");
