@@ -80,8 +80,7 @@ public class ExtendedFields {
     public ExtendedFields(FedoraOperations fo) throws IOException {
         this.fo = fo;
         KConfiguration config = KConfiguration.getInstance();
-        this.fa = fa;
-        this.fo = fo;
+        this.fa = this.fo.fa;
         models_cache = new HashMap<String, String>();
         dates_cache = new HashMap<String, String>();
         root_title_cache = new HashMap<String, String>();

@@ -251,8 +251,8 @@ public class Import {
                 Object obj = unmarshaller.unmarshal(importFile);
                 dobj = (DigitalObject) obj;
             } catch (Exception e) {
-                log.info("Skipping file " + importFile.getName() + " - not an FOXML object. ("+e+")");
-                log.log(Level.FINE, "Underlying error was:", e);
+                log.warning("Skipping file " + importFile.getName() + " - not an FOXML object. ("+e+")");
+                log.log(Level.WARNING, "Underlying error was:", e);
                 return;
             }
             try {
