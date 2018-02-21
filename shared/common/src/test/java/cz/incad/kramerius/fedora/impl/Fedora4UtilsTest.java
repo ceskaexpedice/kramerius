@@ -58,6 +58,7 @@ public class Fedora4UtilsTest extends TestCase  {
         String link = "http://localhost:18080/rest/data/fce/78e/00a/c07/456/79b/80b/2c2/a85/f4d/fb/TEXT_OCR";
         List<String> parts = Fedora4Utils.link(link);
         List<String> expectedParts = Arrays.asList("data", "fce", "78e", "00a", "c07", "456", "79b", "80b", "2c2", "a85", "f4d","fb", "TEXT_OCR");
+        System.out.println(parts);
         Assert.assertTrue(parts.size() == expectedParts.size());
         for (int i = 0,ll=parts.size(); i <ll ; i++) {
             System.out.println(parts.get(i));

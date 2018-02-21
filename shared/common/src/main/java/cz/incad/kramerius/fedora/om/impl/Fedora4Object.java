@@ -40,6 +40,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -253,7 +254,18 @@ public class Fedora4Object implements RepositoryObject {
                                 }
 
                                 RepositoryObject created = repo.createOrFindObject(object);
-                                return "/" + this.repo.getBoundContext() + created.getPath();
+                                // check if contains path after
+                                try {
+                                    String path = Fedora4Utils.pathInEndpoint();
+                                    if (StringUtils.isAnyString(path)) {
+                                        return path+ "/" + this.repo.getBoundContext() + created.getPath();
+                                    } else {
+                                        return "/" + this.repo.getBoundContext() + created.getPath();
+                                    }
+
+                                } catch (MalformedURLException e) {
+                                    throw new RepositoryException("Cannot create  stream " + streamId);
+                                }
                             });
 
                             // spread properties from relsext
