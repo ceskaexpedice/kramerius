@@ -18,6 +18,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -128,6 +130,15 @@ public class Fedora4Utils {
     public static String endpoint() {
         String fedoraHost = KConfiguration.getInstance().getConfiguration().getString("fedora4Host");
         return fedoraHost + (fedoraHost.endsWith("/")? "" : "/") + BOUND_CONTEXT;
+    }
+
+    public static String pathInEndpoint() throws MalformedURLException {
+        String fedoraHost = KConfiguration.getInstance().getConfiguration().getString("fedora4Host");
+        URL url = new URL(fedoraHost);
+        String path = url.getPath();
+        if (path.endsWith("/")) {
+            return path.substring(0, path.length()-1);
+        } else return path;
     }
 
 
