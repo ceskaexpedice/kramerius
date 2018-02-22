@@ -155,7 +155,8 @@
 <script  src="js/underscore-min.js" language="javascript" type="text/javascript"></script>
 <link href="js/prettify.css" type="text/css" rel="stylesheet" />
 <script type="text/javascript" src="js/prettify.js"></script>
-<script src="js/mods.js" type="text/javascript" ></script>
+
+
 <script type="text/javascript">
     
     var policyPublic = ${policyPublic};

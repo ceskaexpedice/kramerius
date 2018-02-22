@@ -23,6 +23,7 @@
 <c:url var="url" value="${solrHost}/select" >
     <c:param name="q" >PID:"${param.pid}"</c:param>
     <c:param name="rows" value="1" />
+    <c:param name="wt" value="xml" />
 </c:url>
 <c:catch var="searchException">
     <c:import url="${url}" var="xml" charEncoding="UTF-8" />
@@ -61,6 +62,7 @@
                     <c:param name="collapse.threshold" value="1" />
                     <c:param name="defType" value="dismax" />
                     <c:param name="qf" value="keywords^1.0 dc.creator^1.3 text^0.2" />
+                    <c:param name="wt" value="xml" />
                 </c:url>
                 <c:import url="${url}" var="suggestResponse" charEncoding="UTF-8" />
                 <x:parse var="doc2" xml="${suggestResponse}"  />
