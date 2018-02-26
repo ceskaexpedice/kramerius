@@ -42,7 +42,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.ws.soap.SOAPFaultException;
 import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -58,8 +57,13 @@ public class Import {
     static ObjectFactory of;
     static int counter = 0;
     private static final Logger log = Logger.getLogger(Import.class.getName());
+
+    // only syncronization object
+    private static Object marshallingLock = new Object();
+
     private static Unmarshaller unmarshaller = null;
     private static Marshaller datastreamMarshaller = null;
+
     private static List<String> rootModels = null;
     private static SortingService sortingService;
     private static Map<String, List<String>> updateMap = new HashMap<String, List<String>>();
@@ -248,8 +252,11 @@ public class Import {
                 if (!importFile.getName().toLowerCase().endsWith(".xml")) {
                     return;
                 }
-                Object obj = unmarshaller.unmarshal(importFile);
-                dobj = (DigitalObject) obj;
+                // must be syncrhonized
+                synchronized (marshallingLock) {
+                    Object obj = unmarshaller.unmarshal(importFile);
+                    dobj = (DigitalObject) obj;
+                }
             } catch (Exception e) {
                 log.warning("Skipping file " + importFile.getName() + " - not an FOXML object. ("+e+")");
                 log.log(Level.WARNING, "Underlying error was:", e);
@@ -361,10 +368,12 @@ public class Import {
         byte[] bytes = bos.toByteArray();
         DigitalObject obj = null;
         try {
-            obj = (DigitalObject) unmarshaller.unmarshal(new ByteArrayInputStream(bytes));
+            synchronized (marshallingLock) {
+                obj = (DigitalObject) unmarshaller.unmarshal(new ByteArrayInputStream(bytes));
+            }
             pid = ((DigitalObject) obj).getPID();
             ingest(repo, obj, pid,updateExisting);
-        } catch (SOAPFaultException sfex) {
+        } catch (cz.incad.kramerius.fedora.om.RepositoryException sfex) {
 
             //if (sfex.getMessage().contains("ObjectExistsException")) {
             if (objectExists(pid)) {
@@ -382,7 +391,7 @@ public class Import {
                             ingest(repo, obj, pid,updateExisting);
                         }
                         log.info("Ingested new object "+pid);
-                    } catch (SOAPFaultException rsfex) {
+                    } catch (cz.incad.kramerius.fedora.om.RepositoryException rsfex) {
                         log.severe("Replace ingest SOAP fault:" + rsfex);
                         throw new RuntimeException(rsfex);
                     }
@@ -417,8 +426,10 @@ public class Import {
     public static void ingest(Repository repo, File file, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) {
         if (pid == null) {
             try {
-                Object obj = unmarshaller.unmarshal(file);
-                pid = ((DigitalObject) obj).getPID();
+                synchronized (marshallingLock) {
+                    Object obj = unmarshaller.unmarshal(file);
+                    pid = ((DigitalObject) obj).getPID();
+                }
             } catch (Exception e) {
                 log.info("Skipping file " + file.getName() + " - not an FOXML object.");
                 log.log(Level.INFO, "Underlying error was:", e);

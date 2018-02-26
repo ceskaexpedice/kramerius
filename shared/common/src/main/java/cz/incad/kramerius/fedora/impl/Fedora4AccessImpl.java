@@ -18,6 +18,7 @@ import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.impl.Fedora4Repository;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.utils.pid.LexerException;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -59,19 +60,31 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
 
     @Override
     public Document getBiblioMods(String pid) throws IOException {
-        return getStream(pid, FedoraUtils.BIBLIO_MODS_STREAM);
+        try {
+            return getStream(makeSureObjectPid(pid), FedoraUtils.BIBLIO_MODS_STREAM);
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override
     public InputStream getFullThumbnail(String pid) throws IOException {
-        return getDataStream(pid, FedoraUtils.IMG_PREVIEW_STREAM);
+        try {
+            return getDataStream(makeSureObjectPid(pid), FedoraUtils.IMG_PREVIEW_STREAM);
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
     }
 
     
     
     @Override
     public InputStream getSmallThumbnail(String pid) throws IOException {
-        return getDataStream(pid, FedoraUtils.IMG_THUMB_STREAM);
+        try {
+            return getDataStream(makeSureObjectPid(pid), FedoraUtils.IMG_THUMB_STREAM);
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override
@@ -81,8 +94,12 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
 
     @Override
     public Document getRelsExt(String pid) throws IOException {
-        // consider to change to metadata
-        return getStream(pid, FedoraUtils.RELS_EXT_STREAM);
+        try {
+            // consider to change to metadata
+            return getStream(makeSureObjectPid(pid), FedoraUtils.RELS_EXT_STREAM);
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override
@@ -124,14 +141,22 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
 
     @Override
     public Document getDC(String pid) throws IOException {
-        return getStream(pid, FedoraUtils.DC_STREAM);
+        try {
+            return getStream(makeSureObjectPid(pid), FedoraUtils.DC_STREAM);
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
     }
 
     
     
     @Override
     public InputStream getImageFULL(String pid) throws IOException {
-        return getDataStream(pid,  FedoraUtils.IMG_FULL_STREAM);
+        try {
+            return getDataStream(makeSureObjectPid(pid),  FedoraUtils.IMG_FULL_STREAM);
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
     }
 
 
@@ -186,7 +211,7 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
     @Override
     public String getMimeTypeForStream(String pid, String datastreamName) throws IOException {
         try {
-            RepositoryObject repoObject = this.repository.getObject(pid);
+            RepositoryObject repoObject = this.repository.getObject(makeSureObjectPid(pid));
             if (repoObject != null) {
                 RepositoryDatastream stream = repoObject.getStream(datastreamName);
                 if (stream != null) {
@@ -199,8 +224,9 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
             }
         } catch (RepositoryException e) {
             throw new IOException(e);
+        } catch (LexerException e) {
+            throw new IOException(e);
         }
-
     }
     
 
@@ -217,7 +243,7 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
     @Override
     public Date getStreamLastmodifiedFlag(String pid, String stream) throws IOException {
         try {
-            RepositoryObject repoObject = this.repository.getObject(pid);
+            RepositoryObject repoObject = this.repository.getObject(makeSureObjectPid(pid));
             if (repoObject != null) {
                 RepositoryDatastream ds = repoObject.getStream(stream);
                 if (ds != null) {
@@ -230,19 +256,23 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
             }
         } catch (RepositoryException e) {
             throw new IOException(e);
+        } catch (LexerException e) {
+            throw new IOException(e);
         }
     }
 
     @Override
     public Date getObjectLastmodifiedFlag(String pid) throws IOException {
         try {
-            RepositoryObject repoObject = this.repository.getObject(pid);
+            RepositoryObject repoObject = this.repository.getObject(makeSureObjectPid(pid));
             if (repoObject != null) {
                 return repoObject.getLastModified();
             } else {
                 throw new IOException("cannot find pid '"+pid+"'");
             }
         } catch (RepositoryException e) {
+            throw new IOException(e);
+        } catch (LexerException e) {
             throw new IOException(e);
         }
     }

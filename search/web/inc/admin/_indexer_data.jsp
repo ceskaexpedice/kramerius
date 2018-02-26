@@ -50,6 +50,28 @@
     pageContext.setAttribute("top_models", models);
     pageContext.setAttribute("canSort", canSort);
 %>
+
+
+<script>
+function _deleteFromIndexData(pid){
+
+	  showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
+		  var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"delete;"
+          var status = $( "tr[pid='"+pid+"'] .indexer_result_status" );
+          var statusFlag = status.hasClass("indexer_result_indexed");
+		  var pids = [pid];
+		  for(var i=0; i<pids.length; i++){
+			  urlbuffer=urlbuffer+encodeURI("{")+encodeURI(replaceAll(pid, ":","\\:"))+";"+encodeURI(replaceAll(pid, ":","\\:"))+";false;"+statusFlag+encodeURI("}");
+			  if (i<pids.length-1) {
+				  urlbuffer=urlbuffer+";"
+			  }
+		  }
+		  processStarter("delete").start(urlbuffer);
+	  });
+}
+</script>
+
+
 <style type="text/css">
     #indexerContent div.section{
         border-bottom:1px solid rgba(0, 30, 60, 0.9); 
@@ -126,8 +148,13 @@
                 <th style="min-width:240px;" align="left">PID</th>
                 <th style="min-width:240px;" align="left">Link</th>
                 <th style="min-width:138px;" align="left">
+
                     <input type="hidden" id="indexer_order_dir" value="${order_dir}" />
                     <input type="hidden" id="indexer_offset" value="0" />
+
+                    <input type="hidden" id="model_offset" value="0" />
+                    <input type="hidden" id="model_order_dir" value="0" />
+
                     <c:choose>
                         <c:when test="${canSort}">
                         <a href="javascript:orderDocuments('date')"><fmt:message>common.date</fmt:message></a>
@@ -195,12 +222,12 @@
     });
     $('#indexer_tabs').tabs();
 function prevFedoraDocuments(){
-    var rows = parseInt($('#doc_rows').val());
+    var rows = parseInt((typeof $('#doc_rows').val() != "undefined") ? test : "20");
     var offset = Math.max(parseInt($('#indexer_offset').val())-rows,0);
     loadFedoraDocuments($('#top_models_select').val(),offset , "");
 }
 function nextFedoraDocuments(){
-    var rows = parseInt($('#doc_rows').val());
+    var rows = parseInt((typeof $('#doc_rows').val() != "undefined") ? test : "20");
     loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())+rows, "");
 }
 function orderDocuments(field){

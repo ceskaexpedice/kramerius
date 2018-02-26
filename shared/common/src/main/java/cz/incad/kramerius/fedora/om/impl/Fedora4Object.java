@@ -433,7 +433,9 @@ public class Fedora4Object implements RepositoryObject {
 
             for (RepositoryDatastream dataStream : dataStreams) {
                 String mimeType = dataStream.getMimeType();
-
+                if (mimeType == null) {
+                    throw new RepositoryException("Cannot detect mimetype for datastream '"+dataStream.getName()+"' for object '"+getPid()+"'");
+                }
                 Map<String, String> foxmlStream = new HashMap<>();
                 foxmlStream.put("id", dataStream.getName());
                 foxmlStream.put("mimetype", dataStream.getMimeType());

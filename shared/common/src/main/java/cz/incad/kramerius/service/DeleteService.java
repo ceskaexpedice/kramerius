@@ -19,6 +19,6 @@ public interface DeleteService {
      * @param deleteEmptyParents check if the parent is empty and delete it as well
      * @throws IOException
      */
-    public void deleteTree(Repository internalAPI, String pid, String pidPath, String message, boolean deleteEmptyParents) throws IOException, RepositoryException, ResourceIndexException, SolrServerException;
+    public void deleteTree(Repository internalAPI, String pid, String pidPath, String message, boolean deleteEmptyParents,boolean spawnIndexer) throws IOException, RepositoryException, ResourceIndexException, SolrServerException;
 
 }

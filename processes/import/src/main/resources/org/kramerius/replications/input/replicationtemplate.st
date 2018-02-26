@@ -20,7 +20,6 @@ form(bundle, handle) ::=<<
 			var replicateImages = \$( "#images:checked" ).length ==1 ? "true" : "false";
             
             var url = "lr?action=form_post&def=k4_replication&paramsMapping="+encodeURI("{")+"url="+encodeURIComponent(handle)+";username="+user+";pswd="+encodeURI(password)+";replicateCollections="+replicateCollections+";replicateImages="+replicateImages+encodeURI("}")+"&out=text";
-            var url = "lr?action=form_post&def=k4_replication&paramsMapping={url="+handle+";username="+user+";pswd="+password
                 +";replicateCollections="+replicateCollections
                 +";replicateImages="+replicateImages
                 +"}&out=text";

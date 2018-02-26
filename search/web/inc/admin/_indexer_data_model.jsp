@@ -18,10 +18,11 @@
 <c:forEach var="object" items="${indexerData.objects}" varStatus="status">
 <tr class="indexer_result" pid="${object.source}">
 <td class="indexer_result_status">&nbsp;</td>
-<td width="100%"><a title="index document" href="javascript:indexDoc('${object.source}', '${object['dc.title']}');">${object['dc.title']}</a></td><td style="min-width:240px;" width="240px"></td>
-<td style="min-width:138px;">${object.source}</td>
-<td style="min-width:138px;"><a href="${object.ref}" target="_blank">${object.ref}</a></td>
-<td style="min-width:138px;">${object.date}</td>
+<td width="100%"><a title="index document" href="javascript:indexDoc('${object.source}', '${object['dc.title']}');">${object['dc.title']}</a></td>
+<td style="min-width:70px;">${object.source}</td>
+<td style="min-width:70px;"><a href="${object.ref}" target="_blank">${object.ref}</a></td>
+<td style="min-width:60px;"><a href="javascript:_deleteFromIndexData('${object.source}');">Delete from fedora</a></td>
+<td style="min-width:70px;">${object.date}</td>
 </tr>
 
  </c:forEach>

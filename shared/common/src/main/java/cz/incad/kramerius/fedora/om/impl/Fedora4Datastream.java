@@ -85,7 +85,7 @@ public class Fedora4Datastream implements RepositoryDatastream {
             } else if (response.getStatusCode() == 404) {
                 throw new NotFoundInRepositoryException("cannot find link "+uri);
             } else {
-                throw new RepositoryException("cannot load content from find link "+uri+" status code "+response.getStatusCode());
+                throw new RepositoryException("cannot load content from  link "+uri+" status code "+response.getStatusCode());
             }
         } catch (FcrepoOperationFailedException e) {
             throw new RepositoryException(e);

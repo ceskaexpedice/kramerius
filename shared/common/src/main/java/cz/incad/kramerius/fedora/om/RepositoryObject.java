@@ -64,48 +64,168 @@ public interface RepositoryObject {
     public void deleteStream(String streamId)  throws RepositoryException;
 
     // update properties by sparql
+
+    /**
+     * Update sparql properties
+     * @param sparql
+     * @throws RepositoryException
+     */
     public void updateSPARQL(String sparql) throws RepositoryException;
 
-    // create redirected stream
+    /**
+     * Create redirect stream
+     * @param streamId Stream id
+     * @param url url
+     * @return
+     * @throws RepositoryException
+     */
     public RepositoryDatastream createRedirectedStream(String streamId, String url) throws RepositoryException;
 
-    //
+    /**
+     * Return stream of the object
+     * @param streamId Stream id
+     * @return
+     * @throws RepositoryException
+     */
     public RepositoryDatastream getStream(String streamId) throws RepositoryException;
 
+    /**
+     * Returns true if the stream exists
+     * @param streamId
+     * @return
+     * @throws RepositoryException
+     */
     public boolean streamExists(String streamId) throws RepositoryException;
 
+    /**
+     * Returns last modified flag
+     * @return
+     * @throws RepositoryException
+     */
     public Date getLastModified() throws RepositoryException;
 
+    /**
+     * REturns metadata document
+     * @return
+     * @throws RepositoryException
+     */
     public Document getMetadata() throws RepositoryException;
 
+    /**
+     * Returns foxml representation
+     * @return
+     * @throws RepositoryException
+     */
     public InputStream getFoxml() throws RepositoryException;
 
 
-    //apim.addRelationship(pid, tilesUrlNS,tilesUrl, true, null);
+    /**
+     * Add relation
+     * @param relation Type of relation
+     * @param namespace Namespace
+     * @param targetRelation Target
+     * @throws RepositoryException
+     */
     public void addRelation(String relation, String namespace, String targetRelation) throws RepositoryException;
 
+    /**
+     * Add literal
+     * @param relation Type of relation
+     * @param namespace Namespace
+     * @param value Literal value
+     * @throws RepositoryException
+     */
     public void addLiteral(String relation, String namespace, String value) throws RepositoryException;
 
+    /**
+     * Remove relation
+     * @param relation Type of relation
+     * @param namespace Namespace
+     * @param targetRelation Target
+     * @throws RepositoryException
+     */
     public void removeRelation(String relation, String namespace, String targetRelation) throws RepositoryException;
 
+    /**
+     * Remove all relations by relation type and namespace
+     * @param relation Type of relation
+     * @param namespace Namespace
+     * @throws RepositoryException
+     */
     public void removeRelationsByNameAndNamespace(String relation, String namespace) throws RepositoryException;
 
+    /**
+     * Remove all relations by namespace
+     * @param namespace Namespace
+     * @throws RepositoryException
+     */
     public void removeRelationsByNamespace(String namespace) throws RepositoryException;
 
+    /**
+     * Remove all literal
+     * @param relation Relation type
+     * @param namespace Namespace
+     * @param value Literal value
+     * @throws RepositoryException
+     */
     public void removeLiteral(String relation, String namespace, String value) throws RepositoryException;
 
+    /**
+     * Returns true if relation identified by relation type, namespace and target exists
+     * @param relation Type of relation
+     * @param namespace Namespace
+     * @param targetRelation Target relation
+     * @return
+     * @throws RepositoryException
+     */
     public boolean relationExists(String relation, String namespace, String targetRelation) throws RepositoryException;
 
+    /**
+     * Returns true if relations identified by relationType and namespace exists
+     * @param relation Relation type
+     * @param namespace Namespace
+     * @return
+     * @throws RepositoryException
+     */
     public boolean relationsExists(String relation, String namespace) throws RepositoryException;
 
+    /**
+     * Returns true if literal exists
+     * @param relation Relation type
+     * @param namespace Namespace
+     * @param value Value
+     * @return
+     * @throws RepositoryException
+     */
     public boolean literalExists(String relation, String namespace, String value) throws RepositoryException;
 
+    /**
+     * Returns all relations identified by namespace
+     * @param namespace Namespace
+     * @return
+     * @throws RepositoryException
+     */
     public List<Triple<String, String, String>> getRelations(String namespace) throws RepositoryException;
 
+    /**
+     * Returns all literals identified by namespace
+     * @param namespace
+     * @return
+     * @throws RepositoryException
+     */
     public List<Triple<String, String, String>>  getLiterals(String namespace) throws RepositoryException;
 
 
+    /**
+     * Remove all relations; from RELS-EXT and properties
+     * @throws RepositoryException
+     */
     public void removeRelationsAndRelsExt() throws RepositoryException;
 
+    /**
+     * Returns fullpath
+     * @return
+     * @throws RepositoryException
+     */
     public String getFullPath() throws RepositoryException;
 }

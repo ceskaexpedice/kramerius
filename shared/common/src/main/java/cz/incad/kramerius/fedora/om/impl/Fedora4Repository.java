@@ -194,9 +194,9 @@ public class Fedora4Repository extends Repository {
     public void deleteobject(String pid) throws RepositoryException {
         try (FcrepoResponse response = new DeleteBuilder(URI.create(this.objectPath(Fedora4Utils.normalizePath(pid))), client).perform()) {
             if (response.getStatusCode() == 204) {
-                try (FcrepoResponse thombStoneResponse = new DeleteBuilder(URI.create(this.objectPath(Fedora4Utils.normalizePath(pid))+"/fcr:tombstone"), client).perform()) {
+                try (FcrepoResponse thombStoneResponse = new DeleteBuilder(URI.create(this.objectPath(Fedora4Utils.normalizePath(pid)) + "/fcr:tombstone"), client).perform()) {
                     if (thombStoneResponse.getStatusCode() != 204) {
-                        throw new RepositoryException("Cannot delete tombstone for object "+pid);
+                        throw new RepositoryException("Cannot delete tombstone for object " + pid);
                     } else {
                         try {
                             // delete description and relations
@@ -204,12 +204,14 @@ public class Fedora4Repository extends Repository {
                             // delete relations which point to this pid
                             this.feeder.deleteByTargetPid(pid);
                         } catch (SolrServerException e) {
-                            throw new RepositoryException("Cannot delete data from processing index for  "+pid+" please start processing index update");
+                            throw new RepositoryException("Cannot delete data from processing index for  " + pid + " please start processing index update");
                         }
                     }
                 }
+            } else if (response.getStatusCode() == 404) {
+                throw new RepositoryException("Cannot find object "+pid +" ("+(URI.create(this.objectPath(Fedora4Utils.normalizePath(pid))))+")");
             }  else {
-                throw new RepositoryException("Cannot delete  object "+pid);
+                throw new RepositoryException("Cannot delete  object "+pid+ " ("+response.getStatusCode()+")");
             }
         } catch (FcrepoOperationFailedException e) {
             throw new RepositoryException(e);

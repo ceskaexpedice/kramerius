@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
@@ -54,6 +55,8 @@ public class K4ReplicationProcess {
                                     @ParameterName("replicateImages") String replicateImages,
                                     @ParameterName("previousProcess")String previousProcessUUID) throws IOException {
         LOGGER.info("previousProcessUUID = "+previousProcessUUID);
+        url = URLDecoder.decode(url, "UTF-8");
+        LOGGER.info("Decoded url "+url);
         handleValidation(url);
         // definovane uuid predchoziho procesu => restart
         if ((previousProcessUUID != null) && (!previousProcessUUID.equals(""))) {

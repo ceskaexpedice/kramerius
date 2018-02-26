@@ -67,8 +67,18 @@ public abstract class Repository {
      */
     public abstract RepositoryObject getObject(String ident) throws RepositoryException;
 
+    /**
+     * Delete object
+     * @param pid
+     * @throws RepositoryException
+     */
     public abstract void deleteobject(String pid) throws RepositoryException;
 
+    /**
+     * Return processsing index feedder
+     * @return
+     * @throws RepositoryException
+     */
     public abstract ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException;
 
     /**
