@@ -19,11 +19,13 @@ package cz.incad.kramerius.fedora.om.impl;
 
 import static cz.incad.kramerius.fedora.utils.Fedora4Utils.*;
 
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -31,13 +33,22 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.fcrepo.client.*;
 
 import cz.incad.kramerius.fedora.om.RepositoryObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Stack;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * @author pavels
@@ -189,6 +200,41 @@ public class Fedora4Repository extends Repository {
             return processingURI;
     }
 
+    @Override
+    public void iterateObjects(Consumer<String> consumer) throws RepositoryException, FcrepoOperationFailedException, IOException {
+        Stack<String> stack = new Stack<>();
+        StringBuilder builder = new StringBuilder(endpoint()).append("/").append(Fedora4Utils.DATA_PREFIX_PATH);
+        stack.push(builder.toString());
+        while(!stack.isEmpty()) {
+            String url = stack.pop();
+            try (FcrepoResponse response = new GetBuilder(URI.create(url), client).accept("application/rdf+xml").perform()) {
+                if (response.getStatusCode() == 200) {
+                    InputStream body = response.getBody();
+                    Document document = XMLUtils.parseDocument(body, true);
+                    Element hasModel = XMLUtils.findElement(document.getDocumentElement(), "hasModel", FedoraNamespaces.FEDORA_MODELS_URI);
+                    if (hasModel != null ) {
+                        Element pidElm = XMLUtils.findElement(document.getDocumentElement(), "PID", FedoraNamespaces.FEDORA_FOXML_URI);
+                        consumer.accept(pidElm.getTextContent());
+                    } else {
+                        List<String> ldp = XMLUtils.getElementsRecursive(document.getDocumentElement(), (element) -> {
+                            String localName = element.getLocalName();
+                            String namespace = element.getNamespaceURI();
+                            if (localName.equals("contains") && namespace.equals(FedoraNamespaces.LDP_NAMESPACE_URI)) {
+                                return true;
+                            } else return false;
+                        }).stream().map((element) -> {
+                            return element.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                        }).collect(Collectors.toList());
+                        ldp.stream().forEach(u-> stack.push(u));
+                    }
+                }
+            } catch (SAXException e) {
+                throw new RepositoryException(e.getMessage());
+            } catch (ParserConfigurationException e) {
+                throw new RepositoryException(e.getMessage());
+            }
+        }
+    }
 
     @Override
     public void deleteobject(String pid) throws RepositoryException {

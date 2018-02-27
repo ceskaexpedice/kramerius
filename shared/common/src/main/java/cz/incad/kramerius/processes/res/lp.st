@@ -539,6 +539,15 @@ Every process could have following structure:
         <securedaction>reindex</securedaction>
     </process>
 
+    <process>
+        <id>processing_rebuild</id>
+        <description>Processing index rebuild</description>
+        <mainClass>cz.incad.kramerius.resourceindex.ProcessingIndexRebuild</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>reindex</securedaction>
+    </process>
+
     <!-- migrace dat z Krameria do Krameria -->
     <process>
         <id>data_migration</id>

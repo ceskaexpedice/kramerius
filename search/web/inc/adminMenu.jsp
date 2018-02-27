@@ -408,6 +408,13 @@ var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['admin
       processStarter("processing_check").start(url);
     });
 }
+function rebuildProcessingIndex(){
+var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['administrator.menu.dialogs.check_processing_integrity'];
+    showConfirmDialog(text, function(){
+      var url = "lr?action=start&def=processing_rebuild&out=text";
+      processStarter("processing_rebuild").start(url);
+    });
+}
 
 function indexDoc(pid, title){
     showConfirmDialog('Confirm index dokumentu', function(){

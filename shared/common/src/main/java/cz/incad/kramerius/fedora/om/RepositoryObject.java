@@ -228,4 +228,10 @@ public interface RepositoryObject {
      * @throws RepositoryException
      */
     public String getFullPath() throws RepositoryException;
+
+    /**
+     * Method is able to rebuild processing index for current object
+     * @throws RepositoryException
+     */
+    public void rebuildProcessingIndex() throws RepositoryException;
 }

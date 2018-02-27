@@ -11,10 +11,13 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import junit.framework.Assert;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.util.Hash;
 import org.junit.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -24,8 +27,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -297,6 +304,100 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         Assert.assertFalse(targetsAfter.contains("uuid:12993b4a-71b4-4f19-8953-0701243cc25d"));
    }
 
+
+    @Test
+    public void testMonographRELSEXT_Rebuild_ProcessingIndex() throws RepositoryException, IOException, SolrServerException, TransformerException, ParserConfigurationException, SAXException, NoSuchAlgorithmException {
+        byte[] bytes = resources.get("monograph-RELS-EXT.xml");
+
+        ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
+        Repository repository = build(feeder, false);
+        if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
+            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+        }
+        RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+        object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
+
+        feeder.commit();
+
+        QueryResponse response = solrServer.query(new SolrQuery("source:\"uuid:5035a48a-5e2e-486c-8127-2fa650842e46\" AND type:\"relation\"").setRows(100));
+        List<Object> targets = response.getResults().stream().map((doc) -> doc.getFieldValue("targetPid")).collect(Collectors.toList());
+        Assert.assertTrue(targets.contains("uuid:12993b4a-71b4-4f19-8953-0701243cc25d"));
+
+        List<SolrDocument> beforeRebuilding = new ArrayList<>();
+        feeder.iterateProcessing("*:*" , (doc)->{
+            beforeRebuilding.add(doc);
+        });
+
+        System.out.println(beforeRebuilding.size());
+        Assert.assertFalse(beforeRebuilding.isEmpty());
+
+        feeder.deleteProcessingIndex();
+        feeder.commit();
+
+        List<SolrDocument> afterClearing = new ArrayList<>();
+        System.out.println("Iterate over processing index - after");
+        feeder.iterateProcessing("*:*" , (doc)->{
+            afterClearing.add(doc);
+        });
+        Assert.assertTrue(afterClearing.isEmpty());
+
+        repository.getObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46").rebuildProcessingIndex();
+        feeder.commit();
+
+
+        List<SolrDocument> afterRebuilding = new ArrayList<>();
+        feeder.iterateProcessing("*:*" , (doc)->{
+            afterRebuilding.add(doc);
+        });
+
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+
+        Assert.assertTrue(afterRebuilding.size() == beforeRebuilding.size());
+        List<String> beforeRebuildingHashes = beforeRebuilding.stream().map((doc)->  {
+            try {
+                StringBuilder builder = new StringBuilder();
+                builder.append(doc.getFieldValue("source"));
+                builder.append(doc.getFieldValue("type"));
+                String type = doc.getFieldValue("type").toString();
+                if (type.equals("description")) {
+                    builder.append(doc.getFieldValue("model").toString());
+                    builder.append(doc.getFieldValue("ref").toString());
+                } else {
+                    builder.append(doc.getFieldValue("relation").toString());
+                    builder.append(doc.getFieldValue("targetPid").toString());
+                }
+
+                byte[] digest = md5.digest(builder.toString().getBytes("UTF-8"));
+                return new String(Hex.encodeHex(digest));
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+        }).collect(Collectors.toList());
+        List<String> afterRebuildingHashes = afterRebuilding.stream().map((doc)->  {
+            try {
+                StringBuilder builder = new StringBuilder();
+                builder.append(doc.getFieldValue("source"));
+                builder.append(doc.getFieldValue("type"));
+                String type = doc.getFieldValue("type").toString();
+                if (type.equals("description")) {
+                    builder.append(doc.getFieldValue("model").toString());
+                    builder.append(doc.getFieldValue("ref").toString());
+                } else {
+                    builder.append(doc.getFieldValue("relation").toString());
+                    builder.append(doc.getFieldValue("targetPid").toString());
+                }
+                byte[] digest = md5.digest(builder.toString().getBytes("UTF-8"));
+                return new String(Hex.encodeHex(digest));
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+        }).collect(Collectors.toList());
+
+
+        beforeRebuildingHashes.stream().forEach(hash->{
+            Assert.assertTrue(afterRebuildingHashes.contains(hash));
+        });
+    }
 
 
     @Test

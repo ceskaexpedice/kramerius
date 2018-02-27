@@ -19,6 +19,10 @@ package cz.incad.kramerius.fedora.om;
 
 import cz.incad.kramerius.fedora.om.impl.Fedora4Repository;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import org.fcrepo.client.FcrepoOperationFailedException;
+
+import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
  * The simple object model represents access to fedora 4 repository
@@ -91,5 +95,8 @@ public abstract class Repository {
     public static final Repository build(ProcessingIndexFeeder feeder, boolean transactionAware) throws RepositoryException {
         return new Fedora4Repository(feeder, transactionAware);
     }
+
+
+    public abstract void iterateObjects(Consumer<String> consumer ) throws RepositoryException, FcrepoOperationFailedException, IOException;
 
 }

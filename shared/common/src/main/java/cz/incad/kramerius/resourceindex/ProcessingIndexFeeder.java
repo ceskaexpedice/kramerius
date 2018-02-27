@@ -82,6 +82,11 @@ public class ProcessingIndexFeeder {
     }
 
 
+    public UpdateResponse deleteProcessingIndex() throws  IOException, SolrServerException {
+        UpdateResponse response = this.solrClient.deleteByQuery("*:*");
+        return response;
+    }
+
 
     public UpdateResponse deleteByPid(String pid) throws  IOException, SolrServerException {
         UpdateResponse response = this.solrClient.deleteByQuery("source:\"" + pid + "\"");

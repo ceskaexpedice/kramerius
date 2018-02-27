@@ -214,51 +214,15 @@ public class Fedora4Object implements RepositoryObject {
 
                             String sparql = sparqlBuilder.sparqlProps(new String(Arrays.copyOf(bos.toByteArray(), length), "UTF-8").trim(), (object, localName) -> {
 
-
-                                if (localName.equals("hasModel")) {
-                                    try {
-
-                                        if (this.streamExists(FedoraUtils.DC_STREAM)) {
-
-                                            try {
-                                                InputStream stream = this.getStream(FedoraUtils.DC_STREAM).getContent();
-                                                Element title = XMLUtils.findElement(XMLUtils.parseDocument(stream, true).getDocumentElement(), "title", FedoraNamespaces.DC_NAMESPACE_URI);
-                                                if (title != null) {
-                                                    this.indexDescription(object, title.getTextContent());
-                                                } else {
-                                                    this.indexDescription(object, "");
-                                                }
-                                            } catch (ParserConfigurationException e) {
-                                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                                                this.indexDescription(object, "");
-                                            } catch (SAXException e) {
-                                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                                                this.indexDescription(object, "");
-                                            }
-                                        } else {
-                                            this.indexDescription(object, "");
-                                        }
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    } catch (SolrServerException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                } else {
-                                    try {
-                                        this.indexRelation(localName, object);
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    } catch (SolrServerException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }
+                                // feed processing index
+                                processRELSEXTRelationAndFeedProcessingIndex(object, localName);
 
                                 RepositoryObject created = repo.createOrFindObject(object);
                                 // check if contains path after
                                 try {
                                     String path = Fedora4Utils.pathInEndpoint();
                                     if (StringUtils.isAnyString(path)) {
-                                        return path+ "/" + this.repo.getBoundContext() + created.getPath();
+                                        return path + "/" + this.repo.getBoundContext() + created.getPath();
                                     } else {
                                         return "/" + this.repo.getBoundContext() + created.getPath();
                                     }
@@ -290,6 +254,49 @@ public class Fedora4Object implements RepositoryObject {
             }
         } catch (IOException e) {
             throw new RepositoryException(e);
+        }
+    }
+
+    /**
+     * Process one relation and feed processing index
+     */
+    private void processRELSEXTRelationAndFeedProcessingIndex(String object, String localName) throws RepositoryException {
+        if (localName.equals("hasModel")) {
+            try {
+
+                if (this.streamExists(FedoraUtils.DC_STREAM)) {
+
+                    try {
+                        InputStream stream = this.getStream(FedoraUtils.DC_STREAM).getContent();
+                        Element title = XMLUtils.findElement(XMLUtils.parseDocument(stream, true).getDocumentElement(), "title", FedoraNamespaces.DC_NAMESPACE_URI);
+                        if (title != null) {
+                            this.indexDescription(object, title.getTextContent());
+                        } else {
+                            this.indexDescription(object, "");
+                        }
+                    } catch (ParserConfigurationException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        this.indexDescription(object, "");
+                    } catch (SAXException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        this.indexDescription(object, "");
+                    }
+                } else {
+                    this.indexDescription(object, "");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (SolrServerException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try {
+                this.indexRelation(localName, object);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (SolrServerException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -434,7 +441,7 @@ public class Fedora4Object implements RepositoryObject {
             for (RepositoryDatastream dataStream : dataStreams) {
                 String mimeType = dataStream.getMimeType();
                 if (mimeType == null) {
-                    throw new RepositoryException("Cannot detect mimetype for datastream '"+dataStream.getName()+"' for object '"+getPid()+"'");
+                    throw new RepositoryException("Cannot detect mimetype for datastream '" + dataStream.getName() + "' for object '" + getPid() + "'");
                 }
                 Map<String, String> foxmlStream = new HashMap<>();
                 foxmlStream.put("id", dataStream.getName());
@@ -561,7 +568,7 @@ public class Fedora4Object implements RepositoryObject {
         try {
             // zruseni jedne vazby
             Document metadata = getMetadata();
-            List<Triple<String, String, String>> relationsToDelete = Fedora4Utils.triplesToDeleteByPid(this.repo,metadata, relation, namespace, targetRelation);
+            List<Triple<String, String, String>> relationsToDelete = Fedora4Utils.triplesToDeleteByPid(this.repo, metadata, relation, namespace, targetRelation);
             this.updateSPARQL(Fedora4Repository.DELETE_RELATIONS(relationsToDelete));
 
             //nalezeni vsech vazeb z metadat a smazani
@@ -572,7 +579,7 @@ public class Fedora4Object implements RepositoryObject {
             });
             if (!metadataElms.isEmpty()) {
                 List<List<Triple<String, String, String>>> deleteBuckets = removeRelations(metadataElms);
-                for (List<Triple<String, String, String>> bucket :  deleteBuckets) {
+                for (List<Triple<String, String, String>> bucket : deleteBuckets) {
                     this.updateSPARQL(Fedora4Repository.DELETE_RELATIONS(bucket));
                 }
             }
@@ -607,7 +614,6 @@ public class Fedora4Object implements RepositoryObject {
             throw new RepositoryException(e);
         }
     }
-
 
 
     public String getFullPath() throws RepositoryException {
@@ -766,7 +772,7 @@ public class Fedora4Object implements RepositoryObject {
             });
             if (!metadataElms.isEmpty()) {
                 List<List<Triple<String, String, String>>> deleteBuckets = removeRelations(metadataElms);
-                for (List<Triple<String, String, String>> bucket :  deleteBuckets) {
+                for (List<Triple<String, String, String>> bucket : deleteBuckets) {
                     this.updateSPARQL(Fedora4Repository.DELETE_RELATIONS(bucket));
                 }
             }
@@ -775,13 +781,13 @@ public class Fedora4Object implements RepositoryObject {
             Document document = XMLUtils.parseDocument(stream.getContent(), true);
             List<Element> relationElements = XMLUtils.getElementsRecursive(document.getDocumentElement(), (element) -> {
                 String elmNamespace = element.getNamespaceURI();
-                return (elmNamespace.equals(namespace)) ;
+                return (elmNamespace.equals(namespace));
             });
 
 
             // Change RELS-EXT relations
             if (!relationElements.isEmpty()) {
-                relationElements.stream().forEach((elm)->{
+                relationElements.stream().forEach((elm) -> {
                     elm.getParentNode().removeChild(elm);
                 });
                 changeRelations(document);
@@ -813,7 +819,7 @@ public class Fedora4Object implements RepositoryObject {
             });
             if (!metadataElms.isEmpty()) {
                 List<List<Triple<String, String, String>>> deleteBuckets = removeRelations(metadataElms);
-                for (List<Triple<String, String, String>> bucket :  deleteBuckets) {
+                for (List<Triple<String, String, String>> bucket : deleteBuckets) {
                     this.updateSPARQL(Fedora4Repository.DELETE_RELATIONS(bucket));
                 }
             }
@@ -829,7 +835,7 @@ public class Fedora4Object implements RepositoryObject {
 
             // Change RELS-EXT relations
             if (!relationElements.isEmpty()) {
-                relationElements.stream().forEach((elm)->{
+                relationElements.stream().forEach((elm) -> {
                     elm.getParentNode().removeChild(elm);
                 });
                 changeRelations(document);
@@ -848,12 +854,12 @@ public class Fedora4Object implements RepositoryObject {
         }
     }
 
-    private List<List<Triple<String,String,String>>> removeRelations(List<Element> elms) throws RepositoryException, TransformerException {
+    private List<List<Triple<String, String, String>>> removeRelations(List<Element> elms) throws RepositoryException, TransformerException {
         // zruseni sparql vazeb
-        List<List<Triple<String,String,String>>> retList = new ArrayList<>();
+        List<List<Triple<String, String, String>>> retList = new ArrayList<>();
         Document metadata = getMetadata();
         for (Element relationElement : elms) {
-            List<Triple<String,String,String>> bucket = new ArrayList<>();
+            List<Triple<String, String, String>> bucket = new ArrayList<>();
             String namespace = relationElement.getNamespaceURI();
             String relation = relationElement.getLocalName();
             if (relationElement.hasAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource")) {
@@ -871,7 +877,7 @@ public class Fedora4Object implements RepositoryObject {
                     throw new UncheckedIOException(e);
                 }
             } else {
-                bucket.add(new ImmutableTriple<>("<>","<"+namespace+relation+">", '"'+relationElement.getTextContent()+'"'));
+                bucket.add(new ImmutableTriple<>("<>", "<" + namespace + relation + ">", '"' + relationElement.getTextContent() + '"'));
             }
             relationElement.getParentNode().removeChild(relationElement);
             retList.add(bucket);
@@ -904,6 +910,26 @@ public class Fedora4Object implements RepositoryObject {
             this.removeRelationsByNamespace(FedoraNamespaces.KRAMERIUS_URI);
             this.removeRelationsByNameAndNamespace("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI);
             this.deleteStream(FedoraUtils.RELS_EXT_STREAM);
+        }
+    }
+
+    @Override
+    public void rebuildProcessingIndex() throws RepositoryException {
+        try {
+            RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
+            InputStream content = stream.getContent();
+            String s = IOUtils.toString(content, "UTF-8");
+            RELSEXTSPARQLBuilder sparqlBuilder = new RELSEXTSPARQLBuilderImpl();
+            sparqlBuilder.sparqlProps(s.trim(), (object, localName) -> {
+                processRELSEXTRelationAndFeedProcessingIndex(object, localName);
+                return object;
+            });
+        } catch (IOException e) {
+            throw new RepositoryException(e);
+        } catch (SAXException e) {
+            throw new RepositoryException(e);
+        } catch (ParserConfigurationException e) {
+            throw new RepositoryException(e);
         }
     }
 }

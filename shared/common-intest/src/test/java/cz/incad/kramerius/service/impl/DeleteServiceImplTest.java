@@ -87,7 +87,7 @@ public class DeleteServiceImplTest  {
 
         Fedora4Utils.doWithProcessingIndexCommit(inst.fedoraAccess.getInternalAPI(), (repo)->{
             try {
-                inst.deleteTree(repo,"uuid:5035a48a-5e2e-486c-8127-2fa650842e46", "uuid:5035a48a-5e2e-486c-8127-2fa650842e46", "Marked as deleted", false);
+                inst.deleteTree(repo,"uuid:5035a48a-5e2e-486c-8127-2fa650842e46", "uuid:5035a48a-5e2e-486c-8127-2fa650842e46", "Marked as deleted", false, false );
             } catch (IOException e) {
                 throw new RepositoryException(e);
             } catch (ResourceIndexException e) {
@@ -146,7 +146,7 @@ public class DeleteServiceImplTest  {
         }));
         Fedora4Utils.doWithProcessingIndexCommit(inst.fedoraAccess.getInternalAPI(), (repo)->{
             try {
-                inst.deleteTree(repo,"uuid:86c0425f-11fd-406b-8def-6726ad87982b", "uuid:5035a48a-5e2e-486c-8127-2fa650842e46/uuid:86c0425f-11fd-406b-8def-6726ad87982b", "Marked as deleted", false);
+                inst.deleteTree(repo,"uuid:86c0425f-11fd-406b-8def-6726ad87982b", "uuid:5035a48a-5e2e-486c-8127-2fa650842e46/uuid:86c0425f-11fd-406b-8def-6726ad87982b", "Marked as deleted", false, false);
             } catch (IOException e) {
                 throw new RepositoryException(e);
             } catch (ResourceIndexException e) {
