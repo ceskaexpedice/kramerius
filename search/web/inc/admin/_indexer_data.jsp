@@ -132,16 +132,8 @@ function _deleteFromIndexData(pid){
                 </tr>
             </table>
         </div>
-        <div class="section">
-            <table>
-                <tr>
-                    <td><fmt:message bundle="${lctx}">administrator.menu.dialogs.rebuild_processing</fmt:message></td>
-                    <td><input type="button"  id="check_integrity_processing" onclick="rebuildProcessingIndex();" value="Rebuild processing index" class="ui-state-default ui-corner-all" /></td>
-                </tr>
-            </table>
-        </div>
-
     </div>
+
     <div id="indexer_browse_models" class="indexer_data_container">  
         <div class="section">
             <fmt:message bundle="${lctx}">fedora.model</fmt:message>: 

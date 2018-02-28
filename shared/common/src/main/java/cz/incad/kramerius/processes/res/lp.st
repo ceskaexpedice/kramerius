@@ -529,7 +529,7 @@ Every process could have following structure:
         <securedaction>reindex</securedaction>
     </process>
 
-
+    <!-- processing index check  itereate over processing index and check if object exists in fedora  -->
     <process>
         <id>processing_check</id>
         <description>Check processing index</description>
@@ -539,6 +539,7 @@ Every process could have following structure:
         <securedaction>reindex</securedaction>
     </process>
 
+    <!-- walk through repository and rebuild processing index -->
     <process>
         <id>processing_rebuild</id>
         <description>Processing index rebuild</description>
