@@ -48,14 +48,19 @@ public class ParsingCoordinates {
     }
 
     private Coordinate coordinate() throws LexerException {
-
         Coordinate.CoordinationType type = null;
+        if (token.getValue().equals("e") || token.getValue().equals("E")) {
+            type = this.e();
+        } else if (token.getValue().equals("n") || token.getValue().equals("N")) {
+            type = this.n();
+        }
+
         this.consumeWhitespace();
         Long degrees = number('°');
         this.consumeWhitespace();
         Long minutes = number('´', '\'');
         this.consumeWhitespace();
-        Long seconds = number('"');
+        Long seconds = number('"','”');
         this.consumeWhitespace();
 
         if (token.getValue().equals("v") || token.getValue().equals("V")) {
@@ -66,6 +71,13 @@ public class ParsingCoordinates {
 
         return new Coordinate(degrees, minutes, seconds, type);
 
+    }
+
+    private Coordinate.CoordinationType e() throws LexerException {
+        this.consumeWhitespace();
+        this.matchToken(Token.TokenType.ALPHA, 'E');
+        this.consumeWhitespace();
+        return Coordinate.CoordinationType.VD;
     }
 
     private Coordinate.CoordinationType vd() throws LexerException {
@@ -79,6 +91,13 @@ public class ParsingCoordinates {
         this.matchToken(Token.TokenType.DOT);
         this.consumeWhitespace();
         return Coordinate.CoordinationType.VD;
+    }
+
+    private Coordinate.CoordinationType n() throws LexerException {
+        this.consumeWhitespace();
+        this.matchToken(Token.TokenType.ALPHA, 'N');
+        this.consumeWhitespace();
+        return Coordinate.CoordinationType.SS;
     }
 
     private Coordinate.CoordinationType ss() throws LexerException {
