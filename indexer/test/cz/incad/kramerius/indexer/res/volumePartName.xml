@@ -1,0 +1,40 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+    <mods:mods xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xlink="http://www.w3.org/1999/xlink" version="3.5">
+        <mods:genre type="normal">issue</mods:genre>
+        <mods:identifier type="uuid">7a9f3afc-4e8d-4fbe-874e-76de161fb91d</mods:identifier>
+        <mods:identifier type="issn">0015-1831</mods:identifier>
+        <mods:language>
+            <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+        </mods:language>
+        <mods:language>
+            <mods:languageTerm authority="iso639-2b" type="code">eng</mods:languageTerm>
+        </mods:language>
+        <mods:location>
+            <mods:physicalLocation authority="siglaADR">ABA007</mods:physicalLocation>
+            <mods:shelfLocator>PE 32</mods:shelfLocator>
+        </mods:location>
+        <mods:location>
+            <mods:physicalLocation authority="siglaADR">ABA007</mods:physicalLocation>
+            <mods:shelfLocator>PE 32</mods:shelfLocator>
+        </mods:location>
+        <mods:location>
+            <mods:physicalLocation authority="siglaADR">ABA007</mods:physicalLocation>
+            <mods:shelfLocator>PE 32</mods:shelfLocator>
+        </mods:location>
+        <mods:location>
+            <mods:physicalLocation authority="siglaADR">ABA007</mods:physicalLocation>
+            <mods:shelfLocator>PE 32</mods:shelfLocator>
+        </mods:location>
+        <mods:originInfo>
+            <mods:dateIssued>2015</mods:dateIssued>
+        </mods:originInfo>
+        <mods:part type="issue"></mods:part>
+        <mods:titleInfo>
+            <mods:title>Filosofický časopis</mods:title>
+            <mods:partNumber>Mimořádné číslo 3</mods:partNumber>
+            <mods:partName>Sedmkrát z logiky a metodologie vědy</mods:partName>
+        </mods:titleInfo>
+    </mods:mods>
+</mods:modsCollection>
