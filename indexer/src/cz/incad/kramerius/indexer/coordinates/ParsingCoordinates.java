@@ -21,6 +21,8 @@ import java.util.logging.Logger;
 
 public class ParsingCoordinates {
 
+
+
     private static Logger LOGGER = Logger.getLogger(ParsingCoordinates.class.getName());
 
     private Token token;
@@ -51,8 +53,12 @@ public class ParsingCoordinates {
         Coordinate.CoordinationType type = null;
         if (token.getValue().equals("e") || token.getValue().equals("E")) {
             type = this.e();
+        } else if (token.getValue().equals("w") || token.getValue().equals("W")) {
+            type = this.w();
         } else if (token.getValue().equals("n") || token.getValue().equals("N")) {
             type = this.n();
+        } else if (token.getValue().equals("s") || token.getValue().equals("S")) {
+            type = this.s();
         }
 
         this.consumeWhitespace();
@@ -67,8 +73,11 @@ public class ParsingCoordinates {
             type = this.vd();
         } else if (token.getValue().equals("s") || token.getValue().equals("S")) {
             type = this.ss();
+        } else if (token.getValue().equals("z") || token.getValue().equals("Z")) {
+            type = this.zd();
+        } else if (token.getValue().equals("j") || token.getValue().equals("j")) {
+            type = this.js();
         }
-
         return new Coordinate(degrees, minutes, seconds, type);
 
     }
@@ -79,6 +88,14 @@ public class ParsingCoordinates {
         this.consumeWhitespace();
         return Coordinate.CoordinationType.VD;
     }
+
+    private Coordinate.CoordinationType w() throws LexerException {
+        this.consumeWhitespace();
+        this.matchToken(Token.TokenType.ALPHA, 'W');
+        this.consumeWhitespace();
+        return Coordinate.CoordinationType.ZD;
+    }
+
 
     private Coordinate.CoordinationType vd() throws LexerException {
         this.consumeWhitespace();
@@ -100,6 +117,13 @@ public class ParsingCoordinates {
         return Coordinate.CoordinationType.SS;
     }
 
+    private Coordinate.CoordinationType s() throws LexerException {
+        this.consumeWhitespace();
+        this.matchToken(Token.TokenType.ALPHA, 'S');
+        this.consumeWhitespace();
+        return Coordinate.CoordinationType.JS;
+    }
+
     private Coordinate.CoordinationType ss() throws LexerException {
         this.consumeWhitespace();
         this.matchToken(Token.TokenType.ALPHA, 's');
@@ -113,6 +137,31 @@ public class ParsingCoordinates {
         return Coordinate.CoordinationType.SS;
     }
 
+    private Coordinate.CoordinationType js() throws LexerException {
+        this.consumeWhitespace();
+        this.matchToken(Token.TokenType.ALPHA, 'j');
+        this.consumeWhitespace();
+        this.matchToken(Token.TokenType.DOT);
+        this.consumeWhitespace();
+        this.matchToken(Token.TokenType.ALPHA, 'š');
+        this.consumeWhitespace();
+        this.matchToken(Token.TokenType.DOT);
+        this.consumeWhitespace();
+        return Coordinate.CoordinationType.JS;
+    }
+
+    private Coordinate.CoordinationType zd() throws LexerException {
+        this.consumeWhitespace();
+        this.matchToken(Token.TokenType.ALPHA, 'z');
+        this.consumeWhitespace();
+        this.matchToken(Token.TokenType.DOT);
+        this.consumeWhitespace();
+        this.matchToken(Token.TokenType.ALPHA, 'd');
+        this.consumeWhitespace();
+        this.matchToken(Token.TokenType.DOT);
+        this.consumeWhitespace();
+        return Coordinate.CoordinationType.ZD;
+    }
 
     private void matchToken(Token.TokenType expecting, char ... expectingChars) throws LexerException {
         if (this.token.getType() == expecting) {
