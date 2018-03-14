@@ -220,7 +220,6 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         if (maintitles != null && (!maintitles.isEmpty())) {
             details.add(new DetailItem(key, vals(maintitles).toString()));
         }
-
         for(String prop: renderedProperties(roots.size() == 1)) {
             LinkedHashSet<String> vals = detailItemValues.get(prop);
             key = vals != null && vals.size() > 1 ? resourceBundle.getString(i18nKey(prop)+"s") :  resourceBundle.getString(i18nKey(prop));
@@ -314,7 +313,6 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         for (int i = 0; i < fromRootToLeaf.length; i++) {
             String pidPath = fromRootToLeaf[i];
             for (String prop : rProps) {
-
                 if (mods.get(pidPath).containsKey(prop)) {
                     List<String> list = mods.get(pidPath).get(prop);
                     itemVals(detailItemValues, list, prop);
