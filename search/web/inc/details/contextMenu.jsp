@@ -47,8 +47,8 @@
         height: 16px;
         overflow:hidden;
         text-indent: -99999px;
-        display:block;
-        float:left;
+        display:inline-block;
+        float:none;
     }
 
     #contextMenu .scope>span{
