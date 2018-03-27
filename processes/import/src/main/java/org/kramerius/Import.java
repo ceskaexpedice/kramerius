@@ -197,6 +197,11 @@ public class Import {
                     }
 
                     try {
+                        String waitIndexerProperty = System.getProperties().containsKey("ingest.startIndexer.wait") ? System.getProperty("ingest.startIndexer.wait") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer.wait", "1000");
+                        // should wait
+                        log.info("Waiting for soft commit :"+waitIndexerProperty+" s");
+                        Thread.sleep(Integer.parseInt(waitIndexerProperty));
+
                         IndexerProcessStarter.spawnIndexer(true, importFile.getName(), pids.toString());
                         log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
                     } catch (Exception e) {

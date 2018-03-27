@@ -32,6 +32,7 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import net.sf.json.JSONObject;
 
 import org.kramerius.consistency.Consistency;
@@ -76,7 +77,13 @@ public class ThirdPhase extends AbstractPhase {
                 JSONObject jsonObject = JSONObject.fromObject(raw);
                 title = jsonObject.getString("title");
             }
+
+            String waitIndexerProperty = System.getProperties().containsKey("ingest.startIndexer.wait") ? System.getProperty("ingest.startIndexer.wait") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer.wait", "1000");
+            LOGGER.info("Waiting for soft commit :"+waitIndexerProperty+" s");
+            Thread.sleep(Integer.parseInt(waitIndexerProperty));
+
             IndexerProcessStarter.spawnIndexer(true, title, rootPid);
+            LOGGER.info("OBJECT SCHEDULED FOR INDEXING.");
         } catch (FileNotFoundException e) {
             throw new PhaseException(this,e);
         } catch (IOException e) {
@@ -90,6 +97,8 @@ public class ThirdPhase extends AbstractPhase {
         } catch (TokenStreamException e) {
             throw new PhaseException(this,e);
         } catch (RepositoryException e) {
+            throw new PhaseException(this,e);
+        } catch (InterruptedException e) {
             throw new PhaseException(this,e);
         }
     }
