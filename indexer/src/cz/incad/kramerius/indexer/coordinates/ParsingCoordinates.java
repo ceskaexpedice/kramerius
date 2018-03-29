@@ -249,6 +249,7 @@ public class ParsingCoordinates {
                 min.append(rangeRangePair.getRight().getTo().getCoordinate()).append(',');
                 min.append(rangeRangePair.getLeft().getFrom().getCoordinate());
 
+
                 StringBuilder max = new StringBuilder();
                 max.append(rangeRangePair.getRight().getFrom().getCoordinate()).append(',');
                 max.append(rangeRangePair.getLeft().getTo().getCoordinate());
@@ -262,6 +263,21 @@ public class ParsingCoordinates {
                 builder.append(max);
                 builder.append("</field>");
                 retvals.add(builder.toString());
+
+
+                // central point indexing
+                double toX  = rangeRangePair.getRight().getFrom().getCoordinate();
+                double fromX = rangeRangePair.getRight().getTo().getCoordinate();
+
+                double fromY = rangeRangePair.getLeft().getFrom().getCoordinate();
+                double toY = rangeRangePair.getLeft().getTo().getCoordinate();
+
+                builder = new StringBuilder("<field name=\"center\">");
+                builder.append((fromX + ((toX - fromX) / 2 ))).append(",").append((fromY + ((toY - fromY) / 2 )));
+                builder.append("</field>");
+                retvals.add(builder.toString());
+
+
             }
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.WARNING, e.getMessage());
