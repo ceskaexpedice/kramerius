@@ -556,7 +556,11 @@
         <field name="location" type="location_rpt" indexed="true" stored="true" multiValued="true"/>
         <!-- geo coordinates for defined as box -->
         <field name="range" type="bbox"/>
-    </fields>
+		
+		<!-- center point coordinate --> 
+        <field name="center" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
+
+	</fields>
 
     <!-- Field to use to determine and enforce document uniqueness.
       Unless this field is marked with required="false", it will be a required field
