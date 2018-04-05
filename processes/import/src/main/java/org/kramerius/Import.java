@@ -555,8 +555,18 @@ public class Import {
         RepositoryObject obj = repo.createOrFindObject( objId/*+"?mixin=fedora:object"*/);
 
         List<DatastreamType> datastream = dob.getDatastream();
+        // reorder - RELS-EXT should be the last
+        List<DatastreamType> ndatastreams = new ArrayList<>();
+        datastream.stream().forEach((ds)->{
+            String id = ds.getID();
+            if (id.equals(FedoraUtils.RELS_EXT_STREAM)) {
+                ndatastreams.add(ds);
+            } else {
+                ndatastreams.add(0,ds);
+            }
+        });
 
-        for (DatastreamType ds : datastream) {
+        for (DatastreamType ds : ndatastreams) {
             String id = ds.getID();
             String controlgroup = ds.getCONTROLGROUP();
             DatastreamVersionType latestDs =  ds.getDatastreamVersion().isEmpty() ? null : ds.getDatastreamVersion().get(ds.getDatastreamVersion().size()-1);

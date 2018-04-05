@@ -107,12 +107,11 @@ public class Fedora4Object implements RepositoryObject {
     @Override
     public RepositoryDatastream createRedirectedStream(String streamId, String url) throws RepositoryException {
         URI childUri = URI.create(getObjectPathWithEndpoint() + "/" + streamId);
-        String host = childUri.getHost();
-        if (PROHIBITED_HOSTS.contains(host)) {
-            LOGGER.warning("Skipping stream " + streamId + " due to prohibited host " + host);
+        URI rediretionUri = URI.create(url);
+        if (PROHIBITED_HOSTS.contains(rediretionUri.getHost())) {
+            LOGGER.warning("Skipping stream " + streamId + " due to prohibited host " + rediretionUri.getHost());
             return null;
         }
-
         try (FcrepoResponse response = client.put(childUri).body(new ByteArrayInputStream("".getBytes()), "message/external-body; access-type=URL; URL=\"" + url + "\"").perform()) {
             Fedora4Datastream ds = new Fedora4Datastream(this.repo, this.client, new ArrayList<String>(this.path) {{
                 add(streamId);
@@ -231,7 +230,6 @@ public class Fedora4Object implements RepositoryObject {
                                     throw new RepositoryException("Cannot create  stream " + streamId);
                                 }
                             });
-
                             // spread properties from relsext
                             this.updateSPARQL(sparql);
                             ds.updateSPARQL(Fedora4Repository.UPDATE_INDEXING_SPARQL());
