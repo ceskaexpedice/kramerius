@@ -714,7 +714,7 @@ public class Import {
                 return true;
             }
         } catch (Exception ex) {
-            log.log(Level.WARNING, "Error checking PID: "+ pid + " with: " + ex.getMessage());
+            log.log(Level.WARNING, "Error checking PID: "+ pid + " with: " + ex.getMessage() + "\nexception class: " + ex.getClass().getName() );
             return false;
         }
         return false;
