@@ -132,13 +132,34 @@
 <c:if test="${param.debug==true}">${url}</c:if>
 <div id="test"></div>
 
-<%-- v konfiguracnim souboru to je promenna googleanalytics.webpropertyid= --%>
 <c:if test="${ga.ready}">
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?${ga.webPropertyId}"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
+<%-- Google Analytics. Configuration directives - googleanalytics.webpropertyid=   (For measuring code UA-XXXXXXXXX-1)
+     For code GTM-XXXXXX /search/web/inc/html_header.jsp
+--%>
+   <c:if test="${fn:startsWith(ga.webPropertyId,'UA')}">
+      <!-- Global site tag (gtag.js) - Google Analytics -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=${ga.webPropertyId}">
+      </script>
+      <script>
+         window.dataLayer = window.dataLayer || [];
+         function gtag(){dataLayer.push(arguments);}
+         gtag('js', new Date());
+         gtag('config', '${ga.webPropertyId}');
+      </script>
+   </c:if>
+
+
+<%-- Google Analytics. For measuring code GTM-XXXXXX tag <noscript> 
+   https://developers.google.com/tag-manager/quickstart
+--%>
+   <c:if test="${fn:startsWith(ga.webPropertyId,'GTM')}">
+<!-- Google Analytics <noscript> -->
+      <noscript><iframe src="https://www.googletagmanager.com/ns.html?${ga.webPropertyId}"
+         height="0" width="0" style="display:none;visibility:hidden"></iframe>
+      </noscript>
+   </c:if>
 </c:if>
+
 
 
 <c:if test="${fb.buttonEnabled}">
