@@ -714,6 +714,7 @@ public class Import {
                 return true;
             }
         } catch (Exception ex) {
+            log.log(Level.WARNING, "Error checking PID: "+ pid + " with: " + ex.getMessage());
             return false;
         }
         return false;
