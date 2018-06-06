@@ -19,7 +19,7 @@ public class FedoraDataMigrationProcess {
             new ZeroPhase(),
             new IterateThroughIndexPhase(),
             new SecondPhase(),
-            new ThirdPhase()
+            new StartIndexerPhase()
     };
 
 
