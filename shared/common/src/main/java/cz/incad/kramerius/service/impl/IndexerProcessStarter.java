@@ -103,6 +103,14 @@ public class IndexerProcessStarter {
         planIndexProcess(param,uuid,URLEncoder.encode(title, "UTF-8"));
     }
 
+    public static void spawnIndexerForModel(String ... models) {
+        log.info("Spawn indexer: model: "+Arrays.toString(models));
+        String base = ProcessUtils.getLrServlet();
+        for (String model :  models) {
+            planIndexProcess("krameriusModel",model, model);
+        }
+    }
+
     public static void spawnIndexRemover(String pid_path, String uuid) {
         log.info("spawnIndexRemower: pid_path: "+pid_path+" pid: "+uuid);
         String base = ProcessUtils.getLrServlet();
