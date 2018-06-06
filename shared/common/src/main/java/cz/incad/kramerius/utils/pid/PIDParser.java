@@ -165,6 +165,7 @@ public class PIDParser {
                 });
         StringBuffer buffer = new StringBuffer();
         if (!types.contains(this.token.getType())) {
+            LOGGER.warning("Error processing token: " + token.getValue() + " objectId: " + objectId());
             throw new LexerException("expecting ALPHA, DIGIT, MINUS or DOT");
         }
         while (types.contains(this.token.getType())) {

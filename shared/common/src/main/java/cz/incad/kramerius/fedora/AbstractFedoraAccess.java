@@ -172,6 +172,7 @@ public abstract class AbstractFedoraAccess implements FedoraAccess {
                 processSubtreeInternal(pid, relsExt, processor, 0, new Stack<String>());
             }
         } catch (LexerException e) {
+            LOGGER.warning("Error in pid: " + pid);
             throw new ProcessSubtreeException(e);
         } catch (XPathExpressionException e) {
             throw new ProcessSubtreeException(e);
