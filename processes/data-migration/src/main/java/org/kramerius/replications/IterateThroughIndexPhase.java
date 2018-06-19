@@ -31,7 +31,7 @@ public class IterateThroughIndexPhase extends  AbstractPhase {
     @Override
     public void start(String url, String userName, String pswd, String replicationCollections, String replicateImages) throws PhaseException {
         try {
-            StringBuilder builder = new StringBuilder("{'pagingPids':[");
+            StringBuilder builder = new StringBuilder("{'pids':[");
             boolean first = true;
             boolean userCursor = KConfiguration.getInstance().getConfiguration().getBoolean("solr.migration.usecursor", false);
             LOGGER.info(userCursor ? "Using cursor": "Using paging");

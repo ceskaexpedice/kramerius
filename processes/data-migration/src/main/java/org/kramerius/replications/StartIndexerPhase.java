@@ -13,7 +13,10 @@ import org.apache.solr.client.solrj.SolrServerException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class StartIndexerPhase extends  AbstractPhase{
 
@@ -23,17 +26,22 @@ public class StartIndexerPhase extends  AbstractPhase{
     @Override
     public void start(String url, String userName, String pswd, String replicationCollections, String replicateImages) throws PhaseException {
         //fedora.topLevelModels=monograph,periodical,soundrecording,manuscript,map,sheetmusic
-        String[] models = KConfiguration.getInstance().getPropertyList("fedora.topLevelModels");
-        IndexerProcessStarter.spawnIndexerForModel(models);
+        List<String> models = models();
+        IndexerProcessStarter.spawnIndexerForModel(models.toArray(new String[models.size()]));
         LOGGER.info("OBJECT SCHEDULED FOR INDEXING.");
 
+    }
+
+    private List<String> models() {
+        return Arrays.stream(KConfiguration.getInstance().getPropertyList("fedora.topLevelModels")).map((model)->{
+                return model.startsWith("model:") ? model : "model:"+model;
+            }).collect(Collectors.toList());
     }
 
     @Override
     public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd, String replicationCollections, String replicateImages) throws PhaseException {
-        String[] models = KConfiguration.getInstance().getPropertyList("fedora.topLevelModels");
-        IndexerProcessStarter.spawnIndexerForModel(models);
+        List<String> models = models();
+        IndexerProcessStarter.spawnIndexerForModel(models.toArray(new String[models.size()]));
         LOGGER.info("OBJECT SCHEDULED FOR INDEXING.");
-
-    }
+   }
 }

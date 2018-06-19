@@ -248,7 +248,7 @@ public class Fedora4Object implements RepositoryObject {
                     throw new RepositoryException(e);
                 }
             } else {
-                throw new RepositoryException("stream '" + streamId + "' already objectExists");
+                throw new RepositoryException("stream '" + streamId + "' already exists in the object "+this.pid);
             }
         } catch (IOException e) {
             throw new RepositoryException(e);
