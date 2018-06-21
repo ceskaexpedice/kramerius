@@ -30,6 +30,19 @@ public class FedoraDataMigrationProcess {
                                     @ParameterName("replicateCollections")String replicateCollections,
                                     @ParameterName("replicateImages")String replicateImages,
                                     @ParameterName("previousProcess")String previousProcessUUID) throws IOException {
-        start(url, userName, pswd, replicateCollections, replicateImages, PHASES);
+
+
+        if ((previousProcessUUID != null) && (!previousProcessUUID.equals(""))) {
+            LOGGER.info("restarting ..");
+            String muserDir = System.getProperty("user.dir");
+            File previousProcessFolder = new File(new File(muserDir).getParentFile(), previousProcessUUID);
+            if (previousProcessFolder.exists()) {
+                restart(previousProcessUUID, previousProcessFolder, url, userName, pswd,replicateCollections,replicateImages,PHASES);
+            } else throw new RuntimeException("expect of existing folder '"+previousProcessFolder.getAbsolutePath()+"'");
+        } else {
+            // start
+            start(url, userName, pswd,replicateCollections, replicateImages,PHASES);
+        }
+
     }
 }

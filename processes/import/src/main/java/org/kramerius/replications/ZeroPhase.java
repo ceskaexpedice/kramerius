@@ -53,9 +53,10 @@ public class ZeroPhase extends AbstractPhase {
 
 	protected void validate(int[] version) throws PhaseException {
 		if (version.length == 3) {
-			notLessThan(version[0],5, version);
-			notLessThan(version[1],3, version);
-			notLessThan(version[1],7, version);
+			int _v = version[0]*100+version[1]*10+version[2];
+			if (_v <537) {
+				throwInvalidVersionException(version);
+			}
 		} else {
 			throwInvalidVersionException(version);
 		}
@@ -71,9 +72,6 @@ public class ZeroPhase extends AbstractPhase {
 
 
 
-	private void notLessThan(int value, int expected, int[] currentVersion) throws PhaseException {
-		if (value < expected) throwInvalidVersionException(currentVersion);
-	}
 
 
 

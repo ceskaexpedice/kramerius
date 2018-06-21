@@ -28,20 +28,18 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
-import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RelsExtHelper;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.kramerius.Import;
 import org.kramerius.replications.pidlist.PIDsListLexer;
@@ -52,25 +50,23 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.ws.rs.core.MediaType;
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.Executors.*;
@@ -79,14 +75,11 @@ public class SecondPhase extends AbstractPhase  {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SecondPhase.class.getName());
 
-    static String DONE_FOLDER_NAME = "DONE";
-    static int MAXITEMS=30000;
 
     //TODO: move it to configuration
-    static int NUMBER_OF_THREADS = 2;
+    static int NUMBER_OF_THREADS = 1;
     static int MAX_RUNNING_DAYS = 365;
 
-    private DONEController controller = null;
     private boolean findPid = false;
     private String replicationCollections;
     private Injector injector;
@@ -94,6 +87,7 @@ public class SecondPhase extends AbstractPhase  {
     private ExecutorService executorService = null;
     private boolean replicationImages = false;
 
+    private List<PhaseException> exceptions = new ArrayList<>();
 
 
     @Override
@@ -101,7 +95,6 @@ public class SecondPhase extends AbstractPhase  {
         try {
             this.executorService = newFixedThreadPool(NUMBER_OF_THREADS);
             this.findPid = false;
-            this.controller = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
             this.replicationCollections = replicationCollections;
             this.replicationImages = Boolean.parseBoolean(replicationImages);
 
@@ -109,7 +102,13 @@ public class SecondPhase extends AbstractPhase  {
             Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
             this.injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
             this.processIterate(url, userName, pswd);
-
+            this.executorService.awaitTermination(60, TimeUnit.SECONDS);
+            if (!this.exceptions.isEmpty()) {
+                // phase failed
+                throw new PhaseException(this, this.exceptions.get(0));
+            }
+        } catch (InterruptedException e) {
+            throw new PhaseException(this, e);
         } finally {
             try {
                 ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
@@ -126,21 +125,21 @@ public class SecondPhase extends AbstractPhase  {
     public void pidEmitted(String pid, String url, String userName, String pswd) throws PhaseException {
         try {
             LOGGER.info("processing pid '"+pid+"'");
-            boolean shouldSkip = (findPid && this.controller.findPid(pid) != null);
+
+            boolean shouldSkip = (findPid && findPid(pid));
             if (!shouldSkip) {
                 File foxmlfile = null;
                 InputStream inputStream = null;
                 try {
                     long foxmlStart = System.currentTimeMillis();
                     inputStream = rawFOXMLData(pid, url, userName, pswd);
-                    foxmlfile = foxmlFile(inputStream, pid);
+                    foxmlfile = pidParseAndGetObjectId(inputStream, pid);
                     long foxmlStop = System.currentTimeMillis();
                     if (this.replicationImages) {
                         replicateImg(pid, url, foxmlfile);
                     }
                     LOGGER.fine("\t downloading foxml took "+(foxmlStop - foxmlStart)+" ms");
                     ingest(foxmlfile);
-                    createFOXMLDone(pid);
                 } catch (LexerException e) {
                     throw new PhaseException(this,e);
                 } catch (IOException e) {
@@ -155,13 +154,15 @@ public class SecondPhase extends AbstractPhase  {
                     if (e.getCause() != null) throw new PhaseException(this,e.getCause());
                     else throw new PhaseException(this,e);
                 } finally {
-                    if (inputStream != null) IOUtils.tryClose(inputStream);
+                    if (inputStream != null) IOUtils.closeQuietly(inputStream);
                     if (foxmlfile != null) foxmlfile.delete();
                 }
             } else {
                 LOGGER.info("skipping pid '"+pid+"'");
             }
         } catch (LexerException e) {
+            throw new PhaseException(this,e);
+        } catch (IOException e) {
             throw new PhaseException(this,e);
         }
     }
@@ -226,7 +227,6 @@ public class SecondPhase extends AbstractPhase  {
 
             FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
             Import.ingest(fa.getInternalAPI(), foxmlfile, null, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
-
         } catch (RuntimeException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
             else throw new PhaseException(this,e);
@@ -236,15 +236,15 @@ public class SecondPhase extends AbstractPhase  {
         }
     }
     
-    public File foxmlFile(InputStream foxmlStream, String pid) throws LexerException, IOException, PhaseException {
+    public File pidParseAndGetObjectId(InputStream foxmlStream, String pid) throws LexerException, IOException, PhaseException {
         FileOutputStream fos = null;
         File foxml = createFOXMLFile(pid);
         try {
             fos = new FileOutputStream(foxml);
-            IOUtils.copyStreams(foxmlStream, fos );
+            IOUtils.copy(foxmlStream, fos );
             return foxml;
         } finally {
-            IOUtils.tryClose(fos);
+            IOUtils.closeQuietly(fos);
         }
     }
 
@@ -264,29 +264,22 @@ public class SecondPhase extends AbstractPhase  {
         return t;
     }
     
-    public File createFOXMLDone(String pid) throws LexerException, IOException, PhaseException {
-        PIDParser pidParser = new PIDParser(pid);
-        pidParser.objectPid();
-        String objectId = pidParser.getObjectId();
-        File importDoneFile = new File(controller.getCurrentSubFolder(), objectId+".fo.done");
-        if (!importDoneFile.exists()) importDoneFile.createNewFile();
-        if (!importDoneFile.exists()) throw new PhaseException(this,"file not exists '"+importDoneFile.getAbsolutePath()+"'");
-        return importDoneFile;
-        
-    }
-    
+
     public File createFOXMLFile(String pid) throws LexerException, IOException, PhaseException {
-        PIDParser pidParser = new PIDParser(pid);
-        pidParser.objectPid();
-        String objectId = pidParser.getObjectId();
+        String objectId = pidParseAndGetObjectId(pid);
         File foxmlFile = new File(objectId+".fo.xml");
         if (!foxmlFile.exists()) foxmlFile.createNewFile();
         if (!foxmlFile.exists()) throw new PhaseException(this,"file not exists '"+foxmlFile.getAbsolutePath()+"'");
         return foxmlFile;
         
     }
-    
-    
+
+    private static String pidParseAndGetObjectId(String pid) throws LexerException {
+        PIDParser pidParser = new PIDParser(pid);
+        pidParser.objectPid();
+        return pidParser.getObjectId();
+    }
+
 
     private void processIterate(String url, String userName, String pswd) throws PhaseException {
 
@@ -324,84 +317,29 @@ public class SecondPhase extends AbstractPhase  {
     @Override
     public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd,
                         String replicationCollections, String replicationImages) throws PhaseException {
-        try {
-            if (!phaseCompleted) {
-                // initalize import
-                Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
-                this.injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        if (!phaseCompleted) {
+            // initalize import
 
-                this.findPid = true;
-                IOUtils.copyFolders(new File(previousProcessRoot, DONE_FOLDER_NAME),new File(DONE_FOLDER_NAME));
-                this.controller = new DONEController(new File(DONE_FOLDER_NAME), MAXITEMS);
-                this.replicationCollections = replicationCollections;
-                processIterate(url, userName, pswd);
-            }
-        } catch (IOException e) {
-            throw new PhaseException(this,e);
+            this.executorService = newFixedThreadPool(NUMBER_OF_THREADS);
+
+            Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
+            this.injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            this.findPid = true;
+
+            this.replicationCollections = replicationCollections;
+            this.replicationImages = Boolean.parseBoolean(replicationImages);
+            processIterate(url, userName, pswd);
         }
     }
-    
-    static class DONEController {
-        
-        private File doneRoot;
-        private int max;
-        private int counter = 0;
-        
-        public DONEController(File doneRoot, int max) {
-            super();
-            this.doneRoot = doneRoot;
-            this.max = max;
-            makeSureRootExists(doneRoot);
-        }
 
-        File makeSureRootExists(File doneRoot) {
-            if (!doneRoot.exists()) doneRoot.mkdirs();
-            return doneRoot;
-        }
-
-        
-        public File getCurrentSubFolder() {
-            File[] sfiles= subfolder(this.doneRoot).listFiles();
-            if ((sfiles != null) && (sfiles.length >= this.max)) {
-                this.counter += 1;
-            }
-            return subfolder(this.doneRoot);
-        }
-
-
-        File subfolder(File f) {
-            File sub = new File(f,""+this.counter);
-            if (!sub.exists()) sub.mkdirs();
-            return sub;
-        }
-        
-        public File findPid(String pid) throws LexerException {
-            PIDParser pidParser = new PIDParser(pid);
-            pidParser.objectPid();
-            String objectId = pidParser.getObjectId();
-
-            Stack<File> procStack = new Stack<File>();
-            LOGGER.info("finding pid '"+pid+"' ("+objectId+") in '"+this.doneRoot.getAbsolutePath()+"'");
-            procStack.push(this.doneRoot);
-            while(!procStack.isEmpty()) {
-                File poppedFile = procStack.pop();
-                if (poppedFile.getName().startsWith(objectId)) {
-                    LOGGER.info("found file '"+poppedFile.getAbsolutePath()+"'");
-                    return poppedFile;
-                }
-                File[] subfiles = poppedFile.listFiles();
-                if(subfiles != null) {
-                    for (File f : subfiles) {
-                        procStack.push(f);
-                    }
-                }
-            }
-            LOGGER.info("no file  starts with '"+objectId+"'");
-            return null;
-        }
-        
+    public boolean findPid(String pid) throws LexerException, IOException {
+        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        String objectId = pidParseAndGetObjectId(pid);
+        return (fa.isObjectAvailable(objectId) &&  fa.isStreamAvailable(objectId, FedoraUtils.RELS_EXT_STREAM));
     }
-    
+
+
+
     class Emitter implements PidsListCollect {
         
         private String url,userName,pswd;
@@ -426,6 +364,7 @@ public class SecondPhase extends AbstractPhase  {
                     LOGGER.info("Submitting task for pid "+fpid);
                     SecondPhase.this.pidEmitted(fpid, this.url, this.userName, this.pswd);
                 } catch (PhaseException e) {
+                    SecondPhase.this.exceptions.add(e);
                     throw new RuntimeException(e);
                 }
             });

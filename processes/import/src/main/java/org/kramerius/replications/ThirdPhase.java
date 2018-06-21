@@ -70,7 +70,6 @@ public class ThirdPhase extends AbstractPhase {
             consistency.checkConsitency(rootPid, true);
 
             String title = "_"; //TODO: title
-            IOUtils.cleanDirectory(new File(SecondPhase.DONE_FOLDER_NAME));
             File descFile = getDescriptionFile();
             if ((descFile != null) && (descFile.canRead())) {
                 String raw = IOUtils.readAsString(new FileInputStream(descFile), Charset.forName("UTF-8"), true);
