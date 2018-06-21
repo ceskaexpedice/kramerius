@@ -552,7 +552,7 @@ Every process could have following structure:
     <!-- migrace dat z Krameria do Krameria -->
     <process>
         <id>data_migration</id>
-        <description>Check processing index</description>
+        <description>Repository to repository migration </description>
         <mainClass>org.kramerius.replications.FedoraDataMigrationProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
@@ -560,6 +560,7 @@ Every process could have following structure:
 
         <templates>
             <input class="org.kramerius.replications.input.DataMigrationInputTemplate"></input>
+			<output class="org.kramerius.replications.output.DataMigrationOutputTemplate"></output>
         </templates>
     </process>
 
