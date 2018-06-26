@@ -3,8 +3,7 @@ package cz.incad.kramerius.services;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,72 +18,86 @@ import cz.incad.kramerius.service.MigrateSolrIndex;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 
 public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
-    
+
+
     public static final Logger LOGGER = Logger.getLogger(ParallelMigrateSolrIndexImpl.class.getName());
     
     private Client client;
-    private CyclicBarrier barrier;
-    
-    public ParallelMigrateSolrIndexImpl() {
+    //private ExecutorService service;
+    private CyclicBarrier cyclicBarrier;
+
+    public ParallelMigrateSolrIndexImpl() throws MigrateSolrIndexException {
         super();
         this.client = Client.create();
-        this.barrier = null;
+        //this.service = Executors.newFixedThreadPool(MigrationUtils.configuredNumberOfThreads());
     }
 
-    public int init() throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
-        Element result = MigrationUtils.querySolr(this.client, MigrationUtils.constructedQueryURL(), 0, 0);
-        String attribute = result.getAttribute("numFound");
-        return Integer.parseInt(attribute);
+    private void migrateUseQueryFilter(String address) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException, BrokenBarrierException, InterruptedException {
+        List<SolrWorker>  worksWhatHasToBeDone = new ArrayList<>();
+        String lastPid = null;
+        do {
+           Element element = MigrationUtils.pidsQueryFilterQuery(client, address,  lastPid);
+            lastPid = MigrationUtils.findLastPid(element);
+            worksWhatHasToBeDone.add(new SolrWorker(this.client, MigrationUtils.findAllPids(element)));
+            if (worksWhatHasToBeDone.size() >= MigrationUtils.configuredNumberOfThreads()) {
+                startWorkers(worksWhatHasToBeDone);
+                worksWhatHasToBeDone.clear();
+            }
+        }while(lastPid != null);
+        if (!worksWhatHasToBeDone.isEmpty()) {
+            startWorkers(worksWhatHasToBeDone);
+        }
     }
-    
-    
-    
+
+    private void migrateUseCursorMark(String address) throws ParserConfigurationException, MigrateSolrIndexException, SAXException, IOException, InterruptedException, BrokenBarrierException {
+        List<SolrWorker>  worksWhatHasToBeDone = new ArrayList<>();
+        String cursorMark = null;
+        String queryCursorMark = null;
+        do {
+            Element element = MigrationUtils.pidsCursorQuery(client, address, cursorMark);
+            cursorMark = MigrationUtils.findCursorMark(element);
+            queryCursorMark = MigrationUtils.findQueryCursorMark(element);
+            worksWhatHasToBeDone.add(new SolrWorker(this.client, MigrationUtils.findAllPids(element)));
+            if (worksWhatHasToBeDone.size() >= MigrationUtils.configuredNumberOfThreads()) {
+                startWorkers(worksWhatHasToBeDone);
+                worksWhatHasToBeDone.clear();
+            }
+        } while((cursorMark != null && queryCursorMark != null) && !cursorMark.equals(queryCursorMark));
+
+        if (!worksWhatHasToBeDone.isEmpty()) {
+            startWorkers(worksWhatHasToBeDone);
+        }
+    }
+
+    private void startWorkers(List<SolrWorker> worksWhasHasToBeDone) throws BrokenBarrierException, InterruptedException {
+        CyclicBarrier barrier = new CyclicBarrier(worksWhasHasToBeDone.size()+1);
+        worksWhasHasToBeDone.stream().forEach(th->{
+            th.setBarrier(barrier);
+            new Thread(th).start();
+        });
+        barrier.await();
+    }
+
     @Override
     public void migrate() throws MigrateSolrIndexException {
         long start = System.currentTimeMillis();
         try {
-            int numberOfResults = this.init();
-
-            int threads = MigrationUtils.configuredNumberOfThreads();
-            int forOneThread = numberOfResults/threads;
-
-            this.barrier = new CyclicBarrier(threads+1);
-
-            for (int i = 0; i < threads; i++) {
-                int from = i*forOneThread;
-                int to = (i == threads-1 ? numberOfResults :   (i+1)*forOneThread);
-                SolrWorker worker = new SolrWorker(barrier, from,to);
-                new Thread(worker, "migrate-"+i).start();
+            if (MigrationUtils.configuredUseCursor()) {
+                this.migrateUseCursorMark(MigrationUtils.configuredSourceServer());
+            } else {
+                this.migrateUseQueryFilter(MigrationUtils.configuredSourceServer());
             }
-        } catch (ParserConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new MigrateSolrIndexException(e);
-        } catch (SAXException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new MigrateSolrIndexException(e);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new MigrateSolrIndexException(e);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new MigrateSolrIndexException(e);
         } finally {
-            try {
-                barrier.await();
                 long stop = System.currentTimeMillis();
                 LOGGER.info("Finished  in "+(stop - start)+" ms");
                 MigrationUtils.commit(this.client, MigrationUtils.confiugredDestinationServer());
-            } catch (InterruptedException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                throw new MigrateSolrIndexException(e);
-            } catch (BrokenBarrierException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                throw new MigrateSolrIndexException(e);
-            }
         }
     }
 
-    public static void main(String[] args) throws MigrateSolrIndexException {
+    public static void main(String[] args) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException {
         ParallelMigrateSolrIndexImpl migr = new ParallelMigrateSolrIndexImpl();
         migr.migrate();
     }
