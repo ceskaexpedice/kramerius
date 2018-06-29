@@ -14,19 +14,12 @@ public class Fedora4UtilsTest extends TestCase  {
 
     public void testNormalizePath() {
         List<String> path = Fedora4Utils.normalizePath("uuid:69d79410-490a-11de-9d6a-000d606f5dc6");
-        Assert.assertTrue(path.size() == 12);
+        System.out.println(path);
+        Assert.assertTrue(path.size() == 4);
         Assert.assertTrue(path.get(0).equals("data"));
         Assert.assertTrue(path.get(1).equals("69d"));
         Assert.assertTrue(path.get(2).equals("794"));
-        Assert.assertTrue(path.get(3).equals("104"));
-        Assert.assertTrue(path.get(4).equals("90a"));
-        Assert.assertTrue(path.get(5).equals("11d"));
-        Assert.assertTrue(path.get(6).equals("e9d"));
-        Assert.assertTrue(path.get(7).equals("6a0"));
-        Assert.assertTrue(path.get(8).equals("00d"));
-        Assert.assertTrue(path.get(9).equals("606"));
-        Assert.assertTrue(path.get(10).equals("f5d"));
-        Assert.assertTrue(path.get(11).equals("c6"));
+        Assert.assertTrue(path.get(3).equals("10490a11de9d6a000d606f5dc6"));
 
         path = Fedora4Utils.normalizePath("vc:69d79410-490a-11de-9d6a-000d606f5dc6");
         Assert.assertTrue(path.size() == 2);
@@ -43,7 +36,8 @@ public class Fedora4UtilsTest extends TestCase  {
     public void testPath() {
         List<String> path = Fedora4Utils.normalizePath("uuid:69d79410-490a-11de-9d6a-000d606f5dc6");
         String path1 = Fedora4Utils.path(path);
-        Assert.assertEquals(path1,"/data/69d/794/104/90a/11d/e9d/6a0/00d/606/f5d/c6");
+        System.out.println(path1);
+        Assert.assertEquals(path1,"/data/69d/794/10490a11de9d6a000d606f5dc6");
 
         path = Fedora4Utils.normalizePath("vc:69d79410-490a-11de-9d6a-000d606f5dc6");
         path1 = Fedora4Utils.path(path);

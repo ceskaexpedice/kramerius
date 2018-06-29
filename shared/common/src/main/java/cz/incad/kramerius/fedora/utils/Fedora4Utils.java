@@ -37,6 +37,8 @@ public class Fedora4Utils {
     // divide factor for storing in repo
     public static final int DIVIDE_FACTOR = 3;
 
+    public static final int MAX_DIVS_PART = 3;
+
     // cannot be configured; part of relative paths
     public static final String BOUND_CONTEXT= "rest";
 
@@ -103,16 +105,19 @@ public class Fedora4Utils {
     }
 
     private static List<String> dividePid(String pid, String prefix) {
+
         pid =  pid.replaceAll("-","");
         List<String> list = new ArrayList<>(Arrays.asList(prefix));
         StringBuilder sbuilder = new StringBuilder();
         char[] chars = pid.toCharArray();
+        int divparts = 0;
         for (int j = 0; j < chars.length; j++) {
-            if (j % DIVIDE_FACTOR == 0) {
+            if (j % DIVIDE_FACTOR == 0 && divparts< MAX_DIVS_PART) {
                 if (sbuilder.length() > 0) {
                     list.add(sbuilder.toString());
                 }
                 sbuilder = new StringBuilder();
+                divparts++;
             }
             sbuilder.append(chars[j]);
         }
