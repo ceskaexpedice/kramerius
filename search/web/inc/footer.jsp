@@ -132,23 +132,35 @@
 <c:if test="${param.debug==true}">${url}</c:if>
 <div id="test"></div>
 
-
 <c:if test="${ga.ready}">
-<!-- google analytics support -->
-<script type="text/javascript">
+<%-- Google Analytics. Configuration directives - googleanalytics.webpropertyid=   (For measuring code UA-XXXXXXXXX-1)
+     For code GTM-XXXXXX /search/web/inc/html_header.jsp
+--%>
+   <c:if test="${fn:startsWith(ga.webPropertyId,'UA')}">
+      <!-- Global site tag (gtag.js) - Google Analytics -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=${ga.webPropertyId}">
+      </script>
+      <script>
+         window.dataLayer = window.dataLayer || [];
+         function gtag(){dataLayer.push(arguments);}
+         gtag('js', new Date());
+         gtag('config', '${ga.webPropertyId}');
+      </script>
+   </c:if>
 
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', '${ga.webPropertyId}']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-</script>
+<%-- Google Analytics. For measuring code GTM-XXXXXX tag <noscript> 
+   https://developers.google.com/tag-manager/quickstart
+--%>
+   <c:if test="${fn:startsWith(ga.webPropertyId,'GTM')}">
+<!-- Google Analytics <noscript> -->
+      <noscript><iframe src="https://www.googletagmanager.com/ns.html?${ga.webPropertyId}"
+         height="0" width="0" style="display:none;visibility:hidden"></iframe>
+      </noscript>
+   </c:if>
 </c:if>
+
+
 
 <c:if test="${fb.buttonEnabled}">
 <!-- facebook support  -->
