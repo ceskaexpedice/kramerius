@@ -35,15 +35,17 @@ public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
     private void migrateUseQueryFilter(String address) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException, BrokenBarrierException, InterruptedException {
         List<SolrWorker>  worksWhatHasToBeDone = new ArrayList<>();
         String lastPid = null;
+        String previousPid = null;
         do {
            Element element = MigrationUtils.pidsQueryFilterQuery(client, address,  lastPid);
+            previousPid = lastPid;
             lastPid = MigrationUtils.findLastPid(element);
             worksWhatHasToBeDone.add(new SolrWorker(this.client, MigrationUtils.findAllPids(element)));
             if (worksWhatHasToBeDone.size() >= MigrationUtils.configuredNumberOfThreads()) {
                 startWorkers(worksWhatHasToBeDone);
                 worksWhatHasToBeDone.clear();
             }
-        }while(lastPid != null);
+        }while(lastPid != null  && !lastPid.equals(previousPid));
         if (!worksWhatHasToBeDone.isEmpty()) {
             startWorkers(worksWhatHasToBeDone);
         }

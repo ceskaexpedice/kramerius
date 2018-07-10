@@ -151,7 +151,9 @@ public class MigrationUtils {
 
 
     public static boolean configuredUseCursor() {
-        return KConfiguration.getInstance().getConfiguration().getBoolean("solr.migration.usecursor", false);
+        boolean useCursor = KConfiguration.getInstance().getConfiguration().getBoolean("solr.migration.usecursor", false);
+        LOGGER.info("Use cursor "+useCursor);
+        return useCursor;
     }
 
     /**
@@ -239,7 +241,7 @@ public class MigrationUtils {
 
     private static Element executeQuery(Client client, String url, String query) throws ParserConfigurationException, SAXException, IOException {
         LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] processing %s", query));
-        WebResource r = client.resource(url+ query);
+        WebResource r = client.resource(url+(url.endsWith("/") ? "" : "/")+ query);
         String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
         Document parseDocument = XMLUtils.parseDocument(new StringReader(t));
         return parseDocument.getDocumentElement();

@@ -57,7 +57,7 @@ public class SolrWorker implements Runnable {
                 int from = i*batchSize;
                 int to = from + batchSize;
                 try {
-                    List<String> subpids = pidsToBeProcessed.subList(from, to);
+                    List<String> subpids = pidsToBeProcessed.subList(from, Math.min(to,pidsToBeProcessed.size() ));
                     Element response = MigrationUtils.fetchDocuments(this.client, MigrationUtils.queryBaseURL(), subpids);
                     Element resultElem = XMLUtils.findElement(response, (elm) -> {
                         return elm.getNodeName().equals("result");
