@@ -332,11 +332,10 @@
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
     <!-- copy field to text -->
-	<!--
-    <dynamicField name="rdf.*" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
+	<dynamicField name="rdf.*" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
     <dynamicField name="dc.*" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
     <dynamicField name="mods.*" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
-	-->
+	
 	
     <!-- text; exact; no stopwords -->
     <copyField source="dc.title" dest="text"/>
