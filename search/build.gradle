@@ -47,8 +47,7 @@ dependencies {
     compile 'javax.servlet:jstl:1.1.2'   
     compile 'taglibs:standard:1.1.2'   
     compile 'xalan:xalan:2.7.1'   
-    compile 'net.sf:simplecaptcha:1.2.1'   
-    compile 'xerces:xercesImpl:2.9.1'   
+    compile 'net.sf:simplecaptcha:1.2.1'
     compile 'xerces:xercesImpl:2.9.1'   
     compile 'com.foxtrottechnologies:javadjvu:0.8.09'
     compile 'com.foxtrottechnologies:djvuframe:0.8.09'
@@ -77,15 +76,16 @@ task gitcall(type:Exec) {
 task infofile(dependsOn: gitcall) << {
     def parentFolder = new File("$buildDir/resources/main")
     parentFolder.mkdirs()
-       
-    def buildInfoFile = new File("$buildDir/resources/main/build.properties")
-    Properties props = new Properties()
-    props.setProperty('version', project.version.toString())
-    props.setProperty('hash', gitcall.hash)
 
-    props.store(buildInfoFile.newWriter(), null)
+    def buildInfoFile = new File("$buildDir/resources/main/build.properties")
+    buildInfoFile.withWriter { writer ->
+        Properties props = new Properties()
+        props.setProperty('version', project.version.toString())
+        props.setProperty('hash', gitcall.hash)
+        props.store(writer, null)
+    }
+
     println "Created build file ${buildInfoFile.absolutePath}"
-    
 }
 
 processResources.dependsOn infofile
