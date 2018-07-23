@@ -73,6 +73,8 @@ import static java.util.concurrent.Executors.*;
 
 public class SecondPhase extends AbstractPhase  {
 
+    public static final String NAME = "SecondPhase";
+
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SecondPhase.class.getName());
 
 
@@ -330,6 +332,11 @@ public class SecondPhase extends AbstractPhase  {
             this.replicationImages = Boolean.parseBoolean(replicationImages);
             processIterate(url, userName, pswd);
         }
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     public boolean findPid(String pid) throws LexerException, IOException {

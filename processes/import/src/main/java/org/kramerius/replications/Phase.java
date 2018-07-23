@@ -49,4 +49,6 @@ public interface Phase {
     public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd,
                         String replicationCollections, String replicateImages) throws PhaseException;
 
+    public String getName();
+
 }

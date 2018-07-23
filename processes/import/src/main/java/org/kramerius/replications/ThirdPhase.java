@@ -53,6 +53,8 @@ import cz.incad.kramerius.utils.pid.LexerException;
 
 public class ThirdPhase extends AbstractPhase {
 
+    public static final String NAME = "ThirdPhase";
+
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ThirdPhase.class.getName());
     
     @Override
@@ -134,7 +136,12 @@ public class ThirdPhase extends AbstractPhase {
             this.start(url, userName, pswd, replicationCollections, replicationImages);
         }
     }
-    
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
     static class Paths implements PidsListCollect {
         private List<String> foundPaths = new ArrayList<String>();
 

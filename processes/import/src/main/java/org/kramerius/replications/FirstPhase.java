@@ -43,6 +43,8 @@ import cz.incad.kramerius.utils.IOUtils;
  */
 public class FirstPhase extends AbstractPhase  {
 
+    public static final String NAME = "FirstPhase";
+
     @Override
     public void start(String url, String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
         try {
@@ -119,4 +121,9 @@ public class FirstPhase extends AbstractPhase  {
         }
     }
     
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
 }

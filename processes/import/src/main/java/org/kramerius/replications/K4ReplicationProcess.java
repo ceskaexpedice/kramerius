@@ -95,7 +95,7 @@ public class K4ReplicationProcess {
     public static void restart(String processUUID, File previousProcessFolder, String url, String userName, String pswd, String replicateCollections, String replicateImages, Phase[] phases) throws IOException {
         try {
             for (Phase ph : phases) {
-                LOGGER.info("RESTARTING PHASE '"+ph.getClass().getName()+"'");
+                LOGGER.info("RESTARTING PHASE '"+ph.getName()+"'");
                 ph.restart(processUUID, previousProcessFolder, isPhaseCompleted(previousProcessFolder, ph), url, userName, pswd, replicateCollections, replicateImages);
                 phaseCompleted(ph);
             }
@@ -113,7 +113,7 @@ public class K4ReplicationProcess {
         try {
             ProcessStarter.updateName("Replikace '"+url+"'");
             for (Phase ph : phases) {
-                LOGGER.info("STARTING PHASE '"+ph.getClass().getName()+"'");
+                LOGGER.info("STARTING PHASE '"+ph.getName()+"'");
                 ph.start(url, userName, pswd, replicateCollections, replicateImages);
                 phaseCompleted(ph);
             }
@@ -133,39 +133,39 @@ public class K4ReplicationProcess {
     }
     
     static File phaseCompleted(Phase phase) throws IOException {
-        LOGGER.info("PHASE '"+phase.getClass().getName()+"' completed");
+        LOGGER.info("PHASE '"+phase.getName()+"' completed");
         File completedFile = phaseCompletedFile(phase);
         completedFile.createNewFile();
         return completedFile;
     }
 
     static File phaseFailed(Phase phase) throws IOException {
-        LOGGER.info("PHASE '"+phase.getClass().getName()+"' completed");
+        LOGGER.info("PHASE '"+phase.getName()+"' completed");
         File completedFile = phaseFailedFile(phase);
         completedFile.createNewFile();
         return completedFile;
     }
 
     static File phaseFailedFile(Phase phase) {
-        String clzName = phase.getClass().getName();
+        String clzName = phase.getName();
         File completedFile = new File(clzName+".failed");
         return completedFile;
     }
 
     static File phaseFailedFile(File rootFolder,Phase phase) {
-        String clzName = phase.getClass().getName();
+        String clzName = phase.getName();
         File completedFile = new File(rootFolder,clzName+".failed");
         return completedFile;
     }
 
     static File phaseCompletedFile(Phase phase) {
-        String clzName = phase.getClass().getName();
+        String clzName = phase.getName();
         File completedFile = new File(clzName+".completed");
         return completedFile;
     }
 
     static File phaseCompletedFile(File rootFolder, Phase phase) {
-        String clzName = phase.getClass().getName();
+        String clzName = phase.getName();
         File completedFile = new File(rootFolder,clzName+".completed");
         return completedFile;
     }

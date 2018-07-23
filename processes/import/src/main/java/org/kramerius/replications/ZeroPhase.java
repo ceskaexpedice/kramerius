@@ -22,6 +22,8 @@ public class ZeroPhase extends AbstractPhase {
 	public static final Logger LOGGER = Logger.getLogger(ZeroPhase.class.getName());
 	
 	
+	public static final String NAME = "ZeroPhase";
+
 	@Override
 	public void start(String url, String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
         validate(url, replicationCollections);
@@ -96,6 +98,11 @@ public class ZeroPhase extends AbstractPhase {
 	public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url,
 			String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
         validate(url, replicationCollections);
+	}
+
+	@Override
+	public String getName() {
+		return NAME;
 	}
 
 }
