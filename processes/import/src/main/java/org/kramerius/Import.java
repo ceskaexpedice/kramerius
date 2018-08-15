@@ -381,7 +381,7 @@ public class Import {
         } catch (cz.incad.kramerius.fedora.om.RepositoryException sfex) {
 
             //if (sfex.getMessage().contains("ObjectExistsException")) {
-            if (objectExists(pid)) {
+            if (objectExists(repo, pid)) {
                 if (updateExisting){
                     log.info("Replacing existing object " + pid);
                     try{
@@ -704,20 +704,8 @@ public class Import {
      * @param pid requested PID
      * @return true if given object exists
      */
-    public static boolean objectExists(String pid) {
-        try {
-            String fedoraObjectURL = KConfiguration.getInstance().getFedoraHost() + "/get/" + pid;
-            URLConnection urlcon = RESTHelper.openConnection(fedoraObjectURL, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
-            urlcon.connect();
-            Object target = urlcon.getContent();
-            if (target != null) {
-                return true;
-            }
-        } catch (Exception ex) {
-            log.log(Level.WARNING, "Error checking PID: "+ pid + " with: " + ex.getMessage() + "\nexception class: " + ex.getClass().getName() );
-            return false;
-        }
-        return false;
+    public static boolean objectExists(Repository repo, String pid) throws RepositoryException {
+        return repo.objectExists(pid);
     }
 }
 
