@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+
+    <!-- You may leave out the responseDate and request elements -->
+
+    <Identify>
+        <repositoryName>Your repo name</repositoryName>
+	<baseURL>https://kramerius.example.com/oai</baseURL>
+        <protocolVersion>2.0</protocolVersion>
+        <adminEmail>kramerius@example.com</adminEmail>
+        <earliestDatestamp>2011-06-01T12:00:00Z</earliestDatestamp>
+        <deletedRecord>transient</deletedRecord>
+        <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
+        <compression>none</compression>
+        <description>
+            <oai-identifier
+                    xmlns="http://www.openarchives.org/OAI/2.0/oai-identifier"
+                    xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai-identifier http://www.openarchives.org/OAI/2.0/oai-identifier.xsd">
+                <scheme>oai</scheme>
+                <repositoryIdentifier>kramerius.example.com</repositoryIdentifier>
+                <delimiter>:</delimiter>
+                    <sampleIdentifier>oai:example.com:uuid:530719f5-ee95-4449-8ce7-12b0f4cadb22</sampleIdentifier>
+            </oai-identifier>
+        </description>
+    </Identify>
+</OAI-PMH>
