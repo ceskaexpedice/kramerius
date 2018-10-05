@@ -13,9 +13,9 @@
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <parameters>one two</parameters>
-		
-		<checkErrorStream>false</checkErrorStream>
-		
+
+        <checkErrorStream>false</checkErrorStream>
+
     </process>
 
     <process>
@@ -421,7 +421,7 @@
 
 
     <!-- Apply moving wall to subtree -->
-	<process>
+    <process>
         <id>applymw</id>
         <description>Apply moving wall</description>
         <mainClass>cz.cas.lib.knav.ApplyMovingWall</mainClass>

@@ -78,6 +78,7 @@ public class ParametrizedImport {
         File[] files = importDirectory.listFiles();
         if (files != null) {
             for (File f : files) {
+                if (!f.getName().endsWith("xml")) continue;
                 Document document = XMLUtils.parseDocument(new FileInputStream(f), true);
                 String pid = document.getDocumentElement().getAttribute("PID");
                 builder.append(pid);
