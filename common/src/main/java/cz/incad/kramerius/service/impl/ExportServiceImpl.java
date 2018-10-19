@@ -134,7 +134,11 @@ public class ExportServiceImpl implements ExportService {
             try{
                 store(exportDirectory, p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
             }catch(Exception ex){
-                LOGGER.warning("Cannot export object "+p+", skipping: "+ex);
+                if (configuration.getConfiguration().getBoolean("export.shouldStopWhenFail", true)) {
+                    throw ex;
+                } else {
+                    LOGGER.warning("Cannot export object "+p+", skipping: "+ex);
+                }
             }
         }
     }
