@@ -132,7 +132,7 @@ public class K4LoginModule implements LoginModule {
     public boolean commit() throws LoginException {
         if (!this.logged)
             return false;
-        associateK4UserPrincipal(this.subject, ""+foundUser.getId());
+        associateK4UserPrincipal(this.subject, ""+foundUser.getLoginname());
         return true;
     }
 

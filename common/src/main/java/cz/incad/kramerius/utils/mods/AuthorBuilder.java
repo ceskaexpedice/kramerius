@@ -82,10 +82,26 @@ public class AuthorBuilder extends AbstractBuilder {
                     if (textNode != null) {
                         familyName = ((Text)textNode).getData();
                     }
-                    String author = (givenName != null ? givenName : "") +" "+(familyName != null ? familyName : "");
-                    if (!author.trim().equals("")) {
-                        add(MODS_AUTHOR,author,map);
+                    if (givenName == null && familyName == null)
+                    {
+                        String name = null;
+                        XPathExpression nameExpr = xpath.compile ("//mods:name/mods:namePart/text()");
+                        textNode = nameExpr.evaluate(item, XPathConstants.NODE);
+                        if (textNode != null) {
+                            name = ((Text)textNode).getData();
+                        }
+                        String author = (name != null ? name : "");
+                        if (!author.trim().equals("")) {
+                            add(MODS_AUTHOR,author,map);
+                        }
                     }
+                    else {
+                        String author = (givenName != null ? givenName : "") +" "+(familyName != null ? familyName : "");
+                        if (!author.trim().equals("")) {
+                            add(MODS_AUTHOR,author,map);
+                        }
+                    }
+
                 }
             }
         }

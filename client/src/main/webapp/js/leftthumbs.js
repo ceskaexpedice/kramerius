@@ -235,15 +235,34 @@ LeftThumbs.prototype = {
 
             var q = "q=";
             if(searchFlag && authorFlag){
-                q += "(text:" + $("#q").val()+" OR dc.creator:"+this._params()['author']+")";
+                var qval = $("#q").val();
+                var nestedQueries = "";
+                if ( (qval.startsWith("\"") || qval.startsWith("'")) ) {
+                    nestedQueries = "(_query_:\"{!edismax qf=text}"+qval+"\" )";
+                } else {
+                    nestedQueries = "(_query_:\"{!edismax qf=text}"+qval+"\" OR ";
+                    nestedQueries += "_query_:\"{!edismax qf=text_lemmatized}"+qval+"\" OR "
+                    nestedQueries += "_query_:\"{!edismax qf=text_lemmatized_ascii}"+qval+"\" ) ";
+                }
+                q += "("+nestedQueries+" OR dc.creator:"+this._params()['author']+")";
             } else if(searchFlag){
-                q += "(text:" + $("#q").val()+")";
+                var qval = $("#q").val();
+                var nestedQueries = "";
+                if ( (qval.startsWith("\"") || qval.startsWith("'")) ) {
+                    nestedQueries = "(_query_:\"{!edismax qf=text}"+qval+"\" )";
+                } else {
+                    nestedQueries = "(_query_:\"{!edismax qf=text}"+qval+"\" OR ";
+                    nestedQueries += "_query_:\"{!edismax qf=text_lemmatized}"+qval+"\" OR "
+                    nestedQueries += "_query_:\"{!edismax qf=text_lemmatized_ascii}"+qval+"\" ) ";
+                }
+
+                q += nestedQueries;
             } else if(authorFlag){
                 q += "(dc.creator:"+this._params()['author']+")";
             }
 
             q += "&rows=5000&fq=pid_path:" + pid_path.replace(/:/g, "\\:") + "*";
-            var hl = authorFlag ? "&hl=true&hl.fl=text_ocr,dc.creator&hl.mergeContiguous=true&hl.snippets=2" : "&hl=true&hl.fl=text_ocr&hl.mergeContiguous=true&hl.snippets=2";
+            var hl = authorFlag ? "&hl=true&hl.fl=text_ocr+text_ocr_lemmatized+text_ocr_lemmatized_ascii+dc.creator&hl.mergeContiguous=true&hl.snippets=2" : "&hl=true&hl.fl=text_ocr+text_ocr_lemmatized+text_ocr_lemmatized_ascii&hl.mergeContiguous=true&hl.snippets=2";
 
             K5.api.askForSolr(q + hl, _.bind(function(data) {
                 var numFound = data.response.numFound;

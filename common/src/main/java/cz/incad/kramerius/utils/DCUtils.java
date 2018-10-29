@@ -14,7 +14,7 @@ import org.w3c.dom.NodeList;
 import cz.incad.kramerius.document.model.DCConent;
 
 /**
- * Utility class for collecting dc contents
+ * Dublin core utilities
  * @author pavels
  */
 public class DCUtils {
@@ -49,40 +49,57 @@ public class DCUtils {
          
     }
 
+    /**
+     * Rights from Dublin core
+     * @param doc
+     * @return
+     */
     public static String rightsFromDC(org.w3c.dom.Document doc) {
-        Element elm = findElement(doc.getDocumentElement(), "rights", DC_NAMESPACE_URI); 
+        return rightsFromDC(doc.getDocumentElement());
+    }
+
+    /**
+     * Rights from Dublin core
+     * @param docElement
+     * @return
+     */
+    public static String rightsFromDC(Element docElement) {
+        Element elm = findElement(docElement, "rights", DC_NAMESPACE_URI);
         if (elm != null) {
             String policy = elm.getTextContent().trim();
             return policy;
         } else return null;
     }
-    
+
+
+
+
     /**
      * Returns title from dc stream
      * @param doc parsed DC stream
      * @return
      */
-	public static String titleFromDC(org.w3c.dom.Document doc) {
-		Element elm = findElement(doc.getDocumentElement(), "title", DC_NAMESPACE_URI);	
-		if (elm == null) elm = findElement(doc.getDocumentElement(), "identifier", DC_NAMESPACE_URI);
-		String title = elm.getTextContent();
-		return title;
-	}
-	
-	/**
-	 * Returns model from dc stream
-	 * @param doc parsed DC stream
-	 * @return
-	 */
-	public static String modelFromDC(org.w3c.dom.Document doc) {
-	    List<Element> elements = XMLUtils.getElements(doc.getDocumentElement(),  new XMLUtils.ElementsFilter() {
+    public static String titleFromDC(org.w3c.dom.Document doc) {
+        Element elm = findElement(doc.getDocumentElement(), "title", DC_NAMESPACE_URI);
+        if (elm == null) elm = findElement(doc.getDocumentElement(), "identifier", DC_NAMESPACE_URI);
+        String title = elm.getTextContent();
+        return title;
+    }
+
+    /**
+     * Returns model from dc stream
+     * @param doc parsed DC stream
+     * @return
+     */
+    public static String modelFromDC(org.w3c.dom.Document doc) {
+        List<Element> elements = XMLUtils.getElements(doc.getDocumentElement(),  new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {
                 return (element.getLocalName().equals("type") && element.getNamespaceURI().equals(DC_NAMESPACE_URI));
             }
         });
-	    
-	    for (Element elm : elements) {
+
+        for (Element elm : elements) {
             String type = elm.getTextContent();
             if (type.contains(":")) {
                 StringTokenizer tokenizer = new StringTokenizer(type,":");
@@ -91,24 +108,24 @@ public class DCUtils {
                     return model;
                 } else return null;
             }
-	    }
-	    return null;
-	}
-	
-	/**
-	 * Returns publishers from DC stream
-	 * @param doc parsed DC stream
-	 * @return
-	 */
-	public static String[] publishersFromDC(org.w3c.dom.Document doc) {
+        }
+        return null;
+    }
+
+    /**
+     * Returns publishers from DC stream
+     * @param doc parsed DC stream
+     * @return
+     */
+    public static String[] publishersFromDC(org.w3c.dom.Document doc) {
         ArrayList<String> texts = findElmTexts(doc, "publisher");
         return (String[]) texts.toArray(new String[texts.size()]);
-	}
-	
-	public static String[] creatorsFromDC(org.w3c.dom.Document dc) {
-	    ArrayList<String> texts = findElmTexts(dc, "creator");
-		return (String[]) texts.toArray(new String[texts.size()]);
-	}
+    }
+
+    public static String[] creatorsFromDC(org.w3c.dom.Document dc) {
+        ArrayList<String> texts = findElmTexts(dc, "creator");
+        return (String[]) texts.toArray(new String[texts.size()]);
+    }
 
     public static String dateFromDC(org.w3c.dom.Document dc) {
         ArrayList<String> dates = findElmTexts(dc, "date");
@@ -130,18 +147,18 @@ public class DCUtils {
     
     public static ArrayList<String> findElmTexts(org.w3c.dom.Document dc, String elmName) {
         ArrayList<String> texts  = new ArrayList<String>();
-		Element documentElement = dc.getDocumentElement();
-		NodeList childNodes = documentElement.getChildNodes();
-		for (int i = 0; i < childNodes.getLength(); i++) {
-			Node item = childNodes.item(i);
-			if (item.getNodeType() == Node.ELEMENT_NODE) {
+        Element documentElement = dc.getDocumentElement();
+        NodeList childNodes = documentElement.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            if (item.getNodeType() == Node.ELEMENT_NODE) {
                 if (item.getLocalName().equals(elmName)) {
-					texts.add(item.getTextContent().trim());
-				}
-			}
-		}
+                    texts.add(item.getTextContent().trim());
+                }
+            }
+        }
         return texts;
     }
-	
+
 
 }

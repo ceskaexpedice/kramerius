@@ -556,7 +556,11 @@
         <field name="location" type="location_rpt" indexed="true" stored="true" multiValued="true"/>
         <!-- geo coordinates for defined as box -->
         <field name="range" type="bbox"/>
-    </fields>
+		
+		<!-- center point coordinate --> 
+        <field name="center" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
+
+	</fields>
 
     <!-- Field to use to determine and enforce document uniqueness.
       Unless this field is marked with required="false", it will be a required field
@@ -590,7 +594,6 @@
     <copyField source="dc.title" dest="text_lemmatized"/>
     <copyField source="keywords" dest="text_lemmatized"/>
     <copyField source="dc.description" dest="text_lemmatized"/>
-    <copyField source="dc.title" dest="text_lemmatized"/>
     <copyField source="dc.creator" dest="text_lemmatized"/>
     <copyField source="details" dest="text_lemmatized"/>
     <copyField source="text_ocr" dest="text_lemmatized"/>
@@ -599,7 +602,6 @@
     <copyField source="dc.title" dest="text_lemmatized_ascii"/>
     <copyField source="keywords" dest="text_lemmatized_ascii"/>
     <copyField source="dc.description" dest="text_lemmatized_ascii"/>
-    <copyField source="dc.title" dest="text_lemmatized_ascii"/>
     <copyField source="dc.creator" dest="text_lemmatized_ascii"/>
     <copyField source="details" dest="text_lemmatized_ascii"/>
     <copyField source="text_ocr" dest="text_lemmatized_ascii"/>
@@ -608,7 +610,6 @@
     <copyField source="dc.title" dest="text_lemmatized_nostopwords"/>
     <copyField source="keywords" dest="text_lemmatized_nostopwords"/>
     <copyField source="dc.description" dest="text_lemmatized_nostopwords"/>
-    <copyField source="dc.title" dest="text_lemmatized_nostopwords"/>
     <copyField source="dc.creator" dest="text_lemmatized_nostopwords"/>
     <copyField source="details" dest="text_lemmatized_nostopwords"/>
     <copyField source="text_ocr" dest="text_lemmatized_nostopwords"/>

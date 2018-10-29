@@ -23,25 +23,25 @@ import cz.incad.kramerius.ObjectPidsPath;
  */
 public interface IsActionAllowed extends IsActionAllowedBase {
 
-	/**
-	 * Returns true if current logged user is permitted to do action defined by first parameter (actionName) for object defined by second and third parameter (uuid and pathOfUuuid)
-	 * @param actionName Formal action's name
-	 * @param pid Pid of requested object
-	 * @param stream Stream of requested object or null
-	 * @param path Path of object. (from root to leaf)
-	 * @return
-	 */
+    /**
+     * Returns true if current logged user is permitted to do action defined by first parameter (actionName) for object defined by second and third parameter (uuid and pathOfUuuid)
+     * @param actionName Formal action's name
+     * @param pid Pid of requested object
+     * @param stream Stream of requested object or null
+     * @param path Path of object. (from root to leaf)
+     * @return
+     */
     public boolean isActionAllowed(String actionName, String pid, String stream, ObjectPidsPath path);
 
-	/**
-	 * Returns true given user is permitted to do action defined by parameter actionName for object defined by parameters uuid and pathOfUuuid
-	 * @param user User
-	 * @param actionName Formal action's name
-	 * @param pid PID of requested object
-	 * @param stream of requested object or null
-	 * @param path Path of object. (from root to leaf)
-	 * @return
-	 */
+    /**
+     * Returns true given user is permitted to do action defined by parameter actionName for object defined by parameters uuid and pathOfUuuid
+     * @param user User
+     * @param actionName Formal action's name
+     * @param pid PID of requested object
+     * @param stream of requested object or null
+     * @param path Path of object. (from root to leaf)
+     * @return
+     */
     public boolean isActionAllowed(User user, String actionName, String pid, String stream, ObjectPidsPath path);
 
     
