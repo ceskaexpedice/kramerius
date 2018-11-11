@@ -2,7 +2,7 @@ package cz.incad.kramerius.security.impl.criteria;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
@@ -34,7 +34,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     Logger LOGGER = java.util.logging.Logger.getLogger(CoverAndContentFilter.class.getName());
 
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute() throws RightCriteriumException {
         try {
             FedoraAccess fedoraAccess = getEvaluateContext().getFedoraAccess();
             getEvaluateContext().getSolrAccess();
@@ -45,25 +45,25 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
                             fedoraAccess.getDataStream(pid, "BIBLIO_MODS"), true);
                     return checkTypeElement(mods);
                 } else {
-                    return EvaluatingResult.NOT_APPLICABLE;
+                    return EvaluatingResultState.NOT_APPLICABLE;
                 }
             } else {
-                return EvaluatingResult.TRUE;
+                return EvaluatingResultState.TRUE;
             }
 
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         } catch (SAXException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         }
     }
 
-    private EvaluatingResult checkTypeElement(Document relsExt) throws IOException {
+    private EvaluatingResultState checkTypeElement(Document relsExt) throws IOException {
         try {
             XPathFactory xPathFactory = XPathFactory.newInstance();
             XPath xpath = xPathFactory.newXPath();
@@ -71,9 +71,9 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
             XPathExpression expr = xpath.compile("/mods:modsCollection/mods:mods/mods:part/@type");
             String type = expr.evaluate(relsExt);
             if (Arrays.asList("FrontCover", "TableOfContents", "FrontJacket").contains(type)) {
-                return EvaluatingResult.TRUE;
+                return EvaluatingResultState.TRUE;
             } else {
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             }
         } catch (XPathExpressionException e) {
             throw new IOException(e);

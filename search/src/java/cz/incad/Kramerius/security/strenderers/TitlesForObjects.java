@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.antlr.stringtemplate.StringTemplate;
 
@@ -38,6 +40,8 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class TitlesForObjects {
+
+    public static Logger LOGGER = Logger.getLogger(TitlesForObjects.class.getName());
 
     public static HashMap<String, String> createModelsForPaths(FedoraAccess fedoraAccess,  ObjectPidsPath path, ResourceBundleService bundleService, Locale locale) throws IOException, LexerException {
         HashMap<String, String> modelsMap = new HashMap<String, String>();
@@ -55,8 +59,15 @@ public class TitlesForObjects {
             if (SpecialObjects.findSpecialObject(currentPid) != null) {
                 modelsMap.put(currentPid, SpecialObjects.findSpecialObject(displayedPid).name()+modelPostfix);
             } else {
-                String kramModel = fedoraAccess.getKrameriusModelName(displayedPid);
-                String localizedModel = bundleService.getResourceBundle("labels", locale).getString("document.type."+kramModel);
+                String kramModel = null;
+                String localizedModel = null;
+                try {
+                    kramModel = fedoraAccess.getKrameriusModelName(displayedPid);
+                    localizedModel = bundleService.getResourceBundle("labels", locale).getString("document.type."+kramModel);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    localizedModel = displayedPid;
+                }
                 modelsMap.put(currentPid, localizedModel+modelPostfix);
             }
         }
@@ -78,11 +89,13 @@ public class TitlesForObjects {
             if (SpecialObjects.findSpecialObject(currentPid) != null) {
                 dctitlesMap.put(currentPid, SpecialObjects.findSpecialObject(pidForTitle).name()+titlePostfix);
             } else {
-                String titleFromDC = DCUtils.titleFromDC(fedoraAccess.getDC(pidForTitle));
-                /*
-                if (titleFromDC.length() > 10) {
-                    titleFromDC = titleFromDC.substring(0,10)+"...";
-                }*/
+                String titleFromDC = null;
+                try {
+                    titleFromDC = DCUtils.titleFromDC(fedoraAccess.getDC(pidForTitle));
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    titleFromDC = pidForTitle;
+                }
                 dctitlesMap.put(pathFromRootToLeaf[i], titleFromDC+titlePostfix);
             }
         }

@@ -18,7 +18,7 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
@@ -34,8 +34,8 @@ public class WindowTest {
         String firstYearWallFromGUI = "1770";
         String secondYearWallFromGUI = "1980";
         String requestedPID = DataPrepare.DROBNUSTKY_PIDS[0];
-        EvaluatingResult evaluated = window(firstYearWallFromGUI, secondYearWallFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.TRUE);
+        EvaluatingResultState evaluated = window(firstYearWallFromGUI, secondYearWallFromGUI, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.TRUE);
     }
     
     //Drobnustky stranka
@@ -44,12 +44,12 @@ public class WindowTest {
         String firstYearWallFromGUI = "1770";
         String secondYearWallFromGUI = "1980";
         String requestedPID = DataPrepare.DROBNUSTKY_PIDS[2];
-        EvaluatingResult evaluated = window(firstYearWallFromGUI, secondYearWallFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.TRUE);
+        EvaluatingResultState evaluated = window(firstYearWallFromGUI, secondYearWallFromGUI, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.TRUE);
     }
 
 
-    public EvaluatingResult window(String firstYearFromGUI,String secondYearFromGUI, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
+    public EvaluatingResultState window(String firstYearFromGUI, String secondYearFromGUI, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), acLog)
@@ -83,7 +83,7 @@ public class WindowTest {
         window.setCriteriumParamValues(new Object[] {firstYearFromGUI,secondYearFromGUI});
         window.setEvaluateContext(context);
         
-        EvaluatingResult evaluated = window.evalute();
+        EvaluatingResultState evaluated = window.evalute();
         return evaluated;
     }
 

@@ -20,9 +20,6 @@ import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,7 +34,7 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
@@ -54,16 +51,16 @@ public class MovingWallTest {
     public void testMW1() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "70";
         String requestedPID = DataPrepare.DROBNUSTKY_PIDS[0];
-        EvaluatingResult evaluated = mw(movingWallFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.TRUE);
+        EvaluatingResultState evaluated = mw(movingWallFromGUI, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.TRUE);
     }
 
     @Test
     public void testMW2() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "270";
         String requestedPID = DataPrepare.DROBNUSTKY_PIDS[0];
-        EvaluatingResult evaluated = mw(movingWallFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.FALSE);
+        EvaluatingResultState evaluated = mw(movingWallFromGUI, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.FALSE);
     }
 
     //Drobnustky stranka
@@ -71,8 +68,8 @@ public class MovingWallTest {
     public void testMW3() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "70";
         String requestedPID = DataPrepare.DROBNUSTKY_PIDS[2];
-        EvaluatingResult evaluated = mw(movingWallFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.TRUE);
+        EvaluatingResultState evaluated = mw(movingWallFromGUI, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.TRUE);
     }
 
     //Drobnustky stranka
@@ -80,8 +77,8 @@ public class MovingWallTest {
     public void testMW4() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "270";
         String requestedPID = DataPrepare.DROBNUSTKY_PIDS[2];
-        EvaluatingResult evaluated = mw(movingWallFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.FALSE);
+        EvaluatingResultState evaluated = mw(movingWallFromGUI, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.FALSE);
     }
     
     
@@ -89,14 +86,14 @@ public class MovingWallTest {
     public void testMW5() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "270";
         String requestedPID = "uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6";// volume;
-        EvaluatingResult evaluated = mw(movingWallFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.FALSE);
+        EvaluatingResultState evaluated = mw(movingWallFromGUI, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.FALSE);
     }
 
 
 
 
-    public EvaluatingResult mw(String movingWallFromGUI, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
+    public EvaluatingResultState mw(String movingWallFromGUI, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), acLog)
@@ -129,7 +126,7 @@ public class MovingWallTest {
         wall.setCriteriumParamValues(new Object[] {movingWallFromGUI});
         wall.setEvaluateContext(context);
         
-        EvaluatingResult evaluated = wall.evalute();
+        EvaluatingResultState evaluated = wall.evalute();
         return evaluated;
     }
     

@@ -19,7 +19,7 @@ import antlr.RecognitionException;
 import antlr.TokenStreamException;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
@@ -47,12 +47,12 @@ public class BenevolentMovingWall extends AbstractCriterium implements
     }
 
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute() throws RightCriteriumException {
         int wallFromConf = Integer.parseInt((String) getObjects()[0]);
         try {
             ObjectPidsPath[] pathsToRoot = getEvaluateContext()
                     .getPathsToRoot();
-            EvaluatingResult result = null;
+            EvaluatingResultState result = null;
             for (ObjectPidsPath pth : pathsToRoot) {
                 String[] pids = pth.getPathFromLeafToRoot();
                 for (String pid : pids) {
@@ -74,29 +74,29 @@ public class BenevolentMovingWall extends AbstractCriterium implements
                 }
             }
 
-            return result != null ? result : EvaluatingResult.NOT_APPLICABLE;
+            return result != null ? result : EvaluatingResultState.NOT_APPLICABLE;
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE, e.getMessage());
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage());
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage());
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         }
     }
 
-    public EvaluatingResult resolveInternal(int wallFromConf, String pid,
-            String xpath, Document xmlDoc) throws IOException,
+    public EvaluatingResultState resolveInternal(int wallFromConf, String pid,
+                                                 String xpath, Document xmlDoc) throws IOException,
             XPathExpressionException {
         if (pid.equals(SpecialObjects.REPOSITORY.getPid()))
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         return evaluateDoc(pid,wallFromConf, xmlDoc, xpath);
     }
 
-    public EvaluatingResult evaluateDoc(String pid,int wallFromConf, Document xmlDoc,
-            String xPathExpression) throws XPathExpressionException {
+    public EvaluatingResultState evaluateDoc(String pid, int wallFromConf, Document xmlDoc,
+                                             String xPathExpression) throws XPathExpressionException {
         XPath xpath = xpfactory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         XPathExpression expr = xpath.compile(xPathExpression);
@@ -115,17 +115,17 @@ public class BenevolentMovingWall extends AbstractCriterium implements
                 Calendar calFromConf = Calendar.getInstance();
                 calFromConf.add(Calendar.YEAR, -1 * wallFromConf);
 
-                return calFromMetadata.before(calFromConf) ? EvaluatingResult.TRUE
-                        : EvaluatingResult.NOT_APPLICABLE;
+                return calFromMetadata.before(calFromConf) ? EvaluatingResultState.TRUE
+                        : EvaluatingResultState.NOT_APPLICABLE;
 
             } catch (RecognitionException e) {
                 LOGGER.log(Level.WARNING, e.getMessage() +" in object "+pid);
                 LOGGER.log(Level.WARNING, "Returning NOT_APPLICABLE");
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             } catch (TokenStreamException e) {
                 LOGGER.log(Level.WARNING, e.getMessage() +" in object "+pid);
                 LOGGER.log(Level.WARNING, "Returning NOT_APPLICABLE");
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             }
 
         }

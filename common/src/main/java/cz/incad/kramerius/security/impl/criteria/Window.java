@@ -20,7 +20,7 @@ import antlr.RecognitionException;
 import antlr.TokenStreamException;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
@@ -51,14 +51,14 @@ public class Window extends AbstractCriterium implements RightCriterium {
     }
 
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute() throws RightCriteriumException {
         if (getObjects().length >= 2) {
             int firstVal = Integer.parseInt((String) getObjects()[0]);
             int secondVal = Integer.parseInt((String) getObjects()[1]);
             try {
                 ObjectPidsPath[] pathsToRoot = getEvaluateContext()
                         .getPathsToRoot();
-                EvaluatingResult result = null;
+                EvaluatingResultState result = null;
                 for (ObjectPidsPath pth : pathsToRoot) {
                     String[] pids = pth.getPathFromLeafToRoot();
                     for (String pid : pids) {
@@ -77,23 +77,23 @@ public class Window extends AbstractCriterium implements RightCriterium {
 
                         // TRUE or FALSE -> rozhodnul, nevratil NOT_APPLICABLE
                         if (result != null
-                                && (result.equals(EvaluatingResult.TRUE) || result
-                                        .equals(EvaluatingResult.FALSE)))
+                                && (result.equals(EvaluatingResultState.TRUE) || result
+                                        .equals(EvaluatingResultState.FALSE)))
                             return result;
                     }
                 }
 
                 return result != null ? result
-                        : EvaluatingResult.NOT_APPLICABLE;
+                        : EvaluatingResultState.NOT_APPLICABLE;
             } catch (NumberFormatException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage());
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage());
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             } catch (XPathExpressionException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage());
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             }
 
         } else {
@@ -103,16 +103,16 @@ public class Window extends AbstractCriterium implements RightCriterium {
         return null;
     }
 
-    public EvaluatingResult resolveInternal(int firstYear, int secondYear,
-            String pid, String xpath, Document xmlDoc) throws IOException,
+    public EvaluatingResultState resolveInternal(int firstYear, int secondYear,
+                                                 String pid, String xpath, Document xmlDoc) throws IOException,
             XPathExpressionException {
         if (pid.equals(SpecialObjects.REPOSITORY.getPid()))
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         return evaluateDoc(firstYear, secondYear, xmlDoc, xpath);
     }
 
-    public EvaluatingResult evaluateDoc(int firstYear, int secondYear,
-            Document xmlDoc, String xPathExpression)
+    public EvaluatingResultState evaluateDoc(int firstYear, int secondYear,
+                                             Document xmlDoc, String xPathExpression)
             throws XPathExpressionException {
         XPath xpath = xpfactory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
@@ -134,16 +134,16 @@ public class Window extends AbstractCriterium implements RightCriterium {
                 LOGGER.info("" + firstYear + " < "
                         + calFromMetadata.get(Calendar.YEAR) + " < "
                         + secondYear + " result = " + result);
-                return result ? EvaluatingResult.TRUE : EvaluatingResult.FALSE;
+                return result ? EvaluatingResultState.TRUE : EvaluatingResultState.FALSE;
 
             } catch (RecognitionException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 LOGGER.log(Level.SEVERE, "Returning NOT_APPLICABLE");
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             } catch (TokenStreamException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 LOGGER.log(Level.SEVERE, "Returning NOT_APPLICABLE");
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             }
 
         } else

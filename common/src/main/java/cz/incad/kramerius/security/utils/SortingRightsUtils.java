@@ -30,15 +30,15 @@ public class SortingRightsUtils {
 
     public static Right[] sortRights(Right[] findRights, ObjectPidsPath path) {
 
-        ArrayList<Right> noCriterium = new ArrayList<Right>();
-        ArrayList<Right> negativeFixedPriorty = new ArrayList<Right>();
-        ArrayList<Right> positiveFixedPriority = new ArrayList<Right>();
+        ArrayList<Right> noCriterium = new ArrayList<>();
+        ArrayList<Right> negativeFixedPriorty = new ArrayList<>();
+        ArrayList<Right> positiveFixedPriority = new ArrayList<>();
         
-        ArrayList<Right> dynamicHintMin = new ArrayList<Right>();
-        ArrayList<Right> dynamicHintNormal = new ArrayList<Right>();
-        ArrayList<Right> dynamicHintMax = new ArrayList<Right>();
+        ArrayList<Right> dynamicHintMin = new ArrayList<>();
+        ArrayList<Right> dynamicHintNormal = new ArrayList<>();
+        ArrayList<Right> dynamicHintMax = new ArrayList<>();
         
-        ArrayList<Right> processing = new ArrayList<Right>(Arrays.asList(findRights));
+        ArrayList<Right> processing = new ArrayList<>(Arrays.asList(findRights));
         // vyzobani pravidel bez kriterii 
         for (Iterator iterator = processing.iterator(); iterator.hasNext();) {
             Right right = (Right) iterator.next();
@@ -87,7 +87,7 @@ public class SortingRightsUtils {
         SortingRightsUtils.sortByPID(dynamicHintNormal, path);
         SortingRightsUtils.sortByPID(dynamicHintMin, path);
         
-        ArrayList<Right> result = new ArrayList<Right>();
+        ArrayList<Right> result = new ArrayList<>();
         result.addAll(noCriterium);
         result.addAll(positiveFixedPriority);
         result.addAll(dynamicHintMax);

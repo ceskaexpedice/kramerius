@@ -21,9 +21,8 @@ import java.util.logging.Level;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumWrapper;
@@ -101,7 +100,7 @@ public class RightWrapper implements Right{
     }
     
 
-    public EvaluatingResult evaluate(RightCriteriumContext ctx) throws RightCriteriumException {
+    public EvaluatingResultState evaluate(RightCriteriumContext ctx) throws RightCriteriumException {
         throw new IllegalStateException();
     }
     

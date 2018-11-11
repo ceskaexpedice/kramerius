@@ -34,6 +34,8 @@
         margin: 0;
         padding: 0;
         line-height: 16px;
+        display: block;
+        clear: both;
     }
     
     #context_items_selection li{

@@ -19,7 +19,7 @@ package cz.incad.kramerius.security.impl.criteria;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumException;
 
 public class StrictDomainFilter extends AbstractDomainFilter  {
@@ -27,14 +27,14 @@ public class StrictDomainFilter extends AbstractDomainFilter  {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(StrictDomainFilter.class.getName());
     
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute() throws RightCriteriumException {
         try {
-            EvaluatingResult result = matchDomain(getObjects()) ?  EvaluatingResult.TRUE : EvaluatingResult.FALSE;
+            EvaluatingResultState result = matchDomain(getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.FALSE;
             LOGGER.fine("\t strict domain filter - "+result);
             return result;
         } catch (UnknownHostException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            return EvaluatingResult.FALSE;
+            return EvaluatingResultState.FALSE;
         }
     }
 

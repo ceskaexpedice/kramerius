@@ -39,14 +39,7 @@ import cz.incad.Kramerius.security.strenderers.TitlesForObjects;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightsManager;
-import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.params.ParamsLexer;
@@ -141,7 +134,11 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
                     
                     // ma superadmin roli ?
                     if (!hasSuperAdminRole(this.userProvider.get())) {
-                        boolean[] booleans = actionAllowed.isActionAllowedForAllPath(SecuredActions.ADMINISTRATE.getFormalName(), pid.toString(),null, path);
+                        RightsReturnObject[] actionAllowedForAllPath = actionAllowed.isActionAllowedForAllPath(SecuredActions.ADMINISTRATE.getFormalName(), pid.toString(), null, path);
+                        boolean[] booleans = new boolean[actionAllowedForAllPath.length];
+                        for (int i = 0; i < booleans.length; i++) {
+                            booleans[i]=actionAllowedForAllPath[i].flag();
+                        }
                         for (int i = 0; i < booleans.length; i++) {
                             // can administrate
                             if (booleans[i]) {

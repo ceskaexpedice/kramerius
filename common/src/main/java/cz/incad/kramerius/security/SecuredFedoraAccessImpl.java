@@ -93,7 +93,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         for (ObjectPidsPath path : paths) {
-            if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path)) {
+            if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path).flag()) {
                 return rawAccess.getImageFULL(pid);
             }
         }
@@ -170,7 +170,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public boolean isContentAccessible(String pid) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         for (ObjectPidsPath path : paths) {
-            if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path)) {
+            if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path).flag()) {
                 return true;
             }
         }
@@ -224,7 +224,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         if (isDefaultSecuredStream(datastreamName)) {
             ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
             for (int i = 0; i < paths.length; i++) {
-                if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i])) {
+                if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i]).flag()) {
                     return rawAccess.getDataStream(pid, datastreamName);
                 }
             }
@@ -236,7 +236,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
             if (indexOf >= 0) {
                 ObjectPidsPath[] paths = this.solrAccess.getPath(pid + "/" + datastreamName);
                 for (int i = 0; i < paths.length; i++) {
-                    if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i])) {
+                    if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i]).flag()) {
                         return rawAccess.getDataStream(pid, datastreamName);
                     }
                 }
@@ -278,7 +278,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         boolean accessed = false;
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         for (ObjectPidsPath path : paths) {
-            if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_PREVIEW_STREAM, path)) {
+            if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_PREVIEW_STREAM, path).flag()) {
                 accessed = true;
                 break;
             }

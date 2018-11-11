@@ -3,10 +3,7 @@ package cz.incad.kramerius.security.impl.http;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.RightCriteriumContextFactory;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightsManager;
-import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ehcache.Cache;
@@ -59,7 +56,7 @@ public class IsActionAllowedFromRequestCached extends IsActionAllowedFromRequest
         }
     }
 
-    private static Cache<CacheKey, Boolean> cache;
+    private static Cache<CacheKey, RightsReturnObject> cache;
 
     private Provider<HttpServletRequest> provider;
 
@@ -74,20 +71,21 @@ public class IsActionAllowedFromRequestCached extends IsActionAllowedFromRequest
 
         this.provider = provider;
 
-        cache = cacheManager.getCache(CACHE_ALIAS, CacheKey.class, Boolean.class);
+        cache = cacheManager.getCache(CACHE_ALIAS, CacheKey.class, RightsReturnObject.class);
         if (cache == null) {
             cache = cacheManager.createCache(CACHE_ALIAS,
-                    CacheConfigurationBuilder.newCacheConfigurationBuilder(CacheKey.class, Boolean.class,
+                    CacheConfigurationBuilder.newCacheConfigurationBuilder(CacheKey.class, RightsReturnObject.class,
                             ResourcePoolsBuilder.heap(1000).offheap(32, MemoryUnit.MB))
                             .withExpiry(Expirations.timeToLiveExpiration(
                                     org.ehcache.expiry.Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
         }
     }
 
-    public boolean isAllowedInternalForFedoraDocuments(String actionName, String pid, String stream, ObjectPidsPath path, User user) throws RightCriteriumException {
+
+    public RightsReturnObject isAllowedInternalForFedoraDocuments(String actionName, String pid, String stream, ObjectPidsPath path, User user) throws RightCriteriumException {
         if ("read".equals(actionName)) {
             String ip = IPAddressUtils.getRemoteAddress(this.provider.get(), KConfiguration.getInstance().getConfiguration());
-            Boolean allowed = cache.get(new CacheKey(pid, user, ip));
+            RightsReturnObject allowed = cache.get(new CacheKey(pid, user, ip));
 
             if (allowed != null) { //cache hit
                 return allowed;

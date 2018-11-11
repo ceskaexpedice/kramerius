@@ -16,19 +16,19 @@
  */
 package cz.incad.kramerius.security;
 
-import java.util.Map;
 
+import java.io.Serializable;
 
 /**
  * Represents user defined right criterium ( defined in java in this case ). 
  * 
  * Implementation must resolve user request to secured resource and return one of trhee possible 
- * results TRUE, FALSE, NOT_APPLICABLE {@link EvaluatingResult}.  
+ * results TRUE, FALSE, NOT_APPLICABLE {@link EvaluatingResultState}.
  * 
  * @see RightCriteriumLoader
  * @author pavels
  */
-public interface RightCriterium {
+public interface RightCriterium extends Serializable  {
     
     /**
      * Returns unique name of criterium.  
@@ -53,7 +53,7 @@ public interface RightCriterium {
      * @return Result of evaluation
      * @throws RightCriteriumException Something happen during evaluate
      */
-    public EvaluatingResult evalute() throws RightCriteriumException;
+    public EvaluatingResultState evalute() throws RightCriteriumException;
     
 
     /**
@@ -90,8 +90,24 @@ public interface RightCriterium {
      */
     public SecuredActions[] getApplicableActions();
 
-    
+
+    /**
+     * Validate given params
+     * @param vals User defined parameters which should be validated
+     * @return returns result of validation
+     */
     public boolean validateParams(Object[] vals);
 
+    /**
+     * Validate params encoded in one string (used when the kramerius is about the loaded parametres from the database)
+     * @param encodedVals
+     * @return returns result of the validation
+     */
     public boolean validateParams(String encodedVals);
+
+    /**
+     * Returns true if this criterium could be applied only on the root object
+     * @return
+     */
+    public boolean isRootLevelCriterum();
 }

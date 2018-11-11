@@ -18,13 +18,10 @@ package cz.incad.kramerius.security.impl;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.script.Bindings;
 import javax.script.Invocable;
-import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -32,7 +29,7 @@ import javax.script.ScriptException;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.SecuredActions;
 
@@ -60,7 +57,7 @@ public class ScriptRightCriterium implements RightCriterium {
     }
 
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute() throws RightCriteriumException {
         try {
             ScriptEngineManager scriptEngineManager = this.info.getScriptEngineManager();
             String scriptEngineName = this.info.getScriptEngineName();
@@ -74,8 +71,8 @@ public class ScriptRightCriterium implements RightCriterium {
             Object retVal = inv.invokeMethod(criteriumObject, ScriptRightCriteriumInfo.EVALUATE , new Object[]{getEvaluateContext(), getCriteriumParamValues()});
             if (retVal != null) {
                if (retVal instanceof Number) {
-                   EvaluatingResult result = 
-                       EvaluatingResult.valueOf(((Number)retVal).intValue());
+                   EvaluatingResultState result =
+                       EvaluatingResultState.valueOf(((Number)retVal).intValue());
                    if (result != null) {
                        return result;
                    } else throw new RightCriteriumException("no result ..");
@@ -139,6 +136,9 @@ public class ScriptRightCriterium implements RightCriterium {
         // TODO Auto-generated method stub
         return false;
     }
-    
-    
+
+    @Override
+    public boolean isRootLevelCriterum() {
+        return false;
+    }
 }

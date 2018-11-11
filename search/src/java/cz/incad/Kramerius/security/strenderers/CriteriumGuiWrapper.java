@@ -19,15 +19,9 @@ package cz.incad.Kramerius.security.strenderers;
 import java.util.List;
 
 import cz.incad.kramerius.security.CriteriumType;
-import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumParams;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.SecuredActions;
 
 public class CriteriumGuiWrapper implements RightCriteriumWrapper{
 

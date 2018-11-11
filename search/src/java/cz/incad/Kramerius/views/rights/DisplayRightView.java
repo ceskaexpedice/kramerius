@@ -17,9 +17,9 @@
 package cz.incad.Kramerius.views.rights;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
+import java.util.stream.Collectors;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -27,17 +27,7 @@ import antlr.TokenStreamException;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumLoader;
-import cz.incad.kramerius.security.RightCriteriumParams;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
-import cz.incad.kramerius.security.RightsManager;
-import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.security.*;
 
 
 public class DisplayRightView extends AbstractRightsView {
@@ -152,9 +142,14 @@ public class DisplayRightView extends AbstractRightsView {
         } else return "";
     }
     
-    public List<RightCriteriumWrapper> getCriteriums() {
+    public List<RightCriteriumWrapper> getCriteriums() throws TokenStreamException, RecognitionException {
+        List roots = Collections.singletonList(getPidsParams().stream().filter(item -> SpecialObjects.REPOSITORY.getPid().equals(item)).collect(Collectors.toList()));
         List<RightCriteriumWrapper> criteriums = factory.createAllCriteriumWrappers(SecuredActions.findByFormalName(getSecuredAction()));
-        return criteriums;
+        if (!roots.isEmpty() && getPidsParams().size() > 1) {
+            return criteriums.stream().filter(crit -> !crit.getRightCriterium().isRootLevelCriterum()).collect(Collectors.toList());
+        } else  {
+            return criteriums;
+        }
     }
 
     public List<RightCriteriumParams> getRightCriteriumParams() {

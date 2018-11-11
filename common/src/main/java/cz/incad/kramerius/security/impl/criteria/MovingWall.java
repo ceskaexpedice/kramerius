@@ -33,7 +33,6 @@ import javax.xml.xpath.*;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -63,18 +62,18 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
 
 
-	private XPathFactory xpfactory;
-	
-	public MovingWall() {
+    private XPathFactory xpfactory;
+
+    public MovingWall() {
         this.xpfactory = XPathFactory.newInstance();
-	}
-	
+    }
+
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute() throws RightCriteriumException {
         int wallFromConf = Integer.parseInt((String)getObjects()[0]);
         try {
             ObjectPidsPath[] pathsToRoot = getEvaluateContext().getPathsToRoot();
-            EvaluatingResult result = null;
+            EvaluatingResultState result = null;
             for (ObjectPidsPath pth : pathsToRoot) {
                 String[] pids = pth.getPathFromLeafToRoot();
                 for (String pid : pids) {
@@ -87,32 +86,32 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                         if (result !=null) break;
                     }
                     // TRUE or FALSE -> rozhodnul, nevratil NOT_APPLICABLE
-                    if (result != null && (result.equals(EvaluatingResult.TRUE) ||  result.equals(EvaluatingResult.FALSE))) return result; 
+                    if (result != null && (result.equals(EvaluatingResultState.TRUE) ||  result.equals(EvaluatingResultState.FALSE))) return result;
                 }
             }
-            return result != null ? result :EvaluatingResult.NOT_APPLICABLE;
+            return result != null ? result :EvaluatingResultState.NOT_APPLICABLE;
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         }
     }
 
     
     
-    public static EvaluatingResult resolveInternal(int wallFromConf, String pid, String xpath, Document xmlDoc,XPathFactory xpfactory) throws IOException, XPathExpressionException {
-        if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResult.NOT_APPLICABLE;
+    public static EvaluatingResultState resolveInternal(int wallFromConf, String pid, String xpath, Document xmlDoc, XPathFactory xpfactory) throws IOException, XPathExpressionException {
+        if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResultState.NOT_APPLICABLE;
         return evaluateDoc(wallFromConf, xmlDoc, xpath, xpfactory);
     }
 
 
 
-    public static EvaluatingResult evaluateDoc(int wallFromConf, Document xmlDoc, String xPathExpression,XPathFactory xpfactory) throws XPathExpressionException {
+    public static EvaluatingResultState evaluateDoc(int wallFromConf, Document xmlDoc, String xPathExpression, XPathFactory xpfactory) throws XPathExpressionException {
         Object date = findDateString(xmlDoc, xPathExpression, xpfactory);
         if (date != null) {
             String patt = ((Text) date).getData();
@@ -123,20 +122,20 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                 if (parsed != null) {
                     return mwCalc(wallFromConf, parsed, currentDate);
                 } else {
-                    return EvaluatingResult.NOT_APPLICABLE;
+                    return EvaluatingResultState.NOT_APPLICABLE;
                 }
             } catch (RecognitionException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 LOGGER.log(Level.SEVERE,"Returning NOT_APPLICABLE");
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             } catch (TokenStreamException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 LOGGER.log(Level.SEVERE,"Returning NOT_APPLICABLE");
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 LOGGER.log(Level.SEVERE,"Returning NOT_APPLICABLE");
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             }
             
         }
@@ -162,8 +161,8 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
      * @param currentDate Current date
      * @return
      */
-    static EvaluatingResult mwCalc(int wallFromConf, Date parsed,
-            Date currentDate) {
+    static EvaluatingResultState mwCalc(int wallFromConf, Date parsed,
+                                        Date currentDate) {
         Calendar calFromMetadata = Calendar.getInstance();
         calFromMetadata.setTime(parsed);
 
@@ -176,9 +175,9 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         int yearFromMetadata = calFromMetadata.get(Calendar.YEAR);
         int currentYear = currentCal.get(Calendar.YEAR);
         if ((currentYear - yearFromMetadata) >= wallFromConf) {
-            return EvaluatingResult.TRUE;
+            return EvaluatingResultState.TRUE;
         } else {
-            return EvaluatingResult.FALSE;
+            return EvaluatingResultState.FALSE;
         }
     }
 
