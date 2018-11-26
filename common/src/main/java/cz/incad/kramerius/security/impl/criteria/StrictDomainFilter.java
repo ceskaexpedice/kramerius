@@ -21,6 +21,7 @@ import java.util.logging.Level;
 
 import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumException;
+import cz.incad.kramerius.security.SecuredActions;
 
 public class StrictDomainFilter extends AbstractDomainFilter  {
 
@@ -38,5 +39,8 @@ public class StrictDomainFilter extends AbstractDomainFilter  {
         }
     }
 
-    
+    @Override
+    public SecuredActions[] getApplicableActions() {
+        return super.getApplicableActions();
+    }
 }

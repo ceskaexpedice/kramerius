@@ -56,7 +56,7 @@ public class DefaultIPAddressFilter extends AbstractIPAddressFilter implements R
     
     @Override
     public SecuredActions[] getApplicableActions() {
-        return new SecuredActions[] {SecuredActions.READ};
+        return SecuredActions.values();
     }
 
 }

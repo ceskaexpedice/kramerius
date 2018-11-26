@@ -143,9 +143,10 @@ public class DisplayRightView extends AbstractRightsView {
     }
     
     public List<RightCriteriumWrapper> getCriteriums() throws TokenStreamException, RecognitionException {
-        List roots = Collections.singletonList(getPidsParams().stream().filter(item -> SpecialObjects.REPOSITORY.getPid().equals(item)).collect(Collectors.toList()));
+        List pidsParams = getPidsParams();
+        boolean found = pidsParams.stream().anyMatch((v) -> v.toString().equals(SpecialObjects.REPOSITORY.getPid()));
         List<RightCriteriumWrapper> criteriums = factory.createAllCriteriumWrappers(SecuredActions.findByFormalName(getSecuredAction()));
-        if (!roots.isEmpty() && getPidsParams().size() > 1) {
+        if (!found || pidsParams.size() > 1) {
             return criteriums.stream().filter(crit -> !crit.getRightCriterium().isRootLevelCriterum()).collect(Collectors.toList());
         } else  {
             return criteriums;

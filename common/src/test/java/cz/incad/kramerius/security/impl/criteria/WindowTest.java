@@ -77,7 +77,7 @@ public class WindowTest {
         contextFactory.setFedoraAccess(fa33);
         contextFactory.setSolrAccess(solrAccess);
         
-        RightCriteriumContext context = contextFactory.create(requestedPID, null, null, "localhost", "127.0.0.1");
+        RightCriteriumContext context = contextFactory.create(requestedPID, null, null, "localhost", "127.0.0.1", null);
 
         Window window = new Window();
         window.setCriteriumParamValues(new Object[] {firstYearFromGUI,secondYearFromGUI});

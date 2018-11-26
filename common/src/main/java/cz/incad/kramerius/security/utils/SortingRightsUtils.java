@@ -28,16 +28,22 @@ import cz.incad.kramerius.security.Right;
 
 public class SortingRightsUtils {
 
+    // check checkDnnt
     public static Right[] sortRights(Right[] findRights, ObjectPidsPath path) {
 
         ArrayList<Right> noCriterium = new ArrayList<>();
         ArrayList<Right> negativeFixedPriorty = new ArrayList<>();
         ArrayList<Right> positiveFixedPriority = new ArrayList<>();
-        
+
+
+        ArrayList<Right> dnntExclusiveMin = new ArrayList<>();
+        ArrayList<Right> dnntExclusiveMax = new ArrayList<>();
+
+
         ArrayList<Right> dynamicHintMin = new ArrayList<>();
         ArrayList<Right> dynamicHintNormal = new ArrayList<>();
         ArrayList<Right> dynamicHintMax = new ArrayList<>();
-        
+
         ArrayList<Right> processing = new ArrayList<>(Arrays.asList(findRights));
         // vyzobani pravidel bez kriterii 
         for (Iterator iterator = processing.iterator(); iterator.hasNext();) {
@@ -62,6 +68,11 @@ public class SortingRightsUtils {
         for (Right right : processing) {
             if (right.getCriteriumWrapper().getRightCriterium() != null) {
                 switch (right.getCriteriumWrapper().getRightCriterium().getPriorityHint()) {
+                    case DNNT_EXCLUSIVE_MIN: {
+                        dnntExclusiveMin.add(right);
+                    }
+                    break;
+
                     case MIN: {
                         dynamicHintMin.add(right);
                     }
@@ -76,6 +87,11 @@ public class SortingRightsUtils {
                         dynamicHintMax.add(right);
                     }
                     break;
+
+                    case DNNT_EXCLUSIVE_MAX: {
+                        dnntExclusiveMax.add(right);
+                    }
+                    break;
                 }
             }
         }
@@ -86,15 +102,33 @@ public class SortingRightsUtils {
         SortingRightsUtils.sortByPID(dynamicHintMax, path);
         SortingRightsUtils.sortByPID(dynamicHintNormal, path);
         SortingRightsUtils.sortByPID(dynamicHintMin, path);
-        
+
+        SortingRightsUtils.sortByPID(dnntExclusiveMin, path);
+        SortingRightsUtils.sortByPID(dnntExclusiveMax, path);
+
+
+
+
         ArrayList<Right> result = new ArrayList<>();
+        // how to exclusive
+        // dnnt exclusive max
+        result.addAll(dnntExclusiveMax);
+
         result.addAll(noCriterium);
         result.addAll(positiveFixedPriority);
+
         result.addAll(dynamicHintMax);
         result.addAll(dynamicHintNormal);
         result.addAll(dynamicHintMin);
+
+
+        // not allowed in case of  DNNT is in place
         result.addAll(negativeFixedPriorty);
-        
+
+        // the last one  - dnnt
+        result.addAll(dnntExclusiveMin);
+
+
         return (Right[]) result.toArray(new Right[result.size()]);
     }
 

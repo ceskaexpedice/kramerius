@@ -17,6 +17,8 @@
 package cz.incad.kramerius.security;
 
 
+import cz.incad.kramerius.security.impl.criteria.CriteriaPrecoditionException;
+
 import java.io.Serializable;
 
 /**
@@ -110,4 +112,22 @@ public interface RightCriterium extends Serializable  {
      * @return
      */
     public boolean isRootLevelCriterum();
+
+
+    /**
+     * Check criterium precondition.
+     * This is the point where criterium can check whether certain precondition is applied.
+     * For example:
+     *      DNNT flag must be set with actions READ and PDF_RESOURCE.  The set with only one of them is not allowed.
+     *      In that case the DNNT is responsible for checking this stuff in the implementation of this method
+     *
+     * @param manager
+     * @throws CriteriaPrecoditionException
+     */
+    // mozna zmenit
+    public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException;
+
+    //public boolean isBypassed();
+
+
 }

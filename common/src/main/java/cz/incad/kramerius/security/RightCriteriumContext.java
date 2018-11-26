@@ -71,11 +71,42 @@ public interface RightCriteriumContext {
      */
     public FedoraAccess getFedoraAccess();
 
+    /**
+     * Return solr access
+     * @return
+     */
     public SolrAccess getSolrAccess();
-    
+
+    /**
+     * Returns user's manager
+     * @return
+     * @see UserManager
+     */
     public UserManager getUserManager();
-    
+
+    /**
+     * Returns remote host from the request
+     * @return
+     */
     public String getRemoteHost();
-    
+
+    /**
+     * Returns remote address from the request
+     * @return
+     */
     public String getRemoteAddr();
+
+    /**
+     * Returns secured action
+     * @return
+     */
+    public SecuredActions getAction();
+
+
+    /**
+     *
+     * @return
+     */
+    public IsActionAllowed getRightsResolver();
+
 }

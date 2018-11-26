@@ -6,8 +6,10 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.indexer.coordinates.ParsingCoordinates;
+import cz.incad.kramerius.indexer.dnnt.DnntSingleton;
 import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import org.apache.commons.io.FileUtils;
@@ -64,6 +66,9 @@ public class ExtendedFields {
     DateFormat df;
     DateFormat solrDateFormat;
 
+    // dnnt flag
+    private String dnnt;
+
     // geo coordinates range
     private List<String> coordinates;
 
@@ -101,7 +106,11 @@ public class ExtendedFields {
         setDate(biblioMods);
         // coordinates
         this.coordinates = ParsingCoordinates.processBibloModsCoordinates(biblioMods, this.factory);
+        // dnnt
+        String rootPid = pid_paths.get(0).split("/")[0];
+        this.dnnt = DnntSingleton.getInstance().dnnt(rootPid, fo.fa);
     }
+
     PDDocument pdDoc = null;
     String pdfPid = "";
 
@@ -251,6 +260,10 @@ public class ExtendedFields {
         }
         if (!datum_end.equals("")) {
             sb.append("<field name=\"datum_end\">").append(datum_end).append("</field>");
+        }
+
+        if (this.dnnt != null && StringUtils.isAnyString(this.dnnt)) {
+            sb.append("<field name=\"dnnt\">").append(dnnt).append("</field>");
         }
 
 

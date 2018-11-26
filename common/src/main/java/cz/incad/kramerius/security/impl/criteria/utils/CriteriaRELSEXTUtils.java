@@ -5,7 +5,7 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.impl.criteria.DNNTFlag;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
 import org.w3c.dom.Document;
 
 import javax.xml.xpath.*;
@@ -45,7 +45,7 @@ public class CriteriaRELSEXTUtils {
                 return checkValue(relsExt, path,expectedValue);
             } else return EvaluatingResultState.TRUE;
         } catch (IOException e) {
-            DNNTFlag.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            ReadDNNTFlag.LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return EvaluatingResultState.TRUE;
         }
     }

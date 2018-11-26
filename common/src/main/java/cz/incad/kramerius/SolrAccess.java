@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Class for access to SOLR
@@ -68,6 +69,18 @@ public interface SolrAccess {
      * @throws IOException IO error has been occurred
      */
     public ObjectPidsPath[] getPath(String datastreamName, Document solrDataDoc) throws IOException;
+
+
+    /**
+     * Returns all paths disected from given SOLR data
+     *
+     * @param datastreamName datastream name
+     * @param solrDocParentElement Solr hit element
+     * @return disected path
+     * @throws IOException IO error has been occurred
+     */
+    public ObjectPidsPath[] getPath(String datastreamName, Element solrDocParentElement) throws IOException;
+
 
     /**
      * Returns all model's paths

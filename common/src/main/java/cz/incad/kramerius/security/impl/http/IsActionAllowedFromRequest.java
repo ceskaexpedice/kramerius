@@ -75,7 +75,7 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
     public RightsReturnObject[] isActionAllowedForAllPath(String actionName, String pid, String stream, ObjectPidsPath path) {
         try {
             User user = this.currentLoggedUser.get();
-            RightCriteriumContext ctx = this.ctxFactory.create(pid,stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get(), KConfiguration.getInstance().getConfiguration()));
+            RightCriteriumContext ctx = this.ctxFactory.create(pid,stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get(), KConfiguration.getInstance().getConfiguration()), this);
             return this.rightsManager.resolveAllPath(ctx, pid, path, actionName, user);
         } catch (RightCriteriumException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
@@ -94,7 +94,7 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
     }
 
     public RightsReturnObject isAllowedInternalForFedoraDocuments(String actionName, String pid, String stream, ObjectPidsPath path, User user) throws RightCriteriumException {
-        RightCriteriumContext ctx = this.ctxFactory.create(pid, stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get(),KConfiguration.getInstance().getConfiguration()));
+        RightCriteriumContext ctx = this.ctxFactory.create(pid, stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get(),KConfiguration.getInstance().getConfiguration()), this);
         return this.rightsManager.resolve(ctx, pid, path, actionName, user);
     }
 

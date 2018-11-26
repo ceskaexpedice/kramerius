@@ -31,5 +31,5 @@ public interface RightCriteriumContextFactory {
      * @param string 
      * @return
      */
-    public RightCriteriumContext create(String reqPID, String reqStream, User user, String remoteHost, String remoteAddr);
+    public RightCriteriumContext create(String reqPID, String reqStream, User user, String remoteHost, String remoteAddr, IsActionAllowed rightsResolver);
 }

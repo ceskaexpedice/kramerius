@@ -19,6 +19,7 @@ package cz.incad.kramerius.security.impl.criteria;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumParams;
+import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.utils.RightsDBUtils;
 
 public abstract class AbstractCriterium implements RightCriterium {
@@ -75,6 +76,11 @@ public abstract class AbstractCriterium implements RightCriterium {
     @Override
     public boolean isRootLevelCriterum() {
         return false;
+    }
+
+    @Override
+    public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException {
+        // DO nothing
     }
 }
 
