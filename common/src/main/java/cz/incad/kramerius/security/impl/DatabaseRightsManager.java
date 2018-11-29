@@ -234,7 +234,7 @@ public class DatabaseRightsManager implements RightsManager {
         ObjectPidsPath processPath=path.injectRepository();
         if (!SpecialObjects.isSpecialObject(uuid)) {
             try {
-                processPath = processPath.injectCollections(this.colGet);
+                processPath = processPath.injectCollections(this.colGet, ctx.getFedoraAccess());
             } catch (CollectionException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }

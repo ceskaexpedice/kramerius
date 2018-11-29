@@ -17,23 +17,17 @@ public class ReadDNNTFlag extends AbstractCriterium {
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {
         RightCriteriumContext ctx =  getEvaluateContext();
+        String pid = ctx.getRequestedPid();
         // only for READ action
-        if (ctx.getAction().equals(SecuredActions.READ)) {
-            String pid = ctx.getRequestedPid();
-            if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
-                // log event.
-                EvaluatingResultState dnnt = checkDnnt(ctx);
-                if (dnnt.equals(EvaluatingResultState.TRUE)) {
-                    try {
-                        logDnntAccess(ctx);
-                    } catch (IOException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                        return EvaluatingResultState.FALSE;
-                    }
-                }
-                return dnnt;
-            } else return EvaluatingResultState.FALSE;
-        } else return EvaluatingResultState.FALSE;
+        if (!SpecialObjects.isSpecialObject(pid)) {
+
+                if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
+                    // log event.
+                    EvaluatingResultState dnnt = checkDnnt(ctx);
+                    return dnnt;
+                } else return EvaluatingResultState.NOT_APPLICABLE;
+
+        } else return EvaluatingResultState.NOT_APPLICABLE;
     }
 
     @Override

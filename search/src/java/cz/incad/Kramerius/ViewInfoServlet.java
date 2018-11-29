@@ -183,8 +183,8 @@ public class ViewInfoServlet extends GuiceServlet {
                             actions.remove(act.getFormalName());
                         }
                         for (SecuredActions act : acts) {
-                            List<MappedPath> pathElems = new ArrayList<MappedPath>();
-                            pathElems.add(new MappedPath(new ObjectPidsPath().injectRepository().injectCollections(this.collectionGet), new boolean[] {true}));
+                            List<MappedPath> pathElems = new ArrayList<>();
+                            pathElems.add(new MappedPath(new ObjectPidsPath().injectRepository().injectCollections(this.collectionGet, this.fedoraAccess), new boolean[] {true}));
                             globalActions.put(act.getFormalName(), pathElems);
                         }
                     }
@@ -319,7 +319,7 @@ public class ViewInfoServlet extends GuiceServlet {
     
     public MappedPath findPathWithFirstAccess(HttpServletRequest req, String pid, ObjectPidsPath[] paths,SecuredActions act) throws CollectionException {
         for (ObjectPidsPath objectPath : paths) {
-            ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet);
+            ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet, this.fedoraAccess);
             RightsReturnObject[] actionAllowedForAllPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path);
             boolean[] bools = new boolean[actionAllowedForAllPath.length];
             for (int i = 0; i < bools.length; i++) {
@@ -335,7 +335,7 @@ public class ViewInfoServlet extends GuiceServlet {
     public List<MappedPath> fillActionsToJSON(HttpServletRequest req, String pid, ObjectPidsPath[] paths, SecuredActions act) throws CollectionException {
         List<MappedPath> mappedPaths = new ArrayList<ViewInfoServlet.MappedPath>();
         for (ObjectPidsPath objectPath : paths) {
-            ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet);
+            ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet, this.fedoraAccess);
             RightsReturnObject[] actionAllowedForAllPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path);
             boolean[] bools = new boolean[actionAllowedForAllPath.length];
             for (int i = 0; i < bools.length; i++) {

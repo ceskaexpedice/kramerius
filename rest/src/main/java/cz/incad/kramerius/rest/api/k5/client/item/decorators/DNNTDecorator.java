@@ -81,7 +81,7 @@ public class DNNTDecorator extends AbstractItemDecorator {
                                             element.getAttribute("name").equals("dnnt")) {
 
                                         try {
-                                            ObjectPidsPath[] paths = solrAccess.getPath(pid, optional.get());
+                                            ObjectPidsPath[] paths = solrAccess.getPath(null, optional.get());
                                             for (ObjectPidsPath p : paths) {
                                                 RightsReturnObject actionAllowed = isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
                                                 if (actionAllowed.getRight().getCriteriumWrapper() != null) {

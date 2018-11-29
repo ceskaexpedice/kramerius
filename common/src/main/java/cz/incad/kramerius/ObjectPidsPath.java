@@ -29,9 +29,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.virtualcollections.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -39,10 +42,8 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.virtualcollections.Collection;
-import cz.incad.kramerius.virtualcollections.CollectionException;
-import cz.incad.kramerius.virtualcollections.CollectionPidUtils;
-import cz.incad.kramerius.virtualcollections.CollectionsManager;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Represents objects path
@@ -89,7 +90,7 @@ public class ObjectPidsPath extends AbstractObjectPath {
     
     // support collections
     
-    public ObjectPidsPath injectCollections(CollectionsManager col) throws CollectionException {
+    public ObjectPidsPath injectCollections(CollectionsManager col, FedoraAccess fedoraAccess) throws CollectionException {
 
         try {
             if (this.isEmptyPath()) return this;
@@ -100,8 +101,8 @@ public class ObjectPidsPath extends AbstractObjectPath {
                 }
             }
             String[] pathFromRoot = this.getPathFromRootToLeaf();
-            Set<String> processingCollection = new HashSet<String>();
-            Map<String,List<String>> m = new HashMap<String, List<String>>();
+            Set<String> processingCollection = new HashSet<>();
+            Map<String,List<String>> m = new HashMap<>();
             for (String pid : pathFromRoot) {
                 if (SpecialObjects.REPOSITORY.getPid().equals(pid)) continue;
 
@@ -110,24 +111,37 @@ public class ObjectPidsPath extends AbstractObjectPath {
                 parser.objectPid();
                 if (parser.isDatastreamPid() || parser.isPagePid()) continue;
 
-                JSONObject itemJSON = getItemJSON(pid);
-                if (itemJSON.has("collections")) {
-                    JSONArray collectionsArray = itemJSON.getJSONArray("collections");
-                    for (int i = 0,ll=collectionsArray.length(); i < ll; i++) {
-                        String val = collectionsArray.getString(i);
-                        if (!m.containsKey(pid)) {
-                            m.put(pid, new ArrayList<String>());
+                Document relsExt = fedoraAccess.getRelsExt(pid);
+                List<Element> collections = CollectionUtils.findCollectionsElements(relsExt);
+                List<String> pids = collections.stream().map(colElm -> {
+                    String collectionPid = colElm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI,
+                            "resource");
+                    if (StringUtils.isAnyString(collectionPid)) {
+                        try {
+                            PIDParser pidParser = new PIDParser(collectionPid);
+                            if (collectionPid.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
+                                pidParser.disseminationURI();
+                            } else {
+                                pidParser.objectPid();
+                            }
+                            return pidParser.getObjectPid();
+                        } catch (LexerException e) {
+                            LOGGER.severe("cannot parse collection pid " + collectionPid);
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                            return "";
                         }
-                        if (!processingCollection.contains(val)) {
-                            m.get(pid).add(val);
-                            processingCollection.add(val);
-                        }
-                    }
-                } else {
+                    } else return "";
+                }).filter(item -> { return item.length() > 0; }).collect(Collectors.toList());
+
+                m.put(pid, new ArrayList<String>());
+                pids.stream().forEach(val->{
                     if (!m.containsKey(pid)) {
-                        m.put(pid, new ArrayList<String>());
                     }
-                }
+                    if (!processingCollection.contains(val)) {
+                        m.get(pid).add(val);
+                        processingCollection.add(val);
+                    }
+                });
             }
 
             List<String> newVals = new ArrayList<String>();
@@ -143,30 +157,12 @@ public class ObjectPidsPath extends AbstractObjectPath {
             return new ObjectPidsPath(newVals);
         } catch (LexerException e) {
             throw new CollectionException(e);
-        }
-    }
-
-    /** THIS should be replaced by other technique */
-    /**
-     * Consider if this is good way;
-     * @param pid
-     * @return
-     */
-
-    protected JSONObject getItemJSON(String pid) {
-        try {
-            String apipoint = KConfiguration.getInstance().getConfiguration().getString("api.point");
-            String loc = apipoint+ (apipoint.endsWith("/") ? "" : "/") +"item/"+pid;
-            InputStream inputStream = RESTHelper.inputStream(loc, "", "");
-            String string = IOUtils.readAsString(inputStream, Charset.forName("UTF-8"), true);
-            JSONObject obj = new JSONObject(string);
-            return obj;
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new CollectionException(e);
+
         }
-        return null;
     }
-    
+
     
     
     @Override

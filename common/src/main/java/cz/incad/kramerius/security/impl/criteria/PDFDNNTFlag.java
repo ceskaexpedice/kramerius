@@ -2,6 +2,7 @@ package cz.incad.kramerius.security.impl.criteria;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
@@ -26,13 +27,8 @@ public class PDFDNNTFlag extends AbstractCriterium {
                     IsActionAllowed rightsResolver = this.getEvaluateContext().getRightsResolver();
                     ObjectPidsPath[] paths = this.getEvaluateContext().getSolrAccess().getPath(requestedPid);
                     for (ObjectPidsPath path : paths) {
-                        RightsReturnObject obj = rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), requestedPid, FedoraUtils.IMG_FULL_STREAM, path);
-                        if (obj.getRight().getCriteriumWrapper() != null) {
-                            if (obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlag.class.getName()) ||
-                                    obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlagIPFiltered.class.getName())) {
-                                return EvaluatingResultState.FALSE;
-                            }
-                        }
+                        RightsReturnObject obj = rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), requestedPid, null, path);
+                        if (CriteriaDNNTUtils.checkContainsCriterium(obj)) return EvaluatingResultState.FALSE;
                     }
                 }
             }

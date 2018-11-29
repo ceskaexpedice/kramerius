@@ -40,6 +40,11 @@ import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 
+import cz.incad.kramerius.security.RightsReturnObject;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
+import cz.incad.kramerius.security.impl.http.IsActionAllowedFromRequestCached;
+import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -118,8 +123,13 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
             connection = connectionProvider.get();
             if (connection == null)
                 throw new NotReadyException("connection not ready");
-            
-            List<JDBCCommand> commands = new ArrayList<JDBCCommand>(); 
+
+            // REPORT DNNT
+            if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
+                reportDNNT(pid, paths, userProvider.get());
+            }
+
+            List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
             commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get()));
 
             for (int i = 0, ll = paths.length; i < ll; i++) {
@@ -166,8 +176,21 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         }
     }
 
-    
-    
+    private void reportDNNT(String pid, ObjectPidsPath[] paths, User user) throws IOException {
+        RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
+        if (rightsReturnObject == null)  return;
+        if (CriteriaDNNTUtils.checkContainsCriterium(rightsReturnObject)) {
+            CriteriaDNNTUtils.logDnntAccess(pid,
+                    null,
+                    IPAddressUtils.getRemoteAddress(requestProvider.get(), KConfiguration.getInstance().getConfiguration()),
+                    user!= null ? user.getLoginname() : null,
+                    user != null ? user.getEmail(): null,
+                    paths
+            );
+        }
+    }
+
+
     @Override
     public void reportAccess(String pid, String streamName, String actionName) throws IOException {
         ReportedAction action = ReportedAction.valueOf(actionName);

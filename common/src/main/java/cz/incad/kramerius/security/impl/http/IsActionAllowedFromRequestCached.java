@@ -18,12 +18,17 @@ import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.*;
+
 /**
  * IsActionAllowedFromRequestCached
  *
  * @author Martin Rumanek
  */
 public class IsActionAllowedFromRequestCached extends IsActionAllowedFromRequest{
+
+
+
     static class CacheKey implements Serializable {
         private final String PID;
         private final User user;
@@ -88,14 +93,24 @@ public class IsActionAllowedFromRequestCached extends IsActionAllowedFromRequest
             RightsReturnObject allowed = cache.get(new CacheKey(pid, user, ip));
 
             if (allowed != null) { //cache hit
+
+                currentThreadReturnObject.set(allowed);
+
                 return allowed;
             } else { //cache miss
                 allowed = super.isAllowedInternalForFedoraDocuments(actionName, pid, stream, path, user);
                 cache.put(new CacheKey(pid, user, ip), allowed);
+
+                currentThreadReturnObject.set(allowed);
+
                 return allowed;
             }
         } else {
-            return super.isAllowedInternalForFedoraDocuments(actionName, pid, stream, path, user);
+            RightsReturnObject allowed = super.isAllowedInternalForFedoraDocuments(actionName, pid, stream, path, user);
+
+            currentThreadReturnObject.set(allowed);
+
+            return allowed;
         }
 
     }

@@ -82,7 +82,6 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
             RightsReturnObject[] paths = new RightsReturnObject[path.getLength()];
             for (int i = 0; i < paths.length; i++) {
                 paths[0] = new RightsReturnObject(null, EvaluatingResultState.FALSE);
-
             }
             return paths;
         }

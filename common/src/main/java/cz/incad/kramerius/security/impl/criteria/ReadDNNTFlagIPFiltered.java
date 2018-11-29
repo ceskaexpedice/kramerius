@@ -3,6 +3,7 @@ package cz.incad.kramerius.security.impl.criteria;
 import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.*;
 
 import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -26,26 +27,20 @@ public class ReadDNNTFlagIPFiltered extends AbstractCriterium {
 
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {
-        Thread.dumpStack();
-
-        EvaluatingResultState state = checkDnnt(getEvaluateContext());
         String pid = getEvaluateContext().getRequestedPid();
-        if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
-            if (state == EvaluatingResultState.TRUE) {
-                EvaluatingResultState result = matchIPAddresses(super.getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
-                if(result.equals(EvaluatingResultState.TRUE)) {
-                    try {
-                        logDnntAccess(getEvaluateContext());
-                    } catch (IOException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                        return EvaluatingResultState.FALSE;
+        if (!SpecialObjects.isSpecialObject(pid)) {
+
+                EvaluatingResultState state = checkDnnt(getEvaluateContext());
+                if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
+                    if (state == EvaluatingResultState.TRUE) {
+                        EvaluatingResultState result = matchIPAddresses(super.getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
+                        return result;
+                    } else {
+                        return state;
                     }
-                }
-                return result;
-            } else {
-                return state;
-            }
-        } else return EvaluatingResultState.FALSE;
+                } else return EvaluatingResultState.NOT_APPLICABLE;
+
+        } else return EvaluatingResultState.NOT_APPLICABLE;
     }
 
     @Override

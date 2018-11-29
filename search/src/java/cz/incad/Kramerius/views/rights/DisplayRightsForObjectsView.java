@@ -128,7 +128,7 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
                 ObjectPidsPath[] paths = solrAccess.getPath(pid.toString());
                 
                 for (ObjectPidsPath path : paths) {
-                    path = path.injectRepository().injectCollections(this.collectionGet);
+                    path = path.injectRepository().injectCollections(this.collectionGet, this.fedoraAccess);
                     List<Right> pathRights = new ArrayList<Right>(Arrays.asList(allRights(path)));
                     Map<Integer, Boolean> map = new HashMap<Integer, Boolean>();
                     

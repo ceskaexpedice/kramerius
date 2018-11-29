@@ -61,9 +61,9 @@ public interface SolrAccess {
     public ObjectPidsPath[] getPath(String pid) throws IOException;
 
     /**
-     * Returns all paths disected from given SOLR data
+     * Returns all paths from given Solr data (Ended by datastream if datastream is defined)
      * 
-     * @param datastreamName datastream name
+     * @param datastreamName datastream name  - could be null
      * @param solrDataDoc Parsed SOLR document
      * @return disected path
      * @throws IOException IO error has been occurred
@@ -72,9 +72,9 @@ public interface SolrAccess {
 
 
     /**
-     * Returns all paths disected from given SOLR data
+     * Returns all paths from given Solr data (Ended by datastream if datastream is defined)
      *
-     * @param datastreamName datastream name
+     * @param datastreamName datastream name could be null
      * @param solrDocParentElement Solr hit element
      * @return disected path
      * @throws IOException IO error has been occurred
