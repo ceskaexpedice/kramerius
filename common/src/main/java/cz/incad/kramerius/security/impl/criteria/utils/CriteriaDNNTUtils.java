@@ -1,19 +1,23 @@
 package cz.incad.kramerius.security.impl.criteria.utils;
 
+import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.EvaluatingResultState;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.RightsReturnObject;
+import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.impl.criteria.CriteriaPrecoditionException;
+import cz.incad.kramerius.security.impl.criteria.PDFDNNTFlag;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered;
 import cz.incad.kramerius.utils.solr.SolrUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,23 +38,46 @@ public class CriteriaDNNTUtils {
                                      String remoteAddr,
                                      String username,
                                      String email,
-                                     ObjectPidsPath[] paths) throws IOException {
-
-        StringBuilder builder = new StringBuilder();
-        builder.append(pid).append(',');
-        builder.append(remoteAddr).append(',');
-        builder.append(username).append(',');
-        builder.append(email).append(',');
+                                     ObjectPidsPath[] paths,
+                                     ObjectModelsPath[] mpaths) throws IOException {
 
         LocalDateTime date = LocalDateTime.now();
         String timestamp = date.format(DateTimeFormatter.ISO_DATE_TIME);
-        builder.append(timestamp).append(',');
 
+        JSONObject jObject = new JSONObject();
+
+        jObject.put("pid",pid);
+        jObject.put("remoteAddr",remoteAddr);
+        jObject.put("username",username);
+        jObject.put("email",email);
+        jObject.put("email",email);
+        jObject.put("date",timestamp);
+
+
+        JSONArray pidsArray = new JSONArray();
         for (int i = 0; i < paths.length; i++) {
-            if (i > 0 ) builder.append(',');
-            builder.append(paths[i].toString());
+            pidsArray.put(pathToString(paths[i].getPathFromRootToLeaf()));
         }
-        DNNT_LOGGER.log(Level.INFO, builder.toString());
+        jObject.put("pids_path",pidsArray);
+
+        JSONArray modelsArray = new JSONArray();
+        for (int i = 0; i < mpaths.length; i++) {
+            modelsArray.put(pathToString(mpaths[i].getPathFromRootToLeaf()));
+        }
+        jObject.put("models_path",modelsArray);
+
+        DNNT_LOGGER.log(Level.INFO, jObject.toString());
+    }
+
+    private static String pathToString(String[] pArray) {
+        return Arrays.stream(pArray).reduce("/", (identity, v) -> {
+                    if (!identity.equals("/")) {
+                        return identity + "/" + v;
+                    } else {
+                        return identity + v;
+                    }
+
+                });
     }
 
     public static void logDnntAccess(RightCriteriumContext ctx) throws IOException {
@@ -59,7 +86,9 @@ public class CriteriaDNNTUtils {
                 ctx.getRequestedStream(),
                 ctx.getUser().getLoginname(),
                 ctx.getUser().getEmail(),
-                ctx.getSolrAccess().getPath(ctx.getRequestedPid()));
+                ctx.getSolrAccess().getPath(ctx.getRequestedPid()),
+                ctx.getSolrAccess().getPathOfModels(ctx.getRequestedPid())
+                );
     }
 
     public static EvaluatingResultState checkDnnt(RightCriteriumContext ctx) {
@@ -79,7 +108,7 @@ public class CriteriaDNNTUtils {
         }
     }
 
-    public static boolean checkContainsCriterium(RightsReturnObject obj) {
+    public static boolean checkContainsCriteriumReadDNNT(RightsReturnObject obj) {
         if (obj.getRight().getCriteriumWrapper() != null) {
             if (obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlag.class.getName()) ||
                     obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlagIPFiltered.class.getName())) {
@@ -90,5 +119,16 @@ public class CriteriaDNNTUtils {
     }
 
 
-
+    public static void checkContainsCriteriumPDFDNNT(RightCriteriumContext ctx, RightsManager manager) throws CriteriaPrecoditionException {
+        String[] pids = new String[] {SpecialObjects.REPOSITORY.getPid()};
+        Right[] rights = manager.findRights(pids, SecuredActions.PDF_RESOURCE.getFormalName(), ctx.getUser());
+        for (Right r : rights) {
+            RightCriterium rightCriterium = r.getCriteriumWrapper().getRightCriterium();
+            String qName = rightCriterium.getQName();
+            if (qName.equals(PDFDNNTFlag.class.getName())) {
+                return;
+            }
+        }
+        throw new CriteriaPrecoditionException("The PDF resource must be secured by "+PDFDNNTFlag.class.getName());
+    }
 }

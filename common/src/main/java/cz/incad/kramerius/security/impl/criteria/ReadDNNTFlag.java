@@ -5,8 +5,6 @@ import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.
 
 import cz.incad.kramerius.security.*;
 
-import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 // dnnt pro zobrazeni
@@ -52,7 +50,7 @@ public class ReadDNNTFlag extends AbstractCriterium {
 
     @Override
     public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException {
-
-        super.checkPrecodition(manager);
+        checkContainsCriteriumPDFDNNT(this.evalContext, manager);
     }
+
 }

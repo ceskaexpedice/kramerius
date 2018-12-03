@@ -19,30 +19,25 @@
  */
 package cz.incad.kramerius.statistics.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 
+import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
-import cz.incad.kramerius.security.impl.http.IsActionAllowedFromRequestCached;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.antlr.stringtemplate.StringTemplate;
@@ -117,6 +112,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
     @Override
     public void reportAccess(final String pid, final String streamName) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectModelsPath[] mpaths = this.solrAccess.getPathOfModels(pid);
 
         Connection connection = null;
         try {
@@ -126,7 +122,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
 
             // REPORT DNNT
             if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
-                reportDNNT(pid, paths, userProvider.get());
+                reportDNNT(pid, paths, mpaths, userProvider.get());
             }
 
             List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
@@ -176,16 +172,17 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         }
     }
 
-    private void reportDNNT(String pid, ObjectPidsPath[] paths, User user) throws IOException {
+    private void reportDNNT(String pid, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths, User user) throws IOException {
         RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
         if (rightsReturnObject == null)  return;
-        if (CriteriaDNNTUtils.checkContainsCriterium(rightsReturnObject)) {
+        if (CriteriaDNNTUtils.checkContainsCriteriumReadDNNT(rightsReturnObject)) {
             CriteriaDNNTUtils.logDnntAccess(pid,
                     null,
                     IPAddressUtils.getRemoteAddress(requestProvider.get(), KConfiguration.getInstance().getConfiguration()),
                     user!= null ? user.getLoginname() : null,
                     user != null ? user.getEmail(): null,
-                    paths
+                    paths,
+                    mpaths
             );
         }
     }

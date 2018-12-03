@@ -44,6 +44,12 @@ public class ReadDNNTFlagIPFiltered extends AbstractCriterium {
     }
 
     @Override
+    public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException {
+        checkContainsCriteriumPDFDNNT(this.evalContext, manager);
+    }
+
+
+    @Override
     public SecuredActions[] getApplicableActions() {
         return new SecuredActions[]{SecuredActions.READ};
     }

@@ -247,7 +247,7 @@ public class DatabaseRightsManager implements RightsManager {
         findRights = SortingRightsUtils.sortRights(findRights, processPath);
         for (Right right : findRights) {
             ctx.setAssociatedPid(right.getPid());
-            EvaluatingResultState result = right.evaluate(ctx);
+            EvaluatingResultState result = right.evaluate(ctx, this);
             ctx.setAssociatedPid(null);
             if (result != EvaluatingResultState.NOT_APPLICABLE)
                 return new RightsReturnObject(right, result);
@@ -273,7 +273,7 @@ public class DatabaseRightsManager implements RightsManager {
                 boolean inTheRestOfPath = restPath.contains(right.getPid());
                 if (thisPid || inTheRestOfPath) {
                     ctx.setAssociatedPid(right.getPid());
-                    EvaluatingResultState iresult = right.evaluate(ctx);
+                    EvaluatingResultState iresult = right.evaluate(ctx, this);
                     ctx.setAssociatedPid(null);
                     if (iresult != EvaluatingResultState.NOT_APPLICABLE) {
                         //result = iresult;

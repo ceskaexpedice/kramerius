@@ -17,10 +17,15 @@
 package cz.incad.kramerius.security.impl;
 
 import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.impl.criteria.CriteriaPrecoditionException;
 
 import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RightImpl implements Right, Serializable {
+
+    private static final Logger LOGGER = Logger.getLogger(RightImpl.class.getName());
 
     private static final long serialVersionUID = 1L;
 
@@ -100,13 +105,21 @@ public class RightImpl implements Right, Serializable {
 
 
     @Override 
-    public synchronized EvaluatingResultState evaluate(RightCriteriumContext ctx) throws RightCriteriumException {
+    public synchronized EvaluatingResultState evaluate(RightCriteriumContext ctx, RightsManager rightsManager) throws RightCriteriumException {
         if (this.crit != null){
             RightCriterium rCrit = this.crit.getRightCriterium();
             rCrit.setEvaluateContext(ctx);
             if (this.crit.getCriteriumParams() != null) {
                 rCrit.setCriteriumParamValues(this.crit.getCriteriumParams().getObjects());
             }
+
+            try {
+                // precondition
+                rCrit.checkPrecodition(rightsManager);
+            } catch (CriteriaPrecoditionException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            }
+
             EvaluatingResultState result = rCrit.evalute();
             rCrit.setEvaluateContext(null);
             rCrit.setCriteriumParamValues(new Object[] {});

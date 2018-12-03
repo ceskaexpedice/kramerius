@@ -3,7 +3,6 @@ package cz.incad.kramerius.security.impl.criteria;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
-import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
 import java.io.IOException;
@@ -28,7 +27,7 @@ public class PDFDNNTFlag extends AbstractCriterium {
                     ObjectPidsPath[] paths = this.getEvaluateContext().getSolrAccess().getPath(requestedPid);
                     for (ObjectPidsPath path : paths) {
                         RightsReturnObject obj = rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), requestedPid, null, path);
-                        if (CriteriaDNNTUtils.checkContainsCriterium(obj)) return EvaluatingResultState.FALSE;
+                        if (CriteriaDNNTUtils.checkContainsCriteriumReadDNNT(obj)) return EvaluatingResultState.FALSE;
                     }
                 }
             }

@@ -88,7 +88,7 @@ public interface Right {
      * @return
      * @throws RightCriteriumException
      */
-    public EvaluatingResultState evaluate(RightCriteriumContext ctx) throws RightCriteriumException;
+    public EvaluatingResultState evaluate(RightCriteriumContext ctx, RightsManager rightsManager) throws RightCriteriumException;
     
     
     /**

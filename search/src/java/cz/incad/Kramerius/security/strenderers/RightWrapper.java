@@ -20,13 +20,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.EvaluatingResultState;
-import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -100,7 +94,7 @@ public class RightWrapper implements Right{
     }
     
 
-    public EvaluatingResultState evaluate(RightCriteriumContext ctx) throws RightCriteriumException {
+    public EvaluatingResultState evaluate(RightCriteriumContext ctx, RightsManager rightsManager) throws RightCriteriumException {
         throw new IllegalStateException();
     }
     
