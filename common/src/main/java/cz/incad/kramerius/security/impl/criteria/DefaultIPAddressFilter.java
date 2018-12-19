@@ -34,7 +34,7 @@ import cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtils;
  */
 public class DefaultIPAddressFilter extends AbstractIPAddressFilter implements RightCriterium {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DefaultIPAddressFilter.class.getName());
+    static transient java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DefaultIPAddressFilter.class.getName());
 
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {

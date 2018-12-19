@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 public class PDFDNNTFlag extends AbstractCriterium {
 
-    public static final Logger LOGGER = Logger.getLogger(ReadDNNTFlag.class.getName());
+    public transient  static final Logger LOGGER = Logger.getLogger(ReadDNNTFlag.class.getName());
 
 
     @Override

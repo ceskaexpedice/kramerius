@@ -24,7 +24,7 @@ import cz.incad.kramerius.security.RightCriteriumException;
 
 public class DefaultDomainFilter extends AbstractDomainFilter  {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DefaultIPAddressFilter.class.getName());
+    static transient java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DefaultIPAddressFilter.class.getName());
 
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {

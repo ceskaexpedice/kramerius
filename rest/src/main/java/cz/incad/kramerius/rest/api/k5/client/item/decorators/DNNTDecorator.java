@@ -84,7 +84,7 @@ public class DNNTDecorator extends AbstractItemDecorator {
                                             ObjectPidsPath[] paths = solrAccess.getPath(null, optional.get());
                                             for (ObjectPidsPath p : paths) {
                                                 RightsReturnObject actionAllowed = isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
-                                                if (actionAllowed.getRight().getCriteriumWrapper() != null) {
+                                                if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
                                                     String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
                                                     if (qName.equals(ReadDNNTFlag.class.getName()) ||
                                                             qName.equals(ReadDNNTFlagIPFiltered.class.getName())) {

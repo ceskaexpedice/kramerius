@@ -13,7 +13,7 @@ import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtil
 
 public class ReadDNNTFlagIPFiltered extends AbstractCriterium {
 
-    public static final Logger LOGGER = Logger.getLogger(ReadDNNTFlagIPFiltered.class.getName());
+    public transient  static final Logger LOGGER = Logger.getLogger(ReadDNNTFlagIPFiltered.class.getName());
 
     @Override
     public RightCriteriumPriorityHint getPriorityHint() {

@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 // dnnt pro zobrazeni
 public class ReadDNNTFlag extends AbstractCriterium {
 
-    public static final Logger LOGGER = Logger.getLogger(ReadDNNTFlag.class.getName());
+    public transient static final Logger LOGGER = Logger.getLogger(ReadDNNTFlag.class.getName());
 
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {

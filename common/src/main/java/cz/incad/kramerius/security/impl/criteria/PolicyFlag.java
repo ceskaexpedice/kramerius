@@ -32,14 +32,16 @@ import cz.incad.kramerius.security.SecuredActions;
  */
 public class PolicyFlag extends AbstractRELSExtCriterium {
 
-    java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PolicyFlag.class.getName());
+    static transient java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PolicyFlag.class.getName());
     
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {
         String path = "//kramerius:policy/text()";
         String expectedValue = "policy:private";
-        return CriteriaRELSEXTUtils.evaluateState(getEvaluateContext(), path, expectedValue);
-
+        EvaluatingResultState rState = CriteriaRELSEXTUtils.evaluateState(getEvaluateContext(), path, expectedValue);
+        // false must be remmaped to NOT_APPLICABLE
+        if (rState.equals(EvaluatingResultState.FALSE)) return EvaluatingResultState.NOT_APPLICABLE;
+        else return rState;
     }
 
     @Override

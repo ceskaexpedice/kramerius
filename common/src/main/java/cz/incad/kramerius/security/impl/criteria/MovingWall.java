@@ -59,7 +59,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued[@encoding='marc']/text()","//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()","//mods:part/mods:date/text()"};
 
     
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
+    static transient java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
 
 
     private XPathFactory xpfactory;
