@@ -50,12 +50,12 @@ public class MigrationUtils {
             "datum_str datum rok datum_begin datum_end datum_page issn mdt ddt dostupnost keywords " +
             "geographic_names collection sec model_path pid_path rels_ext_index level dc.title title_sort " +
             "title_sort dc.creator dc.identifier language dc.description details facet_title browse_title browse_autor img_full_mime viewable " +
-            "virtual location range mods.shelfLocator mods.physicalLocation text";
+            "virtual location range mods.shelfLocator mods.physicalLocation text dnnt";
 
     public static final String DEFAULT_SORT_FIELD = "PID asc";
 
 
-    public static final int DEFAULT_NUMBER_OF_ROWS = 500;
+    public static final int DEFAULT_NUMBER_OF_ROWS = 10;
     public static final int DEFAULT_NUMBER_OF_THREADS = 2;
     public static final int DEFAULT_BATCHSIZE = 10;
     public static final int START = 0;
@@ -222,30 +222,16 @@ public class MigrationUtils {
         });
         String fieldlist = KConfiguration.getInstance().getConfiguration().getString(SOLR_MIGRATION_FIELD_LIST_KEY, DEFAULT_FIELDLIST);
         String query =  SELECT_ENDPOINT + "?q=PID:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8");
-        return executeQuery(client, url, query);
+        return IterationUtils.executeQuery(client, url, query);
     }
 
-    public static Element pidsQueryFilterQuery(Client client, String url, String lastPid)
-            throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
+
+    public static Element pidsCursorQuery(Client client, String url, String mq,  String cursor)  throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
         int rows = MigrationUtils.configuredRowsSize();
-        String query = SELECT_ENDPOINT + "?q=*:*" + (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *]", "UTF-8")) : String.format("&rows=%d", rows))+"&sort=" + URLEncoder.encode(DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID";
-        return executeQuery(client, url, query);
+        String query = SELECT_ENDPOINT + "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID";
+        return IterationUtils.executeQuery(client, url, query);
     }
 
-    public static Element pidsCursorQuery(Client client, String url,  String cursor)  throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
-        int rows = MigrationUtils.configuredRowsSize();
-        String query = SELECT_ENDPOINT + "?q=*:*" + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID";
-        return executeQuery(client, url, query);
-    }
-
-
-    private static Element executeQuery(Client client, String url, String query) throws ParserConfigurationException, SAXException, IOException {
-        LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] processing %s", query));
-        WebResource r = client.resource(url+(url.endsWith("/") ? "" : "/")+ query);
-        String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
-        Document parseDocument = XMLUtils.parseDocument(new StringReader(t));
-        return parseDocument.getDocumentElement();
-    }
 
     public static String findCursorMark(Element elm) {
         Element element = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {

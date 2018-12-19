@@ -109,7 +109,7 @@ public class CriteriaDNNTUtils {
     }
 
     public static boolean checkContainsCriteriumReadDNNT(RightsReturnObject obj) {
-        if (obj.getRight().getCriteriumWrapper() != null) {
+        if (obj.getRight() != null && obj.getRight().getCriteriumWrapper() != null && obj.getRight().getCriteriumWrapper() != null) {
             if (obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlag.class.getName()) ||
                     obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlagIPFiltered.class.getName())) {
                 return true;
@@ -123,6 +123,8 @@ public class CriteriaDNNTUtils {
         String[] pids = new String[] {SpecialObjects.REPOSITORY.getPid()};
         Right[] rights = manager.findRights(pids, SecuredActions.PDF_RESOURCE.getFormalName(), ctx.getUser());
         for (Right r : rights) {
+            if (r == null) continue;
+            if (r.getCriteriumWrapper() == null) continue;
             RightCriterium rightCriterium = r.getCriteriumWrapper().getRightCriterium();
             String qName = rightCriterium.getQName();
             if (qName.equals(PDFDNNTFlag.class.getName())) {

@@ -5,5 +5,9 @@ dependencies {
     compile project(':fedora-api')
     compile project(':common') 
     compile project(':indexer') 
-   
+    compile project(':solr-migration')
+
+
+
+    compile "org.apache.commons:commons-csv:1.6"
 }

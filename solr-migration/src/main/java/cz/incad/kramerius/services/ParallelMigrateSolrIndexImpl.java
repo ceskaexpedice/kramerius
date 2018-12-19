@@ -32,45 +32,6 @@ public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
         //this.service = Executors.newFixedThreadPool(MigrationUtils.configuredNumberOfThreads());
     }
 
-    private void migrateUseQueryFilter(String address) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException, BrokenBarrierException, InterruptedException {
-        List<SolrWorker>  worksWhatHasToBeDone = new ArrayList<>();
-        String lastPid = null;
-        String previousPid = null;
-        do {
-           Element element = MigrationUtils.pidsQueryFilterQuery(client, address,  lastPid);
-            previousPid = lastPid;
-            lastPid = MigrationUtils.findLastPid(element);
-            worksWhatHasToBeDone.add(new SolrWorker(this.client, MigrationUtils.findAllPids(element)));
-            if (worksWhatHasToBeDone.size() >= MigrationUtils.configuredNumberOfThreads()) {
-                startWorkers(worksWhatHasToBeDone);
-                worksWhatHasToBeDone.clear();
-            }
-        }while(lastPid != null  && !lastPid.equals(previousPid));
-        if (!worksWhatHasToBeDone.isEmpty()) {
-            startWorkers(worksWhatHasToBeDone);
-        }
-    }
-
-    private void migrateUseCursorMark(String address) throws ParserConfigurationException, MigrateSolrIndexException, SAXException, IOException, InterruptedException, BrokenBarrierException {
-        List<SolrWorker>  worksWhatHasToBeDone = new ArrayList<>();
-        String cursorMark = null;
-        String queryCursorMark = null;
-        do {
-            Element element = MigrationUtils.pidsCursorQuery(client, address, cursorMark);
-            cursorMark = MigrationUtils.findCursorMark(element);
-            queryCursorMark = MigrationUtils.findQueryCursorMark(element);
-            worksWhatHasToBeDone.add(new SolrWorker(this.client, MigrationUtils.findAllPids(element)));
-            if (worksWhatHasToBeDone.size() >= MigrationUtils.configuredNumberOfThreads()) {
-                startWorkers(worksWhatHasToBeDone);
-                worksWhatHasToBeDone.clear();
-            }
-        } while((cursorMark != null && queryCursorMark != null) && !cursorMark.equals(queryCursorMark));
-
-        if (!worksWhatHasToBeDone.isEmpty()) {
-            startWorkers(worksWhatHasToBeDone);
-        }
-    }
-
     private void startWorkers(List<SolrWorker> worksWhasHasToBeDone) throws BrokenBarrierException, InterruptedException {
         CyclicBarrier barrier = new CyclicBarrier(worksWhasHasToBeDone.size()+1);
         worksWhasHasToBeDone.stream().forEach(th->{
@@ -82,12 +43,64 @@ public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
 
     @Override
     public void migrate() throws MigrateSolrIndexException {
+        final List<SolrWorker>  worksWhatHasToBeDone = new ArrayList<>();
+        final String masterQuery = "*:*";
         long start = System.currentTimeMillis();
         try {
             if (MigrationUtils.configuredUseCursor()) {
-                this.migrateUseCursorMark(MigrationUtils.configuredSourceServer());
+                IterationUtils.cursorIteration(client,MigrationUtils.configuredSourceServer(),masterQuery,(element, t) ->{
+                    try {
+                        worksWhatHasToBeDone.add(new SolrWorker(this.client, MigrationUtils.findAllPids(element)));
+                        if (worksWhatHasToBeDone.size() >= MigrationUtils.configuredNumberOfThreads()) {
+                            startWorkers(worksWhatHasToBeDone);
+                            worksWhatHasToBeDone.clear();
+                        }
+                    } catch (MigrateSolrIndexException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    } catch (BrokenBarrierException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    } catch (InterruptedException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
+                }, ()-> {
+                    try {
+                        if (!worksWhatHasToBeDone.isEmpty()) {
+                            startWorkers(worksWhatHasToBeDone);
+                        }
+                    } catch (BrokenBarrierException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    } catch (InterruptedException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
+                });
             } else {
-                this.migrateUseQueryFilter(MigrationUtils.configuredSourceServer());
+                IterationUtils.queryFilterIteration(this.client,MigrationUtils.configuredSourceServer(),masterQuery, (element, t) ->{
+                    try {
+                        worksWhatHasToBeDone.add(new SolrWorker(client, MigrationUtils.findAllPids(element)));
+                        if (worksWhatHasToBeDone.size() >= MigrationUtils.configuredNumberOfThreads()) {
+                            startWorkers(worksWhatHasToBeDone);
+                            worksWhatHasToBeDone.clear();
+                        }
+                    } catch (MigrateSolrIndexException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    } catch (BrokenBarrierException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    } catch (InterruptedException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
+                }, ()-> {
+                    try {
+                        if (!worksWhatHasToBeDone.isEmpty()) {
+                            startWorkers(worksWhatHasToBeDone);
+                        }
+                    } catch (BrokenBarrierException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    } catch (InterruptedException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
+
+                });
+                //this.migrateUseQueryFilter(MigrationUtils.configuredSourceServer(),"*:*");
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
