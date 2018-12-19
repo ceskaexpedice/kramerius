@@ -20,11 +20,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -58,6 +55,9 @@ public class ClientUserResource {
 
     @Inject
     UserManager userManager;
+
+    @Inject
+    Provider<HttpServletRequest> provider;
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -105,6 +105,14 @@ public class ClientUserResource {
         } catch (JSONException e) {
             throw new GenericApplicationException(e.getMessage());
         }
+    }
+
+    @GET
+    @Path("logout")
+    public Response logout() {
+        HttpServletRequest httpServletRequest = this.provider.get();
+        httpServletRequest.getSession().invalidate();
+        return Response.ok().entity("{}").build();
     }
 
     @GET
