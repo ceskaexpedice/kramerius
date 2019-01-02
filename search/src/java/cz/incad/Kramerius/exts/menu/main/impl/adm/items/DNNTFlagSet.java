@@ -16,7 +16,7 @@ public class DNNTFlagSet extends AbstractMainMenuItem implements AdminMenuItem {
     @Override
     public String getRenderedItem() throws IOException {
         return renderMainMenuItem(
-                "javascript:parametrizedProcess.open('dnntset'); javascript:hideAdminMenu();",
+                "javascript:dnntFlagSet(); javascript:hideAdminMenu();",
                 "administrator.menu.dialogs.dnnt.title", false);
     }
 
