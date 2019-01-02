@@ -41,7 +41,8 @@ public class DNNTWorker implements Runnable {
     public void run() {
 
         try {
-            String masterQuery = URLEncoder.encode("root_pid:\""+this.parentPid+"\"","UTF-8");
+            String q = KConfiguration.getInstance().getConfiguration().getString("root_pid:\""+this.parentPid+"\"", DNNTFlag.DNNT_QUERY);
+            String masterQuery = URLEncoder.encode(q,"UTF-8");
             setDNNTFlag(fedoraAccess, this.parentPid);
             List<String> all = new ArrayList<>();
             if (configuredUseCursor()) {

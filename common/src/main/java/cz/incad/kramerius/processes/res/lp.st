@@ -503,5 +503,13 @@
         <securedaction>reindex</securedaction>
     </process>
 
+    <process>
+        <id>dnntset</id>
+        <description>Change DNNT flag</description>
+        <mainClass>cz.incad.kramerius.DNNTFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>reindex</securedaction>
+    </process>
 
 </processes>

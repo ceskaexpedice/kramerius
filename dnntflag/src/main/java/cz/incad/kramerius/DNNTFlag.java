@@ -29,6 +29,7 @@ public class DNNTFlag {
     public static final String DNNT_THREADS = "dnnt.threads";
 
     public static final String DNNT_MODE = "dnnt.solr.mode";
+    public static final String DNNT_QUERY = "dnnt.solr.query";
 
     private Client client;
 
