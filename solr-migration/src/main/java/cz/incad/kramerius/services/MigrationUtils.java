@@ -55,7 +55,7 @@ public class MigrationUtils {
     public static final String DEFAULT_SORT_FIELD = "PID asc";
 
 
-    public static final int DEFAULT_NUMBER_OF_ROWS = 10;
+    public static final int DEFAULT_NUMBER_OF_ROWS = 100;
     public static final int DEFAULT_NUMBER_OF_THREADS = 2;
     public static final int DEFAULT_BATCHSIZE = 10;
     public static final int START = 0;

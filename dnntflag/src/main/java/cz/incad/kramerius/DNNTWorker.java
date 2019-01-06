@@ -19,7 +19,9 @@ import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,16 +43,15 @@ public class DNNTWorker implements Runnable {
     public void run() {
 
         try {
-            String q = KConfiguration.getInstance().getConfiguration().getString("root_pid:\""+this.parentPid+"\"", DNNTFlag.DNNT_QUERY);
+            String q = KConfiguration.getInstance().getConfiguration().getString( DNNTFlag.DNNT_QUERY,"root_pid:\""+this.parentPid+"\" -dnnt:[* TO *]");
             String masterQuery = URLEncoder.encode(q,"UTF-8");
             setDNNTFlag(fedoraAccess, this.parentPid);
-            List<String> all = new ArrayList<>();
+            Set<String> allSet = new HashSet<>();
             if (configuredUseCursor()) {
                 try {
                     IterationUtils.cursorIteration(client, MigrationUtils.configuredSourceServer(),masterQuery,(em, i) -> {
                         List<String> pp = MigrationUtils.findAllPids(em);
-                        System.out.println(pp);
-                        all.addAll(pp);
+                        allSet.addAll(pp);
                     }, ()->{});
                 } catch (ParserConfigurationException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -71,8 +72,7 @@ public class DNNTWorker implements Runnable {
                 try {
                     IterationUtils.queryFilterIteration(client, MigrationUtils.configuredSourceServer(),masterQuery,(em, i) -> {
                         List<String> pp = MigrationUtils.findAllPids(em);
-                        System.out.println(pp);
-                        all.addAll(pp);
+                        allSet.addAll(pp);
                     }, ()->{});
                 } catch (MigrateSolrIndexException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -89,6 +89,7 @@ public class DNNTWorker implements Runnable {
                 }
             }
 
+            List<String> all = new ArrayList<>(allSet);
             int batchSize = KConfiguration.getInstance().getConfiguration().getInt(".dnnt.solr.batchsize", 100);
             int numberOfBatches = all.size() / batchSize;
             if (all.size() % batchSize > 0) {
@@ -136,12 +137,13 @@ public class DNNTWorker implements Runnable {
     public static void commit(Client client) {
         String shost = updateUrl()+"?commit=true";
         WebResource r = client.resource(shost);
-        ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).post(ClientResponse.class);
+        ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).get(ClientResponse.class);
     }
 
     public static void sendToDest(Client client, Document batchDoc) {
         try {
             StringWriter writer = new StringWriter();
+            XMLUtils.print(batchDoc, writer);
             String shost = updateUrl();
             WebResource r = client.resource(shost);
             ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
@@ -149,12 +151,15 @@ public class DNNTWorker implements Runnable {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 InputStream entityInputStream = resp.getEntityInputStream();
                 IOUtils.copyStreams(entityInputStream, bos);
+                LOGGER.log(Level.SEVERE, new String(bos.toByteArray()));
             }
         } catch (UniformInterfaceException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (ClientHandlerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (TransformerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }

@@ -56,6 +56,8 @@ public class DNNTFlag {
                 String pid = record.get(pidcolumn);
                 executor.submit(new DNNTWorker(pid, fedoraAccess, client));
             }
+            executor.shutdown();
+
         } else throw new IOException("not exist or cannot read from "+f.getAbsolutePath());
 
     }

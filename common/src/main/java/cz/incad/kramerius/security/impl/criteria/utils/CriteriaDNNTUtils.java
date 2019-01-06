@@ -35,6 +35,8 @@ public class CriteriaDNNTUtils {
 
     public static void logDnntAccess(String pid,
                                      String stream,
+                                     String rootTitle,
+                                     String dcTitle,
                                      String remoteAddr,
                                      String username,
                                      String email,
@@ -50,7 +52,10 @@ public class CriteriaDNNTUtils {
         jObject.put("remoteAddr",remoteAddr);
         jObject.put("username",username);
         jObject.put("email",email);
-        jObject.put("email",email);
+
+        jObject.put("rootTitle",rootTitle);
+        jObject.put("dcTitle",dcTitle);
+
         jObject.put("date",timestamp);
 
 
@@ -66,6 +71,20 @@ public class CriteriaDNNTUtils {
         }
         jObject.put("models_path",modelsArray);
 
+        if (paths.length > 0) {
+            String[] pathFromRootToLeaf = paths[0].getPathFromRootToLeaf();
+            if (pathFromRootToLeaf.length > 0) {
+                jObject.put("rootPid",pathFromRootToLeaf[0]);
+            }
+        }
+
+        if (mpaths.length > 0) {
+            String[] mpathFromRootToLeaf = mpaths[0].getPathFromRootToLeaf();
+            if (mpathFromRootToLeaf.length > 0) {
+                jObject.put("rootModel",mpathFromRootToLeaf[0]);
+            }
+        }
+
         DNNT_LOGGER.log(Level.INFO, jObject.toString());
     }
 
@@ -76,20 +95,20 @@ public class CriteriaDNNTUtils {
                     } else {
                         return identity + v;
                     }
-
                 });
     }
 
-    public static void logDnntAccess(RightCriteriumContext ctx) throws IOException {
-        logDnntAccess(ctx.getRequestedPid(),
-                ctx.getRemoteAddr(),
-                ctx.getRequestedStream(),
-                ctx.getUser().getLoginname(),
-                ctx.getUser().getEmail(),
-                ctx.getSolrAccess().getPath(ctx.getRequestedPid()),
-                ctx.getSolrAccess().getPathOfModels(ctx.getRequestedPid())
-                );
-    }
+
+//    public static void logDnntAccess(RightCriteriumContext ctx) throws IOException {
+//        logDnntAccess(ctx.getRequestedPid(),
+//                ctx.getRemoteAddr(),
+//                ctx.getRequestedStream(),
+//                ctx.getUser().getLoginname(),
+//                ctx.getUser().getEmail(),
+//                ctx.getSolrAccess().getPath(ctx.getRequestedPid()),
+//                ctx.getSolrAccess().getPathOfModels(ctx.getRequestedPid())
+//                );
+//    }
 
     public static EvaluatingResultState checkDnnt(RightCriteriumContext ctx) {
         try {

@@ -39,6 +39,8 @@ import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
 import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -66,6 +68,7 @@ import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
+import org.w3c.dom.Element;
 
 /**
  * @author pavels
@@ -120,10 +123,17 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
             if (connection == null)
                 throw new NotReadyException("connection not ready");
 
+
+            Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+            String rootTitle  = titleElement("str", "root_title", solrDoc);
+            String dctitle = titleElement("str", "dc.title", solrDoc);
+
             // REPORT DNNT
             if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
-                reportDNNT(pid, paths, mpaths, userProvider.get());
+                reportDNNT(pid,rootTitle,dctitle, paths, mpaths, userProvider.get());
             }
+
+
 
             List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
             commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get()));
@@ -172,12 +182,25 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         }
     }
 
-    private void reportDNNT(String pid, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths, User user) throws IOException {
+    private String titleElement(String type, String attrVal, Document solrDoc) {
+        Element titleElm = XMLUtils.findElement(solrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                String nodeName = element.getNodeName();
+                String attr = element.getAttribute("name");
+                if (nodeName.equals(type) && StringUtils.isAnyString(attr) && attr.equals(attrVal)) return true;
+                return false;
+            }
+        });
+        return titleElm != null ? titleElm.getTextContent() : null;
+    }
+
+    private void reportDNNT(String pid, String rootTitle, String dcTitle, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths, User user) throws IOException {
         RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
         if (rightsReturnObject == null)  return;
         if (CriteriaDNNTUtils.checkContainsCriteriumReadDNNT(rightsReturnObject)) {
             CriteriaDNNTUtils.logDnntAccess(pid,
-                    null,
+                    null,rootTitle,dcTitle,
                     IPAddressUtils.getRemoteAddress(requestProvider.get(), KConfiguration.getInstance().getConfiguration()),
                     user!= null ? user.getLoginname() : null,
                     user != null ? user.getEmail(): null,
