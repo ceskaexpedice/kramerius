@@ -1,18 +1,17 @@
-# The # character at the beginning of a line indicates a comment. Use
-# comments to describe your configuration.
+
 input {
 	file {
-        	path => ["${FEDORA_HOME}/tomcat/logs/statistics.*"]
-        	sincedb_path => "${FEDORA_HOME}/tomcat/syncdb.txt"
-	        start_position => "beginning"
+                path => ["${FEDORA_HOME}/tomcat/logs/statistics.*"]
+                sincedb_path => "${FEDORA_HOME}/tomcat/syncdb.txt"
+                start_position => "beginning"
     }
 }
 
 filter {
 
     grok {
-		match => ["message", "%{NUMBER:id}%{SPACE}I access%{SPACE}%{GREEDYDATA:json}"]
-	}
+                match => ["message", "%{NUMBER:id}%{SPACE}I access%{SPACE}%{GREEDYDATA:json}"]
+    }
         
     json {
         source => "json"
