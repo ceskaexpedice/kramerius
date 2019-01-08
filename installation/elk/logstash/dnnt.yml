@@ -2,8 +2,8 @@
 # comments to describe your configuration.
 input {
 	file {
-        	path => ["c:/Users/pavel.stastny/Programs/fedora3/tomcat/logs/statistics.*"]
-        	sincedb_path => "c:/Users/pavel.stastny/Programs/logstash-6.1.3/syncdb.txt"
+        	path => ["${FEDORA_HOME}/tomcat/logs/statistics.*"]
+        	sincedb_path => "${FEDORA_HOME}/tomcat/syncdb.txt"
 	        start_position => "beginning"
     }
 }
