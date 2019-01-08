@@ -1,0 +1,25 @@
+# The # character at the beginning of a line indicates a comment. Use
+# comments to describe your configuration.
+input {
+	file {
+        	path => ["c:/Users/pavel.stastny/Programs/fedora3/tomcat/logs/statistics.*"]
+        	sincedb_path => "c:/Users/pavel.stastny/Programs/logstash-6.1.3/syncdb.txt"
+	        start_position => "beginning"
+    }
+}
+
+filter {
+
+    grok {
+		match => ["message", "%{NUMBER:id}%{SPACE}I access%{SPACE}%{GREEDYDATA:json}"]
+	}
+        
+    json {
+        source => "json"
+    }
+}
+
+output {
+    stdout { codec => rubydebug }
+    elasticsearch {}
+}
