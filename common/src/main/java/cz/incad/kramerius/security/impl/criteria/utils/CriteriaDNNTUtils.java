@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class CriteriaDNNTUtils {
 
@@ -139,6 +141,11 @@ public class CriteriaDNNTUtils {
 
 
     public static void checkContainsCriteriumPDFDNNT(RightCriteriumContext ctx, RightsManager manager) throws CriteriaPrecoditionException {
+        //PDFDNNTFlag.class.getName()
+        checkContainsCriterium(ctx, manager, PDFDNNTFlag.class);
+    }
+
+    public static void checkContainsCriterium(RightCriteriumContext ctx, RightsManager manager, Class ... clzs) throws CriteriaPrecoditionException {
         String[] pids = new String[] {SpecialObjects.REPOSITORY.getPid()};
         Right[] rights = manager.findRights(pids, SecuredActions.PDF_RESOURCE.getFormalName(), ctx.getUser());
         for (Right r : rights) {
@@ -146,10 +153,18 @@ public class CriteriaDNNTUtils {
             if (r.getCriteriumWrapper() == null) continue;
             RightCriterium rightCriterium = r.getCriteriumWrapper().getRightCriterium();
             String qName = rightCriterium.getQName();
-            if (qName.equals(PDFDNNTFlag.class.getName())) {
-                return;
+            for (Class clz:clzs) {
+                if (qName.equals(clz.getName())) {
+                    return;
+                }
             }
         }
-        throw new CriteriaPrecoditionException("The PDF resource must be secured by "+PDFDNNTFlag.class.getName());
+        List<String> collections = Arrays.stream(clzs).map(s -> s.getName()).collect(Collectors.toList());
+        throw new CriteriaPrecoditionException("These flags are not set : "+collections);
     }
+
+    public static void checkContainsCriteriumReadDNNT(RightCriteriumContext ctx, RightsManager manager) throws CriteriaPrecoditionException {
+        checkContainsCriterium(ctx, manager, PDFDNNTFlag.class);
+    }
+
 }

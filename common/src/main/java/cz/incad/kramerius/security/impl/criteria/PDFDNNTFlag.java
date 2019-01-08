@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.checkContainsCriteriumPDFDNNT;
+import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.checkContainsCriteriumReadDNNT;
+
 public class PDFDNNTFlag extends AbstractCriterium {
 
     public transient  static final Logger LOGGER = Logger.getLogger(ReadDNNTFlag.class.getName());
@@ -59,4 +62,8 @@ public class PDFDNNTFlag extends AbstractCriterium {
         return true;
     }
 
+    @Override
+    public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException {
+        checkContainsCriteriumReadDNNT(this.evalContext, manager);
+    }
 }
