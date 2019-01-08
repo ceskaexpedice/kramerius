@@ -1,0 +1,38 @@
+{
+  "index_patterns": [
+    "logstash*"
+  ],
+  "settings": {
+    "number_of_shards": 1,
+    "analysis": {
+      "analyzer": {
+        "path_analyzer": {
+          "tokenizer": "path_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "path_tokenizer": {
+          "type": "path_hierarchy"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "doc": {
+      "properties": {
+        "pids_path": {
+          "type": "text",
+          "store": true,
+          "fielddata": true,
+          "analyzer": "path_analyzer"
+        },
+        "models_path": {
+          "type": "text",
+          "store": true,
+          "fielddata": true,
+          "analyzer": "path_analyzer"
+        }
+      }
+    }
+  }
+}
