@@ -1,6 +1,6 @@
 
 input {
-	file {
+        file {
                 path => ["${FEDORA_HOME}/tomcat/logs/statistics.*"]
                 sincedb_path => "${FEDORA_HOME}/tomcat/syncdb.txt"
                 start_position => "beginning"
