@@ -227,6 +227,16 @@ task distZip(type: Zip, dependsOn: 'zipInstallDir') {
         it.path = it.path.replace('-5.1.0.war', '.war')
     }
 }
+
+task distZipWOEditors(type: Zip, dependsOn: 'zipInstallDir') {
+    description "Create  distributions zip without editors"
+    baseName "kramerius"
+    group "Distribution"
+    from { 'search/build/libs' }
+    from { 'security-core/build/libs' }
+    from { 'build/installation' }
+}
+
 /**
  * Patch distribution task
  */
