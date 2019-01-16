@@ -16,10 +16,9 @@
  */
 package cz.incad.kramerius.security.impl.criteria;
 
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.SecuredActions;
@@ -33,12 +32,12 @@ import cz.incad.kramerius.security.UserManager;
 public class Abonents extends AbstractCriterium implements RightCriterium {
 
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute() throws RightCriteriumException {
         Object[] groups = this.getCriteriumParamValues();
         for (Object oneGroup : groups) {
-            if (isUserInGroup(oneGroup.toString())) return EvaluatingResult.TRUE;
+            if (isUserInGroup(oneGroup.toString())) return EvaluatingResultState.TRUE;
         }
-        return EvaluatingResult.FALSE;
+        return EvaluatingResultState.FALSE;
     }
 
     private boolean isUserInGroup(String expectedGroup) {

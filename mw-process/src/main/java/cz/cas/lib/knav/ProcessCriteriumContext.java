@@ -5,9 +5,7 @@ import java.io.IOException;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.security.*;
 
 /**
  * Context for process
@@ -82,6 +80,16 @@ public class ProcessCriteriumContext implements RightCriteriumContext {
 
     @Override
     public String getRemoteAddr() {
+        throw new UnsupportedOperationException("unsupported for this context");
+    }
+
+    @Override
+    public SecuredActions getAction() {
+        throw new UnsupportedOperationException("unsupported for this context");
+    }
+
+    @Override
+    public IsActionAllowed getRightsResolver() {
         throw new UnsupportedOperationException("unsupported for this context");
     }
 }

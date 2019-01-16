@@ -20,7 +20,7 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.impl.criteria.MovingWall;
 import cz.incad.kramerius.service.impl.PolicyServiceImpl;
@@ -198,12 +198,12 @@ public class ApplyMWUtils {
         }
         ApplyMovingWall.LOGGER.info("Used value is: " + wall);
         mw.setCriteriumParamValues(new Object[] { "" + wall });
-        EvaluatingResult result = mw.evalute();
+        EvaluatingResultState result = mw.evalute();
         String flagFromRELSEXT = ApplyMWUtils.disectFlagFromRELSEXT(onePid, fa);
-        if (result == EvaluatingResult.TRUE) {
+        if (result == EvaluatingResultState.TRUE) {
             ApplyMovingWall.LOGGER.info("Set policy flag for '" + onePid + "' to value true ");
             ApplyMWUtils.setPolicyFlag(onePid, true, fa, flagFromRELSEXT, coll);
-        } else if (result == EvaluatingResult.FALSE) {
+        } else if (result == EvaluatingResultState.FALSE) {
             // set private
             ApplyMovingWall.LOGGER.info("Set policy flag for '" + onePid + "' to value false");
             ApplyMWUtils.setPolicyFlag(onePid, false, fa, flagFromRELSEXT, coll);

@@ -33,7 +33,7 @@
     
     <script type="text/javascript">
     
-    	rightContainer = {
+        rightContainer = {
                 affectedObjects: [
                     <c:forEach var="pid" items="${newRight.pidsParams}" varStatus="st">${st.index > 0 ? "," :""} "${pid}"  </c:forEach>
                 ],    
@@ -62,7 +62,10 @@
                      </c:forEach>],
                      criteriums: {
                              <c:forEach var="criterium" items="${newRight.criteriums}" varStatus="status">
-                             ${status.index > 0 ? "," :""}      "${criterium.rightCriterium.QName}": { paramsNecessary: ${criterium.rightCriterium.paramsNecessary} }
+                             ${status.index > 0 ? "," :""}      "${criterium.rightCriterium.QName}": {
+                                 paramsNecessary: ${criterium.rightCriterium.paramsNecessary},
+                                 rootLevelCriterum: ${criterium.rightCriterium.rootLevelCriterum}
+                            }
                              </c:forEach>
                      },
                      params:[
@@ -79,7 +82,7 @@
                 }               
             };
 
-    	   
+
         var right = new Right();
         right.initUI(rightContainer);
 

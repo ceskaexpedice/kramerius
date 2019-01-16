@@ -16,20 +16,16 @@
  */
 package cz.incad.kramerius.security.impl;
 
-import java.util.Arrays;
-import java.util.logging.Level;
-
 import cz.incad.kramerius.security.CriteriumType;
-import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.RightCriteriumParams;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.SecuredActions;
 
-public class RightCriteriumWrapperImpl implements RightCriteriumWrapper {
+import java.io.Serializable;
+
+public class RightCriteriumWrapperImpl implements RightCriteriumWrapper, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(RightCriteriumWrapperImpl.class.getName());
 

@@ -25,10 +25,15 @@ package cz.incad.kramerius.security;
  * @author pavels
  */
 public enum RightCriteriumPriorityHint {
+    // dedicated for dnnt
+    DNNT_EXCLUSIVE_MAX,
 
     MAX,
     
     NORMAL,
     
-    MIN;
+    MIN,
+
+    //dedicated for ddnt
+    DNNT_EXCLUSIVE_MIN;
 }

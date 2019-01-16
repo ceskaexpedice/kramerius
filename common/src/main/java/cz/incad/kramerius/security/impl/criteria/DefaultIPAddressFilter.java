@@ -16,21 +16,16 @@
  */
 package cz.incad.kramerius.security.impl.criteria;
 
-import java.io.IOException;
+import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtils.*;
+
 import java.util.Calendar;
-import java.util.logging.Level;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtils;
 
 /**
  * Default IP Filter... pokud je z daneho rozsahu, pusti dal, pokud ne.. nevi
@@ -39,17 +34,17 @@ import cz.incad.kramerius.utils.XMLUtils;
  */
 public class DefaultIPAddressFilter extends AbstractIPAddressFilter implements RightCriterium {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DefaultIPAddressFilter.class.getName());
+    static transient java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DefaultIPAddressFilter.class.getName());
 
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
-        EvaluatingResult result = matchIPAddresses(getObjects()) ?  EvaluatingResult.TRUE : EvaluatingResult.NOT_APPLICABLE;
+    public EvaluatingResultState evalute() throws RightCriteriumException {
+        EvaluatingResultState result = matchIPAddresses(super.getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
         LOGGER.fine("\t benevolent filter - "+result);
         return result ;
     }
 
-    public EvaluatingResult createResult(Calendar calFromMetadata, Calendar calFromConf) {
-        return calFromMetadata.before(calFromConf) ?  EvaluatingResult.TRUE:EvaluatingResult.FALSE;
+    public EvaluatingResultState createResult(Calendar calFromMetadata, Calendar calFromConf) {
+        return calFromMetadata.before(calFromConf) ?  EvaluatingResultState.TRUE:EvaluatingResultState.FALSE;
     }
 
 
@@ -61,7 +56,7 @@ public class DefaultIPAddressFilter extends AbstractIPAddressFilter implements R
     
     @Override
     public SecuredActions[] getApplicableActions() {
-        return new SecuredActions[] {SecuredActions.READ};
+        return SecuredActions.values();
     }
 
 }

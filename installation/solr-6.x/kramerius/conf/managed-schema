@@ -559,6 +559,10 @@
 		
 		<!-- center point coordinate --> 
         <field name="center" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
+		
+		<!-- dnnt -->
+        <field name="dnnt" type="boolean" indexed="true" stored="true"/>
+
 
 	</fields>
 

@@ -301,7 +301,7 @@ public class KConfiguration {
     }
 
     public int getCacheTimeToLiveExpiration() {
-        return getConfiguration().getInt("cache.timeToLiveExpiration", 60);
+        return getConfiguration().getInt("cache.timeToLiveExpiration", 30);
     }
 
     

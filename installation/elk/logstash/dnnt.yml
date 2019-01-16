@@ -1,0 +1,24 @@
+
+input {
+        file {
+                path => ["${FEDORA_HOME}/tomcat/logs/statistics.*"]
+                sincedb_path => "${FEDORA_HOME}/tomcat/syncdb.txt"
+                start_position => "beginning"
+    }
+}
+
+filter {
+
+    grok {
+                match => ["message", "%{NUMBER:id}%{SPACE}I access%{SPACE}%{GREEDYDATA:json}"]
+    }
+        
+    json {
+        source => "json"
+    }
+}
+
+output {
+    stdout { codec => rubydebug }
+    elasticsearch {}
+}

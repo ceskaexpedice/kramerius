@@ -28,6 +28,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.security.RightsReturnObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,6 +60,10 @@ public class ClientRightsResource {
     @Inject
     @Named("solr")
     CollectionsManager colGet;
+
+    @Inject
+    @Named("rawFedoraAccess")
+    FedoraAccess fedoraAccess;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -106,8 +112,8 @@ public class ClientRightsResource {
             String token = tokenizer.nextToken();
             object.put(token, new JSONArray());
             for (ObjectPidsPath ph : paths) {
-                ObjectPidsPath nph = ph.injectRepository().injectCollections(this.colGet);
-                boolean[] flags = this.actionAllowed.isActionAllowedForAllPath(token, pid, stream, nph);
+                ObjectPidsPath nph = ph.injectRepository().injectCollections(this.colGet, this.fedoraAccess);
+                RightsReturnObject[] flags = this.actionAllowed.isActionAllowedForAllPath(token, pid, stream, nph);
                 allowedFor(object.getJSONArray(token), token, nph, flags);
             }
         }
@@ -121,7 +127,7 @@ public class ClientRightsResource {
             String token = tokenizer.nextToken();
             boolean flag = false;
             for (ObjectPidsPath ph : paths) {
-                flag = this.actionAllowed.isActionAllowed(token, pid, stream, ph);
+                flag = this.actionAllowed.isActionAllowed(token, pid, stream, ph).flag();
                 if (flag)
                     break;
             }
@@ -129,13 +135,13 @@ public class ClientRightsResource {
         }
     }
 
-    private JSONArray allowedFor(JSONArray jsonArr, String action, ObjectPidsPath path, boolean[] flags)
+    private JSONArray allowedFor(JSONArray jsonArr, String action, ObjectPidsPath path, RightsReturnObject[] flags)
             throws JSONException {
         JSONObject pathSon = new JSONObject();
 
         String[] fromRootToLeaf = path.getPathFromRootToLeaf();
         for (int i = 0; i < fromRootToLeaf.length; i++) {
-            pathSon.put(fromRootToLeaf[i], flags[i]);
+            pathSon.put(fromRootToLeaf[i], flags[i].flag());
         }
         jsonArr.put(pathSon);
 

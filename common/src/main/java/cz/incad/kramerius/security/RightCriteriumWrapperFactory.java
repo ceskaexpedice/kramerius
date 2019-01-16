@@ -30,6 +30,6 @@ public interface RightCriteriumWrapperFactory {
     
     public List<RightCriteriumWrapper> createAllCriteriumWrappers();
 
-    public List<RightCriteriumWrapper> createAllCriteriumWrappers(SecuredActions...actions);
+    public List<RightCriteriumWrapper> createAllCriteriumWrappers(SecuredActions action);
     
 }

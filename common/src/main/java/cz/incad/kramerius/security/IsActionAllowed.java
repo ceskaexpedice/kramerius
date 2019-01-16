@@ -31,7 +31,7 @@ public interface IsActionAllowed extends IsActionAllowedBase {
      * @param path Path of object. (from root to leaf)
      * @return
      */
-    public boolean isActionAllowed(String actionName, String pid, String stream, ObjectPidsPath path);
+    public RightsReturnObject isActionAllowed(String actionName, String pid, String stream, ObjectPidsPath path);
 
     /**
      * Returns true given user is permitted to do action defined by parameter actionName for object defined by parameters uuid and pathOfUuuid
@@ -42,7 +42,7 @@ public interface IsActionAllowed extends IsActionAllowedBase {
      * @param path Path of object. (from root to leaf)
      * @return
      */
-    public boolean isActionAllowed(User user, String actionName, String pid, String stream, ObjectPidsPath path);
+    public RightsReturnObject isActionAllowed(User user, String actionName, String pid, String stream, ObjectPidsPath path);
 
     
     /**
@@ -53,6 +53,6 @@ public interface IsActionAllowed extends IsActionAllowedBase {
      * @param path Path from root to leaf 
      * @return
      */
-    public boolean[] isActionAllowedForAllPath(String actionName, String pid, String stream, ObjectPidsPath path);
+    public RightsReturnObject[] isActionAllowedForAllPath(String actionName, String pid, String stream, ObjectPidsPath path);
     
 }

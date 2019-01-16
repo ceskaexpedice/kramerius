@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
@@ -43,14 +43,14 @@ public class BenevolentModelFilter  extends AbstractCriterium implements RightCr
      * @see cz.incad.kramerius.security.RightCriterium#evalute()
      */
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute() throws RightCriteriumException {
         return evaluateInternal(getObjects(), getEvaluateContext());
     }
 
     /**
      * @return
      */
-    static EvaluatingResult evaluateInternal(Object[] params, RightCriteriumContext ctx) {
+    static EvaluatingResultState evaluateInternal(Object[] params, RightCriteriumContext ctx) {
         try {
             FedoraAccess fa = ctx.getFedoraAccess();
             ObjectPidsPath[] pathsToRoot = ctx
@@ -60,13 +60,13 @@ public class BenevolentModelFilter  extends AbstractCriterium implements RightCr
                 for (String pid : pids) {
                     if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
                     String modelName = fa.getKrameriusModelName(pid);
-                    if (containsModelName(params,modelName)) return EvaluatingResult.TRUE;
+                    if (containsModelName(params,modelName)) return EvaluatingResultState.TRUE;
                 }
             }
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         }
     }
 

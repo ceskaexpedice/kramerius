@@ -220,6 +220,14 @@ function importPeriodicals() {
     });
 }
 
+function dnntFlagSet() {
+    showConfirmDialog(dictionary['administrator.menu.dialogs.dnnt.title'], function(){
+        var url = "lr?action=start&def=dnntset&out=text";
+        processStarter("dnntset").start(url);
+    });
+}
+
+
 function replaceAll(txt, replace, with_this) {
 	  return txt.replace(new RegExp(replace, 'g'),with_this);
 }

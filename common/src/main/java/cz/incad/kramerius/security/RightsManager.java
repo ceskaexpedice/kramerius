@@ -55,7 +55,7 @@ public interface RightsManager {
      * @param user User
      * @return Returns result of interpretation
      */
-    public EvaluatingResult resolve(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException;
+    public RightsReturnObject resolve(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException;
     
     // interpretuje prava skrz celou cestu.  Od listu az ke korenu.
     /**
@@ -67,7 +67,7 @@ public interface RightsManager {
      * @param user User
      * @return Returns all results for all objects in given path
      */
-    public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException;
+    public RightsReturnObject[] resolveAllPath(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException;
 
     
     // najde prava pro skupinu

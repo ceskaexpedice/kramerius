@@ -175,31 +175,31 @@ public abstract class AbstractObjectPath {
     public abstract AbstractObjectPath replace(String src, String dest);
     
     
-	protected String[] injectInternal(String injectingObject, int bindex,
-			int aindex) {
-		String[] newpath = new String[this.pathFromRootToLeaf.length +1];
-		System.arraycopy(this.pathFromRootToLeaf, 0, newpath, 0, bindex+1);
-		newpath[aindex] = injectingObject;
-		System.arraycopy(this.pathFromRootToLeaf, aindex, newpath, aindex+1, this.pathFromRootToLeaf.length-aindex);
-		return newpath;
-	}
+    protected String[] injectInternal(String injectingObject, int bindex,
+            int aindex) {
+        String[] newpath = new String[this.pathFromRootToLeaf.length +1];
+        System.arraycopy(this.pathFromRootToLeaf, 0, newpath, 0, bindex+1);
+        newpath[aindex] = injectingObject;
+        System.arraycopy(this.pathFromRootToLeaf, aindex, newpath, aindex+1, this.pathFromRootToLeaf.length-aindex);
+        return newpath;
+    }
     
     public static class Between {
-    	private String before;
-    	private String after;
+        private String before;
+        private String after;
 
-    	public Between(String b, String a) {
-    		this.before = b;
-    		this.after =a;
-    	}
-    	
-    	public String getBefore() {
-			return before;
-		}
-    	
-    	public String getAfter() {
-			return after;
-		}
+        public Between(String b, String a) {
+            this.before = b;
+            this.after =a;
+        }
+
+        public String getBefore() {
+            return before;
+        }
+
+        public String getAfter() {
+            return after;
+        }
     }
     
     @Override

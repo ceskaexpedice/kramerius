@@ -392,7 +392,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         try {
             pid = makeSureObjectPid(pid);
             if (this.accessLog != null && this.accessLog.isReportingAccess(pid,IMG_FULL_STREAM)) {
-                try {	
+                try {
                         this.accessLog.reportAccess(pid,IMG_FULL_STREAM);
                 } catch (Exception e) {
                         LOGGER.severe("cannot write statistic records");

@@ -59,8 +59,8 @@ public class DownloadOriginalViewObject extends AbstractViewObject {
             boolean accessed = false;
             ObjectPidsPath[] path = solrAccess.getPath(param.toString());
             for (ObjectPidsPath objectPidsPath : path) {
-                objectPidsPath = objectPidsPath.injectRepository().injectCollections(this.collectionGet);
-                if (isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), param.toString(), FedoraUtils.IMG_FULL_STREAM, objectPidsPath)) {
+                objectPidsPath = objectPidsPath.injectRepository().injectCollections(this.collectionGet, this.fedoraAccess);
+                if (isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), param.toString(), FedoraUtils.IMG_FULL_STREAM, objectPidsPath).flag()) {
                     accessed = true;
                     break;
                 }

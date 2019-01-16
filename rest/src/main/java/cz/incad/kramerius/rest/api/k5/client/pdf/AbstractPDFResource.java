@@ -291,7 +291,7 @@ public class AbstractPDFResource {
     private boolean canBeRenderedAsPDF(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth)) {
+            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth).flag()) {
                 return true;
             }
         }

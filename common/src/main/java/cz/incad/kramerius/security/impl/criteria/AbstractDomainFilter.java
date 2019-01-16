@@ -88,7 +88,7 @@ public abstract class AbstractDomainFilter extends AbstractCriterium implements 
 
     @Override
     public SecuredActions[] getApplicableActions() {
-        return new SecuredActions[] {SecuredActions.READ};
+        return SecuredActions.values();
     }
 
 
