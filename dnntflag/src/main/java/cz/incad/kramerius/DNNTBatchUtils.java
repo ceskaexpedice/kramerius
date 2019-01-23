@@ -22,10 +22,13 @@ import java.util.logging.Level;
 
 public class DNNTBatchUtils {
 
+    private static final String DNNT_MODE = "dnnt.solr.mode";
+
+
     private DNNTBatchUtils() {}
 
     public static Document createBatch(List<String> pids) throws ParserConfigurationException {
-        DNNTMode mode = DNNTMode.valueOf(KConfiguration.getInstance().getConfiguration().getString(DNNTFlag.DNNT_MODE, DNNTMode.add.name()));
+        DNNTMode mode = DNNTMode.valueOf(KConfiguration.getInstance().getConfiguration().getString(DNNT_MODE, DNNTMode.add.name()));
         DocumentBuilder builder = DocumentBuilderFactory.newInstance(). newDocumentBuilder();
         Document document = builder.newDocument();
         Element rootElm = document.createElement("add");

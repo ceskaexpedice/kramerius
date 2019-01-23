@@ -30,7 +30,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class MigrationUtils {
 
     private static final String DEST_SOLR_HOST = ".dest.solrHost";
-    //private static final String SOLR_MIGRATION_QUERY_KEY = ".migration.solr.query";
+    private static final String SOLR_MIGRATION_FQUERY_KEY = ".migration.solr.fqquery";
 
     private static final String SOLR_MIGRATION_FIELD_LIST_KEY = ".migration.solr.fieldlist";
     private static final String SOLR_MIGRATION_SORT_FIELD_KEY = ".migration.solr.sort";
@@ -204,6 +204,10 @@ public class MigrationUtils {
 
 
 
+    public static String filterQuery() {
+        String fq = KConfiguration.getInstance().getConfiguration().getString(SOLR_MIGRATION_FQUERY_KEY, "");
+        return  fq;
+    }
 
     public static String queryBaseURL() throws MigrateSolrIndexException {
         String solrQuery = KConfiguration.getInstance().getSolrHost();

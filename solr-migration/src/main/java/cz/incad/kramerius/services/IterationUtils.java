@@ -3,6 +3,7 @@ package cz.incad.kramerius.services;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,7 +42,6 @@ public class IterationUtils {
 
 
     public static void queryFilterIteration(Client client, String address, String masterQuery,IterationCallback callback, IterationEndCallback endCallback) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException, BrokenBarrierException, InterruptedException {
-        List<SolrWorker> worksWhatHasToBeDone = new ArrayList<>();
         String lastPid = null;
         String previousPid = null;
         do {
@@ -58,7 +58,15 @@ public class IterationUtils {
     public static Element pidsFilterQuery(Client client, String url, String mq, String lastPid)
             throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
         int rows = MigrationUtils.configuredRowsSize();
-        String query = MigrationUtils.SELECT_ENDPOINT + "?q="+mq + (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *]", "UTF-8")) : String.format("&rows=%d", rows))+"&sort=" + URLEncoder.encode(MigrationUtils.DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID";
+        String fq = MigrationUtils.filterQuery();
+        String fullQuery = null;
+        if (StringUtils.isAnyString(fq)) {
+            fullQuery = (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *] AND "+fq, "UTF-8")) : String.format("&rows=%d&fq=%s", rows, URLEncoder.encode(fq,"UTF-8")));
+        } else {
+            fullQuery = (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *]", "UTF-8")) : String.format("&rows=%d", rows));
+        }
+
+        String query = MigrationUtils.SELECT_ENDPOINT + "?q="+mq + fullQuery +"&sort=" + URLEncoder.encode(MigrationUtils.DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID";
         return executeQuery(client, url, query);
     }
 
