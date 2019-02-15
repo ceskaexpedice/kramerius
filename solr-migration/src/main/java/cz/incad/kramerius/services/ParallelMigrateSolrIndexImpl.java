@@ -1,21 +1,16 @@
 package cz.incad.kramerius.services;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
 import com.sun.jersey.api.client.Client;
-
 import cz.incad.kramerius.service.MigrateSolrIndex;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import org.w3c.dom.Element;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
 
@@ -48,56 +43,24 @@ public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
         long start = System.currentTimeMillis();
         try {
             if (MigrationUtils.configuredUseCursor()) {
-                IterationUtils.cursorIteration(client,MigrationUtils.configuredSourceServer(),masterQuery,(element, t) ->{
-                    try {
-                        worksWhatHasToBeDone.add(new SolrWorker(this.client, MigrationUtils.findAllPids(element)));
-                        if (worksWhatHasToBeDone.size() >= MigrationUtils.configuredNumberOfThreads()) {
-                            startWorkers(worksWhatHasToBeDone);
-                            worksWhatHasToBeDone.clear();
-                        }
-                    } catch (MigrateSolrIndexException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    } catch (BrokenBarrierException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    } catch (InterruptedException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    }
-                }, ()-> {
-                    try {
-                        if (!worksWhatHasToBeDone.isEmpty()) {
-                            startWorkers(worksWhatHasToBeDone);
-                        }
-                    } catch (BrokenBarrierException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    } catch (InterruptedException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    }
+                IterationUtils.cursorIteration(client, MigrationUtils.configuredSourceServer(), masterQuery, (Element element, String t) -> {
+                    addNewWorkToWorkers(worksWhatHasToBeDone, element);
+                }, () -> {
+                    finishRestWorkers(worksWhatHasToBeDone);
                 });
+            } else if (MigrationUtils.configuredPagination()) {
+                IterationUtils.queryPaginationIteration(this.client,MigrationUtils.configuredSourceServer(),masterQuery, (element, t) ->{
+                    addNewWorkToWorkers(worksWhatHasToBeDone, element);
+                }, ()-> {
+                    finishRestWorkers(worksWhatHasToBeDone);
+
+                });
+
             } else {
                 IterationUtils.queryFilterIteration(this.client,MigrationUtils.configuredSourceServer(),masterQuery, (element, t) ->{
-                    try {
-                        worksWhatHasToBeDone.add(new SolrWorker(client, MigrationUtils.findAllPids(element)));
-                        if (worksWhatHasToBeDone.size() >= MigrationUtils.configuredNumberOfThreads()) {
-                            startWorkers(worksWhatHasToBeDone);
-                            worksWhatHasToBeDone.clear();
-                        }
-                    } catch (MigrateSolrIndexException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    } catch (BrokenBarrierException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    } catch (InterruptedException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    }
+                    addNewWorkToWorkers(worksWhatHasToBeDone, element);
                 }, ()-> {
-                    try {
-                        if (!worksWhatHasToBeDone.isEmpty()) {
-                            startWorkers(worksWhatHasToBeDone);
-                        }
-                    } catch (BrokenBarrierException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    } catch (InterruptedException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    }
+                    finishRestWorkers(worksWhatHasToBeDone);
 
                 });
                 //this.migrateUseQueryFilter(MigrationUtils.configuredSourceServer(),"*:*");
@@ -112,7 +75,29 @@ public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
         }
     }
 
-    public static void main(String[] args) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException {
+    private void addNewWorkToWorkers(List<SolrWorker> worksWhatHasToBeDone, Element element) {
+        try {
+            worksWhatHasToBeDone.add(new SolrWorker(client, MigrationUtils.findAllPids(element)));
+            if (worksWhatHasToBeDone.size() >= MigrationUtils.configuredNumberOfThreads()) {
+                startWorkers(worksWhatHasToBeDone);
+                worksWhatHasToBeDone.clear();
+            }
+        } catch (MigrateSolrIndexException | BrokenBarrierException | InterruptedException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+    }
+
+    private void finishRestWorkers(List<SolrWorker> worksWhatHasToBeDone) {
+        try {
+            if (!worksWhatHasToBeDone.isEmpty()) {
+                startWorkers(worksWhatHasToBeDone);
+            }
+        } catch (BrokenBarrierException | InterruptedException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+    }
+
+    public static void main(String[] args) throws MigrateSolrIndexException {
         ParallelMigrateSolrIndexImpl migr = new ParallelMigrateSolrIndexImpl();
         migr.migrate();
     }

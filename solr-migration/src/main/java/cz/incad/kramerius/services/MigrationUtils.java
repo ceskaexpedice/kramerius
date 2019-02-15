@@ -52,8 +52,6 @@ public class MigrationUtils {
             "title_sort dc.creator dc.identifier language dc.description details facet_title browse_title browse_autor img_full_mime viewable " +
             "virtual location range mods.shelfLocator mods.physicalLocation text dnnt";
 
-    public static final String DEFAULT_SORT_FIELD = "PID asc";
-
 
     public static final int DEFAULT_NUMBER_OF_ROWS = 100;
     public static final int DEFAULT_NUMBER_OF_THREADS = 2;
@@ -61,8 +59,6 @@ public class MigrationUtils {
     public static final int START = 0;
 
     public static final Logger LOGGER = Logger.getLogger(MigrationUtils.class.getName());
-    public static final String SELECT_ENDPOINT = "select";
-    public static final String SEARCH_ENDPOINT = "search";
     public static final int MAXIMUM_BATCH_SIZE = 100;
 
     private MigrationUtils() {
@@ -156,6 +152,13 @@ public class MigrationUtils {
         return useCursor;
     }
 
+    public static boolean configuredPagination() {
+        boolean useCursor = KConfiguration.getInstance().getConfiguration().getBoolean("solr.migration.pagination", false);
+        LOGGER.info("Use pagination "+useCursor);
+        return useCursor;
+    }
+
+
     /**
      * REturns configured destination server
      *
@@ -225,53 +228,13 @@ public class MigrationUtils {
             }
         });
         String fieldlist = KConfiguration.getInstance().getConfiguration().getString(SOLR_MIGRATION_FIELD_LIST_KEY, DEFAULT_FIELDLIST);
-        String query =  SELECT_ENDPOINT + "?q=PID:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8");
+        String query =  IterationUtils.SELECT_ENDPOINT + "?q=PID:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8");
         return IterationUtils.executeQuery(client, url, query);
     }
 
 
-    public static Element pidsCursorQuery(Client client, String url, String mq,  String cursor)  throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
-        int rows = MigrationUtils.configuredRowsSize();
-        String query = SELECT_ENDPOINT + "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID";
-        return IterationUtils.executeQuery(client, url, query);
-    }
 
 
-    public static String findCursorMark(Element elm) {
-        Element element = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
-            @Override
-            public boolean acceptElement(Element element) {
-                String nodeName = element.getNodeName();
-                boolean nextCursorMark = element.hasAttribute("name") && element.getAttribute("name").equals("nextCursorMark");
-                return nodeName.equals("str") && nextCursorMark;
-            }
-        });
-        return element != null ? element.getTextContent() : null;
-    }
-
-    public static String findQueryCursorMark(Element elm) {
-        Element queryParams = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
-            @Override
-            public boolean acceptElement(Element element) {
-                String nodeName = element.getNodeName();
-                String paramName = element.getAttribute("name");
-                return nodeName.equals("lst") && paramName.equals("params");
-
-            }
-        });
-        if (queryParams != null) {
-            Element element = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    String nodeName = element.getNodeName();
-                    boolean nextCursorMark = element.hasAttribute("name") && element.getAttribute("name").equals("cursorMark");
-                    return nodeName.equals("str") && nextCursorMark;
-                }
-            });
-            return element != null ? element.getTextContent() : null;
-        }
-        return null;
-    }
 
     public static List<String> findAllPids(Element elm) {
         Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
@@ -303,42 +266,6 @@ public class MigrationUtils {
             ).collect(Collectors.toList());
 
         } else return new ArrayList<>();
-    }
-
-    public static String findLastPid(Element elm) {
-        Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
-            @Override
-            public boolean acceptElement(Element element) {
-                String nodeName = element.getNodeName();
-                return nodeName.equals("result");
-            }
-        });
-        if (result != null) {
-
-            List<Element> elements = XMLUtils.getElements(result, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    String nodeName = element.getNodeName();
-                    return nodeName.equals("doc");
-                }
-            });
-
-            List<String> pids = elements.stream().map(item->{
-                        Element str = XMLUtils.findElement(item, new XMLUtils.ElementsFilter() {
-                                    @Override
-                                    public boolean acceptElement(Element element) {
-                                        return element.getNodeName().equals("str");
-                                    }
-                                }
-                        );
-                        return str.getTextContent();
-                    }
-            ).collect(Collectors.toList());
-
-            return !pids.isEmpty() ? pids.get(pids.size() -1) : null;
-        }
-
-        return null;
     }
 
 
