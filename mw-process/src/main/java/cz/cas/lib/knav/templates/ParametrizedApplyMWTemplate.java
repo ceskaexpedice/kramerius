@@ -40,7 +40,7 @@ public class ParametrizedApplyMWTemplate implements ProcessInputTemplate {
         StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
         StringTemplate template = templateGroup.getInstanceOf("form");
         template.setAttribute("defaultValue", new Integer(mw));
-
+        
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localeProvider.get());
         template.setAttribute("bundle", DefaultTemplate.resourceBundleMap(resbundle));
         

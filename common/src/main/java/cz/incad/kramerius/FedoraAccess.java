@@ -103,6 +103,46 @@ public interface FedoraAccess {
      * @throws IOException IO error has been occurred
      */
     public String getDonator(String pid) throws IOException;
+    
+    /**
+     * Returns pid of the first periodical Item parsed from given document
+     * *
+     * @param relsExt RELS-EXT document
+     * @return pid of the first periodical Item or empty string (if hasItem relationship doesn't
+     * exist)
+     * @throws IOException IO error has been occurred
+     */
+    public String getFirstItemPid(Document relsExt) throws IOException;
+    
+    /**
+     * Returns pid of the first periodical Item of given object
+     *
+     * @param pid Object's pid = pid of volume
+     * @return pid of the first periodical Item or empty string (if hasItem relationship doesn't
+     * exist)
+     * @throws IOException IO error has been occurred
+     */
+    public String getFirstItemPid(String pid) throws IOException;
+    
+    /**
+     * Returns pid of the first periodical Volume parsed from given document
+     * *
+     * @param relsExt RELS-EXT document
+     * @return pid of the first periodical Volume or empty string (if hasVolume relationship doesn't
+     * exist)
+     * @throws IOException IO error has been occurred
+     */
+    public String getFirstVolumePid(Document relsExt) throws IOException;
+    
+    /**
+     * Returns pid of the first periodical Volume of given object
+     *
+     * @param pid Object's pid = pid of periodical
+     * @return pid of the first periodical Volume or empty string (if hasVolume relationship doesn't
+     * exist)
+     * @throws IOException IO error has been occurred
+     */
+    public String getFirstVolumePid(String pid) throws IOException;
 
     /**
      * Return parsed biblio mods stream
