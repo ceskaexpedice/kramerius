@@ -12,13 +12,16 @@ import javax.servlet.http.HttpServletResponse;
 
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import biz.sourcecode.base64Coder.Base64Coder;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.IOUtils;
@@ -57,6 +60,22 @@ public class VirtualCollectionServlet extends GuiceServlet {
     @Named("fedora")
     CollectionsManager collectionManager;
 
+    @Inject
+    IsActionAllowed actionAllowed;
+
+    @Inject
+    Provider<User> userProvider;
+
+
+    boolean permit(User user) {
+        if (user != null)
+            return this.actionAllowed.isActionAllowed(user, SecuredActions.VIRTUALCOLLECTION_MANAGE.getFormalName(),
+                    SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
+        else
+            return false;
+    }
+
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
@@ -66,7 +85,12 @@ public class VirtualCollectionServlet extends GuiceServlet {
                 actionToDo = Actions.valueOf(actionNameParam);
             }
             try {
-                actionToDo.doPerform(this, fedoraAccess, this.collectionManager, req, resp);
+                User user = this.userProvider.get();
+                if (this.permit(user)) {
+                    actionToDo.doPerform(this, fedoraAccess, this.collectionManager, req, resp);
+                } else {
+                    resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                }
             } catch (IOException e1) {
                 LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -96,7 +120,12 @@ public class VirtualCollectionServlet extends GuiceServlet {
             PostActions actionToDo = PostActions.IMAGES_UPLOAD;
             String actionNameParam = req.getParameter(ACTION_NAME);
             if (actionNameParam != null) {
-                actionToDo = PostActions.valueOf(actionNameParam);
+                User user = this.userProvider.get();
+                if (this.permit(user)) {
+                    actionToDo = PostActions.valueOf(actionNameParam);
+                } else {
+                    resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                }
             }
             try {
                 actionToDo.doPerform(this, fedoraAccess, this.collectionManager, req, resp);

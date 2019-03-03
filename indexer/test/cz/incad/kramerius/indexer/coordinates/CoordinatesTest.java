@@ -51,26 +51,41 @@ public class CoordinatesTest extends TestCase {
     }
 
 
+    //(E 12°02'00"--E 19°11'00"/N 51°03'00"--N 48°31'00”)
+
+    public void testParsing3() throws LexerException {
+        String sample = "(E 12°02'00\"--E 19°11'00\"/N 51°03'00\"--N 48°31'00”) ";
+        ParsingCoordinates coordinates = new ParsingCoordinates(sample);
+        Pair<Range, Range> rangeRangePair = coordinates.simpleParse();
+        Range left = rangeRangePair.getLeft();
+
+        Range right = rangeRangePair.getRight();
+        System.out.println(right.getFrom().getCoordinate());
+        System.out.println(right.getTo().getCoordinate());
+
+        Assert.assertTrue(left.getFrom().getCoordinate() == 12.03333);
+        Assert.assertTrue(right.getFrom().getCoordinate() == 51.05);
+    }
 
     public void testProcess() throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, LexerException {
         InputStream stream = CoordinatesTest.class.getClassLoader().getResourceAsStream("cz/incad/kramerius/indexer/res/coordinates_mods.xml");
         Document document = XMLUtils.parseDocument(stream, true);
         List<String> strings = ParsingCoordinates.processBibloModsCoordinates(document, XPathFactory.newInstance());
-        Assert.assertTrue(strings.size() == 3);
+        Assert.assertTrue(strings.size() == 4);
     }
 
     public void testProcess2() throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, LexerException {
         InputStream stream = CoordinatesTest.class.getClassLoader().getResourceAsStream("cz/incad/kramerius/indexer/res/coordinates_mods_2.xml");
         Document document = XMLUtils.parseDocument(stream, true);
         List<String> strings = ParsingCoordinates.processBibloModsCoordinates(document, XPathFactory.newInstance());
-        Assert.assertTrue(strings.size() == 3);
+        Assert.assertTrue(strings.size() == 4);
     }
 
     public void testProcess3() throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, LexerException {
         InputStream stream = CoordinatesTest.class.getClassLoader().getResourceAsStream("cz/incad/kramerius/indexer/res/coordinates_mods_3.xml");
         Document document = XMLUtils.parseDocument(stream, true);
         List<String> strings = ParsingCoordinates.processBibloModsCoordinates(document, XPathFactory.newInstance());
-        Assert.assertTrue(strings.size() == 3);
+        Assert.assertTrue(strings.size() == 4);
     }
 
     public void testProcess4() throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, LexerException {

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+    <lst name="responseHeader">
+        <int name="status">0</int>
+        <int name="QTime">0</int>
+        <lst name="params">
+            <str name="q">PID:"uuid:a0819a8d-2471-11e4-9632-001b63bd97ba/@1"</str>
+            <str name="indent">on</str>
+            <str name="wt">xml</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="1" start="0">
+        <doc>
+            <str name="PID">uuid:a0819a8d-2471-11e4-9632-001b63bd97ba/@1</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>page</str>
+            </arr>
+            <bool name="virtual">true</bool>
+            <str name="dc.title">1</str>
+            <arr name="text">
+                <str>1</str>
+                <str>6 m/ m m niiiiii 2530003578
+                    Z Á V Ě R E Č N Á Z P R Á V A
+                    o resení grantu Interní grantové agentury Minisi m r v í Wliiii&amp;WWrFW1 č»
+                    P O D A T E L N A
+                    Regis t račn í číslo: 2068 -3
+                    Název grantu:
+                    ^ 16 - o , . ) 9 9 7
+                    ECHOKARDIOGRAFICKÉ HODNOCENI
+                    VIABILNÍHO A NEKROTICKÉHO
+                    MYOKARDU
+                    Nositel grantu: Fakultní nemocnice v
+                    (uvede se název a adresa řešitel.organizace)
+                    Řešitel grantu:
+                    (uvede se jméno řešitele a příp.kolektivu)
+                    Motole, V úvalu 8 4 , 150 06 Praha
+                    MODr. JANA POPELOVÁ, CSC.
+                    Doba řešení:
+                    (uvede se rok zahájení a ukončení projektu)
+                    MUDr. Petr Janský
+                    prof. MUDr. František Kolbel,
+                    doc. MUDr. Kar e l Hlaváček,CSc
+                    MUDr. Přemysl Šváb
+                    1994 - 1996
+                </str>
+            </arr>
+            <arr name="text_lemmatized">
+                <str>1</str>
+            </arr>
+            <arr name="text_lemmatized_ascii">
+                <str>1</str>
+            </arr>
+            <arr name="text_lemmatized_nostopwords">
+                <str>1</str>
+            </arr>
+            <str name="title">1</str>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2014-08-15T13:45:17.077Z</date>
+            <date name="modified_date">2018-02-06T09:18:09.944Z</date>
+            <str name="dostupnost">private</str>
+            <str name="img_full_mime">application/pdf</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:c4dcf9c1-ca82-4b95-99ef-089e77ef3e93</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:MED00111593/uuid:a0819a8d-2471-11e4-9632-001b63bd97ba/@1</str>
+            </arr>
+            <arr name="parent_pid">
+                <str>uuid:a0819a8d-2471-11e4-9632-001b63bd97ba</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>0</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/page/page</str>
+            </arr>
+            <str name="root_title">Echokardiografické hodnocení viabilního a nekrotického myokardu</str>
+            <str name="root_pid">uuid:MED00111593</str>
+            <int name="level">2</int>
+            <str name="datum_str">1997</str>
+            <int name="rok">1997</int>
+            <int name="datum_begin">1997</int>
+            <int name="datum_end">1997</int>
+            <long name="_version_">1591825078866149376</long>
+            <int name="pages_count">0</int></doc>
+    </result>
+</response>

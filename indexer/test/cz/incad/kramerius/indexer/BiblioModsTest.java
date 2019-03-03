@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 
 public class BiblioModsTest extends TestCase {
 
-    private class TestURIResolver implements URIResolver {
+    static class TestURIResolver implements URIResolver {
         @Override
         public Source resolve(String href, String base) throws TransformerException {
             InputStream transform = BiblioModsTest.class.getResourceAsStream(href);

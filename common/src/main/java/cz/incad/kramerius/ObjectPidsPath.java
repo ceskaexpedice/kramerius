@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -88,50 +90,60 @@ public class ObjectPidsPath extends AbstractObjectPath {
     // support collections
     
     public ObjectPidsPath injectCollections(CollectionsManager col) throws CollectionException {
-        if (this.isEmptyPath()) return this;
-        for (String pid : pathFromRootToLeaf) {
-            if (CollectionPidUtils.isCollectionPid(pid)) {
-                // already enhanced
-                return this;
+
+        try {
+            if (this.isEmptyPath()) return this;
+            for (String pid : pathFromRootToLeaf) {
+                if (CollectionPidUtils.isCollectionPid(pid)) {
+                    // already enhanced
+                    return this;
+                }
             }
-        }
-        String[] pathFromRoot = this.getPathFromRootToLeaf();
-        Set<String> processingCollection = new HashSet<String>();
-        Map<String,List<String>> m = new HashMap<String, List<String>>();
-        for (String pid : pathFromRoot) {
-            if (SpecialObjects.REPOSITORY.getPid().equals(pid)) continue;
-            
-            JSONObject itemJSON = getItemJSON(pid);
-            if (itemJSON.has("collections")) {
-                JSONArray collectionsArray = itemJSON.getJSONArray("collections");
-                for (int i = 0,ll=collectionsArray.length(); i < ll; i++) {
-                    String val = collectionsArray.getString(i);
+            String[] pathFromRoot = this.getPathFromRootToLeaf();
+            Set<String> processingCollection = new HashSet<String>();
+            Map<String,List<String>> m = new HashMap<String, List<String>>();
+            for (String pid : pathFromRoot) {
+                if (SpecialObjects.REPOSITORY.getPid().equals(pid)) continue;
+
+                // wheather given pid points to stream or page
+                PIDParser parser = new PIDParser(pid);
+                parser.objectPid();
+                if (parser.isDatastreamPid() || parser.isPagePid()) continue;
+
+                JSONObject itemJSON = getItemJSON(pid);
+                if (itemJSON.has("collections")) {
+                    JSONArray collectionsArray = itemJSON.getJSONArray("collections");
+                    for (int i = 0,ll=collectionsArray.length(); i < ll; i++) {
+                        String val = collectionsArray.getString(i);
+                        if (!m.containsKey(pid)) {
+                            m.put(pid, new ArrayList<String>());
+                        }
+                        if (!processingCollection.contains(val)) {
+                            m.get(pid).add(val);
+                            processingCollection.add(val);
+                        }
+                    }
+                } else {
                     if (!m.containsKey(pid)) {
                         m.put(pid, new ArrayList<String>());
                     }
-                    if (!processingCollection.contains(val)) {
-                        m.get(pid).add(val);
-                        processingCollection.add(val);
+                }
+            }
+
+            List<String> newVals = new ArrayList<String>();
+            for (String p : pathFromRoot) {
+                List<String> list = m.get(p);
+                if (list != null) {
+                    for (String vc : list) {
+                        newVals.add(vc);
                     }
                 }
-            } else {
-                if (!m.containsKey(pid)) {
-                    m.put(pid, new ArrayList<String>());
-                }
+                newVals.add(p);
             }
+            return new ObjectPidsPath(newVals);
+        } catch (LexerException e) {
+            throw new CollectionException(e);
         }
-
-        List<String> newVals = new ArrayList<String>();
-        for (String p : pathFromRoot) {
-            List<String> list = m.get(p);
-            if (list != null) {
-                for (String vc : list) {
-                    newVals.add(vc);
-                }
-            }
-            newVals.add(p);
-        }
-        return new ObjectPidsPath(newVals);
     }
 
     /** THIS should be replaced by other technique */

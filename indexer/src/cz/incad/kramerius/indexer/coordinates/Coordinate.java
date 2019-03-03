@@ -21,6 +21,16 @@ public class Coordinate {
 
         this.coordinate = degrees + minutesP.doubleValue() + secondsP.doubleValue();
         this.type = type;
+        switch (this.type) {
+            case JS:
+                this.coordinate = this.coordinate * -1;
+                break;
+            case ZD:
+                this.coordinate =this.coordinate *  -1;
+                break;
+            default:
+                break;
+        }
     }
 
     public CoordinationType getType() {
@@ -33,7 +43,10 @@ public class Coordinate {
 
     static enum CoordinationType {
         VD,
-        SS
+        SS,
+
+        ZD,
+        JS
     }
 
 

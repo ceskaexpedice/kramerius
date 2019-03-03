@@ -144,6 +144,9 @@ public class ProcessDatabaseUtils {
                     buffer.append(parameters.get(i));
                     buffer.append((i == ll - 1) ? "" : ",");
                 }
+                if (buffer.length() > 4096){
+                    LOGGER.log(Level.SEVERE, "Parameters of process " + lp.getUUID() + " are too long and won't fit into the database.");
+                }
                 prepareStatement.setString(5, buffer.toString());
             } else {
                 prepareStatement.setString(5, null);

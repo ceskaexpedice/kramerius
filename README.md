@@ -10,7 +10,9 @@ Zapojení do České digitální knihovny je možné od verze Kramerius 5.
 
 je softwarové řešení pro zpřístupnění digitálních dokumentů. Primárně je určen pro digitalizované knihovní sbírky, monografie a periodika. Využit může být ke zpřístupnění dalších typů dokumentů např. map, hudebnin a starých tisků, případně částí dokumentů jako jsou články a kapitoly. Systém je vhodný také pro tzv. digital born dokumenty, tedy dokumenty, které vznikly v elektronické podobě. Kramerius je průběžně upravován tak, aby struktura metadat odpovídala standardům vyhlašovaným Národní knihovnou České republiky. Systém poskytuje rozhraní pro přístup koncových uživatelů, zajišťující vyhledávání v metadatech a v plných textech, generování vícestránkových PDF dokumentů z vybraných stran, vytváření virtuálních sbírek a další operace nad uloženou sbírkou digitálních dokumentů.
 
-Aktuální verze 5 vychází koncepčně z verze 4, která byla vyvíjena a průběžně publikována od roku 2009. Navazuje funkčností na předchozí verzi systému Kramerius končící označením 4.8.6. Od verze 4 je jako jádro systému použit open source repozitář [Fedora](http://www.fedora-commons.org). Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
+Aktuální ostrá verze 5 vychází koncepčně z verze 4, která byla vyvíjena a průběžně publikována od roku 2009. Navazuje funkčností na předchozí verzi systému Kramerius končící označením 4.8.6. Od verze 4 je jako jádro systému použit open source repozitář [Fedora](http://www.fedora-commons.org). Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
+
+V testování je verze 6, ve které došlo k významnému vývojové mu kroku zejména z pohledu využitého repozitáře. Nasazena byla Fedora 4, která je ve srovnání s dosud užívanou Fedorou 3.8 zcela novou vývojovou verzí.
 
 Uživatelské rozhraní je přístupné ve většině současných webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer.
 
@@ -23,7 +25,7 @@ Kramerius je open source systém, který je vyvíjen pod licencí GNU GPL v3. ht
 Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Moravské zemské knihovny v Brně, Národní technické knihovny a Národní lékařské knihovny. Technologickým partnerem je na základě výběrového řízení firma INCAD, s.r.o.
 
 Členové vývojového týmu:
-KNAV - M. Lhoták, M. Duda, I. Šlapáková; 
+KNAV - M. Lhoták, M. Duda, J. Křížová; 
 NK ČR – T. Foltýn, Z. Vozár, V. Jiroušek, K. Košťálová; 
 MZK – L. Damborská, P. Žabička, M. Indrák; 
 NTK – J. Kolátor, J. Dobiášovský; 

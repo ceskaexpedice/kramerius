@@ -861,7 +861,11 @@
       function serverSort() {
           var structs = pidstructs();
           var u = "lr?action=start&def=sort&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
+          
+          showConfirmDialog(dictionary['administrator.dialogs.sort.confirm'], function(){
           processStarter("sort").start(u);
+          
+        });
       }
 
       function deletePid(){

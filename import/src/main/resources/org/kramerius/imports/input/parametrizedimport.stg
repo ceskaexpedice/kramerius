@@ -41,9 +41,13 @@ form(postfixdiv, importDirectory,importRootDirectory,  startIndexer, updateExist
         window.onProcessFormSend = function() {
             var startIndexer = \$('#startIndexer').attr('checked');
             var updateExisting = \$('#updateExisting').attr('checked');
+            var replaceDC = \$('#replaceDC').attr('checked');
+            var replaceMODs = \$('#replaceMODs').attr('checked');
+
             var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
             var vals = 'importDirectory='+\$('#importDirectory').val().escapeChars(charsThatMustBeEscaped)
                 +';startIndexer='+startIndexer+';updateExisting='+updateExisting
+                +';onlyReplaceDC='+replaceDC+';onlyReplaceMODS='+replaceMODs
                 ;
             
             var url = "lr?action=form_post&def=parametrizedimport&paramsMapping={"+vals+"}&out=text";
@@ -128,6 +132,11 @@ form(postfixdiv, importDirectory,importRootDirectory,  startIndexer, updateExist
     $else$
         <input type="checkbox" style="display:none" id="updateExisting" name="updateExisting" value="updateExisting" />
     $endif$
+
+    <input type="checkbox" id="replaceDC" name="replaceDC" value="replaceDC"  >$bundle.("import.replaceDC")$</input>
+
+    <input type="checkbox" id="replaceMODs" name="replaceMODs" value="replaceMODs">$bundle.("import.replaceMODs")$</input>
+
 </fieldset>
 
 
