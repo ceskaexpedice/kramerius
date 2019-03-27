@@ -33,7 +33,7 @@ NLK – F. Kříž;
 SVKUL - A. Brožek;
 MKP - M. Světlý;
 
-Zástupci programátorského týmu – P. Kocourek, P. Šťastný;
+Zástupci programátorského týmu – P. Kocourek, P. Šťastný, V. Lahoda;
 
 Koordinátorem vývoje je Knihovna Akademie věd ČR zastoupená Ing. Martinem Lhotákem.
 
