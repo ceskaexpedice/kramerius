@@ -33,7 +33,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import com.google.inject.Provides;
 import com.google.inject.name.Named;
-import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import junit.framework.Assert;
@@ -66,7 +66,7 @@ public class ConsistencyTest {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
-        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
@@ -104,7 +104,7 @@ public class ConsistencyTest {
     public void shouldFailProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException, RepositoryException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
-        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")

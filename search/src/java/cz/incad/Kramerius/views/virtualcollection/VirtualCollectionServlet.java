@@ -176,7 +176,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
                         ByteArrayOutputStream bos = new ByteArrayOutputStream();
                         IOUtils.copyStreams(inputStream, bos);;
                         LOGGER.info("Creating stream '"+streamName+"' for collection '"+collection+"'");
-                        CollectionUtils.modifyDatastream(collection, streamName, contentType, bos.toByteArray(), fedoraAccess);
+                        CollectionUtils.modifyManagedDatastream(collection, streamName, contentType, bos.toByteArray(), fedoraAccess);
                     } else {
                         throw new IllegalArgumentException("illegal argument! ");
                     }

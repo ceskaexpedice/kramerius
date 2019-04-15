@@ -9,6 +9,9 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import junit.framework.Assert;
 import org.easymock.EasyMock;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.core.EhcacheManager;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -32,9 +35,11 @@ public class FedoraAccess4xImplTest {
     public void testFindFirstViewablePid_good() throws IOException, ParserConfigurationException, SAXException, LexerException {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
         // test correct data - IMG_FULL in pages
-        Fedora4AccessImpl fa = createMockBuilder(Fedora4AccessImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+        FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
                 .createMock();
@@ -58,7 +63,7 @@ public class FedoraAccess4xImplTest {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
 
         // test correct data - IMG_FULL in pages
-        Fedora4AccessImpl fa = createMockBuilder(Fedora4AccessImpl.class)
+        FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, aclog)
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
@@ -82,7 +87,7 @@ public class FedoraAccess4xImplTest {
 
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
 
-        Fedora4AccessImpl fa = createMockBuilder(Fedora4AccessImpl.class)
+        FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, aclog)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
@@ -133,7 +138,7 @@ public class FedoraAccess4xImplTest {
 
         final List<Integer> order = new ArrayList<Integer>();
 
-        Fedora4AccessImpl fa = createMockBuilder(Fedora4AccessImpl.class)
+        FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, aclog)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")

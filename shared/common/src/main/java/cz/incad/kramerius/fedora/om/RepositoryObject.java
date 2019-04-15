@@ -47,7 +47,7 @@ public interface RepositoryObject {
 
 
     /**
-     * Create new stream
+     * Create new XML stream
      * @param streamId Stream id
      * @param mimeType Mimetype of the stream
      * @param input Binary content
@@ -55,6 +55,17 @@ public interface RepositoryObject {
      * @throws RepositoryException
      */
     public RepositoryDatastream createStream(String streamId, String mimeType, InputStream input) throws RepositoryException;
+
+    /**
+     * Create new managed stream
+     * @param streamId Stream id
+     * @param mimeType Mimetype of the stream
+     * @param input Binary content
+     * @return
+     * @throws RepositoryException
+     */
+    public RepositoryDatastream createManagedStream(String streamId, String mimeType, InputStream input) throws RepositoryException;
+
 
     /**
      * Delete stream
@@ -79,7 +90,7 @@ public interface RepositoryObject {
      * @return
      * @throws RepositoryException
      */
-    public RepositoryDatastream createRedirectedStream(String streamId, String url) throws RepositoryException;
+    public RepositoryDatastream createRedirectedStream(String streamId, String url, String mimeType) throws RepositoryException;
 
     /**
      * Return stream of the object

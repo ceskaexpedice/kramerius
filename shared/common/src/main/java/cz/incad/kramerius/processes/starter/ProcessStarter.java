@@ -149,7 +149,7 @@ public class ProcessStarter {
             try {
                 updateStatus(States.FAILED);
             } catch(IOException ex) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             }
             if (outStream != null) {
                 try {

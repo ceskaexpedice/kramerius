@@ -25,7 +25,7 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import junit.framework.Assert;
 
@@ -100,7 +100,7 @@ public class MovingWallTest {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
 
-        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")

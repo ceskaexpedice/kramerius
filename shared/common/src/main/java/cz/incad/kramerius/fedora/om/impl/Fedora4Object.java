@@ -105,7 +105,7 @@ public class Fedora4Object implements RepositoryObject {
     }
 
     @Override
-    public RepositoryDatastream createRedirectedStream(String streamId, String url) throws RepositoryException {
+    public RepositoryDatastream createRedirectedStream(String streamId, String url, String mimeType) throws RepositoryException {
         URI childUri = URI.create(getObjectPathWithEndpoint() + "/" + streamId);
         URI rediretionUri = URI.create(url);
         if (PROHIBITED_HOSTS.contains(rediretionUri.getHost())) {
@@ -253,6 +253,11 @@ public class Fedora4Object implements RepositoryObject {
         } catch (IOException e) {
             throw new RepositoryException(e);
         }
+    }
+
+
+    public RepositoryDatastream createManagedStream(String streamId, String mimeType, InputStream input) throws RepositoryException{
+        return createStream( streamId,  mimeType,  input);
     }
 
     /**

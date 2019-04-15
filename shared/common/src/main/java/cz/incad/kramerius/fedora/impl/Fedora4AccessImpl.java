@@ -40,12 +40,13 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
     @Inject
     public Fedora4AccessImpl(KConfiguration configuration, ProcessingIndexFeeder feeder,@Nullable StatisticsAccessLog accessLog) throws IOException {
         super(configuration, accessLog);
-        try {
-            this.feeder  = feeder;
-            this.repository = Fedora4Repository.build(feeder, false );
-        } catch (RepositoryException e) {
-            throw new IOException(e);
-        }
+        throw new UnsupportedOperationException("FEDORA 4 IS NO LONGER SUPPORTED");
+//        try {
+//            this.feeder  = feeder;
+//            this.repository = Fedora4Repository.build(feeder, false );
+//        } catch (RepositoryException e) {
+//            throw new IOException(e);
+//        }
     }
 
     @Override

@@ -160,7 +160,7 @@ public class GenerateThumbnail {
                     repo.getObject(pid).deleteStream(FedoraUtils.IMG_PREVIEW_STREAM);
                 }
                 LOGGER.info("Adding new IMG_PREVIEW datastream ... for pid "+pid);
-                repo.getObject(pid).createStream(FedoraUtils.IMG_PREVIEW_STREAM, "image/jpeg", new FileInputStream(tmpFile));
+                repo.getObject(pid).createManagedStream(FedoraUtils.IMG_PREVIEW_STREAM, "image/jpeg", new FileInputStream(tmpFile));
 
             } finally {
                 fos.close();

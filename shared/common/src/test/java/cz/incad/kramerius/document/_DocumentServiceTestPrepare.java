@@ -14,7 +14,7 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import org.apache.commons.configuration.Configuration;
 import org.easymock.EasyMock;
@@ -39,7 +39,7 @@ public class _DocumentServiceTestPrepare {
             LexerException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = Locale.getDefault();
-        Fedora4AccessImpl fa4 = _DocumentServiceTestPrepare.prepareFedoraAccess(acLog);
+        FedoraAccessAkubraImpl fa4 = _DocumentServiceTestPrepare.prepareFedoraAccess(acLog);
 
 
         ResourceBundleService bundleService = _DocumentServiceTestPrepare.prepareBundleService(locale);
@@ -69,13 +69,13 @@ public class _DocumentServiceTestPrepare {
         return solrAccess;
     }
 
-    public static Fedora4AccessImpl prepareFedoraAccess(StatisticsAccessLog acLog)
+    public static FedoraAccessAkubraImpl prepareFedoraAccess(StatisticsAccessLog acLog)
             throws NoSuchMethodException, IOException,
             ParserConfigurationException, SAXException, LexerException {
 
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
-        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
 
         .withConstructor(KConfiguration.getInstance(), feeder ,acLog)
         //.addMockedMethod("getFedoraDescribeStream")
@@ -84,7 +84,7 @@ public class _DocumentServiceTestPrepare {
         .addMockedMethod("isStreamAvailable")
         .addMockedMethod("getDC")
         .addMockedMethod("getBiblioMods")
-        .addMockedMethod(Fedora4AccessImpl.class.getMethod("getKrameriusModelName", String.class))
+        .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
         .createMock();
         
         

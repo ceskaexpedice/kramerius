@@ -36,7 +36,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import junit.framework.Assert;
 
@@ -197,7 +197,7 @@ public class FirstPagePDFServiceImplTest {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
         // test correct data - IMG_FULL in pages
-        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
@@ -262,14 +262,14 @@ public class FirstPagePDFServiceImplTest {
 
 
         // test correct data - IMG_FULL in pages
-        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getDC")
                 .addMockedMethod("getBiblioMods")
-                .addMockedMethod(Fedora4AccessImpl.class.getMethod("getKrameriusModelName", String.class))
+                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
                 .createMock();
 
 
@@ -340,14 +340,14 @@ public class FirstPagePDFServiceImplTest {
 
 
         // test correct data - IMG_FULL in pages
-        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getDC")
                 .addMockedMethod("getBiblioMods")
-                .addMockedMethod(Fedora4AccessImpl.class.getMethod("getKrameriusModelName", String.class))
+                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
                 .createMock();
 
 
@@ -448,14 +448,14 @@ public class FirstPagePDFServiceImplTest {
 
 
         // test correct data - IMG_FULL in pages
-        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getDC")
                 .addMockedMethod("getBiblioMods")
-                .addMockedMethod(Fedora4AccessImpl.class.getMethod("getKrameriusModelName", String.class))
+                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
                 .createMock();
 
 
@@ -563,14 +563,14 @@ public class FirstPagePDFServiceImplTest {
 
 
         // test correct data - IMG_FULL in pages
-        Fedora4AccessImpl fa4 = createMockBuilder(Fedora4AccessImpl.class)
+        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getDC")
                 .addMockedMethod("getBiblioMods")
-                .addMockedMethod(Fedora4AccessImpl.class.getMethod("getKrameriusModelName", String.class))
+                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
                 .createMock();
 
 

@@ -203,6 +203,19 @@ public class CollectionUtils {
 
     }
 
+    public static void modifyManagedDatastream(String pid, String streamName, String mimeType, byte[] data, FedoraAccess fedoraAccess) throws IOException, RepositoryException {
+        //String url = k4url + "?action=TEXT&content=" + URLEncoder.encode(ds, "UTF8");
+        if (fedoraAccess.isStreamAvailable(pid, streamName)) {
+            Repository repo = fedoraAccess.getInternalAPI();
+            repo.getObject(pid).deleteStream(streamName);
+            repo.getObject(pid).createManagedStream(streamName, mimeType, new ByteArrayInputStream(data));
+        } else {
+            Repository repo = fedoraAccess.getInternalAPI();
+            repo.getObject(pid).createManagedStream(streamName, mimeType, new ByteArrayInputStream(data));
+        }
+
+    }
+
     public static void modifyLangDatastream(String pid, String lang, String ds, FedoraAccess fedoraAccess) throws IOException, RepositoryException {
         String dsName = VirtualCollectionsManager.TEXT_DS_PREFIX + lang;
         modifyLangDatastream(pid, lang, dsName, ds, fedoraAccess);

@@ -307,7 +307,7 @@ public class Import {
 
                                     String mimeType = fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
                                     fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
-                                    fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).createRedirectedStream(ds.getID(),dsversion.getContentLocation().getREF());
+                                    fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).createRedirectedStream(ds.getID(),dsversion.getContentLocation().getREF(), mimeType);
 
 
                                 }
@@ -584,14 +584,14 @@ public class Import {
                     } else {
                         byte[] binaryContent = latestDs.getBinaryContent();
                         if (binaryContent != null) {
-                            createDataStream(repo, obj, id, latestDs, binaryContent, dob,updateExisting);
+                            createManagedDataStream(repo, obj, id, latestDs, binaryContent, dob,updateExisting);
                         }
 
                     }
                 } else if ((controlgroup.equals("E") || (controlgroup.equals("R")))) {
                     ContentLocationType contentLocation = latestDs.getContentLocation();
                     String ref = contentLocation.getREF();
-                    createRelationDataStream(repo, obj, id, ref);
+                    createRelationDataStream(repo, obj, id, ref,latestDs.getMIMETYPE());
                 }
             }
         }
@@ -599,8 +599,8 @@ public class Import {
         counter++;
         log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
-    private static void createRelationDataStream(Repository repo, RepositoryObject obj, String id, String url) throws RepositoryException {
-        obj.createRedirectedStream(id, url);
+    private static void createRelationDataStream(Repository repo, RepositoryObject obj, String id, String url, String mimeType) throws RepositoryException {
+        obj.createRedirectedStream(id, url, mimeType);
     }
 
     private static void createDataStream(Repository repo, RepositoryObject obj, String id,
@@ -622,6 +622,31 @@ public class Import {
                     obj.deleteStream(id);
                 }
                 obj.createStream(id, mimeType, new ByteArrayInputStream(binaryContent));
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    private static void createManagedDataStream(Repository repo, RepositoryObject obj, String id,
+                                         DatastreamVersionType versionType, byte[] binaryContent, DigitalObject dob, boolean updateExisting) throws RepositoryException {
+        boolean relsExt = id.equals(FedoraUtils.RELS_EXT_STREAM);
+        String mimeType = relsExt ? "text/xml" : versionType.getMIMETYPE();
+
+        try {
+            //TODO: do it better
+            if (id.equals("POLICY")) return;
+
+            obj.createManagedStream(id, mimeType, new ByteArrayInputStream(binaryContent));
+
+        } catch (RepositoryException e) {
+            if (updateExisting && obj.streamExists(id)) {
+                if (relsExt) {
+                    obj.removeRelationsAndRelsExt();
+                } else {
+                    obj.deleteStream(id);
+                }
+                obj.createManagedStream(id, mimeType, new ByteArrayInputStream(binaryContent));
             } else {
                 throw e;
             }
