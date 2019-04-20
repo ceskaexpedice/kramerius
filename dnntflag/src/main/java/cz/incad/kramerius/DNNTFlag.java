@@ -17,36 +17,50 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Process for association of DNNT flag
+ */
 public class DNNTFlag {
 
     public static final Logger LOGGER = Logger.getLogger(DNNTFlag.class.getName());
 
     private static final String DNNT_FILE_KEY = "dnnt.file";
+    private static final String DNNTUNSET_FILE_KEY = "dnntunset.file";
     private static final String DNNT_MODE_KEY = "dnnt.mode";
     private static final String DNNT_COLUMN_NUMBER = "dnnt.pidcolumn";
     private static final String DNNT_SKIPHEADER = "dnnt.skipheader";
     private static final String DNNT_THREADS = "dnnt.threads";
 
-
     private static final String DNNT_DELIMITER = "dnnt.delimiter";
 
 
-
-
-
     public static void main(String[] args) throws IOException, BrokenBarrierException, InterruptedException {
-        String file = KConfiguration.getInstance().getConfiguration().getString(DNNT_FILE_KEY, Constants.WORKING_DIR + File.separator + "dnnt.csv");
+
         String mode = KConfiguration.getInstance().getConfiguration().getString(DNNT_MODE_KEY,"add");
         int pidcolumn = KConfiguration.getInstance().getConfiguration().getInt(DNNT_COLUMN_NUMBER,0);
         boolean skipHeader = KConfiguration.getInstance().getConfiguration().getBoolean(DNNT_SKIPHEADER,true);
         String delimiter = KConfiguration.getInstance().getConfiguration().getString(DNNT_DELIMITER,",");
-
         int numberofThreads = KConfiguration.getInstance().getConfiguration().getInt(DNNT_THREADS,2);
 
-        FedoraAccess fedoraAccess = new FedoraAccessImpl(KConfiguration.getInstance(), null);
-        //ExecutorService executor = Executors.newFixedThreadPool(numberofThreads);
-        Client client = Client.create();
+        boolean flag = true;
+        if (args.length>0) {
+            flag = Boolean.valueOf(args[0]);
+        }
 
+
+        String file = null;
+        if (args.length > 1) {
+            file = args[1];
+        } else {
+            if (flag) {
+                file = KConfiguration.getInstance().getConfiguration().getString(DNNT_FILE_KEY, Constants.WORKING_DIR + File.separator + "dnnt.csv");
+            } else {
+                file = KConfiguration.getInstance().getConfiguration().getString(DNNTUNSET_FILE_KEY, Constants.WORKING_DIR + File.separator + "dnntunset.csv");
+            }
+        }
+
+        FedoraAccess fedoraAccess = new FedoraAccessImpl(KConfiguration.getInstance(), null);
+        Client client = Client.create();
 
         final List<DNNTWorker>  dnntWorkers = new ArrayList<>();
         File f = new File(file);
@@ -63,9 +77,9 @@ public class DNNTFlag {
                     if (dnntWorkers.size() >= numberofThreads) {
                         startWorkers(dnntWorkers);
                         dnntWorkers.clear();
-                        dnntWorkers.add(new DNNTWorker(pid, fedoraAccess, client));
+                        dnntWorkers.add(new DNNTWorker(pid, fedoraAccess, client,flag));
                     } else {
-                        dnntWorkers.add(new DNNTWorker(pid, fedoraAccess, client));
+                        dnntWorkers.add(new DNNTWorker(pid, fedoraAccess, client,flag));
                     }
 
                 } else {

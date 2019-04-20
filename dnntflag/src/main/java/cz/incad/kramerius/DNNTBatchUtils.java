@@ -1,24 +1,13 @@
 package cz.incad.kramerius;
 
-import com.sun.jersey.api.client.*;
-import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.util.List;
-import java.util.logging.Level;
 
 public class DNNTBatchUtils {
 
@@ -35,13 +24,13 @@ public class DNNTBatchUtils {
         document.appendChild(rootElm);
         for (String pid :
                 pids) {
-            Element doc = doc(document, pid, mode);
+            Element doc = addDoc(document, pid, mode);
             rootElm.appendChild(doc);
         }
         return document;
     }
 
-    private static Element doc(Document document, String pid, DNNTMode flag) {
+    private static Element addDoc(Document document, String pid, DNNTMode flag) {
         Element doc = document.createElement("doc");
 
         Element fname = document.createElement("field");

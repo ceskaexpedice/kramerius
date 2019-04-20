@@ -30,6 +30,8 @@ public class DNNTWorker implements Runnable {
     public static Logger LOGGER = Logger.getLogger(DNNTWorker.class.getName());
 
     private static final String DNNT_QUERY = "dnnt.solr.query";
+    private static final String DNNT_QUERY_UNSET = "dnnt.solr.unsetquery";
+
 
 
     private String parentPid;
@@ -37,11 +39,13 @@ public class DNNTWorker implements Runnable {
     private Client client;
 
     private CyclicBarrier barrier;
+    private boolean flag;
 
-    DNNTWorker(String parentPid, FedoraAccess fedoraAccess, Client client) {
+    DNNTWorker(String parentPid, FedoraAccess fedoraAccess, Client client, boolean flag) {
         this.parentPid = parentPid;
         this.fedoraAccess = fedoraAccess;
         this.client = client;
+        this.flag = flag;
         LOGGER.info("Constructing   worker for "+this.parentPid);
     }
 
@@ -55,9 +59,14 @@ public class DNNTWorker implements Runnable {
     public void run() {
         try {
             LOGGER.info("DNNT Flag thread "+Thread.currentThread().getName()+" "+this.parentPid);
-            String q = KConfiguration.getInstance().getConfiguration().getString( DNNT_QUERY,"root_pid:\""+this.parentPid+"\" -dnnt:[* TO *]");
+            String q = null;
+            if (this.flag) {
+                q = KConfiguration.getInstance().getConfiguration().getString( DNNT_QUERY,"root_pid:\""+this.parentPid+"\" -dnnt:[* TO *]");
+            } else {
+                q = KConfiguration.getInstance().getConfiguration().getString( DNNT_QUERY_UNSET,"root_pid:\""+this.parentPid+"\" +dnnt:[* TO *]");
+            }
             String masterQuery = URLEncoder.encode(q,"UTF-8");
-            setDNNTFlag(fedoraAccess, this.parentPid);
+            changeDNNTFlag(fedoraAccess, this.parentPid, this.flag);
             Set<String> allSet = new HashSet<>();
             if (configuredUseCursor()) {
                 try {
@@ -118,17 +127,18 @@ public class DNNTWorker implements Runnable {
         return useCursor;
     }
 
-    private static void setDNNTFlag(FedoraAccess fedoraAccess, String pid) {
+    private static void changeDNNTFlag(FedoraAccess fedoraAccess, String pid, boolean set) {
         FedoraAPIM apim = fedoraAccess.getAPIM();
         String dnntFlag = FedoraNamespaces.KRAMERIUS_URI+"dnnt";
         List<RelationshipTuple> relationships = apim.getRelationships(pid, dnntFlag);
         if (relationships.isEmpty()) {
-            apim.addRelationship(pid, dnntFlag,"true", true, null);
+            if (set)  apim.addRelationship(pid, dnntFlag,"true", true, null);
         } else {
             apim.purgeRelationship(pid, dnntFlag, relationships.get(0).getObject(), relationships.get(0).isIsLiteral(), relationships.get(0).getDatatype());
-            apim.addRelationship(pid, dnntFlag,"true", true, null);
+            if (set) apim.addRelationship(pid, dnntFlag,"true", true, null);
         }
     }
+
 
     public static void commit(Client client) {
         String shost = updateUrl()+"?commit=true";
