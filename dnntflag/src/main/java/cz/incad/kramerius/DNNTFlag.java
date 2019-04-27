@@ -84,7 +84,7 @@ public class DNNTFlag {
                     }
 
                 } else {
-                    LOGGER.log(Level.WARNING, "Ommiting row '"+record+"' number of col is "+record.size());
+                    LOGGER.log(Level.WARNING, "Ommiting row '"+record+"' number of col is "+record.size() +" and PID's column is "+pidcolumn);
                 }
             }
 

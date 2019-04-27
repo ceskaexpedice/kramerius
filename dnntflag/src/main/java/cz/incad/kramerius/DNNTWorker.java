@@ -60,10 +60,12 @@ public class DNNTWorker implements Runnable {
         try {
             LOGGER.info("DNNT Flag thread "+Thread.currentThread().getName()+" "+this.parentPid);
             String q = null;
+            String rParentPid = "root_pid:\""+this.parentPid+"\"";
             if (this.flag) {
-                q = KConfiguration.getInstance().getConfiguration().getString( DNNT_QUERY,"root_pid:\""+this.parentPid+"\" -dnnt:[* TO *]");
+                //(root_pid: -dnnt:[ * TO * ]) || (* +dnnt:false)
+                q = KConfiguration.getInstance().getConfiguration().getString( DNNT_QUERY,"("+rParentPid+" -dnnt:[* TO *]) || ("+rParentPid+" +dnnt:false)");
             } else {
-                q = KConfiguration.getInstance().getConfiguration().getString( DNNT_QUERY_UNSET,"root_pid:\""+this.parentPid+"\" +dnnt:[* TO *]");
+                q = KConfiguration.getInstance().getConfiguration().getString( DNNT_QUERY_UNSET,"("+rParentPid+" dnnt:[* TO *]) || ("+rParentPid+" +dnnt:true)");
             }
             String masterQuery = URLEncoder.encode(q,"UTF-8");
             changeDNNTFlag(fedoraAccess, this.parentPid, this.flag);
@@ -100,7 +102,7 @@ public class DNNTWorker implements Runnable {
                 int start = i * batchSize;
                 List<String> sublist = all.subList(start, Math.min(start + batchSize, all.size()));
                 try {
-                    Document batch = DNNTBatchUtils.createBatch(sublist);
+                    Document batch = DNNTBatchUtils.createBatch(sublist, this.flag);
                     sendToDest(client, batch);
                 } catch (ParserConfigurationException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
