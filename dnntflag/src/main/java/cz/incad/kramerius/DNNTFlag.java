@@ -2,6 +2,7 @@ package cz.incad.kramerius;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -35,7 +36,6 @@ public class DNNTFlag {
 
 
     public static void main(String[] args) throws IOException, BrokenBarrierException, InterruptedException {
-
         String mode = KConfiguration.getInstance().getConfiguration().getString(DNNT_MODE_KEY,"add");
         int pidcolumn = KConfiguration.getInstance().getConfiguration().getInt(DNNT_COLUMN_NUMBER,0);
         boolean skipHeader = KConfiguration.getInstance().getConfiguration().getBoolean(DNNT_SKIPHEADER,true);
@@ -47,15 +47,16 @@ public class DNNTFlag {
             flag = Boolean.valueOf(args[0]);
         }
 
-
         String file = null;
         if (args.length > 1) {
             file = args[1];
         } else {
             if (flag) {
                 file = KConfiguration.getInstance().getConfiguration().getString(DNNT_FILE_KEY, Constants.WORKING_DIR + File.separator + "dnnt.csv");
+                ProcessStarter.updateName("Set DNNT flag. Processing file : (" + file + " )" );
             } else {
                 file = KConfiguration.getInstance().getConfiguration().getString(DNNTUNSET_FILE_KEY, Constants.WORKING_DIR + File.separator + "dnntunset.csv");
+                ProcessStarter.updateName("Unset DNNT flag. Processing file : (" + file + " )" );
             }
         }
 

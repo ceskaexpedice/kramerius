@@ -505,10 +505,21 @@
 
     <process>
         <id>dnntset</id>
-        <description>Change DNNT flag</description>
+        <description>Set the DNNT flag </description>
         <mainClass>cz.incad.kramerius.DNNTFlag</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
+        <parameters>true</parameters>
+        <securedaction>reindex</securedaction>
+    </process>
+
+    <process>
+        <id>dnntunset</id>
+        <description>Unset the DNNT flag</description>
+        <mainClass>cz.incad.kramerius.DNNTFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>false</parameters>
         <securedaction>reindex</securedaction>
     </process>
 

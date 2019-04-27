@@ -217,6 +217,12 @@ function dnntFlagSet() {
     });
 }
 
+    function dnntFlagUnset() {
+        showConfirmDialog(dictionary['administrator.menu.dialogs.dnnt.unset.title'], function(){
+            var url = "lr?action=start&def=dnntunset&out=text";
+            processStarter("dnntunset").start(url);
+        });
+    }
 
 function replaceAll(txt, replace, with_this) {
 	  return txt.replace(new RegExp(replace, 'g'),with_this);
