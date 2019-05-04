@@ -110,7 +110,7 @@ public class DNNTWorker implements Runnable {
             }
             LOGGER.info("DNNT Flag for  "+this.parentPid+" has been set");
         } catch (UnsupportedEncodingException e) {
-            LOGGER.info("DNNT Flag for  "+this.parentPid+" hasn't been set");
+            LOGGER.severe("DNNT Flag for  "+this.parentPid+" hasn't been set");
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } finally {
             commit(client);
