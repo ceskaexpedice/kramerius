@@ -58,19 +58,9 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
     }
 
     @Test
-    public void testCheckRunning() throws IOException {
-        URL url = new URL("http://localhost:18080/rest");
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        urlConnection.setConnectTimeout(10000);
-        int responseCode = urlConnection.getResponseCode();
-        Assert.assertTrue(responseCode==200);
-    }
-
-    @Test
-    public void testCreateObject() throws RepositoryException {
+    public void testCreateObject() throws RepositoryException, IOException {
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
-
+        Repository repository = getRepository(feeder);
         RepositoryObject object = repository.createOrFindObject("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
         boolean trueFlag = repository.objectExists("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
         Assert.assertTrue(trueFlag);
@@ -86,7 +76,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         byte[] bytes = resources.get("page-RELS-EXT.xml");
 
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8")) {
             repository.deleteobject("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
         }
@@ -99,12 +89,16 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         SolrDocumentList results = response.getResults();
         Assert.assertTrue(results.getNumFound() == 1);
 
-        Document metadata = object.getMetadata();
-        Element pid = XMLUtils.findElement(metadata.getDocumentElement(), "PID", FedoraNamespaces.FEDORA_FOXML_URI);
-        Assert.assertEquals(pid.getTextContent(), "uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
+        //Document metadata = object.getMetadata();
+        //Element pid = XMLUtils.findElement(metadata.getDocumentElement(), "PID", FedoraNamespaces.FEDORA_FOXML_URI);
+        //Assert.assertEquals(pid.getTextContent(), "uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
 
-        Element model = XMLUtils.findElement(metadata.getDocumentElement(), "hasModel","info:fedora/fedora-system:def/model#");
-        Assert.assertEquals("http://localhost:18080/rest/model/page",model.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","resource"));
+        AkubraObject akubraObject = (AkubraObject) object;
+        Assert.assertEquals("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8", akubraObject.digitalObject.getPID());
+
+        Assert.assertTrue(akubraObject.relationsExists("hasModel","info:fedora/fedora-system:def/model#"));
+        //Element model = XMLUtils.findElement(metadata.getDocumentElement(), "hasModel","info:fedora/fedora-system:def/model#");
+        //Assert.assertEquals("http://localhost:18080/rest/model/page",model.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","resource"));
     }
 
     @Test
@@ -112,7 +106,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         byte[] bytes = resources.get("monograph-RELS-EXT.xml");
 
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
             repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
@@ -133,24 +127,9 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         results = response.getResults();
         Assert.assertTrue(results.getNumFound() == 36);
 
-        // metadata
-        Document metadata = object.getMetadata();
-        List<String> pages = XMLUtils.getElementsRecursive(metadata.getDocumentElement(), (element) -> {
-            boolean namespaceEq = element.getNamespaceURI().equals("http://www.nsdl.org/ontologies/relationships#");
-            boolean nameEq = element.getLocalName().equals("hasPage");
-            return namespaceEq && nameEq;
-        }).stream().map((elm)->{
-            String reference =elm.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","resource");
-            if (reference.startsWith("info:fedora/")) {
-                return StringUtils.minus(reference, "info:fedora/");
-            } else {
-                return reference;
-            }
-        }).collect(Collectors.toList());
-        Assert.assertTrue(pages.size() == 36);
 
         // relsext peages
-        pages = XMLUtils.getElementsRecursive(XMLUtils.parseDocument(object.getStream(FedoraUtils.RELS_EXT_STREAM).getContent(),true).getDocumentElement(), (element) -> {
+        List<String> pages = XMLUtils.getElementsRecursive(XMLUtils.parseDocument(object.getStream(FedoraUtils.RELS_EXT_STREAM).getContent(),true).getDocumentElement(), (element) -> {
             boolean namespaceEq = element.getNamespaceURI().equals("http://www.nsdl.org/ontologies/relationships#");
             boolean nameEq = element.getLocalName().equals("hasPage");
             return namespaceEq && nameEq;
@@ -164,61 +143,6 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         }).collect(Collectors.toList());
         Assert.assertTrue(pages.size() == 36);
 
-    }
-
-    @Test
-    public void testMonographRELSEXT_RemoveRelation_Metadata() throws RepositoryException, IOException, SolrServerException, TransformerException, ParserConfigurationException, SAXException {
-        byte[] bytes = resources.get("monograph-RELS-EXT.xml");
-
-        ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
-        if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
-        }
-        RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
-        object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
-
-        feeder.commit();
-
-        // metadata check
-        Document metadata = object.getMetadata();
-        Element oneElement = XMLUtils.findElement(metadata.getDocumentElement(), (element) -> {
-            boolean namespaceEq = element.getNamespaceURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-            boolean nameEq = element.getLocalName().equals("Description");
-            if (namespaceEq && nameEq) {
-                return (element.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about").endsWith("data/503/5a4/8a5/e2e/486/c81/272/fa6/508/42e/46#page1"));
-            } else return false;
-        });
-
-        Assert.assertNotNull(oneElement);
-        String ref = XMLUtils.findElement(oneElement, (elm) -> {
-            return (elm.getNamespaceURI().equals("http://www.w3.org/2002/07/owl#") && elm.getLocalName().equals("sameAs"));
-        }).getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource");
-
-        Assert.assertTrue(ref.endsWith("129/93b/4a7/1b4/4f1/989/530/701/243/cc2/5d"));
-
-
-        // remove first page
-        object.removeRelation("hasPage", FedoraNamespaces.KRAMERIUS_URI,"uuid:12993b4a-71b4-4f19-8953-0701243cc25d");
-
-
-        // metadata check
-        metadata = object.getMetadata();
-        oneElement = XMLUtils.findElement(metadata.getDocumentElement(), (element) -> {
-            boolean namespaceEq = element.getNamespaceURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-            boolean nameEq = element.getLocalName().equals("Description");
-            if (namespaceEq && nameEq) {
-                return (element.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about").endsWith("data/503/5a4/8a5/e2e/486/c81/272/fa6/508/42e/46#page1"));
-            } else return false;
-        });
-        Assert.assertNotNull(oneElement);
-        ref = XMLUtils.findElement(oneElement, (elm) -> {
-            return (elm.getNamespaceURI().equals("http://www.w3.org/2002/07/owl#") && elm.getLocalName().equals("sameAs"));
-        }).getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource");
-
-        Assert.assertFalse(ref.endsWith("129/93b/4a7/1b4/4f1/989/530/701/243/cc2/5d"));
-        // second page should be the first now
-        Assert.assertTrue(ref.endsWith(path(normalizePath("uuid:f80d5a2f-c546-4d21-ae64-9845afb324a6"))));
     }
 
     @Test
@@ -226,7 +150,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         byte[] bytes = resources.get("monograph-RELS-EXT.xml");
 
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
             repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
@@ -282,7 +206,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         byte[] bytes = resources.get("monograph-RELS-EXT.xml");
 
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
             repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
@@ -310,7 +234,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         byte[] bytes = resources.get("monograph-RELS-EXT.xml");
 
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
             repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
@@ -405,7 +329,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         byte[] bytes = resources.get("monograph-RELS-EXT.xml");
 
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
             repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
@@ -419,14 +343,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         object.addLiteral("tiles-url", FedoraNamespaces.KRAMERIUS_URI, "http://seznam.cz");
         Assert.assertTrue(object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI));
 
-        Element tilesUrl = XMLUtils.findElement(object.getMetadata().getDocumentElement(), (elm) -> {
-            String namespace = elm.getNamespaceURI();
-            String localName = elm.getLocalName();
-            return namespace.equals("http://www.nsdl.org/ontologies/relationships#") && (localName.equals("tiles-url"));
-        });
-        Assert.assertEquals(tilesUrl.getTextContent(), "http://seznam.cz");
-
-        tilesUrl = XMLUtils.findElement(XMLUtils.parseDocument(object.getStream(FedoraUtils.RELS_EXT_STREAM).getContent(), true).getDocumentElement(), (elm) -> {
+        Element tilesUrl = XMLUtils.findElement(XMLUtils.parseDocument(object.getStream(FedoraUtils.RELS_EXT_STREAM).getContent(), true).getDocumentElement(), (elm) -> {
             String namespace = elm.getNamespaceURI();
             String localName = elm.getLocalName();
             return namespace.equals("http://www.nsdl.org/ontologies/relationships#") && (localName.equals("tiles-url"));
@@ -442,7 +359,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         byte[] bytes = resources.get("monograph-RELS-EXT.xml");
 
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
             repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
@@ -468,20 +385,6 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
             }
         }).collect(Collectors.toList());
         Assert.assertTrue(pages.isEmpty());
-
-        pages = XMLUtils.getElementsRecursive(object.getMetadata().getDocumentElement(), (element) -> {
-            boolean namespaceEq = element.getNamespaceURI().equals("http://www.nsdl.org/ontologies/relationships#");
-            boolean nameEq = element.getLocalName().equals("hasPage");
-            return namespaceEq && nameEq;
-        }).stream().map((elm)->{
-            String reference =elm.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","resource");
-            if (reference.startsWith("info:fedora/")) {
-                return StringUtils.minus(reference, "info:fedora/");
-            } else {
-                return reference;
-            }
-        }).collect(Collectors.toList());
-        Assert.assertTrue(pages.isEmpty());
     }
 
     @Test
@@ -489,7 +392,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         byte[] bytes = resources.get("monograph-RELS-EXT.xml");
 
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
             repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
@@ -512,7 +415,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         byte[] bytes = resources.get("monograph-RELS-EXT.xml");
 
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
             repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
@@ -532,12 +435,12 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testMonographDeleteOnePage_ProcessIndex() throws RepositoryException, IOException, SolrServerException, TransformerException, ParserConfigurationException, SAXException {
         byte[] bytes = resources.get("monograph-RELS-EXT.xml");
 
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
             repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }

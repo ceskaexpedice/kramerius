@@ -30,7 +30,6 @@ import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import static cz.incad.kramerius.fedora.om.Repository.build;
 
 public class DeleteServiceImplTest  {
 
@@ -54,7 +53,7 @@ public class DeleteServiceImplTest  {
 
         byte[] bytes = resources.get("monograph-RELS-EXT.xml");
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
             repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
@@ -106,7 +105,7 @@ public class DeleteServiceImplTest  {
 
         byte[] bytes = resources.get("monograph-RELS-EXT.xml");
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
             repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }

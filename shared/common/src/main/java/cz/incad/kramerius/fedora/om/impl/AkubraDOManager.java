@@ -15,6 +15,7 @@ import org.ehcache.expiry.Duration;
 import org.ehcache.expiry.Expirations;
 import org.fcrepo.server.errors.LowlevelStorageException;
 import org.fcrepo.server.errors.ObjectAlreadyInLowlevelStorageException;
+import org.fcrepo.server.errors.ObjectNotInLowlevelStorageException;
 import org.fcrepo.server.storage.lowlevel.ICheckable;
 import org.fcrepo.server.storage.lowlevel.ILowlevelStorage;
 import org.fcrepo.server.storage.lowlevel.akubra.AkubraLowlevelStorage;
@@ -25,13 +26,9 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.net.URI;
-import java.text.ParseException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -112,6 +109,8 @@ public class AkubraDOManager {
                 synchronized (unmarshaller) {
                     obj = unmarshaller.unmarshal(inputStream);
                 }
+            } catch (ObjectNotInLowlevelStorageException ex) {
+                return null;
             } catch (Exception e) {
                 throw new IOException(e);
             }
@@ -137,7 +136,7 @@ public class AkubraDOManager {
         }
     }
 
-    public void deleteObject(String pid) throws IOException{
+    public void deleteObject(String pid) throws IOException {
         getWriteLock(pid);
         try {
             DigitalObject object = readObjectFromStorage(pid);
@@ -149,19 +148,19 @@ public class AkubraDOManager {
             } catch (LowlevelStorageException e) {
                 LOGGER.warning("Could not remove object from Akubra: " + e);
             }
-        }finally{
+        } finally {
             invalidateCache(pid);
             releaseWriteLock(pid);
         }
     }
 
-    public void deleteStream(String pid, String streamId) throws IOException{
+    public void deleteStream(String pid, String streamId) throws IOException {
         getWriteLock(pid);
         try {
             DigitalObject object = readObjectFromStorage(pid);
             List<DatastreamType> datastreamList = object.getDatastream();
             Iterator<DatastreamType> iterator = datastreamList.iterator();
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 DatastreamType datastreamType = iterator.next();
                 if (streamId.equals(datastreamType.getID())) {
                     removeManagedStream(datastreamType);
@@ -172,14 +171,14 @@ public class AkubraDOManager {
             try {
                 setLastModified(object);
                 StringWriter stringWriter = new StringWriter();
-                synchronized (marshaller){
-                    marshaller.marshal(object,stringWriter);
+                synchronized (marshaller) {
+                    marshaller.marshal(object, stringWriter);
                 }
                 addOrReplaceObject(pid, new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8")));
             } catch (Exception e) {
                 LOGGER.warning("Could not replace object in Akubra: " + e);
             }
-        }finally{
+        } finally {
             invalidateCache(pid);
             releaseWriteLock(pid);
         }
@@ -199,38 +198,38 @@ public class AkubraDOManager {
         }
     }
 
-    public void commit(DigitalObject object, String streamId) throws IOException{
+    public void commit(DigitalObject object, String streamId) throws IOException {
         getWriteLock(object.getPID());
         try {
             List<DatastreamType> datastreamList = object.getDatastream();
             Iterator<DatastreamType> iterator = datastreamList.iterator();
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 DatastreamType datastreamType = iterator.next();
                 if (streamId != null && streamId.equals(datastreamType.getID())) {
-                    convertManagedStream(object.getPID(),datastreamType);
+                    convertManagedStream(object.getPID(), datastreamType);
                     break;
-                }else {
-                    convertManagedStream(object.getPID(),datastreamType);
+                } else {
+                    convertManagedStream(object.getPID(), datastreamType);
                 }
             }
             try {
                 setLastModified(object);
                 StringWriter stringWriter = new StringWriter();
-                synchronized (marshaller){
-                    marshaller.marshal(object,stringWriter);
+                synchronized (marshaller) {
+                    marshaller.marshal(object, stringWriter);
                 }
                 addOrReplaceObject(object.getPID(), new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8")));
 
             } catch (Exception e) {
                 LOGGER.warning("Could not replace object in Akubra: " + e);
             }
-        }finally{
+        } finally {
             invalidateCache(object.getPID());
             releaseWriteLock(object.getPID());
         }
     }
 
-    private void setLastModified(DigitalObject object){
+    private void setLastModified(DigitalObject object) {
         boolean propertyExists = false;
         List<PropertyType> propertyTypeList = object.getObjectProperties().getProperty();
         for (PropertyType propertyType : propertyTypeList) {
@@ -240,15 +239,15 @@ public class AkubraDOManager {
                 break;
             }
         }
-        if (! propertyExists){
-            propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/view#lastModifiedDate",AkubraUtils.currentTimeString()));
+        if (!propertyExists) {
+            propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/view#lastModifiedDate", AkubraUtils.currentTimeString()));
         }
     }
 
     private void convertManagedStream(String pid, DatastreamType datastreamType) {
         if ("M".equals(datastreamType.getCONTROLGROUP())) {
             for (DatastreamVersionType datastreamVersionType : datastreamType.getDatastreamVersion()) {
-                if (datastreamVersionType.getBinaryContent()!= null) {
+                if (datastreamVersionType.getBinaryContent() != null) {
                     try {
                         String ref = pid + "+" + datastreamType.getID() + "+" + datastreamVersionType.getID();
                         addOrReplaceDatastream(ref, new ByteArrayInputStream(datastreamVersionType.getBinaryContent()));
@@ -266,7 +265,7 @@ public class AkubraDOManager {
     }
 
     private void addOrReplaceObject(String pid, InputStream content) throws LowlevelStorageException {
-        if (((ICheckable)storage).objectExists(pid)){
+        if (((ICheckable) storage).objectExists(pid)) {
             storage.replaceObject(pid, content, null);
         } else {
             storage.addObject(pid, content, null);
@@ -281,7 +280,7 @@ public class AkubraDOManager {
                 storage.addDatastream(pid, content, null);
             }
         } else {
-            try{
+            try {
                 storage.addDatastream(pid, content, null);
             } catch (ObjectAlreadyInLowlevelStorageException oailse) {
                 storage.replaceDatastream(pid, content, null);
@@ -291,17 +290,17 @@ public class AkubraDOManager {
 
 
     private static void getWriteLock(String pid) {
-        if( pid == null ) {
+        if (pid == null) {
             throw new IllegalArgumentException("pid cannot be null");
         }
         pidLocks.lock(pid);
     }
 
     private static void releaseWriteLock(String pid) {
-       pidLocks.unlock(pid);
+        pidLocks.unlock(pid);
     }
 
-    private static void invalidateCache(String pid){
+    private static void invalidateCache(String pid) {
         cacheInvalidator.publish(pid);
     }
 

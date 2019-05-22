@@ -102,9 +102,11 @@ public class AkubraObject implements RepositoryObject {
 
     private DatastreamType createDatastreamHeader(String streamId, String mimeType, String controlGroup ) throws RepositoryException{
         List<DatastreamType> datastreamList = digitalObject.getDatastream();
-        for (DatastreamType datastreamType : datastreamList) {
+        Iterator<DatastreamType> iterator = datastreamList.iterator();
+        while (iterator.hasNext()){
+            DatastreamType datastreamType = iterator.next();
             if (streamId.equals(datastreamType.getID())){
-                throw new RepositoryException("stream '" + streamId + "' already exists in the object "+this.pid);
+                iterator.remove();
             }
         }
         DatastreamType datastreamType = new DatastreamType();
@@ -197,6 +199,7 @@ public class AkubraObject implements RepositoryObject {
             if (streamId.equals(FedoraUtils.RELS_EXT_STREAM)) {
                 // process rels-ext and create all children and relations
                 this.feeder.deleteByRelationsForPid(pid);
+                input.reset();
                 rebuildProcessingIndexImpl(input);
             }
             return ds;
@@ -225,7 +228,11 @@ public class AkubraObject implements RepositoryObject {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return ret.getDocumentElement();
+        if ( ret != null ){
+            return ret.getDocumentElement();
+        } else {
+            return null;
+        }
     }
 
 

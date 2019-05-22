@@ -110,12 +110,12 @@ public class CollectionUtils {
 
                 if (plainTexts.containsKey("cs")) {
                     byte[] textCsBytes = plainTexts.get("cs").getBytes(Charset.forName("UTF-8"));
-                    collection.createStream("TEXT_cs", "text/xml", new ByteArrayInputStream(textCsBytes));
+                    collection.createManagedStream("TEXT_cs", "text/xml", new ByteArrayInputStream(textCsBytes));
                 }
 
                 if (plainTexts.containsKey("en")) {
                     byte[] textEnBytes = plainTexts.get("en").getBytes(Charset.forName("UTF-8"));
-                    collection.createStream("TEXT_en", "text/xml", new ByteArrayInputStream(textEnBytes));
+                    collection.createManagedStream("TEXT_en", "text/xml", new ByteArrayInputStream(textEnBytes));
                 }
 
                 StringTemplate relsextTemplate = grp.getInstanceOf("relsext");

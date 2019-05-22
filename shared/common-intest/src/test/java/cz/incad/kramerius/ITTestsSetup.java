@@ -2,16 +2,23 @@ package cz.incad.kramerius;
 
 import com.google.inject.*;
 import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.it.ITSupport;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.om.impl.RepositoryInternalApiTests;
+import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.core.CoreContainer;
+import org.ehcache.CacheManager;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -20,6 +27,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static cz.incad.kramerius.fedora.om.impl.AkubraRepository.build;
 
 public class ITTestsSetup {
 
@@ -67,7 +76,7 @@ public class ITTestsSetup {
         container = new CoreContainer("src/test/resources/cz/incad/kramerius/resourceindex/IT");
         container.load();
         solrServer = new EmbeddedSolrServer( container, "processing" );
-        ITSupport.Commands.CONTROL.command();
+        //ITSupport.Commands.CONTROL.command();
 
     }
 
@@ -97,5 +106,11 @@ public class ITTestsSetup {
 
         }, new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         UpdateResponse response = solrServer.deleteByQuery("*:*");
+    }
+
+    public static Repository getRepository(ProcessingIndexFeeder feeder) throws IOException, RepositoryException {
+        CacheManager cacheManager = injector.getInstance(Key.get(CacheManager.class, Names.named("akubraCacheManager")));
+        AkubraDOManager akubraDOManager = new AkubraDOManager(KConfiguration.getInstance(), cacheManager);
+        return build(feeder, akubraDOManager);
     }
 }

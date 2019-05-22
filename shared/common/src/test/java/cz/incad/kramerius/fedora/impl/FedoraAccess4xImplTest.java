@@ -61,10 +61,12 @@ public class FedoraAccess4xImplTest {
     public void testFindFirstViewablePid_bad() throws IOException, ParserConfigurationException, SAXException, LexerException {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
 
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
                 .createMock();
@@ -86,9 +88,11 @@ public class FedoraAccess4xImplTest {
         final List<Integer> order = new ArrayList<>();
 
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
 
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
                 .createMock();
@@ -133,13 +137,15 @@ public class FedoraAccess4xImplTest {
     public void testProcessTree_SkipBranch2() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
 
         final Map<String, Integer> mapping = new HashMap<String, Integer>();
 
         final List<Integer> order = new ArrayList<Integer>();
 
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog,cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
                 .createMock();

@@ -45,7 +45,7 @@ public class DeepZoomFlagServiceImplTest {
     @Test
     public void deleteAndSetFlag() throws RepositoryException, IOException, SolrServerException, TransformerException, ParserConfigurationException, SAXException {
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = Repository.build(feeder, false);
+        Repository repository = getRepository(feeder);
         Arrays.asList(
                 "0eaa6730-9068-11dd-97de-000d606f5dc6",
                 "4308eb80-b03b-11dd-a0f6-000d606f5dc6",
@@ -75,13 +75,11 @@ public class DeepZoomFlagServiceImplTest {
         service.fedoraAccess = fa;
         service.deleteFlagToPID("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6");
 
-        checkNoExistence(repository.getObject("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6").getMetadata());
         checkNoExistence(XMLUtils.parseDocument(repository.getObject("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6").getStream(FedoraUtils.RELS_EXT_STREAM).getContent(), true));
 
         service.setFlagToPID("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6","kramerius4://deepZoomCache");
 
 
-        checkExistence(repository.getObject("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6").getMetadata());
         checkExistence(XMLUtils.parseDocument(repository.getObject("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6").getStream(FedoraUtils.RELS_EXT_STREAM).getContent(), true));
     }
 

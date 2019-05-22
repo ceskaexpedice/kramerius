@@ -6,12 +6,15 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationUtils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.service.impl.PolicyServiceImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ehcache.CacheManager;
 import org.junit.*;
 import org.w3c.dom.Document;
 
@@ -21,7 +24,7 @@ import java.util.Arrays;
 
 import static cz.incad.kramerius.ITTestsSetup.*;
 import static cz.incad.kramerius.ITTestsSetup.resources;
-import static cz.incad.kramerius.fedora.om.Repository.build;
+import static cz.incad.kramerius.fedora.om.impl.AkubraRepository.build;
 
 public class RelationServiceImplTest {
     @BeforeClass
@@ -43,7 +46,7 @@ public class RelationServiceImplTest {
     @Test
     public void testRelationService() throws RepositoryException, IOException, SolrServerException {
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         Arrays.asList(
                 "0eaa6730-9068-11dd-97de-000d606f5dc6",
                 "4308eb80-b03b-11dd-a0f6-000d606f5dc6",
@@ -78,5 +81,7 @@ public class RelationServiceImplTest {
             throw new IOException("Cannot load relations: " + pid, ex);
         }
     }
+
+
 
 }

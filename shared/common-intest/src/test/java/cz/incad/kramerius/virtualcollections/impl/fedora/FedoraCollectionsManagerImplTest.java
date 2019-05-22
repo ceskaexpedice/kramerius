@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import static cz.incad.kramerius.ITTestsSetup.*;
-import static cz.incad.kramerius.fedora.om.Repository.build;
 import static org.easymock.EasyMock.isA;
 
 public class FedoraCollectionsManagerImplTest {
@@ -46,7 +45,7 @@ public class FedoraCollectionsManagerImplTest {
     public void testCreateAndDeleteCollection() throws IOException, XPathExpressionException, CollectionException, RepositoryException, InterruptedException, SolrServerException {
         IResourceIndex ri = injector.getInstance(IResourceIndex.class);
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
 
         Assert.assertNotNull(ri);
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));

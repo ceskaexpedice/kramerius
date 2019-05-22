@@ -193,7 +193,7 @@ public class AkubraRepository extends Repository {
                 throw new RepositoryException("Cannot delete data from processing index for  " + pid + " please start processing index update");
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RepositoryException(e);
         }
     }

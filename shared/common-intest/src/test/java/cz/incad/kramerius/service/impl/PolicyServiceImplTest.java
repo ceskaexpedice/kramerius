@@ -1,7 +1,6 @@
 package cz.incad.kramerius.service.impl;
 
 import static cz.incad.kramerius.ITTestsSetup.*;
-import static cz.incad.kramerius.fedora.om.Repository.build;
 import static cz.incad.kramerius.utils.XMLUtils.*;
 
 import com.google.inject.Key;
@@ -46,7 +45,7 @@ public class PolicyServiceImplTest {
     @Test
     public void testPolicy() throws IOException, SolrServerException, RepositoryException, ParserConfigurationException, SAXException, TransformerException {
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
         Arrays.asList(
                 "0eaa6730-9068-11dd-97de-000d606f5dc6",
                 "4308eb80-b03b-11dd-a0f6-000d606f5dc6",
@@ -82,14 +81,11 @@ public class PolicyServiceImplTest {
                 "94a68570-92d6-11dc-be5a-000d606f5dc6").stream().forEach((pid)->{
 
             try {
-                Document relsExt = XMLUtils.parseDocument(repository.getObject(pid).getStream(FedoraUtils.RELS_EXT_STREAM).getContent(), true);
+                Document relsExt = XMLUtils.parseDocument(repository.getObject("uuid:"+pid).getStream(FedoraUtils.RELS_EXT_STREAM).getContent(), true);
                 checkRELS_EXT(relsExt,"policy:private");
 
-                Document dc = XMLUtils.parseDocument(repository.getObject(pid).getStream(FedoraUtils.DC_STREAM).getContent(), true);
+                Document dc = XMLUtils.parseDocument(repository.getObject("uuid:"+pid).getStream(FedoraUtils.DC_STREAM).getContent(), true);
                 checkDC(dc,"policy:private");
-
-                Document metadata = repository.getObject(pid).getMetadata();
-                checkRELS_EXT(metadata,"policy:private");
 
             } catch (ParserConfigurationException e) {
                 throw new RuntimeException(e);
@@ -111,14 +107,12 @@ public class PolicyServiceImplTest {
                 "94a68570-92d6-11dc-be5a-000d606f5dc6").stream().forEach((pid)->{
 
             try {
-                Document relsExt = XMLUtils.parseDocument(repository.getObject(pid).getStream(FedoraUtils.RELS_EXT_STREAM).getContent(), true);
+                Document relsExt = XMLUtils.parseDocument(repository.getObject("uuid:"+pid).getStream(FedoraUtils.RELS_EXT_STREAM).getContent(), true);
                 checkRELS_EXT(relsExt,"policy:public");
 
-                Document dc = XMLUtils.parseDocument(repository.getObject(pid).getStream(FedoraUtils.DC_STREAM).getContent(), true);
+                Document dc = XMLUtils.parseDocument(repository.getObject("uuid:"+pid).getStream(FedoraUtils.DC_STREAM).getContent(), true);
                 checkDC(dc,"policy:public");
 
-                Document metadata = repository.getObject(pid).getMetadata();
-                checkRELS_EXT(metadata,"policy:public");
 
             } catch (ParserConfigurationException e) {
                 throw new RuntimeException(e);

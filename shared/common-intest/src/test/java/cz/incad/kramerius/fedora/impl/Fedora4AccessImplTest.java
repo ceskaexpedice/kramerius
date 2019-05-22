@@ -8,8 +8,11 @@ import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ehcache.CacheManager;
 import org.junit.*;
 import org.xml.sax.SAXException;
 
@@ -19,7 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
-import static cz.incad.kramerius.fedora.om.Repository.build;
+import static cz.incad.kramerius.fedora.om.impl.AkubraRepository.build;
 
 public class Fedora4AccessImplTest  {
 
@@ -42,7 +45,8 @@ public class Fedora4AccessImplTest  {
     public void testGetPids() throws RepositoryException, IOException, SolrServerException, TransformerException, ParserConfigurationException, SAXException {
         byte[] bytes = resources.get("monograph-RELS-EXT.xml");
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Repository repository = build(feeder, false);
+        Repository repository = getRepository(feeder);
+
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
             repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
@@ -57,4 +61,6 @@ public class Fedora4AccessImplTest  {
         List<String> pids = fa.getPids("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         Assert.assertTrue(pids.get(0).equals("uuid:5035a48a-5e2e-486c-8127-2fa650842e46"));
     }
+
+
 }
