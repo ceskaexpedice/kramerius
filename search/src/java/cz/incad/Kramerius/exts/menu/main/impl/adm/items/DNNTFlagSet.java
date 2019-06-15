@@ -10,7 +10,8 @@ public class DNNTFlagSet extends AbstractMainMenuItem implements AdminMenuItem {
 
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName()));
+
+        return (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName()) || hasUserAllowedAction(SecuredActions.DNNT_ADMIN.getFormalName()));
     }
 
     @Override
