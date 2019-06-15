@@ -510,7 +510,7 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <parameters>true</parameters>
-        <securedaction>reindex</securedaction>
+        <securedaction>dnnt_admin</securedaction>
     </process>
 
     <process>
@@ -520,7 +520,7 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <parameters>false</parameters>
-        <securedaction>reindex</securedaction>
+        <securedaction>dnnt_admin</securedaction>
     </process>
 
 </processes>
