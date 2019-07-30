@@ -32,6 +32,11 @@ public class FeederSolrPolicyDecorate extends AbstractFeederDecorator {
             if(doc == null){
                 doc = this.solrMemo.askForIndexDocument(pid);
             }
+
+            if (doc == null) {
+                throw new IllegalStateException("Document could not be loaded from SOLR. Pid: " + pid);
+            }
+
             String policy = SOLRUtils.value(doc, "dostupnost", String.class);
             if(policy != null) {
                 jsonObject.put("policy", policy);

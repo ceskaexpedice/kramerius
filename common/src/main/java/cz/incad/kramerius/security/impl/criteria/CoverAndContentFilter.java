@@ -70,7 +70,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
             xpath.setNamespaceContext(new FedoraNamespaceContext());
             XPathExpression expr = xpath.compile("/mods:modsCollection/mods:mods/mods:part/@type");
             String type = expr.evaluate(relsExt);
-            if (Arrays.asList("FrontCover", "TableOfContents", "FrontJacket").contains(type)) {
+            if (Arrays.asList("FrontCover", "TableOfContents", "FrontJacket", "jacket").contains(type)) {
                 return EvaluatingResult.TRUE;
             } else {
                 return EvaluatingResult.NOT_APPLICABLE;

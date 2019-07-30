@@ -122,6 +122,10 @@ public class KConfiguration {
         return getProperty("fedoraHost");
     }
 
+    public List<String> getSolrCachedURLS() {
+        return getConfiguration().getList("solr.cache.urls");
+    }
+
     public String getSolrHost() {
         return getProperty("solrHost");
     }
