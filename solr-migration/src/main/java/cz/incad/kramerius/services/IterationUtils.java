@@ -225,7 +225,7 @@ public class IterationUtils {
 
 
     public interface IterationCallback {
-            public void call(Element results, String iterationToken);
+            public void call(Element results, String iterationToken) throws ParserConfigurationException, MigrateSolrIndexException, SAXException, IOException;
     }
 
     public interface IterationEndCallback {

@@ -93,8 +93,13 @@ public class MainMenuConfiguration extends AbstractModule {
         
         adminItems.addBinding().to(ShowStatistics.class);
         adminItems.addBinding().to(DeleteProcesses.class);
-        adminItems.addBinding().to(DNNTFlagSet.class);
-        adminItems.addBinding().to(DNNTFlagUnset.class);
+
+        //adminItems.addBinding().to(DNNTFlagSet.class);
+        adminItems.addBinding().to(ParametrizedDNNTFlagSet.class);
+        adminItems.addBinding().to(ParametrizedDNNTFlagUnset.class);
+
+        //adminItems.addBinding().to(DNNTFlagUnset.class);
+        adminItems.addBinding().to(DNNTCSVExport.class);
 
         bind(MainMenu.class).to(MainMenuImpl.class);
     }

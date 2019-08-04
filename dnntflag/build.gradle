@@ -4,7 +4,8 @@ dependencies {
     compile project(':security-core')
     compile project(':fedora-api')
     compile project(':common') 
-    compile project(':indexer') 
+    compile project(':indexer')
+    compile project(':import')
     compile project(':solr-migration')
 
 

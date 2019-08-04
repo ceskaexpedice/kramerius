@@ -168,9 +168,10 @@ subprojects {
             url "http://repo.jfrog.org/artifactory/libs-releases/"
         }
 
+        /*
         maven {
             url "https://maven.atlassian.com/content/groups/public"
-        }
+        }*/
 
         maven {
             url "http://jbig2-imageio.googlecode.com/svn/maven-repository"

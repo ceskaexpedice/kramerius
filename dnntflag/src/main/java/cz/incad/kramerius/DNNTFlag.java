@@ -25,14 +25,14 @@ public class DNNTFlag {
 
     public static final Logger LOGGER = Logger.getLogger(DNNTFlag.class.getName());
 
-    private static final String DNNT_FILE_KEY = "dnnt.file";
-    private static final String DNNTUNSET_FILE_KEY = "dnntunset.file";
-    private static final String DNNT_MODE_KEY = "dnnt.mode";
-    private static final String DNNT_COLUMN_NUMBER = "dnnt.pidcolumn";
-    private static final String DNNT_SKIPHEADER = "dnnt.skipheader";
-    private static final String DNNT_THREADS = "dnnt.threads";
+    public static final String DNNT_FILE_KEY = "dnnt.file";
+    public static final String DNNTUNSET_FILE_KEY = "dnntunset.file";
+    public static final String DNNT_MODE_KEY = "dnnt.mode";
+    public static final String DNNT_COLUMN_NUMBER = "dnnt.pidcolumn";
+    public static final String DNNT_SKIPHEADER = "dnnt.skipheader";
+    public static final String DNNT_THREADS = "dnnt.threads";
 
-    private static final String DNNT_DELIMITER = "dnnt.delimiter";
+    public static final String DNNT_DELIMITER = "dnnt.delimiter";
 
 
     public static void main(String[] args) throws IOException, BrokenBarrierException, InterruptedException {
@@ -52,10 +52,12 @@ public class DNNTFlag {
             file = args[1];
         } else {
             if (flag) {
-                file = KConfiguration.getInstance().getConfiguration().getString(DNNT_FILE_KEY, Constants.WORKING_DIR + File.separator + "dnnt.csv");
+                 file = System.getProperties().containsKey(DNNT_FILE_KEY) ? System.getProperty(DNNT_FILE_KEY) : KConfiguration.getInstance().getConfiguration().getString(DNNT_FILE_KEY, Constants.WORKING_DIR + File.separator + "dnnt.csv");
+                //file =  KConfiguration.getInstance().getConfiguration().getString(DNNT_FILE_KEY, Constants.WORKING_DIR + File.separator + "dnnt.csv");
                 ProcessStarter.updateName("Set DNNT flag. Processing file : (" + file + " )" );
             } else {
-                file = KConfiguration.getInstance().getConfiguration().getString(DNNTUNSET_FILE_KEY, Constants.WORKING_DIR + File.separator + "dnntunset.csv");
+                //file = KConfiguration.getInstance().getConfiguration().getString(DNNTUNSET_FILE_KEY, Constants.WORKING_DIR + File.separator + "dnntunset.csv");
+                file = System.getProperties().containsKey(DNNTUNSET_FILE_KEY) ? System.getProperty(DNNTUNSET_FILE_KEY) : KConfiguration.getInstance().getConfiguration().getString(DNNTUNSET_FILE_KEY, Constants.WORKING_DIR + File.separator + "dnntunset.csv");
                 ProcessStarter.updateName("Unset DNNT flag. Processing file : (" + file + " )" );
             }
         }

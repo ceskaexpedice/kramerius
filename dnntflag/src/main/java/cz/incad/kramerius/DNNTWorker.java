@@ -92,7 +92,11 @@ public class DNNTWorker implements Runnable {
             }
 
             List<String> all = new ArrayList<>(allSet);
-            LOGGER.info("Setting flag for all children for "+this.parentPid+" and number of children are "+all.size());
+            if (this.flag) {
+                LOGGER.info("Setting flag for all children for "+this.parentPid+" and number of children are "+all.size());
+            } else {
+                LOGGER.info("UnSetting flag for all children for "+this.parentPid+" and number of children are "+all.size());
+            }
             int batchSize = KConfiguration.getInstance().getConfiguration().getInt(".dnnt.solr.batchsize", 100);
             int numberOfBatches = all.size() / batchSize;
             if (all.size() % batchSize > 0) {

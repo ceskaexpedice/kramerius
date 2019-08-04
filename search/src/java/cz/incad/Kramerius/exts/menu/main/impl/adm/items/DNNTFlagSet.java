@@ -8,10 +8,17 @@ import java.io.IOException;
 
 public class DNNTFlagSet extends AbstractMainMenuItem implements AdminMenuItem {
 
+    public DNNTFlagSet() {
+
+    }
+
     @Override
     public boolean isRenderable() {
 
-        return (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName()) || hasUserAllowedAction(SecuredActions.DNNT_ADMIN.getFormalName()));
+        return (hasUserAllowedAction(SecuredActions.ADMINISTRATE.getFormalName()) ||
+                hasUserAllowedAction(SecuredActions.DNNT_ADMIN.getFormalName()) ||
+                hasUserAllowedPlanProcess("dnntset")
+        );
     }
 
     @Override
