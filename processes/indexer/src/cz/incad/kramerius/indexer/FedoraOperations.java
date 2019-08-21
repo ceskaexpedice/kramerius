@@ -1,10 +1,14 @@
 package cz.incad.kramerius.indexer;
 
+import com.google.inject.Key;
 import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
+import cz.incad.kramerius.indexer.guice.GuiceModelInjector;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.UTFSort;
@@ -44,7 +48,7 @@ public class FedoraOperations {
     IResourceIndex rindex;
     UTFSort utf_sort;
 
-    @Inject
+   @Inject
     public FedoraOperations(@Named("rawFedoraAccess") FedoraAccess fa, IResourceIndex resourceIndex) throws Exception {
         this.fa = fa;
         this.rindex = resourceIndex;
@@ -53,7 +57,11 @@ public class FedoraOperations {
         utf_sort.init();
     }
 
+
+
     public FedoraOperations() throws IOException {
+        this.rindex = GuiceModelInjector.injector().getInstance(IResourceIndex.class);
+        this.fa = GuiceModelInjector.injector().getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
         utf_sort = new UTFSort();
         utf_sort.init();

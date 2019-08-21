@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import com.google.inject.*;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -23,9 +24,12 @@ public class GuiceModelInjector extends AbstractModule {
 
     @Override
     protected void configure() {
+        bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessAkubraImpl.class).in(Scopes.SINGLETON);
         bind(FedoraAccessBridge.class);
         bind(SolrOperations.class);
         bind(FedoraOperations.class);
+
+
     }
 
     @Provides
