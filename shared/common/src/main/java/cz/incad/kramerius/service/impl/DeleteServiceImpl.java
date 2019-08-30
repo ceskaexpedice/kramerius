@@ -86,13 +86,12 @@ public class DeleteServiceImpl implements DeleteService {
                     LOGGER.log(Level.WARNING, "Error while deleting "+p +" due "+e.getMessage(), e);
                 }
             }else{
-                throw new UnsupportedOperationException("This is not supported operaiton");
+                throw new UnsupportedOperationException("Marking object as deleted is not supported operation");
             }
         }
 
         if (spawnIndexer) {
-            // pidPath is not needed
-            spawnIndexRemover(pid, "");
+            spawnIndexRemover(pid);
         }
 
         List<String> parents = resourceIndex.getParentsPids(pid);
@@ -126,9 +125,8 @@ public class DeleteServiceImpl implements DeleteService {
         IndexerProcessStarter.spawnIndexer(true, "Reindex parent after delete " + pid, parentPid.replace(INFO, ""));
     }
 
-    // TODO: remove pidpath
-    void spawnIndexRemover(String pid, String pidPath) {
-        IndexerProcessStarter.spawnIndexRemover(pidPath, pid);
+    void spawnIndexRemover(String pid) {
+        IndexerProcessStarter.spawnIndexRemover( pid);
     }
 
 

@@ -7,7 +7,6 @@ import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import org.ehcache.CacheManager;
-import org.ehcache.core.EhcacheManager;
 
 /**
  * Binding repo module

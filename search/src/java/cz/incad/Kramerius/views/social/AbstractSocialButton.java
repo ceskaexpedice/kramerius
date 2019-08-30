@@ -211,7 +211,14 @@ public abstract class AbstractSocialButton {
 
     public String getDescriptionForItem() throws IOException {
         List<String> list = new ArrayList<String>();
-        Document dcDocument = getDCDocument();
+
+        Document dcDocument = null;
+        try {
+            dcDocument = getDCDocument();
+        } catch (IOException e) {
+            LOGGER.warning("Error loading object from repository:"+ e);
+            return "";
+        }
         ResourceBundle resBundle = this.bundleService.getResourceBundle("labels", this.localeProvider.get());
         
         String modelFromDC = DCUtils.modelFromDC(dcDocument);

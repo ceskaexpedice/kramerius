@@ -150,7 +150,7 @@
     <servlet>
         <servlet-name>lr</servlet-name>
         <servlet-class>cz.incad.Kramerius.LongRunningProcessServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
+        <load-on-startup>2</load-on-startup>
     </servlet>
 
      

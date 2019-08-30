@@ -102,7 +102,7 @@ public class ObjectPidsPath extends AbstractObjectPath {
             if (SpecialObjects.REPOSITORY.getPid().equals(pid)) continue;
             
             JSONObject itemJSON = getItemJSON(pid);
-            if (itemJSON.has("collections")) {
+            if (itemJSON != null && itemJSON.has("collections")) {
                 JSONArray collectionsArray = itemJSON.getJSONArray("collections");
                 for (int i = 0,ll=collectionsArray.length(); i < ll; i++) {
                     String val = collectionsArray.getString(i);

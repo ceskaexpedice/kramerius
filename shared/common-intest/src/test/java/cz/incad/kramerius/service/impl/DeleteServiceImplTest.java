@@ -70,7 +70,7 @@ public class DeleteServiceImplTest  {
         inst.spawnIndexer(isA(String.class),isA(String.class));
         EasyMock.expectLastCall().anyTimes();
 
-        inst.spawnIndexRemover(isA(String.class),isA(String.class));
+        inst.spawnIndexRemover(isA(String.class));
         EasyMock.expectLastCall().anyTimes();
 
         EasyMock.replay(inst);
@@ -122,7 +122,7 @@ public class DeleteServiceImplTest  {
         inst.spawnIndexer(isA(String.class),isA(String.class));
         EasyMock.expectLastCall().anyTimes();
 
-        inst.spawnIndexRemover(isA(String.class),isA(String.class));
+        inst.spawnIndexRemover(isA(String.class));
         EasyMock.expectLastCall().anyTimes();
 
         EasyMock.replay(inst);

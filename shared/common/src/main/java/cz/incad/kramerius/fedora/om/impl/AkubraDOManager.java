@@ -1,5 +1,8 @@
 package cz.incad.kramerius.fedora.om.impl;
 
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.config.GroupConfig;
 import com.hazelcast.core.*;
 import com.qbizm.kramerius.imp.jaxb.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -61,7 +64,11 @@ public class AkubraDOManager {
             LOGGER.log(Level.SEVERE, "Cannot init JAXB", e);
             throw new RuntimeException(e);
         }
-        hzInstance = Hazelcast.newHazelcastInstance();
+        ClientConfig config = new ClientConfig();
+        config.setInstanceName(KConfiguration.getInstance().getConfiguration().getString("hazelcast.instance"));
+        GroupConfig groupConfig = config.getGroupConfig();
+        groupConfig.setName(KConfiguration.getInstance().getConfiguration().getString("hazelcast.user"));
+        hzInstance = HazelcastClient.newHazelcastClient(config);
         pidLocks = hzInstance.getMap("pidlocks");
         cacheInvalidator = hzInstance.getTopic("cacheInvalidator");
         cacheInvalidator.addMessageListener(new MessageListener<String>() {
