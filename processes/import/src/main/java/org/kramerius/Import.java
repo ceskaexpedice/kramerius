@@ -529,10 +529,21 @@ public class Import {
         return retval;
     }
 
+    private static void ingest(Repository repo, DigitalObject dob, String pid, boolean updateExisting) throws  RepositoryException {
+        try {
+            repo.ingestObject(dob);
+        } catch (RepositoryException e) {
+            if (updateExisting && repo.objectExists(dob.getPID())) {
+                repo.deleteobject(dob.getPID());
+                repo.ingestObject(dob);
+            } else {
+                throw e;
+            }
+        }
+    }
 
 
-
-    public static void ingest(Repository repo, DigitalObject dob, String pid, boolean updateExisting) throws IOException, LexerException, TransformerException, RepositoryException {
+    private static void ingestF4(Repository repo, DigitalObject dob, String pid, boolean updateExisting) throws IOException, LexerException, TransformerException, RepositoryException {
         long start = System.currentTimeMillis();
 
         List<PropertyType> properties = dob.getObjectProperties().getProperty();
@@ -664,6 +675,12 @@ public class Import {
         return bos.toByteArray();
 
     }
+
+
+
+
+
+
 
     /**
      * Parse FOXML file and if it has model in fedora.topLevelModels, add its

@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2016 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,42 +20,22 @@ package cz.incad.kramerius.fedora.om.impl;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.ObjectPropertiesType;
 import com.qbizm.kramerius.imp.jaxb.PropertyType;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-import org.antlr.stringtemplate.StringTemplate;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.fcrepo.client.*;
-import org.fcrepo.server.storage.lowlevel.ILowlevelStorage;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.fcrepo.client.FcrepoOperationFailedException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.Collection;
 import java.util.List;
-import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import static cz.incad.kramerius.fedora.utils.Fedora4Utils.endpoint;
 
 /**
  * @author pavels
- *
  */
 public class AkubraRepository extends Repository {
-
 
 
     public static final Logger LOGGER = Logger.getLogger(AkubraRepository.class.getName());
@@ -72,12 +52,13 @@ public class AkubraRepository extends Repository {
 
     /**
      * Create new repository object
-     * @param feeder Feeder instance
+     *
+     * @param feeder  Feeder instance
      * @param manager
      * @return
      * @throws RepositoryException
      */
-    public static final Repository build(ProcessingIndexFeeder feeder,AkubraDOManager manager) throws RepositoryException {
+    public static final Repository build(ProcessingIndexFeeder feeder, AkubraDOManager manager) throws RepositoryException {
         return new AkubraRepository(feeder, manager);
     }
 
@@ -104,42 +85,56 @@ public class AkubraRepository extends Repository {
      */
     @Override
     public RepositoryObject createOrFindObject(String ident) throws RepositoryException {
-            if (objectExists(ident)) {
-                try {
-                    AkubraObject obj = new AkubraObject(this.manager, ident, this.manager.readObjectFromStorage(ident), this.feeder);
-                    return obj;
-                } catch (IOException e) {
-                    throw new RepositoryException(e);
-                }
-            } else {
-                try {
-                    AkubraObject obj =  new AkubraObject(this.manager,  ident, createEmptyDigitalObject(ident), this.feeder);
-                    manager.commit(obj.digitalObject, null);
-                    obj.deleteProcessingIndex();
-                    return obj;
-                } catch (IOException e) {
-                    throw new RepositoryException(e);
-                } catch (SolrServerException e) {
-                    throw new RepositoryException(e);
-                }
+        if (objectExists(ident)) {
+            try {
+                AkubraObject obj = new AkubraObject(this.manager, ident, this.manager.readObjectFromStorage(ident), this.feeder);
+                return obj;
+            } catch (IOException e) {
+                throw new RepositoryException(e);
             }
+        } else {
+            try {
+                AkubraObject obj = new AkubraObject(this.manager, ident, createEmptyDigitalObject(ident), this.feeder);
+                manager.commit(obj.digitalObject, null);
+                obj.deleteProcessingIndex();
+                return obj;
+            } catch (IOException e) {
+                throw new RepositoryException(e);
+            } catch (SolrServerException e) {
+                throw new RepositoryException(e);
+            }
+        }
     }
 
-    private DigitalObject createEmptyDigitalObject(String pid){
-        DigitalObject retval =  new DigitalObject();
+    private DigitalObject createEmptyDigitalObject(String pid) {
+        DigitalObject retval = new DigitalObject();
         retval.setPID(pid);
         retval.setVERSION("1.1");
         ObjectPropertiesType objectPropertiesType = new ObjectPropertiesType();
         List<PropertyType> propertyTypeList = objectPropertiesType.getProperty();
-        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#state","Active"));
-        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#ownerId","fedoraAdmin"));
+        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#state", "Active"));
+        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#ownerId", "fedoraAdmin"));
         propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#createdDate", AkubraUtils.currentTimeString()));
         retval.setObjectProperties(objectPropertiesType);
         return retval;
     }
 
+    @Override
+    public RepositoryObject ingestObject(DigitalObject contents) throws RepositoryException {
+        if (objectExists(contents.getPID())) {
+            throw new RepositoryException("Ingested object exists:" + contents.getPID());
+        } else {
+            try {
+                AkubraObject obj = new AkubraObject(this.manager, contents.getPID(), contents, this.feeder);
+                manager.commit(obj.digitalObject, null);
+                obj.rebuildProcessingIndex();
+                return obj;
+            } catch (IOException e) {
+                throw new RepositoryException(e);
+            }
+        }
 
-
+    }
 
 
     @Override
@@ -181,7 +176,7 @@ public class AkubraRepository extends Repository {
 
     @Override
     public void deleteobject(String pid) throws RepositoryException {
-        try{
+        try {
             this.manager.deleteObject(pid);
 
             try {
@@ -199,7 +194,6 @@ public class AkubraRepository extends Repository {
     }
 
 
-
     @Override
     public ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException {
         return this.feeder;
@@ -208,7 +202,7 @@ public class AkubraRepository extends Repository {
     @Override
     public boolean objectExists(String ident) throws RepositoryException {
         try {
-            return  manager.readObjectFromStorage(ident) != null;
+            return manager.readObjectFromStorage(ident) != null;
         } catch (Exception e) {
             throw new RepositoryException(e);
         }

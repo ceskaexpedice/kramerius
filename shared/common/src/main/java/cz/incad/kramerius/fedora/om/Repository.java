@@ -17,7 +17,7 @@
 
 package cz.incad.kramerius.fedora.om;
 
-import cz.incad.kramerius.fedora.om.impl.Fedora4Repository;
+import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import org.fcrepo.client.FcrepoOperationFailedException;
 
@@ -55,12 +55,20 @@ public abstract class Repository {
     public abstract void rollbackTransaction()throws RepositoryException;
 
     /**
-     * Create or find object
+     * Create empty object or find existing object
      * @param ident Identification of the object
      * @return
      * @throws RepositoryException
      */
     public abstract RepositoryObject createOrFindObject(String ident) throws RepositoryException;
+
+    /**
+     * Ingest new digital object from the provided object representation
+     * @param contents
+     * @return
+     * @throws RepositoryException
+     */
+    public abstract RepositoryObject ingestObject(DigitalObject contents) throws RepositoryException;
 
 
     /**

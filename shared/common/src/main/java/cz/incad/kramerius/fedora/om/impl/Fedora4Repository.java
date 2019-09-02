@@ -19,6 +19,7 @@ package cz.incad.kramerius.fedora.om.impl;
 
 import static cz.incad.kramerius.fedora.utils.Fedora4Utils.*;
 
+import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
@@ -176,6 +177,10 @@ public class Fedora4Repository extends Repository {
             }
     }
 
+    @Override
+    public RepositoryObject ingestObject(DigitalObject contents) throws RepositoryException{
+        throw new UnsupportedOperationException("Ingesting full objects is not supported in Fedora$ repository implementation");
+    }
 
     private URI createResources(List<String> parts) throws FcrepoOperationFailedException, RepositoryException, IOException {
             URI processingURI = null;
