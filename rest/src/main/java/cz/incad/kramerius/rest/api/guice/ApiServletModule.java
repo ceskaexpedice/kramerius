@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.inject.multibindings.Multibinder;
-import com.lizardtech.djvu.IFFEnumeration;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
@@ -44,7 +43,6 @@ import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
 import cz.incad.kramerius.rest.api.k5.client.impl.SolrMemoizationImpl;
 import cz.incad.kramerius.rest.api.k5.client.info.InfoResource;
-import cz.incad.kramerius.rest.api.k5.client.item.IiifResource;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.CollectionsDecorator;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.DonatorDecorate;
@@ -56,10 +54,7 @@ import cz.incad.kramerius.rest.api.k5.client.item.decorators.ReplicatedFromDecor
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrContextDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrDataNode;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrRightsFlag;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.MonographUnitDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.PageDetailDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.PeriodicalItemDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.PeriodicalVolumeDecorator;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.*;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.PDFDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.ZoomDecorate;
 import cz.incad.kramerius.rest.api.k5.client.pdf.AsyncPDFResource;
@@ -94,7 +89,6 @@ public class ApiServletModule extends JerseyServletModule {
         // k5 - znovu...
         bind(ClientUserResource.class);
         bind(ItemResource.class);
-        bind(IiifResource.class);
         
         bind(FeederResource.class);
         bind(ClientVirtualCollections.class);
@@ -166,12 +160,14 @@ public class ApiServletModule extends JerseyServletModule {
         decs.addBinding().to(PageDetailDecorate.class);
         decs.addBinding().to(PeriodicalItemDecorate.class);
         decs.addBinding().to(PeriodicalVolumeDecorator.class);
+        decs.addBinding().to(InternalPartDecorate.class);
+        decs.addBinding().to(InternalPartDecorate.class);
+        decs.addBinding().to(SupplementDecorator.class);
     }
 
     private void decorators() {
         Multibinder<JSONDecorator> decs = Multibinder.newSetBinder(binder(),
                 JSONDecorator.class);
-
         decoratorsBindings(decs);
     }
 

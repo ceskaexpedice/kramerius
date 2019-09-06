@@ -11,9 +11,14 @@ public interface CollectionsManager {
     /**
      * Sorting type enum
      */
-    public static enum SortType  {
+    public static enum SortOrder  {
             ASC,
             DESC;
+    }
+    
+    public static enum SortType {
+    	ALPHABET,
+    	NUMBER_OF_DCOUMENTS
     }
     
     /**
@@ -34,11 +39,12 @@ public interface CollectionsManager {
     /**
      * REturns sorted list of collection
      * @param locale
+     * @param type TODO
      * @param type
      * @return
      * @throws CollectionException
      */
-    public List<Collection> getSortedCollections(Locale locale, SortType type) throws CollectionException;
+    public List<Collection> getSortedCollections(Locale locale, SortOrder order, SortType type) throws CollectionException;
     
         
     /**

@@ -19,6 +19,7 @@ package cz.incad.kramerius.rest.api.replication;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
@@ -26,15 +27,26 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.utils.RelsExtHelper;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.nio.client.HttpAsyncClient;
+import org.apache.pdfbox.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -95,6 +107,9 @@ public class ReplicationsResource {
 
     @Inject
     Provider<User> userProvider;
+
+    @Inject
+    protected HttpAsyncClient client;
     
     
     /**
@@ -159,13 +174,14 @@ public class ReplicationsResource {
     @GET
     @Path("tree")
     @Produces(MediaType.APPLICATION_JSON)
-    public StreamingOutput prepareExport(@PathParam("pid") String pid) throws ReplicateException {
+    public StreamingOutput prepareExport(@PathParam("pid") String pid,@QueryParam("replicateCollections") @DefaultValue("false")String replicateCollections) throws ReplicateException {
         try {
             ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
             if (checkPermission(pid)) {
                 if (this.fedoraAccess.getRelsExt(pid) != null) {
                     // raw generate to request writer
-                    List<String> pidList = replicationService.prepareExport(pid);
+                	boolean collectionFlag = Boolean.parseBoolean(replicateCollections);
+                	List<String> pidList = replicationService.prepareExport(pid,collectionFlag);
                     // cannot use JSON object -> too big data
                     return new PIDListStreamOutput(pidList, Arrays.asList(paths));
                 } else throw new ObjectNotFound("cannot find pid '"+pid+"'");
@@ -187,13 +203,18 @@ public class ReplicationsResource {
     @GET
     @Path("foxml")
     @Produces(MediaType.APPLICATION_XML+";charset=utf-8")
-    public Response getExportedFOXML(@PathParam("pid")String pid
-    		) throws ReplicateException, UnsupportedEncodingException {
+    public Response getExportedFOXML(@PathParam("pid")String pid,
+    		@QueryParam("replicateCollections") @DefaultValue("false")String replicateCollections) throws ReplicateException, UnsupportedEncodingException {
         try {
             if (checkPermission(pid)) {
-                // musi se vejit do pameti
-                byte[] bytes = replicationService.getExportedFOXML(pid, FormatType.EXTERNALREFERENCES);
-                return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
+            	boolean collectionFlag = Boolean.parseBoolean(replicateCollections);
+            	if (collectionFlag) {
+                	byte[] bytes = replicationService.getExportedFOXML(pid, FormatType.EXTERNALREFERENCES);
+                    return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
+            	} else{
+                	byte[] bytes = replicationService.getExportedFOXML(pid, FormatType.EXTERNALREFERENCESANDREMOVECOLS);
+                    return Response.ok().entity(XMLUtils.parseDocument(new ByteArrayInputStream(bytes), true)).build();
+            	}
             }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");
@@ -216,15 +237,25 @@ public class ReplicationsResource {
     @GET
     @Path("foxml")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getExportedJSONFOXML(@PathParam("pid")String pid) throws ReplicateException, UnsupportedEncodingException {
+    public Response getExportedJSONFOXML(@PathParam("pid")String pid,@QueryParam("replicateCollections") @DefaultValue("false")String replicateCollections) throws ReplicateException, UnsupportedEncodingException {
         try {
             if (checkPermission(pid)) {
                 // musi se vejit do pameti
-                byte[] bytes = replicationService.getExportedFOXML(pid);
-                char[] encoded = Base64Coder.encode(bytes);
-                JSONObject jsonObj = new JSONObject();
-                jsonObj.put("raw", new String(encoded));
-                return Response.ok().entity(jsonObj.toString()).build();
+            	boolean collectionFlag = Boolean.parseBoolean(replicateCollections);
+            	if (collectionFlag) {
+                	byte[] bytes = replicationService.getExportedFOXML(pid,FormatType.EXTERNALREFERENCES);
+                    char[] encoded = Base64Coder.encode(bytes);
+                    JSONObject jsonObj = new JSONObject();
+                    jsonObj.put("raw", new String(encoded));
+                    return Response.ok().entity(jsonObj.toString()).build();
+            	} else{
+                	byte[] bytes = replicationService.getExportedFOXML(pid,FormatType.EXTERNALREFERENCESANDREMOVECOLS);
+                    char[] encoded = Base64Coder.encode(bytes);
+                    JSONObject jsonObj = new JSONObject();
+                    jsonObj.put("raw", new String(encoded));
+                    return Response.ok().entity(jsonObj.toString()).build();
+            	}
+
             }  else throw new ActionNotAllowed("action is not allowed");
         } catch(FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '"+pid+"'");
@@ -233,5 +264,31 @@ public class ReplicationsResource {
         } catch (JSONException e) {
             throw new ReplicateException(e);
         }
+    }
+
+    @GET
+    @Path("img_original")
+    @Produces("image/jp2")
+    public Response getOriginalImage(@PathParam("pid") String pid) throws XPathExpressionException, IOException {
+        String tilesUrl = RelsExtHelper.getRelsExtTilesUrl(fedoraAccess.getRelsExt(pid));
+        if (tilesUrl == null) return Response.status(Response.Status.NOT_FOUND).build();
+
+        HttpClient httpclient = HttpClients.createDefault();
+        final HttpResponse httpResponse = httpclient.execute(new HttpGet(tilesUrl + "/original"));
+
+        switch (httpResponse.getStatusLine().getStatusCode()) {
+            case 200: break;
+            case 404: return Response.status(Response.Status.NOT_FOUND).build();
+            default: return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+        StreamingOutput stream = new StreamingOutput() {
+            @Override
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                IOUtils.copy(httpResponse.getEntity().getContent(), output);
+                output.flush();
+            }
+        };
+        return Response.ok(stream).build();
     }
 }

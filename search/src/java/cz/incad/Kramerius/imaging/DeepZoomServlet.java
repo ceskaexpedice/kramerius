@@ -171,7 +171,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
             StringTemplate dziUrl = stGroup().getInstanceOf("ndzi");
             if (urlForStream.endsWith("/")) urlForStream = urlForStream.substring(0, urlForStream.length()-1);
             dziUrl.setAttribute("url", urlForStream);
-            copyFromImageServer(dziUrl.toString(), null, resp);
+            copyFromImageServer(dziUrl.toString(), resp);
         }
     }
 
@@ -227,7 +227,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
             tileUrl.setAttribute("url", dataStreamUrl);
             tileUrl.setAttribute("level", slevel);
             tileUrl.setAttribute("tile", stile);
-            copyFromImageServer(tileUrl.toString(), null, resp);
+            copyFromImageServer(tileUrl.toString(), resp);
         }
     }
 

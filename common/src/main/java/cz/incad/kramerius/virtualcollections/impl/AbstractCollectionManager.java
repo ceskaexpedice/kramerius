@@ -18,6 +18,7 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.google.inject.Inject;
@@ -25,13 +26,15 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.CollectionPidUtils;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
-import cz.incad.kramerius.virtualcollections.CollectionsManager.SortType;
+import cz.incad.kramerius.virtualcollections.CollectionsManager.SortOrder;
 
 public abstract class AbstractCollectionManager implements CollectionsManager {
 
@@ -44,6 +47,8 @@ public abstract class AbstractCollectionManager implements CollectionsManager {
     @Named("rawFedoraAccess")
     protected FedoraAccess fa;
 
+    @Inject
+    protected SolrAccess sa;
     
     protected XPathFactory factory = XPathFactory.newInstance();
 
@@ -57,6 +62,16 @@ public abstract class AbstractCollectionManager implements CollectionsManager {
 
     public void setFedoraAccess(FedoraAccess fa) {
         this.fa = fa;
+    }
+    
+    
+
+    public SolrAccess getSolrAccess() {
+        return sa;
+    }
+
+    public void setSolrAccess(SolrAccess sa) {
+        this.sa = sa;
     }
 
     protected List<String> languages() {
@@ -74,9 +89,13 @@ public abstract class AbstractCollectionManager implements CollectionsManager {
     }
 
     @Override
-    public List<Collection> getSortedCollections(Locale locale, SortType type) throws CollectionException {
+    public List<Collection> getSortedCollections(Locale locale, SortOrder ordering, SortType type) throws CollectionException {
         List<Collection> cols = new ArrayList<Collection>(getCollections());
-        Collections.sort(cols, new CollectionComparator(locale, type));
+        if (type.equals(SortType.ALPHABET)) {
+            Collections.sort(cols, new NameCollectionComparator(locale, ordering));
+        } else {
+            Collections.sort(cols, new NumberOfDocuments(ordering));
+        }
         return cols;
     }
 
@@ -100,6 +119,7 @@ public abstract class AbstractCollectionManager implements CollectionsManager {
         try {
             Document doc = this.fa.getDC(pid);
             Collection col = new Collection(pid, dcTitle(doc), dcType(doc));
+            enhanceNumberOfDocs(col);
             enhanceDescriptions(col);
             return col;
         } catch (XPathExpressionException e) {
@@ -123,6 +143,16 @@ public abstract class AbstractCollectionManager implements CollectionsManager {
         }
     }
 
+    protected void enhanceNumberOfDocs(Collection col) throws IOException, XPathExpressionException {
+        Document response = this.sa.request("fq=level:0&q=collection:(\""+col.getPid()+"\")&rows=0");
+        Element resElement = XMLUtils.findElement(response.getDocumentElement(), "result");
+        if (resElement != null){
+            String attribute = resElement.getAttribute("numFound");
+            int parsedInt = Integer.parseInt(attribute);
+            col.setNumberOfDocs(parsedInt);
+        }
+    }
+    
     protected void enhanceDescriptions(Collection col) throws IOException, XPathExpressionException {
         Document dc = this.fa.getDC(col.getPid());
         boolean dcType = dcType(dc);
@@ -169,23 +199,43 @@ public abstract class AbstractCollectionManager implements CollectionsManager {
             return "";
     }
 
-    public static class CollectionComparator implements Comparator<Collection> {
-        
+    protected class NumberOfDocuments implements Comparator<Collection> {
+
+        private SortOrder ordering;
+
+
+        public NumberOfDocuments(SortOrder ordering) {
+            super();
+            this.ordering = ordering;
+        }
+
+
+        @Override
+        public int compare(Collection o1, Collection o2) {
+            Integer i1 = this.ordering.equals(SortOrder.ASC) ? new Integer(o1.getNumberOfDocs()) : new Integer(o2.getNumberOfDocs());
+            Integer i2 = this.ordering.equals(SortOrder.ASC) ? new Integer(o2.getNumberOfDocs()) : new Integer(o1.getNumberOfDocs());
+            return i1.compareTo(i2);
+        }
+
+    }
+    
+    protected class NameCollectionComparator implements Comparator<Collection> {
+
         private Locale locale;
         private Collator coll;
-        private SortType type;
+        private SortOrder ordering;
         
-        public CollectionComparator(Locale locale, SortType type) {
+        public NameCollectionComparator(Locale locale, SortOrder ordering) {
             super();
             this.locale = locale;
-            this.type = type;
+            this.ordering = ordering;
             this.coll = Collator.getInstance(locale);
         }
 
         @Override
         public int compare(Collection o1, Collection o2) {
-            Collection firstToComparsion = this.type.equals(SortType.ASC) ? o1 : o2;
-            Collection secondToComparsion = this.type.equals(SortType.ASC) ? o2 : o1;
+            Collection firstToComparsion = this.ordering.equals(SortOrder.ASC) ? o1 : o2;
+            Collection secondToComparsion = this.ordering.equals(SortOrder.ASC) ? o2 : o1;
             return this.coll.compare(firstToComparsion.lookup(this.locale.getLanguage()).getText(), secondToComparsion.lookup(this.locale.getLanguage()).getText());
         }
     }

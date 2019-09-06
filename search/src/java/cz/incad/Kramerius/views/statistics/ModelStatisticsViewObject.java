@@ -20,14 +20,13 @@
 package cz.incad.Kramerius.views.statistics;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
+import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
 
 /**
@@ -61,13 +60,30 @@ public class ModelStatisticsViewObject extends AbstractStatisticsViewObject {
         String str = resBundle.getString("fedora.model."+type);
         return str;
     }
-    
-    
-    
+
+
+
+    public String getCurrentYear() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        return ""+year;
+    }
+
+
+    public String getPreviousYear() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        return ""+(year-1);
+    }
+
+
+
     public List<String> getModels() {
         StatisticReport report = statisticsAccessLog.getReportById(ModelStatisticReport.REPORT_ID);
         return report.getOptionalValues();
     }
+
+
 
     
     public String getPrev() {

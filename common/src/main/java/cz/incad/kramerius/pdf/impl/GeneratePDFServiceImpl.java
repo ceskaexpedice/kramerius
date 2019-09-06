@@ -399,8 +399,8 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                                 .forName("UTF-8"))), true).getDocumentElement(),
                 cmnds);
 
-        RenderPDF render = new RenderPDF(pdfContext.getFontMap());
-        render.render(document, cmnds);
+        RenderPDF render = new RenderPDF(pdfContext.getFontMap(), fedoraAccess);
+        render.render(document, pdfWriter, cmnds);
 
     }
 

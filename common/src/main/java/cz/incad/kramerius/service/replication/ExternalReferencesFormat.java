@@ -27,6 +27,9 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,12 +51,13 @@ import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
  * Explore given FOXML data and replace all <code>file:///</code> external referenced datastreams  into internal type datastream (type M)
  * @author pavels
  */
-public class ExternalReferencesFormat implements ReplicationFormat {
+public class ExternalReferencesFormat extends AbstractReplicationFormat {
 
 	@Inject
 	Provider<HttpServletRequest> requestProvider;
@@ -62,51 +66,10 @@ public class ExternalReferencesFormat implements ReplicationFormat {
     @Override
     public byte[] formatFoxmlData(byte[] input, Object... params) throws ReplicateException{
         try {
-
         	
         	Document document = XMLUtils.parseDocument(new ByteArrayInputStream(input), true);
-            Element docElement = document.getDocumentElement();
-            if (docElement.getLocalName().equals("digitalObject")) {
-                List<Element> datastreamsElements = XMLUtils.getElements(docElement, new XMLUtils.ElementsFilter() {
-                    
-                    @Override
-                    public boolean acceptElement(Element elm) {
-                        String elmName = elm.getLocalName();
-                        return elmName.equals("datastream") && elm.hasAttribute("CONTROL_GROUP") && elm.getAttribute("CONTROL_GROUP").equals("E");
-                    }
-                });
-                
-                for (Element datStreamElm : datastreamsElements) {
-                    dataStreamVersions(document, datStreamElm);
-                }
-                
-				List<Element> relsExt = XMLUtils.getElements(
-						docElement, new XMLUtils.ElementsFilter() {
-		
-							@Override
-							public boolean acceptElement(Element elm) {
-								String elmName = elm.getLocalName();
-								String idName = elm.getAttribute("ID");
-								return elmName.equals("datastream")
-										&& idName.equals(FedoraUtils.RELS_EXT_STREAM);
-							}
-					});
-					
-					if (!relsExt.isEmpty()) {
-						original(document,relsExt.get(0));
-					}
-
-					// remove virtual collections
-					removeVirtualCollections(document,relsExt.get(0));
-
-					
-            } else { 
-                throw new ReplicateException("Not valid FOXML");
-            }
-            
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            XMLUtils.print(document, bos);
-            return bos.toByteArray();
+        	processDOM(document);
+            return serializeToBytes(document);
         } catch (ParserConfigurationException e) {
             throw new ReplicateException(e);
         } catch (SAXException e) {
@@ -122,21 +85,49 @@ public class ExternalReferencesFormat implements ReplicationFormat {
 		}
     }
 
-	private void removeVirtualCollections(Document document, Element element) {
-		Element descElement = XMLUtils.findElement(element, "Description",FedoraNamespaces.RDF_NAMESPACE_URI);
-		List<Element> delems = XMLUtils.getElements(descElement);
-		for (Element del : delems) {
-			if (del.getNamespaceURI().equals(FedoraNamespaces.RDF_NAMESPACE_URI) && del.getLocalName().equals("isMemberOfCollection")) {
-				descElement.removeChild(del);
-			}
+
+
+	protected void processDOM(Document document) throws ReplicateException, MalformedURLException, URISyntaxException {
+		Element docElement = document.getDocumentElement();
+		if (docElement.getLocalName().equals("digitalObject")) {
+		    List<Element> datastreamsElements = XMLUtils.getElements(docElement, new XMLUtils.ElementsFilter() {
+		        
+		        @Override
+		        public boolean acceptElement(Element elm) {
+		            String elmName = elm.getLocalName();
+		            return elmName.equals("datastream") && elm.hasAttribute("CONTROL_GROUP") && elm.getAttribute("CONTROL_GROUP").equals("E");
+		        }
+		    });
+		    
+		    for (Element datStreamElm : datastreamsElements) {
+		        processDataStreamVersions(document, datStreamElm);
+		    }
+		    
+		    List<Element> relsExt = XMLUtils.getElements(
+		    		docElement, new XMLUtils.ElementsFilter() {
+		    			
+		    			@Override
+		    			public boolean acceptElement(Element elm) {
+		    				String elmName = elm.getLocalName();
+		    				String idName = elm.getAttribute("ID");
+		    				return elmName.equals("datastream")
+		    						&& idName.equals(FedoraUtils.RELS_EXT_STREAM);
+		    			}
+		    		});
+				
+				if (!relsExt.isEmpty()) {
+					original(document,relsExt.get(0));
+				}
+
+				
+		} else { 
+		    throw new ReplicateException("Not valid FOXML");
 		}
 	}
 
-	/**
-     * @param dataStreamElm
-     * @throws ReplicateException 
-     */
-    private void dataStreamVersions(Document document, Element dataStreamElm) throws ReplicateException {
+
+
+	private void processDataStreamVersions(Document document, Element dataStreamElm) throws ReplicateException {
         List<Element> versions = XMLUtils.getElements(dataStreamElm, new XMLUtils.ElementsFilter() {
             
             @Override
@@ -164,10 +155,6 @@ public class ExternalReferencesFormat implements ReplicationFormat {
         }
     }
 
-    /**
-     * @param version
-     * @throws IOException 
-     */
     private void changeDatastreamVersion(Document document, Element datastream, Element version, URL url) throws IOException {
         InputStream is = null; 
         try {
@@ -195,9 +182,26 @@ public class ExternalReferencesFormat implements ReplicationFormat {
 				FedoraNamespaces.KRAMERIUS_URI, "replicatedFrom");
 		document.adoptNode(original);
 		original.setTextContent(makeHANDLE(document).toURI().toString());
-		Element descElement = XMLUtils.findElement(element, "Description",FedoraNamespaces.RDF_NAMESPACE_URI);
-		descElement.appendChild(original);
+
+		List<Element> rdfversions = XMLUtils.getElementsRecursive(element , new XMLUtils.ElementsFilter() {
+			
+			@Override
+			public boolean acceptElement(Element el) {
+				String localName = el.getLocalName();
+				String namespace = el.getNamespaceURI();
+				if (namespace.equals(FedoraNamespaces.RDF_NAMESPACE_URI)) {
+					return localName.equals("Description");
+				}
+				return false;
+			}
+		});
+		
+		for (Element desc : rdfversions) {
+			desc.appendChild(original);
+		}
 	}
+
+	
 
 	private URL makeHANDLE(Document doc) throws MalformedURLException {
 		HttpServletRequest req = this.requestProvider.get();

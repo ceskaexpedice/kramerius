@@ -1,4 +1,4 @@
-// $ANTLR 2.7.7 (2006-11-01): /C:/Users/pstastny.SEARCH/nprojs/kramerius/common/src/main/java/cz/incad/kramerius/processes/os/impl/windows/csv/csv.g -> CSVParserTokenTypes.txt$
+// $ANTLR 2.7.7 (2006-11-01): csv.g -> CSVParserTokenTypes.txt$
 CSVParser    // output token vocab name
 NEWLINE=4
 RECORD=5

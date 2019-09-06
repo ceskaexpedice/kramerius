@@ -38,6 +38,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.Collection.Description;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
+import cz.incad.kramerius.virtualcollections.CollectionsManager.SortOrder;
 import cz.incad.kramerius.virtualcollections.CollectionsManager.SortType;
 
 public class VirtualCollectionViewObject {
@@ -58,8 +59,8 @@ public class VirtualCollectionViewObject {
     KConfiguration kConfiguration;
     
     @Inject
-	@Named("securedFedoraAccess")
-	FedoraAccess fedoraAccess;
+    @Named("securedFedoraAccess")
+    FedoraAccess fedoraAccess;
 
     
     @Inject
@@ -95,16 +96,33 @@ public class VirtualCollectionViewObject {
     }
     
     public List<CollectionItemViewObject> getVirtualCollectionsLocale() throws Exception {
-        SortType selectedVal = sortType();
+        SortOrder selectedVal = sortOrder();
+        SortType sortType = sortType();
         if (selectedVal != null) {
-            return onlyLocalizedDescriptions(this.solrManager.getSortedCollections(this.localeProvider.get(), selectedVal));
+            if (sortType == null) {
+                sortType = SortType.ALPHABET;
+            }
+            return onlyLocalizedDescriptions(this.solrManager.getSortedCollections(this.localeProvider.get(), selectedVal, sortType));
         } else {
             return onlyLocalizedDescriptions(this.solrManager.getCollections());
         }
     }
 
-    private SortType sortType() {
+    private SortOrder sortOrder() {
         String confString = KConfiguration.getInstance().getConfiguration().getString("search.collection.sort");
+        if (confString == null) return null;
+        SortOrder selectedVal = null;
+        for (SortOrder v : CollectionsManager.SortOrder.values()) {
+            if (confString.equals(v.name())) {
+                selectedVal = v;
+                break;
+            }
+        }
+        return selectedVal;
+    }
+
+    private SortType sortType() {
+        String confString = KConfiguration.getInstance().getConfiguration().getString("search.collection.sortType");
         if (confString == null) return null;
         SortType selectedVal = null;
         for (SortType v : CollectionsManager.SortType.values()) {
@@ -115,7 +133,6 @@ public class VirtualCollectionViewObject {
         }
         return selectedVal;
     }
-
     
     public boolean isThumbnailsVisible() {
         boolean thumbs = KConfiguration.getInstance().getConfiguration().getBoolean("search.collection.thumbs",false);
@@ -128,6 +145,7 @@ public class VirtualCollectionViewObject {
         List<Collection> ncols = new ArrayList<Collection>();
         for (Collection rCol : rawCollection) {
             Collection col = new Collection(rCol.getPid(),rCol.getLabel(),rCol.isCanLeaveFlag());
+            col.setNumberOfDocs(rCol.getNumberOfDocs());
             Description l = rCol.lookup(locale.getLanguage());
             if (l != null) {
                 col.addDescription(l);;
@@ -138,9 +156,13 @@ public class VirtualCollectionViewObject {
     }
     
     public List<CollectionItemViewObject> getVirtualCollectionsFromFedoraLocale() throws Exception {
-        SortType selectedVal = sortType();
+        SortOrder selectedVal = sortOrder();
+        SortType sortType = sortType();
         if (selectedVal != null) {
-            return onlyLocalizedDescriptions(this.fedoraManager.getSortedCollections(this.localeProvider.get(), selectedVal));
+            if (sortType == null) {
+                sortType = SortType.ALPHABET;
+            }
+            return onlyLocalizedDescriptions(this.fedoraManager.getSortedCollections(this.localeProvider.get(), selectedVal, sortType));
         } else {
             return onlyLocalizedDescriptions(this.fedoraManager.getCollections());
         }

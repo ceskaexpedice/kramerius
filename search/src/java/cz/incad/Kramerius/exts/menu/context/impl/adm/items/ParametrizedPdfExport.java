@@ -18,6 +18,7 @@ package cz.incad.Kramerius.exts.menu.context.impl.adm.items;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 
 import cz.incad.Kramerius.exts.menu.context.impl.AbstractContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
@@ -42,9 +43,10 @@ public class ParametrizedPdfExport extends AbstractContextMenuItem implements Ad
 
     @Override
     public String getRenderedItem() throws IOException {
-        String iso3country = localesProvider.get().getISO3Country();
-        String iso3lang =  localesProvider.get().getISO3Language();
-
+        Locale locale = localesProvider.get();
+		String iso3country = locale.getISO3Country();
+        String iso3lang =  locale.getISO3Language();
+        
         return renderContextMenuItem(
                 "javascript:parametrizedProcess.open('parametrized_static_export',{'country':'"+iso3country+"','lang':'"+iso3lang+"'}); javascript:hideAdminMenu();",
                 "administrator.menu.export");

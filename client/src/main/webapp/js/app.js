@@ -289,7 +289,7 @@ function Application() {
                         K5.api.askForPopular();
                         K5.api.askForCool();
                 }
-
+				
 
                 if (configuration["conf"]["pdf"]) {
                     K5.outputs.pdf.initConfiguration(configuration["conf"]["pdf"]);
@@ -311,6 +311,15 @@ function Application() {
                                 this.gui.clipboard.init(configuration.session["clipboard"]);                                           
                         }
                 }
+
+                if (configuration.conf.collections["sort"]) {
+                        this.gui.vc.sort = configuration.conf.collections["sort"];                                           
+					
+				}
+				
+                if (configuration.conf.collections["sortType"]) {
+                        this.gui.vc.sortType = configuration.conf.collections["sortType"];                                           
+				}
                 
                 //context menu and viewers
                 if (configuration["defs"]) {
@@ -355,12 +364,12 @@ function Application() {
                 $(document).keydown(function(e) {
                     switch(e.which) {
                         case 37: // left
-                        K5.eventsHandler.trigger("application/keys/left",[]);
+                        K5.eventsHandler.trigger("application/keys/left",[e]);
                         break;
 
 
                         case 39: // right
-                        K5.eventsHandler.trigger("application/keys/right",[]);
+                        K5.eventsHandler.trigger("application/keys/right",[e]);
                         break;
                         
                         case 27: // escape. Close dialogs
@@ -370,7 +379,7 @@ function Application() {
 
                         default: return; // exit this handler for other keys
                     }
-                    e.preventDefault(); // prevent the default action (scroll / move caret)
+                    //e.preventDefault(); // prevent the default action (scroll / move caret)
                 });
 
                 //prevent scrolling

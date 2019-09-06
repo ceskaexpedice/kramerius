@@ -18,13 +18,12 @@ import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.service.impl.SortingServiceImpl;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.fedora.api.FedoraAPIM;
-import org.fedora.api.FedoraAPIMService;
-import org.fedora.api.ObjectFactory;
-import org.fedora.api.RelationshipTuple;
+import org.fedora.api.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -48,6 +47,9 @@ import java.net.URLConnection;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static cz.incad.kramerius.FedoraNamespaces.DC_NAMESPACE_URI;
+import static cz.incad.kramerius.utils.XMLUtils.findElement;
 
 public class Import {
 
@@ -262,6 +264,19 @@ public class Import {
                                 DatastreamVersionType dsversion = ds.getDatastreamVersion().get(0);
                                 if (dsversion.getXmlContent() != null) {
                                     Element element = dsversion.getXmlContent().getAny().get(0);
+                                    if (dsName.equals(FedoraUtils.DC_STREAM)) {
+                                        String rights = DCUtils.rightsFromDC(element);
+                                        if (rights != null) {
+                                            Element elm = findElement(element, "rights", DC_NAMESPACE_URI);
+                                            if (elm == null) {
+                                                elm = element.getOwnerDocument().createElementNS(DC_NAMESPACE_URI, "rights");
+                                                element.appendChild(elm);
+                                            }
+                                            elm.setTextContent(rights);
+                                        }
+                                    }
+
+
                                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                                     Source xmlSource = new DOMSource(element);
                                     Result outputTarget = new StreamResult(outputStream);
@@ -284,7 +299,7 @@ public class Import {
                     if (roots != null) {
                         TitlePidTuple npt = new TitlePidTuple("", dobj.getPID());
                         roots.add(npt);
-                        log.info("Added updated object for indexing:" + dobj.getPID());
+                        log.info("Added updated object  for indexing:" + dobj.getPID());
                     }
                 } else {
                     ingest(importFile, dobj.getPID(), sortRelations, roots, updateExisting);

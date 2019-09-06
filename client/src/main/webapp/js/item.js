@@ -42,11 +42,21 @@ K5.eventsHandler.addHandler(function(type, configuration) {
     }
         
     if (type === "application/keys/left") {
+      if($("#viewer>div.searchinside").is(":visible") || $("#q").is(":focus")){
+        return;
+      } else {
+        configuration[0].preventDefault(); // prevent the default action (scroll / move caret)
         K5.gui["selected"].prev();
+      }
     }
 
     if (type === "application/keys/right") {
+      if($("#viewer>div.searchinside").is(":visible") || $("#q").is(":focus")){
+        return;
+      } else {
+        configuration[0].preventDefault(); // prevent the default action (scroll / move caret)
         K5.gui["selected"].next();
+      }
     }
 
     if (type === "window/resized") {
@@ -319,7 +329,8 @@ ItemSupport.prototype = {
         var pid = K5.api.ctx["item"]["selected"];
         var data = K5.api.ctx["item"][pid];
 
-        this.itemContext = data.context[0];
+        this.itemContext = data.context.sort(function (a, b) { return b.length - a.length; })[0];
+
         var contextDiv = $("<div/>", {class: "context"});
         var titleH = $('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
         

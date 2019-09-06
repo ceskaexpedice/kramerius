@@ -206,7 +206,7 @@
 
     
     <xsl:template match="/foxml:digitalObject/foxml:datastream[@ID='BIBLIO_MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:modsCollection/mods:mods" mode="biblioMods">
-        <xsl:for-each select="mods:language[@objectPart != 'translation']/mods:languageTerm/text()">
+        <xsl:for-each select="mods:language[not(@objectPart) or @objectPart != 'translation']/mods:languageTerm/text()">
         <field name="language">
             <xsl:value-of select="." />
         </field>
@@ -219,6 +219,11 @@
         <xsl:if test="$PAGENUM=0">
             <xsl:for-each select="mods:subject/mods:topic/text()">
                 <field name="keywords" >
+                    <xsl:value-of select="."/>
+                </field>
+            </xsl:for-each>
+            <xsl:for-each select="mods:subject/mods:geographic/text()">
+                <field name="geographic_names" >
                     <xsl:value-of select="."/>
                 </field>
             </xsl:for-each>
@@ -287,6 +292,15 @@
             </xsl:if>
             <xsl:if test="$MODEL = 'periodicalvolume'">
                 <field name="details">
+
+
+                    <xsl:variable name="volumeName"><xsl:choose>
+                        <xsl:when test="mods:titleInfo/mods:partName">
+                            <xsl:value-of select="mods:titleInfo/mods:partName" />
+                        </xsl:when>
+                    </xsl:choose>
+                    </xsl:variable>
+
                     <xsl:variable name="volumeNumber"><xsl:choose>
                         <xsl:when test="mods:titleInfo/mods:partNumber">
                             <xsl:value-of select="mods:titleInfo/mods:partNumber" />
@@ -307,6 +321,11 @@
                         <xsl:otherwise>
                             <xsl:value-of select="mods:originInfo/mods:dateIssued" /><xsl:value-of select="'##'" />
                             <xsl:value-of select="$volumeNumber" />
+                            <xsl:if test="$volumeName">
+                                <xsl:value-of select="'##'" />
+                                <xsl:value-of select="$volumeName" />
+                            </xsl:if>
+
                         </xsl:otherwise>
                      </xsl:choose>
                 </field>

@@ -5,33 +5,33 @@ import antlr.TokenStreamException;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.indexer.coordinates.ParsingCoordinates;
 import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
-import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.pdfbox.cos.COSDocument;
-import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 //import org.apache.pdfbox.util.PDFTextStripper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+
+//----------------------------------------
+import org.apache.commons.io.IOUtils;
+import java.io.File;
 
 /**
  *
@@ -64,6 +64,10 @@ public class ExtendedFields {
     DateFormat df;
     DateFormat solrDateFormat;
 
+    // geo coordinates range
+    private List<String> coordinates;
+
+
     public ExtendedFields(FedoraOperations fo) throws IOException {
         this.fo = fo;
         KConfiguration config = KConfiguration.getInstance();
@@ -92,28 +96,41 @@ public class ExtendedFields {
         for (String s : pid_paths) {
             model_paths.add(getModelPath(s));
         }
+        Document biblioMods = fa.getBiblioMods(pid);
         setRootTitle();
-        setDate();
+        setDate(biblioMods);
+        // coordinates
+        this.coordinates = ParsingCoordinates.processBibloModsCoordinates(biblioMods, this.factory);
     }
     PDDocument pdDoc = null;
     String pdfPid = "";
 
     public void setPDFDocument(String pid) throws Exception {
         if (!pdfPid.equals(pid)) {
+            InputStream is = null;
             try {
             pdfPid = "";
             closePDFDocument();
-                InputStream is = fa.getDataStream(pid, "IMG_FULL");
+                is = fa.getDataStream(pid, "IMG_FULL");
+
+                //File pdfImg = new File("/usr/local/tomcat/temp/"+pid+".tmp");
+
+                File pdfImg = File.createTempFile(pid,null);
+                pdfImg.deleteOnExit();
+                FileUtils.copyInputStreamToFile(is, pdfImg);
+
+
                 if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdf.loadNonSeq", false)){
-                    pdDoc = PDDocument.load(is, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
+                    pdDoc = PDDocument.load(pdfImg, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
                 }else{
-                    pdDoc = PDDocument.load(is, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
+                    pdDoc = PDDocument.load(pdfImg, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
                 }
                 pdfPid = pid;
 
 
             } catch (Exception ex) {
                 closePDFDocument();
+                IOUtils.closeQuietly(is);
                 logger.log(Level.WARNING, "Cannot parse PDF document", ex);
             }
 
@@ -144,7 +161,7 @@ public class ExtendedFields {
                 stripper.setEndPage(page);
             }
 
-            return StringEscapeUtils.escapeXml(stripper.getText(pdDoc));
+            return StringEscapeUtils.escapeXml10(stripper.getText(pdDoc));
         } catch (Exception ex) {
             return "";
         }
@@ -175,14 +192,19 @@ public class ExtendedFields {
     }
 
     public String toXmlString(int pageNum) throws Exception {
+        Set<String> texts = new HashSet<>();
+
         StringBuilder sb = new StringBuilder();
         for (String s : pid_paths) {
             sb.append("<field name=\"pid_path\">").append(s).append(pageNum == 0 ? "" : "/@" + pageNum).append("</field>");
             String[] pids = s.split("/");
             if (pageNum != 0) {
                 sb.append("<field name=\"parent_pid\">").append(pids[pids.length - 1]).append("</field>");
-                sb.append("<field name=\"text\">").append(getPDFPage(pageNum)).append("</field>");
-                
+                // TODO: Do it better. For now, i have to use any field which is aldrady defined
+                // in the future consider of interoducing field text_pdf
+                String pdfText = getPDFPage(pageNum);
+                texts.add(pdfText);
+
             } else {
                 if (pids.length == 1) {
                     sb.append("<field name=\"parent_pid\">").append(pids[0]).append("</field>");
@@ -191,7 +213,14 @@ public class ExtendedFields {
                 }
             }
         }
-        
+
+        if (!texts.isEmpty()) {
+            StringBuilder textsBuilder = new StringBuilder();
+            texts.stream().forEach(item -> textsBuilder.append(item));
+            sb.append("<field name=\"text_ocr\">").append(textsBuilder).append("</field>");
+        }
+
+
         for (Integer i : rels_ext_indexes) {
             sb.append("<field name=\"rels_ext_index\">").append(i).append("</field>");
         }
@@ -223,6 +252,14 @@ public class ExtendedFields {
         if (!datum_end.equals("")) {
             sb.append("<field name=\"datum_end\">").append(datum_end).append("</field>");
         }
+
+
+        if (this.coordinates != null) {
+            coordinates.stream().forEach((loc)->{
+                sb.append(loc);
+            });
+        }
+
         return sb.toString();
     }
 
@@ -242,7 +279,9 @@ public class ExtendedFields {
         }
     }
 
-    private void setDate() throws Exception {
+
+
+    private void setDate(Document biblioMods) throws Exception {
         datum_str = "";
         rok = "";
         datum_begin = "";
@@ -252,7 +291,7 @@ public class ExtendedFields {
             String[] pid_path = pid_paths.get(j).split("/");
             for (int i = pid_path.length - 1; i > -1; i--) {
                 String pid = pid_path[i];
-                Document foxml = fa.getBiblioMods(pid);
+                //Document biblioMods = fa.getBiblioMods(pid);
                 if (dates_cache.containsKey(pid)) {
                     datum_str = dates_cache.get(pid);
                     parseDatum(datum_str);
@@ -260,7 +299,7 @@ public class ExtendedFields {
                 }
                 xPathStr = prefix + "mods:part/mods:date/text()";
                 expr = xpath.compile(xPathStr);
-                Node node = (Node) expr.evaluate(foxml, XPathConstants.NODE);
+                Node node = (Node) expr.evaluate(biblioMods, XPathConstants.NODE);
                 if (node != null) {
                     datum_str = node.getNodeValue();
                     parseDatum(datum_str);
@@ -269,7 +308,7 @@ public class ExtendedFields {
                 } else {
                     xPathStr = prefix + "mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()";
                     expr = xpath.compile(xPathStr);
-                    node = (Node) expr.evaluate(foxml, XPathConstants.NODE);
+                    node = (Node) expr.evaluate(biblioMods, XPathConstants.NODE);
                     if (node != null) {
                         datum_str = node.getNodeValue();
                         parseDatum(datum_str);
@@ -278,7 +317,7 @@ public class ExtendedFields {
                     }else{
                         xPathStr = prefix + "mods:originInfo/mods:dateIssued/text()";
                         expr = xpath.compile(xPathStr);
-                        node = (Node) expr.evaluate(foxml, XPathConstants.NODE);
+                        node = (Node) expr.evaluate(biblioMods, XPathConstants.NODE);
                         if (node != null) {
                             datum_str = node.getNodeValue();
                             parseDatum(datum_str);

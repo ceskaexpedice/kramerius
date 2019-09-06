@@ -107,7 +107,7 @@ ItemThumbs.prototype = {
                 this.setLoading(false);
             }
             $("#viewer>div.loading").hide();
-            this.getHits();
+            this.getHits(false);
 
             K5.eventsHandler.trigger("application/menu/ctxchanged", null);
 
@@ -123,14 +123,8 @@ ItemThumbs.prototype = {
             this.setLoading(true);
             $("#q").val(q);
             this.hits = {};
-//            $('li.hit').each(function() {
-//                $(this).tooltip("option", "content", $(this).data("tt"));
-//            });
-//            $('li.chit').each(function() {
-//                $(this).tooltip("option", "content", $(this).data("tt"));
-//            });
             $('li.thumb').removeClass("hit chit");
-            this.getHits();
+            this.getHits(true);
         }
         cleanWindow();
     },
@@ -143,24 +137,32 @@ ItemThumbs.prototype = {
             height: 75,
             position: {of: $("#contextbuttons>div.search"), my: "left top", at: "left bottom"},
 
-//            buttons: {
-//                "OK": function() {
-//                    th.dosearch();
-//                    //$(this).dialog("close");
-//                },
-//                Cancel: function() {
-//                    $(this).dialog("close");
-//                }
-//            },
-
             focus: function() {
                 $("#searchinside_q").focus();
                 $("#searchinside_q").select();
             }
         });
     },
-    getHits: function() {
-        if ($("#q").val() === "" && !isAdvancedSearch()) {
+
+    _params: function() {
+        var params = {};
+        if (location.search) {
+            var parts = location.search.substring(1).split('&');
+
+            for (var i = 0; i < parts.length; i++) {
+                var nv = parts[i].split('=');
+                if (!nv[0]) continue;
+                params[nv[0]] = nv[1] || true;
+            }
+        }
+        return params;
+    },
+
+
+    getHits: function(showalert) {
+        var authorFlag = typeof this._params()['author'] !== 'undefined' && this._params()['author'] !== null;
+        var searchFlag = $("#q").val() !== ""  &&  $("#q").val() !== null  &&  typeof $("#q").val() !== 'undefined';
+        if (!authorFlag && !searchFlag && !isAdvancedSearch()) {
             return;
         }
         if (jQuery.isEmptyObject(this.hits)) {
@@ -172,20 +174,41 @@ ItemThumbs.prototype = {
                 pid_path += context[i].pid + "/";
             }
             var fq = setAdvSearch();
-            var q = "";
-            if($("#q").val() !== ""){
-                q += "q=" + $("#q").val();
+
+            var q = "q=";
+            if(searchFlag && authorFlag){
+                q += "(text:" + $("#q").val()+" OR dc.creator:"+this._params()['author']+")";
+            } else if(searchFlag){
+                q += "(text:" + $("#q").val()+")";
+            } else if(authorFlag){
+                q += "(dc.creator:"+this._params()['author']+")";
             }else if(fq !== ""){
                 q = "q=*:*";
             }
             q += "&rows=5000&fq=pid_path:" + pid_path.replace(/:/g, "\\:") + "*";
-            var hl = "&hl=true&hl.fl=text_ocr&hl.mergeContiguous=true&hl.snippets=2";
+
+            var hl = authorFlag ? "&hl=true&hl.fl=text_ocr,dc.creator&hl.mergeContiguous=true&hl.snippets=2" : "&hl=true&hl.fl=text_ocr&hl.mergeContiguous=true&hl.snippets=2";
+
             K5.api.askForSolr(q + hl, _.bind(function(data) {
+              var numFound = data.response.numFound;
                 console.log("Hits: " + data.response.numFound);
                 //console.log(JSON.stringify(data));
                 this.hits = data.response.docs;
                 this.highlighting = data.highlighting;
                 this.setHitClass();
+                
+                if(showalert){
+                    var key = 'common.page.plural_2';
+                    if (numFound > 4) {
+                        key = 'common.page.plural_2';
+                    } else if (numFound > 1) {
+                        key = 'common.page.plural_1';
+                    } else {
+                        key = 'common.page.singural';
+                    }
+                    alert(K5.i18n.ctx.dictionary["common.found"] + " " + numFound + " " + K5.i18n.ctx.dictionary[key]);
+                }
+                
             }, this));
         } else {
             this.setHitClass();

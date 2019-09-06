@@ -33,6 +33,7 @@ import cz.incad.kramerius.imaging.guice.ImageModule;
 import cz.incad.kramerius.pdf.guice.PDFModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
 import cz.incad.kramerius.processes.guice.LongRunningProcessModule;
+import cz.incad.kramerius.rest.api.guice.IiifServletModule;
 import cz.incad.kramerius.security.guice.GuiceSecurityModule;
 import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
 import cz.incad.kramerius.service.guice.I18NModule;
@@ -89,6 +90,9 @@ public class GuiceConfigBean extends GuiceServletContextListener {
                 new ContextMenuConfiguration(), // menu modules
 
                 new FormatterModule(), // statistics formatters
+
+                new IiifServletModule(),
+
                 servletModule()
 		)); 
     	

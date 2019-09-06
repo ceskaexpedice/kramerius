@@ -30,8 +30,16 @@
             <%-- datum --%>
             <c:if test="${param.da_od != null && param.da_do != ''}">
                 <li>
-                <a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeDateAxisFilter();">
-                <fmt:message bundle="${lctx}" key="common.date" />: <c:out value="${param.da_od}" /> - <c:out value="${param.da_do}" /></a>
+		  <c:choose>
+		      <c:when test="${param.exactDay == 'true'}" >
+			<a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeDateAxisFilter();">
+			<fmt:message bundle="${lctx}" key="common.date" />: <c:out value="${param.da_od}" /></a>
+		      </c:when>
+		      <c:otherwise>
+			<a title="<fmt:message bundle="${lctx}" key="filter.remove_criteria" />" class="mainNav" href="javascript:removeDateAxisFilter();">
+			<fmt:message bundle="${lctx}" key="common.date" />: <c:out value="${param.da_od}" /> - <c:out value="${param.da_do}" /></a>
+		      </c:otherwise>
+		  </c:choose>
                 </li>
             </c:if>
 

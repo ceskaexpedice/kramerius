@@ -77,6 +77,11 @@ public class PeriodicalVolumeDecorator extends AbstractDetailDecorator {
                         if (details.length > 1) {
                             detailsJSONObject.put("volumeNumber", ItemResourceUtils.preventAutomaticConversion(details[1]));
                         }
+
+                        if (details.length > 2) {
+                            detailsJSONObject.put("volumePart", ItemResourceUtils.preventAutomaticConversion(details[2]));
+                        }
+
                         boolean moreThanZero = detailsJSONObject.keys().hasNext();
                         if (moreThanZero) {
                             jsonObject.put("details", detailsJSONObject);

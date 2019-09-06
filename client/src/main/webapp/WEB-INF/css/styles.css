@@ -511,7 +511,7 @@ li.public:before{
 
 #facets div.res{
     width: 100%;
-    white-space: nowrap;
+    /* white-space: nowrap; */
     overflow: hidden;
     text-overflow: ellipsis;
 }

@@ -122,6 +122,10 @@ public class KConfiguration {
         return getProperty("fedoraHost");
     }
 
+    public List<String> getSolrCachedURLS() {
+        return getConfiguration().getList("solr.cache.urls");
+    }
+
     public String getSolrHost() {
         return getProperty("solrHost");
     }
@@ -298,6 +302,10 @@ public class KConfiguration {
 
     public String getWebPropertyId() {
         return getConfiguration().getString("googleanalytics.webpropertyid");
+    }
+
+    public int getCacheTimeToLiveExpiration() {
+        return getConfiguration().getInt("cache.timeToLiveExpiration", 60);
     }
 
     

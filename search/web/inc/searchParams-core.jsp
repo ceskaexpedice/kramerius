@@ -65,15 +65,33 @@
     <%-- datum --%>
     <c:if test="${param.da_od != null && !empty param.da_od}">
         <c:set var="fieldedSearch" value="true" scope="request" />
-        <c:set var="da">(rok:[${searchParams.yearFrom} TO ${searchParams.yearUntil}]) OR (datum_begin:[1 TO ${searchParams.yearUntil}] AND datum_end:[${searchParams.yearFrom} TO 3000])</c:set>
-        <c:if test="${param.da_od == param.da_do}">
-            <c:set var="da">
-                 ${da} OR (datum:"${searchParams.dateFromFormatted}")
-            </c:set>
-        </c:if>
+            <c:choose>
+                <c:when test="${param.exactDay == 'true'}" >
+		  <c:set var="da">datum_str:"${param.da_od}"</c:set>
+		  <c:set var="daNoZeroes"></c:set>
+		  <c:if test="${fn:startsWith(param.da_od, '0')}">
+		    <c:set var="daNoZeroes">${fn:substring(param.da_od, 1, -1)}</c:set>
+		  </c:if>
+		  <c:set var="daNoZeroes">${fn:replace(daNoZeroes, '.0', '.')}</c:set>
+		  <c:set var="da">${da} OR datum_str:"${daNoZeroes}"</c:set>
+                </c:when>
+                <c:otherwise>
+		  <c:set var="da">(rok:[${searchParams.yearFrom} TO ${searchParams.yearUntil}]) OR (datum_begin:[1 TO ${searchParams.yearUntil}] AND datum_end:[${searchParams.yearFrom} TO 3000])</c:set>
+		  <c:if test="${param.da_od == param.da_do}">
+		      <c:set var="da">
+			  ${da} OR (datum:"${searchParams.dateFromFormatted}")
+		      </c:set>
+		  </c:if>
+                </c:otherwise>
+            </c:choose>
         <c:param name="fq" value="${da}" />
         <c:set var="rows" value="${rowsdefault}" scope="request" />
     </c:if>
+
+    <c:if test="${!empty param.exactDay}">
+        <c:param name="exactDay" value="${param.da_exactDay}" />
+    </c:if>
+
     <c:if test="${!empty param.offset}">
         <c:param name="start" value="${param.offset}" />
     </c:if>
@@ -230,7 +248,9 @@
     </c:choose>
     <c:param name="defType" value="edismax" />
 </c:url>
-    <c:import url="${url}" var="xml" charEncoding="UTF-8" />
+    <!--c:import url="${url}" var="xml" charEncoding="UTF-8" /-->
+    <view:import url="${url}" var="xml" charEncoding="UTF-8"  />
+
     <c:if test="${wt == 'xml'}">
     <x:parse var="doc" xml="${xml}"  />
     </c:if>

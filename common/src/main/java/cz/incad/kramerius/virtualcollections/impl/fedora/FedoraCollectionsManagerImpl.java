@@ -69,6 +69,7 @@ public class FedoraCollectionsManagerImpl extends AbstractCollectionManager {
             }
             for (Collection col : cols) {
                 try {
+                    this.enhanceNumberOfDocs(col);
                     this.enhanceDescriptions(col);
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);

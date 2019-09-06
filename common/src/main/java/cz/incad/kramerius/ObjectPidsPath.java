@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -88,32 +90,31 @@ public class ObjectPidsPath extends AbstractObjectPath {
     // support collections
     
     public ObjectPidsPath injectCollections(CollectionsManager col) throws CollectionException {
-        if (this.isEmptyPath()) return this;
-        for (String pid : pathFromRootToLeaf) {
-            if (CollectionPidUtils.isCollectionPid(pid)) {
-                // already enhanced
-                return this;
+
+        try {
+            if (this.isEmptyPath()) return this;
+            for (String pid : pathFromRootToLeaf) {
+                if (CollectionPidUtils.isCollectionPid(pid)) {
+                    // already enhanced
+                    return this;
+                }
             }
-        }
-        List<String> collections = new ArrayList<String>();
-        List<Collection> cols = col.getCollections();
-        for (int i = 0,ll=cols.size(); i < ll; i++) {
-            Collection cCol = cols.get(i);
-            collections.add(cCol.getPid());
-        }
-        
-        String[] pathFromRoot = this.getPathFromRootToLeaf();
-        Set<String> processingCollection = new HashSet<String>();
-        Map<String,List<String>> m = new HashMap<String, List<String>>();
-        for (String pid : pathFromRoot) {
-            if (SpecialObjects.REPOSITORY.getPid().equals(pid)) continue;
-            
-            JSONObject itemJSON = getItemJSON(pid);
-            if (itemJSON.has("collections")) {
-                JSONArray collectionsArray = itemJSON.getJSONArray("collections");
-                for (int i = 0,ll=collectionsArray.length(); i < ll; i++) {
-                    String val = collectionsArray.getString(i);
-                    if (collections.contains(val)) {
+            String[] pathFromRoot = this.getPathFromRootToLeaf();
+            Set<String> processingCollection = new HashSet<String>();
+            Map<String,List<String>> m = new HashMap<String, List<String>>();
+            for (String pid : pathFromRoot) {
+                if (SpecialObjects.REPOSITORY.getPid().equals(pid)) continue;
+
+                // wheather given pid points to stream or page
+                PIDParser parser = new PIDParser(pid);
+                parser.objectPid();
+                if (parser.isDatastreamPid() || parser.isPagePid()) continue;
+
+                JSONObject itemJSON = getItemJSON(pid);
+                if (itemJSON.has("collections")) {
+                    JSONArray collectionsArray = itemJSON.getJSONArray("collections");
+                    for (int i = 0,ll=collectionsArray.length(); i < ll; i++) {
+                        String val = collectionsArray.getString(i);
                         if (!m.containsKey(pid)) {
                             m.put(pid, new ArrayList<String>());
                         }
@@ -122,25 +123,27 @@ public class ObjectPidsPath extends AbstractObjectPath {
                             processingCollection.add(val);
                         }
                     }
-                }
-            } else {
-                if (!m.containsKey(pid)) {
-                    m.put(pid, new ArrayList<String>());
+                } else {
+                    if (!m.containsKey(pid)) {
+                        m.put(pid, new ArrayList<String>());
+                    }
                 }
             }
-        }
 
-        List<String> newVals = new ArrayList<String>();
-        for (String p : pathFromRoot) {
-            List<String> list = m.get(p);
-            if (list != null) {
-                for (String vc : list) {
-                    newVals.add(vc);
+            List<String> newVals = new ArrayList<String>();
+            for (String p : pathFromRoot) {
+                List<String> list = m.get(p);
+                if (list != null) {
+                    for (String vc : list) {
+                        newVals.add(vc);
+                    }
                 }
+                newVals.add(p);
             }
-            newVals.add(p);
+            return new ObjectPidsPath(newVals);
+        } catch (LexerException e) {
+            throw new CollectionException(e);
         }
-        return new ObjectPidsPath(newVals);
     }
 
     /** THIS should be replaced by other technique */
@@ -164,19 +167,6 @@ public class ObjectPidsPath extends AbstractObjectPath {
         return null;
     }
     
-//    protected JSONArray getVCJSON() {
-//        try {
-//            String apipoint = KConfiguration.getInstance().getConfiguration().getString("api.point");
-//            String loc = apipoint+ (apipoint.endsWith("/") ? "" : "/") +"vc";
-//            InputStream inputStream = RESTHelper.inputStream(loc, "", "");
-//            String string = IOUtils.readAsString(inputStream, Charset.forName("UTF-8"), true);
-//            JSONArray jsonArray = new JSONArray(string);
-//            return jsonArray;
-//        } catch (IOException e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//        }
-//        return null;
-//    }
     
     
     @Override

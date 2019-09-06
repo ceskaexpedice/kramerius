@@ -1,0 +1,23 @@
+{
+  "responseHeader":{
+    "zkConnected":true,
+    "status":0,
+    "QTime":8,
+    "params":{
+      "q":"*:*",
+      "facet.field":"collection",
+      "indent":"on",
+      "rows":"0",
+      "facet":"on",
+      "wt":"json"}},
+  "response":{"numFound":113,"start":0,"maxScore":1.0,"docs":[]
+  },
+  "facet_counts":{
+    "facet_queries":{},
+    "facet_fields":{
+      "collection":[
+        "vc:48821a6c-8345-4ae8-9be9-b88be3afdf0e",110,
+        "vc:c65f4bba-eef3-41d0-ab7d-1b6c24699989",80]},
+    "facet_ranges":{},
+    "facet_intervals":{},
+    "facet_heatmaps":{}}}

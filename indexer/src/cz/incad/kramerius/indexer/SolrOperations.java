@@ -2,11 +2,15 @@ package cz.incad.kramerius.indexer;
 
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
+import cz.incad.utils.ISODateUtils;
 import cz.incad.utils.PrepareIndexDocUtils;
 import dk.defxws.fedoragsearch.server.GTransformer;
 import org.apache.commons.configuration.Configuration;
@@ -31,7 +35,11 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -86,7 +94,14 @@ public class SolrOperations {
             initDocCount = getDocCount();
             if ("deleteDocument".equals(action)) {
                 for(String v : value.split(pidSeparator)){
-                    deleteDocument(v);
+                    SolrAccess sa = new SolrAccessImpl();
+                    ObjectPidsPath[] path = sa.getPath(v);
+                    // don't need iterate over all array
+                    ObjectPidsPath one = path[0];
+                    String[] pathFromRootToLeaf = one.getPathFromRootToLeaf();
+                    String joined = String.join("/", pathFromRootToLeaf);
+                    logger.info(" Deleting pidpath "+joined);
+                    deleteDocument(joined);
                     commit();
                 }
 //                deleteDocument(value);
@@ -250,10 +265,11 @@ public class SolrOperations {
             xPathStr = "/response/result/doc/date[@name='modified_date']";
             expr = xpath.compile(xPathStr);
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
             Date date = null;
             try{
-                date = formatter.parse(node.getFirstChild().getNodeValue());
+                date = ISODateUtils.parseISODate(node.getFirstChild().getNodeValue());
+                //date = formatter.parse(node.getFirstChild().getNodeValue());
             }catch(Exception e){
                 logger.info("Problem parsing modified_date, document "+ uuid +" will be fully reindexed. ("+e+")");
             }
@@ -393,8 +409,7 @@ public class SolrOperations {
                 expr = xpath.compile("//objectProperties/property[@NAME='info:fedora/fedora-system:def/view#lastModifiedDate']/@VALUE");
                 Node dateNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
                 if (dateNode != null) {
-                    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                    Date dateValue = formatter.parse(dateNode.getNodeValue());
+                    Date dateValue = ISODateUtils.parseISODate(dateNode.getNodeValue());
                     //logger.info("FOXMLDATE:"+dateValue+" INDEXDATE:"+date);
                     if (!dateValue.after(date)) {
                         if (!force) {
@@ -534,23 +549,34 @@ public class SolrOperations {
         }
     }
 
-    
-    public static String prepareDocForIndexing(String rawXML) throws ParserConfigurationException, SAXException, IOException,
+    public static String prepareDocForIndexing(boolean compositeId, String rawXML) throws ParserConfigurationException, SAXException, IOException,
             TransformerException, UnsupportedEncodingException {
+        rawXML = removeTroublesomeCharacters(rawXML);
         Document document = XMLUtils.parseDocument(new StringReader(rawXML));
-        Element docroot = document.getDocumentElement();
-        boolean compsoiteId  = KConfiguration.getInstance().getConfiguration().getBoolean("indexer.compositeId", false);
-        if (compsoiteId) {
+        if (compositeId) {
             PrepareIndexDocUtils.enhanceByCompositeId(document, document.getDocumentElement());
         }
         rawXML = PrepareIndexDocUtils.wrapByAddCommand(document);
-        String docSrc = removeTroublesomeCharacters(rawXML);
-        return docSrc;
+        return rawXML;
+    }
+
+    public static String prepareDocForIndexing(String rawXML) throws ParserConfigurationException, SAXException, IOException,
+            TransformerException, UnsupportedEncodingException {
+        return prepareDocForIndexing(KConfiguration.getInstance().getConfiguration().getBoolean("indexer.compositeId", false), rawXML);
     }
 
     
-    private static String removeTroublesomeCharacters(String inString) throws UnsupportedEncodingException {
-        return inString.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", " ");
+    public static String removeTroublesomeCharacters(String inString) throws UnsupportedEncodingException {
+        // XML 1.0
+        // #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+        String xml10pattern = "[^"
+                + "\u0009\r\n"
+                + "\u0020-\uD7FF"
+                + "\uE000-\uFFFD"
+                + "\ud800\udc00-\udbff\udfff"
+                + "]";
+        return inString.replaceAll(xml10pattern, "");
+        //return inString.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", " ");
 
     }
 
@@ -589,10 +615,9 @@ public class SolrOperations {
     }
 
     private void deleteDocument(String pid_path) throws Exception {
-        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "\\\\") + "*</query></delete>");
+
+        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\])", "\\\\") + "*</query></delete>");
         logger.log(Level.INFO, "deleting document with {0}", sb.toString());
-        postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
-        sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "\\\\") + "</query></delete>");
         postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
         commit();
         deleteTotal++;

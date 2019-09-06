@@ -12,10 +12,10 @@ sourceSets {
 
     test {
         java {
-            srcDir 'src/test'
+            srcDir 'test'
         }
         resources {
-           srcDir 'src/test'
+           srcDir 'test'
         }
     }
 }

@@ -3,6 +3,7 @@ package cz.incad.kramerius.utils;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.logging.Level;
 
@@ -25,11 +26,7 @@ public class IOUtils {
      */
     public static void copyStreams(InputStream is, OutputStream os)
             throws IOException {
-        byte[] buffer = new byte[8192];
-        int read = -1;
-        while ((read = is.read(buffer)) > 0) {
-            os.write(buffer, 0, read);
-        }
+        org.apache.commons.io.IOUtils.copy(is, os);
     }
 
     /**

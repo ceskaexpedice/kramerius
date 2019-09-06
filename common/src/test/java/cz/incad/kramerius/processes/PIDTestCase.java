@@ -6,6 +6,7 @@ import java.util.List;
 import cz.incad.kramerius.processes.utils.PIDList;
 
 import junit.framework.TestCase;
+import org.junit.Ignore;
 
 public class PIDTestCase extends TestCase {
 

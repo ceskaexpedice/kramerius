@@ -521,11 +521,12 @@ public class FirstPagePDFServiceImplTest {
 
         com.lowagie.text.Document pdfDoc = new com.lowagie.text.Document();
 
-        PdfWriter.getInstance(pdfDoc, fos);
+        PdfWriter writer = PdfWriter.getInstance(pdfDoc, fos);
         pdfDoc.open();
 
-        RenderPDF render = new RenderPDF(new FontMap(pdfService.fontsFolder()));
-        render.render(pdfDoc, cmnds);
+        FedoraAccess fa = new FedoraAccessImpl(KConfiguration.getInstance(), null);
+        RenderPDF render = new RenderPDF(new FontMap(pdfService.fontsFolder()), fa);
+        render.render(pdfDoc,writer, cmnds);
 
         pdfDoc.close();
     }

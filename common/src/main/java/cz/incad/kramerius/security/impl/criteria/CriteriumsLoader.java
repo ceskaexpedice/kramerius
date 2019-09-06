@@ -30,7 +30,9 @@ public class CriteriumsLoader {
         return Arrays.asList(MovingWall.class.getName(), 
                 StrictIPAddresFilter.class.getName(), 
                 DefaultIPAddressFilter.class.getName(), 
-                PolicyFlag.class.getName());
+                PolicyFlag.class.getName(),
+                CoverAndContentFilter.class.getName()
+                );
     }
     
     public static List<RightCriterium> criteriums() throws InstantiationException, IllegalAccessException, ClassNotFoundException {

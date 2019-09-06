@@ -20,7 +20,6 @@ import com.google.inject.AbstractModule;
 
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
 public class GuiceSecurityHTTPModule extends AbstractModule {
@@ -29,7 +28,7 @@ public class GuiceSecurityHTTPModule extends AbstractModule {
     
     @Override
     protected void configure() {
-        bind(IsActionAllowed.class).to(IsActionAllowedFromRequest.class);
+        bind(IsActionAllowed.class).to(IsActionAllowedFromRequestCached.class);
         bind(User.class).toProvider(DbCurrentLoggedUser.class);
     }
 }

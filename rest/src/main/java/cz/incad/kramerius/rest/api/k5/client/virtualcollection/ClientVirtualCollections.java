@@ -51,8 +51,9 @@ import cz.incad.kramerius.virtualcollections.CDKVirtualCollectionsGet;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionUtils;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
+import cz.incad.kramerius.virtualcollections.CollectionsManager.SortOrder;
 import cz.incad.kramerius.virtualcollections.CollectionsManager.SortType;
-import cz.incad.kramerius.virtualcollections.impl.AbstractCollectionManager.CollectionComparator;
+
 
 @Path("/v5.0/vc")
 public class ClientVirtualCollections {
@@ -61,7 +62,7 @@ public class ClientVirtualCollections {
             .getLogger(ClientVirtualCollections.class.getName());
 
     @Inject
-    @Named("fedora")
+    @Named("solr")
     CollectionsManager manager;
 
     @Inject
@@ -145,14 +146,32 @@ public class ClientVirtualCollections {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response get(@QueryParam("sort") String sortType,@QueryParam("langCode") String langCode) {
+    public Response get(
+            @QueryParam("sort") String ordering,
+            @QueryParam("sortType") String sType,
+            @QueryParam("langCode") String langCode) {
         try {
-            Locale locale = Locale.forLanguageTag(langCode);
-            List<Collection> cols = this.cdkVirtGet.virtualCollections();
-            Collections.sort(cols, new CollectionComparator(locale, sortType(sortType)));
+
+            SortOrder order = sortOrdering(ordering);
+            SortType sortType = sortType(sType);
+            List<Collection> collections = null;
+            if (order != null) {
+                if (sortType == null) {
+                    sortType = SortType.ALPHABET;
+                }
+                Locale locale = null;
+                if (langCode != null) {
+                    locale = Locale.forLanguageTag(langCode);
+                } else {
+                    locale = this.req.get().getLocale();
+                }
+                collections = this.manager.getSortedCollections(locale, order, sortType);
+            }  else {
+                collections = this.manager.getCollections();
+            }
 
             JSONArray jsonArr = new JSONArray();
-            for (Collection vc : cols) {
+            for (Collection vc : collections) {
                 jsonArr.put(CollectionUtils
                         .virtualCollectionTOJSON(vc));
             }
@@ -163,11 +182,27 @@ public class ClientVirtualCollections {
         }
     }
 
-    private SortType sortType(String sortType) {
-        if (sortType!=null) {
-            SortType selectedVal = null;
-            for (SortType v : CollectionsManager.SortType.values()) {
-                if (sortType.equals(v.name())) {
+    private SortType sortType(String sType) {
+        if (sType != null) {
+            SortType selVal = null;
+            SortType[] values = CollectionsManager.SortType.values();
+            for (SortType sortType : values) {
+                if (sortType.name().equals(sType)) {
+                    selVal = sortType;
+                    break;
+                }
+
+            }
+            return selVal;
+        }
+        return null;
+    }
+
+    private SortOrder sortOrdering(String sortOrdering) {
+        if (sortOrdering!=null) {
+            SortOrder selectedVal = null;
+            for (SortOrder v : CollectionsManager.SortOrder.values()) {
+                if (sortOrdering.equals(v.name())) {
                     selectedVal = v;
                     break;
                 }

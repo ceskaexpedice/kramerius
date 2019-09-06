@@ -46,6 +46,7 @@ import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.ImagePage;
 import cz.incad.kramerius.document.model.OutlineItem;
 import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.document.model.TextPage;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
 import cz.incad.kramerius.pdf.utils.TitlesUtils;
@@ -202,60 +203,27 @@ public class DocumentServiceImpl implements DocumentService {
             final String pid) throws IOException, ProcessSubtreeException {
 
         fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
-            private int previousLevel = -1;
             private OutlineItem currOutline = null;
 
             @Override
             public void process(String pid, int level)
                     throws ProcessSubtreeException {
                 try {
-                    AbstractPage page = createPage(renderedDocument, pid);
-                    renderedDocument.addPage(page);
-                    if (previousLevel == -1) {
-                        // first
+                	AbstractPage page = null; 
+
+                	if (fedoraAccess.isImageFULLAvailable(pid)) {
+                    	page = createPage(renderedDocument, pid);
+                        renderedDocument.addPage(page);
                         this.currOutline = createOutlineItem(
                                 renderedDocument.getOutlineItemRoot(),
                                 page.getOutlineDestination(),
-                                page.getOutlineTitle(), level);
-                        StringBuffer buffer = new StringBuffer();
-                        this.currOutline.debugInformations(buffer, 0);
-                    } else if (previousLevel == level) {
-                        this.currOutline = this.currOutline.getParent();
-                        this.currOutline = createOutlineItem(this.currOutline,
-                                page.getOutlineDestination(),
-                                page.getOutlineTitle(), level);
-
+                                page.getOutlineTitle(), 1);
                         StringBuffer buffer = new StringBuffer();
                         this.currOutline.debugInformations(buffer, 0);
 
-                    } else if (previousLevel < level) {
-                        // dolu
-                        this.currOutline = createOutlineItem(this.currOutline,
-                                page.getOutlineDestination(),
-                                page.getOutlineTitle(), level);
-
-                        StringBuffer buffer = new StringBuffer();
-                        this.currOutline.debugInformations(buffer, 0);
-
-                    } else if (previousLevel > level) {
-                        // nahoru // za poslednim smerem nahoru
-                        // this.currOutline = this.currOutline.getParent();
-                        int diff = previousLevel - level;
-                        for (int i = 0; i < diff; i++) {
-                            this.currOutline = this.currOutline.getParent();
-                        }
-
-                        StringBuffer buffer = new StringBuffer();
-                        this.currOutline.debugInformations(buffer, 0);
-
-                        this.currOutline = this.currOutline.getParent();
-                        this.currOutline = createOutlineItem(this.currOutline,
-                                page.getOutlineDestination(),
-                                page.getOutlineTitle(), level);
-
+                    } else {
+                    	// no page 
                     }
-
-                    previousLevel = level;
                 } catch (DOMException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new RuntimeException(e);
@@ -293,8 +261,13 @@ public class DocumentServiceImpl implements DocumentService {
         });
 
     }
+    
+	protected AbstractPage createTextPage(final PreparedDocument renderedDocument,
+            String pid) throws LexerException, IOException {
+		throw new IllegalStateException();
+	}
 
-    protected AbstractPage createPage(final PreparedDocument renderedDocument,
+	protected AbstractPage createPage(final PreparedDocument renderedDocument,
             String pid) throws LexerException, IOException {
 
         try {
@@ -361,62 +334,60 @@ public class DocumentServiceImpl implements DocumentService {
                 }
 
             } else {
-                // metadata
+            		
+            		page = new TextPage(modelName,
+                            this.fedoraAccess.findFirstViewablePid(pid));
+                    page.setOutlineDestination(pid);
 
-                page = new ImagePage(modelName,
-                        this.fedoraAccess.findFirstViewablePid(pid));
-                page.setOutlineDestination(pid);
+                    page.setBiblioMods(biblioMods);
+                    page.setDc(dc);
 
-                page.setBiblioMods(biblioMods);
-                page.setDc(dc);
+                    Map<String, List<String>> map = new HashMap<String, List<String>>();
+                    PageNumbersBuilder pageNumbersBuilder = new PageNumbersBuilder();
+                    pageNumbersBuilder.build(biblioMods, map, modelName);
+                    List<String> pageNumbers = map
+                            .get(PageNumbersBuilder.MODS_PAGENUMBER);
+                    pageNumbers = pageNumbers != null ? pageNumbers
+                            : new ArrayList<String>();
+                    String pageNumber = pageNumbers.isEmpty() ? "" : pageNumbers
+                            .get(0);
 
-                Map<String, List<String>> map = new HashMap<String, List<String>>();
-                PageNumbersBuilder pageNumbersBuilder = new PageNumbersBuilder();
-                pageNumbersBuilder.build(biblioMods, map, modelName);
-                List<String> pageNumbers = map
-                        .get(PageNumbersBuilder.MODS_PAGENUMBER);
-                pageNumbers = pageNumbers != null ? pageNumbers
-                        : new ArrayList<String>();
-                String pageNumber = pageNumbers.isEmpty() ? "" : pageNumbers
-                        .get(0);
-
-                page.setPageNumber(pageNumber);
-                // renderedDocument.addPage(page);
-                Element part = XMLUtils.findElement(
-                        biblioMods.getDocumentElement(), "part",
-                        FedoraNamespaces.BIBILO_MODS_URI);
-                String attribute = part != null ? part.getAttribute("type")
-                        : null;
-                if (attribute != null) {
-                    String key = "pdf." + attribute;
-                    if (resourceBundle.containsKey(key)) {
-                        page.setOutlineTitle(page.getPageNumber() + " "
-                                + resourceBundle.getString(key));
-                    } else {
-                        page.setOutlineTitle(page.getPageNumber());
-                        // throw new RuntimeException("");
+                    page.setPageNumber(pageNumber);
+                    // renderedDocument.addPage(page);
+                    Element part = XMLUtils.findElement(
+                            biblioMods.getDocumentElement(), "part",
+                            FedoraNamespaces.BIBILO_MODS_URI);
+                    String attribute = part != null ? part.getAttribute("type")
+                            : null;
+                    if (attribute != null) {
+                        String key = "pdf." + attribute;
+                        if (resourceBundle.containsKey(key)) {
+                            page.setOutlineTitle(page.getPageNumber() + " "
+                                    + resourceBundle.getString(key));
+                        } else {
+                            page.setOutlineTitle(page.getPageNumber());
+                            // throw new RuntimeException("");
+                        }
                     }
-                }
-                if ((renderedDocument.getUuidTitlePage() == null)
-                        && ("TitlePage".equals(attribute))) {
-                    renderedDocument.setUuidTitlePage(pid);
-                }
+                    if ((renderedDocument.getUuidTitlePage() == null)
+                            && ("TitlePage".equals(attribute))) {
+                        renderedDocument.setUuidTitlePage(pid);
+                    }
 
-                if ((renderedDocument.getUuidFrontCover() == null)
-                        && ("FrontCover".equals(attribute))) {
-                    renderedDocument.setUuidFrontCover(pid);
-                }
+                    if ((renderedDocument.getUuidFrontCover() == null)
+                            && ("FrontCover".equals(attribute))) {
+                        renderedDocument.setUuidFrontCover(pid);
+                    }
 
-                if ((renderedDocument.getUuidBackCover() == null)
-                        && ("BackCover".equals(attribute))) {
-                    renderedDocument.setUuidBackCover(pid);
-                }
+                    if ((renderedDocument.getUuidBackCover() == null)
+                            && ("BackCover".equals(attribute))) {
+                        renderedDocument.setUuidBackCover(pid);
+                    }
 
-                if (renderedDocument.getFirstPage() == null) {
-                    renderedDocument.setFirstPage(pid);
-                }
-
-            }
+                    if (renderedDocument.getFirstPage() == null) {
+                        renderedDocument.setFirstPage(pid);
+                    }
+            	}
             return page;
         } catch (XPathExpressionException e) {
             throw new IOException(e);
@@ -439,7 +410,7 @@ public class DocumentServiceImpl implements DocumentService {
                 renderedDocument.mapDCConent(pid,
                         DCUtils.contentFromDC(fedoraAccess.getDC(pid)));
             }
-
+            
             /*
              * renderedDocument.setDocumentTitle(TitlesUtils.title(leaf,
              * this.solrAccess, this.fedoraAccess));

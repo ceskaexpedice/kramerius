@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+    <!-- You may leave out the responseDate and request elements -->
+    <ListMetadataFormats>
+        <metadataFormat>
+            <metadataPrefix>oai_dc</metadataPrefix>
+            <schema>http://www.openarchives.org/OAI/2.0/oai_dc.xsd</schema>
+            <metadataNamespace>http://www.openarchives.org/OAI/2.0/oai_dc/</metadataNamespace>
+        </metadataFormat>
+        <metadataFormat>
+            <metadataPrefix>ese</metadataPrefix>
+            <schema>http://www.europeana.eu/schemas/ese/ESE-V3.2.xsd</schema>
+            <metadataNamespace>http://www.europeana.eu/schemas/ese/</metadataNamespace>
+        </metadataFormat>
+        <metadataFormat>
+            <metadataPrefix>drkramerius4</metadataPrefix>
+            <schema>http://registrdigitalizace.cz/schemas/drkramerius/v4/drkram.xsd</schema>
+            <metadataNamespace>http://registrdigitalizace.cz/schemas/drkramerius/v4/</metadataNamespace>
+        </metadataFormat>
+    </ListMetadataFormats>
+</OAI-PMH>

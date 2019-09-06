@@ -61,6 +61,11 @@ public class PeriodicalVolumeNumberBuilder extends AbstractBuilder {
         
         XPathExpression expr = xpath.compile("//mods:part/mods:detail[@type='volume']/mods:number/text()");
         Node node = (Node) expr.evaluate(document, XPathConstants.NODE);
+        if (node == null){
+            expr = xpath.compile("//mods:titleInfo/mods:partNumber/text()");
+            node = (Node) expr.evaluate(document, XPathConstants.NODE);
+        }
+
         if (node != null) {
             add(MODS_VOLUMENUMBER, ((Text)node).getData(), map);
             if (APPLICABLE_MODEL.equals(model)) {

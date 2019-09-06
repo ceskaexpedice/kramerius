@@ -35,7 +35,14 @@ form(rootNode, lang, country ) ::=<<
     <!--    
 
         window.onProcessFormSend = function() {
-            var vals = 'outputFolder='+\$('#outputFolder').val()
+            //var vals = 'outputFolder='+\$('#outputFolder').val().replace()
+            
+             var escapedFolder = \$('#outputFolder').val().replaceAll("\\\\\\\\","/").replaceAll(":","\\\\:");
+                       if (escapedFolder.startsWith("/")) {
+                               escapedFolder = "/"+escapedFolder;
+                       }
+
+            var vals = 'outputFolder='+escapedFolder
 
                         +';lang='+\$('#lang').val()
                         +';country='+\$('#country').val()

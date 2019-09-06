@@ -3,12 +3,10 @@ package cz.incad.kramerius.virtualcollections;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,29 +14,24 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.fedora.api.RelationshipTuple;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.virtualcollections.Collection.Description;
 import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
 
@@ -98,7 +91,8 @@ public class CollectionUtils {
 
         Map<String, String> encodedTexts = new HashMap<String, String>();
         for (String k : plainTexts.keySet()) {
-            String encoded = Base64.getEncoder().encodeToString(plainTexts.get(k).getBytes("UTF-8"));
+            String encoded = Base64.encodeBase64String(plainTexts.get(k).getBytes("UTF-8"));;
+
             encodedTexts.put(k, encoded);
         }
         String pid = "vc:" + UUID.randomUUID().toString();
@@ -369,6 +363,7 @@ public class CollectionUtils {
         jsonObj.put("pid", vc.getPid());
         jsonObj.put("label", vc.getLabel());
         jsonObj.put("canLeave", vc.isCanLeaveFlag());
+        jsonObj.put("numberOfDocs", vc.getNumberOfDocs());
         
         
         JSONObject descsMap = new JSONObject();

@@ -15,10 +15,19 @@ public class StatisticUtils {
     public static List jdbcParams(DateFilter filter, Offset rOffset) throws ParseException {
         List params = new ArrayList();
         if (filter.getFromDate() != null && (!filter.getFromDate().trim().equals(""))) {
-            params.add(new Timestamp(StatisticReport.FORMAT.parse(filter.getFromDate()).getTime()));
+            try {
+                params.add(new Timestamp(StatisticReport.TIMESTAMP_FORMAT.parse(filter.getFromDate()).getTime()));
+            } catch (ParseException e) {
+                params.add(new Timestamp(StatisticReport.DATE_FORMAT.parse(filter.getFromDate()).getTime()));
+            }
+
         }
         if (filter.getToDate() != null && (!filter.getToDate().trim().equals(""))) {
-            params.add(new Timestamp(StatisticReport.FORMAT.parse(filter.getToDate()).getTime()));
+            try {
+                params.add(new Timestamp(StatisticReport.TIMESTAMP_FORMAT.parse(filter.getToDate()).getTime()));
+            } catch (ParseException e) {
+                params.add(new Timestamp(StatisticReport.DATE_FORMAT.parse(filter.getToDate()).getTime()));
+            }
         }
         params.add(Integer.parseInt(rOffset.getOffset()));
         params.add(Integer.parseInt(rOffset.getSize()));
@@ -29,10 +38,19 @@ public class StatisticUtils {
     public static List jdbcParams(DateFilter filter) throws ParseException {
         List params = new ArrayList();
         if (filter.getFromDate() != null && (!filter.getFromDate().trim().equals(""))) {
-            params.add(new Timestamp(StatisticReport.FORMAT.parse(filter.getFromDate()).getTime()));
+            try {
+                params.add(new Timestamp(StatisticReport.TIMESTAMP_FORMAT.parse(filter.getFromDate()).getTime()));
+            } catch (ParseException e) {
+                params.add(new Timestamp(StatisticReport.DATE_FORMAT.parse(filter.getFromDate()).getTime()));
+            }
         }
         if (filter.getToDate() != null && (!filter.getToDate().trim().equals(""))) {
-            params.add(new Timestamp(StatisticReport.FORMAT.parse(filter.getToDate()).getTime()));
+            try {
+                params.add(new Timestamp(StatisticReport.TIMESTAMP_FORMAT.parse(filter.getToDate()).getTime()));
+            }catch(ParseException e) {
+                params.add(new Timestamp(StatisticReport.DATE_FORMAT.parse(filter.getToDate()).getTime()));
+
+            }
         }
         return params;
     }

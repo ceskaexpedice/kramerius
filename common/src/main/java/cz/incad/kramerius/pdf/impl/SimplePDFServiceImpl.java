@@ -93,14 +93,14 @@ public class SimplePDFServiceImpl implements SimplePDFService {
             String template = template(rdoc, this.fedoraAccess, this.textsService, this.localeProvider.get());
 
             Document doc = DocumentUtils.createDocument(rdoc);
-            PdfWriter.getInstance(doc, os);
+            PdfWriter pdfWriter = PdfWriter.getInstance(doc, os);
             doc.open();
 
             cmnds = new ITextCommands();
             cmnds.load(XMLUtils.parseDocument(new StringReader(template)).getDocumentElement(), cmnds);
 
-            RenderPDF render = new RenderPDF(fontMap);
-            render.render(doc, cmnds);
+            RenderPDF render = new RenderPDF(fontMap, this.fedoraAccess);
+            render.render(doc, pdfWriter, cmnds);
 
             doc.close();
             os.flush();
@@ -138,8 +138,18 @@ public class SimplePDFServiceImpl implements SimplePDFService {
     public static String template(PreparedDocument rdoc, FedoraAccess fa, TextsService textsService, Locale locale) throws IOException,
             FileNotFoundException {
         StringWriter strWriter = new StringWriter();
-        strWriter.write("<commands>\n");
-        
+
+        String pdfHeader = textsService.getText("pdf_header",locale);
+        String pdfFooter = textsService.getText("pdf_footer",locale);
+        strWriter.write("<commands");
+        if (pdfHeader != null) {
+            strWriter.write(" page-header='"+pdfHeader+"'");
+        }
+        if (pdfFooter != null) {
+        strWriter.write(" page-footer='"+pdfFooter+"'");
+        }
+        strWriter.write(">\n");
+
         List<AbstractPage> pages = new ArrayList<AbstractPage>(rdoc.getPages());
         for (int i = 0,ll=pages.size(); i < ll; i++) {
             AbstractPage apage = pages.get(i);
@@ -155,6 +165,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
                     String imgPath = writeImage(javaImg);
                     StringTemplate template = new StringTemplate(IOUtils.readAsString(SimplePDFServiceImpl.class.getResourceAsStream("templates/_image_page.st"), Charset.forName("UTF-8"), true));
                     template.setAttribute("imgpath", imgPath);
+                    template.setAttribute("pid", pid);
                     strWriter.write(template.toString());
 
                 } catch (XPathExpressionException e) {

@@ -11,6 +11,8 @@
     "js/ol3/ol-simple.js",
     'js/mods.js',
     'js/app-bar-cookie-info.js',
+    'js/sliders/nouislider.js',
+
 
     "jplayer/jquery.jplayer.min.js",
 
@@ -64,6 +66,7 @@
     "resources/js/item.js",
 
     "resources/js/viewers/forbidden.js"
+
     
 ]
 
