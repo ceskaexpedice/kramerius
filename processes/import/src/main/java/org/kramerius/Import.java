@@ -4,6 +4,7 @@ import com.google.inject.*;
 import com.google.inject.name.Names;
 import com.qbizm.kramerius.imp.jaxb.*;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
@@ -105,7 +106,7 @@ public class Import {
     
 
     public static void ingest(FedoraAccess fa, ProcessingIndexFeeder feeder, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
-        log.finest("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
+        log.info("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
 
         // system property 
         try {
@@ -426,6 +427,9 @@ public class Import {
             }
 
         }
+
+        counter++;
+        log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
 
     public static void ingest(Repository repo, File file, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) {
@@ -451,22 +455,30 @@ public class Import {
         }
     }
 
-    private static boolean merge(Repository repo, byte[] bytes) throws RepositoryException {
-        List<RDFTuple> ingested = readRDF(bytes);
+    private static boolean merge(Repository repo, byte[] ingestedBytes) throws RepositoryException {
+        List<RDFTuple> ingested = readRDF(ingestedBytes);
         if (ingested.isEmpty()) {
             return false;
         }
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
-        List<Triple<String, String, String>> relations = repo.getObject(pid).getRelations(null);
-        List<Triple<String, String, String>> literals = repo.getObject(pid).getLiterals(null);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            IOUtils.copyStreams(repo.getObject(pid).getStream("RELS-EXT").getContent(), bos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        byte[] existingBytes = bos.toByteArray();
+        List<RDFTuple> existing = readRDF(existingBytes);
+        //List<Triple<String, String, String>> relations = repo.getObject(pid).getRelations(null);
+        //List<Triple<String, String, String>> literals = repo.getObject(pid).getLiterals(null);
 
-        List<RDFTuple> existing = new ArrayList<>(relations.size());
-        for (Triple<String, String, String> t : relations) {
-            existing.add(new RDFTuple(t.getLeft(), t.getMiddle(), t.getRight(), false));
-        }
-        for (Triple<String, String, String> t : literals) {
-            existing.add(new RDFTuple(t.getLeft(), t.getMiddle(), t.getRight(), true));
-        }
+        //List<RDFTuple> existing = new ArrayList<>(relations.size());
+        //for (Triple<String, String, String> t : relations) {
+        //    existing.add(new RDFTuple(t.getLeft(), t.getMiddle(), t.getRight(), false));
+        //}
+        //for (Triple<String, String, String> t : literals) {
+        //    existing.add(new RDFTuple(t.getLeft(), t.getMiddle(), t.getRight(), true));
+        //}
         ingested.removeAll(existing);
 
 
@@ -475,14 +487,14 @@ public class Import {
             if (t.object != null) {
                 try {
                     if (t.literal) {
-                        repo.getObject(pid).addLiteral(t.predicate, t.subject, t.object);
+                        repo.getObject(pid).addLiteral(t.predicate, t.namespace, t.object);
                     } else {
-                        repo.getObject(pid).addRelation(t.predicate, t.subject, t.object);
+                        repo.getObject(pid).addRelation(t.predicate, t.namespace, t.object);
                     }
                     //port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, t.literal, null);
                     touched = true;
                 } catch (Exception ex) {
-                    log.severe("WARNING- could not add relationship:" + t + "(" + ex + ")");
+                    log.log(Level.SEVERE,"WARNING - could not add relationship:" + t + "(" + ex + ")", ex);
                 }
             }
         }
@@ -505,7 +517,8 @@ public class Import {
                         continue;
                     }
                     if (inRdf) {
-                        String predicate = r.getName().getNamespaceURI() + r.getName().getLocalPart();
+                        String namespace = r.getName().getNamespaceURI();
+                        String predicate = r.getName().getLocalPart();
                         String object = r.getAttributeValue(r.getNamespaceURI("rdf"), "resource");
                         boolean literal = false;
                         if (object == null){
@@ -514,7 +527,7 @@ public class Import {
                                 literal = true;
                             }
                         }
-                        retval.add(new RDFTuple(subject, predicate, object, literal));
+                        retval.add(new RDFTuple(subject, namespace, predicate, object, literal));
                     }
                 }
                 if (r.isEndElement()) {
@@ -530,6 +543,7 @@ public class Import {
     }
 
     private static void ingest(Repository repo, DigitalObject dob, String pid, boolean updateExisting) throws  RepositoryException {
+        //long start = System.currentTimeMillis();
         try {
             repo.ingestObject(dob);
         } catch (RepositoryException e) {
@@ -540,6 +554,8 @@ public class Import {
                 throw e;
             }
         }
+        //counter++;
+        //log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
 
 
@@ -754,13 +770,15 @@ public class Import {
 class RDFTuple {
 
     String subject;
+    String namespace;
     String predicate;
     String object;
     boolean literal;
 
-    public RDFTuple(String subject, String predicate, String object, boolean literal) {
+    public RDFTuple(String subject,String namespace, String predicate, String object, boolean literal) {
         super();
         this.subject = subject;
+        this.namespace = namespace;
         this.predicate = predicate;
         this.object = object;
         this.literal = literal;
@@ -776,6 +794,7 @@ class RDFTuple {
 
         if (literal != rdfTuple.literal) return false;
         if (object != null ? !object.equals(rdfTuple.object) : rdfTuple.object != null) return false;
+        if (namespace != null ? !namespace.equals(rdfTuple.namespace) : rdfTuple.namespace != null) return false;
         if (predicate != null ? !predicate.equals(rdfTuple.predicate) : rdfTuple.predicate != null) return false;
         if (subject != null ? !subject.equals(rdfTuple.subject) : rdfTuple.subject != null) return false;
 
@@ -785,6 +804,7 @@ class RDFTuple {
     @Override
     public int hashCode() {
         int result = subject != null ? subject.hashCode() : 0;
+        result = 31 * result + (namespace != null ? namespace.hashCode() : 0);
         result = 31 * result + (predicate != null ? predicate.hashCode() : 0);
         result = 31 * result + (object != null ? object.hashCode() : 0);
         result = 31 * result + (literal ? 1 : 0);
@@ -794,9 +814,10 @@ class RDFTuple {
     @Override
     public String toString() {
         return "RDFTuple{" +
-                "subject='" + subject + '\'' +
-                ", predicate='" + predicate + '\'' +
-                ", object='" + object + '\'' +
+                "subject=" + subject  +
+                ", namespace=" + namespace  +
+                ", predicate=" + predicate  +
+                ", object=" + object +
                 ", literal=" + literal +
                 '}';
     }

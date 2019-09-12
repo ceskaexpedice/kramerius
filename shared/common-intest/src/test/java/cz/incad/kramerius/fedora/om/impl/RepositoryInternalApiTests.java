@@ -401,7 +401,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
 
         feeder.commit();
 
-        object.addRelation("rdf:isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  "vc:5035a48a-5e2e-486c-9129-9fa650842e99");
+        object.addRelation("rdf:isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  "info:fedora/vc:5035a48a-5e2e-486c-9129-9fa650842e99");
 
         feeder.commit();
 

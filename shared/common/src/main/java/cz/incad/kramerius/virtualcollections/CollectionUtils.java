@@ -256,7 +256,7 @@ public class CollectionUtils {
         final String predicate = FedoraNamespaces.RDF_NAMESPACE_URI + "isMemberOfCollection";
         final String fedoraColl = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
         try {
-            fedoraAccess.getInternalAPI().getObject(pid).addRelation("rdf:isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  collection);
+            fedoraAccess.getInternalAPI().getObject(pid).addRelation("rdf:isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  fedoraColl);
             LOGGER.log(Level.INFO, "{0} added to collection {1}", new Object[]{pid, fedoraColl});
         } catch (Exception e) {
             throw new IOException(e);

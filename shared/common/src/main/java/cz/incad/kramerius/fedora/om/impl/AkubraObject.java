@@ -363,7 +363,7 @@ public class AkubraObject implements RepositoryObject {
             Document document = XMLUtils.parseDocument(stream.getContent(), true);
             Element rdfDesc = XMLUtils.findElement(document.getDocumentElement(), RDF_DESCRIPTION_ELEMENT, FedoraNamespaces.RDF_NAMESPACE_URI);
             Element subElm = document.createElementNS(namespace, relation);
-            subElm.setAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "rdf:resource", PIDParser.INFO_FEDORA_PREFIX + targetRelation);
+            subElm.setAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "rdf:resource", targetRelation);
             rdfDesc.appendChild(subElm);
             changeRelations(document);
         } catch (ParserConfigurationException e) {

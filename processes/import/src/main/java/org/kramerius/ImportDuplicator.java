@@ -28,6 +28,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
@@ -278,7 +279,7 @@ public class ImportDuplicator {
                 if (t.object != null){
                     try{
 
-                        repo.getObject(pid).addRelation(t.predicate, t.subject, t.object);
+                        repo.getObject(pid).addRelation(t.predicate, FedoraNamespaces.KRAMERIUS_URI, t.object);
                     }catch (Exception ex){
                         log.severe("WARNING- could not add relationship:"+t+"("+ex+")");
                     }
