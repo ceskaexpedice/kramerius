@@ -39,6 +39,8 @@ import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheManagerBuilder;
 import org.junit.Test;
 import org.kramerius.consistency.Consistency.NotConsistentRelation;
 import org.kramerius.fedora.impl.ImportDataPrepare;
@@ -65,9 +67,12 @@ public class ConsistencyTest {
     public void shouldPassProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException, RepositoryException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
+
 
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("isObjectAvailable")
@@ -104,8 +109,11 @@ public class ConsistencyTest {
     public void shouldFailProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException, RepositoryException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
+
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("isObjectAvailable")

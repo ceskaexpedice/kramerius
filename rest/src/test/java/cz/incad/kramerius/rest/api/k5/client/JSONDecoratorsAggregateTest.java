@@ -38,6 +38,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import org.easymock.EasyMock;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheManagerBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -71,9 +73,11 @@ public class JSONDecoratorsAggregateTest {
                 .createMock(StatisticsAccessLog.class);
 
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
 
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
                 .createMock();
@@ -108,8 +112,12 @@ public class JSONDecoratorsAggregateTest {
 
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
+
+
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
                 .createMock();
@@ -166,9 +174,12 @@ public class JSONDecoratorsAggregateTest {
         StatisticsAccessLog aclog = EasyMock
                 .createMock(StatisticsAccessLog.class);
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
+
 
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
                 .createMock();
@@ -223,9 +234,12 @@ public class JSONDecoratorsAggregateTest {
         StatisticsAccessLog aclog = EasyMock
                 .createMock(StatisticsAccessLog.class);
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
+
 
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
                 .createMock();
@@ -299,8 +313,12 @@ public class JSONDecoratorsAggregateTest {
         StatisticsAccessLog aclog = EasyMock
                 .createMock(StatisticsAccessLog.class);
 
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
+
+
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog)
+                .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
                 .createMock();

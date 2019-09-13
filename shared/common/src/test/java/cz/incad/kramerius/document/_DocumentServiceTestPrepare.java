@@ -18,6 +18,8 @@ import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import org.apache.commons.configuration.Configuration;
 import org.easymock.EasyMock;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheManagerBuilder;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Guice;
@@ -74,10 +76,13 @@ public class _DocumentServiceTestPrepare {
             ParserConfigurationException, SAXException, LexerException {
 
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
+
 
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
 
-        .withConstructor(KConfiguration.getInstance(), feeder ,acLog)
+        .withConstructor(KConfiguration.getInstance(), feeder ,acLog, cacheManager)
         //.addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getRelsExt")
         .addMockedMethod("isImageFULLAvailable")

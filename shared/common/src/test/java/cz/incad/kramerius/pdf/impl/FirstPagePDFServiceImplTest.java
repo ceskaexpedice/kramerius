@@ -43,6 +43,8 @@ import junit.framework.Assert;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheManagerBuilder;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -195,10 +197,13 @@ public class FirstPagePDFServiceImplTest {
         //hyph-country="CZ" hyph-lang="cs"
         Locale locale = new Locale("cs","CZ");
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
+
 
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
@@ -259,11 +264,13 @@ public class FirstPagePDFServiceImplTest {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
 
 
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
@@ -337,11 +344,13 @@ public class FirstPagePDFServiceImplTest {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
 
 
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
@@ -445,11 +454,13 @@ public class FirstPagePDFServiceImplTest {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         Locale locale = new Locale("cs","CZ");
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
 
 
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
@@ -561,10 +572,12 @@ public class FirstPagePDFServiceImplTest {
         Locale locale = new Locale("cs","CZ");
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
 
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")

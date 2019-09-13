@@ -30,6 +30,8 @@ import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheManagerBuilder;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -98,10 +100,12 @@ public class MovingWallTest {
     public EvaluatingResult mw(String movingWallFromGUI, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
 
 
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog)
+                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getDC")
