@@ -48,14 +48,15 @@ public class ProcessingIndexFeeder {
     }
     
     
-    public UpdateResponse feedDescriptionDocument(String pid, String model, String title, String ref, Date date) throws IOException, SolrServerException {
+    public UpdateResponse feedDescriptionDocument(String sourcePid, String model, String title, String ref, Date date) throws IOException, SolrServerException {
         SolrInputDocument sdoc = new SolrInputDocument();
-        sdoc.addField("source",pid);
+        sdoc.addField("source",sourcePid);
         sdoc.addField("type", TYPE_DESC);
         sdoc.addField("model",model);
         sdoc.addField("dc.title",title);
         sdoc.addField("ref",ref);
         sdoc.addField("date", date);
+        sdoc.addField("pid", TYPE_DESC+"|"+sourcePid);
         return feedDescriptionDocument(sdoc);
     }
 
@@ -65,13 +66,13 @@ public class ProcessingIndexFeeder {
         return response;
     }
 
-    public UpdateResponse feedRelationDocument(String sourePid,  String relation, String targetPid) throws IOException, SolrServerException {
+    public UpdateResponse feedRelationDocument(String sourcePid,  String relation, String targetPid) throws IOException, SolrServerException {
         SolrInputDocument sdoc = new SolrInputDocument();
-        sdoc.addField("source",sourePid);
+        sdoc.addField("source",sourcePid);
         sdoc.addField("type",TYPE_RELATION);
         sdoc.addField("relation",relation);
         sdoc.addField("targetPid",targetPid);
-
+        sdoc.addField("pid", TYPE_RELATION+"|"+sourcePid+"|"+relation+"|"+targetPid);
         return feedRelationDocument(sdoc);
     }
 

@@ -300,7 +300,6 @@ public class AkubraObject implements RepositoryObject {
     }
 
     private void indexDescription(String model, String dctitle) throws IOException, SolrServerException {
-        this.feeder.deleteDescriptionByPid(this.getPid());
         this.feeder.feedDescriptionDocument(this.getPid(), model, dctitle, AkubraUtils.endpoint()+this.getPid(), new Date());
     }
 
@@ -637,7 +636,7 @@ public class AkubraObject implements RepositoryObject {
                 });
                 changeRelations(document);
             } else {
-                LOGGER.warning("Cannot find relation '" + namespace + relation);
+                LOGGER.info("Cannot find relation '" + namespace + relation);
             }
 
         } catch (ParserConfigurationException e) {
