@@ -312,4 +312,7 @@ public class AkubraDOManager {
     }
 
 
+    public void shutdown(){
+        hzInstance.shutdown();
+    }
 }

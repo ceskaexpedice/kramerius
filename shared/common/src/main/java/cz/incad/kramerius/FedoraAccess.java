@@ -425,6 +425,7 @@ public interface FedoraAccess {
 
     InputStream getFoxml(String pid) throws IOException;
 
+    default void shutdown(){};
 
 
 //    private Date lastModified(String pid, String stream) throws IOException {

@@ -255,7 +255,7 @@ public class AkubraObject implements RepositoryObject {
     /**
      * Process one relation and feed processing index
      */
-    private void processRELSEXTRelationAndFeedProcessingIndex(String object, String localName) throws RepositoryException {
+    public void processRELSEXTRelationAndFeedProcessingIndex(String object, String localName) throws RepositoryException {
         if (localName.equals("hasModel")) {
             try {
 

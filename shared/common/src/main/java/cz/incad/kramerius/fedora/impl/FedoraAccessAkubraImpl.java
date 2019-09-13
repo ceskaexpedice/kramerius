@@ -377,4 +377,9 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
             throw new IOException(e);
         }
     }
+
+    @Override
+    public void shutdown(){
+        manager.shutdown();
+    }
 }
