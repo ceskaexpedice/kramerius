@@ -16,10 +16,9 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -56,7 +55,8 @@ public class DNNTExport {
         String q = KConfiguration.getInstance().getConfiguration().getString(DDNT_SOLR_EXPORT_KEY,query);
 
 
-        try (CSVPrinter printer = new CSVPrinter(new FileWriter(csvFile), CSVFormat.DEFAULT.withHeader("pid","model","dctitle"))) {
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(csvFile), Charset.forName("UTF-8"));
+        try (CSVPrinter printer = new CSVPrinter(outputStreamWriter, CSVFormat.DEFAULT.withHeader("pid","model","dctitle"))) {
             IterationUtils.cursorIteration(client,KConfiguration.getInstance().getSolrHost() ,  URLEncoder.encode(q,"UTF-8"),(em, i) -> {
                 List<String> pp = MigrationUtils.findAllPids(em);
                 if (!pp.isEmpty()) {
@@ -87,6 +87,7 @@ public class DNNTExport {
                                 });
 
                                 try {
+
                                     printer.printRecord(pid.getTextContent(),fedoraModel.getTextContent(),dcTitle.getTextContent());
                                 } catch (IOException e) {
                                     LOGGER.log(Level.SEVERE, e.getMessage(),e);
