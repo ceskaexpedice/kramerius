@@ -2,6 +2,7 @@ package cz.incad.kramerius;
 
 import com.google.common.collect.Lists;
 import com.sun.jersey.api.client.Client;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.IterationUtils;
 import cz.incad.kramerius.services.MigrationUtils;
@@ -41,6 +42,8 @@ public class DNNTExport {
 
 
     public static void main(String[] args) throws InterruptedException, BrokenBarrierException, SAXException, IOException, ParserConfigurationException, MigrateSolrIndexException {
+        File csvFile =  new File( exportDirectory(), KConfiguration.getInstance().getConfiguration().getString(EXPORT_DNNT_FILE_KEY, "dnnt-export-" + SIMPLE_DATE_FORMAT.format(new Date()) + ".csv"));
+        ProcessStarter.updateName("DNNT export   '"+csvFile.getAbsolutePath()+"'");
 
         String reduced = Arrays.stream(KConfiguration.getInstance().getConfiguration().getStringArray(EXPORT_DNNT_MODELS_KEY)).map(it -> " fedora.model:" + it)
                 .reduce("", (prefix, element) -> {
@@ -52,7 +55,6 @@ public class DNNTExport {
         Client client = Client.create();
         String q = KConfiguration.getInstance().getConfiguration().getString(DDNT_SOLR_EXPORT_KEY,query);
 
-        File csvFile =  new File( exportDirectory(), KConfiguration.getInstance().getConfiguration().getString(EXPORT_DNNT_FILE_KEY, "dnnt-export-" + SIMPLE_DATE_FORMAT.format(new Date()) + ".csv"));
 
         try (CSVPrinter printer = new CSVPrinter(new FileWriter(csvFile), CSVFormat.DEFAULT.withHeader("pid","model","dctitle"))) {
             IterationUtils.cursorIteration(client,KConfiguration.getInstance().getSolrHost() ,  URLEncoder.encode(q,"UTF-8"),(em, i) -> {
