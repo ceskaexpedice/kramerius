@@ -49,7 +49,7 @@ public class DNNTExport {
                     if (prefix.equals("")) return prefix + element;
                     else return prefix + " OR " + element;
                 });
-        String query = "((dnnt:[* TO *]) || (+dnnt:true)) " + (StringUtils.isAnyString(reduced)  ? " AND (" + reduced+ " )" : "");
+        String query = "((+dnnt:true)) " + (StringUtils.isAnyString(reduced)  ? " AND (" + reduced+ " )" : "");
 
         Client client = Client.create();
         String q = KConfiguration.getInstance().getConfiguration().getString(DDNT_SOLR_EXPORT_KEY,query);

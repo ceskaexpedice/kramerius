@@ -25,7 +25,7 @@ public class ParametrizedUnsetDNNTFlag {
             LOGGER.log(Level.SEVERE,e.getMessage(), e);
         }
 
-        System.setProperty(DNNTFlag.DNNT_FILE_KEY, csvFile);
+        System.setProperty(DNNTFlag.DNNTUNSET_FILE_KEY, csvFile);
         DNNTFlag.main(new String[]{Boolean.FALSE.toString()});
     }
 
