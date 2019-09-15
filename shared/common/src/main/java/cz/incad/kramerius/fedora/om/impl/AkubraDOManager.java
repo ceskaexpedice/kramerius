@@ -19,18 +19,25 @@ import org.ehcache.expiry.Expirations;
 import org.fcrepo.server.errors.LowlevelStorageException;
 import org.fcrepo.server.errors.ObjectAlreadyInLowlevelStorageException;
 import org.fcrepo.server.errors.ObjectNotInLowlevelStorageException;
+import org.fcrepo.server.storage.ConnectionPool;
+import org.fcrepo.server.storage.lowlevel.DefaultLowlevelStorage;
 import org.fcrepo.server.storage.lowlevel.ICheckable;
 import org.fcrepo.server.storage.lowlevel.ILowlevelStorage;
 import org.fcrepo.server.storage.lowlevel.akubra.AkubraLowlevelStorage;
 import org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper;
+import org.fcrepo.server.utilities.DDLConverter;
+import org.fcrepo.server.utilities.PostgresDDLConverter;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.net.URI;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -95,7 +102,15 @@ public class AkubraDOManager {
         }
     }
 
-    private AkubraLowlevelStorage initLowLevelStorage(KConfiguration configuration) throws Exception {
+    private ILowlevelStorage initLowLevelStorage(KConfiguration configuration) throws Exception {
+        if (configuration.getConfiguration().getBoolean("legacyfs", false)){
+            return createDefaultLowLevelStorage(configuration);
+        } else {
+            return createAkubraLowLevelStorage(configuration);
+        }
+    }
+
+    private AkubraLowlevelStorage createAkubraLowLevelStorage(KConfiguration configuration) throws Exception {
         BlobStore fsObjectStore = new FSBlobStore(new URI("urn:example.org:fsObjectStore"), new File(configuration.getProperty("objectStore.path")));
         IdMapper fsObjectStoreMapper = new HashPathIdMapper(configuration.getProperty("objectStore.pattern"));
         BlobStore objectStore = new IdMappingBlobStore(new URI("urn:example.org:objectStore"), fsObjectStore, fsObjectStoreMapper);
@@ -104,6 +119,39 @@ public class AkubraDOManager {
         BlobStore datastreamStore = new IdMappingBlobStore(new URI("urn:example.org:datastreamStore"), fsDatastreamStore, fsDatastreamStoreMapper);
         AkubraLowlevelStorage retval = new AkubraLowlevelStorage(objectStore, datastreamStore, true, true);
         return retval;
+    }
+
+    private DefaultLowlevelStorage createDefaultLowLevelStorage(KConfiguration configuration) throws Exception {
+        Map<String, Object> conf = new HashMap<>();
+        conf.put("path_algorithm", configuration.getProperty("path_algorithm"));
+        conf.put("object_store_base", configuration.getProperty("object_store_base"));
+        conf.put("datastream_store_base", configuration.getProperty("datastream_store_base"));
+        conf.put("path_registry", configuration.getProperty("path_registry"));
+        conf.put("file_system", configuration.getProperty("file_system"));
+        conf.put("backslashIsEscape", configuration.getProperty("backslash_is_escape"));
+        conf.put("connectionPool", createConnectionPool(configuration));
+        return new DefaultLowlevelStorage(conf);
+    }
+
+    private ConnectionPool createConnectionPool(KConfiguration configuration) throws Exception {
+        return new ConnectionPool(
+                    configuration.getProperty( "legacyfs.jdbcDriverClass"),
+                    configuration.getProperty("legacyfs.jdbcURL"),
+                    configuration.getProperty("legacyfs.dbUsername"),
+                    configuration.getProperty("legacyfs.dbPassword"),
+                    (DDLConverter) Class.forName(configuration.getProperty("legacyfs.ddlConverter")).newInstance(),
+                    configuration.getConfiguration().getInt("legacyfs.maxActive"),
+                    configuration.getConfiguration().getInt("legacyfs.maxIdle"),
+                    configuration.getConfiguration().getLong("legacyfs.maxWait"),
+                    configuration.getConfiguration().getInt("legacyfs.minIdle"),
+                    configuration.getConfiguration().getLong("legacyfs.minEvictableIdleTimeMillis"),
+                    configuration.getConfiguration().getInt("legacyfs.numTestsPerEvictionRun"),
+                    configuration.getConfiguration().getLong("legacyfs.timeBetweenEvictionRunsMillis"),
+                    configuration.getProperty("legacyfs.validationQuery"),
+                    configuration.getConfiguration().getBoolean("legacyfs.testOnBorrow"),
+                    configuration.getConfiguration().getBoolean("legacyfs.testOnReturn"),
+                    configuration.getConfiguration().getBoolean("legacyfs.testWhileIdle"),
+                    configuration.getConfiguration().getByte("legacyfs.whenExhaustedAction"));
     }
 
 

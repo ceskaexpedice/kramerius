@@ -50,7 +50,8 @@ public class DBPathRegistry
         selectByIdQuery = "SELECT path FROM " + this.registryName + " WHERE token=?";
         deleteByIdQuery = "DELETE FROM " + this.registryName + " WHERE "
         + this.registryName + ".token=?";
-        try {
+  /* CREATING NONEXISTING TABLES IS NOT SUPPORTED
+   try {
             String dbSpec =
                     "org/fcrepo/server/storage/resources/DBPathRegistry.dbspec";
             InputStream specIn =
@@ -67,7 +68,7 @@ public class DBPathRegistry
                 true,
                 "Error while attempting to check for and create non-existing table(s): " +
                     e.getClass().getName() + ": " + e.getMessage(), e);
-        }
+        }*/
 
     }
     
