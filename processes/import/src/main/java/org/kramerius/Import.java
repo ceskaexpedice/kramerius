@@ -98,15 +98,16 @@ public class Import {
     public static void main(String[] args) throws IOException, RepositoryException, SolrServerException {
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-        sortingService = injector.getInstance(SortingService.class);
+        SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
         String importDirectory = System.getProperties().containsKey("import.directory") ? System.getProperty("import.directory") : KConfiguration.getInstance().getProperty("import.directory");
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Import.ingest(fa, feeder , KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
+        Import.ingest(fa, feeder , sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
     }
     
 
-    public static void ingest(FedoraAccess fa, ProcessingIndexFeeder feeder, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
+    public static void ingest(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
         log.info("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
+        sortingService = sortingServiceParam;
 
         // system property 
         try {
@@ -856,12 +857,3 @@ class TitlePidTuple {
     }
 }
 
-class ImportModule extends AbstractModule {
-
-    @Override
-    protected void configure() {
-        bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
-        bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
-        bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);
-    }
-}

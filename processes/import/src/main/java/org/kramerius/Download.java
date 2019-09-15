@@ -119,8 +119,9 @@ public class Download {
 
             Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
             FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+            SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
             ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-            Import.ingest(fa,feeder, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
+            Import.ingest(fa,feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
 
             logSuccess(rep.getID(), uuid);
             /*if (!KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
