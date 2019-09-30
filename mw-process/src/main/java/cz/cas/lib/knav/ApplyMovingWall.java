@@ -15,6 +15,8 @@ import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
 
 /**
  * Process sets flag public | private according to configuration
@@ -39,8 +41,18 @@ public class ApplyMovingWall {
             // first argument is user defined value 
             args = restArgs(args,1);
         }
+        
+        String mode = mode(args);
+        if (mode != null) {
+            // second argument is mode
+            args = restArgs(args,1);
+        }
+        else {
+            mode = "year";
+        }
+        
         String[] pids = args;
-        ApplyMWUtils.applyMWOverPidsArray(fa, sa, coll, userValue, pids);
+        ApplyMWUtils.applyMWOverPidsArray(fa, sa, coll, userValue, mode, pids);
     }
 
     static String[] restArgs(String[] args, int i) {
@@ -50,6 +62,16 @@ public class ApplyMovingWall {
     }
 
     static String userValue(String[] args) {
+        if (args.length > 0) {
+            String first = args[0];
+            if (!first.startsWith("uuid:")) {
+                return first;
+            }
+        }
+        return null;
+    }
+    
+    static String mode(String[] args) {
         if (args.length > 0) {
             String first = args[0];
             if (!first.startsWith("uuid:")) {
