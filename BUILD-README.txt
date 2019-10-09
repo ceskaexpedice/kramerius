@@ -1,4 +1,4 @@
-For build project, we use gradle build tool (version 2.+). For more information, see  http://www.gradle.org/.
+For build project, we use gradle build tool (version 5.+). For more information, see  http://www.gradle.org/.
 
 Display all tasks: 
 

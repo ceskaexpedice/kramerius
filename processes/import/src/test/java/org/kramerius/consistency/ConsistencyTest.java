@@ -35,6 +35,7 @@ import com.google.inject.Provides;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import junit.framework.Assert;
 
@@ -70,7 +71,7 @@ public class ConsistencyTest {
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
 
-
+        HazelcastServerNode.ensureHazelcastNode();
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
@@ -111,6 +112,7 @@ public class ConsistencyTest {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
+        HazelcastServerNode.ensureHazelcastNode();
 
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)

@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
 import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
+import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import org.easymock.EasyMock;
 import org.ehcache.CacheManager;
@@ -75,6 +76,7 @@ public class JSONDecoratorsAggregateTest {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
+        HazelcastServerNode.ensureHazelcastNode();
 
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
@@ -114,7 +116,7 @@ public class JSONDecoratorsAggregateTest {
 
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
-
+        HazelcastServerNode.ensureHazelcastNode();
 
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
@@ -176,7 +178,7 @@ public class JSONDecoratorsAggregateTest {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
-
+        HazelcastServerNode.ensureHazelcastNode();
 
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
@@ -236,7 +238,7 @@ public class JSONDecoratorsAggregateTest {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
-
+        HazelcastServerNode.ensureHazelcastNode();
 
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
@@ -315,7 +317,7 @@ public class JSONDecoratorsAggregateTest {
 
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
-
+        HazelcastServerNode.ensureHazelcastNode();
 
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)

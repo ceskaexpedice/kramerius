@@ -3,6 +3,7 @@ package cz.incad.kramerius.fedora.impl;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
+import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -37,6 +38,7 @@ public class FedoraAccess4xImplTest {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
+        HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
@@ -63,7 +65,7 @@ public class FedoraAccess4xImplTest {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
-
+        HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
@@ -90,7 +92,7 @@ public class FedoraAccess4xImplTest {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
-
+        HazelcastServerNode.ensureHazelcastNode();
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
                 .addMockedMethod("getRelsExt")
@@ -139,7 +141,7 @@ public class FedoraAccess4xImplTest {
         StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
-
+        HazelcastServerNode.ensureHazelcastNode();
         final Map<String, Integer> mapping = new HashMap<String, Integer>();
 
         final List<Integer> order = new ArrayList<Integer>();

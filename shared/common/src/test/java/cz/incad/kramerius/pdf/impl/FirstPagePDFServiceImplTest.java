@@ -37,6 +37,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
+import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import junit.framework.Assert;
 
@@ -200,7 +201,7 @@ public class FirstPagePDFServiceImplTest {
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
 
-
+        HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
@@ -267,6 +268,7 @@ public class FirstPagePDFServiceImplTest {
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
 
+        HazelcastServerNode.ensureHazelcastNode();
 
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
@@ -347,7 +349,7 @@ public class FirstPagePDFServiceImplTest {
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
 
-
+        HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
@@ -457,7 +459,7 @@ public class FirstPagePDFServiceImplTest {
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
 
-
+        HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
@@ -575,6 +577,7 @@ public class FirstPagePDFServiceImplTest {
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
 
+        HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)

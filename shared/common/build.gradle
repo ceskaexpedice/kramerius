@@ -109,8 +109,18 @@ dependencies {
 
     //akubra storage
     compile 'org.akubraproject:akubra-core:0.4.0'
-    compile 'org.akubraproject:akubra-fs:0.4.0'
-    compile 'org.akubraproject:akubra-map:0.4.0'
+    compile ('org.akubraproject:akubra-fs:0.4.0') {
+        exclude group: 'com.google.guava', module: 'guava-collections'
+        exclude group: 'com.google.guava', module: 'guava-annotations'
+        exclude group: 'com.google.guava', module: 'guava-primitives'
+        exclude group: 'com.google.guava', module: 'guava-base'
+    }
+    compile ('org.akubraproject:akubra-map:0.4.0'){
+        exclude group: 'com.google.guava', module: 'guava-collections'
+        exclude group: 'com.google.guava', module: 'guava-annotations'
+        exclude group: 'com.google.guava', module: 'guava-primitives'
+        exclude group: 'com.google.guava', module: 'guava-base'
+    }
     compile 'com.hazelcast:hazelcast-all:3.11.2'
    
 }

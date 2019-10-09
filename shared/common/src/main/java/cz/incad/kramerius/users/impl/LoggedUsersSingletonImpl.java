@@ -206,7 +206,8 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
         HttpSession session = provider.get().getSession(true);
         String userKey = (String) session.getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
 
-        return userKey != null ? isLoggedUser(userKey) : false;
+
+       return userKey != null ? isLoggedUser(userKey) : false;
     }
 
     @Override

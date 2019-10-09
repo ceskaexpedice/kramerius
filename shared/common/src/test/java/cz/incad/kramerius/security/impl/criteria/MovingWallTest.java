@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
+import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import junit.framework.Assert;
 
@@ -103,7 +104,7 @@ public class MovingWallTest {
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
 
-
+        HazelcastServerNode.ensureHazelcastNode();
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")

@@ -15,6 +15,7 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
+import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import org.apache.commons.configuration.Configuration;
 import org.easymock.EasyMock;
@@ -78,7 +79,7 @@ public class _DocumentServiceTestPrepare {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
-
+        HazelcastServerNode.ensureHazelcastNode();
 
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
 
