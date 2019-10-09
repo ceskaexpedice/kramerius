@@ -70,7 +70,6 @@ public class StartupServlet extends GuiceServlet {
 
     @Override
     public void init() throws ServletException {
-        HazelcastServerNode.ensureHazelcastNode();
         super.init();
 
         /**

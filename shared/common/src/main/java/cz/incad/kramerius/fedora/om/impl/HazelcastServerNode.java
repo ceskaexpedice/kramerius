@@ -5,9 +5,13 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.GroupConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-public class HazelcastServerNode {
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
+public class HazelcastServerNode implements ServletContextListener {
 
 
 
@@ -23,4 +27,16 @@ public class HazelcastServerNode {
             }
         }
 
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        ensureHazelcastNode();
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        AkubraDOManager.shutdown();
+        if (hzInstance != null) {
+            hzInstance.shutdown();
+        }
+    }
 }

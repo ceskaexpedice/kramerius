@@ -360,7 +360,7 @@ public class AkubraDOManager {
     }
 
 
-    public void shutdown(){
+    public static void shutdown(){
         hzInstance.shutdown();
     }
 }
