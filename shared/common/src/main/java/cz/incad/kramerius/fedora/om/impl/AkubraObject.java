@@ -505,6 +505,9 @@ public class AkubraObject implements RepositoryObject {
     private Element findRelationElement(String relation, String namespace, String targetRelation) throws RepositoryException {
         final String targetPID = targetRelation.startsWith(PIDParser.INFO_FEDORA_PREFIX) ? targetRelation : PIDParser.INFO_FEDORA_PREFIX + targetRelation;
         RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
+        if (stream == null) {
+            throw new RepositoryException("FOXML object "+ this.pid + "does not have RELS-EXT stream " );
+        }
         Document document = null;
         try {
             document = XMLUtils.parseDocument(stream.getContent(), true);

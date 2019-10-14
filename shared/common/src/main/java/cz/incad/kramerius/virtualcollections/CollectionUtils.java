@@ -223,7 +223,7 @@ public class CollectionUtils {
 
     public static void modifyLangDatastream(String pid, String lang,String dsName, String ds, FedoraAccess fedoraAccess) throws IOException, RepositoryException {
         byte[] bytes = ds.getBytes("UTF-8");
-        modifyDatastream(pid, dsName, "text/plain",bytes, fedoraAccess);
+        modifyManagedDatastream(pid, dsName, "text/plain",bytes, fedoraAccess);
     }
 
     public static void modifyTexts(String pid, FedoraAccess fedoraAccess, Map<String, String> textsMap) throws IOException, RepositoryException {
@@ -249,22 +249,23 @@ public class CollectionUtils {
     }
 
     public static boolean isInCollection(String pid, String collection, final FedoraAccess fedoraAccess) throws IOException, RepositoryException {
-        return fedoraAccess.getInternalAPI().getObject(pid).relationExists("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,collection);
+        final String prefixedCollection = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
+        return fedoraAccess.getInternalAPI().getObject(pid).relationExists("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,prefixedCollection);
     }
 
     public static void addPidToCollection(String pid, String collection, final FedoraAccess fedoraAccess) throws IOException {
         final String predicate = FedoraNamespaces.RDF_NAMESPACE_URI + "isMemberOfCollection";
-        final String fedoraColl = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
+        final String prefixedCollection = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
         try {
-            fedoraAccess.getInternalAPI().getObject(pid).addRelation("rdf:isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  fedoraColl);
-            LOGGER.log(Level.INFO, "{0} added to collection {1}", new Object[]{pid, fedoraColl});
+            fedoraAccess.getInternalAPI().getObject(pid).addRelation("rdf:isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  prefixedCollection);
+            LOGGER.log(Level.INFO, "{0} added to collection {1}", new Object[]{pid, prefixedCollection});
         } catch (Exception e) {
             throw new IOException(e);
         }
     }
 
     public static void addToCollection(String pid, String collection, final FedoraAccess fedoraAccess) throws IOException {
-        final String fedoraColl = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
+        final String prefixedCollection = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
         try {
             fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
                 boolean breakProcess = false;
@@ -279,10 +280,10 @@ public class CollectionUtils {
                 public void process(String pid, int level) throws ProcessSubtreeException {
                     try {
                         Repository repo = fedoraAccess.getInternalAPI();
-                        if (!repo.getObject(pid).relationExists("isMemberOfCollection",FedoraNamespaces.RDF_NAMESPACE_URI,  collection)) {
-                            repo.getObject(pid).addRelation("rdf:isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  collection);
+                        if (!repo.getObject(pid).relationExists("isMemberOfCollection",FedoraNamespaces.RDF_NAMESPACE_URI,  prefixedCollection)) {
+                            repo.getObject(pid).addRelation("rdf:isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  prefixedCollection);
                         }
-                        LOGGER.log(Level.INFO, pid + " added to collection " + fedoraColl);
+                        LOGGER.log(Level.INFO, pid + " added to collection " + prefixedCollection);
                     } catch (Exception e) {
                         throw new ProcessSubtreeException(e);
                     }
@@ -299,7 +300,7 @@ public class CollectionUtils {
     }
 
     public static void removeFromCollection(String pid, String collection, final FedoraAccess fedoraAccess) throws IOException {
-        final String fedoraColl = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
+        final String prefixedCollection = collection.startsWith("info:fedora/") ? collection : "info:fedora/" + collection;
         try {
             fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
                 boolean breakProcess = false;
@@ -315,9 +316,9 @@ public class CollectionUtils {
                     try {
 
                         Repository repo = fedoraAccess.getInternalAPI();
-                        repo.getObject(pid).removeRelation("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  collection);
+                        repo.getObject(pid).removeRelation("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI,  prefixedCollection);
 
-                        LOGGER.log(Level.INFO, pid + " removed from collection " + fedoraColl);
+                        LOGGER.log(Level.INFO, pid + " removed from collection " + prefixedCollection);
                     } catch (Exception e) {
                         throw new ProcessSubtreeException(e);
                     }
