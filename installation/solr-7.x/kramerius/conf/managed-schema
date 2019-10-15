@@ -465,11 +465,11 @@
 
         <!-- text search - default field  -->
         <field name="text" type="text_general_not_lemmatized" indexed="true" stored="true" multiValued="true" />
-        <field name="text_lemmatized" type="text_general_lemmatized" indexed="true" stored="true" multiValued="true" />
+        <!--field name="text_lemmatized" type="text_general_lemmatized" indexed="true" stored="true" multiValued="true" />
         <field name="text_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="true"
                multiValued="true"/>
         <field name="text_lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="true"
-               multiValued="true"/>
+               multiValued="true"/-->
 
         <field name="timestamp" type="date" indexed="true" stored="false" default="NOW" multiValued="false"/>
 
@@ -583,31 +583,31 @@
     <copyField source="text_ocr" dest="text"/>
 
     <!-- lemmatized fields; stop words -->
-    <copyField source="dc.title" dest="text_lemmatized"/>
+    <!--copyField source="dc.title" dest="text_lemmatized"/>
     <copyField source="keywords" dest="text_lemmatized"/>
     <copyField source="dc.description" dest="text_lemmatized"/>
     <copyField source="dc.title" dest="text_lemmatized"/>
     <copyField source="dc.creator" dest="text_lemmatized"/>
     <copyField source="details" dest="text_lemmatized"/>
-    <copyField source="text_ocr" dest="text_lemmatized"/>
+    <copyField source="text_ocr" dest="text_lemmatized"/-->
 
     <!-- lemmatized ascii fields; stop words -->
-    <copyField source="dc.title" dest="text_lemmatized_ascii"/>
+    <!--copyField source="dc.title" dest="text_lemmatized_ascii"/>
     <copyField source="keywords" dest="text_lemmatized_ascii"/>
     <copyField source="dc.description" dest="text_lemmatized_ascii"/>
     <copyField source="dc.title" dest="text_lemmatized_ascii"/>
     <copyField source="dc.creator" dest="text_lemmatized_ascii"/>
     <copyField source="details" dest="text_lemmatized_ascii"/>
-    <copyField source="text_ocr" dest="text_lemmatized_ascii"/>
+    <copyField source="text_ocr" dest="text_lemmatized_ascii"/-->
 
     <!-- lemmatized  fields; text; no stopwords -->
-    <copyField source="dc.title" dest="text_lemmatized_nostopwords"/>
+    <!--copyField source="dc.title" dest="text_lemmatized_nostopwords"/>
     <copyField source="keywords" dest="text_lemmatized_nostopwords"/>
     <copyField source="dc.description" dest="text_lemmatized_nostopwords"/>
     <copyField source="dc.title" dest="text_lemmatized_nostopwords"/>
     <copyField source="dc.creator" dest="text_lemmatized_nostopwords"/>
     <copyField source="details" dest="text_lemmatized_nostopwords"/>
-    <copyField source="text_ocr" dest="text_lemmatized_nostopwords"/>
+    <copyField source="text_ocr" dest="text_lemmatized_nostopwords"/-->
 
 
     <!-- root title; lemmatized fields -->

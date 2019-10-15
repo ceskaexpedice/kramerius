@@ -45,7 +45,7 @@ configurations.all {
 
 dependencies {
 	// editor dependency
-	editors group: "cz.incad.kramerius", name: "editor", version: "5.1.0", ext: "war"
+	//editors group: "cz.incad.kramerius", name: "editor", version: "5.1.0", ext: "war"
 	// rightseditor dependency
 	editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.0", ext: "war"
 
@@ -229,7 +229,7 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
 	description "Create full distribution zip"
 	baseName "kramerius"
 	group "Distribution"
-	from {'client/build/libs'}
+	//from {'client/build/libs'}
 	from {'search/build/libs'}
 	from {'security/security-core/build/libs'}
 	from configurations.editors
@@ -248,7 +248,7 @@ task distPatchZip(type:Zip) {
 	description "Create patch distribution zip"
 	baseName "kramerius-patch"
 	group "Distribution"
-	from {'client/build/libs'}
+	//from {'client/build/libs'}
 	from {'search/build/libs'}
 	from {'security-core/build/libs'}
 }
