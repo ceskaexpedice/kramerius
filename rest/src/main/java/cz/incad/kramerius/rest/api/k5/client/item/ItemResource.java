@@ -29,6 +29,8 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
 
+import cz.incad.kramerius.resourceindex.IResourceIndex;
+import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -366,6 +368,27 @@ public class ItemResource {
             throw new GenericApplicationException(e.getMessage());
         }
     }
+
+    @Inject
+    IResourceIndex resourceIndex;
+
+    @GET
+    @Path("{pid}/parents")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response parents(@PathParam("pid") String pid) {
+        try{
+        checkPid(pid);
+        List<String> parents = resourceIndex.getParentsPids(pid);
+            return Response.ok().entity(parents.toString()).build();
+        }  catch (ResourceIndexException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
+
 
     private JSONObject siblings(String pid, ObjectPidsPath onePath)
             throws ProcessSubtreeException, IOException, JSONException {

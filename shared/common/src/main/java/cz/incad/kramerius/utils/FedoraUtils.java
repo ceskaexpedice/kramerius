@@ -62,7 +62,7 @@ public class FedoraUtils {
 
     /** Stream for fedora internal use */
     public static List<String> FEDORA_INTERNAL_STREAMS = new ArrayList<String>(){{
-        add(RELS_EXT_STREAM);
+        //add(RELS_EXT_STREAM);
         add(POLICY_STREAM);
      }};
     
