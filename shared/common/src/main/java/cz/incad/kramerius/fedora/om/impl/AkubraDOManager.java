@@ -269,6 +269,8 @@ public class AkubraDOManager {
             }
             try {
                 setLastModified(object);
+                ensureCreatedDate(object);
+                ensureActive(object);
                 StringWriter stringWriter = new StringWriter();
                 synchronized (marshaller) {
                     marshaller.marshal(object, stringWriter);
@@ -298,6 +300,35 @@ public class AkubraDOManager {
             propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/view#lastModifiedDate", AkubraUtils.currentTimeString()));
         }
     }
+
+    private void ensureCreatedDate(DigitalObject object) {
+        boolean propertyExists = false;
+        List<PropertyType> propertyTypeList = object.getObjectProperties().getProperty();
+        for (PropertyType propertyType : propertyTypeList) {
+            if ("info:fedora/fedora-system:def/view#createdDate".equals(propertyType.getNAME())) {
+                propertyExists = true;
+                break;
+            }
+        }
+        if (!propertyExists) {
+            propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/view#createdDate", AkubraUtils.currentTimeString()));
+        }
+    }
+
+    private void ensureActive(DigitalObject object) {
+        boolean propertyExists = false;
+        List<PropertyType> propertyTypeList = object.getObjectProperties().getProperty();
+        for (PropertyType propertyType : propertyTypeList) {
+            if ("info:fedora/fedora-system:def/model#state".equals(propertyType.getNAME())) {
+                propertyExists = true;
+                break;
+            }
+        }
+        if (!propertyExists) {
+            propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#state", "Active"));
+        }
+    }
+
 
     private void convertManagedStream(String pid, DatastreamType datastreamType) {
         if ("M".equals(datastreamType.getCONTROLGROUP())) {
