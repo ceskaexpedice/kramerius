@@ -1,47 +1,41 @@
 /*
  * Copyright (C) 2012 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package cz.incad.kramerius.security;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import cz.incad.kramerius.*;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.imaging.DiscStrucutreForStore;
+import cz.incad.kramerius.resourceindex.IResourceIndex;
+import cz.incad.kramerius.resourceindex.ResourceIndexException;
+import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.xpath.XPathExpressionException;
-
-import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.StreamHeadersObserver;
-import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.imaging.DiscStrucutreForStore;
-import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * This is secured variant of class FedoraAccessImpl {@link FedoraAccessImpl}.
@@ -55,6 +49,8 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     private FedoraAccess rawAccess;
     private IsActionAllowed isActionAllowed;
     private SolrAccess solrAccess;
+    @Inject
+    IResourceIndex resourceIndex;
     private DiscStrucutreForStore discStrucutreForStore;
 
     @Inject
@@ -90,12 +86,13 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public InputStream getImageFULL(String pid) throws IOException {
 
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        paths = ensurePidPathForUnindexedObjects(pid, paths);
         for (ObjectPidsPath path : paths) {
             if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path)) {
                 return rawAccess.getImageFULL(pid);
             }
         }
-        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ,pid,FedoraUtils.IMG_FULL_STREAM));
+        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, pid, FedoraUtils.IMG_FULL_STREAM));
     }
 
     @Override
@@ -167,6 +164,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     @Override
     public boolean isContentAccessible(String pid) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        paths = ensurePidPathForUnindexedObjects(pid, paths);
         for (ObjectPidsPath path : paths) {
             if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path)) {
                 return true;
@@ -195,47 +193,61 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
                 || FedoraUtils.OGG_STREAM.equals(streamName);
     }
 
-    
-    
+
     @Override
     public void observeStreamHeaders(String pid, String datastreamName,
-            StreamHeadersObserver streamObserver) throws IOException {
+                                     StreamHeadersObserver streamObserver) throws IOException {
         this.rawAccess.observeStreamHeaders(pid, datastreamName, streamObserver);
     }
+
 
     @Override
     public InputStream getFoxml(String pid) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        paths = ensurePidPathForUnindexedObjects(pid, paths);
         for (int i = 0; i < paths.length; i++) {
             if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, paths[i])) {
                 return rawAccess.getFoxml(pid);
             }
         }
-        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ,pid,null));
+        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, pid, null));
+    }
+
+    private ObjectPidsPath[] ensurePidPathForUnindexedObjects(String pid, ObjectPidsPath[] paths) throws IOException {
+        if (paths.length == 0) {
+            try {
+                paths = this.resourceIndex.getPath(pid);
+            } catch (ResourceIndexException e) {
+                throw new IOException(e);
+            }
+        }
+        return paths;
     }
 
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         if (isDefaultSecuredStream(datastreamName)) {
             ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            paths = ensurePidPathForUnindexedObjects(pid, paths);
             for (int i = 0; i < paths.length; i++) {
                 if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i])) {
                     return rawAccess.getDataStream(pid, datastreamName);
                 }
             }
-            
-            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ,pid,datastreamName));
+
+            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, pid, datastreamName));
         } else {
             String[] securedStreamsExtension = KConfiguration.getInstance().getSecuredAditionalStreams();
             int indexOf = Arrays.asList(securedStreamsExtension).indexOf(datastreamName);
             if (indexOf >= 0) {
                 ObjectPidsPath[] paths = this.solrAccess.getPath(pid + "/" + datastreamName);
+                paths = ensurePidPathForUnindexedObjects(pid, paths);
                 for (int i = 0; i < paths.length; i++) {
                     if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i])) {
                         return rawAccess.getDataStream(pid, datastreamName);
                     }
                 }
-                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ,pid,datastreamName));
+                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, pid, datastreamName));
             } else {
                 return rawAccess.getDataStream(pid, datastreamName);
             }
@@ -256,7 +268,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public boolean isStreamAvailable(String pid, String streamName) throws IOException {
         return this.rawAccess.isStreamAvailable(pid, streamName);
     }
-    
+
 
     @Override
     public boolean isObjectAvailable(String pid) throws IOException {
@@ -272,6 +284,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     public InputStream getFullThumbnail(String pid) throws IOException {
         boolean accessed = false;
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        paths = ensurePidPathForUnindexedObjects(pid, paths);
         for (ObjectPidsPath path : paths) {
             if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_PREVIEW_STREAM, path)) {
                 accessed = true;
@@ -286,7 +299,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
                 throw new IOException("preview not found");
             }
         } else {
-            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ,pid,FedoraUtils.IMG_PREVIEW_STREAM));
+            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, pid, FedoraUtils.IMG_PREVIEW_STREAM));
         }
     }
 

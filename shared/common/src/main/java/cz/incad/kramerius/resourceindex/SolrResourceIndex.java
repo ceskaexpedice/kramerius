@@ -11,8 +11,13 @@ import javax.xml.transform.TransformerException;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.utils.solr.SolrUtils;
+import cz.incad.kramerius.virtualcollections.CollectionPidUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -203,6 +208,17 @@ public class SolrResourceIndex implements IResourceIndex {
             throw new ResourceIndexException(e);
         }
         
+    }
+
+    @Override
+    public ObjectPidsPath[] getPath(String pid) throws ResourceIndexException {
+        if (SpecialObjects.isSpecialObject(pid))
+            return new ObjectPidsPath[] { ObjectPidsPath.REPOSITORY_PATH };
+        if (CollectionPidUtils.isCollectionPid(pid)) {
+            return new ObjectPidsPath[] { new ObjectPidsPath(pid) };
+        }
+        List<String> parentsPids = getParentsPids(pid);
+        return new ObjectPidsPath[]{new ObjectPidsPath(parentsPids.toArray(new String[]{}))};
     }
 
     @Override
