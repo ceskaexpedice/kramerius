@@ -305,13 +305,13 @@ public class AkubraDOManager {
         boolean propertyExists = false;
         List<PropertyType> propertyTypeList = object.getObjectProperties().getProperty();
         for (PropertyType propertyType : propertyTypeList) {
-            if ("info:fedora/fedora-system:def/view#createdDate".equals(propertyType.getNAME())) {
+            if ("info:fedora/fedora-system:def/model#createdDate".equals(propertyType.getNAME())) {
                 propertyExists = true;
                 break;
             }
         }
         if (!propertyExists) {
-            propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/view#createdDate", AkubraUtils.currentTimeString()));
+            propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#createdDate", AkubraUtils.currentTimeString()));
         }
     }
 

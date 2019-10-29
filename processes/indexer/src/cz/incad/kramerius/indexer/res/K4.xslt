@@ -148,7 +148,7 @@
         </field>
         
         <field name="created_date">
-            <xsl:value-of select="foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/view#createdDate']/@VALUE"/>
+            <xsl:value-of select="foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#createdDate']/@VALUE"/>
         </field>
         <field name="modified_date"><xsl:value-of select="foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/view#lastModifiedDate']/@VALUE"/></field>
         <field name="dostupnost">
