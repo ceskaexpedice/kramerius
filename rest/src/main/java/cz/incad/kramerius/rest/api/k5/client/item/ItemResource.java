@@ -364,7 +364,13 @@ public class ItemResource {
     public Response parents(@PathParam("pid") String pid) {
         try {
             checkPid(pid);
-            List<String> parents = resourceIndex.getParentsPids(pid);
+            List<String> parentPids = resourceIndex.getParentsPids(pid);
+            JSONArray parents = new JSONArray();
+            for (String parentPid : parentPids) {
+                JSONObject parent = new JSONObject();
+                parent.put("pid", parentPid);
+                parents.put(parent);
+            }
             return Response.ok().entity(parents.toString()).build();
         } catch (ResourceIndexException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
