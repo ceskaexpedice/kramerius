@@ -26,14 +26,13 @@ import org.fcrepo.server.storage.lowlevel.ILowlevelStorage;
 import org.fcrepo.server.storage.lowlevel.akubra.AkubraLowlevelStorage;
 import org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper;
 import org.fcrepo.server.utilities.DDLConverter;
-import org.fcrepo.server.utilities.PostgresDDLConverter;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.*;
 import java.net.URI;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -103,7 +102,7 @@ public class AkubraDOManager {
     }
 
     private ILowlevelStorage initLowLevelStorage(KConfiguration configuration) throws Exception {
-        if (configuration.getConfiguration().getBoolean("legacyfs", false)){
+        if (configuration.getConfiguration().getBoolean("legacyfs", false)) {
             return createDefaultLowLevelStorage(configuration);
         } else {
             return createAkubraLowLevelStorage(configuration);
@@ -135,23 +134,23 @@ public class AkubraDOManager {
 
     private ConnectionPool createConnectionPool(KConfiguration configuration) throws Exception {
         return new ConnectionPool(
-                    configuration.getProperty( "legacyfs.jdbcDriverClass"),
-                    configuration.getProperty("legacyfs.jdbcURL"),
-                    configuration.getProperty("legacyfs.dbUsername"),
-                    configuration.getProperty("legacyfs.dbPassword"),
-                    (DDLConverter) Class.forName(configuration.getProperty("legacyfs.ddlConverter")).newInstance(),
-                    configuration.getConfiguration().getInt("legacyfs.maxActive"),
-                    configuration.getConfiguration().getInt("legacyfs.maxIdle"),
-                    configuration.getConfiguration().getLong("legacyfs.maxWait"),
-                    configuration.getConfiguration().getInt("legacyfs.minIdle"),
-                    configuration.getConfiguration().getLong("legacyfs.minEvictableIdleTimeMillis"),
-                    configuration.getConfiguration().getInt("legacyfs.numTestsPerEvictionRun"),
-                    configuration.getConfiguration().getLong("legacyfs.timeBetweenEvictionRunsMillis"),
-                    configuration.getProperty("legacyfs.validationQuery"),
-                    configuration.getConfiguration().getBoolean("legacyfs.testOnBorrow"),
-                    configuration.getConfiguration().getBoolean("legacyfs.testOnReturn"),
-                    configuration.getConfiguration().getBoolean("legacyfs.testWhileIdle"),
-                    configuration.getConfiguration().getByte("legacyfs.whenExhaustedAction"));
+                configuration.getProperty("legacyfs.jdbcDriverClass"),
+                configuration.getProperty("legacyfs.jdbcURL"),
+                configuration.getProperty("legacyfs.dbUsername"),
+                configuration.getProperty("legacyfs.dbPassword"),
+                (DDLConverter) Class.forName(configuration.getProperty("legacyfs.ddlConverter")).newInstance(),
+                configuration.getConfiguration().getInt("legacyfs.maxActive"),
+                configuration.getConfiguration().getInt("legacyfs.maxIdle"),
+                configuration.getConfiguration().getLong("legacyfs.maxWait"),
+                configuration.getConfiguration().getInt("legacyfs.minIdle"),
+                configuration.getConfiguration().getLong("legacyfs.minEvictableIdleTimeMillis"),
+                configuration.getConfiguration().getInt("legacyfs.numTestsPerEvictionRun"),
+                configuration.getConfiguration().getLong("legacyfs.timeBetweenEvictionRunsMillis"),
+                configuration.getProperty("legacyfs.validationQuery"),
+                configuration.getConfiguration().getBoolean("legacyfs.testOnBorrow"),
+                configuration.getConfiguration().getBoolean("legacyfs.testOnReturn"),
+                configuration.getConfiguration().getBoolean("legacyfs.testWhileIdle"),
+                configuration.getConfiguration().getByte("legacyfs.whenExhaustedAction"));
     }
 
 
@@ -259,12 +258,13 @@ public class AkubraDOManager {
             List<DatastreamType> datastreamList = object.getDatastream();
             Iterator<DatastreamType> iterator = datastreamList.iterator();
             while (iterator.hasNext()) {
-                DatastreamType datastreamType = iterator.next();
-                if (streamId != null && streamId.equals(datastreamType.getID())) {
-                    convertManagedStream(object.getPID(), datastreamType);
+                DatastreamType datastream = iterator.next();
+                ensureDsVersionCreatedDate(datastream);
+                if (streamId != null && streamId.equals(datastream.getID())) {
+                    convertManagedStream(object.getPID(), datastream);
                     break;
                 } else {
-                    convertManagedStream(object.getPID(), datastreamType);
+                    convertManagedStream(object.getPID(), datastream);
                 }
             }
             try {
@@ -329,19 +329,29 @@ public class AkubraDOManager {
         }
     }
 
+    private void ensureDsVersionCreatedDate(DatastreamType datastream) {
+        if (datastream != null) {
+            for (DatastreamVersionType datastreamVersion : datastream.getDatastreamVersion()) {
+                XMLGregorianCalendar created = datastreamVersion.getCREATED();
+                if (created == null) {
+                    datastreamVersion.setCREATED(AkubraUtils.getCurrentXMLGregorianCalendar());
+                }
+            }
+        }
+    }
 
-    private void convertManagedStream(String pid, DatastreamType datastreamType) {
-        if ("M".equals(datastreamType.getCONTROLGROUP())) {
-            for (DatastreamVersionType datastreamVersionType : datastreamType.getDatastreamVersion()) {
-                if (datastreamVersionType.getBinaryContent() != null) {
+    private void convertManagedStream(String pid, DatastreamType datastream) {
+        if ("M".equals(datastream.getCONTROLGROUP())) {
+            for (DatastreamVersionType datastreamVersion : datastream.getDatastreamVersion()) {
+                if (datastreamVersion.getBinaryContent() != null) {
                     try {
-                        String ref = pid + "+" + datastreamType.getID() + "+" + datastreamVersionType.getID();
-                        addOrReplaceDatastream(ref, new ByteArrayInputStream(datastreamVersionType.getBinaryContent()));
-                        datastreamVersionType.setBinaryContent(null);
+                        String ref = pid + "+" + datastream.getID() + "+" + datastreamVersion.getID();
+                        addOrReplaceDatastream(ref, new ByteArrayInputStream(datastreamVersion.getBinaryContent()));
+                        datastreamVersion.setBinaryContent(null);
                         ContentLocationType contentLocationType = new ContentLocationType();
                         contentLocationType.setTYPE("INTERNAL_ID");
                         contentLocationType.setREF(ref);
-                        datastreamVersionType.setContentLocation(contentLocationType);
+                        datastreamVersion.setContentLocation(contentLocationType);
                     } catch (LowlevelStorageException e) {
                         LOGGER.warning("Could not remove managed datastream from Akubra: " + e);
                     }
@@ -391,7 +401,7 @@ public class AkubraDOManager {
     }
 
 
-    public static void shutdown(){
+    public static void shutdown() {
         hzInstance.shutdown();
     }
 }
