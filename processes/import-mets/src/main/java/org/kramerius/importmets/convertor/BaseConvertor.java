@@ -109,6 +109,8 @@ public abstract class BaseConvertor {
 
     protected static final String MODEL_SHEETMUSIC = "model:sheetmusic";
 
+    protected static final String MODEL_ARCHIVE = "model:archive";
+
     private static final String CUSTOM_MODEL_PREFIX = "kramerius";
 
     /**

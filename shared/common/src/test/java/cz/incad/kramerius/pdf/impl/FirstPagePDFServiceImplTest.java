@@ -104,6 +104,7 @@ public class FirstPagePDFServiceImplTest {
     + "fedora.model.map=Mapa\n"
     + "fedora.model.graphic=Grafika\n"
     + "fedora.model.sheetmusic=Hudebnina\n"
+    + "fedora.model.archive=Archiválie\n"
 
     + "#plurals\n"
     + "fedora.model.pages=Stránky\n"
@@ -118,6 +119,7 @@ public class FirstPagePDFServiceImplTest {
     + "fedora.model.maps=Mapy\n"
     + "fedora.model.graphics=Grafiky\n"
     + "fedora.model.sheetmusics=Hudebniny\n"
+    + "fedora.model.archives=Hudebnina\n"
 
     + "pdf.title=Titul\n"
     + "pdf.authors=Autori\n"

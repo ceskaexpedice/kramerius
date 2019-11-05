@@ -30,6 +30,7 @@ public enum KrameriusModels {
     MAP("map"),
     REPOSITORY("repository"),
     SHEETMUSIC("sheetmusic"),
+    ARCHIVE("archive"),
     SOUNDRECORDING("soundrecording"),
     SOUNDUNIT("soundunit"),
     TRACK("track");
