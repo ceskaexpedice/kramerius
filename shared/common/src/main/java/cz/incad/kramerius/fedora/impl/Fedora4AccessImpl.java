@@ -167,7 +167,10 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
         throw new UnsupportedOperationException("this is unsupported");
     }
 
-    
+    @Override
+    public String getExternalStreamURL(String pid, String datastreamName) throws IOException {
+        throw new UnsupportedOperationException("this is unsupported");
+    }
     
     @Override
     public Document getDataStreamXmlAsDocument(String pid, String datastreamName) throws IOException {

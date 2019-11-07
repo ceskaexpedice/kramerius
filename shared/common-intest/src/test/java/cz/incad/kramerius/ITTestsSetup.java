@@ -8,6 +8,7 @@ import cz.incad.kramerius.fedora.it.ITSupport;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
+import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.fedora.om.impl.RepositoryInternalApiTests;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
@@ -109,6 +110,7 @@ public class ITTestsSetup {
     }
 
     public static Repository getRepository(ProcessingIndexFeeder feeder) throws IOException, RepositoryException {
+        HazelcastServerNode.ensureHazelcastNode();
         CacheManager cacheManager = injector.getInstance(Key.get(CacheManager.class, Names.named("akubraCacheManager")));
         AkubraDOManager akubraDOManager = new AkubraDOManager(KConfiguration.getInstance(), cacheManager);
         return build(feeder, akubraDOManager);

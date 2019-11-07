@@ -300,6 +300,11 @@ public class CachedFedoraAccessImpl  implements FedoraAccess, FedoraCacheAwarene
     }
 
     @Override
+    public String getExternalStreamURL(String pid, String datastreamName) throws IOException {
+        return fedoraAccess.getExternalStreamURL(pid, datastreamName);
+    }
+
+    @Override
     public Document getDataStreamXmlAsDocument(String pid, String datastreamName) throws IOException {
         Document doc = xmlscache.get(cacheKey(pid, datastreamName));
         if (doc != null) {

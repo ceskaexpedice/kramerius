@@ -259,6 +259,11 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
         return rawAccess.getDataStreamXml(pid, datastreamName);
     }
 
+
+    @Override
+    public String getExternalStreamURL(String pid, String datastreamName) throws IOException {
+        return rawAccess.getExternalStreamURL(pid, datastreamName);
+    }
     @Override
     public Document getDataStreamXmlAsDocument(String pid, String datastreamName) throws IOException {
         return rawAccess.getDataStreamXmlAsDocument(pid, datastreamName);

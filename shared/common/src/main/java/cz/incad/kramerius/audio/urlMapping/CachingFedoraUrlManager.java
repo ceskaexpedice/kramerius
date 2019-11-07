@@ -120,8 +120,8 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
     private URL getUrlFromFedora(AudioStreamId id) throws IOException {
         LOGGER.log(Level.FINE, "getting url for {0}", id);
         try {
-            Document datastreamXml = fedoraAccess.getDataStreamXmlAsDocument(id.getPid(), id.getFormat().name());
-            URL url = urlFromDatastream(datastreamXml);
+            String urlString = fedoraAccess.getExternalStreamURL(id.getPid(), id.getFormat().name());
+            URL url = new URL(urlString);
             LOGGER.log(Level.FINE, "found url {0} for {1}", new Object[]{url, id});
             return url;
         } catch (SecurityException ex) {

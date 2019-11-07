@@ -336,7 +336,17 @@ public interface FedoraAccess {
      */
     public void observeStreamHeaders(String pid, String datastreamName, StreamHeadersObserver streamObserver) throws IOException;
 
-    
+
+    /**
+     * Returns URL of external datastream data
+     *
+     * @param pid pid of reqested object
+     * @param datastreamName datastream name
+     * @return URL of external datastream data location
+     * @throws IOException IO error has been occurred
+     */
+    public String getExternalStreamURL(String pid, String datastreamName) throws IOException;
+
     /**
      * TODO: Not Used
      * Returns xml containing datastream data

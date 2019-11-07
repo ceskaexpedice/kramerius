@@ -2,10 +2,8 @@ package cz.incad.kramerius.fedora.impl;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.PropertyType;
 import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.fedora.AbstractFedoraAccess;
 import cz.incad.kramerius.fedora.om.Repository;
@@ -16,23 +14,16 @@ import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.SafeSimpleDateFormat;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
-import org.apache.commons.io.IOUtils;
 import org.ehcache.CacheManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.annotation.Nullable;
-import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.Charset;
-import java.text.ParseException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -153,7 +144,6 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
     }
 
 
-
     @Override
     public Document getDC(String pid) throws IOException {
         try {
@@ -179,6 +169,24 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
         throw new UnsupportedOperationException("this is unsupported");
     }
 
+    @Override
+    public String getExternalStreamURL(String pid, String datastreamName) throws IOException {
+        DigitalObject object = manager.readObjectFromStorage(pid);
+        if (object != null) {
+
+            DatastreamVersionType stream = AkubraUtils.getLastStreamVersion(object, datastreamName);
+
+            if (stream != null) {
+                if (stream.getContentLocation() != null && "URL".equals(stream.getContentLocation().getTYPE())) {
+                    return stream.getContentLocation().getREF();
+                } else {
+                    throw new IOException("Expected external datastream: " + pid + " - " + datastreamName);
+                }
+            }
+            throw new IOException("Datastream not found: " + pid + " - " + datastreamName);
+        }
+        throw new IOException("Object not found: " + pid);
+    }
 
     @Override
     public Document getDataStreamXmlAsDocument(String pid, String datastreamName) throws IOException {
@@ -223,8 +231,6 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
         //   throw new IOException(e);
 
     }
-
-
 
 
     @Override
@@ -276,7 +282,11 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
             DatastreamVersionType stream = AkubraUtils.getLastStreamVersion(object, streamName);
 
             if (stream != null) {
-                return stream.getCREATED().toGregorianCalendar().getTime();
+                if (stream.getCREATED() == null) {
+                    return new Date();
+                } else {
+                    return stream.getCREATED().toGregorianCalendar().getTime();
+                }
             }
             throw new IOException("Datastream not found: " + pid + " - " + streamName);
         }
@@ -291,8 +301,6 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
         }
         throw new IOException("Object not found: " + pid);
     }
-
-
 
 
     @Override
@@ -379,7 +387,7 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
     }
 
     @Override
-    public void shutdown(){
+    public void shutdown() {
         manager.shutdown();
     }
 }
