@@ -15,8 +15,8 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.Kramerius.Initializable;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 

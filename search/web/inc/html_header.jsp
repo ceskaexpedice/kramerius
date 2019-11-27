@@ -86,6 +86,7 @@
     <link rel="StyleSheet" href="css/styles.css" type="text/css" />
     <link rel="StyleSheet" href="css/autocomplete.css" type="text/css" />
     <link rel="StyleSheet" href="css/layout-default-latest.css" type="text/css" />
+    <link rel="StyleSheet" href="css/app-bar-cookie-info.css" type="text/css" />
     
     <!--[if IE ]>
     <link rel="StyleSheet" href="css/ie.css" type="text/css" />
@@ -102,6 +103,8 @@
     <script src="js/jquery.layout-latest.js" type="text/javascript" ></script>
 
     <script src="js/jquery-ui-timepicker-addon.js" language="JavaScript" type="text/javascript"></script>
+    <script src="js/jquery.cookie.js"  type="text/javascript"></script>
+
 
     <script src="js/pageQuery.js" language="JavaScript" type="text/javascript"></script>
     <script src="js/main.js" language="JavaScript" type="text/javascript"></script>
@@ -112,9 +115,11 @@
     <script  src="js/jquery.jstree.js" language="javascript" type="text/javascript"></script>
 
     <script type="text/javascript"  src="js/seadragon-min.js"></script>
+    <script type="text/javascript"  src="js/app-bar-cookie-info.js"></script>
 
     <script  src="js/cmn/cmn.js" language="javascript" type="text/javascript"></script>
     <script  src="js/json2.js" language="javascript" type="text/javascript"></script>
+
 
      <c:if test="${gplus.buttonEnabled}">
         <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
@@ -203,4 +208,23 @@
             </c:forEach>
                 "dummy":""};
     </script>
+
+<%-- Google analytics - configuration directives googleanalytics.webpropertyid= --%>
+<c:if test="${ga.ready}">
+<%-- For measuring code GTM-XXXXXX 
+     For code UA-XXXXXXXXX-1 /search/web/inc/footer.jsp
+--%>
+   <c:if test="${fn:startsWith(ga.webPropertyId,'GTM')}">
+
+   <!-- Google Analytics - Google Tag Manager https://developers.google.com/tag-manager/quickstart-->
+      <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+         j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+         })(window,document,'script','dataLayer', '${ga.webPropertyId}');</script>
+         <!-- End Google Tag Manager -->
+   </c:if>
+</c:if>
+
+
 </head>

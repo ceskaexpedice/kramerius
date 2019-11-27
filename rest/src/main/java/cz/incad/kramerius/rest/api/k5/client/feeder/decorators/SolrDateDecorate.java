@@ -22,17 +22,16 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.json.JSONObject;
-
-import org.w3c.dom.Document;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 
 public class SolrDateDecorate extends AbstractFeederDecorator {
 
@@ -67,6 +66,10 @@ public class SolrDateDecorate extends AbstractFeederDecorator {
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         }
 
     }
@@ -75,7 +78,7 @@ public class SolrDateDecorate extends AbstractFeederDecorator {
     public boolean apply(JSONObject jsonObject, String context) {
         TokenizedPath fctx = super.feederContext(tokenize(context));
         if (fctx.isParsed()) {
-            return ((!fctx.getRestPath().isEmpty()) && mostDesirableOrNewest(fctx));
+            return ((!fctx.getRestPath().isEmpty()) && mostDesirableOrNewestOrCustom(fctx));
         } else
             return false;
     }

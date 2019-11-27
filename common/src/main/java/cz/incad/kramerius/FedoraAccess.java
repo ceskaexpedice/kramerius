@@ -18,11 +18,14 @@ package cz.incad.kramerius;
 
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
+
 import javax.xml.xpath.XPathExpressionException;
+
 import org.fedora.api.FedoraAPIA;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.ObjectFactory;
@@ -100,6 +103,46 @@ public interface FedoraAccess {
      * @throws IOException IO error has been occurred
      */
     public String getDonator(String pid) throws IOException;
+    
+    /**
+     * Returns pid of the first periodical Item parsed from given document
+     * *
+     * @param relsExt RELS-EXT document
+     * @return pid of the first periodical Item or empty string (if hasItem relationship doesn't
+     * exist)
+     * @throws IOException IO error has been occurred
+     */
+    public String getFirstItemPid(Document relsExt) throws IOException;
+    
+    /**
+     * Returns pid of the first periodical Item of given object
+     *
+     * @param pid Object's pid = pid of volume
+     * @return pid of the first periodical Item or empty string (if hasItem relationship doesn't
+     * exist)
+     * @throws IOException IO error has been occurred
+     */
+    public String getFirstItemPid(String pid) throws IOException;
+    
+    /**
+     * Returns pid of the first periodical Volume parsed from given document
+     * *
+     * @param relsExt RELS-EXT document
+     * @return pid of the first periodical Volume or empty string (if hasVolume relationship doesn't
+     * exist)
+     * @throws IOException IO error has been occurred
+     */
+    public String getFirstVolumePid(Document relsExt) throws IOException;
+    
+    /**
+     * Returns pid of the first periodical Volume of given object
+     *
+     * @param pid Object's pid = pid of periodical
+     * @return pid of the first periodical Volume or empty string (if hasVolume relationship doesn't
+     * exist)
+     * @throws IOException IO error has been occurred
+     */
+    public String getFirstVolumePid(String pid) throws IOException;
 
     /**
      * Return parsed biblio mods stream
@@ -260,7 +303,7 @@ public interface FedoraAccess {
     public boolean isImageFULLAvailable(String pid) throws IOException;
 
     /**
-     * Check whether stream is available, is present and accessible
+     * Check whether stream is available
      *
      * @param pid Requested object
      * @param streamName Stream name
@@ -269,6 +312,14 @@ public interface FedoraAccess {
      */
     public boolean isStreamAvailable(String pid, String streamName) throws IOException;
 
+    /**
+     * Check if the object is available
+     * @param pid Pid of object 
+     * @return true or false  - object exists or doesn't exist
+     * @throws IOException
+     */
+    public boolean isObjectAvailable(String pid) throws IOException;
+    
     /**
      * Checks whether content is acessiable
      *
@@ -318,6 +369,9 @@ public interface FedoraAccess {
      */
     public Set<String> getPids(String pid) throws IOException;
 
+    
+    
+    
     /**
      * Returns data from datastream
      *
@@ -328,6 +382,16 @@ public interface FedoraAccess {
      */
     public InputStream getDataStream(String pid, String datastreamName) throws IOException;
 
+    /**
+     * For observe HTTP headers
+     * @param pid Requested pid
+     * @param datastreamName Data stream name
+     * @param streamObserver Header fileds observer
+     * @throws IOException
+     */
+    public void observeStreamHeaders(String pid, String datastreamName, StreamHeadersObserver streamObserver) throws IOException;
+
+    
     /**
      * Returns xml containing datastream data
      *
@@ -403,5 +467,6 @@ public interface FedoraAccess {
      */
     Document getFedoraDataStreamsListAsDocument(String pid) throws IOException;
 
+    
     
 }

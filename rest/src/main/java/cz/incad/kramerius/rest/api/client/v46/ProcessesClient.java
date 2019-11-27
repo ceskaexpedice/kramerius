@@ -16,23 +16,17 @@
  */
 package cz.incad.kramerius.rest.api.client.v46;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientRequest;
-import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.filter.ClientFilter;
-import com.sun.jersey.core.util.Base64;
 
 import cz.incad.kramerius.utils.BasicAuthenticationFilter;
 
@@ -73,10 +67,11 @@ public class ProcessesClient {
      * Plan new process, wait 20 sec and kill it
      * 
      * @throws InterruptedException
+     * @throws JSONException 
      */
-    public static void planAndStop() throws InterruptedException {
+    public static void planAndStop() throws InterruptedException, JSONException {
         String planned = ProcessesClient.planWithoutParams();
-        JSONObject obj = JSONObject.fromObject(planned);
+        JSONObject obj = new JSONObject(planned);
         System.out.println(obj);
         Thread.sleep(20000);
         String stopped = ProcessesClient.stop(obj.getString("uuid"));
@@ -86,10 +81,11 @@ public class ProcessesClient {
     /**
      * Plan new process, wait 20 sec, kill it and delete it
      * @throws InterruptedException
+     * @throws JSONException 
      */
-    public static void planStopAndDelete() throws InterruptedException {
+    public static void planStopAndDelete() throws InterruptedException, JSONException {
         String planned = ProcessesClient.planWithoutParams();
-        JSONObject obj = JSONObject.fromObject(planned);
+        JSONObject obj =  new JSONObject(planned);
         System.out.println(obj);
         Thread.sleep(20000);
         String stopped = ProcessesClient.stop(obj.getString("uuid"));
@@ -126,13 +122,14 @@ public class ProcessesClient {
     /**
      * Plan proc with params
      * @return
+     * @throws JSONException 
      */
-    public static String planProcWithParams() {
+    public static String planProcWithParams() throws JSONException {
         Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v4.6/processes?def=mock");
         r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
         JSONObject object = new JSONObject();
-        object.put("parameters", JSONArray.fromObject(Arrays.asList("first", "second", "third")));
+        object.put("parameters", new JSONArray(Arrays.asList("first", "second", "third")));
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(object.toString(), MediaType.APPLICATION_JSON).post(String.class);
         return t;
     }
@@ -140,15 +137,16 @@ public class ProcessesClient {
     /**
      * Plan new proc with named params
      * @return
+     * @throws JSONException 
      */
-    public static String planProcWithNamedParams() {
+    public static String planProcWithNamedParams() throws JSONException {
         Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v4.6/processes?def=wmock");
         r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
         JSONObject object = new JSONObject();
         JSONObject mapping = new JSONObject();
-        mapping.put("inputFolder", JSONArray.fromObject(new String[] { "/home/pavels/]" }));
-        mapping.put("processName", JSONArray.fromObject(new String[] { "Muj nazev procesu" }));
+        mapping.put("inputFolder", new JSONArray(new String[] { "/home/pavels/]" }));
+        mapping.put("processName", new JSONArray(new String[] { "Muj nazev procesu" }));
         object.put("mapping", mapping);
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(object.toString(), MediaType.APPLICATION_JSON).post(String.class);
         return t;
@@ -182,6 +180,25 @@ public class ProcessesClient {
     }
     
 
+    public static String list() {
+        try {
+            Client c = Client.create();
+            WebResource r = c.resource("http://localhost:8080/search/api/v4.6/processes/" );
+            r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+            String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
+            return t;
+        } catch (UniformInterfaceException e) {
+            int status = e.getResponse().getStatus();
+            if (status == 404) {
+                LOGGER.severe("Process not found ");
+            }
+            throw new IllegalStateException(e);
+        }
+    }
+
     
-    
+    public static void main(String[] args) {
+        String list = list();
+        System.out.println(list);
+    }
 }

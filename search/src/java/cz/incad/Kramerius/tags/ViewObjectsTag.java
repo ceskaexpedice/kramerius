@@ -21,7 +21,7 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 import com.google.inject.Injector;
 
-import cz.incad.Kramerius.Initializable;
+import cz.incad.kramerius.Initializable;
 
 public class ViewObjectsTag extends TagSupport {
 

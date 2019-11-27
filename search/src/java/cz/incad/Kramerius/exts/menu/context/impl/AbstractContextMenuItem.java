@@ -72,13 +72,36 @@ public abstract class AbstractContextMenuItem implements ContextMenuItem {
         template.setAttribute("multiselect", this.isMultipleSelectSupported());
         template.setAttribute("label", label);
         template.setAttribute("href",href);
+        
         String rendered = template.toString();
-        LOGGER.log(Level.INFO,"rendered item is '"+rendered+"'");
+        LOGGER.log(Level.FINEST,"rendered item is '"+rendered+"'");
         return rendered;
     }
 
     /**
-     * Disable or enable item in configuration
+     * Returns rendered html item chunk
+     * @param href Javascript actions
+     * @param labelKey I18N key
+     * @return rendered html item chunk
+     * @throws IOException IO error has been occurred
+     */
+    protected String renderContextMenuItem(String href, String labelKey, String action) throws IOException {
+        String label = this.resourceBundleService.getResourceBundle("labels", this.localesProvider.get()).getString(labelKey);
+        StringTemplate template = new StringTemplate(
+        "<li $if(multiselect)$ data-action='$action$'> $else$ class='no-multiple' data-action='$action$'> $endif$ <span class='ui-icon ui-icon-triangle-1-e  ' >item</span> <a title='$label$' href=\"$href$\">$label$</a></li>");
+        template.setAttribute("multiselect", this.isMultipleSelectSupported());
+        template.setAttribute("label", label);
+        template.setAttribute("href",href);
+        template.setAttribute("action", action);
+        
+        String rendered = template.toString();
+        LOGGER.log(Level.FINEST,"rendered item is '"+rendered+"'");
+        return rendered;
+    }
+
+    
+    /**
+     * Disable or enable item by configuration
      */
     @Override
     public boolean isRenderable() {

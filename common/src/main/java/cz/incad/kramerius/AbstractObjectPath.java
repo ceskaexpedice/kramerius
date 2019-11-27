@@ -167,6 +167,7 @@ public abstract class AbstractObjectPath {
      * @see SpecialObjects#REPOSITORY
      */
     public abstract AbstractObjectPath injectRepository();
+
     
     public abstract AbstractObjectPath injectObjectBetween(String injectingObject, Between between);
 

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ OAI4Solr exposes your Solr indexes by adding a OAI2 protocol handler.
+  ~
+  ~     Copyright (c) 2011-2014  International Institute of Social History
+  ~
+  ~     This program is free software: you can redistribute it and/or modify
+  ~     it under the terms of the GNU General Public License as published by
+  ~     the Free Software Foundation, either version 3 of the License, or
+  ~     (at your option) any later version.
+  ~
+  ~     This program is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~     GNU General Public License for more details.
+  ~
+  ~     You should have received a copy of the GNU General Public License
+  ~     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+
+    <!-- You may leave out the responseDate and request elements -->
+
+    <Identify>
+        <repositoryName>Your repo name</repositoryName>
+        <baseURL>http://localhost:8983/solr/example/oai?</baseURL>
+        <protocolVersion>2.0</protocolVersion>
+        <adminEmail>admin@domain.org</adminEmail>
+        <earliestDatestamp>2011-06-01T12:00:00Z</earliestDatestamp>
+        <deletedRecord>transient</deletedRecord>
+        <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
+        <compression>none</compression>
+        <description>
+            <oai-identifier
+                    xmlns="http://www.openarchives.org/OAI/2.0/oai-identifier"
+                    xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai-identifier http://www.openarchives.org/OAI/2.0/oai-identifier.xsd">
+                <scheme>oai</scheme>
+                <repositoryIdentifier>localhost</repositoryIdentifier>
+                <delimiter>:</delimiter>
+                <sampleIdentifier>oai:localhost:12345/12345-abcde</sampleIdentifier>
+            </oai-identifier>
+        </description>
+    </Identify>
+</OAI-PMH>

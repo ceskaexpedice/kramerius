@@ -23,9 +23,9 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.sf.json.JSONObject;
-
 import org.easymock.EasyMock;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -38,7 +38,7 @@ public class ReplicatedFromDecorateTest {
 
 
 	@Test
-	public void testDecorate() throws ParserConfigurationException, SAXException, IOException {
+	public void testDecorate() throws ParserConfigurationException, SAXException, IOException, JSONException {
 		URL res = CollectionsDecoratorTest.class.getResource("rels-ext.xml");
 		Document document = XMLUtils.parseDocument(res.openStream(), true);
 		
@@ -55,7 +55,7 @@ public class ReplicatedFromDecorateTest {
     	Map<String, Object> runtimeContext = new HashMap<String, Object>();	
     	rep.decorate(jsonObject, runtimeContext);
 
-    	Assert.assertTrue(jsonObject.containsKey("replicatedFrom"));
-    	Assert.assertTrue(jsonObject.getJSONArray("replicatedFrom").size() == 2);
+    	Assert.assertTrue(jsonObject.has("replicatedFrom"));
+    	Assert.assertTrue(jsonObject.getJSONArray("replicatedFrom").length() == 2);
 	}
 }

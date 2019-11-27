@@ -34,7 +34,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -45,6 +44,7 @@ import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.logging.LoggingLoader;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
+import cz.incad.kramerius.utils.IPAddressUtils;
 
 /**
  * Process starting point 
@@ -81,6 +81,8 @@ public class ProcessStarter {
         try {
 
             String mainClass = System.getProperty(MAIN_CLASS_KEY);
+            //String forwardIP = System.getProperty(IPAddressUtils.X_IP_FORWARD);
+            
             outStream = createPrintStream(System.getProperty(SOUT_FILE));
             errStream = createPrintStream(System.getProperty(SERR_FILE));
             System.setErr(errStream);
@@ -231,7 +233,7 @@ public class ProcessStarter {
             URLConnection connection = url.openConnection();
             // authentication token -> identify user
             connection.addRequestProperty("auth-token",System.getProperty(AUTH_TOKEN_KEY));
-
+            connection.addRequestProperty(IPAddressUtils.X_IP_FORWARD, System.getProperty(IPAddressUtils.X_IP_FORWARD));
             InputStream inputStream = connection.getInputStream();
             byte[] buffer = new byte[1 << 12];
             int read = -1;

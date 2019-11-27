@@ -10,10 +10,24 @@ DownloadItem.prototype.selectedMessage = function(act) {
         }
     }
 }
+DownloadItem.prototype.limits = function() {
+    var act = this.selectAction();
+    if (act != null) {
+        return act.object.limits();
+    } else return null;
+}
+
+DownloadItem.prototype.change = function(data) {
+    var act = this.selectAction();
+    if (act != null) {
+        act.object.change(data);
+    }
+}
 
 DownloadItem.prototype.selectAction = function() {
-    var v = $("#download_options select option:selected").val();
+    var v = $("#download_options ul li input:checked").val();
     var doptions = K5.gui.downloadoptions.ctx.actions;
+   
     var reduced = _.reduce(doptions, function(memo, itm){ 
         if (memo  == null) {
             if (itm.name === v) return itm; 
@@ -29,6 +43,11 @@ DownloadItem.prototype.doAction = function() {
         act.object.doAction();
     }
     /*cleanWindow();*/
+}
+
+DownloadItem.prototype.close = function() {
+	$("#download_action_message").empty();
+	cleanWindow();
 }
 
 DownloadItem.prototype.init = function() {
@@ -54,7 +73,7 @@ DownloadItem.prototype.init = function() {
     
     function _message() {
         var optionsdiv = $("<div/>");
-        var span = $("<span/>",{"id":"download_action_message"});
+        var span = $("<span/>",{"id":"download_action_message", "class":"translate","data-key":"downloads.message"});
         optionsdiv.append(span);
         return optionsdiv;
     }
@@ -102,7 +121,7 @@ DownloadItem.prototype.init = function() {
         okButton.append(K5.i18n.translatable('common.ok'));
 
         var closeButton = $("<div/>",{"class":"button"});
-        closeButton.attr('onclick',"cleanWindow();");
+        closeButton.attr('onclick',"K5.gui.selected.download.close();");
         closeButton.attr("data-ctx","selection;pdflimit");
 
         closeButton.append(K5.i18n.translatable('common.close'));
@@ -120,50 +139,73 @@ DownloadItem.prototype.init = function() {
 DownloadItem.prototype.open = function() {
     cleanWindow();
     divopen("#download");
-    var doptions = K5.gui.downloadoptions.ctx.actions;
-    var select = $('<select/>');
-    select.change(function() {
-        var message = K5.gui.selected.download.selectedMessage();
-        if (message != null) {
-            $("#download_action_message").text(message);
-        } else {
-            $("#download_action_message").text("");
-        }
-    });
-    var options = _.map(doptions, function(a) {
-        if (a.object.enabled()) {
-            var optHtml =$('<option/>', {'value': a.name,'data-key': a.i18nkey});
-            optHtml.html(K5.i18n.translatable(a.i18nkey));
-            var option = {
-                    "elem":optHtml
-            };
-            if (a.object["message"]) {
-                option["message"] = a.object["message"];
+
+    K5.api.askForRights(K5.api.ctx.item.selected,["read","pdf_resource","show_client_print_menu","show_client_pdf_menu"], function (data) {
+        var doptions = K5.gui.downloadoptions.ctx.actions;
+        var select = $('<ul/>');
+        select.change(function(item) {
+            var selAction = K5.gui.selected.download.selectAction();
+            if (selAction && selAction.object.message) {
+                var tMess = selAction.object.message();
+                $("#download_action_message").html(tMess);
+            } else {
+                $("#download_action_message").html("");
             }
-            return option;
-        } else return null;
-    });
 
-    _.each(options, function(opt) {
-        if (opt != null) {
-            select.append(opt.elem);
+        });
+        
+        var options = _.map(doptions, function(a, context) {
+            if (a.object.enabled()) {
+                var liHtml = $('<li/>');
+                
+                var divHtml  = $('<div/>');
+                
+                var optHtml =$('<input/>', {'value': a.name, 'type':'radio','name':'action'});
+                divHtml.append(optHtml);
+
+                var transSpan = K5.i18n.translatable(a.i18nkey);
+
+                var aHrefFunction = "javascript:(function() { $('#download_options ul li input[value=\""+a.name+"\"]').prop('checked', true); K5.gui.selected.download.doAction();}) ();";
+                var aHref = $('<a/>', {'href': aHrefFunction,'data-key': a.i18nkey});
+                aHref.append(transSpan);
+                
+                divHtml.append(aHref);
+                liHtml.append(divHtml);
+                var option = {
+                        "elem":liHtml
+                };
+                if (a.object["message"]) {
+                    option["message"] = a.object.message();
+                }
+                return option;
+            } else return null;
+        });
+
+        _.each(options, function(opt) {
+            if (opt != null) {
+                select.append(opt.elem);
+            }
+        });
+
+        var first = _.reduce(options, function(memo, value, index) {
+            if (memo == null) {
+                memo = value;
+            }
+            return memo;
+        }, null);
+
+        var input = first.elem.find('input');
+        input.prop('checked', true);
+
+        var message = first["message"];
+        if ((message) && (message != null)) {
+            $("#download_action_message").html(message);
+        } else {
+            $("#download_action_message").html("");
         }
+
+        $("#download_options").html(select);
     });
-
-    var first = _.reduce(options, function(memo, value, index) {
-        if (memo == null) {
-            memo = value;
-        }
-        return memo;
-    }, null);
-
-    var message = first["message"];
-    if ((message) && (message != null)) {
-        $("#download_action_message").text(message);
-    } else {
-        $("#download_action_message").text("");
-    }
-    $("#download_options").html(select);
 }
 
 DownloadItem.prototype.cleanDialog = function() {

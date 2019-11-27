@@ -1,0 +1,14 @@
+<div id="header">
+
+    <div class="logo" href="index.vm" title="home">
+        <a href="index.vm?page=home"><img style="border:0;" src="$conf.getString('k5.logo')" /></a>
+    </div>
+
+    <div class="buttons">
+    </div>
+    <div id="contextbuttons" class="contextbuttons">
+    </div>
+
+    <div class="right" id="largedisplay">
+    </div>
+</div>

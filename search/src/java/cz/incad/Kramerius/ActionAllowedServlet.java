@@ -32,6 +32,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.Kramerius.statistics.formatters.utils.StringUtils;
 import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -71,24 +72,45 @@ public class ActionAllowedServlet extends GuiceServlet {
         try {
             StringBuilder out = new StringBuilder();
             out.append("{");
-            String action = req.getParameter("action");
+            List<String>actions = new ArrayList<String>();
+            if (req.getParameterMap().containsKey("actions")) {
+                actions.addAll(Arrays.asList(req.getParameterValues("actions")));
+            } else {
+                actions.add(req.getParameter("action"));
+            }
             String[] pids = req.getParameterValues("pid");
-
             User user = currentLoggedUserProvider.get();
+            Map<String, Boolean> mapper = new HashMap<String, Boolean>();
+            for (String pid : pids) {
+                Boolean b = null;
+                for (String act : actions) {
+                    if (b == null) {
+                        b = isActionAllowed(user, act, pid);
+                    } else {
+                        boolean nb = isActionAllowed(user, act, pid);
+                        b = new Boolean(b.booleanValue() && nb);
+                    }
+                }
+                mapper.put(pid, new Boolean(b));
+            }
+            
+            
             HashMap map = new HashMap();
             int i = 0;
             for (String pid : pids) {
                 i++;
-                boolean b = isActionAllowed(user, action, pid);
+                //boolean b = isActionAllowed(user, action, pid);
                 out.append("\"");
                 out.append(pid);
                 out.append("\":");
-                out.append(b);
+                out.append(mapper.get(pid).booleanValue());
                 if (i < pids.length) {
                     out.append(",");
                 }
             }
+
             out.append("}");
+            
             resp.setContentType("application/json");
             resp.getWriter().println(out.toString());
         } catch (SecurityException e) {

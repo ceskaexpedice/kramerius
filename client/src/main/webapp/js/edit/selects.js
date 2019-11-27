@@ -22,7 +22,7 @@ SelectObject.prototype = {
         var relativePos = this.application.gui.selected.relativePosition();
         $('#overlay').css('top',relativePos.top);
         $('#overlay').css('left',relativePos.left);
-        $('#overlay').css('margin-top',(headerHeight+ breadcrumHeight)+"px");
+        //$('#overlay').css('margin-top',(headerHeight+ breadcrumHeight)+"px");
     },
     
     page:function() {

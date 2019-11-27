@@ -1,0 +1,16 @@
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+  <mods:mods version="3.4">
+    <mods:identifier type="urn">f7e50720-80b6-11e0-9ec7-000d606f5dc6</mods:identifier>
+    <mods:titleInfo/>
+    <mods:typeOfResource>text</mods:typeOfResource>
+    <mods:originInfo>
+      <mods:issuance>continuing</mods:issuance>
+    </mods:originInfo>
+    <mods:part>
+      <mods:detail type="volume">
+        <mods:number>33</mods:number>
+      </mods:detail>
+      <mods:date>2001.07.04 AD at 12:08:56 PDT</mods:date>
+    </mods:part>
+  </mods:mods>
+</mods:modsCollection>

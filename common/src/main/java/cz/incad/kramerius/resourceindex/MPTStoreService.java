@@ -8,6 +8,7 @@ package cz.incad.kramerius.resourceindex;
  *
  * @author Alberto
  */
+// TODO: Rewrite !!
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -33,7 +34,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -177,9 +180,9 @@ public class MPTStoreService implements IResourceIndex {
 
     @Override
     public Document getFedoraModels() throws Exception {
-//            String query = "select $object $title from <#ri> " +
-//                            "where $object <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>  " +
-//                            "and  $object <dc:title> $title" ;
+        //add by PS 
+        Set<String> processed = new HashSet<String>();
+        
         Document xmldoc;
         Connection c = null;
         PreparedStatement s = null;
@@ -211,6 +214,9 @@ public class MPTStoreService implements IResourceIndex {
             while (r.next()) {
                 e = xmldoc.createElementNS(SPARQL_NS, "result");
                 uuid = r.getString(1);
+                if (processed.contains(uuid)) continue;
+                processed.add(uuid);
+                
                 //uuid = r.getString(1).split("info:fedora/")[1];
                 uuid = uuid.substring(1, uuid.length() - 1);
 
@@ -410,7 +416,7 @@ public class MPTStoreService implements IResourceIndex {
             xmldoc.appendChild(root);
             root.appendChild(results);
 
-            String sql = "select " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_lastModifiedDate + ".o from ";
+            String sql = "select DISTINCT " + table_dcTitle + ".s, " + table_dcTitle + ".o, " + table_lastModifiedDate + ".o from ";
             if ("title".equals(orderby)) {
                 sql += table_dcTitle + "," + table_lastModifiedDate + "," + table_model;
             } else {
@@ -629,7 +635,7 @@ public class MPTStoreService implements IResourceIndex {
 
         //Can use risearch with SPO language
         String query = "$object * <info:fedora/" + uuid + ">  ";
-        ArrayList<String> resList = new ArrayList<String>();
+        Set<String> resList = new HashSet<String>();
         String urlStr = config.getConfiguration().getString("FedoraResourceIndex") + "?type=triples&flush=true&lang=spo&format=N-Triples&limit=&distinct=off&stream=off"
                 + "&query=" + java.net.URLEncoder.encode(query, "UTF-8");
         java.net.URL url = new java.net.URL(urlStr);
@@ -646,7 +652,7 @@ public class MPTStoreService implements IResourceIndex {
             resList.add(inputLine);
         }
         in.close();
-        return resList;
+        return new ArrayList<String>(resList);
     }
 
     @Override

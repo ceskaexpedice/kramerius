@@ -23,6 +23,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -31,16 +34,13 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.rest.api.k5.client.utils.RELSEXTDecoratorUtils;
-import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
-import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 public class CollectionsDecorator extends AbstractItemDecorator {
 
@@ -51,70 +51,82 @@ public class CollectionsDecorator extends AbstractItemDecorator {
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
-    
-	@Override
-	public String getKey() {
-		return COLLECTIONS_DECORATOR_KEY;
-	}
 
-	public static List<Element> findCollections(Document doc) {
-		List<Element> retval = new ArrayList<Element>();
-		Element rdfElm = XMLUtils.findElement(doc.getDocumentElement(), "RDF",FedoraNamespaces.RDF_NAMESPACE_URI);
-		if (rdfElm != null) {
-			Element description  = XMLUtils.findElement(rdfElm, "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
-			if (description != null) {
-				List<Element> elements = XMLUtils.getElements(description, new XMLUtils.ElementsFilter() {
+    @Override
+    public String getKey() {
+        return COLLECTIONS_DECORATOR_KEY;
+    }
 
-					@Override
-					public boolean acceptElement(Element element) {
-						return (element.getLocalName().equals("isMemberOfCollection") && element.getNamespaceURI().equals(FedoraNamespaces.RDF_NAMESPACE_URI));
-					}
-				});
-				for (Element el : elements) { retval.add(el); }
-			}
-		}
-		return retval;
-	}
+    public static List<Element> findCollections(Document doc) {
+        List<Element> retval = new ArrayList<Element>();
+        Element rdfElm = XMLUtils.findElement(doc.getDocumentElement(), "RDF", FedoraNamespaces.RDF_NAMESPACE_URI);
+        if (rdfElm != null) {
+            Element description = XMLUtils.findElement(rdfElm, "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
+            if (description != null) {
+                List<Element> elements = XMLUtils.getElements(description, new XMLUtils.ElementsFilter() {
 
-	
-	@Override
-	public void decorate(JSONObject jsonObject,
-			Map<String, Object> runtimeContext) {
-		
-		try {
-			if (jsonObject.containsKey("pid")) {
-				String pid = jsonObject.getString("pid");
-				if (!PIDSupport.isComposedPID(pid)) {
-					Document relsExtDoc = RELSEXTDecoratorUtils.getRELSEXTPidDocument(pid, context, this.fedoraAccess);
-					List<Element> collections = findCollections(relsExtDoc);
-					if (!collections.isEmpty()) {
-						JSONArray collectionsJSON = new JSONArray();
-						for (Element colElm : collections) {
-							String collectionPid = colElm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
-							try {
-								PIDParser pidParser = new PIDParser(collectionPid);
-								pidParser.disseminationURI();
-								collectionsJSON.add(pidParser.getObjectPid());
-							} catch (LexerException e) {
-								LOGGER.severe("cannot parse collection pid "+collectionPid);
-								LOGGER.log(Level.SEVERE,e.getMessage(),e);
-							}
-						}
-						jsonObject.put("collections", collectionsJSON);
-					}
-				}
-			}
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-		}
-		
-	}
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        return (element.getLocalName().equals("isMemberOfCollection")
+                                && element.getNamespaceURI().equals(FedoraNamespaces.RDF_NAMESPACE_URI));
+                    }
+                });
+                for (Element el : elements) {
+                    retval.add(el);
+                }
+            }
+        }
+        return retval;
+    }
 
-	@Override
-	public boolean apply(JSONObject jsonObject, String context) {
-		TokenizedPath tpath = super.itemContext(tokenize(context));
-		return tpath.isParsed() && tpath.getRestPath().isEmpty();
-	}
+    @Override
+    public void decorate(JSONObject jsonObject, Map<String, Object> runtimeContext) {
 
-	
+        try {
+            if (jsonObject.has("pid")) {
+                String pid = jsonObject.getString("pid");
+                if (!PIDSupport.isComposedPID(pid)) {
+                    Document relsExtDoc = RELSEXTDecoratorUtils.getRELSEXTPidDocument(pid, context, this.fedoraAccess);
+                    List<Element> collections = findCollections(relsExtDoc);
+                    if (!collections.isEmpty()) {
+                        JSONArray collectionsJSON = new JSONArray();
+                        for (Element colElm : collections) {
+                            String collectionPid = colElm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI,
+                                    "resource");
+                            
+                            if (StringUtils.isAnyString(collectionPid)) {
+                                try {
+                                    PIDParser pidParser = new PIDParser(collectionPid);
+                                    if (collectionPid.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
+                                        pidParser.disseminationURI();
+                                    } else {
+                                        pidParser.objectPid();
+                                    }
+                                    collectionsJSON.put(pidParser.getObjectPid());
+                                } catch (LexerException e) {
+                                    LOGGER.severe("cannot parse collection pid " + collectionPid);
+                                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                                }
+                            }
+                        }
+                        jsonObject.put("collections", collectionsJSON);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        }
+
+    }
+
+    @Override
+    public boolean apply(JSONObject jsonObject, String context) {
+        TokenizedPath tpath = super.itemContext(tokenize(context));
+        return tpath.isParsed() && tpath.getRestPath().isEmpty();
+    }
+
 }

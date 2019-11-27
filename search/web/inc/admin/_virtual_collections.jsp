@@ -18,7 +18,7 @@
     <thead>
     <th>label</th>
     </thead>
-<c:forEach var="col" items="${cols.virtualCollectionsLocale}">
+<c:forEach var="col" items="${cols.virtualCollectionsFromFedoraLocale}">
     <tr id="vc_${col.pid}">
         <c:forEach items="${col.descriptions}" var="desc">
             <td>

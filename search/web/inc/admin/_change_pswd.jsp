@@ -14,6 +14,13 @@
         <div id="changePswd_form">
         <table style="width: 100%;">
             <tbody>    
+
+                <tr> <td>
+                <label for="oldpswd"><view:msg>rights.changepswd.oldpswd</view:msg></label>
+                </td></tr>
+                <tr> <td>
+                <input type="password" style="width: 100%;" id="oldpswd">
+
                 <tr> <td>
                 <label for="pswd"><view:msg>rights.changepswd.newpswd</view:msg></label>
                 </td></tr>

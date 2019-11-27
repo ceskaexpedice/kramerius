@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">  nebo
+    <ListSets>
+        <set>
+            <setSpec>monograph</setSpec>
+            <setName>Seznam monografií</setName>
+            <setDescription>Seznam monografií</setDescription>
+        </set>
+        <set>
+            <setSpec>periodical</setSpec>
+            <setName>Seznam periodik</setName>
+            <setDescription>Seznam periodik</setDescription>
+        </set>
+        <set>
+            <setSpec>periodicalitem</setSpec>
+            <setName>Seznam výtisků</setName>
+            <setDescription>Seznam výtisků</setDescription>
+        </set>
+        <set>
+            <setSpec>periodicalvolume</setSpec>
+            <setName>Seznam ročníků</setName>
+            <setDescription>Seznam ročníků</setDescription>
+        </set>
+        <set>
+            <setSpec>manuscript</setSpec>
+            <setName>Seznam manuskriptů</setName>
+            <setDescription>Seznam manuskriptů</setDescription>
+        </set>
+        <set>
+            <setSpec>graphic</setSpec>
+            <setName>Seznam grafik</setName>
+            <setDescription>Seznam grafik</setDescription>
+        </set>
+        <set>
+            <setSpec>map</setSpec>
+            <setName>Seznam map</setName>
+            <setDescription>Seznam map</setDescription>
+        </set>
+        <set>
+            <setSpec>sheetmusic</setSpec>
+            <setName>Seznam hudebnin</setName>
+            <setDescription>Seznam hudebnin</setDescription>
+        </set>
+        <set>
+            <setSpec>article</setSpec>
+            <setName>Seznam článků</setName>
+            <setDescription>Seznam článků</setDescription>
+        </set>
+        <set>
+            <setSpec>supplement</setSpec>
+            <setName>Seznam příloh</setName>
+            <setDescription>Seznam příloh</setDescription>
+        </set>
+    </ListSets>
+</OAI-PMH>
+
+

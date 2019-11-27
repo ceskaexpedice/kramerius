@@ -382,6 +382,29 @@ public class DatabaseUserManager implements UserManager {
         StringTemplate template = ST_GROUP.getInstanceOf("updatePassword");
         updateTemplate.executeUpdate(template.toString(), pswd, userId);
     }
+    
+    public boolean validatePassword(int userId, String oldPswd)  {
+        try {
+            String opswd = PasswordDigest.messageDigest(oldPswd);
+            List<String> dbPswd = new JDBCQueryTemplate<String>(this.provider.get()) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<String> returnsList)
+                        throws SQLException {
+                    returnsList.add(rs.getString("pswd"));
+                    return true;
+                }
+            }.executeQuery(ST_GROUP.getInstanceOf("findUserByUserId").toString(), userId);
+            if (!dbPswd.isEmpty()) {
+                return dbPswd.get(0).equals(opswd);
+            } else return false;
+        } catch (NoSuchAlgorithmException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return false;
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return false;
+        }
+    }
 
     @InitSecurityDatabase
     public User[] findAllUsers(String prefix) {
@@ -593,6 +616,7 @@ public class DatabaseUserManager implements UserManager {
         });
 
         Role[] roles = user.getGroups();
+        
         for (final Role role : roles) {
             commands.add(new JDBCCommand() {
 
@@ -747,7 +771,7 @@ public class DatabaseUserManager implements UserManager {
             StringTemplate template = ST_GROUP.getInstanceOf("updatePassword");
             String sql = template.toString();
             new JDBCUpdateTemplate(connection, true).executeUpdate(sql,
-                    user.getId(), digested);
+                     digested,user.getId());
         } catch (NoSuchAlgorithmException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (UnsupportedEncodingException e) {
@@ -834,9 +858,11 @@ public class DatabaseUserManager implements UserManager {
                         .getInstanceOf("disassociateRole");
                 String sql = template.toString();
                 Role[] roles = user.getGroups();
-                for (Role r : roles) {
-                    new JDBCUpdateTemplate(con, false).executeUpdate(sql,
-                            user.getId(), r.getId());
+                if (roles != null) {
+                    for (Role r : roles) {
+                        new JDBCUpdateTemplate(con, false).executeUpdate(sql,
+                                user.getId(), r.getId());
+                    }
                 }
                 return getPreviousResult();
             }

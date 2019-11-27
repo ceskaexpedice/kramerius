@@ -59,13 +59,18 @@ public class K4ReplicationProcess {
 
     // all K4 replication phasses
     public static Phase[] PHASES = new Phase[] {
+    	new ZeroPhase(),
+    	
         new FirstPhase(),
         new SecondPhase(),
         new ThirdPhase()
     };
     
     @Process
-    public static void replications(@ParameterName("url") String url, @ParameterName("username") String userName, @ParameterName("pswd")String pswd,@ParameterName("previousProcess")String previousProcessUUID) throws IOException {
+    public static void replications(@ParameterName("url") String url, @ParameterName("username") String userName, @ParameterName("pswd") String pswd,
+                                    @ParameterName("replicateCollections") String replicateCollections,
+                                    @ParameterName("replicateImages") String replicateImages,
+                                    @ParameterName("previousProcess")String previousProcessUUID) throws IOException {
         LOGGER.info("previousProcessUUID = "+previousProcessUUID);
         handleValidation(url);
         // definovane uuid predchoziho procesu => restart
@@ -74,11 +79,11 @@ public class K4ReplicationProcess {
             String muserDir = System.getProperty("user.dir");
             File previousProcessFolder = new File(new File(muserDir).getParentFile(), previousProcessUUID);
             if (previousProcessFolder.exists()) {
-                restart(previousProcessUUID, previousProcessFolder, url, userName, pswd);
+                restart(previousProcessUUID, previousProcessFolder, url, userName, pswd, replicateCollections, replicateImages);
             } else throw new RuntimeException("expect of existing folder '"+previousProcessFolder.getAbsolutePath()+"'");
         } else {
             // start
-            start(url, userName, pswd);
+            start(url, userName, pswd,replicateCollections, replicateImages);
         }
     }
 
@@ -102,11 +107,11 @@ public class K4ReplicationProcess {
         }
     }
     
-    public static void restart(String processUUID, File previousProcessFolder, String url, String userName, String pswd) throws IOException {
+    public static void restart(String processUUID, File previousProcessFolder, String url, String userName, String pswd, String replicateCollections, String replicateImages) throws IOException {
         try {
             for (Phase ph : PHASES) {
                 LOGGER.info("RESTARTING PHASE '"+ph.getClass().getName()+"'");
-                ph.restart(processUUID, previousProcessFolder, isPhaseCompleted(previousProcessFolder, ph), url, userName, pswd);
+                ph.restart(processUUID, previousProcessFolder, isPhaseCompleted(previousProcessFolder, ph), url, userName, pswd, replicateCollections, replicateImages);
                 phaseCompleted(ph);
             }
         } catch (PhaseException e) {
@@ -119,12 +124,12 @@ public class K4ReplicationProcess {
 
     
     
-    public static void start(String url, String userName, String pswd) throws IOException {
+    public static void start(String url, String userName, String pswd, String replicateCollections, String replicateImages) throws IOException {
         try {
             ProcessStarter.updateName("Replikace titulu '"+url+"'");
             for (Phase ph : PHASES) {
                 LOGGER.info("STARTING PHASE '"+ph.getClass().getName()+"'");
-                ph.start(url, userName, pswd);
+                ph.start(url, userName, pswd, replicateCollections, replicateImages);
                 phaseCompleted(ph);
             }
         } catch (PhaseException e) {
@@ -180,9 +185,13 @@ public class K4ReplicationProcess {
         return completedFile;
     }
 
-    public static String prepareURL(String url) {
+    public static String prepareURL(String url, String replicationCollections) {
         String pid = pidFrom(url);
         String prepareURL = StringUtils.minus(StringUtils.minus(url, pid),"handle/")+"api/"+API_VERSION+"/replication/"+pid+"/tree";
+        boolean flag = Boolean.parseBoolean(replicationCollections);
+        if (flag) {
+        	prepareURL += "?replicateCollections=true";
+        }
         return prepareURL;
     }
 
@@ -192,11 +201,22 @@ public class K4ReplicationProcess {
         return prepareURL;
     }
 
-    public static String foxmlURL(String url, String pid) {
+    public static String foxmlURL(String url, String pid,String replicationCollections) {
         String oldPid = pidFrom(url);
         String prepareURL = StringUtils.minus(StringUtils.minus(url, oldPid),"handle/")+"api/"+API_VERSION+"/replication/"+pid+"/foxml";
+        boolean flag = Boolean.parseBoolean(replicationCollections);
+        if (flag) {
+        	prepareURL += "?replicateCollections=true";
+        }
         return prepareURL;
-    }    
+    }
+
+    public static String imgOriginalURL(String url, String pid) {
+        String oldPid = pidFrom(url);
+        String imgOriginalURL = StringUtils.minus(StringUtils.minus(url, oldPid), "handle/")
+                + "api/" + API_VERSION + "/replication/" + pid + "/img_original";
+        return imgOriginalURL;
+    }
     
     /**
      * Find pid in given url and returns it

@@ -453,6 +453,7 @@ public class DatabaseProcessManager implements LRProcessManager {
         String userKey = rs.getString("USER_KEY");
         String paramsMapping = rs.getString("params_mapping");
         int batchStatus = rs.getInt("BATCH_STATUS");
+        String ipAddr = rs.getString("IP_ADDR");
         
         
         LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
@@ -484,6 +485,9 @@ public class DatabaseProcessManager implements LRProcessManager {
         
         if (finished != null) {
             process.setFinishedTime(finished.getTime());
+        }
+        if (ipAddr != null) {
+            process.setPlannedIPAddress(ipAddr);
         }
         
         return process;

@@ -24,9 +24,13 @@ import org.w3c.dom.Document;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 
+/**
+ * Dedicated for getting RELS_EXT, storing it in the context and return it
+ */
 public class RELSEXTDecoratorUtils {
 
     public static final String RELSEXT_PID_DOCUMENT_KEY = "relsext_pid_document";
+
 
     public static Document getRELSEXTPidDocument(String pid,
             Map<String, Object> context, FedoraAccess fedoraAccess)

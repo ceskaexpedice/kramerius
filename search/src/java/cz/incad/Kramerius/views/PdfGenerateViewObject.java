@@ -38,5 +38,6 @@ public class PdfGenerateViewObject extends AbstractPrintViewObject {
     public String getMaxNumberOfPages() {
         return ""+KConfiguration.getInstance().getConfiguration().getInt("generatePdfMaxRange");
     }
+
     
 }

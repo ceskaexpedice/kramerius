@@ -18,8 +18,8 @@ package cz.incad.kramerius.rest.api.client.v50.admin;
 
 import javax.ws.rs.core.MediaType;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -141,12 +141,13 @@ public class RightsClient {
     /**
      * Vytvoreni prava - 1
      * @return
+     * @throws JSONException 
      */
-    private static String createSampleRight() {
+    private static String createSampleRight() throws JSONException {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("action", "read");
 		jsonObj.put("pid", "uuid:1");
-		jsonObj.put("role", JSONObject.fromObject(UsersAndRolesClient.role("3")));
+		jsonObj.put("role", new JSONObject(UsersAndRolesClient.role(3)));
 		
 		System.out.println(jsonObj);
 		
@@ -163,12 +164,13 @@ public class RightsClient {
      * @param critqname
      * @param param
      * @return
+     * @throws JSONException 
      */
-    private static String createSampleRight2(String critqname,JSONObject param) {
+    private static String createSampleRight2(String critqname,JSONObject param) throws JSONException {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("action", "read");
 		jsonObj.put("pid", "uuid:1");
-		jsonObj.put("role", JSONObject.fromObject(UsersAndRolesClient.role("3")));
+		jsonObj.put("role", new JSONObject(UsersAndRolesClient.role(3)));
 		
 		JSONObject critJSON = new JSONObject();
 		critJSON.put("qname", critqname);

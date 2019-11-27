@@ -78,14 +78,24 @@ MenuActionsControll.prototype = {
 function PersistentURL() {}
 
 PersistentURL.prototype = {
+        'change':function(data) {
+        },
+        'limits':function() {
+			return null;
+        },
+
         'doAction':function() { 
                 cleanWindow();
                 divopen("#viewer div.persistents");
                 var sel = K5.api.ctx.item.selected;
-                var itm = K5.api.ctx.item[sel];
-                $("#persisturl").val(itm.handle.href);
+				var handleurl = window.location.protocol+"//"+window.location.host+"/client/handle/"+sel;
+                $("#persisturl").val(handleurl);
                 $("#persisturl").select();
         },
+        'close':function() { 
+	        $("#download_action_message").empty();
+            cleanWindow();
+		},        
         'enabled': function() {
                 return true;
         }
@@ -120,9 +130,20 @@ function _isPDF() {
 function DisplayClipboard() {}
 
 DisplayClipboard.prototype =  {
+        'change':function(data) {
+        },
+        'limits':function() {
+        	return null;
+        },
+
         'doAction':function() { 
                K5.gui.clipboard.display();
         },
+        'close':function() {
+	        $("#download_action_message").empty(); 
+    	    cleanWindow();
+		}, 
+        
         'enabled': function() {
                 var arr = K5.gui.clipboard.ctx.selected;         
                 return arr.length > 0;
@@ -134,27 +155,52 @@ DisplayClipboard.prototype =  {
  * Print one page pdf 
  * @constructor 
  */
-function PDFOnePage() {}
+function PDFOnePage() {
+
+}
+
 PDFOnePage.prototype = {
+        'change':function(data) {
+        },
+
+        'limits':function() {
+        	return null;
+        },
+
+        'close':function() {
+	        $("#download_action_message").empty(); 
+            cleanWindow();
+		},
 
         'doAction':function() { 
                 cleanWindow();
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
-                K5.outputs.pdf.page(K5.api.ctx.item.selected);
+                var page = removeHistoryPostfix(K5.api.ctx.item.selected);
+                K5.outputs.pdf.page(page);
         },
 
         'enabled': function() {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
+                    if (itm['rights']) {
+                        var flag = itm['rights']['read'] && 
+                                   itm['rights']['pdf_resource'] && 
+                                   itm['rights']['show_client_pdf_menu'] && 
+                                   itm['rights']['show_client_print_menu']; 
+                        if (!flag) {
+                           return false;
+                        }
+                    }
                     if ((!_isAudio()) && (!_isPDF())) {
                         return K5.api.ctx.item[selected].datanode; 
                     } else return false;
                 } else {
                         return false;
                 }
-        }
+        },
+        "group":  "PDF"
 }
 
 
@@ -164,6 +210,17 @@ PDFOnePage.prototype = {
  */
 function DownloadPage() {}
 DownloadPage.prototype = {
+        'change':function(data) {
+        },
+        'limits':function() {
+        	return null;
+        },
+
+        'close':function() { 
+	        $("#download_action_message").empty();
+            cleanWindow();
+		}, 
+
        'doAction':function() {
                 var selected = K5.api.ctx.item.selected; 
                 window.location.assign("api/item/"+selected+"/full?asFile=true")
@@ -178,7 +235,8 @@ DownloadPage.prototype = {
                 } else {
                         return false;
                 }
-        }
+        },
+        "group": "RAW"
 }
 
 /**
@@ -188,6 +246,17 @@ DownloadPage.prototype = {
 function PrintPartPage() {}
 
 PrintPartPage.prototype = {
+        'change':function(data) {
+        },
+        'limits':function() {
+        	return null;
+        },
+
+        'close':function() { 
+	        $("#download_action_message").empty();
+            cleanWindow();
+		},        
+
 
        'doAction':function() {
                 function ntab(url) {
@@ -196,7 +265,7 @@ PrintPartPage.prototype = {
                 }
                 var sel = K5.api.ctx.item.selected;
                 var itm = K5.api.ctx.item[sel];
-                ntab("?page=printpart&item="+itm.pid);
+                ntab("?page=printpart&item="+removeHistoryPostfix(itm.pid));
         },
 
         'enabled': function() {
@@ -209,7 +278,9 @@ PrintPartPage.prototype = {
                 } else {
                         return false;
                 }
-       }
+       },
+       "group": "PDF"
+
 }
 
 
@@ -222,6 +293,17 @@ function PrintPartItem() {
 }
 
 PrintPartItem.prototype = {
+        'change':function(data) {
+        },
+        'limits':function() {
+        	return null;
+        },
+
+        'close':function() { 
+	        $("#download_action_message").empty();
+            cleanWindow();
+		},
+
         'doAction':function() {
                 cleanWindow();
                 $('#viewer>div.container')
@@ -234,7 +316,6 @@ PrintPartItem.prototype = {
                                 '<div id="right-top" class="point  between"></div>'+
                                 '<div id="left-bottom" class="point  between"></div>'+
                                 '<div id="right-bottom" class="point  between"></div>'+
-
                         '</div>'); 
 
                 $("#okButton").load("svg.vm?svg=ok");
@@ -246,8 +327,10 @@ PrintPartItem.prototype = {
                 $("#left-bottom").load("svg.vm?svg=bottomleft");
                 $("#right-bottom").load("svg.vm?svg=bottomright");
 
-                
                 $("#cancelButton").click(function() {
+                        $("#header").show();
+                        $("#metadata").show();
+                        $(".thumbs").show();
 
                         var rect = [];
                         rect.push(K5.gui.selected.edit.selection.x1);
@@ -259,8 +342,9 @@ PrintPartItem.prototype = {
                         K5.eventsHandler.trigger("gui/item/crop/stop",rect);
 
                         $("#overlay").remove();
-
                         $("#header").show();
+                        
+                        
                         K5.gui.selected.showLeftrightbuttons();
 
 
@@ -271,6 +355,11 @@ PrintPartItem.prototype = {
 
                 $("#okButton").click(function() {
                         // select selection
+                    
+                        $("#header").show();
+                        $("#metadata").show();
+                        $(".thumbs").show();
+
                         var rect = [];
 
                         rect.push(K5.gui.selected.edit.selection.x1);
@@ -371,6 +460,9 @@ PrintPartItem.prototype = {
                 setTimeout(function() {
 
                         $("#header").hide();
+                        $("#metadata").hide();
+                        $(".thumbs").hide();
+                        
                         
                         if (K5.gui.selected.fit) {
                             K5.gui.selected.fit();
@@ -385,6 +477,9 @@ PrintPartItem.prototype = {
 
                         K5.gui.selected["edit"]= {};
                         K5.gui.selected.edit.selection = new SelectObject(K5);
+                        
+                        //K5.gui.selected.edit.selection.changeAndStoreWidth();
+                        
                         K5.gui.selected.edit.selection.page();
                                 
                 },200);
@@ -395,46 +490,175 @@ PrintPartItem.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
+                    if (itm['rights']) {
+                        var flag = itm['rights']['read'] && 
+                                   itm['rights']['pdf_resource'] && 
+                                   itm['rights']['show_client_pdf_menu'] && 
+                                   itm['rights']['show_client_print_menu']; 
+                        if (!flag) {
+                           return false;
+                        }
+                    }
+                    if ((!_isAudio()) && (!_isPDF())) {
                         return K5.api.ctx.item[selected].datanode; 
+                    } else return false;
                 } else {
                         return false;
                 }
-        }
+        },
+        "group": "PDF"
+
 }
 
 
 function PrintPage() {}
 
 PrintPage.prototype = {
+        'change':function(data) {
+        },
+        'limits':function() {
+        	return null;
+        },
+
+        'close':function() {
+	        $("#download_action_message").empty(); 
+            cleanWindow();
+		},        
+
         'doAction':function() {
             cleanWindow();
-            K5.outputs.print.page(K5.api.ctx.item.selected);
-    },
-    'enabled': function() {
+            var page = removeHistoryPostfix(K5.api.ctx.item.selected);
+            K5.outputs.print.page(page);
+    	},
+    	'enabled': function() {
             var selected = K5.api.ctx.item.selected; 
             var itm = K5.api.ctx.item[selected];
             if (!itm['forbidden']) {
+                if (itm['rights']) {
+                    var flag = itm['rights']['read'] && 
+                               itm['rights']['pdf_resource'] && 
+                               itm['rights']['show_client_pdf_menu'] && 
+                               itm['rights']['show_client_print_menu']; 
+                    if (!flag) {
+                       return false;
+                    }
+                }
                 if ((!_isAudio()) && (!_isPDF())) {
                     return K5.api.ctx.item[selected].datanode; 
                 } else return false;
             } else {
                     return false;
             }
-    }
+    },
+    "group": "PRINT"
 }
+
+
+function PrintSiblings() {
+    this.ctx = {};
+    
+    $.get("_sliders.vm", _.bind(function(slider) {
+        this.ctx["htmlslider"] = slider;
+    },this));
+
+}
+PrintSiblings.prototype = {
+        'change':function(data) {
+			//console.log("data test "+data);
+			if (!this.ctx['data']) {
+				this.ctx['data'] = [];
+			}
+			this.ctx['data'][data.handler] = { "value":data.value, "pid":data.pid };
+        },
+        'limits':function() {
+	        var pids = _.map( K5.api.ctx["item"][ K5.api.ctx["item"].selected ]["siblings"][0].siblings, function(item, context) {
+				return item.pid;
+        	});
+		
+        	return {
+        		'pdfrange':'unlimited',
+        		'pages': pids
+        	}
+        },
+
+        'close':function() {
+	        $("#download_action_message").empty(); 
+            cleanWindow();
+		},        
+
+        'doAction':function() {
+            cleanWindow();
+			var v = K5.api.ctx.item.selected;
+			var startPid = this.ctx['data'][0].pid;
+			var stopPid = this.ctx['data'][1].pid;
+            K5.outputs.print.pages(startPid, stopPid);
+        },
+	
+	    'message' :function() {
+			return  this.ctx["htmlslider"];
+        },
+        
+        'enabled': function() {
+            var selected = K5.api.ctx.item.selected; 
+            var itm = K5.api.ctx.item[selected];
+            if (!itm['forbidden']) {
+                if (itm['rights']) {
+                    var flag = itm['rights']['read'] && 
+                               itm['rights']['pdf_resource'] && 
+                               itm['rights']['show_client_pdf_menu'] && 
+                               itm['rights']['show_client_print_menu']; 
+                    if (!flag) {
+                       return false;
+                    }
+                }
+                if ((!_isAudio()) && (!_isPDF())) {
+                    return K5.api.ctx.item[selected].datanode; 
+                } else return false;
+            } else {
+                    return false;
+            }
+        },
+        "group": "PRINT"
+}
+
+
+
 
 function PrintTitle() {}
 
 PrintTitle.prototype = {
+        'change':function(data) {
+        },
+        'limits':function() {
+        	return null;
+        },
+
+        'close':function() { 
+            $("#download_action_message").empty();
+            cleanWindow();
+		},        
+
         'doAction':function() {
                 cleanWindow();
-                K5.outputs.print.title(K5.api.ctx.item.selected);
+                var page = removeHistoryPostfix(K5.api.ctx.item.selected);
+                K5.outputs.print.title(page);
         },
         
         'enabled': function() {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
+                 
+                    if (itm['rights']) {
+                        var flag = itm['rights']['read'] && 
+                                   itm['rights']['pdf_resource'] && 
+                                   itm['rights']['show_client_pdf_menu'] && 
+                                   itm['rights']['show_client_print_menu']; 
+                        if (!flag) {
+                           return false;
+                        }
+                    }
+ 
                     if ((!_isAudio()) && (!_isPDF())) {
                         var children = K5.api.ctx.item[selected]["children"];
                         if (children) {
@@ -455,20 +679,144 @@ PrintTitle.prototype = {
                 } else {
                         return false;
                 }
-        }
+        },
+        "group": "PRINT"
 }
 
-function PDFTitle() {}
-PDFTitle.prototype = {
+function PDFSiblingsTitle() {
+    this.ctx = {};
+    
+    $.getJSON("api/pdf", _.bind(function(conf) {
+        this.ctx["conf"] = conf;
+    },this));
+    
+    $.get("_sliders.vm", _.bind(function(slider) {
+        this.ctx["htmlslider"] = slider;
+    },this));
+    
+    this.dialog = null;
+}
+
+PDFSiblingsTitle.prototype = {
+        
+        'change':function(data) {
+			//console.log("data test "+data);
+			if (!this.ctx['data']) {
+				this.ctx['data'] = [];
+			}
+			this.ctx['data'][data.handler] = { "value":data.value, "pid":data.pid };
+        },
+
+        'limits':function() {
+
+	        var pids = _.map( K5.api.ctx["item"][ K5.api.ctx["item"].selected ]["siblings"][0].siblings, function(item, context) {
+				return item.pid;
+        	});
+		
+        	return {
+        		'pdfrange':this.ctx.conf.pdfMaxRange,
+        		'pages': pids
+        	}
+        },
+        
+        'close':function() { 
+			$("#download_action_message").empty();
+            cleanWindow();
+		},
+
         'doAction':function() {
                 cleanWindow();
-                K5.outputs.pdf.asyncTitle(K5.api.ctx.item.selected);
+				/*                
+                var pids = _.map( K5.api.ctx["item"][ K5.api.ctx["item"].selected ]["siblings"][0].siblings, function(item, context) {
+					return item.pid;
+        		});
+        		*/
+        		
+        		var processctx  = {
+        			"pids":[],
+        			"inside":false
+        		};
+                
+                _.each(this.limits().pages, _.bind(function(itm, ctx) {
+					if (itm === this.ctx['data'][0].pid) {
+						processctx.inside = true;
+					}
+					if (processctx.inside) {
+						processctx.pids.push(itm);
+					}
+					if (itm === this.ctx['data'][1].pid) {
+						processctx.inside = false;
+					}
+
+                }, this));
+                
+                
+
+				K5.outputs.pdf.siblingspages(processctx.pids);
         },
         
         
         'message' :function() {
-            if (K5.outputs.pdf.isLimitDefined()) {
-                return "Maximalni pocet stranek :"+K5.outputs.pdf.limit(); 
+			return  this.ctx["htmlslider"];
+        },
+
+        'enabled': function() {
+            var selected = K5.api.ctx.item.selected; 
+
+            var itm = K5.api.ctx.item[selected];
+            if (!itm['forbidden']) {
+                if (itm['rights']) {
+                    var flag = itm['rights']['read'] && 
+                               itm['rights']['pdf_resource'] && 
+                               itm['rights']['show_client_pdf_menu'] && 
+                               itm['rights']['show_client_print_menu']; 
+                    if (!flag) {
+                       return false;
+                    }
+                }
+
+                if ((!_isAudio()) && (!_isPDF())) {
+                    return K5.api.ctx.item[selected].datanode; 
+                } else return false;
+            } else {
+                    return false;
+            }
+        }
+}
+
+
+function PDFTitle() {
+    this.ctx = {};
+    $.getJSON("api/pdf", _.bind(function(conf) {
+        this.ctx["conf"] = conf;
+    },this));
+}
+
+PDFTitle.prototype = {
+        'limits':function() {
+        	return null;
+        },
+
+        'change':function(data) {
+        },
+
+        'close':function() { 
+	        $("#download_action_message").empty();
+            cleanWindow();
+		},        
+
+        'doAction':function() {
+                cleanWindow();
+                //K5.outputs.pdf.asyncTitle(K5.api.ctx.item.selected);
+                K5.outputs.pdf.title(K5.api.ctx.item.selected);
+        },
+        'message' :function() {
+            if (this.ctx && this.ctx.conf) { 
+                if (this.ctx.conf.pdfMaxRange !== "unlimited") {
+                var f = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.1'];
+                var s = K5.i18n.ctx.dictionary['ctx.actions.pdftitle.message.2'];
+                    return f+this.ctx.conf.pdfMaxRange; 
+                }
             } else return null;
         },
 
@@ -476,8 +824,16 @@ PDFTitle.prototype = {
                 var selected = K5.api.ctx.item.selected; 
                 var itm = K5.api.ctx.item[selected];
                 if (!itm['forbidden']) {
+                    if (itm['rights']) {
+                        var flag = itm['rights']['read'] && 
+                                   itm['rights']['pdf_resource'] && 
+                                   itm['rights']['show_client_pdf_menu'] && 
+                                   itm['rights']['show_client_print_menu']; 
+                        if (!flag) {
+                           return false;
+                        }
+                    }
                     if ((!_isAudio()) && (!_isPDF())) {
-
                         var children = K5.api.ctx.item[selected]["children"];
                         if (children) {
                             var pages = _.reduce(children, function(memo, value, index) {
@@ -497,7 +853,9 @@ PDFTitle.prototype = {
                 } else {
                         return false;
                 }
-        }
+        },
+        "group": "PDF"
+
 }
 
 
@@ -508,6 +866,18 @@ PDFTitle.prototype = {
  */
 function DownloadOCR() {}
 DownloadOCR.prototype = {
+        'limits':function() {
+        	return null;
+        },
+
+        'change':function(data) {
+        },
+
+        'close':function() { 
+	        $("#download_action_message").empty();
+            cleanWindow();
+		},        
+
         'doAction':function() {
                 cleanWindow();
 
@@ -533,7 +903,8 @@ DownloadOCR.prototype = {
                 } else {
                         return false;
                 }
-        }
+        },
+        "group": "RAW"
 }
 
 
@@ -541,11 +912,23 @@ function _socialUrl() {
         var ind = window.location.href.indexOf("index.vm");
         var v = window.location.href.substring(0, ind+"index.vm".length)+"?page=doc#!"+K5.api.ctx.item.selected;
         v = encodeURIComponent(v);
-        return v;                        
+        return v;
 }
 
 function GooglePlusShare() {}
 GooglePlusShare.prototype = {
+        'limits':function() {
+        	return null;
+        },
+
+        'change':function(data) {
+        },
+
+        'close':function() {
+	        $("#download_action_message").empty(); 
+            cleanWindow();
+		}, 
+
         'doAction':function() {
                 var share = "https://plus.google.com/share?url="+_socialUrl();
                 window.open(share,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;
@@ -557,6 +940,18 @@ GooglePlusShare.prototype = {
 
 function FacebookShare() {}
 FacebookShare.prototype = {
+        'limits':function() {
+        	return null;
+        },
+
+        'change':function(data) {
+        },
+
+        'close':function() {
+	        $("#download_action_message").empty(); 
+            cleanWindow();
+		}, 
+
         'doAction':function() {
                 var share = "https://www.facebook.com/sharer/sharer.php?u="+_socialUrl();
                 window.open(share,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;

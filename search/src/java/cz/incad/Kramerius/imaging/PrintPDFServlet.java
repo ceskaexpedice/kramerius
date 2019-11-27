@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageTypeSpecifier;
@@ -38,7 +39,10 @@ import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.statistics.ReportedAction;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
@@ -47,6 +51,7 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 public class PrintPDFServlet extends GuiceServlet {
 
     public static Logger LOGGER = Logger.getLogger(PrintPDFServlet.class.getName());
+
     
     
     public static enum Page {
@@ -72,7 +77,7 @@ public class PrintPDFServlet extends GuiceServlet {
                 try {
                     pid = fa.findFirstViewablePid(pid);
                     BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), fa, 0);
-                    BufferedImage subImage = ImageCutServlet.simpleSubImage(bufferedImage, req,  pid);
+                    BufferedImage subImage = ImageCutServlet.partOfImage(bufferedImage, req,  pid);
                     KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), os);
                 } catch (XPathExpressionException e) {
                     LOGGER.severe(e.getMessage());
@@ -118,6 +123,10 @@ public class PrintPDFServlet extends GuiceServlet {
     @Inject
     Provider<User> userProvider;
 
+    @Inject
+    StatisticsAccessLog statisticsAccessLog;
+    
+    
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -129,13 +138,22 @@ public class PrintPDFServlet extends GuiceServlet {
             String pageSize = req.getParameter("pagesize");
             String imgop = req.getParameter("imgop");
 
-            Document document = new Document(Page.valueOf(pageSize).getRect());
-            ServletOutputStream sos = resp.getOutputStream();
-            PdfWriter.getInstance(document, sos);
-            document.open();
 
             if (StringUtils.isAnyString(pid)) {
-                if (canBeRead(pid)) {
+                if (canBeRead(pid) && canBeRenderedAsPDF(pid)) {
+
+                    Document document = new Document(Page.valueOf(pageSize).getRect());
+                    ServletOutputStream sos = resp.getOutputStream();
+                    PdfWriter.getInstance(document, sos);
+                    document.open();
+
+                    try {
+                        this.statisticsAccessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.PRINT.name());
+                    } catch (Exception e) {
+                        LOGGER.severe("cannot write statistic records");
+                        LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                    }
+
                     
                     File renderedFile = File.createTempFile("local", "print");
                     filesToDelete.add(renderedFile);
@@ -150,6 +168,7 @@ public class PrintPDFServlet extends GuiceServlet {
                             document.getPageSize().getHeight() - document.topMargin()
                                     - document.bottomMargin());
                     document.add(image);
+                    document.close();
                     
                 } else {
                     resp.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -157,18 +176,35 @@ public class PrintPDFServlet extends GuiceServlet {
             } else {
                 String[] pds = pids.split(",");
                 boolean canBeRendered = false;
+                boolean canBePDFRendered = false;
                 for (int i = 0; i < pds.length; i++) {
                     if (!canBeRendered) canBeRendered = canBeRead(pds[i]);
                 }
-                if (canBeRendered) {
+                for (int i = 0; i < pds.length; i++) {
+                    if (!canBePDFRendered) canBePDFRendered = canBeRenderedAsPDF(pds[i]);
+                }
+                
+                
+                if (canBeRendered && canBePDFRendered) {
+
+                    Document document = new Document(Page.valueOf(pageSize).getRect());
+                    ServletOutputStream sos = resp.getOutputStream();
+                    PdfWriter.getInstance(document, sos);
+                    document.open();
+
                     for (int i = 0; i < pds.length; i++) {
                         File nfile = File.createTempFile("local", "print");
                         filesToDelete.add(nfile);
-                        
+                
+                        try {
+                            this.statisticsAccessLog.reportAccess(pds[i], FedoraUtils.IMG_FULL_STREAM, ReportedAction.PRINT.name());
+                        } catch (Exception e) {
+                            LOGGER.severe("cannot write statistic records");
+                            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                        }
+
                         FileOutputStream fos = new FileOutputStream(nfile);
-                        
                         ImageOP.valueOf(imgop).imageData(this.fedoraAccess, pds[i], req, fos);
-                        
                         Image image = Image.getInstance(nfile.toURI().toURL());
 
                         image.scaleToFit(
@@ -181,11 +217,11 @@ public class PrintPDFServlet extends GuiceServlet {
                             document.newPage();
                         }
                     }
+                    document.close();
                 } else {
                     resp.sendError(HttpServletResponse.SC_FORBIDDEN);
                 }
             }
-            document.close();
         } catch (BadElementException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (DocumentException e) {
@@ -203,6 +239,16 @@ public class PrintPDFServlet extends GuiceServlet {
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
         for (ObjectPidsPath pth : paths) {
             if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean canBeRenderedAsPDF(String pid) throws IOException {
+        ObjectPidsPath[] paths = solrAccess.getPath(pid);
+        for (ObjectPidsPath pth : paths) {
+            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth)) {
                 return true;
             }
         }

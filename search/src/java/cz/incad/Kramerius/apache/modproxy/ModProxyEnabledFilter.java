@@ -30,7 +30,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import cz.incad.Kramerius.backend.guice.K4GuiceFilter;
-import cz.incad.Kramerius.security.basicauth.BasicAuthenticatedHTTPServletProxy;
+import cz.incad.kramerius.auth.basic.BasicAuthenticatedHTTPServletProxy;
 
 /**
  * @author pavels

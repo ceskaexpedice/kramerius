@@ -34,7 +34,7 @@
 
 <%@ include file="inc/checkUUID.jsp" %>
 
-<c:set var="title"><fmt:message bundle="${lctx}">application.title</fmt:message>. <x:out select="$doc/response/result/doc/str[@name='root_title']" /></c:set>
+<c:set var="title"><fmt:message bundle="${lctx}">application.title</fmt:message>.</c:set>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
     <%@ include file="inc/html_header.jsp" %>

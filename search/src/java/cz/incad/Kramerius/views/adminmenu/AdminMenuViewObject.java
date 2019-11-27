@@ -14,11 +14,11 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.exts.menu.main.MainMenu;
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUtils;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.shib.utils.ShibbolethUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

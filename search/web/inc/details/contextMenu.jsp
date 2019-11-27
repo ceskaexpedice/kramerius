@@ -35,6 +35,12 @@
         padding: 0;
         line-height: 16px;
     }
+    
+    #context_items_selection li{
+        line-height: 18px;
+        
+    }
+    
 
     #contextMenu li>span{
         width: 16px;
@@ -48,6 +54,10 @@
     #contextMenu .scope>span{
         font-weight: bold;
     }
+    
+    #metaData{
+        height: calc(100% - 3px);
+    }
 
 
     #reindex ul{
@@ -58,7 +68,7 @@
         list-style-type: none;
         margin: 0;
         padding: 0;
-        line-height: 16px;
+        line-height: 18px;
     }
 
     #reindex li>span{
@@ -142,6 +152,10 @@
 </scrd:loggedusers>
 
 <script  src="js/localprint/localprint.js" language="javascript" type="text/javascript"></script>
+<script  src="js/underscore-min.js" language="javascript" type="text/javascript"></script>
+<link href="js/prettify.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="js/prettify.js"></script>
+<script src="js/mods.js" type="text/javascript" ></script>
 <script type="text/javascript">
     
     var policyPublic = ${policyPublic};
@@ -246,6 +260,60 @@
         }
         $('#contextMenu>div.scope').removeClass('selected');
         $(jq(id)).addClass('selected');
+        
+        if ($('#context_items_active>li').size() > 0) {
+            _checkMenuItems();
+        }
+    }
+    
+    function _checkMenuItems() {
+        var pids = getAffectedPids();
+        pids = map(function(pid) { 
+            var divided = pid.split("_");            
+            return divided[1];
+        }, pids);
+        
+        var actions = [];
+        $("#contextMenuList>li[data-action]").each(function(i, v) { 
+            var act = $(v).data('action');
+            if ($.inArray( act, actions ) < 0) {
+               actions.push(act);
+            }
+        });
+
+        var pidString = reduce(function(base, element, status) {
+            if (!status.first) {
+               base = base + "&";
+            }
+            return base + "pid="+element.trim();
+         }, "", pids);
+
+         var actsString = reduce(function(base, element, status) {
+             if (!status.first) {
+                base = base + "&";
+             }
+             return base + "actions="+element.trim();
+          }, "", actions);
+         
+         $.each(actions, function(i,v) {
+             $.get("isActionAllowed?action="+v+"&"+pidString,bind(function(data) {
+                 var flag = true;
+                 for(var pid in data) {
+                   var f = data[pid];
+                   flag = f & flag;
+                 }
+                 var elms = $("#contextMenuList>li[data-action]");
+                 elms.each(function(k,p) {
+                     if ($(p).data('action') === v) {
+                         if (flag) {
+                             $(p).css('display','block');
+                         } else {
+                             $(p).css('display','none');
+                         }
+                     }
+                 });
+             },this));
+         });
     }
     
     function isPrivate(id){
@@ -337,6 +405,30 @@
         $.get(url, function(data){
             $('#metaData').html(data);
             $('#mods-full').tabs();
+            
+            $('#mods-xml>pre').addClass('lang-html');
+            $('#mods-xml>pre').addClass('prettyprint');
+            $('#mods-xml>pre').css('border', 'none');
+            prettyPrint();
+            
+            /*
+            var modsid = "mods_"+pid;
+            var e = $('<div class="modsxml"></div>');
+            //elem.append(e);
+
+            var div = $('<div style="display:block;" />');
+            div.attr("id", modsid);
+
+            div.append(e);
+            
+            var xmlData = $('#mods-xml>pre').text();
+
+            var modsXml = new ModsXml(e);
+            modsXml.loadXmlFromString(xmlData, e, function(){});
+            modsXml.renderTree();
+            modsXml.expand();
+            $('#mods-xml').append(div);
+            */
         });
     }
 
@@ -666,9 +758,11 @@
           var t = "";
           for(var i=0; i<pids.length; i++){
             var id = pids[i];
+            //var label = $(jq(id)+">div>a>label").html();
+            var label = $(jq("cm_" + id)+">label").html();
             t += '<li>';
             t += '<span class="ui-icon ui-icon-triangle-1-e folder " >folder</span>';
-            t += '<label>'+$(jq(id)+">div>a>label").html()+'</label></li>';
+            t += '<label>'+label+'</label></li>';
 
           }
           $("#reindex>div.allowed").html(t);
@@ -699,7 +793,8 @@
           if(pids.length==1){
               var pidpath = getPidPath(pids[0]);
               var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-              var title = $(jq(pids[0])+">div>a>label").text();
+              //var title = $(jq(pids[0])+">div>a>label").text();
+              var title = $(jq("cm_" + pids[0])+">label").text();
               var escapedTitle = replaceAll(title, ',', '');
               escapedTitle = replaceAll(escapedTitle, '\n', '');
               escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
@@ -709,7 +804,8 @@
               for(var i=0; i<pids.length; i++){
                   var pidpath = getPidPath(pids[i]);
                   var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                  var title = $(jq(pids[i])+">div>a>label").text();
+                  //var title = $(jq(pids[i])+">div>a>label").text();
+                  var title = $(jq("cm_" + pids[i])+">label").text();
                   var escapedTitle = replaceAll(title, ',', '');
                   escapedTitle = replaceAll(escapedTitle, '\n', '');
                   escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
@@ -765,7 +861,11 @@
       function serverSort() {
           var structs = pidstructs();
           var u = "lr?action=start&def=sort&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
+          
+          showConfirmDialog(dictionary['administrator.dialogs.sort.confirm'], function(){
           processStarter("sort").start(u);
+          
+        });
       }
 
       function deletePid(){
@@ -810,6 +910,18 @@
           if (structs.length > 0) {
               var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
               processStarter("static_export_DVD").start(u);
+          }
+      }
+
+
+      function applyMovingWall(){
+          var structs = pidstructs();
+          if (structs.length > 1) {
+              var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={applymw;",structs)+"}";
+              processStarter("applymw").start(u);
+          } else {
+              var u = urlWithPids("lr?action=start&def=applymw&out=text&nparams=",structs);
+              processStarter("applymw").start(u);
           }
       }
 

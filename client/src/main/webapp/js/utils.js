@@ -48,6 +48,20 @@ function link(addr, target) {
 }
 
 /**
+ * Goto method
+ * @param addr target address 
+ * @global
+ */
+function linkWithReturn(addr, target) {
+	var returnUrl = encodeURIComponent(window.location);
+    if(target){
+         window.open(addr+"&return="+returnUrl, target);
+    }else{
+        window.location.assign(addr+"&return="+returnUrl);
+    }
+}
+
+/**
  * Returns true if argument is array
  * @param {obj} tested object 
  * @global
@@ -110,6 +124,14 @@ function stacktrace() {
                 st2(f.caller).concat([f.toString().split('(')[0].substring(9) + '(' + f.arguments.join(',') + ')']);
     }
     return st2(arguments.callee.caller);
+}
+
+
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+    results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
 // Array Remove - By John Resig (MIT Licensed)
@@ -240,6 +262,17 @@ function divopen(elm) {
         $(elm).show();        
 }
 
+
+
+/**
+ * Open window defined by element selector
+ * @function divopen
+ * @static
+ */
+function divclose() {
+    $(".showing").hide();     
+}
+
 /**
  * Close window defined by element selector
  * @function close
@@ -267,16 +300,100 @@ function escapeSolrChars(value){
 }
 
 
+function removeHistoryPostfix(url) {
+    var arr = url.split(";");
+    return arr[0];
+}
+
 /** prototypes */
-if (typeof String.prototype.startsWith != 'function') {
+if (typeof String.prototype.startsWith !== 'function') {
         String.prototype.startsWith = function (str){
-                return this.slice(0, str.length) == str;
+                return this.slice(0, str.length) === str;
         };
 }
 
-if (typeof String.prototype.endsWith != 'function') {
+if (typeof String.prototype.endsWith !== 'function') {
         String.prototype.endsWith = function (str){
-                return this.slice(-str.length) == str;
+                return this.slice(-str.length) === str;
         };
 }
 
+function getHistoryDeep(){
+    
+    var hash = hashParser();
+    if (hash.hasOwnProperty("hist")) {
+        return parseInt(hash.hist);
+    }else{
+        return 0;
+    }
+}
+
+function backToResults(){
+    var histDeep = getHistoryDeep();
+    window.history.go(0 - histDeep - 1);
+}
+
+function hashParser(hash){
+    if(!hash){
+        hash = window.location.hash;
+    }else if(!hash.startsWith("#")){
+        hash = "#" + hash;
+    }
+    if(hash.length > 1){
+        hash = hash.startsWith("#!") ? hash.substring(2) : hash.substring(1);
+        var parts = hash.split(";");
+        var ret = {};
+        //ret.pid = parts[0];
+        for(var i = 0; i<parts.length; i++){
+            var part = parts[i].split("=");
+            if(part.length>1){
+                ret[part[0]] = part[1];
+            }else if(i===0){
+                // je to prvni a bez =
+                ret.pid = parts[0];
+            }else{
+                ret["key"+i] = part[0];
+            }
+        }
+        return ret;
+    }else{
+        return {};
+    }
+}
+
+function jsonToHash(json){
+    var hash = "";
+    
+    $.each(json, function(item, val){
+        hash += ";"+item+"=" + val;
+    });
+//    
+//    if(json.hasOwnProperty("pid")){
+//        hash = json.pid;
+//    }
+//    
+//    if(json.hasOwnProperty("hist")){
+//        hash += ";hist=" + json.hist;
+//    }
+//    
+//    if(json.hasOwnProperty("pmodel")){
+//        hash += ";pmodel=" + json.pmodel;
+//    }
+    if(hash.length>1){
+        hash = hash.substring(1);
+    }
+    return hash;
+}
+
+function isAdvancedSearch(){
+    return $("#search_form input.facet").length > 0
+}
+
+function setAdvSearch(){
+        var fq = "";
+        $("#search_form input.facet").each(function(item){
+            fq += $(this).data("fq");
+        });
+        return fq;
+
+    }

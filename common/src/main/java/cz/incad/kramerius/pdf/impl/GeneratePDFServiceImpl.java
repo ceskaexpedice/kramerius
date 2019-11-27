@@ -6,12 +6,14 @@ import com.google.inject.name.Named;
 import com.lowagie.text.*;
 import com.lowagie.text.Font;
 import com.lowagie.text.pdf.*;
+
 import cz.incad.kramerius.*;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.*;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.pdf.Break;
 import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.PDFContext;
 import cz.incad.kramerius.pdf.commands.ITextCommands;
 import cz.incad.kramerius.pdf.commands.render.RenderPDF;
@@ -25,6 +27,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.knav.pdf.PdfTextUnderImage;
+
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,6 +38,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -124,8 +128,8 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     }
 
     @Override
-    public AbstractRenderedDocument generateCustomPDF(
-            AbstractRenderedDocument rdoc, OutputStream os, Break brk,
+    public PreparedDocument generateCustomPDF(
+            PreparedDocument rdoc, OutputStream os, Break brk,
             FontMap fmap, String djvUrl, String i18nUrl, ImageFetcher fetcher)
             throws IOException {
         try {
@@ -210,7 +214,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     }
 
     @Override
-    public void generateCustomPDF(AbstractRenderedDocument rdoc,
+    public void generateCustomPDF(PreparedDocument rdoc,
             OutputStream os, FontMap fmap, String imgServletUrl,
             String i18nUrl, ImageFetcher fetcher) throws IOException {
         try {
@@ -290,11 +294,16 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             String titlePage, OutputStream os, String imgServletUrl,
             String i18nUrl, int[] rect) throws IOException,
             ProcessSubtreeException {
-        ObjectPidsPath[] paths = solrAccess.getPath(requestedPid);
-        final ObjectPidsPath path = selectOnePath(requestedPid, paths);
-        generateCustomPDF(this.documentService.buildDocumentAsFlat(path,
-                path.getLeaf(), numberOfPages, rect), os, null, imgServletUrl,
-                i18nUrl, ImageFetcher.WEB);
+        try {
+            ObjectPidsPath[] paths = solrAccess.getPath(requestedPid);
+            final ObjectPidsPath path = selectOnePath(requestedPid, paths);
+            generateCustomPDF(this.documentService.buildDocumentAsFlat(path,
+                    path.getLeaf(), numberOfPages, rect), os, null, imgServletUrl,
+                    i18nUrl, ImageFetcher.WEB);
+        } catch (OutOfRangeException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     public static ObjectPidsPath selectOnePath(String requestedPid,
@@ -313,7 +322,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             Break brk, String djvuUrl, String i18nUrl, int[] rect)
             throws IOException, ProcessSubtreeException, DocumentException {
 
-        AbstractRenderedDocument restOfDoc = documentService
+        PreparedDocument restOfDoc = documentService
                 .buildDocumentAsTree(path, path.getLeaf(), rect);
         OutputStream os = null;
         boolean konec = false;
@@ -390,8 +399,8 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                                 .forName("UTF-8"))), true).getDocumentElement(),
                 cmnds);
 
-        RenderPDF render = new RenderPDF(pdfContext.getFontMap());
-        render.render(document, cmnds);
+        RenderPDF render = new RenderPDF(pdfContext.getFontMap(), fedoraAccess);
+        render.render(document, pdfWriter, cmnds);
 
     }
 
@@ -428,7 +437,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     }
 
     public void insertTitleImage(PdfPTable pdfPTable,
-            AbstractRenderedDocument model, String djvuUrl, ImageFetcher fetcher)
+            PreparedDocument model, String djvuUrl, ImageFetcher fetcher)
             throws IOException, BadElementException, XPathExpressionException {
         try {
             String uuidToFirstPage = null;
@@ -536,7 +545,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                 document.add(na);
             }
         } catch (cz.incad.kramerius.security.SecurityException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.INFO, e.getMessage());
             Chunk chunk = new Chunk(textsService.getText("security_fail",
                     localeProvider.get()), font);
             Paragraph na = new Paragraph(chunk);

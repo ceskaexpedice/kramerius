@@ -1,8 +1,8 @@
 [
 
 
-    "http://code.jquery.com/jquery-2.1.1.min.js",
-    "http://code.jquery.com/ui/1.11.1/jquery-ui.min.js",
+    "//code.jquery.com/jquery-2.1.1.min.js",
+    "//code.jquery.com/ui/1.11.1/jquery-ui.min.js",
     
     "js/underscore-min.js",   
     "js/jquery.cookie.js",
@@ -10,6 +10,9 @@
     "js/jquery.touchSwipe.min.js",
     "js/ol3/ol-simple.js",
     'js/mods.js',
+    'js/app-bar-cookie-info.js',
+    'js/sliders/nouislider.js',
+
 
     "jplayer/jquery.jplayer.min.js",
 
@@ -33,6 +36,7 @@
     "resources/js/item/messages.js",
 
     "resources/js/viewers/itemthumbs.js",
+    "resources/js/leftthumbs.js",
 
     "resources/js/viewers/ol3/ol3utils.js",
     "resources/js/viewers/alto/alto.js",
@@ -62,6 +66,7 @@
     "resources/js/item.js",
 
     "resources/js/viewers/forbidden.js"
+
     
 ]
 

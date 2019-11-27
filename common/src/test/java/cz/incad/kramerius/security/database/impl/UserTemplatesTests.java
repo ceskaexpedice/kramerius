@@ -43,11 +43,10 @@ import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightImpl;
 import cz.incad.kramerius.security.impl.criteria.MovingWall;
 import cz.incad.kramerius.security.impl.http.MockGuiceSecurityHTTPModule;
+import cz.incad.kramerius.utils.WhitespaceUtility;
 
 public class UserTemplatesTests extends AbstractGuiceTestCase {
-
-
-    @Test
+	@Test
     public void insertRole() {
         RoleImpl grpImpl = new RoleImpl(2, "4TEST", -1);
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRole");
@@ -61,28 +60,7 @@ public class UserTemplatesTests extends AbstractGuiceTestCase {
             "            NULL\n"+
             "    )";  
 
-        /*
-        System.out.println(sql);
-        System.out.println(expectedSql);
-        Stack<Character> stckSQL = new Stack<Character>();
-        for (int i = 0; i < sql.length(); i++) {
-            stckSQL.push(sql.charAt(i));
-        }
-        Stack<Character> expectedSQL = new Stack<Character>();
-        for (int i = 0; i < expectedSql.length(); i++) {
-            expectedSQL.push(expectedSql.charAt(i));
-        }
-        while(!stckSQL.isEmpty()) {
-            Character chr = stckSQL.pop();
-            Character echr = expectedSQL.pop();
-            if (chr != echr) {
-                System.out.println(expectedSQL.toString());
-                System.out.println(stckSQL.toString());
-            }
-        }*/
-        
-        
-        Assert.assertEquals(expectedSql, sql);
+       Assert.assertEquals(WhitespaceUtility.replace(expectedSql), WhitespaceUtility.replace(sql));
         
         grpImpl = new RoleImpl(2, "4TEST", 3);
         template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRole");
@@ -95,7 +73,7 @@ public class UserTemplatesTests extends AbstractGuiceTestCase {
             "            '4TEST',\n"+
             "            3\n"+
             "    )";
-        Assert.assertEquals(expectedSql, sql);
+        Assert.assertEquals(WhitespaceUtility.replace(expectedSql), WhitespaceUtility.replace(sql));
         
         
     }
@@ -111,7 +89,7 @@ public class UserTemplatesTests extends AbstractGuiceTestCase {
             "            personal_admin_id=NULL\n"+
             "        where group_id=2";
 
-        Assert.assertEquals(expectedSQL, sql);
+        Assert.assertEquals(WhitespaceUtility.replace(expectedSQL), WhitespaceUtility.replace(sql));
         
 
         grpImpl = new RoleImpl(2, "4TEST", 10);
@@ -124,7 +102,7 @@ public class UserTemplatesTests extends AbstractGuiceTestCase {
             "         where group_id=2";
 
         
-        Assert.assertEquals(expectedSQL, sql);
+        Assert.assertEquals(WhitespaceUtility.replace(expectedSQL), WhitespaceUtility.replace(sql));
     }
 
     
@@ -136,7 +114,7 @@ public class UserTemplatesTests extends AbstractGuiceTestCase {
         String sql = template.toString().trim();
         String expectedSql = "delete from group_entity \n"+
                 "   where group_id=2";
-        Assert.assertEquals(expectedSql, sql);
+        Assert.assertEquals(WhitespaceUtility.replace(expectedSql), WhitespaceUtility.replace(sql));
         
     }
 
@@ -152,22 +130,8 @@ public class UserTemplatesTests extends AbstractGuiceTestCase {
         String expectedSql="    select * from group_entity \n"+
 "    where personal_admin_id in (1,2,3) ";
         
-      Assert.assertEquals(expectedSql, sql);
+      Assert.assertEquals(WhitespaceUtility.replace(expectedSql), WhitespaceUtility.replace(sql));
 
-//        
-//        String expectedSql =
-//            " \n"+
-//            "        insert into right_entity(right_id,uuid,action,rights_crit,\"user_id\", fixed_priority) \n"+
-//            "        values(\n"+
-//            "            nextval('right_id_sequence'),\n"+
-//            "            'uuid:0xABC',\n"+
-//            "            'read',\n"+
-//            "            5,\n"+
-//            "            0,\n"+
-//            "            NULL\n"+
-//            "            )  ";
-//        
-//        Assert.assertEquals(expectedSql, sql);
     }
 
     
@@ -180,17 +144,5 @@ public class UserTemplatesTests extends AbstractGuiceTestCase {
     }
 
 
-    private void compareTexts(String sql, String expectedSQL) {
-        int min = Math.min(sql.length(), expectedSQL.length());
-        for (int i = 0; i < min; i++) {
-            if (sql.charAt(i) == expectedSQL.charAt(i)) {
-                System.out.println("ok charAt("+i+") = '"+sql.charAt(i)+"'");
-            } else {
-                System.out.println("bad sql.charAt("+i+") = '"+sql.charAt(i)+"'");
-                System.out.println("bad expectedSQL.charAt("+i+") = '"+expectedSQL.charAt(i)+"'");
-                
-            }
-        }
-    }
 
 }

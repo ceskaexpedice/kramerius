@@ -25,6 +25,7 @@ public enum SpecialObjects {
     
 	/** Represents whole repository */
     REPOSITORY("1");
+
     
     private String uuid;
 
@@ -46,17 +47,11 @@ public enum SpecialObjects {
                 return specialObject;
             }
         }
-        return null;
         
+        return null;
     }
     
     public static boolean isSpecialObject(String pid) {
         return findSpecialObject(pid) != null;
-    }
-    
-    
-    
-    public static void main(String[] args) {
-        System.out.println(REPOSITORY.name());
     }
 }

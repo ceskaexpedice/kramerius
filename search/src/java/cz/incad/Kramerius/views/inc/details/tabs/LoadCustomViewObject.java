@@ -16,79 +16,73 @@
  */
 package cz.incad.Kramerius.views.inc.details.tabs;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.I18NServlet;
-import cz.incad.Kramerius.Initializable;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.XSLService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.UnicodeUtil;
 import cz.incad.kramerius.utils.XMLUtils;
 
-public class LoadCustomViewObject implements Initializable{
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.xml.sax.SAXException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.parsers.ParserConfigurationException;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.logging.Level;
+
+public class LoadCustomViewObject implements Initializable {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LoadCustomViewObject.class.getName());
-    
+
     @Inject
     Provider<HttpServletRequest> requestProvider;
-    
+
 
     @Inject
     Provider<Locale> localesProvider;
-    
+
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
     @Inject
     XSLService xslService;
-    
+
     @Inject
     ResourceBundleService resourceBundleService;
 
-    
-    @Override
-    public void init() {}
 
- 
+    @Override
+    public void init() {
+    }
+
+
     public String getI18NServlet() {
         String i18nServlet = I18NServlet.i18nServlet(requestProvider.get()) + "?action=bundle&lang=" + localesProvider.get().getLanguage() + "&country=" + localesProvider.get().getCountry() + "&name=labels";
         return i18nServlet;
     }
-    
-    private String escapeXML(String s){
-        return s.replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll("'", "&apos;")
-                .replaceAll("\"", "&quot;")
-                .replaceAll("&", "&amp;");
+
+    private String escapeXML(String s) {
+        return s.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("'", "&apos;").replaceAll("\"", "&quot;").replaceAll("&", "&amp;");
     }
-    
+
 
     // rewritten from jsp - no changes
     public String getContent() throws IOException, ParserConfigurationException, SAXException {
         StringBuilder stringBuilder = new StringBuilder();
-        
+
         String tab = this.requestProvider.get().getParameter("tab");
         String ds = tab;
         String xsl = tab;
@@ -98,47 +92,52 @@ public class LoadCustomViewObject implements Initializable{
         }
 
         String pid_path = this.requestProvider.get().getParameter("pid_path");
-        List<String> pids =  Arrays.asList(pid_path.split("/"));
-        if(ds.startsWith("-")){ 
+        List<String> pids = Arrays.asList(pid_path.split("/"));
+        if (ds.startsWith("-")) {
             Collections.reverse(pids);
             ds = ds.substring(1);
         }
         for (String pid : pids) {
-            if (fedoraAccess.isStreamAvailable(pid,ds)) {
-                
+            if (fedoraAccess.isStreamAvailable(pid, ds)) {
+
                 String mime = fedoraAccess.getMimeTypeForStream(pid, ds);
                 if (mime.equals("text/plain")) {
-                    InputStream is = fedoraAccess.getDataStream(pid, ds);
-                    byte[] bytes = org.apache.commons.io.IOUtils.toByteArray(is);
-                    String enc = UnicodeUtil.getEncoding(bytes);
-                    ByteArrayInputStream is2 = new ByteArrayInputStream(bytes);
                     try {
-                        stringBuilder.append("<textarea style=\"width:98%; height:98%; border:0; \">" + IOUtils.readAsString(is2, Charset.forName(enc), true)+ "</textarea>");
+                        InputStream is = fedoraAccess.getDataStream(pid, ds);
+                        byte[] bytes = org.apache.commons.io.IOUtils.toByteArray(is);
+                        String enc = UnicodeUtil.getEncoding(bytes);
+                        ByteArrayInputStream is2 = new ByteArrayInputStream(bytes);
+                        stringBuilder.append("<textarea style=\"width:98%; height:98%; border:0; \">" + IOUtils.readAsString(is2, Charset.forName(enc), true) + "</textarea>");
                     } catch (cz.incad.kramerius.security.SecurityException e) {
-                        securityError(stringBuilder, pid,ds);
+                        LOGGER.log(Level.INFO, e.getMessage());
                     }
                 } else if (mime.equals("text/xml") || mime.equals("application/rdf+xml")) {
                     try {
-                        org.w3c.dom.Document xml = XMLUtils.parseDocument(fedoraAccess.getDataStream(pid, ds), true);
                         if (xslService.isAvailable(xsl)) {
+                            org.w3c.dom.Document xml = XMLUtils.parseDocument(fedoraAccess.getDataStream(pid, ds), true);
                             String text = xslService.transform(xml, xsl, this.localesProvider.get());
                             stringBuilder.append(text);
+                        } else {
+                            String xmltext = org.apache.commons.io.IOUtils.toString(fedoraAccess.getDataStream(pid, ds), Charset.forName("UTF-8"));
+                            stringBuilder.append(StringEscapeUtils.escapeHtml4(xmltext));
                         }
                     } catch (cz.incad.kramerius.security.SecurityException e) {
-                        securityError(stringBuilder, pid,ds);
+                        LOGGER.log(Level.INFO, e.getMessage());
                     } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(), e);
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                } else if (mime.equals("text/html")) {
+                    try {
+                        String xmltext = org.apache.commons.io.IOUtils.toString(fedoraAccess.getDataStream(pid, ds), Charset.forName("UTF-8"));
+                        stringBuilder.append(xmltext);
+                    } catch (cz.incad.kramerius.security.SecurityException e) {
+                        LOGGER.log(Level.INFO, e.getMessage());
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
                 }
             }
         }
-        
         return stringBuilder.toString();
-    }
-
-
-    public void securityError(StringBuilder stringBuilder,String pid, String ds) throws IOException {
-        ResourceBundle resourceBundle = this.resourceBundleService.getResourceBundle("labels", this.localesProvider.get());
-        stringBuilder.append("<b>"+pid+"/"+ds+" </b>").append("<pre> " +resourceBundle.getString("rightMsg.stream")+"</pre>");
     }
 }

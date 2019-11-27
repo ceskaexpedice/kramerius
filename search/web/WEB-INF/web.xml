@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app>
 
+    <filter>
+        <filter-name>clientClosedRequest</filter-name>
+        <filter-class>cz.incad.Kramerius.ClientClosedRequestFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>clientClosedRequest</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>xss</filter-name>
+        <filter-class>cz.incad.Kramerius.XSSFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>xss</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+
     <!-- basicauthentication filter -->
     <filter>
         <filter-name>basic</filter-name>
-        <filter-class>cz.incad.Kramerius.security.basicauth.AuthFilter</filter-class>
+        <filter-class>cz.incad.kramerius.auth.basic.AuthFilter</filter-class>
         <init-param>
             <param-name>realm</param-name>
             <param-value>Protected</param-value>
@@ -24,6 +43,8 @@
         <filter-name>cors</filter-name>
         <url-pattern>/api/*</url-pattern>
         <url-pattern>/zoomify/*</url-pattern>
+        <url-pattern>/iiif/*</url-pattern>
+        <url-pattern>/iiif-presentation/*</url-pattern>
     </filter-mapping>
 
     <!-- mod_proxy filter; doesnt work in krameriusdemo don't know why (logout doesn't work)
@@ -36,6 +57,17 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     -->
+
+    <!--  thrid party authentication -->
+    <filter>
+        <filter-name>thirdpartyauthfilter</filter-name>
+        <filter-class>cz.incad.kramerius.auth.thirdparty.shibb.internal.InternalShibbolethAuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>thirdpartyauthfilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
 
     <!-- Guice, must be last -->
     <filter>
@@ -62,13 +94,10 @@
 
 
 
-
-
     <listener>
         <listener-class>cz.incad.Kramerius.backend.guice.GuiceConfigBean</listener-class>
         <listener-class>cz.incad.kramerius.users.impl.http.LoggedUserSessionListener</listener-class>
     </listener>
-    
 
 
     <!-- Servlets -->
@@ -176,6 +205,11 @@
     <servlet>
         <servlet-name>zoomifyServlet</servlet-name>
         <servlet-class>cz.incad.Kramerius.imaging.ZoomifyServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>iiifServlet</servlet-name>
+        <servlet-class>cz.incad.Kramerius.imaging.IiifServlet</servlet-class>
     </servlet>
 
 	<!-- private content servlet -->
@@ -388,6 +422,11 @@
     <servlet-mapping>
         <servlet-name>zoomifyServlet</servlet-name>
         <url-pattern>/zoomify/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>iiifServlet</servlet-name>
+        <url-pattern>/iiif/*</url-pattern>
     </servlet-mapping>
 
 	<servlet-mapping>

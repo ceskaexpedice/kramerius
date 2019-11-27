@@ -22,21 +22,19 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.json.JSONObject;
-
-import org.w3c.dom.Document;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootPidDecorate;
-import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
+import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 
 public class MonographUnitDecorate extends AbstractDetailDecorator {
 
@@ -61,9 +59,9 @@ public class MonographUnitDecorate extends AbstractDetailDecorator {
     public void decorate(JSONObject jsonObject,
             Map<String, Object> runtimeContext) {
         // 1929##1
-        if (jsonObject.containsKey("pid")) {
-            String pid = jsonObject.getString("pid");
+        if (jsonObject.has("pid")) {
             try {
+                String pid = jsonObject.getString("pid");
                 Element doc = this.memo.getRememberedIndexedDoc(pid);
                 if (doc == null)
                     doc = this.memo.askForIndexDocument(pid);
@@ -75,28 +73,33 @@ public class MonographUnitDecorate extends AbstractDetailDecorator {
                         String[] details = super.details(array.get(0));
                         JSONObject detailsJSONObject = new JSONObject();
                         if (details.length > 0) {
-                            detailsJSONObject.put("partNumber", details[0]);
+                            detailsJSONObject.put("partNumber", ItemResourceUtils.preventAutomaticConversion(details[0]));
                         }
                         if (details.length > 1) {
-                            detailsJSONObject.put("title", details[1]);
+                            detailsJSONObject.put("title", ItemResourceUtils.preventAutomaticConversion(details[1]));
                         }
                         if (details.length > 2) {
-                            detailsJSONObject.put("number", details[2]);
+                            detailsJSONObject.put("number", ItemResourceUtils.preventAutomaticConversion(details[2]));
                         }
-                        if (detailsJSONObject.keySet().size() > 0) {
+                        boolean moreThanZero = detailsJSONObject.keys().hasNext();
+                        if (moreThanZero) {
                             jsonObject.put("details", detailsJSONObject);
                         }
                     }
                 }
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new GenericApplicationException(e.getMessage());
+            } catch (JSONException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new GenericApplicationException(e.getMessage());
             }
         }
 
     }
 
     @Override
-    public boolean apply(JSONObject jsonObject, String context) {
+    public boolean apply(JSONObject jsonObject, String context) throws JSONException {
         String m = super.getModel(jsonObject);
         TokenizedPath tpath = super.itemContext(tokenize(context));
         return tpath.isParsed() && m != null && m.equals("monographunit");

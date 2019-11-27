@@ -21,6 +21,7 @@
     cz.incad.kramerius.service.XSLService xs = (cz.incad.kramerius.service.XSLService) ctxInj.getInstance(cz.incad.kramerius.service.XSLService.class);
     
     pageContext.setAttribute("xml", xml);
+    
     String xmlStr = xs.serialize(xml);
     pageContext.setAttribute("xmlStr", xmlStr);
 
@@ -28,9 +29,13 @@
 <c:set var="xsl" value="xsl/modsFull.xsl" scope="request" />
 <c:url var="xslPage" value="${xsl}" >
 </c:url>
+<c:url var="xslIdent" value="xsl/ident.xsl" >
+</c:url>
 <c:catch var="exceptions"> 
     <c:import url="${xslPage}" var="xsltPage" charEncoding="UTF-8"  />
+    <c:import url="${xslIdent}" var="xsltIdent" charEncoding="UTF-8"  />
 </c:catch>
+<c:set var="xmlStr"><x:transform doc="${xml}"  xslt="${xsltIdent}"  /></c:set>
 <c:choose>
     <c:when test="${exceptions != null}" >
         <jsp:useBean id="exceptions" type="java.lang.Exception" />
@@ -39,7 +44,7 @@
     <c:otherwise>
         <c:catch var="exceptions2"> 
             <% out.clear(); %>
-            <div id="mods-full">
+            <div id="mods-full" style="height: 100%;">
                 <ul>
                     <li><a href="#mods-html" class="vertical-text" >html</a></li>
                     <li><a href="#mods-xml" class="vertical-text" >xml</a></li>
@@ -66,7 +71,8 @@
     }
 %>
                 </div>
-                <div id="mods-xml" style="overflow:scroll;height:80%">
+                <div id="mods-xml" style="overflow:scroll;  height: calc(100% - 40px);
+  padding: 3px;">
 <pre><c:out escapeXml="true" value="${xmlStr}" /></pre>
                 </div>
             </div>

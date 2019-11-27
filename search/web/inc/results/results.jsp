@@ -159,6 +159,7 @@
     }
     translateCollections();
     getExtInfo();
+    fixRootTitleApi();
     getCollapsedPolicy();
     $('.loading_docs').hide();
     
@@ -453,6 +454,7 @@
             $(jq(id)).html(data);
             $(jq(id)).removeClass('more_docs');
             getExtInfo();
+            fixRootTitleApi();
             $('.loading_docs').hide();
             translateCollections();
             checkHeight(offset);
@@ -527,5 +529,34 @@
               $(jq("res_"+root_pid)+" div.uncollapsed").html(xml);
               $(jq("res_"+root_pid)+" div.uncollapsed").scrollTop(0);
           });
+    }
+    
+    function fixRootTitle(){
+        $(".search_result").each(function(){
+            if(!$(this).hasClass('fixed')){
+                var root_pid = $(this).find('input.root_pid').val();
+                var res_id = $(this).attr("id");
+                var url =  "inc/results/rootTitle.jsp?root=" + root_pid;
+                $.get(url, function(data) {
+                    $(jq(res_id)+' a>b').text(data);
+                    $(jq(res_id)).addClass('fixed');
+                });
+            }
+        });
+    }
+    
+    <view:kconfig var="apipoint" key="api.point" />
+    function fixRootTitleApi(){
+        $(".search_result").each(function(){
+            if(!$(this).hasClass('fixed')){
+                var root_pid = $(this).find('input.root_pid').val();
+                var res_id = $(this).attr("id");
+                var url =  "${apipoint}/item/" + root_pid;
+                $.getJSON(url, function(data) {
+                    $(jq(res_id)+' a>b').text(data.title);
+                    $(jq(res_id)).addClass('fixed');
+                });
+            }
+        });
     }
 </script>

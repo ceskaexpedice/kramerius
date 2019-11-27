@@ -11,9 +11,9 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.core.UriBuilder;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -26,7 +26,6 @@ import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.XMLUtils.ElementsFilter;
 
 public class ItemResourceUtils {
 
@@ -126,7 +125,7 @@ public class ItemResourceUtils {
         }
     }
 
-    public static  JSONArray decoratedJSONChildren(String pid, SolrAccess solrAccess, SolrMemoization solrMemoization,JSONDecoratorsAggregate decoratorsAggregate) throws IOException {
+    public static  JSONArray decoratedJSONChildren(String pid, SolrAccess solrAccess, SolrMemoization solrMemoization,JSONDecoratorsAggregate decoratorsAggregate) throws IOException, JSONException {
         JSONArray jsonArray = new JSONArray();
         solrMemoization.clearMemo();
         List<String> fieldList = new ArrayList<String>();
@@ -150,11 +149,33 @@ public class ItemResourceUtils {
             JSONObject jsonObject = JSONUtils.pidAndModelDesc(repPid,
                     uri.toString(),solrMemoization,
                     decoratorsAggregate, uri);
-            jsonArray.add(jsonObject);
+            jsonArray.put(jsonObject);
         }
         return jsonArray;
     }
 
 
+    
+    private static boolean array(String value) {
+        return ((value.startsWith("[")) && (value.endsWith("]")));
+    }
+    
+    private static boolean isNumber(String value) {
+        try {
+            Double.parseDouble(value);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+    
+    /** 
+     * Prevent JSONObject automatic conversion
+     * @param value
+     * @return
+     */
+    public static String preventAutomaticConversion(String value) {
+        return value;
+    }
 
 }

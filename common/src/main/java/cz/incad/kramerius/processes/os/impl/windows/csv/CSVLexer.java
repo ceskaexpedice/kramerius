@@ -1,7 +1,6 @@
-// $ANTLR 2.7.7 (20060906): "csv.g" -> "CSVLexer.java"$
+// $ANTLR 2.7.7 (2006-11-01): "csv.g" -> "CSVLexer.java"$
 
 	package cz.incad.kramerius.processes.os.impl.windows.csv;
-	
 	import java.util.*;
 
 import java.io.InputStream;
@@ -114,7 +113,6 @@ tryAgain:
 		
 		match('"');
 		{
-		int _cnt19=0;
 		_loop19:
 		do {
 			if ((_tokenSet_0.member(LA(1)))) {
@@ -123,12 +121,12 @@ tryAgain:
 				}
 			}
 			else {
-				if ( _cnt19>=1 ) { break _loop19; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
+				break _loop19;
 			}
 			
-			_cnt19++;
 		} while (true);
 		}
+		match('"');
 		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {
 			_token = makeToken(_ttype);
 			_token.setText(new String(text.getBuffer(), _begin, text.length()-_begin));
@@ -231,7 +229,7 @@ inputState.guessing--;
 	
 	private static final long[] mk_tokenSet_0() {
 		long[] data = new long[1024];
-		data[0]=-17592186053640L;
+		data[0]=-17179878408L;
 		for (int i = 1; i<=510; i++) { data[i]=-1L; }
 		data[511]=9223372036854775807L;
 		return data;

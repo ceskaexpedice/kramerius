@@ -30,7 +30,8 @@ import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
-
+import cz.incad.kramerius.virtualcollections.CollectionException;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
@@ -47,14 +48,18 @@ public class DownloadOriginalViewObject extends AbstractViewObject {
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
     
-    public List<DownloadItem> getDownloadItems() throws RecognitionException, TokenStreamException, IOException {
+    @Inject
+    @Named("solr")
+    CollectionsManager collectionGet;
+    
+    public List<DownloadItem> getDownloadItems() throws RecognitionException, TokenStreamException, IOException, CollectionException {
         List<DownloadItem> items = new ArrayList<DownloadOriginalViewObject.DownloadItem>();
         List params = getPidsParams();
         for (Object param : params) {
             boolean accessed = false;
             ObjectPidsPath[] path = solrAccess.getPath(param.toString());
             for (ObjectPidsPath objectPidsPath : path) {
-                objectPidsPath = objectPidsPath.injectRepository();
+                objectPidsPath = objectPidsPath.injectRepository().injectCollections(this.collectionGet);
                 if (isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), param.toString(), FedoraUtils.IMG_FULL_STREAM, objectPidsPath)) {
                     accessed = true;
                     break;

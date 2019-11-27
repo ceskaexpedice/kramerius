@@ -18,13 +18,7 @@ package cz.incad.Kramerius.views.inc;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -35,14 +29,12 @@ import java.util.logging.Level;
 
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-
-import cz.incad.Kramerius.Initializable;
 import cz.incad.Kramerius.users.ProfilePrepareUtils;
+import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.json.JSONUtils;
@@ -140,7 +132,7 @@ public class SearchParamsHTMLView extends AbstractSearchParamsViews implements I
 
 
     
-    private void saveSortingType(String sorting, String dir) {
+    private void saveSortingType(String sorting, String dir) throws JSONException {
         UserProfile profile = this.userProfileManager.getProfile(this.userProvider.get());
         if (profile!=null) {
             JSONObject jsonData = profile.getJSONData();
@@ -224,7 +216,7 @@ public class SearchParamsHTMLView extends AbstractSearchParamsViews implements I
             UserProfile profile = this.userProfileManager.getProfile(this.userProvider.get());
             JSONObject jsonData = profile.getJSONData();
             
-            if (!jsonData.containsKey(SEARCH_HISTORY)) {
+            if (!jsonData.has(SEARCH_HISTORY)) {
                 jsonData.put(SEARCH_HISTORY, new JSONArray());
             }
             
@@ -232,7 +224,7 @@ public class SearchParamsHTMLView extends AbstractSearchParamsViews implements I
             
             // remove one item
             int maxItems = KConfiguration.getInstance().getConfiguration().getInt("usersprofile.searchhistory.maxitems",10);
-            if (shistory.size()== maxItems) {
+            if (shistory.length()== maxItems) {
                 shistory.remove(0);
             }
             
@@ -255,13 +247,13 @@ public class SearchParamsHTMLView extends AbstractSearchParamsViews implements I
                 List<String> vals = multiParams.get(key);
                 JSONArray arr = new JSONArray();
                 for (String rwal : vals) {
-                    arr.add(rwal);
+                    arr.put(rwal);
                 }
                 searchObj.put(key,arr);
             }
             
             if (!findQuery(JSONUtils.escapeQuotes(rss),JSONUtils.escapeQuotes(url),shistory)) {
-                shistory.add(searchObj);
+                shistory.put(searchObj);
                 profile.setJSONData(jsonData);
                 this.userProfileManager.saveProfile(this.userProvider.get(), profile);
                 
@@ -271,8 +263,8 @@ public class SearchParamsHTMLView extends AbstractSearchParamsViews implements I
     }
 
 
-    private boolean findQuery(String rss, String url,JSONArray shistory) {
-        for(int i=0,ll=shistory.size();i<ll;i++) {
+    private boolean findQuery(String rss, String url,JSONArray shistory) throws JSONException {
+        for(int i=0,ll=shistory.length();i<ll;i++) {
             JSONObject sobj = (JSONObject) shistory.get(i);
             if (sobj.get("url").equals(url)) {
                 return true;
@@ -313,31 +305,4 @@ public class SearchParamsHTMLView extends AbstractSearchParamsViews implements I
      * else return null; }
      */
 
-    public static void main(String[] args) throws MalformedURLException, UnsupportedEncodingException {
-        String uril[] = { "http://localhost:8080/search/r.jsp?debug=&sort=&q=&issn=&title=Drobn%C5%AFstky&author=&rok=&udc=&ddc=", "http://localhost:8080/search/r.jsp", "http://localhost:8080/search" };
-
-        URL url = new URL(uril[1]);
-        System.out.println(url.getFile());
-        System.out.println(url.getPath());
-        
-        JSONObject obj = new JSONObject();
-        obj.put("tes", "íýíářýčšíáříčšářýíščř");
-        System.out.println(obj);
-        
-        
-        System.out.println(obj);
-        
-        System.out.println(obj.get("date"));
-        
-        
-        //System.out.println(obj.containsKey("test"));
-
-        /*
-         * System.out.println(url.getUserInfo());
-         * System.out.println(url.getQuery()); String[] params =
-         * url.getQuery().split("&"); for (String par : params) {
-         * System.out.println(URLDecoder.decode(par,"UTF-8")); }
-         */
-        // System.out.println(url.getRef());
-    }
 }

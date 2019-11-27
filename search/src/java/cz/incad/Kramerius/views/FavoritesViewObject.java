@@ -25,8 +25,10 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
@@ -34,8 +36,8 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.Kramerius.Initializable;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.document.model.utils.DCContentUtils;
@@ -84,26 +86,28 @@ public class FavoritesViewObject extends AbstractViewObject implements Initializ
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } catch (TokenStreamException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
 
 
-    public List getDisplayingPids() throws RecognitionException, TokenStreamException {
+    public List getDisplayingPids() throws RecognitionException, TokenStreamException, JSONException {
         List pidsFromParam = getPidsParams();
         if (!pidsFromParam.isEmpty()) return pidsFromParam;
         else return getFavorites();
     }
 
 
-    public List<String> getFavorites() {
+    public List<String> getFavorites() throws JSONException {
         List<String> selected = new ArrayList<String>();
         UserProfile profile = this.userProfileManager.getProfile(userProvider.get());
 
         JSONObject jsonData = profile.getJSONData();
-        if (jsonData.containsKey("favorites")) {
+        if (jsonData.has("favorites")) {
             Object obj = jsonData.get("favorites");
             JSONArray jsonArray = jsonData.getJSONArray("favorites");
-            for (int j = 0,lj=jsonArray.size(); j < lj; j++) {
+            for (int j = 0,lj=jsonArray.length(); j < lj; j++) {
                 Object pidObj = jsonArray.get(j);
                 selected.add(pidObj.toString());
             }

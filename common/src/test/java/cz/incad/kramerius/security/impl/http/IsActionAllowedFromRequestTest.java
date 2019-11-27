@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class IsActionAllowedFromRequestTest {
@@ -30,10 +31,10 @@ public class IsActionAllowedFromRequestTest {
         EasyMock.replay(req);
         
         Configuration conf = KConfiguration.getInstance().getConfiguration();
-        conf.setProperty("x_ip_forwared_enabled_for", Arrays.asList(IsActionAllowedFromRequest.LOCALHOSTS));
+        conf.setProperty("x_ip_forwared_enabled_for", Arrays.asList(IPAddressUtils.LOCALHOSTS));
         
         IsActionAllowedFromRequest isActionAllowed = new IsActionAllowedFromRequest(null, reqProvider, null, null, null);
-        String rAddres = isActionAllowed.getRemoteAddress(conf);
+        String rAddres = IPAddressUtils.getRemoteAddress(req, conf);
         Assert.assertTrue("192.167.1.2".equals(rAddres));
         Assert.assertFalse("127.0.0.1".equals(rAddres));
     }
@@ -56,7 +57,7 @@ public class IsActionAllowedFromRequestTest {
         conf.setProperty("x_ip_forwared_enabled_for", Arrays.asList());
         
         IsActionAllowedFromRequest isActionAllowed = new IsActionAllowedFromRequest(null, reqProvider, null, null, null);
-        String rAddres = isActionAllowed.getRemoteAddress(conf);
+        String rAddres = IPAddressUtils.getRemoteAddress(req, conf);
         Assert.assertTrue("192.167.1.2".equals(rAddres));
         Assert.assertFalse("127.0.0.1".equals(rAddres));
     }

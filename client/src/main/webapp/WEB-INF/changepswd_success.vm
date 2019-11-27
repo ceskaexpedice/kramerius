@@ -1,0 +1,61 @@
+<style>
+
+#changepswd{
+    z-index: 3;
+    top:2px;
+    left: 2px;
+    width: 100%;
+}
+
+#changepswdbox input{
+    font-size: 2.2em;
+    background: rgba(255, 255, 255, 0.9);
+    border: 0px solid #0e70b3;
+    width: 100%;
+}
+
+#changepswdbox input:hover{
+    background: rgba(255, 255, 255, 1);
+}
+
+
+#changepswdbox div.alternatives ul{
+    margin-top:0px;
+}
+
+
+#changepswdbox div.alternatives{
+    border-top:1px solid white;
+    margin-top:1em;
+}
+
+#changepswdbox div.alternatives ul {
+    padding-left:0px;
+    margin-top:.3em;
+}
+
+#changepswdbox div.alternatives li {
+    display:inline-block;
+}
+
+.login_error {
+    color:red;
+}
+</style>
+
+<script type="text/javascript">
+	function __changepswd_success() {
+    	window.location.assign('index.vm');
+	}
+</script>
+
+<div id="changepswd">
+    <div class="changepswdbox">
+        <div>
+            <h3> #translatable('changepswd.display.success') </h3>
+        </div>
+        <div class="button" onclick="__changepswd_success()">
+           #translatable('common.close')
+        </div>
+    </div>
+</div>

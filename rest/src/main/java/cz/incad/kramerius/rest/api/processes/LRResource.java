@@ -25,13 +25,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 
@@ -52,13 +50,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import biz.sourcecode.base64Coder.Base64Coder;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.sun.jersey.api.NotFoundException;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.BatchStates;
@@ -68,21 +67,15 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.processes.exceptions.CannotReadLogs;
 import cz.incad.kramerius.rest.api.processes.exceptions.CannotStartProcess;
 import cz.incad.kramerius.rest.api.processes.exceptions.CannotStopProcess;
 import cz.incad.kramerius.rest.api.processes.exceptions.LogsNotFound;
 import cz.incad.kramerius.rest.api.processes.exceptions.NoDefinitionFound;
 import cz.incad.kramerius.rest.api.processes.exceptions.NoProcessFound;
-import cz.incad.kramerius.rest.api.processes.filter.BatchStateConvert;
-import cz.incad.kramerius.rest.api.processes.filter.StateConvert;
-import cz.incad.kramerius.rest.api.utils.dbfilter.DateConvert;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils;
-import cz.incad.kramerius.rest.api.utils.dbfilter.FilterCondition;
-import cz.incad.kramerius.rest.api.utils.dbfilter.IntegerConvert;
-import cz.incad.kramerius.rest.api.utils.dbfilter.Operand;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
@@ -92,11 +85,11 @@ import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.Offset;
 import cz.incad.kramerius.utils.database.SQLFilter;
-import cz.incad.kramerius.utils.database.SQLFilter.Op;
-import cz.incad.kramerius.utils.database.SQLFilter.Tripple;
 import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
 
 
@@ -162,22 +155,26 @@ public class LRResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response start(@QueryParam("def")String def, JSONObject startingOptions) {
-        if (startingOptions.containsKey("parameters")) {
-            Object parameters = startingOptions.get("parameters");
-            if (parameters instanceof JSONArray) {
-                return plainProcessStart(def,(JSONArray) parameters);
+        try {
+            if (startingOptions.has("parameters")) {
+                Object parameters = startingOptions.get("parameters");
+                if (parameters instanceof JSONArray) {
+                    return plainProcessStart(def,(JSONArray) parameters);
+                } else {
+                    throw new CannotStartProcess("invalid parameters key");
+                }
+            } else if (startingOptions.has("mapping")) {
+                Object mapping = startingOptions.get("mapping");
+                if (mapping instanceof JSONObject) {
+                    return parametrizedProcessStart(def,startingOptions.getJSONObject("mapping"));
+                } else {
+                    throw new CannotStartProcess("invalid mapping key");
+                }
             } else {
-                throw new CannotStartProcess("invalid parameters key");
+                return plainProcessStart(def, new JSONArray());
             }
-        } else if (startingOptions.containsKey("mapping")) {
-            Object mapping = startingOptions.get("mapping");
-            if (mapping instanceof JSONObject) {
-                return parametrizedProcessStart(def,startingOptions.getJSONObject("mapping"));
-            } else {
-                throw new CannotStartProcess("invalid mapping key");
-            }
-        } else {
-            return plainProcessStart(def, new JSONArray());
+        } catch (JSONException e) {
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
@@ -195,7 +192,7 @@ public class LRResource {
     }
 
     
-    Response plainProcessStart(String def, JSONArray array){
+    Response plainProcessStart(String def, JSONArray array) {
         LRProcessDefinition definition = processDefinition(def);
         if (definition == null) throw new NoProcessFound("definition not found");
 
@@ -218,13 +215,14 @@ public class LRResource {
                         LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
                         newProcess.setLoggedUserKey(loggedUserKey);
 
+                        
                         List<String> params = new ArrayList<String>();
-                        for (Object par : array.toArray()) {
-                            params.add(par.toString());
+                        for (int i = 0,ll=array.length(); i < ll; i++) {
+                            params.add(array.getString(i));
                         }
                         newProcess.setParameters(params);
                         newProcess.setUser(user);
-                        newProcess.planMe(new Properties());
+                        newProcess.planMe(new Properties(),IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
                         lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
                         URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
                         return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
@@ -238,6 +236,8 @@ public class LRResource {
                 throw new CannotStartProcess("not plain process "+def);
             } catch (SecurityException e) {
                 throw new ActionNotAllowed("action is not allowed");
+            } catch (JSONException e) {
+                throw new CannotStartProcess(e.getMessage(),e);
             }
         } else {
             throw new ActionNotAllowed("action is not allowed");
@@ -271,22 +271,31 @@ public class LRResource {
         boolean permitted = permit(actionAllowed, actionFromDef, user);
 
         if (permitted) {
-            LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
-            newProcess.setLoggedUserKey(loggedUserKey);
+            try {
+                LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
+                newProcess.setLoggedUserKey(loggedUserKey);
 
-            Properties props = new Properties();
-            Set keySet = mapping.keySet();
-            for (Object key : keySet) {
-                props.put(key.toString(),mapping.get(key).toString());
+                Properties props = new Properties();
+                for (Iterator iterator = mapping.keys(); iterator.hasNext();) {
+                    String key = (String) iterator.next();
+                    try {
+                        props.put(key.toString(),mapping.get(key).toString());
+                    } catch (JSONException e) {
+                        throw new GenericApplicationException(e.getMessage());
+                    }
+                    
+                }
+                
+                newProcess.setParameters(Arrays.asList(new String[0]));
+                newProcess.setUser(user);
+
+                newProcess.planMe(props, IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
+                lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
+                URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
+                return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
+            } catch (JSONException e) {
+                throw new GenericApplicationException(e.getMessage());
             }
-            
-            newProcess.setParameters(Arrays.asList(new String[0]));
-            newProcess.setUser(user);
-
-            newProcess.planMe(props);
-            lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
-            URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
-            return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
         } else {
             throw new ActionNotAllowed("action is not allowed");
         }
@@ -327,11 +336,19 @@ public class LRResource {
                 LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
                 if (lrProcess == null) throw new NoProcessFound("cannot find process "+uuid);
                 if (!States.notRunningState(lrProcess.getProcessState())) {
-                    lrProcess.stopMe();
-                    lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
-                    LRProcess nLrProcess = lrProcessManager.getLongRunningProcess(uuid);
-                    if (nLrProcess != null) return  Response.ok().entity(lrPRocessToJSONObject(nLrProcess)).build();
-                    else throw new NoProcessFound("cannot find process "+uuid);
+                    try {
+                        lrProcess.stopMe();
+                        lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
+                        LRProcess nLrProcess = lrProcessManager.getLongRunningProcess(uuid);
+                        if (nLrProcess != null) {
+                            String jsonRepre = lrPRocessToJSONObject(nLrProcess).toString();
+                            
+                            Response build = Response.ok().entity(jsonRepre).build();
+                            return  build;
+                        } else throw new NoProcessFound("cannot find process "+uuid);
+                    } catch (JSONException e) {
+                        throw new GenericApplicationException(e.getMessage());
+                    }
                 } else {
                     throw new CannotStopProcess("cannot stop process "+uuid);
                 }
@@ -352,6 +369,9 @@ public class LRResource {
     public String delete(@PathParam("uuid")String uuid){
 
         LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
+        if (lrPRocess == null) {
+            throw new NoProcessFound("cannot find process"+uuid);
+        }
         String loggedUserKey = findLoggedUserKey();
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
@@ -382,6 +402,8 @@ public class LRResource {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("deleted", uuid);
                 return jsonObject.toString();
+            } catch (JSONException e) {
+                throw new GenericApplicationException(e.getMessage());
             } finally {
                 lock.unlock();
             }
@@ -423,13 +445,15 @@ public class LRResource {
                     ByteArrayOutputStream ber = new ByteArrayOutputStream();
                     IOUtils.copyStreams(er, ber);
                     jsonObj.put("serr", new String(Base64Coder.encode(ber.toByteArray())));
-                    return Response.ok().entity(jsonObj).build();
+                    return Response.ok().entity(jsonObj.toString()).build();
                 } else  throw new NoProcessFound("process not found "+uuid);
             } catch (FileNotFoundException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 throw new LogsNotFound(e.getMessage(),e);
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                throw new CannotReadLogs(e.getMessage());
+            } catch (JSONException e) {
                 throw new CannotReadLogs(e.getMessage());
             }
         } else {
@@ -461,16 +485,20 @@ public class LRResource {
         if (permitted) {
             LRProcess lrProc = this.lrProcessManager.getLongRunningProcess(uuid);
             if (lrProc != null) {
-                JSONObject jsonObject = lrPRocessToJSONObject(lrProc);
-                if (lrProc.isMasterProcess()) {
-                    JSONArray array = new JSONArray();
-                    List<LRProcess> childSubprecesses = this.lrProcessManager.getLongRunningProcessesByGroupToken(lrProc.getGroupToken());
-                    for (LRProcess child : childSubprecesses) {
-                        array.add(lrPRocessToJSONObject(child));
+                try {
+                    JSONObject jsonObject = lrPRocessToJSONObject(lrProc);
+                    if (lrProc.isMasterProcess()) {
+                        JSONArray array = new JSONArray();
+                        List<LRProcess> childSubprecesses = this.lrProcessManager.getLongRunningProcessesByGroupToken(lrProc.getGroupToken());
+                        for (LRProcess child : childSubprecesses) {
+                            array.put(lrPRocessToJSONObject(child));
+                        }
+                        jsonObject.put("children", array);
                     }
-                    jsonObject.put("children", array);
+                    return Response.ok().entity(jsonObject.toString()).build();
+                } catch (JSONException e) {
+                    throw new GenericApplicationException(e.getMessage());
                 }
-                return Response.ok().entity(jsonObject).build();
             } else throw new NoProcessFound("cannot find process '"+uuid+"'");
         } else {
             throw new ActionNotAllowed("action is not allowed");
@@ -528,34 +556,38 @@ public class LRResource {
 
         if (permitted) {
 
-                Map<String, String> filterMap = new HashMap<String, String>(); {
-                    if (StringUtils.isAnyString(filterUUID)) filterMap.put("uuid", filterUUID);
-                    if (StringUtils.isAnyString(filterPid)) filterMap.put("pid", filterPid);
-                    if (StringUtils.isAnyString(filterDef)) filterMap.put("def", filterDef);
-                    if (StringUtils.isAnyString(filterState)) filterMap.put("state", filterState);
-                    if (StringUtils.isAnyString(filterBatchState)) filterMap.put("batchState", filterBatchState);
-                    if (StringUtils.isAnyString(filterName)) filterMap.put("name", filterName);
-                    if (StringUtils.isAnyString(filterUserId)) filterMap.put("userid", filterUserId);
-                    if (StringUtils.isAnyString(filterUserFirstname)) filterMap.put("userFirstname", filterUserFirstname);
-                    if (StringUtils.isAnyString(filterUserSurname)) filterMap.put("userSurname", filterUserSurname);
-                };
-                SQLFilter filter = DbFilterUtils.simpleFilter(filterMap, TYPES);
-                List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(LRProcessOrdering.PLANNED.name()), typeOfOrdering(ordering), offset(of, resultSize), filter);
-                JSONArray retList = new JSONArray();
+                try {
+                    Map<String, String> filterMap = new HashMap<String, String>(); {
+                        if (StringUtils.isAnyString(filterUUID)) filterMap.put("uuid", filterUUID);
+                        if (StringUtils.isAnyString(filterPid)) filterMap.put("pid", filterPid);
+                        if (StringUtils.isAnyString(filterDef)) filterMap.put("def", filterDef);
+                        if (StringUtils.isAnyString(filterState)) filterMap.put("state", filterState);
+                        if (StringUtils.isAnyString(filterBatchState)) filterMap.put("batchState", filterBatchState);
+                        if (StringUtils.isAnyString(filterName)) filterMap.put("name", filterName);
+                        if (StringUtils.isAnyString(filterUserId)) filterMap.put("userid", filterUserId);
+                        if (StringUtils.isAnyString(filterUserFirstname)) filterMap.put("userFirstname", filterUserFirstname);
+                        if (StringUtils.isAnyString(filterUserSurname)) filterMap.put("userSurname", filterUserSurname);
+                    };
+                    SQLFilter filter = DbFilterUtils.simpleFilter(filterMap, TYPES);
+                    List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(LRProcessOrdering.PLANNED.name()), typeOfOrdering(ordering), offset(of, resultSize), filter);
+                    JSONArray retList = new JSONArray();
 
-                for (LRProcess lrProcess : lrProcesses) {
-                    JSONObject ent = lrPRocessToJSONObject(lrProcess);
-                    if (lrProcess.isMasterProcess()) {
-                        JSONArray array = new JSONArray();
-                        List<LRProcess> childSubprecesses = this.lrProcessManager.getLongRunningProcessesByGroupToken(lrProcess.getGroupToken());
-                        for (LRProcess child : childSubprecesses) {
-                            array.add(lrPRocessToJSONObject(child));
+                    for (LRProcess lrProcess : lrProcesses) {
+                        JSONObject ent = lrPRocessToJSONObject(lrProcess);
+                        if (lrProcess.isMasterProcess()) {
+                            JSONArray array = new JSONArray();
+                            List<LRProcess> childSubprecesses = this.lrProcessManager.getLongRunningProcessesByGroupToken(lrProcess.getGroupToken());
+                            for (LRProcess child : childSubprecesses) {
+                                array.put(lrPRocessToJSONObject(child));
+                            }
+                            ent.put("children", array);
                         }
-                        ent.put("children", array);
+                        retList.put(ent);
                     }
-                    retList.add(ent);
+                    return Response.ok().entity(retList.toString()).build();
+                } catch (JSONException e) {
+                    throw new GenericApplicationException(e.getMessage());
                 }
-                return Response.ok().entity(retList).build();
         } else {
             throw new ActionNotAllowed("action is not allowed");
         }
@@ -613,7 +645,7 @@ public class LRResource {
     }
 
 
-    private JSONObject lrPRocessToJSONObject(LRProcess lrProcess) {
+    private JSONObject lrPRocessToJSONObject(LRProcess lrProcess) throws JSONException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("uuid", lrProcess.getUUID());
         jsonObject.put("pid", lrProcess.getPid());
@@ -685,5 +717,5 @@ public class LRResource {
     public SecuredActions securedAction(String def, LRProcessDefinition definition) {
         return definition.getSecuredAction() != null ? SecuredActions.findByFormalName(definition.getSecuredAction()) : SecuredActions.findByFormalName(def);
     }
-
+    
 }

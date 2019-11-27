@@ -50,6 +50,7 @@ import com.google.inject.Provider;
 
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.Kramerius.imaging.utils.ZoomChangeFromReplicated;
+import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
@@ -92,6 +93,9 @@ public class ZoomifyServlet extends AbstractImageServlet {
     
     @Inject
     SolrAccess solrAccess;
+    
+    @Inject
+    MostDesirable mostDesirable;
 
     
     @Override
@@ -115,62 +119,73 @@ public class ZoomifyServlet extends AbstractImageServlet {
             String pid = tokenizer.nextToken();
             String rest = tokenizer.hasMoreTokens() ?  tokenizer.nextToken() : "";
 
-            ObjectPidsPath[] paths = solrAccess.getPath(pid);
-            boolean premited = false;
-            for (ObjectPidsPath pth : paths) {
-                premited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth);
-                if (premited) break;
-            }
-            if (premited) {
-                if (rest.equals("ImageProperties.xml")) {
-                    renderXMLDescriptor(pid, req, resp);
-                } else {
-                    if (tokenizer.hasMoreTokens()) {
-                        String files = tokenizer.nextToken();
-                        String ext = "jpg";
-                        if (files.contains(".")) {
-                            ext = files.substring(files.indexOf('.')+1);
-                            files = files.substring(0, files.indexOf('.'));
-                        }
-                        StringTokenizer substokenizer = new StringTokenizer(files,"-");
-                        if (substokenizer.countTokens() == 3) {
-                            String level = substokenizer.nextToken();
-                            String x = substokenizer.nextToken();
-                            String y = substokenizer.nextToken();
-                            renderTile(pid, level, x, y, ext, req, resp);
+            if (this.fedoraAccess.isObjectAvailable(pid)) {
+                ObjectPidsPath[] paths = solrAccess.getPath(pid);
+                boolean premited = false;
+                for (ObjectPidsPath pth : paths) {
+                    premited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth);
+                    if (premited) break;
+                }
+                
+                if (premited) {
+                    if (rest.equals("ImageProperties.xml")) {
+                        renderXMLDescriptor(pid, req, resp);
+                    } else {
+                        if (tokenizer.hasMoreTokens()) {
+                            String files = tokenizer.nextToken();
+                            String ext = "jpg";
+                            if (files.contains(".")) {
+                                ext = files.substring(files.indexOf('.')+1);
+                                files = files.substring(0, files.indexOf('.'));
+                            }
+                            StringTokenizer substokenizer = new StringTokenizer(files,"-");
+                            if (substokenizer.countTokens() == 3) {
+                                String level = substokenizer.nextToken();
+                                String x = substokenizer.nextToken();
+                                String y = substokenizer.nextToken();
+                                renderTile(pid, level, x, y, ext, req, resp);
+                            }
                         }
                     }
+                } else {
+                    resp.sendError(HttpServletResponse.SC_FORBIDDEN);
                 }
-        
             } else {
-                resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
+            
         } catch (XPathExpressionException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
     private void renderXMLDescriptor(String pid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
 	    try {
 	    	this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
-		} catch (Exception e) {
+        } catch (Exception e) {
 			LOGGER.severe("cannot write statistic records");
 			LOGGER.log(Level.SEVERE, e.getMessage(),e);
 		}
     	
     	setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
+        mostDesirable.saveAccess(pid, new java.util.Date());
+
         String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
-        if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
-            try {
-                renderIIPrenderXMLDescriptor(pid, resp, relsExtUrl);
-            } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        if (relsExtUrl != null) {
+            if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
+                try {
+                    renderIIPrenderXMLDescriptor(pid, resp, relsExtUrl);
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+            } else {
+                renderEmbededDZIDescriptor(pid, resp);
             }
+            
         } else {
-            renderEmbededDZIDescriptor(pid, resp);
-        
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
     
@@ -246,7 +261,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
             StringTemplate dziUrl = stGroup().getInstanceOf("zoomify");
             if (urlForStream.endsWith("/")) urlForStream = urlForStream.substring(0, urlForStream.length()-1);
             dziUrl.setAttribute("url", urlForStream);
-            copyFromImageServer(dziUrl.toString(), null, resp);
+            copyFromImageServer(dziUrl.toString(), resp);
         }
     }
 
@@ -259,17 +274,21 @@ public class ZoomifyServlet extends AbstractImageServlet {
         setDateHaders(pid, FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
-        if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
-            try {
-                renderIIPTile(pid, slevel, x,y, ext, resp, relsExtUrl);
-            } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        if (relsExtUrl != null) {
+            if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
+                try {
+                    renderIIPTile(pid, slevel, x,y, ext, resp, relsExtUrl);
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+            } else {
+                // srow = y
+                // scol = x
+                renderEmbededTile(pid, slevel,x,y,ext, req, resp);
             }
         } else {
-            // srow = y
-            // scol = x
-            renderEmbededTile(pid, slevel,x,y,ext, req, resp);
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
@@ -345,7 +364,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
             tileUrl.setAttribute("x", x);
             tileUrl.setAttribute("y", y);
             tileUrl.setAttribute("ext", ext);
-            copyFromImageServer(tileUrl.toString(), null, resp);
+            copyFromImageServer(tileUrl.toString(), resp);
         }
     }
 }

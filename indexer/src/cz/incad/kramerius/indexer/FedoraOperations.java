@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+//TODO: rewrite it 
 public class FedoraOperations {
 
     private static final Logger logger =
@@ -261,7 +262,8 @@ public class FedoraOperations {
             logger.log(Level.FINE,
                     "getDatastreamText  pid={0} dsId={1} mimetype={2} dsBuffer={3}",
                     new Object[]{pid, dsId, mimetype, dsBuffer.toString()});
-            return dsBuffer.toString();
+            String text = dsBuffer.toString();
+            return SolrOperations.removeTroublesomeCharacters(text);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Cant get datastream " + dsId);
             throw new Exception(e.getClass().getName() + ": " + e.toString());

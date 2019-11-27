@@ -18,7 +18,9 @@ package cz.incad.kramerius.rest.api.k5.client;
 
 import java.util.Map;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 /**
  * Implementation of this interface is able to decorate resulting JSON object
@@ -54,8 +56,9 @@ public interface JSONDecorator {
      * @param context
      *            The web context
      * @return
+     * @throws JSONException 
      */
-    public boolean apply(JSONObject jsonObject, String context);
+    public boolean apply(JSONObject jsonObject, String context) throws JSONException;
 
     /**
      * Running context - suitable for sharing objects to prevent multiple
@@ -76,4 +79,5 @@ public interface JSONDecorator {
      * After trigger - called after decorators finish their work
      */
     public void after();
+
 }

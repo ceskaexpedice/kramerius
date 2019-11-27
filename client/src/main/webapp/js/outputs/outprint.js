@@ -26,10 +26,25 @@ PrintSupport.prototype= {
 
         page:function(pid) {
             var selected = K5.api.ctx.item.selected; 
-            window.open('print?pids='+selected,'_blank');
+            var page = removeHistoryPostfix(K5.api.ctx.item.selected);
+            window.open('print?pids='+page,'_blank');
         }, 
 
+        pages:function(startPid, stopPid) {
+            window.open('print?startPid='+startPid+"&stopPid="+stopPid,'_blank');
+        }, 
         
+        siblings: function(pid) {
+            var itm = K5.api.ctx.item[pid];
+            var sData = itm.siblings;
+
+            if (sData.length > 0) {
+                var sPath = sData[0].path;
+                var parent = sPath[sPath.length-2];
+                window.open('print?parentPid='+parent.pid,'_blank');
+            }
+        },
+
         title: function(pid) {
             window.open('print?parentPid='+pid,'_blank');
         }

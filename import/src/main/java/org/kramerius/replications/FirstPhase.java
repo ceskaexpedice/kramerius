@@ -44,9 +44,9 @@ import cz.incad.kramerius.utils.IOUtils;
 public class FirstPhase extends AbstractPhase  {
 
     @Override
-    public void start(String url, String userName, String pswd) throws PhaseException {
+    public void start(String url, String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
         try {
-            String prepareURL = K4ReplicationProcess.prepareURL(url);
+            String prepareURL = K4ReplicationProcess.prepareURL(url,replicationCollections);
             String descriptionURL = K4ReplicationProcess.descriptionURL(url);
 
             // download description json
@@ -89,7 +89,8 @@ public class FirstPhase extends AbstractPhase  {
 
     
     @Override
-    public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd) throws PhaseException {
+    public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd,
+                        String replicationCollections, String replicationImages) throws PhaseException {
         try {
             if (!getDescriptionFile().exists()) {
                 File previousDescription = getDescriptionFile(previousProcessRoot);
@@ -110,7 +111,7 @@ public class FirstPhase extends AbstractPhase  {
                 // preparse if scenario is valid
                 preparseIterate();
             } else {
-                this.start(url, userName, pswd);
+                this.start(url, userName, pswd, replicationCollections, replicationImages);
             }
         } catch (IOException e) {
             throw new PhaseException(this,e);

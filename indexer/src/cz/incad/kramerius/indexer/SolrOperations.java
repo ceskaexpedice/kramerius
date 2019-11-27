@@ -2,17 +2,28 @@ package cz.incad.kramerius.indexer;
 
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.solr.SolrUtils;
+import cz.incad.utils.ISODateUtils;
+import cz.incad.utils.PrepareIndexDocUtils;
 import dk.defxws.fedoragsearch.server.GTransformer;
 import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -24,7 +35,11 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -35,6 +50,8 @@ import java.util.logging.Logger;
 /**
  * performs the Solr specific parts of the operations
  */
+
+//TODO: rewrite
 public class SolrOperations {
 
     private static final Logger logger = Logger.getLogger(SolrOperations.class.getName());
@@ -77,7 +94,14 @@ public class SolrOperations {
             initDocCount = getDocCount();
             if ("deleteDocument".equals(action)) {
                 for(String v : value.split(pidSeparator)){
-                    deleteDocument(v);
+                    SolrAccess sa = new SolrAccessImpl();
+                    ObjectPidsPath[] path = sa.getPath(v);
+                    // don't need iterate over all array
+                    ObjectPidsPath one = path[0];
+                    String[] pathFromRootToLeaf = one.getPathFromRootToLeaf();
+                    String joined = String.join("/", pathFromRootToLeaf);
+                    logger.info(" Deleting pidpath "+joined);
+                    deleteDocument(joined);
                     commit();
                 }
 //                deleteDocument(value);
@@ -209,7 +233,7 @@ public class SolrOperations {
         StringBuilder sb = new StringBuilder("<optimize/>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
 
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
 
     }
 
@@ -241,10 +265,11 @@ public class SolrOperations {
             xPathStr = "/response/result/doc/date[@name='modified_date']";
             expr = xpath.compile(xPathStr);
             node = (Node) expr.evaluate(solrDom, XPathConstants.NODE);
-            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
             Date date = null;
             try{
-                date = formatter.parse(node.getFirstChild().getNodeValue());
+                date = ISODateUtils.parseISODate(node.getFirstChild().getNodeValue());
+                //date = formatter.parse(node.getFirstChild().getNodeValue());
             }catch(Exception e){
                 logger.info("Problem parsing modified_date, document "+ uuid +" will be fully reindexed. ("+e+")");
             }
@@ -300,7 +325,7 @@ public class SolrOperations {
         StringBuilder sb = new StringBuilder("<delete><query>*:*</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
 
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
         deleteTotal++;
     }
 
@@ -384,8 +409,7 @@ public class SolrOperations {
                 expr = xpath.compile("//objectProperties/property[@NAME='info:fedora/fedora-system:def/view#lastModifiedDate']/@VALUE");
                 Node dateNode = (Node) expr.evaluate(contentDom, XPathConstants.NODE);
                 if (dateNode != null) {
-                    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                    Date dateValue = formatter.parse(dateNode.getNodeValue());
+                    Date dateValue = ISODateUtils.parseISODate(dateNode.getNodeValue());
                     //logger.info("FOXMLDATE:"+dateValue+" INDEXDATE:"+date);
                     if (!dateValue.after(date)) {
                         if (!force) {
@@ -508,26 +532,51 @@ public class SolrOperations {
             StringBuffer sb = transformer.transform(
                     xsltPath,
                     new StreamSource(foxmlStream),
-                    null,
+                    new GTransformer.ClasspathResolver(),
                     params,
                     true);
-
+            
             applyCustomTransformations(sb, foxmlStream, params);
-            String doc = "<?xml version=\"1.1\" encoding=\"UTF-8\"?><add><doc>"
-                    + sb.toString()
-                    //+ extendedFields.toXmlString(i)
-                    + removeTroublesomeCharacters(extendedFields.toXmlString(i))
-                    + "</doc></add>";
-            logger.log(Level.FINE, "indexDoc=\n{0}", doc);
+            
+            String rawXML = "<doc>" + sb.toString() + extendedFields.toXmlString(i) + "</doc>";
+            String docSrc = prepareDocForIndexing(rawXML);
+            
+            logger.log(Level.FINE, "indexDoc=\n{0}", docSrc);
             if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
-                postData(config.getString("IndexBase") + "/update", new StringReader(doc), new StringBuilder());
+                postData(config.getString("IndexBase") + "/update", docSrc, new StringBuilder());
                 updateTotal++;
             }
         }
     }
+
+    public static String prepareDocForIndexing(boolean compositeId, String rawXML) throws ParserConfigurationException, SAXException, IOException,
+            TransformerException, UnsupportedEncodingException {
+        rawXML = removeTroublesomeCharacters(rawXML);
+        Document document = XMLUtils.parseDocument(new StringReader(rawXML));
+        if (compositeId) {
+            PrepareIndexDocUtils.enhanceByCompositeId(document, document.getDocumentElement());
+        }
+        rawXML = PrepareIndexDocUtils.wrapByAddCommand(document);
+        return rawXML;
+    }
+
+    public static String prepareDocForIndexing(String rawXML) throws ParserConfigurationException, SAXException, IOException,
+            TransformerException, UnsupportedEncodingException {
+        return prepareDocForIndexing(KConfiguration.getInstance().getConfiguration().getBoolean("indexer.compositeId", false), rawXML);
+    }
+
     
-    private String removeTroublesomeCharacters(String inString) throws UnsupportedEncodingException {
-        return inString.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", " ");
+    public static String removeTroublesomeCharacters(String inString) throws UnsupportedEncodingException {
+        // XML 1.0
+        // #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+        String xml10pattern = "[^"
+                + "\u0009\r\n"
+                + "\u0020-\uD7FF"
+                + "\uE000-\uFFFD"
+                + "\ud800\udc00-\udbff\udfff"
+                + "]";
+        return inString.replaceAll(xml10pattern, "");
+        //return inString.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", " ");
 
     }
 
@@ -550,7 +599,7 @@ public class SolrOperations {
             StringBuffer newSb = transformer.transform(
                     f,
                     new StreamSource(foxmlStream),
-                    null,
+                    new GTransformer.ClasspathResolver(),
                     params,
                     false);
             //logger.info("newSb: " +newSb.toString());
@@ -561,16 +610,15 @@ public class SolrOperations {
     private void deletePid(String pid) throws Exception {
         StringBuilder sb = new StringBuilder("<delete><query>PID:" + pid.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "\\\\") + "</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
         deleteTotal++;
     }
 
     private void deleteDocument(String pid_path) throws Exception {
-        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "\\\\") + "*</query></delete>");
+
+        StringBuilder sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\])", "\\\\") + "*</query></delete>");
         logger.log(Level.INFO, "deleting document with {0}", sb.toString());
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
-        sb = new StringBuilder("<delete><query>pid_path:" + pid_path.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "\\\\") + "</query></delete>");
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
         commit();
         deleteTotal++;
     }
@@ -578,7 +626,7 @@ public class SolrOperations {
     private void deleteModel(String path) throws Exception {
         StringBuilder sb = new StringBuilder("<delete><query>model_path:" + path + "*</query></delete>");
         logger.log(Level.FINE, "indexDoc=\n{0}", sb.toString());
-        postData(config.getString("IndexBase") + "/update", new StringReader(sb.toString()), new StringBuilder());
+        postData(config.getString("IndexBase") + "/update", sb.toString(), new StringBuilder());
         commit();
         deleteTotal++;
     }
@@ -587,7 +635,7 @@ public class SolrOperations {
      * Reads data from the data reader and posts it to solr,
      * writes the response to output
      */
-    private void postData(String solrUrlString, Reader data, StringBuilder output)
+    private void postData(String solrUrlString, String data, StringBuilder output)
             throws Exception {
         URL solrUrl = null;
         try {
@@ -615,7 +663,7 @@ public class SolrOperations {
 
             try {
                 Writer writer = new OutputStreamWriter(out, POST_ENCODING);
-                pipe(data, writer);
+                writer.write(data);
                 writer.close();
             } catch (IOException e) {
                 throw new Exception("IOException while posting data", e);
@@ -682,7 +730,7 @@ public class SolrOperations {
         }
         logger.log(Level.FINE, "commit");
 
-        postData(config.getString("IndexBase") + "/update", new StringReader(s), new StringBuilder());
+        postData(config.getString("IndexBase") + "/update", s, new StringBuilder());
 
     }
 
@@ -783,22 +831,25 @@ public class SolrOperations {
     private void checkIntegrity() throws Exception {
         String[] models = config.getStringArray("fedora.topLevelModels");
         for (String model : models) {
-            checkIntegrityByModel(model, 0);
+            checkIntegrityByModel(model);
         }
         commit();
     }
 
     private void checkIntegrityByModel(String model) throws Exception {
-        checkIntegrityByModel(model, 0);
+        int offset = 0;
+        int numHits = 200;
+        while(checkIntegrityByModel(model, offset, numHits)){
+            offset += numHits;
+        }
         commit();
     }
 
-    private void checkIntegrityByModel(String model, int offset) throws Exception {
+    private boolean checkIntegrityByModel(String model, int offset, int numHits) throws Exception {
         logger.log(Level.INFO, "checkIntegrityByModel. model: {0}; offset: {1}", new String[]{model, Integer.toString(offset)});
         if (model == null || model.length() < 1) {
-            return;
+            return false;
         }
-        int numHits = 200;
         String PID;
         String pid_path;
         String urlStr = config.getString("solrHost") + "/select/?q=model_path:" + model + "*&fl=PID,pid_path&start="
@@ -819,21 +870,21 @@ public class SolrOperations {
             node = nodeList.item(i);
             PID = node.getFirstChild().getNodeValue();
             pid_path = node.getNextSibling().getFirstChild().getNodeValue();
+            
+            //PID with @ are virtual only in index. Test parent.
+            String simplePid = PID;
+            if(PID.indexOf("/@")>-1){
+              simplePid = PID.substring(0, PID.indexOf("/@")-1);
+            }
+            
 
-            if(!rindex.existsPid(PID)){
-                logger.log(Level.INFO, PID + " doesn't exist. Deleting...");
+            if(!rindex.existsPid(simplePid)){
+                logger.log(Level.INFO, simplePid + " doesn't exist. Deleting...");
                 deletePid(PID);
             }
-//            try {
-//                fedoraOperations.fa.getAPIM().getObjectXML(PID);
-//            } catch (Exception e) {
-//                logger.log(Level.INFO, PID + " doesn't exist. Deleting...", e);
-//                deleteDocument(pid_path);
-//            }
         }
-        if (nodeList.getLength() > 0) {
-            checkIntegrityByModel(model, offset + numHits);
-        }
+        return (nodeList.getLength() > 0);
+        
     }
 
     private void reindexCollection(String collection) throws Exception{

@@ -4,17 +4,17 @@ K5.eventsHandler.addHandler(function(type, data) {
     }
 
     if (type === "api/feed/newest") {
-        K5.gui.currasels["newest"] = new Carousel("#rows>div.latest", {"json": K5.api.ctx.feed.newest});
+        K5.gui.currasels["newest"] = new Carousel("#yearRows>div.latest", {"json": K5.api.ctx.feed.newest});
         K5.gui.currasels["newest"].setName("newest");
     }
 
     if (type === "api/feed/mostdesirable") {
-        K5.gui.currasels["mostdesirable"] = new Carousel("#rows>div.popular", {"json": K5.api.ctx.feed.mostdesirable});
+        K5.gui.currasels["mostdesirable"] = new Carousel("#yearRows>div.popular", {"json": K5.api.ctx.feed.mostdesirable});
         K5.gui.currasels["mostdesirable"].setName("mostdesirable");
     }
 
     if (type === "api/feed/cool") {
-        K5.gui.currasels["cool"] = new Carousel("#rows>div.cool", {"json": K5.api.ctx.feed.cool});
+        K5.gui.currasels["cool"] = new Carousel("#yearRows>div.cool", {"json": K5.api.ctx.feed.cool});
         K5.gui.currasels["cool"].setName("cool");
         if (K5.gui.home) {
                 K5.gui.home.displayBackground();
@@ -30,11 +30,17 @@ K5.eventsHandler.addHandler(function(type, data) {
                         return  obj; 
                 });
                 var data = {'data':mapped};
-                K5.gui.currasels["profilefavorites"] = new Carousel("#rows>div.profilefavorites", {"json": data}, true);
+                K5.gui.currasels["profilefavorites"] = new Carousel("#yearRows>div.profilefavorites", {"json": data}, true);
                 K5.gui.currasels["profilefavorites"].setName("profilefavorites");
         }  
         */
         K5.gui.home = new HomeEffects(K5);
+    }
+    if (type === "i18n/dictionary") {
+        if(!K5.gui.home){
+            K5.gui.home = new HomeEffects(K5);
+        }
+        K5.gui.home.getDocs();
     }
 });
 
@@ -49,11 +55,12 @@ function HomeEffects(application) {
 HomeEffects.prototype = {
     ctx: {},
     _init: function() {
+        
+        this.setSizes();
         if (K5.gui.currasels["cool"]) {
                 this.displayBackground();
         }
         this.infoHidden = false;
-        
         if (isTouchDevice()) {
             $("#buttons").swipe({
                 swipeUp: function(event, direction, distance, duration, fingerCount) {
@@ -67,12 +74,21 @@ HomeEffects.prototype = {
             he.selBand(this);
         }, this));
 
-        $('#buttons').mouseenter(function() {
+        $('#buttons>div.button').mouseenter(_.partial(function(he) {
+            he.selBand(this);
             $("#band").animate({'bottom': 41}, 200);
-        });
+        }, this));
         $('#band').mouseleave(function() {
             $("#band").animate({'bottom': -147}, 200);
+            $('#buttons>div.button').removeClass('sel');
         });
+        
+        //podle #153 mame otevrene "vybrane" a po 5 sec schovame
+        $("#band").animate({'bottom': 41}, 200);
+        setTimeout(function() {
+            $("#band").animate({'bottom': -147}, 200);
+            $('#buttons>div.button').removeClass('sel');
+        }.bind(this), 5000);
         
         /* Komentovane podle issue 199
          * 
@@ -116,15 +132,17 @@ HomeEffects.prototype = {
                 //srcs = K5.cool.coolData.data;
                 srcs = K5.api.ctx.feed.cool["data"];
         }
+	if (srcs.length == 0) return;
 
         var index = Math.floor(Math.random() * (srcs.length - 1));
         var pid = srcs[index].pid;
         var src = 'api/item/' + pid + '/full';
 
         image.onload = _.bind(function() {
-            $("#home").css("background-image", "url(" + src + ")");
+            
+            $("#home div.img").css("background-image", "url(" + src + ")");
             this.showInfo();
-            $("#home").animate({'backgroundPosition': '50%'}, 600);
+            $("#home div.img").animate({'backgroundPosition': '50%'}, 600);
             
             
             var a = $("<div/>", {class: "a"});
@@ -150,21 +168,40 @@ HomeEffects.prototype = {
             }.bind(this), 3000);
             
             */
+
+            this.backgroundDisplayed = true;
         }, this);
 
-        image.onerror = function() {
-            //th.loaded++;
-        };
+        image.onerror = _.bind(function() {
+            this.displayBackground();
+            this.backgroundDisplayed = false;
+        }, this);
         image.src = src;
-
-        this.backgroundDisplayed = true;
     },
     selBand: function(obj) {
         $('#buttons>div.button').removeClass('sel');
 
-        $("#rows>div.row").hide();
+        $("#yearRows>div.row").hide();
         $(obj).addClass('sel');
         var div = $(obj).data("row");
-        $("#rows>div." + div).show();
-    }
+        $("#yearRows>div." + div).show();
+    },
+    setSizes: function(){
+        $("#home div.container").show();
+        var h = window.innerHeight - $('#header').height() - $('#footer').height() - $('#buttons').height();
+        
+        $('#facets').css('top', 0);
+        $('#facets').css('overflow', 'auto');
+        $('#facets').css('left', 0);
+        $('#home div.container').css('height', h); //30 = 2x15 padding 
+
+        $('#facets').css('height', "100%");
+        
+    },
+    getDocs: function() {
+        $.get("raw_results.vm?page=home", _.bind(function(data) {
+            var json = jQuery.parseJSON(data);
+            K5.eventsHandler.trigger("results/loaded", json);
+        }, this));
+    },
 };

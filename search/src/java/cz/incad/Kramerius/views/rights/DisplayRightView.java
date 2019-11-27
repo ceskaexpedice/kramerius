@@ -16,6 +16,7 @@
  */
 package cz.incad.Kramerius.views.rights;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -142,7 +143,31 @@ public class DisplayRightView extends AbstractRightsView {
     
     public Object[] getCritparams() throws RecognitionException, TokenStreamException {
         RightCriteriumParams params = getParams();
-        return params != null ? params.getObjects() : new Object[0];
+        if (params != null) {
+            List<Object> retvals = new ArrayList<>();
+            Object[] objs = params.getObjects();
+            for (Object o :
+                    objs) {
+                if (o instanceof String) {
+                    String str = (String) o;
+                    // rendering to javascript '\' must be escaped
+                    // replacing what = \
+                    StringBuilder what = new StringBuilder();
+                    what.append("\\\\");
+                    // replacing by = \\
+                    StringBuilder byWhat = new StringBuilder();
+                    byWhat.append("\\\\\\\\");
+
+                    String s = str.replaceAll(what.toString(), byWhat.toString());
+                    retvals.add(s);
+                } else {
+                    retvals.add(o);
+                }
+
+            }
+            return retvals.toArray();
+
+        } else return new Object[0];
     }
 
     public String getCriterium() throws RecognitionException, TokenStreamException {

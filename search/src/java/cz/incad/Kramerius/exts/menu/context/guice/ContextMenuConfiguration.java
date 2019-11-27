@@ -26,6 +26,7 @@ import cz.incad.Kramerius.exts.menu.context.ContextMenuPart;
 import cz.incad.Kramerius.exts.menu.context.impl.ContextMenuImpl;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuPartImpl;
+import cz.incad.Kramerius.exts.menu.context.impl.adm.items.ApplyMovingWallItem;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.DeleteFromIndex;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.DeleteGeneratedDeepZoom;
 import cz.incad.Kramerius.exts.menu.context.impl.adm.items.DeletePid;
@@ -101,6 +102,8 @@ public class ContextMenuConfiguration extends AbstractModule {
         adminMenuItems.addBinding().to(Rights.class);
         adminMenuItems.addBinding().to(StreamRights.class);
 
+
+        adminMenuItems.addBinding().to(ApplyMovingWallItem.class);
         adminMenuItems.addBinding().to(Editor.class);
         adminMenuItems.addBinding().to(VirtualCollectionAdd.class);
         

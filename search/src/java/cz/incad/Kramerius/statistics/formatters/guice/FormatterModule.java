@@ -22,23 +22,17 @@ package cz.incad.Kramerius.statistics.formatters.guice;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
-import cz.incad.Kramerius.exts.menu.context.ContextMenuPart;
-import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuPartImpl;
-import cz.incad.Kramerius.exts.menu.context.impl.pub.PublicContextMenuPartImpl;
 import cz.incad.Kramerius.statistics.formatters.main.StatisticsExportMainLogFormatter;
 import cz.incad.Kramerius.statistics.formatters.main.impl.CSVFormatter;
 import cz.incad.Kramerius.statistics.formatters.main.impl.XMLFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.StatisticsReportFormatter;
+import cz.incad.Kramerius.statistics.formatters.report.annual.AnnualCSVFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.author.AuthorCSVFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.author.AuthorXMLFormatter;
-import cz.incad.Kramerius.statistics.formatters.report.date.DateCSVFormatter;
-import cz.incad.Kramerius.statistics.formatters.report.date.DateXMLFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.lang.LangCSVFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.lang.LangXMLFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.model.ModelCSVFormatter;
 import cz.incad.Kramerius.statistics.formatters.report.model.ModelXMLFormatter;
-import cz.incad.Kramerius.statistics.formatters.report.pids.PidsCSVFormatter;
-import cz.incad.Kramerius.statistics.formatters.report.pids.PidsXMLFormatter;
 
 /**
  * @author pavels
@@ -49,13 +43,13 @@ public class FormatterModule extends AbstractModule {
     @Override
     protected void configure() {
         // statistics formatters
-        Multibinder<StatisticsExportMainLogFormatter> mainFormatters
-            = Multibinder.newSetBinder(binder(), StatisticsExportMainLogFormatter.class);
+        Multibinder<StatisticsExportMainLogFormatter> mainFormatters = Multibinder.newSetBinder(binder(),
+                StatisticsExportMainLogFormatter.class);
         mainFormatters.addBinding().to(CSVFormatter.class);
         mainFormatters.addBinding().to(XMLFormatter.class);
 
-        Multibinder<StatisticsReportFormatter> reportFormatter
-        = Multibinder.newSetBinder(binder(), StatisticsReportFormatter.class);
+        Multibinder<StatisticsReportFormatter> reportFormatter = Multibinder.newSetBinder(binder(),
+                StatisticsReportFormatter.class);
 
         reportFormatter.addBinding().to(LangCSVFormatter.class);
         reportFormatter.addBinding().to(LangXMLFormatter.class);
@@ -66,11 +60,6 @@ public class FormatterModule extends AbstractModule {
         reportFormatter.addBinding().to(AuthorCSVFormatter.class);
         reportFormatter.addBinding().to(AuthorXMLFormatter.class);
 
-        reportFormatter.addBinding().to(DateCSVFormatter.class);
-        reportFormatter.addBinding().to(DateXMLFormatter.class);
-        
-        reportFormatter.addBinding().to(PidsCSVFormatter.class);
-        reportFormatter.addBinding().to(PidsXMLFormatter.class);
-
+        reportFormatter.addBinding().to(AnnualCSVFormatter.class);
     }
 }

@@ -16,7 +16,9 @@
  */
 package cz.incad.kramerius.users.impl;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import cz.incad.kramerius.users.UserProfile;
 
 public class UserProfileImpl implements UserProfile {
@@ -39,7 +41,11 @@ public class UserProfileImpl implements UserProfile {
 
     @Override
     public JSONObject getJSONData() {
-        return JSONObject.fromObject(this.rawData);
+        try {
+            return new JSONObject(this.rawData);
+        } catch (JSONException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
@@ -48,9 +54,4 @@ public class UserProfileImpl implements UserProfile {
     }
 
     
-    public static void main(String[] args) {
-        //JSONObject obj = new JSONObject();
-        JSONObject object = JSONObject.fromObject("{test:'abc',testa:['a','b']}");
-        System.out.println(object);
-    }
 }

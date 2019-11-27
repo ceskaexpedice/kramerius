@@ -59,26 +59,24 @@ public class SortingRightsUtils {
             } 
         }
         
-        for (Iterator iterator = processing.iterator(); iterator.hasNext();) {
-            Right right = (Right) iterator.next();
-            switch(right.getCriteriumWrapper().getRightCriterium().getPriorityHint()) {
-                case MIN: {
-                    dynamicHintMin.add(right);
-                    iterator.remove();
+        for (Right right : processing) {
+            if (right.getCriteriumWrapper().getRightCriterium() != null) {
+                switch (right.getCriteriumWrapper().getRightCriterium().getPriorityHint()) {
+                    case MIN: {
+                        dynamicHintMin.add(right);
+                    }
+                    break;
+
+                    case NORMAL: {
+                        dynamicHintNormal.add(right);
+                    }
+                    break;
+
+                    case MAX: {
+                        dynamicHintMax.add(right);
+                    }
+                    break;
                 }
-                break;
-                
-                case NORMAL: {
-                    dynamicHintNormal.add(right);
-                    iterator.remove();
-                }
-                break;
-                
-                case MAX: {
-                    dynamicHintMax.add(right);
-                    iterator.remove();
-                }
-                break;
             }
         }
         

@@ -1,7 +1,5 @@
 package cz.incad.kramerius.client;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -9,8 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -19,8 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 
-import cz.incad.kramerius.client.cache.SimpleJSONResultsCache;
-import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.utils.IOUtils;
 
 public class RESTHelper {
@@ -28,47 +23,13 @@ public class RESTHelper {
     public static final String READ_TIMEOUT = "readTimeout";
     public static final String CONNECTION_TIMEOUT = "connectionTimeout";
 
-    public static final String CACHEABLE_PREFIXES = "";
-
-    public static final boolean childrenURL(String su) throws MalformedURLException {
-        URL url = new URL(su);
-        String spath = url.getPath();
-        if (spath.startsWith("/search/api/v5.0/item") && (spath.endsWith("/children"))) {
-            return true;
-        } else return false;
-    }
-
-    public static boolean isCachable(String su) throws MalformedURLException {
-        if (childrenURL(su)) return true;
-        return false;
-    }
 
     public static void fillResponse(String urlString,HttpServletRequest req, HttpServletResponse resp,  Map<String, String> settings) throws IOException, URISyntaxException {
         fillResponse(urlString,req ,resp, req.getHeader("Accept"), settings);
     }
 
     public static void fillResponse(String urlString, HttpServletRequest req, HttpServletResponse resp, String accept, Map<String, String> settings) throws IOException, URISyntaxException {
-        if (isCachable(urlString)) {
-            if (SimpleJSONResultsCache.CACHE.isPresent(urlString)) {
-                byte[] bytes = SimpleJSONResultsCache.CACHE.getJSONResult(urlString);
-                resp.setContentType("application/json;charset=utf-8");
-                resp.getOutputStream().write(bytes);
-            } else {
 
-                URLConnection uc = openConnection(req,urlString,settings);
-                HttpURLConnection hcon = (HttpURLConnection) uc;
-                hcon.setRequestProperty("Accept", accept);
-                hcon = (HttpURLConnection) customRedirect(req, resp, hcon, accept);
-
-                copyHeaders(resp, hcon);
-
-                String uniqString = hcon.getURL().toURI().toString();
-                byte[] bytes =SimpleJSONResultsCache.CACHE.processThroughCache(uniqString, hcon);
-                resp.setContentType(hcon.getContentType());
-                IOUtils.copyStreams(new ByteArrayInputStream(bytes), resp.getOutputStream());
-                
-            }
-        } else {
             URLConnection uc = openConnection(req,urlString, settings);
             HttpURLConnection hcon = (HttpURLConnection) uc;
             hcon.setRequestProperty("Accept", accept);
@@ -80,34 +41,10 @@ public class RESTHelper {
             int status = hcon.getResponseCode();
             resp.setStatus(status);
             copyStreams(resp, hcon, status);
-            
-        }
     }
 
     public static void fillResponse(String urlString, String user, String pass, HttpServletRequest req, HttpServletResponse resp,  Map<String, String> settings) throws IOException, URISyntaxException {
-        if (isCachable(urlString)) {
-            if (SimpleJSONResultsCache.CACHE.isPresent(urlString)) {
-                byte[] bytes = SimpleJSONResultsCache.CACHE.getJSONResult(urlString);
-                resp.setContentType("application/json;charset=utf-8");
-                resp.getOutputStream().write(bytes);
-            } else {
 
-                URLConnection uc = openConnection(req, urlString, user, pass, settings);
-                
-
-                HttpURLConnection hcon = (HttpURLConnection) uc;
-                hcon.setRequestProperty("Accept", req.getHeader("Accept"));
-                hcon = (HttpURLConnection) customRedirect(req, resp, hcon, req.getHeader("Accept"));
-
-                copyHeaders(resp, hcon);
-
-                String uniqString = hcon.getURL().toURI().toString();
-                byte[] bytes =SimpleJSONResultsCache.CACHE.processThroughCache(uniqString, hcon);
-                resp.setContentType(hcon.getContentType());
-                IOUtils.copyStreams(new ByteArrayInputStream(bytes), resp.getOutputStream());
-                
-            }
-        } else {
             URLConnection uc = openConnection(req, urlString, user, pass, settings);
             HttpURLConnection hcon = (HttpURLConnection) uc;
             hcon.setRequestProperty("Accept", req.getHeader("Accept"));
@@ -119,7 +56,6 @@ public class RESTHelper {
             resp.setStatus(status);
 
             copyStreams(resp, hcon, status);
-        }
     }
 
     
@@ -156,7 +92,7 @@ public class RESTHelper {
             uc.setReadTimeout(Integer.parseInt(settings.get(READ_TIMEOUT)));
             uc.setConnectTimeout(Integer.parseInt(settings.get(CONNECTION_TIMEOUT)));
         }
-        uc.setRequestProperty("X_IP_FORWARD", request.getRemoteAddr());
+        uc.setRequestProperty(IPAddressUtils.X_IP_FORWARD, request.getRemoteAddr());
         return uc;
     }
 
@@ -191,7 +127,7 @@ public class RESTHelper {
         String userPassword = user + ":" + pass;
         String encoded = Base64.encodeBase64String(userPassword.getBytes());
 
-        uc.setRequestProperty("X_IP_FORWARD", request.getRemoteAddr());
+        uc.setRequestProperty(IPAddressUtils.X_IP_FORWARD, request.getRemoteAddr());
         uc.setRequestProperty("Authorization", "Basic " + encoded);
         return uc;
     }
@@ -205,8 +141,8 @@ public class RESTHelper {
         for (String val : nullfields) {
             if (val.contains(":")) {
                 String[] vals = val.split(":");
-                String lastModifKey = "Last Modified";
-                String lastFetchKey = "Last Fetched";
+                String lastModifKey = "Last-Modified";
+                String lastFetchKey = "Last-Fetched";
                 if (vals.length >= 2) {
                     if (vals[0].equals(lastModifKey)) {
                         resp.setHeader(lastModifKey, vals[1]);
@@ -223,6 +159,14 @@ public class RESTHelper {
             List<String> list = headerFields.get(expiresKey);
             for (String val : list) {
                 resp.setHeader(expiresKey, val);
+            }
+        }
+        
+        String contentDisp = "Content-disposition";
+        if (headerFields.containsKey(contentDisp)) {
+            List<String> list = headerFields.get(contentDisp);
+            for (String val : list) {
+                resp.setHeader(contentDisp, val);
             }
         }
     }

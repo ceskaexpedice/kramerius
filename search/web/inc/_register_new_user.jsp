@@ -36,18 +36,16 @@ function RegUserValidate() {
     this.validatedInput = false;
 }
 
-RegUserValidate.prototype.validateLoginNames = function() {
+RegUserValidate.prototype.validateLoginNames = function(previousResults, resultFunc) {
     var lname = $('#regUserLoginName').val();
-    var found = reduce(function(base,element,status) {
-        if (base) return true;
-    	if (lname == element) {
-            return true;
-        } else return false;
-    }, false, reguserDefaults.loginNames);
-    if (found) {
-    	$("#regUserLoginName_error").html(dictionary['registeruser.errormessages.loginnamexist']);
-    }
-    this.validatedInput = this.validatedInput && (!found);
+    $.get("users?action=validUserName&uname="+lname, function(data) {
+        if (!data.valid) {
+            $("#regUserLoginName_error").html(dictionary['registeruser.errormessages.loginnamexist']);
+        } else {
+            $("#regUserLoginName_error").html("");
+        }
+        resultFunc.call(null,previousResults && data.valid);
+    });
 }
 
 
@@ -65,6 +63,8 @@ RegUserValidate.prototype.emptyLoginname = function() {
     var emtptyLoginName =  loginName != "";
     if (!emtptyLoginName) {
         $("#regUserLoginName_error").html(dictionary['registeruser.errormessages.emptyloginame']);
+    } else {
+        $("#regUserLoginName_error").html("");
     }
     this.validatedInput = this.validatedInput && emtptyLoginName;
 }
@@ -81,21 +81,23 @@ RegUserValidate.prototype.validatePasswords = function() {
 }
 
 RegUserValidate.prototype.validateEmail = function() {
-	var isEmail_re       = /^\s*[\w\-\+_]+(\.[\w\-\+_]+)*\@[\w\-\+_]+\.[\w\-\+_]+(\.[\w\-\+_]+)*\s*$/;
-	function isEmail (s) {
-	   return String(s).search (isEmail_re) != -1;
-	}
+    var isEmail_re = /^\s*[\w\-\+_]+(\.[\w\-\+_]+)*\@[\w\-\+_]+\.[\w\-\+_]+(\.[\w\-\+_]+)*\s*$/;
+    function isEmail (s) {
+       return String(s).search (isEmail_re) != -1;
+    }
     var email = $('#regUserEmail').val();
     var goodEmailAddress = email && isEmail(email);
     if (!goodEmailAddress) {
         $("#regUserEmail_error").html(dictionary['registeruser.errormessages.bademail']);
+    } else {
+        $("#regUserEmail_error").html("");
     }
     this.validatedInput = this.validatedInput && goodEmailAddress;
 }
 
 RegUserValidate.prototype.grabData = function() {
     var data = {
-    	    'loginName':$('#regUserLoginName').val(),
+            'loginName':$('#regUserLoginName').val(),
             'email':$('#regUserEmail').val(),
             'pswd':$('#regUserPswd').val(),
             'name':$('#regUserName').val(),
@@ -104,19 +106,21 @@ RegUserValidate.prototype.grabData = function() {
     return data;
 }
 
-RegUserValidate.prototype.validate=function() {
-	["#regUserLoginName_error","#regUserPswd_error","#regUserEmail_error"].forEach(function(item) {
+RegUserValidate.prototype.validate=function(result) {
+    ["#regUserLoginName_error","#regUserPswd_error","#regUserEmail_error"].forEach(function(item) {
         $(item).html('');    
     });
  
-	this.validatedInput = true;
+    
+    this.validatedInput = true;
 
     this.emptyPasswords();
     this.emptyLoginname();
      
-	this.validateLoginNames();
     this.validateEmail();
     this.validatePasswords();
+
+    this.validateLoginNames(this.validatedInput, result);
 
     return this.validatedInput;
 }
@@ -124,9 +128,18 @@ RegUserValidate.prototype.validate=function() {
 
 var regUserValidate = new RegUserValidate();
 
+// prevent diacritics
+$('#regUserLoginName').bind('keypress', function (event) {
+    var regex = new RegExp("^[a-zA-Z0-9]+$");
+    var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+    if (!regex.test(key)) {
+       event.preventDefault();
+       return false;
+    }
+});
+
 //-->
 </script>
-
 
 <h3><view:msg>registeruser.title</view:msg></h3>
 

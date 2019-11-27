@@ -4,6 +4,7 @@
 *#
 #set( 
     $params = {
+        "bodyBackground"         : "#F7F7F7",
         "inactiveColor"         : "rgba(14, 112, 179, 0.3)",
         "activeColor"           : "rgba(0, 30, 60, 0.9)",
         "rowBackground"         : "rgba(14, 112, 179, 0.03)",
@@ -17,6 +18,8 @@
 
         "policy.public.color"   : "#00dd00",
         "policy.private.color"  :"#dd0000",
+
+        "linkColor"             : "white",
 
 
         "hitColor"              :  "rgba(0, 30, 60, 0.7)",
@@ -37,11 +40,15 @@ body {
     font-family: 'Exo 2', Verdana, Arial, Helvetica, Tahoma;
     font-size:11px;
     color:#0B0F0A;
-    background:#F7F7F7;
+    background: $params.bodyBackground;
     margin:0px;
     overflow: hidden;
     position: relative;
     height:100%;    
+}
+
+a{
+    color: $params.linkColor;
 }
 
 /*
@@ -74,7 +81,7 @@ body * {
 
 
 #header{
-    position: absolute;
+    position: relative;
     height: 40px;
     width: 100%;
     color: rgba(180, 180, 180, 0.4);
@@ -174,7 +181,7 @@ body * {
     width: 100%;
 }
 #search_box input{
-    font-size: 2.2em;
+    font-size: 1.2em;
     background: rgba(255, 255, 255, 0.9);
     border: 0px solid #0e70b3;
     width: 95%;
@@ -183,7 +190,7 @@ body * {
     background: rgba(255, 255, 255, 1);
 }
 
-#rows  div.scroll { 
+#yearRows  div.scroll { 
     overflow:hidden;
     width:100%; 
     height:100%;
@@ -192,7 +199,7 @@ body * {
 }
 
 
-#rows .row{
+#yearRows .row{
     overflow:hidden;
     margin: 15px 0 10px 0;
     position: relative;
@@ -202,30 +209,30 @@ body * {
 
 }
 
-#rows .row:hover{
+#yearRows .row:hover{
     /*box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px 0px;*/
 }
 
-#rows .row .container{
+#yearRows .row .container{
     position: absolute;
     top: 0;
     left:0;
 }
-#rows .row div.scroll { 
+#yearRows .row div.scroll { 
     overflow:hidden;
     width:100%; 
     height:146px;
     position: relative;
 
 }
-#rows  ul { 
+#yearRows  ul { 
     white-space: nowrap;
     height: 140px;
     margin: 0 0 0 34px;
     padding: 0;
 }
 
-#rows li.thumb{
+#yearRows li.thumb{
     white-space: normal;
     display: inline-block;
     list-style:none;
@@ -234,6 +241,8 @@ body * {
     padding: 5px;
     vertical-align: top;
     position:relative;
+    
+    cursor: pointer;
 }
 .thumb img{
     box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px 0px;
@@ -247,7 +256,7 @@ body * {
     -webkit-transform: translate(-2px,-2px); /* Safari and Chrome */
 
 }
-#rows li.thumb>div.img{
+#yearRows li.thumb>div.img{
     float: left;
 }
 .thumb>div.info{
@@ -309,7 +318,7 @@ li.public:before{
     font-size:1.1em;
 }
 
-.thumb .title, .ui-tooltip .title{
+.thumb .title, .thumbs .title, .ui-tooltip .title{
     font-weight: bold;
     font-size:1.1em;
 }
@@ -318,23 +327,23 @@ li.public:before{
     font-style:italic;
 }
 
-#rows div.button{
+#yearRows div.button{
     top: 20px;
     z-index: 20;
     position: absolute;
 }
 
 
-#rows .button .svg-icon{
+#yearRows .button .svg-icon{
     /* fill: $params.get("svg.fill.hover"); 
     opacity: 0.2; */
 }
-#rows .button:hover .svg-icon{
+#yearRows .button:hover .svg-icon{
     fill: $params.get("svg.fill.hover"); 
     opacity: 1;
 }
 
-#rows div.arrow{
+#yearRows div.arrow{
     background-color: rgba(0, 0, 0, 0.2);
     position: absolute;
     top: 50px;
@@ -344,7 +353,7 @@ li.public:before{
 }
 
 
-#rows div.arrow{
+#yearRows div.arrow{
     height:36px; 
     width:36px; 
     border:2px solid rgba(0, 0, 0, 0.2);
@@ -352,7 +361,7 @@ li.public:before{
     -webkit-border-radius:40px;
     -moz-border-radius:40px;}
 
-#rows div.arrow:before{
+#yearRows div.arrow:before{
     content:'';     
     height:0; 
     width:0; 
@@ -365,7 +374,7 @@ li.public:before{
     left:14px;
 }
 
-#rows div.arrow:hover{
+#yearRows div.arrow:hover{
     background:#333; border-radius:40px;-webkit-border-radius:40px;-moz-border-radius:40px;
 
 
@@ -376,7 +385,7 @@ li.public:before{
 
 }
 
-#rows div.arrow:hover:before{
+#yearRows div.arrow:hover:before{
     content:''; 
     height:0; 
     width:0; 
@@ -388,7 +397,7 @@ li.public:before{
     top:8px; 
     left:14px;}
 
-#rows div.arrowLeft{
+#yearRows div.arrowLeft{
     left: 24px;
 
     -webkit-transform: rotate(180deg);
@@ -398,7 +407,7 @@ li.public:before{
 
 }
 
-#rows div.arrowLeft:hover{
+#yearRows div.arrowLeft:hover{
 
     transform: translate(-2px,-2px);
     -ms-transform: translate(-2px,-2px); /* IE 9 */
@@ -411,10 +420,10 @@ li.public:before{
 
 }
 
-#rows div.arrowRight{
+#yearRows div.arrowRight{
     right: 25px;
 }
-#rows div.rowtitle{
+#yearRows div.rowtitle{
     background-color: #aaaaaa;
     color: #ffffff;
     text-align: center;
@@ -437,7 +446,7 @@ li.public:before{
 
 }
 
-#rows div.total{
+#yearRows div.total{
     background-color: #aaaaaa;
     color: #ffffff;
     text-align: center;
@@ -462,13 +471,13 @@ li.public:before{
 
 
 #facets{
-    left:inherit;
-    right: -460px; 
-    top:35px;
-    height: 500px;
     overflow: auto;
     font-size: 1.2em;
-    width: auto;
+    width: 350px;
+    float: right;
+    position: relative;
+    top: 0;
+    left: 0;
 }
 
 #facets.pin .pin{
@@ -481,15 +490,52 @@ li.public:before{
     display: none;
 }
 
+#facets .moreButton{
+    cursor: pointer;
+}
+
+#facets .range .sel{
+    text-align:center;
+    margin-bottom:16px;
+}
+
+#facets .range .go{
+    float: right;
+    font-size: 0.8em;
+}
+
+#facets .range .slid{
+    margin:0px 10px;
+}
+
+
+#facets div.res{
+    width: 100%;
+    /* white-space: nowrap; */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 #facets a{
+    width: 80%;
     color:inherit;
     text-decoration: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#facets div.res a span.translate{
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #facets span.count{
     float:right;
     text-decoration: inherit;
-    margin-left: 40px;
+    margin-left: 4px;
 }
 
 #facets .res:hover{
@@ -666,12 +712,14 @@ li.public:before{
 
 /** searchinside section */
 #viewer .searchinside{
-        width: $params.get("menu.dialogs.width");
-        height: 9em;
-        background-color: $params.activeColor;
-        z-index: 43;
-        left: 260px; 
-        color: white;
+    width: $params.get("menu.dialogs.width");
+    height: 9em;
+    background-color: $params.activeColor;
+    z-index: 43;
+    left: 37%;
+    color: white;
+    top: calc(50% - 9em);
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
 }
 
 #viewer .searchinside .triangle {
@@ -732,27 +780,55 @@ li.public:before{
 
 
 
+
+#viewer>div.container>.loading{
+    position:absolute;
+    width: 100%;
+    z-index: 100;
+}
+
+#viewer>div.container{
+    position:relative;
+    left: 0px;
+    top: 0px;
+    background-color: #F5F5F5;
+    width: calc(100% - 340px);
+    height: calc(100% - 70px);    
+    overflow: hidden;
+    float: left;
+}
+
 /** metadata section */
-#viewer .infobox{
-    /*top: -500px; */
-        width:63%;
-        height: 22em;
-        max-height: calc(100% - 120px);
-        background-color: $params.activeColor;
-        z-index: 43;
-        left: 225px; /* ?? */
-        color: white;
-        font-size: 1.5em;
+#viewer>div.infobox{
+    position:relative;
+    width:340px;
+    height: calc(100% - 70px);   
+    padding: 0;
+    top:0px;
+    background-color: $params.activeColor;
+    float: right;
+    left:0;
+    color: white;
+    font-size: 1.4em;
+}
+
+
+#viewer>div.infobox .full{
+    height: calc(100% - 45px);
 }
 
 .infobox div.right{
     position: absolute;
     float:right;
     right: 10px;
+    cursor: hand;
 }
 
 #viewer .infobox div.right .small{
     display: inline-block;
+}
+#viewer .infobox div.right .back{
+    margin-right: 0.8em;
 }
 
 #viewer .infobox h4{
@@ -861,6 +937,38 @@ li.public:before{
 /** end of loginbox section */
 
 
+/** changepswd section */
+.changepswdbox {
+    position:absolute; 
+    top: 50px;
+    left: 90px;
+
+    width: 50%;
+    border:0px solid rgba(0, 0, 0, 0.3);
+    color: $params.textColor;
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
+    font-size: 1.5em;
+    padding: 15px;
+    background-color: $params.activeColor;
+}
+
+.changepswdbox:hover{
+    background-color: $params.activeColor;
+}
+
+#changepswd div.button{
+    display: inline-block;
+    border: solid 1px rgba(180, 180, 180, 0.4);
+    padding: 5px;
+}
+
+#changepswd div.button:hover{
+    color: $params.textColor;
+    border-color: rgba(255, 255, 255, 1);
+}
+
+/** end of changepswd section */
+
 #viewer .pages{
     top: 50px;
 }
@@ -872,7 +980,6 @@ li.public:before{
     position:relative;
     height: 20px;
     margin-left: 10px;
-    margin-top: 40px;
     display: table;
     font-size: 1.2em;
     overflow:hidden;
@@ -889,16 +996,6 @@ li.public:before{
 }
 #viewer div.breadcrumbs div{
     display: inline-block;
-}
-
-#viewer>div.container{
-    position:absolute;
-    left: 0px;
-    top: 0px;
-    background-color: #F5F5F5;
-    width: 100%;
-    height: calc(100% - 70px);    
-    overflow: auto;
 }
 
 #viewer img.plain{
@@ -954,13 +1051,67 @@ li.public:before{
     opacity: 1;
 }
 
-#viewer div.container{
-    margin-top: 60px;
-}
-
 #viewer ul.container{
     margin: 0;
     padding: 0;
+}
+
+#viewer .thumbs{
+    overflow: auto;
+    height: 100%;
+}
+#viewer table.container{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    font-size: 1em;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+#viewer table.container tr{
+    vertical-align: top;
+    background-color: $params.thumbBackground;
+}
+
+
+#viewer table.container .selected{
+    background-color: wheat;
+}
+
+#viewer table.container td{
+    margin: 0;
+    padding: 4px;
+    width: 33%;
+    text-align: center;
+    border: 3px solid $params.bodyBackground;
+    word-wrap: break-word;
+}
+
+#viewer table.container tr.img td{
+    border-bottom-width:0;
+    vertical-align: middle;
+}
+
+#viewer table.container tr.txt td{
+    border-top-width: 0;
+    
+}
+
+#viewer table.container tr.img td.hit img{
+    border:2px green solid;     
+}
+
+#viewer table.container tr.img td.chit img {
+    border:2px green solid;
+}
+
+#viewer table.container tr.txt td.hit{
+    border-top-width: 0;
+    
+}
+#viewer table.container td img{
+    max-width: 100%;
 }
 
 #viewer li.thumbmarker{
@@ -973,18 +1124,27 @@ li.public:before{
 
 #viewer li.thumb{
     list-style: none;
+    vertical-align: text-top;
     /*float:left;*/
     display: inline-block;
-    margin: 8px;
+    margin: 3px;
     text-align: center;
     position:relative;
     background-color: $params.thumbBackground;
     border: solid 2px transparent;
     min-height:128px;
     min-width:90px;
+    
+    cursor: pointer;
 }
 
-#viewer li.thumb .thumb_info{
+
+
+#viewer .thumb .tt_text{
+    margin: 3px 0;
+}
+
+#viewer .thumb .thumb_info{
     position: absolute;
     top: 3px;
     left: 3px;
@@ -994,17 +1154,16 @@ li.public:before{
     text-align: left;
     text-overflow: ellipsis;
 }
-#viewer li.thumb .thumb_info span.title{
+#viewer .thumb .thumb_info span.title{
     text-shadow: 0 -2px 3px #fff, 2px 0 3px #fff, 0 2px 3px #fff, -2px 0 3px #fff;
     white-space: nowrap;
 }
-
 
 #viewer li.hit{
     border: solid 2px $params.hitColor;
 }
 
-#viewer li.hit2:after{
+#viewer .hit2:after{
     content:''; 
     height:0; 
     width:0; 
@@ -1022,7 +1181,7 @@ li.public:before{
     border: solid 2px $params.chitColor;
 }
 
-#viewer li.chit2:after{
+#viewer .chit2:after{
     content:''; 
     height:6; 
     width:6; 
@@ -1038,7 +1197,7 @@ li.public:before{
     border-color: $params.chitColor;
 }
 #viewer li.thumb img{
-
+    max-width: 100%;
 }
 #viewer li.thumb>div.img{
     margin: 5px;
@@ -1058,10 +1217,10 @@ li.public:before{
 #viewer div.context{
     padding-top: 1px;
     overflow: auto;
-    max-height: calc(100% - 40px);
+    max-height: calc(100% - 35px);
 }
 
-#viewer div.context h2{
+#viewer div.infobox h2{
     padding: 5px;
     font-size: 1.1em;
     margin: 0;
@@ -1135,8 +1294,8 @@ li.public:before{
 /** viewer options - rotate, fit, plus, minus */
 #viewer  div.options {
     position:absolute;
-    top:20px;
-    left:80px;
+    top:2px;
+    left:5px;
     z-index:34;
     color: rgba(180, 180, 180, 0.4);
     background-color: $params.activeColor;
@@ -1167,7 +1326,7 @@ li.public:before{
 
 
 #viewer div.container div.arrow svg  {
-    opacity:0.2;
+    opacity:0.5;
 }
 #viewer div.container div.arrow svg:hover  {
     opacity:1;
@@ -1221,23 +1380,40 @@ li.public:before{
     top: 0px;
     width: 100%;
     height: 100%;    
+}
+
+#home div.img{
+    
     background-repeat: no-repeat;
     background-position: 40%;
 }
 
+#home .infobox{
+    overflow: hidden;
+    height: 60%;
+    opacity: 1;
+    left: 75px;
+    top: 75px;
+}
 
+#home .home_text{
+    overflow: auto;
+    height: calc(100% - 40px);
+    width: 100%;
+}
 
 #pidinfo{
     position:absolute;
     right: 20px;
-    bottom:100px;
+    bottom:10px;
     padding: 10px;
-    max-width: 300px;
+    max-width: 500px;
     text-align: center;
     text-shadow: 0 0 5px #000;
     /* background-color: $params.activeColor; */
     color: $params.textColor;
     font-weight: bold;
+    background-color: $params.inactiveColor;
 }
 #pidinfo>div.a:hover{
     text-decoration: underline;
@@ -1286,33 +1462,34 @@ li.public:before{
     padding: 3px;
     width: 33%;
     color: white;
-    font-size: 1.4em;
+    font-size: 1.6em;
     cursor:pointer;
 }
 
 #buttons div.sel{
     font-weight: bold;
+    text-decoration: underline;
 }
 
 #buttons div.button:hover{
     border-color: rgba(255, 255, 255, 1);
 }
 
-#band #rows .row{
+#band #yearRows .row{
     margin: 0;
 }
 /* end home */
 
 /* collections */
 
-#rows{
+#yearRows{
     height:100%;
 }
-#rows .row{
+#yearRows .row{
     background-color: $params.rowBackground;
     position:relative;
 }
-#rows .row li.thumb{
+#yearRows .row li.thumb{
     background-color: $params.thumbBackground;
 }
 
@@ -1386,16 +1563,19 @@ li.public:before{
 }
 
 #search_results_docs{
-    text-align: center;
+    /*text-align: center;*/
     overflow: auto;
     display:block;
     height: auto;
+    width: calc(100% - 380px); /* 380px facets width */
+    float: left;
 }
 
 #search_results .search_result{
     display:inline-block;
     overflow: hidden;
     position:relative;
+    width: 25%;
 }
 
 #search_results .search_result .collapsed{
@@ -1416,27 +1596,56 @@ li.public:before{
     display:inline-block;
 }
 
-#search_results .as_row{
+#search_results.as_row .search_result{
     display:block;
     width: 100%;
 }
 
 
-#search_results .as_row div.full{
+#search_results.as_row .search_result div.full{
     display:inline-block;
 }
 
-#search_results .as_row div.short{
+#search_results.as_row .search_result div.short{
     display:none;
 }
 
 
-#search_results .as_row div.thumb{
+#search_results.as_row .search_result div.thumb{
+    width: 100%;
+}
+#search_results.as_row .search_result div.thumb div.img{
+    width: auto;
+}
+
+#search_results.as_row .search_result div.thumb > div.info{
+    max-width: 100%;
+}
+
+#search_results .search_result div.thumb{
     width: 100%;
 }
 
-#search_results .as_row div.thumb > div.info{
-    max-width: 100%;
+#search_results .search_result div.collections{
+    margin-right: 2px;
+    float: left;
+}
+
+
+#search_results .search_result div.collections span.ui-icon{
+    float: right;    
+}
+
+#search_results .search_result div.collections div.cols{
+    position: absolute;
+    bottom: 26px;
+    width: 230px;
+    display: none;
+    padding: 4px;
+    
+    -moz-box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
 }
 
 .search_result div.thumb{
@@ -1444,20 +1653,25 @@ li.public:before{
     margin:5px;
     padding:5px;
     float:left;
+    
+    cursor: pointer;
 }
 
 .search_result div.thumb>div.img{
     float:left;
+    max-width: 50%;
+    /*overflow: hidden;*/
 }
 .search_result div.thumb>div.img>img{
     max-height: 128px;
+    max-width: 100%;
 }
 
 
 .search_result div.thumb>div.info{
-    margin: 0 0 0 5px;
+    margin: 0 0 0 9px;
     display:inline-block;
-    max-width:140px;
+    width:45%;
     height: 136px;
     text-align: left;
 }
@@ -1466,26 +1680,29 @@ li.public:before{
     top: 40px;
     position: absolute;
     overflow:hidden;
-    height: calc(100% - 48px);
+    height: calc(100% - 62px);
     width: 100%;
 }
 
-#browse .types{
-    overflow: auto;
+#browse .input{
     width: 100%;
-    height: 35px;
-    text-align: center
+    text-align: center;
+    margin: 5px;
 }
 
-#browse .sections{
+#browse input{
+    width: 80%;
+}
+
+#browse .letters{
     overflow: hidden;
     width: 100%;
-    height: 126px;
+    height: 100px;
     position: relative;
     text-align: center;
 }
 
-#browse .sections .scroll{
+#browse .letters .scroll{
     overflow: hidden;
     margin: 0;
     width: 100%;
@@ -1495,21 +1712,62 @@ li.public:before{
     color: rgba(180, 180, 180, 0.4);
     opacity:0.9;
 }
-#browse .sections>.scroll:hover{
+#browse .letters>.scroll:hover{
     color: $params.textColor;
     opacity:1.0;
 }
-#browse .sections>.scroll>ul{
+#browse .letters>.scroll>ul{
     height: 100%;
     white-space: nowrap;
     padding: 0;
     margin:4px;
 }
 
-#browse .section{
-    overflow:auto;
-    height: calc(100% - 161px);
+#browse .results{
+    overflow:hidden;
+    height: calc(100% - 132px);
     width: 100%;
+}
+
+#browse .results h3{
+    background-color: white;
+    font-size: 1.1em;
+    margin: 3px;
+    margin-bottom: 8px;
+    box-shadow: 0px 5px 3px rgba(0,0,0,0.3);
+    padding: 3px;
+    padding-left: 8px;
+}
+
+#browse .results .typ{
+    float:left;
+    width: calc(50% - 10px);
+    height: 100%
+}
+
+#browse .results .authors{
+    float:right;
+}
+#browse .results .titles{
+    border-right: 1px solid rgba(0,0,0,0.3);
+    
+}
+
+
+#browse .results .titles li.policy span.title{
+    border-left: 3px solid $params.get("policy.private.color");
+    padding-left: 2px;
+}
+
+#browse .results .titles li.public span.title{
+    border-left: 3px solid $params.get("policy.public.color");;
+}
+
+#browse .results .typ ul{
+    overflow:auto;
+    height: calc(100% - 35px);
+    margin: 0px;
+    padding: 2px;
 }
 
 #browse .button{
@@ -1521,15 +1779,6 @@ li.public:before{
     margin: 4px;
     cursor: pointer;
 }
-
-#browse .types .button{
-    font-size: 1.2em;
-    display: inline-block;
-    border: solid 1px black;
-    padding: 4px;
-    margin: 4px;
-    cursor: pointer;
-}
 #browse .more_docs{
     font-size: 1.2em;
     font-weight: bold;
@@ -1537,31 +1786,32 @@ li.public:before{
     padding: 4px;
     margin: 4px;
     text-align: center;
+    cursor: pointer;
 }
 
-#browse .sections>.scroll>ul>li{
+#browse .letters>.scroll>ul>li{
     white-space: normal;
     list-style: none;
     width: 18px;
-    height: 100px;
+    height: 74px;
     overflow: hidden;
     border-color:rgba(180, 180, 180, 0.4);
 }
 
-#browse .sections>.scroll>ul>li:hover{
+#browse .letters>.scroll>ul>li:hover{
     border-color:$params.textColor;
 }
 
 
-#browse .sections div.arrow {
+#browse .letters div.arrow {
     top: 39px;
     position: absolute;
 }
 #browse .spine{
     text-align: center;
-    width: 100px;
+    width: 74px;
     position: relative;
-    left:-102px;
+    left:-76px;
     top:0;
     cursor: pointer;
     font-size: 1.4em;
@@ -1582,7 +1832,7 @@ li.public:before{
     font-weight: bold;
 }
 
-#browse .sections>.scroll>ul>li.sel{
+#browse .letters>.scroll>ul>li.sel{
     border-color:$params.textColor;
     color: params.textColor;
     box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
@@ -1751,7 +2001,7 @@ li.public:before{
 
 #prfl_content_favorites {
         height: calc(100% - 18em);  
-        overflow-y: scroll; 
+        overflow-y: auto; 
         overflow-x:auto;
 }
 
@@ -2221,9 +2471,6 @@ li.public:before{
     border-color: rgba(255, 255, 255, 1);
 }
 
-#login {
-    color: rgba(180, 180, 180, 0.4);
-}
 #login a {
     color: inherit;
     text-decoration: none;
@@ -2570,8 +2817,8 @@ div.pdfwait_cont {
 /** download options */
 div.download {
         top: 20%;
-        width: 300px;
-        height: 40%;
+        width: 400px;
+        height: 350px;
         background-color: $params.activeColor;
         box-shadow: rgba(0, 0, 0, 0.5) 4px 4px 8px 0px;
         z-index: 43;
@@ -2585,6 +2832,24 @@ div.download {
     width:100%;
     position:absolute;
     top:0;
+}
+
+#download_container ul {
+   list-style-type: none;
+
+}
+
+#download_container ul li span {
+   font-size: 1.2em;
+   position: relative;
+   top: -2px;
+}
+
+#download_options ul li span {
+   font-size: 1.2em;
+   position: relative;
+   top: -2px;
+   font-weight: bold;
 }
 
 
@@ -2621,6 +2886,7 @@ div.download {
 }
 #download_action_message {
     margin-left: 7px;
+    font-style: italic;
 }
 div.download_footer {
     position: absolute;
@@ -2667,6 +2933,16 @@ div.download_footer  .buttons div.sel{
     border-color: rgba(255, 255, 255, 1);
     font-weight: bold;
 }
+
+#download_options a {
+  font-weight: bold;
+  padding: 0;
+  margin: 0;
+  margin-left: 4px;
+  color: #eeeeee;
+  text-decoration: none;
+}
+
 
 /** end of dialog download */
 

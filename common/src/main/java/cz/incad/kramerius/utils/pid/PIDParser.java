@@ -36,6 +36,7 @@ public class PIDParser {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PIDParser.class.getName());
     public static final String INFO_FEDORA_PREFIX = "info:fedora/";
     public static final String UUID_PREFIX = "uuid:";
+    public static final String VC_PREFIX = "vc:";
     private Lexer lexer;
 
     public String getObjectId() {

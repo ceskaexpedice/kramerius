@@ -1,14 +1,8 @@
 description "Client web application"
 
 apply plugin: 'war'
-apply plugin: 'kdeploy'
 apply plugin: 'eclipse-wtp'
 
-
-deployment {
-        http('clientLocal','localhost', 'localPort','localNameKey','localPswdKey','tomcat7x') 
-        http('clientVmkram','vmkramerius', 'vmkramPort','vmkramNameKey','vmkramPswdKey','tomcat7x') 
-}
 
 
 configurations {
@@ -45,11 +39,11 @@ dependencies {
 
     compile project(':common')
     compile project(':rest')
-
+    compile project(':authfilters')
    
     compile "com.sun.media:jai_imageio:1.1"
     compile "net.sf:simplecaptcha:1.2.1"
-    compile "org.brickred:socialauth:4.6"
+    compile "org.brickred:socialauth:4.12"
 
 }
 
@@ -96,75 +90,14 @@ FileTree tree = fileTree('src/main/webapp/js/') {
     exclude "ol3/*"
 }
 
-/** JSDOC3 documentation */
-task jsdoc(type:Exec) {
-        description 'Creates js documentation .'
-        args  tree.files +'src/main/resources/README.md' + ['-t','src/main/jsdoc-template','-d','build/reports/js']  
-        executable 'jsdoc'
+
+
+task copyIntoBuildFolder(type:Copy) {
+   from 'src/main/webapp/js/pdf'
+   into 'src/main/webapp/pdf/build'
 }
 
-
-task jstest(description: 'runs Javascript unit tests with Jasmine and PhantomJS') {
-    doLast {
-        def specs = []
-        file("${projectDir}/src/test/resources").eachFile {
-            if (it.name.endsWith('.html')) {
-                specs << it
-            }
-        }
-
-        def startTime = new Date().time
-        def numFailures = 0
-        def testsFailed = false
-
-        specs.each { File spec ->
-            print "Running ${spec.name}"
-            def outputFile = "${buildDir}/TEST-${spec.name.replace('-', '').replace('.html', '.xml')}"
-            ant.exec(outputproperty: 'cmdOut', errorproperty: 'cmdErr',
-                    resultproperty: 'exitCode', failonerror: 'false', executable: 'phantomjs') {
-                arg(value: "${projectDir}/src/test/resources/run-qunit.js")
-                arg(value: "${spec.canonicalPath}")
-            }
-            // Check exit code
-            if (ant.project.properties.exitCode != '0') {
-                testsFailed = true
-                numFailures++
-                println 'FAILED'
-            } else {
-                println 'PASSED'
-            }
-
-        }
-
-        /*
-        specs.each { File spec ->
-            print "Running ${spec.name}..."
-            
-            def outputFile = "${buildDir}/TEST-${spec.name.replace('-', '').replace('.html', '.xml')}"
-            ant.exec(outputproperty: 'cmdOut', errorproperty: 'cmdErr',
-                    resultproperty: 'exitCode', failonerror: 'false', executable: 'phantomjs') {
-                arg(value: 'phantomjs')
-                arg(value: "${projectDir}/test/lib/phantomjs-jasmine-runner.js")
-                arg(value: "${spec.canonicalPath}")
-            }
-            // Check exit code
-            if (ant.project.properties.exitCode != '0') {
-                testsFailed = true
-                numFailures++
-                println 'FAILED'
-            } else {
-                println 'PASSED'
-            }
-    
-            file(outputFile).write(ant.project.properties.cmdOut)
-        }
-        
-        println "Jasmine tests completed in ${new Date().time - startTime}ms"
-        println "Jasmine Tests ${testsFailed ? 'FAILED' : 'PASSED'} - view reports in ${buildDir}"
-        ant.fail(if: testsFailed, message: 'JS Tests Failed')
-        */
-    }
-}
+processResources.dependsOn 'copyIntoBuildFolder'
 
 war {
     archiveName ='client.war'

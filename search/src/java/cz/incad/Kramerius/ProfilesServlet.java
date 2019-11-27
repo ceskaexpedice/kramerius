@@ -17,16 +17,15 @@
 package cz.incad.Kramerius;
 
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.logging.Level;
-import java.util.spi.LocaleServiceProvider;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import biz.sourcecode.base64Coder.Base64Coder;
 
@@ -34,12 +33,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.Kramerius.GeneratePDFServlet.Action;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.Kramerius.backend.guice.LocalesProvider;
 import cz.incad.Kramerius.users.ProfilePrepareUtils;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.users.UserProfileManager;
@@ -86,12 +82,16 @@ public class ProfilesServlet extends GuiceServlet {
             public void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager) {
                 String encodedProfile = request.getParameter("encodedData");
                 if (encodedProfile != null) {
-                    byte[] decoded = Base64Coder.decode(encodedProfile);
-                    JSONObject jsonNObject = JSONObject.fromObject(new String(decoded));
+                    try {
+                        byte[] decoded = Base64Coder.decode(encodedProfile);
+                        JSONObject jsonNObject = new JSONObject(new String(decoded));
 
-                    UserProfile profile = profileManager.getProfile(user);
-                    profile.setJSONData(jsonNObject);
-                    profileManager.saveProfile(user, profile);
+                        UserProfile profile = profileManager.getProfile(user);
+                        profile.setJSONData(jsonNObject);
+                        profileManager.saveProfile(user, profile);
+                    } catch (JSONException e) {
+                        throw new IllegalStateException(e.getMessage());
+                    }
                 }
             }
 
@@ -118,13 +118,17 @@ public class ProfilesServlet extends GuiceServlet {
 
             @Override
             public void process(HttpServletRequest request, HttpServletResponse response, User user, UserProfileManager profileManager) {
-                UserProfile profile = profileManager.getProfile(user);
-                JSONObject jsonData = profile.getJSONData();
-                String field = request.getParameter("field");
-                String value = request.getParameter("value");
-                jsonData.put(field, value);
-                profile.setJSONData(jsonData);
-                profileManager.saveProfile(user, profile);
+                try {
+                    UserProfile profile = profileManager.getProfile(user);
+                    JSONObject jsonData = profile.getJSONData();
+                    String field = request.getParameter("field");
+                    String value = request.getParameter("value");
+                    jsonData.put(field, value);
+                    profile.setJSONData(jsonData);
+                    profileManager.saveProfile(user, profile);
+                } catch (JSONException e) {
+                    throw new IllegalStateException(e.getMessage());
+                }
             }
             
         }, 

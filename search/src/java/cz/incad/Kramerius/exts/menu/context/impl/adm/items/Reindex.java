@@ -23,8 +23,6 @@ import cz.incad.Kramerius.exts.menu.context.impl.adm.AdminContextMenuItem;
 
 public class Reindex extends AbstractContextMenuItem implements AdminContextMenuItem  {
 
-    //adminItems.add(new ContextMenuItem("administrator.menu.reindex", "_data_x_role", "reindex", "", true));
-
 
     @Override
     public String getRenderedItem() throws IOException {

@@ -27,8 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import cz.incad.Kramerius.Initializable;
 import cz.incad.Kramerius.security.strenderers.RoleWrapper;
+import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.security.DefaultRoles;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.Role;

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Properties;
 
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
 
 /**
  * Represents one running process
@@ -81,7 +80,7 @@ public interface LRProcess {
 	 * Plan process to start
 	 * @param paramsMapping Parameters mapping
 	 */
-	public void planMe(Properties paramsMapping);
+	public void planMe(Properties paramsMapping, String ipAddress);
 
 	
 	
@@ -337,4 +336,16 @@ public interface LRProcess {
      */
     public void setParametersMapping(Properties parametersMapping);
 
+    /**
+     * Returns IP address associated with HTTP request
+     * @return
+     */
+    public String getPlannedIPAddress();
+    
+    /**
+     * Sets IP address 
+     * @param ipAddr
+     */
+    public void setPlannedIPAddress(String ipAddr);
+    
 }

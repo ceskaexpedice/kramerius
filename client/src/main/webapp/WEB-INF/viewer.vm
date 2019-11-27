@@ -7,32 +7,35 @@
     <div class="breadcrumbs"></div>
 
     <div class="container">
+        <!-- waiting div -->
+        #parse("waiting.vm")
         <div class="error">Error</div>
-        <!--
-        <div id="left" class="leftarrow"><div>#parse("svg/arrowleft.svg")</div></div>
-        <div id="right" class="rightarrow"><div>#parse("svg/arrowright.svg")</div></div>
-        -->
+        <div class="thumbs" style="float:left;"></div>
+        <div class="ol" style="width: calc(100% - 350px); float:right;position:relative;height:100%;"></div>
     </div> 
     
     <!-- metadata panel -->
-    <div class="info infobox dialogs" style="position:absolute;display:none;">
-        <div class="triangle" id="mtd_footer_triangle"></div>
-<!--
-        <h4 id="model"></h4>
-        <div id="title"></div>
-        <div id="root_title" style="display:none"></div>
--->            
-        <div style="position:absolute; bottom:0; left:50%;" />
-        <div class="small info show" style="display: none;" title="$i18n.buttons.info" onclick="K5.gui.selected.showInfo();" >#parse("svg/arrow2d.svg")</div>
-        </div>
-
-        <div id="metadata" class="info show" style="display:none">
-        </div>
-
+    <div id="metadata" class="info infobox dialogs" >
+        <div class="full"></div>
         <div class="mtd_footer dialogs_footer">
             <div class="right">
                 <div class="buttons">
+                    <div class="small back translate_title" data-ctx="all" data-key="buttons.outofdocument" title="$i18n.buttons.outofdocument" onclick="backToResults();" >#parse("svg/docout.svg")</div>
+                    <div class="small prev translate_title" data-ctx="prevpage" data-key="buttons.prev" title="$i18n.buttons.prev" onclick="K5.gui.selected.prev();" >#parse("svg/arrowleft.svg")</div>
+                    <div class="small next translate_title" data-ctx="nextpage" data-key="buttons.next" title="$i18n.buttons.next" onclick="K5.gui.selected.next();" >#parse("svg/arrowright.svg")</div>
+                    <div class="small view translate_title" data-ctx="structurebuttons" data-key="buttons.toggleview" title="$i18n.buttons.toggleview" onclick="K5.gui.selected.toggleView();" >#parse("svg/toggleview.svg")</div>
+                    <div class="small search translate_title" data-ctx="all" id="vwr_ctx_searchinside" data-key="searchinside.dialog" title="$i18n.searchinside.dialog" onclick="K5.gui.selected.searchInside();" >#parse("svg/lupa.svg")</div>
+                    <div class="small info translate_title" data-ctx="all" id="vwr_ctx_metadata" data-key="buttons.showinfo" title="$i18n.buttons.showinfo" onclick="K5.gui.selected.toogleModsView();" >#parse("svg/info.svg")</div>
+
+                    <div class="small translate_title" data-ctx="share" id="vwr_ctx_share" data-key="buttons.share" title="$i18n.buttons.share" onclick="K5.gui.selected.shares.open();" >#parse("svg/share.svg")</div>
+                    <div class="small translate_title" data-ctx="download" id="vwr_ctx_download" data-key="buttons.download" title="$i18n.buttons.download" onclick="K5.gui.selected.download.open();" >#parse("svg/download.svg")</div>
+
+                    <div class="small translate_title" data-ctx="favorite" data-key="buttons.addtofavorite"  title="$i18n.buttons.addtofavorite" onclick="K5.authentication.askForAppendToProfile();" >#parse("svg/addfavorite.svg")</div>
+                    <div class="small translate_title" data-ctx="notfavorite" data-key="buttons.removefromfavorite"  title="$i18n.buttons.removefromfavorite" onclick="K5.authentication.askForRemoveFromProfile();" >#parse("svg/removefavorite.svg")</div>
+
+<!--
                     <div class="button" onclick="cleanWindow();">#translatable('common.close')</div>
+-->
                 </div>
             </div>
         </div>
@@ -59,12 +62,10 @@
 
 
     <div class="searchinside dialogs" style="position:absolute;display:none;">
-        <div class="triangle" id="searchinside_triangle"></div>
-
         <div id="searchinside_container" class="dialogs_content">  
             <input type="text" id="searchinside_q" style="float:left;width: 90%;" />
 
-            <div class="small" title="$i18n.buttons.hide" onclick="K5.gui.selected.dosearch();" >#parse("svg/lupa.svg")</div>
+            <div class="small" title="$i18n.buttons.search" onclick="K5.gui.selected.dosearch();" >#parse("svg/lupa.svg")</div>
         </div>
 
         <div class="searchinside_footer dialogs_footer">
@@ -76,8 +77,6 @@
         </div>
     </div>
 
-    <!-- waiting div -->
-    #parse("waiting.vm")
 
     <!-- persistent url -->
     #parse("actions/persistent.vm")
@@ -93,22 +92,10 @@
 <div id="item_menu" style="display:none;">
 
 
-    <div class="small parent translate_title" data-ctx="parent" data-key="buttons.parent" title="$i18n.buttons.parent" onclick="K5.gui.selected.parent();" >#parse("svg/parent.svg")</div>
-
-    <div class="small search translate_title" data-ctx="thumbs" id="vwr_ctx_searchinside" data-key="searchinside.dialog" title="$i18n.searchinside.dialog" onclick="K5.gui.selected.searchInside();" >#parse("svg/lupa.svg")</div>
 
     <div class="small pin translate_title" data-ctx="all" id="vwr_ctx_actions" data-key="buttons.actions" title="$i18n.buttons.actions" onclick="K5.gui.selected.toggleActions();" style="display:none">#parse("svg/actions.svg")</div>
 
     <div class="small pin translate_title" data-ctx="all"  id="vwr_ctx_pin" style="display:none" data-key="buttons.pin" title="$i18n.buttons.pin" onclick="K5.gui.selected.togglePin();" >#parse("svg/pin.svg")</div>
-    <div class="small info translate_title" data-ctx="all" id="vwr_ctx_metadata" data-key="buttons.showinfo" title="$i18n.buttons.showinfo" onclick="K5.gui.selected.toggleInfo();" >#parse("svg/info.svg")</div>
-
-
-    <div class="small translate_title" data-ctx="share" id="vwr_ctx_share" data-key="buttons.share" title="$i18n.buttons.share" onclick="K5.gui.selected.shares.open();" >#parse("svg/share.svg")</div>
-    <div class="small translate_title" data-ctx="download" id="vwr_ctx_download" data-key="buttons.download" title="$i18n.buttons.download" onclick="K5.gui.selected.download.open();" >#parse("svg/download.svg")</div>
-
-    <div class="small translate_title" data-ctx="favorite" data-key="buttons.addtofavorite"  title="$i18n.buttons.addtofavorite" onclick="K5.authentication.askForAppendToProfile();" >#parse("svg/addfavorite.svg")</div>
-    <div class="small translate_title" data-ctx="notfavorite" data-key="buttons.removefromfavorite"  title="$i18n.buttons.removefromfavorite" onclick="K5.authentication.askForRemoveFromProfile();" >#parse("svg/removefavorite.svg")</div>
-
     
 </div>
 

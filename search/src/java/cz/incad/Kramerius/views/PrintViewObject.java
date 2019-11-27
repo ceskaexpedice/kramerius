@@ -16,7 +16,7 @@
  */
 package cz.incad.Kramerius.views;
 
-import cz.incad.Kramerius.Initializable;
+import cz.incad.kramerius.Initializable;
 
 public class PrintViewObject extends AbstractPrintViewObject  {
 

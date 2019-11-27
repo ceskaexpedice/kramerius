@@ -28,7 +28,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -61,12 +62,16 @@ public class ClientUserResource {
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response info() {
-        User user = this.userProvider.get();
-        if (user != null) {
-            return Response.ok().entity(UsersUtils.userToJSON(user).toString())
-                    .build();
-        } else {
-            return Response.ok().entity("{}").build();
+        try {
+            User user = this.userProvider.get();
+            if (user != null) {
+                return Response.ok().entity(UsersUtils.userToJSON(user).toString())
+                        .build();
+            } else {
+                return Response.ok().entity("{}").build();
+            }
+        } catch (JSONException e) {
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
@@ -78,7 +83,7 @@ public class ClientUserResource {
         try {
             user = this.userProvider.get();
             if (user != null && user.getId() != -1) {
-                if (rawdata.containsKey("pswd")) {
+                if (rawdata.has("pswd")) {
                     String newPswd = PasswordDigest.messageDigest(rawdata
                             .getString("pswd"));
                     this.userManager.saveNewPassword(user.getId(), newPswd);
@@ -96,6 +101,8 @@ public class ClientUserResource {
         } catch (NoSuchAlgorithmException e) {
             throw new GenericApplicationException(e.getMessage());
         } catch (UnsupportedEncodingException e) {
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
             throw new GenericApplicationException(e.getMessage());
         }
     }
@@ -118,6 +125,6 @@ public class ClientUserResource {
         UserProfile profile = this.userProfileManager.getProfile(user);
         profile.setJSONData(rawdata);
         this.userProfileManager.saveProfile(user, profile);
-        return Response.ok().entity(profile).build();
+        return Response.ok().entity(profile.getJSONData().toString()).build();
     }
 }

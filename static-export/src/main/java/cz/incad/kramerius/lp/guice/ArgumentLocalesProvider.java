@@ -27,12 +27,14 @@ public class ArgumentLocalesProvider implements Provider<Locale> {
 
 	@Override
 	public Locale get() {
-		Locale[] availableLocales = Locale.getAvailableLocales();
-		for (Locale locale : availableLocales) {
-			if ((locale.getISO3Country().equals(this.iso3country)) &&  (locale.getISO3Language().equals(this.iso3lang)))  return locale;
+		if (this.iso3country != null && this.iso3lang != null) {
+			return new Locale(this.iso3lang, this.iso3country);
+		} else if (this.iso3lang != null) {
+			return new Locale(this.iso3lang);
+		} else {
+			LOGGER.info("returning default locale ");
+			return Locale.getDefault();
 		}
-		LOGGER.info("returning default locale ");
-		return Locale.getDefault();
 	}
 	
 }

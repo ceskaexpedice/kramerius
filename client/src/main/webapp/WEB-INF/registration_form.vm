@@ -41,19 +41,19 @@
         <form id="registration_form" name="registration_form">
 
         <label>#translatable('registration.login')</label> <label class="registration_error" id="registration_error_label" style="display:none">#translatable('registration.login.error')</label>
-        <input id="login" name="login" placeholder="#i18nval('registration.login.placeholder')" value="" />
+        <input id="login" class="translate_placeholder" data-key="registration.login.placeholder" name="login" placeholder="#i18nval('registration.login.placeholder')" value="" />
 
         <label>#translatable('registration.fullname')</label> <label  class="registration_error" id="registration_error_fullname" style="display:none">#translatable('registration.login.error')</label>
-        <input id="username" name="username" placeholder="#i18nval('registration.fullname.placeholder')" value="" />
+        <input id="username" class="translate_placeholder" data-key="registration.fullname.placeholder" name="username" placeholder="#i18nval('registration.fullname.placeholder')" value="" />
 
         <label>#translatable('registration.email')</label> <label  class="registration_error" id="registration_error_email" style="display:none">#translatable('registration.login.error')</label>
-        <input id="email" name="email" placeholder="#i18nval('registration.email.placeholder')" value="" />
+        <input id="email" class="translate_placeholder" data-key="registration.email.placeholder" name="email" placeholder="#i18nval('registration.email.placeholder')" value="" />
 
         <label>#translatable('registration.password.placeholder')</label> <label class="registration_error" id="registration_error_password"  style="display:none">#translatable('registration.password.error')</label>
-        <input id="password" name="password" type="password" placeholder="#i18nval('registration.password.placeholder')" value="" />
+        <input id="password" class="translate_placeholder" data-key="registration.password.placeholder" name="password" type="password" placeholder="#i18nval('registration.password.placeholder')" value="" />
 
         <label>#translatable('registration.repeatpassword')</label> <label class="registration_error" id="registration_error_repeatpassword" style="display:none">#translatable('registration.repeatpassword.error')</label> <label class="registration_error" id="registration_error_differentpasswords" style="display:none">#translatable('registration.differentpass.error')</label>
-        <input id="repeatpassword" name="repeatpassword" type="password" placeholder="#i18nval('registration.repeatpassword.placeholder')" value="" />
+        <input id="repeatpassword" class="translate_placeholder" data-key="registration.repeatpassword.placeholder" name="repeatpassword" type="password" placeholder="#i18nval('registration.repeatpassword.placeholder')" value="" />
 
         <label>#translatable('registration.captcha')</label>
         <div style="width:100%">
@@ -61,7 +61,7 @@
         </div>
         
         <label>#translatable('registration.repeatcaptcha')</label> <label class="registration_error" id="registration_error_repeatcaptcha" style="display:none">#translatable('registration.repeatcaptcha.error')</label><label class="registration_error" id="registration_error_badcaptcha" style="display:none">#translatable('registration.badcaptcha.error')</label>
-        <input id="captcha" name="captcha" placeholder="#i18nval('registration.repeatcaptcha.placeholder')" value=""  />
+        <input id="captcha" class="translate_placeholder" data-key="registration.repeatcaptcha.placeholder" name="captcha" placeholder="#i18nval('registration.repeatcaptcha.placeholder')" value=""  />
     </form>
     </span>
 
@@ -123,7 +123,7 @@
                 results.push({
                     "message":"missing repeatedpassword field", //I18N,
                     "validated": false,
-                    "ident":"#registration_error_differentpasswords"
+                    "ident":"#registration_ error_differentpasswords"
                 });
             } else {
                 results.push({
@@ -209,6 +209,15 @@
                 });
             }
         }
+	// prevent diacritics
+	$('#registration_form input#login').bind('keypress', function (event) {
+    		var regex = new RegExp("^[a-zA-Z0-9]+$");
+    		var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+    		if (!regex.test(key)) {
+       			event.preventDefault();
+       			return false;
+    		}
+	});
     </script>
 
 </div>

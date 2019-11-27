@@ -17,5 +17,7 @@
     </list>
     
     <image pid="onepid"></image>
+
+    <image pid="path"></image>
     
 </commands>

@@ -23,14 +23,15 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import net.sf.json.JSONObject;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -74,10 +75,14 @@ public class PDFDecorate extends AbstractDisplayDecorate {
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
-    private Object options(String pid) {
+    private Object options(String pid) throws JSONException {
         JSONObject options = new JSONObject();
         String url = ApplicationURL.applicationURL(this.requestProvider.get())
                 .toString()

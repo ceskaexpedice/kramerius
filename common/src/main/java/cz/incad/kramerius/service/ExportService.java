@@ -1,5 +1,9 @@
 package cz.incad.kramerius.service;
 
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.IOException;
 
 public interface ExportService {
@@ -11,4 +15,5 @@ public interface ExportService {
      */
     public void exportTree (String pid) throws IOException;
 
+    public void exportParents(String pid) throws IOException, ParserConfigurationException, SAXException, TransformerException;
 }

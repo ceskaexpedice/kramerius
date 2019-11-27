@@ -23,6 +23,6 @@ public class ShowStatistics extends AbstractContextMenuItem implements AdminCont
 
 	@Override
 	public String getRenderedItem() throws IOException {
-        return super.renderContextMenuItem("javascript:statistics.showContextDialog();", "administrator.menu.dialogs.statistics.title");
+        return super.renderContextMenuItem("javascript:statistics.showContextDialog();", "administrator.menu.dialogs.statistics.title", SecuredActions.SHOW_STATISTICS.getFormalName());
 	}
 }

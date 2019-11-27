@@ -2,21 +2,20 @@ package cz.incad.kramerius.client.tools;
 
 import static cz.incad.kramerius.client.utils.ApiCallsHelp.getJSON;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cz.incad.kramerius.client.utils.ApiCallsHelp;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -34,16 +33,23 @@ public class Share {
             String pid = req.getParameter("pid");
             this.applicationUrl = ApplicationURL.applicationURL(req);
             if (pid != null && StringUtils.isAnyString(pid)) {
-                String api = KConfiguration.getInstance().getConfiguration().getString("api.point");
-                if (!api.endsWith("/")) {
-                    api += "/";
-                }
-                String jsoned = getJSON(api+"item/"+pid+"");
-                this.itemObject = new JSONObject(jsoned);
+                JSONObject rJsonObject = jsonFromAPI(pid);
+                this.itemObject = rJsonObject;
             }
         } catch (JSONException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
+    }
+
+
+    protected JSONObject jsonFromAPI(String pid) {
+        String api = KConfiguration.getInstance().getConfiguration().getString("api.point");
+        if (!api.endsWith("/")) {
+            api += "/";
+        }
+        String jsoned = getJSON(api+"item/"+pid+"");
+        JSONObject rJsonObject = new JSONObject(jsoned);
+        return rJsonObject;
     }
     
     
@@ -61,11 +67,61 @@ public class Share {
     public String getTitle() {
         try {
             if (this.itemObject != null) {
-                return this.itemObject.getString("title");
+                List<String> titles = new ArrayList<String>();
+                JSONArray jsonArray = selectContext(this.itemObject.getJSONArray("context"));
+                if (jsonArray != null) {
+                    for (int i = 0,ll=jsonArray.length(); i < ll; i++) {
+                        JSONObject jsonObj = jsonArray.getJSONObject(i);
+                        String pid = jsonObj.getString("pid");
+                        titles.add(normalizedTitleFromGivenJSON(pid));
+                    }
+                    StringBuilder builder = new StringBuilder();
+                    for (int i = 0; i < titles.size(); i++) {
+                        if (i > 0) builder.append(" > ");
+                        builder.append(titles.get(i));
+                    }
+                    return builder.toString();
+                } else {
+                    return this.itemObject.getString("title");
+                }
             } else return "";
         } catch (JSONException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return "";
+        }
+    }
+    
+    private JSONArray selectContext(JSONArray jsonArray) {
+        if (jsonArray.length() > 0) return jsonArray.getJSONArray(0);
+        else return null;
+    }
+
+
+    private String normalizedTitleFromGivenJSON(String pid) {
+        JSONObject jsonFromAPI = jsonFromAPI(pid);
+        if (jsonFromAPI.getString("model").equals("periodicalitem")) {
+            JSONObject jsonObject = jsonFromAPI.getJSONObject("details");
+            if (jsonObject.has("date")) {
+                return jsonObject.getString("date");
+            }
+            if (jsonObject.has("issueNumber")) {
+                return jsonObject.getString("issueNumber");
+            }
+            if (jsonObject.has("partNumber")) {
+                return jsonObject.getString("partNumber");
+            }
+            return jsonFromAPI.getString("title");
+        } else if  (jsonFromAPI.getString("model").equals("periodicalvolume")) {
+            JSONObject jsonObject = jsonFromAPI.getJSONObject("details");
+            if (jsonObject.has("year")) {
+                return jsonObject.getString("year");
+            }
+            return jsonFromAPI.getString("title");
+        } else {
+            String title = jsonFromAPI.getString("title");
+            if (StringUtils.isAnyString(title)) {
+                return title.length() > 20 ? title.substring(0, 20)+ " ... " : title;
+            } else return "";
         }
     }
 
@@ -127,13 +183,4 @@ public class Share {
             return "";
         }
     }
-    /*
-    public static void main(String[] args) throws UnsupportedEncodingException {
-        String str = "uuid%253A5035a48a-5e2e-486c-8127-2fa650842e46";
-        String string = URLDecoder.decode(str,"UTF-8");
-        System.out.println(string);
-        String nstring = URLDecoder.decode(string,"UTF-8");
-        System.out.println(nstring);
-    }*/
-    
 }

@@ -16,13 +16,11 @@
  */
 package cz.incad.kramerius.rest.api.client.v50.admin;
 
-import java.util.Arrays;
-
-import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -58,8 +56,9 @@ public class UsersAndRolesClient {
     /**
      * Vytvoreni uzivatele
      * @return
+     * @throws JSONException 
      */
-    public static String createUser() {
+    public static String createUser() throws JSONException {
     	Client c = Client.create();
 
         WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/users");
@@ -69,10 +68,25 @@ public class UsersAndRolesClient {
         object.put("lname", "krakonos");
         object.put("firstname", "Created from client");
         object.put("surname", "Created from client");
-        object.put("password","jelito-nenimilito");
+        object.put("password","jelito");
         
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(object.toString(), MediaType.APPLICATION_JSON).post(String.class);
         return t;
+    }
+    
+    public static String createRole() {
+        Client c = Client.create();
+
+        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/roles");
+        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+        JSONObject object = new JSONObject();
+
+        object.put("id",-1);
+        object.put("name", "moje_role");
+        
+        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(object.toString(), MediaType.APPLICATION_JSON).post(String.class);
+        return t;
+        
     }
     
     /**
@@ -103,22 +117,41 @@ public class UsersAndRolesClient {
         return t;
     }
 
-    /**
-     * Konkretni role
-     * @param rid
-     * @return
-     */
-    public static String role(String rid) {
+    public static String role(int rid) {
     	Client c = Client.create();
         WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/roles/"+rid);
         r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
         return t;
     }
+
+    public static String user(int uid) {
+        Client c = Client.create();
+        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/users/"+uid);
+        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
+        return t;
+    }
+
+    public static String userChange(int uid, JSONObject userObject) {
+        Client c = Client.create();
+        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/users/"+uid);
+        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(userObject.toString(), MediaType.APPLICATION_JSON).put(String.class);
+        return t;
+    }
+
+    public static String appendRole(int uid, int roleid) {
+        String roleString = role(roleid);
+        String userString = user(uid);
+        
+        JSONObject roleObj = new JSONObject(roleString);
+        
+        JSONObject jsonObj = new JSONObject(userString);
+        JSONArray jsonArray = jsonObj.getJSONArray("roles");
+        jsonArray.put(roleObj);
+        
+        return userChange(uid, jsonObj);
+    }
     
-    
-    public static void main(String[] args) {
-		String roles = roles();
-		System.out.println(roles);
-	}
 }

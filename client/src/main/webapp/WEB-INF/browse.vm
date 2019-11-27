@@ -3,14 +3,11 @@
 <div id="browse">
 
 <!-- waiting div -->
-#parse("waiting.vm")
-
-    <div class="types"></div>
-    <div class="sections" style="display:none;"><div class="scroll"><ul></ul></div></div>
-    <div class="section"></div>
-</div>
-<div id="item_menu" style="display:none;">
-    <div class="small translate_title" data-key="buttons.browse.less" title="$i18n.buttons.browse.less" onclick="K5.gui.browse.minus();" >#parse("svg/minus.svg")</div>
-    <div class="small translate_title" data-key="buttons.browse.more" title="$i18n.buttons.browse.more" onclick="K5.gui.browse.plus();" >#parse("svg/plus.svg")</div>
-    
+    <div class="input"><label> <span data-key="browse.searchlabel" class="translate"> ${i18n.browse.searchlabel}: </span> </label><input type="text" class="browse" /></div>
+    <div class="letters"><div class="scroll"><ul></ul></div></div>
+    <div class="results">
+        
+        <div class="typ titles"><h3 data-key="browse.titles" class="translate">$i18n.browse.titles</h3>#parse("waiting.vm")<ul></ul></div>
+        <div class="typ authors"><h3 data-key="browse.authors" class="translate">$i18n.browse.authors</h3>#parse("waiting.vm")<ul></ul></div>
+    </div>
 </div>

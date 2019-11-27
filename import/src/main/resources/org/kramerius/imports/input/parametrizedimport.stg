@@ -29,23 +29,31 @@ tree(root) ::=<<
 
 
 
-form(importDirectory,importRootDirectory,  startIndexer, updateExisting, bundle) ::=<<
+form(postfixdiv, importDirectory,importRootDirectory,  startIndexer, updateExisting, bundle) ::=<<
 
 <div style="width:100%">
     <script language="JavaScript" type="text/javascript"> 
     <!--    
+	
+	
+	
         // send parameters to server
         window.onProcessFormSend = function() {
             var startIndexer = \$('#startIndexer').attr('checked');
             var updateExisting = \$('#updateExisting').attr('checked');
+            var replaceDC = \$('#replaceDC').attr('checked');
+            var replaceMODs = \$('#replaceMODs').attr('checked');
+
             var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
             var vals = 'importDirectory='+\$('#importDirectory').val().escapeChars(charsThatMustBeEscaped)
                 +';startIndexer='+startIndexer+';updateExisting='+updateExisting
+                +';onlyReplaceDC='+replaceDC+';onlyReplaceMODS='+replaceMODs
                 ;
             
             var url = "lr?action=form_post&def=parametrizedimport&paramsMapping={"+vals+"}&out=text";
             processStarter("parametrizedimport").start(url);
         }
+
 
         // show directory dialog
         function ShowDirectoryTree() {
@@ -53,6 +61,7 @@ form(importDirectory,importRootDirectory,  startIndexer, updateExisting, bundle)
         }
     
         ShowDirectoryTree.prototype.openTree=function() {
+
             if (this.dialog) {
                 this.dialog.dialog('open');
             } else {
@@ -77,20 +86,25 @@ form(importDirectory,importRootDirectory,  startIndexer, updateExisting, bundle)
                     }]
                 });
                 
+				
+
+    	      \$(function () {
+	    	       \$("#_selectImportFolderTree_$postfixdiv$").jstree({ 
+    	    	        "plugins" : [ "themes", "html_data", "ui" ]
+        	    	})
+            		.bind("select_node.jstree", function (event, data) { 
+                		var p = data.rslt.obj.attr("id");
+		                \$("#_selectedImportFolder").text(p);
+    		        });
+	    	    });
+            
+            
             }
 
-        \$(function () {
-            \$("#_selectImportFolderTree").jstree({ 
-                "plugins" : [ "themes", "html_data", "ui" ]
-            })
-            .bind("select_node.jstree", function (event, data) { 
-                var p = data.rslt.obj.attr("id");
-                \$("#_selectedImportFolder").text(p);
-            });
-        });
 
         }
     
+		
         var directoryTree = new ShowDirectoryTree();
         
     -->        
@@ -118,13 +132,18 @@ form(importDirectory,importRootDirectory,  startIndexer, updateExisting, bundle)
     $else$
         <input type="checkbox" style="display:none" id="updateExisting" name="updateExisting" value="updateExisting" />
     $endif$
+
+    <input type="checkbox" id="replaceDC" name="replaceDC" value="replaceDC"  >$bundle.("import.replaceDC")$</input>
+
+    <input type="checkbox" id="replaceMODs" name="replaceMODs" value="replaceMODs">$bundle.("import.replaceMODs")$</input>
+
 </fieldset>
 
 
 
     <div id="_selectImportFolderDialog" style="display:none">
         <h3>  $bundle.("import.selection.dialog")$</h3>
-        <div id="_selectImportFolderTree">
+        <div id="_selectImportFolderTree_$postfixdiv$">
             $tree(root=importRootDirectory)$
         </div>
 

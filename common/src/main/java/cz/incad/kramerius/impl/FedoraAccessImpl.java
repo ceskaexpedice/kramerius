@@ -188,7 +188,65 @@ public class FedoraAccessImpl implements FedoraAccess {
     public String getDonator(String pid) throws IOException {
         return getDonator(getRelsExt(pid));
     }
-
+    
+    @Override
+    public String getFirstItemPid(Document relsExt)
+            throws IOException {
+        try {
+            Element foundElement = XMLUtils.findElement(relsExt.getDocumentElement(), "hasItem", FedoraNamespaces.KRAMERIUS_URI);
+            if (foundElement != null) {
+                String sform = foundElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                PIDParser pidParser = new PIDParser(sform);
+                pidParser.disseminationURI();
+                String pidItem = "uuid:" + pidParser.getObjectId();
+                return pidItem;
+            } else {
+                return "";
+            }
+        } catch (DOMException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IllegalArgumentException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IllegalArgumentException(e);
+        }
+    }
+    
+    @Override
+    public String getFirstItemPid(String pid) throws IOException {
+        Document relsExt = getRelsExt(pid);
+        return getFirstItemPid(relsExt);
+    }
+    
+    @Override
+    public String getFirstVolumePid(Document relsExt) throws IOException {
+ 
+        try {
+            Element foundElement = XMLUtils.findElement(relsExt.getDocumentElement(), "hasVolume", FedoraNamespaces.KRAMERIUS_URI);
+            if (foundElement != null) {
+                String sform = foundElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                PIDParser pidParser = new PIDParser(sform);
+                pidParser.disseminationURI();
+                String pidVolume = "uuid:" + pidParser.getObjectId();
+                return pidVolume;
+            } else {
+                return "";
+            }
+        } catch (DOMException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IllegalArgumentException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IllegalArgumentException(e);
+        }
+    }
+    
+    @Override
+    public String getFirstVolumePid(String pid) throws IOException {
+        Document relsExt = getRelsExt(pid);
+        return getFirstVolumePid(relsExt);
+    }
+    
     @Override
     public Document getBiblioMods(String pid) throws IOException {
         try {
@@ -335,14 +393,22 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     @Override
     public InputStream getSmallThumbnail(String pid) throws IOException {
+        HttpURLConnection con = null;
         try {
             pid = makeSureObjectPid(pid);
-            HttpURLConnection con = referencedDataStream(pid, IMG_THUMB_STREAM);
+            con = referencedDataStream(pid, IMG_THUMB_STREAM);
             if (con == null) {
                 con = (HttpURLConnection) openConnection(getThumbnailFromFedora(configuration, makeSureObjectPid(pid)), configuration.getFedoraUser(), configuration.getFedoraPass());
             }
             InputStream thumbInputStream = con.getInputStream();
             return thumbInputStream;
+        } catch (FileNotFoundException e) {
+            if (con != null) {
+                throw new FileNotFoundException("Bad " + pid + ": datastream url (" + con.getURL() +") not found");
+            } else {
+                throw e;
+            }
+
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
@@ -401,7 +467,10 @@ public class FedoraAccessImpl implements FedoraAccess {
                 InputStream thumbInputStream = con.getInputStream();
                 return thumbInputStream;
             } else {
-                throw new IOException("404");
+                // copy error stream and forward status code
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                IOUtils.copyStreams(con.getErrorStream(), bos);
+                throw new FedoraIOException(con.getResponseCode(), new String(bos.toByteArray()));
             }
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -463,6 +532,27 @@ public class FedoraAccessImpl implements FedoraAccess {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         }
+    }
+
+    
+    
+    @Override
+    public boolean isObjectAvailable(String pid) throws IOException {
+        try {
+            Document parseDocument = XMLUtils.parseDocument(getFedoraDataStreamsList(makeSureObjectPid(pid)), true);
+            return true;
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e);
+        } catch (FileNotFoundException e) {
+            return false;
+        } 
     }
 
     @Override
@@ -795,26 +885,25 @@ public class FedoraAccessImpl implements FedoraAccess {
                     String attVal = iteratingElm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
                     if (!attVal.trim().equals("")) {
                         PIDParser pidParser = new PIDParser(attVal);
-                        pidParser.disseminationURI();
+
+                        try {
+                            pidParser.disseminationURI();
+                        } catch (LexerException e) {
+                            LOGGER.warning(e.getMessage());
+                            LOGGER.warning("could not parse '"+attVal+"' -> skipping");
+                            continue;
+                        }
+
                         String objectId = pidParser.getObjectPid();
                         if (pidParser.getNamespaceId().equals("uuid")) {
-//                            StringBuffer buffer = new StringBuffer();
-//                            {   // debug print
-//                                for (int k = 0; k < level; k++) {
-//                                    buffer.append(" ");
-//                                }
-//                                LOGGER.fine(buffer.toString() + " processing pid [" + attVal + "]");
-//                            }
                             if (!processor.skipBranch(objectId, level + 1)) {
                                 Document iterationgRelsExt = null;
-
                                 try {
                                     iterationgRelsExt = getRelsExt(objectId);
                                 } catch (Exception ex) {
                                     LOGGER.warning("could not read RELS-EXT, skipping branch [" + (level + 1) + "] and pid (" + objectId + "):" + ex);
                                 }
                                 breakProcessing = processSubtreeInternal(pidParser.getObjectPid(), iterationgRelsExt, processor, level + 1, pidStack);
-
                                 if (breakProcessing) {
                                     break;
                                 }
@@ -865,6 +954,25 @@ public class FedoraAccessImpl implements FedoraAccess {
         return retval;
     }
 
+    public void observeStreamHeaders(String pid, String datastreamName, StreamHeadersObserver streamObserver) throws IOException {
+        try {
+            pid = makeSureObjectPid(pid);
+            HttpURLConnection con = referencedDataStream(pid, datastreamName);
+            if (con == null) {
+                String streamLocation =  configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
+                con = (HttpURLConnection) openConnection(streamLocation, configuration.getFedoraUser(), configuration.getFedoraPass());
+            }
+            con.connect();
+            int statusCode = con.getResponseCode();
+            Map<String, List<String>> headerFields = con.getHeaderFields();
+            streamObserver.observeHeaderFields(statusCode, headerFields);
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
+    }
+    
+    
+    
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         try {
@@ -883,6 +991,7 @@ public class FedoraAccessImpl implements FedoraAccess {
                 String streamLocation =  configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
                 con = (HttpURLConnection) openConnection(streamLocation, configuration.getFedoraUser(), configuration.getFedoraPass());
             }
+            
             con.connect();
             if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 InputStream thumbInputStream = con.getInputStream();

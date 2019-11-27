@@ -32,8 +32,8 @@ public class Paragraph extends AbstractITextCommand  {
     
     private int spacingAfter = -1;
     private int spacingBefore = -1;
-    
-    
+
+    private String alignment = null;
     
     @Override
     public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
@@ -45,7 +45,9 @@ public class Paragraph extends AbstractITextCommand  {
             if (notEmptyAttribute(elm,"spacing-before")) {
                 this.spacingBefore = Integer.parseInt(elm.getAttribute("spacing-before"));
             }
-            
+            if (notEmptyAttribute(elm,"alignment")) {
+                this.alignment = elm.getAttribute("alignment");
+            }
             this.hyphenation = this.hyphenationFromAttibutes(elm);
             
             NodeList nList = elm.getChildNodes();
@@ -108,6 +110,16 @@ public class Paragraph extends AbstractITextCommand  {
         
         procsListener.after(this);
     }
-    
-    
+
+    public String getAlignment() {
+        return this.alignment;
+    }
+
+    public void setAlignment(String a) {
+        this.alignment = a;
+    }
+
+    public boolean isAlignmentDefined() {
+        return this.alignment != null;
+    }
 }

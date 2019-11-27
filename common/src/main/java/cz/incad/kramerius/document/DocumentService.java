@@ -20,7 +20,8 @@ import java.io.IOException;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.document.model.AbstractRenderedDocument;
+import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.pdf.OutOfRangeException;
 
 /**
  * Document model service
@@ -36,7 +37,7 @@ public interface DocumentService {
      * @throws IOException IO error has been occurred
      * @throws ProcessSubtreeException Error has been occurred during tree processing
      */
-    AbstractRenderedDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom, int[]rect) throws IOException, ProcessSubtreeException;
+    PreparedDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom, int[]rect) throws IOException, ProcessSubtreeException;
 
     
     /**
@@ -48,7 +49,7 @@ public interface DocumentService {
      * @throws IOException IO error has been occurred
      * @throws ProcessSubtreeException Error has been occurred during tree processing
      */
-    AbstractRenderedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, ProcessSubtreeException;
+    PreparedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, ProcessSubtreeException,OutOfRangeException;
     
     /**
      * Creates flat document model from pids selection
@@ -58,7 +59,7 @@ public interface DocumentService {
      * @throws IOException IO error has been occurred
      * @throws ProcessSubtreeException Error has been occurred during tree processing
      */
-    AbstractRenderedDocument buildDocumentFromSelection(String[] selection, int[] rect) throws IOException, ProcessSubtreeException;
+    PreparedDocument buildDocumentFromSelection(String[] selection, int[] rect) throws IOException, ProcessSubtreeException, OutOfRangeException;
     
 
 }

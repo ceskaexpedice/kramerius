@@ -7,7 +7,7 @@
 <scrd:loggedusers>
 <view:object name="cols" clz="cz.incad.Kramerius.views.virtualcollection.VirtualCollectionViewObject"></view:object>
 <table id="coll_table">
-<c:forEach var="col" items="${cols.virtualCollectionsLocale}">
+<c:forEach var="col" items="${cols.virtualCollectionsFromFedoraLocale}">
     <tr id="vc_${col.pid}" class="vcoll">
         <c:forEach items="${col.descriptions}" var="desc">
             <td><input type="checkbox" /></td>

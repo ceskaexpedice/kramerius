@@ -43,15 +43,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
+import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.CreateException;
 import cz.incad.kramerius.rest.api.exceptions.DeleteException;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.exceptions.UpdateException;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.FormalNamesMapping;
@@ -110,11 +113,15 @@ public class UsersResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response role(@PathParam("id") String uid) {
         if (permit(this.userProvider.get())) {
-            User ur = this.userManager.findUser(Integer.parseInt(uid));
-            if (ur != null) {
-                return Response.ok().entity(userToJSON(ur).toString()).build();
-            } else
-                throw new ObjectNotFound("cannot find role '" + uid + "'");
+            try {
+                User ur = this.userManager.findUser(Integer.parseInt(uid));
+                if (ur != null) {
+                    return Response.ok().entity(userToJSON(ur).toString()).build();
+                } else
+                    throw new ObjectNotFound("cannot find role '" + uid + "'");
+            } catch (JSONException e) {
+                throw new GenericApplicationException(e.getMessage());
+            }
         } else {
             throw new ActionNotAllowed("not allowed");
         }
@@ -133,41 +140,45 @@ public class UsersResource {
             @QueryParam("typefordering") @DefaultValue("ASC") String typeofordering) {
 
         if (permit(this.userProvider.get())) {
-            Offset offset = null;
-            if (StringUtils.isAnyString(filterOffset)) {
-                offset = new Offset(filterOffset, filterResultSize);
-            }
-            Ordering ordering = null;
-            if (StringUtils.isAnyString(filterOffset)) {
-                ordering = new Ordering("user_id", "loginname", "fistname",
-                        "surname").select(transform(FNAMES, filterOrdering));
-            }
-            TypeOfOrdering type = null;
-            if (StringUtils.isAnyString(typeofordering)) {
-                type = TypeOfOrdering.valueOf(typeofordering);
-            }
+            try {
+                Offset offset = null;
+                if (StringUtils.isAnyString(filterOffset)) {
+                    offset = new Offset(filterOffset, filterResultSize);
+                }
+                Ordering ordering = null;
+                if (StringUtils.isAnyString(filterOffset)) {
+                    ordering = new Ordering("user_id", "loginname", "fistname",
+                            "surname").select(transform(FNAMES, filterOrdering));
+                }
+                TypeOfOrdering type = null;
+                if (StringUtils.isAnyString(typeofordering)) {
+                    type = TypeOfOrdering.valueOf(typeofordering);
+                }
 
-            Map<String, String> filterMap = new HashMap<String, String>();
-            {
-                if (StringUtils.isAnyString(filterLoginName))
-                    filterMap.put(transform(FNAMES, "lname"), filterLoginName);
-                if (StringUtils.isAnyString(filterFirstname))
-                    filterMap.put(transform(FNAMES, "firstname"),
-                            filterFirstname);
-                if (StringUtils.isAnyString(filterSurname))
-                    filterMap.put(transform(FNAMES, "surname"), filterSurname);
-            }
-            ;
-            SQLFilter filter = simpleFilter(filterMap, TYPES);
+                Map<String, String> filterMap = new HashMap<String, String>();
+                {
+                    if (StringUtils.isAnyString(filterLoginName))
+                        filterMap.put(transform(FNAMES, "lname"), filterLoginName);
+                    if (StringUtils.isAnyString(filterFirstname))
+                        filterMap.put(transform(FNAMES, "firstname"),
+                                filterFirstname);
+                    if (StringUtils.isAnyString(filterSurname))
+                        filterMap.put(transform(FNAMES, "surname"), filterSurname);
+                }
+                ;
+                SQLFilter filter = simpleFilter(filterMap, TYPES);
 
-            JSONArray jsonArray = new JSONArray();
-            List<User> users = this.userManager.filterUsers(ordering, type,
-                    offset, filter);
-            for (User user : users) {
-                jsonArray.add(userToJSON(user));
-            }
+                JSONArray jsonArray = new JSONArray();
+                List<User> users = this.userManager.filterUsers(ordering, type,
+                        offset, filter);
+                for (User user : users) {
+                    jsonArray.put(userToJSON(user));
+                }
 
-            return Response.ok().entity(jsonArray.toString()).build();
+                return Response.ok().entity(jsonArray.toString()).build();
+            } catch (JSONException e) {
+                throw new GenericApplicationException(e.getMessage());
+            }
         } else {
             throw new ActionNotAllowed("not allowed");
         }
@@ -183,7 +194,7 @@ public class UsersResource {
             try {
                 User u = userManager.findUser(Integer.parseInt(id));
                 if (u != null) {
-                    if (!uOptions.containsKey("password")) {
+                    if (!uOptions.has("password")) {
                         throw new IllegalStateException("expecting password key");
                     }
                     String pswd = uOptions.getString("password");
@@ -201,6 +212,8 @@ public class UsersResource {
                 throw new UpdateException(e.getMessage(), e);
             } catch (UnsupportedEncodingException e) {
                 throw new UpdateException(e.getMessage(), e);
+            } catch (JSONException e) {
+                throw new GenericApplicationException(e.getMessage());
             }
         } else {
             throw new ActionNotAllowed("not allowed");
@@ -217,13 +230,26 @@ public class UsersResource {
                 User u = userManager.findUser(Integer.parseInt(id));
                 if (u != null) {
                     // TODO: Update firstname, surname !!
-                    JSONArray roles = uOptions.getJSONArray("roles");
-                    List<String> rList = new ArrayList<String>(
-                            JSONArray.toCollection(roles));
-                    this.userManager.changeRoles(u, rList);
-                    u = this.userManager.findUser(u.getId());
-                    return Response.ok().entity(userToJSON(u).toString())
-                            .build();
+                    try {
+                        JSONArray roles = uOptions.getJSONArray("roles");
+                        List<String>rList = new ArrayList<String>();
+                        for (int i = 0,ll=roles.length(); i < ll; i++) {
+                            Object object = roles.get(i);
+                            if (object instanceof String) {
+                                rList.add(roles.getString(i));
+                            } else if (object instanceof JSONObject) {
+                                JSONObject jsonObj = (JSONObject) object;
+                                rList.add(jsonObj.getString("name"));
+                            }
+                        }
+                        
+                        this.userManager.changeRoles(u, rList);
+                        u = this.userManager.findUser(u.getId());
+                        return Response.ok().entity(userToJSON(u).toString())
+                                .build();
+                    } catch (JSONException e) {
+                        throw new GenericApplicationException(e.getMessage());
+                    }
                 } else {
                     throw new ObjectNotFound("cannot find user '" + id + "'");
                 }
@@ -245,16 +271,20 @@ public class UsersResource {
             try {
                 User u = this.userManager.findUser(Integer.parseInt(id));
                 if (u != null) {
-                    User adminUser = this.userManager
-                            .findUserByLoginName("krameriusAdmin");
-                    if (u.getId() == adminUser.getId()) {
-                        // it is not allowed delete kramerius admin
-                        throw new ActionNotAllowed("not allowed");
+                    try {
+                        User adminUser = this.userManager
+                                .findUserByLoginName("krameriusAdmin");
+                        if (u.getId() == adminUser.getId()) {
+                            // it is not allowed delete kramerius admin
+                            throw new ActionNotAllowed("not allowed");
+                        }
+                        this.userManager.deleteUser(u);
+                        JSONObject json = userToJSON(u);
+                        json.put("deleted", true);
+                        return Response.ok().entity(json.toString()).build();
+                    } catch (JSONException e) {
+                        throw new GenericApplicationException(e.getMessage());
                     }
-                    this.userManager.deleteUser(u);
-                    JSONObject json = userToJSON(u);
-                    json.put("deleted", true);
-                    return Response.ok().entity(json.toString()).build();
                 } else {
                     throw new ObjectNotFound("cannot find user '" + id + "'");
                 }
@@ -273,9 +303,15 @@ public class UsersResource {
         if (permit(this.userProvider.get())) {
             try {
                 User user = createUserFromJSON(uOptions);
-                if (!uOptions.containsKey("password")) {
+                if (!uOptions.has("password")) {
                     throw new IllegalStateException("expecting password key");
                 }
+                
+                User userByLName = this.userManager.findUserByLoginName(user.getLoginname());
+                if (userByLName != null) {
+                    throw new BadRequestException("user with login name '"+user.getLoginname()+"'");
+                }
+                
                 String pswd = uOptions.getString("password");
                 this.userManager.insertUser(user, pswd);
                 this.userManager.activateUser(user);
@@ -285,13 +321,15 @@ public class UsersResource {
                         .entity(userToJSON(user).toString()).build();
             } catch (SQLException e) {
                 throw new CreateException(e.getMessage(), e);
+            } catch (JSONException e) {
+                throw new GenericApplicationException(e.getMessage());
             }
         } else {
             throw new ActionNotAllowed("not allowed");
         }
     }
 
-    public static JSONObject userToJSON(User user) {
+    public static JSONObject userToJSON(User user) throws JSONException {
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("lname", user.getLoginname());
         jsonObj.put("firstname", user.getFirstName());
@@ -303,29 +341,29 @@ public class UsersResource {
         if (roles != null) {
             for (Role r : roles) {
                 JSONObject json = RolesResource.roleToJSON(r);
-                jsonArr.add(json);
+                jsonArr.put(json);
             }
             jsonObj.put("roles", jsonArr);
         }
         return jsonObj;
     }
 
-    public static User createUserFromJSON(JSONObject uOptions) {
+    public static User createUserFromJSON(JSONObject uOptions) throws JSONException {
         String lname = uOptions.getString("lname");
         String fname = uOptions.getString("firstname");
         String sname = uOptions.getString("surname");
 
         int id = -1;
-        if (uOptions.containsKey("id")) {
+        if (uOptions.has("id")) {
             uOptions.getInt("id");
         }
 
         UserImpl u = new UserImpl(id, fname, sname, lname, -1);
-        if (uOptions.containsKey("roles")) {
+        if (uOptions.has("roles")) {
             List<Role> rlist = new ArrayList<Role>();
             JSONArray jsonArr = uOptions.getJSONArray("roles");
-            for (Object obj : jsonArr) {
-                JSONObject jsonObj = (JSONObject) obj;
+            for (int i = 0,ll=jsonArr.length(); i < ll; i++) {
+                JSONObject jsonObj = (JSONObject) jsonArr.get(i);
                 rlist.add(RolesResource.createRoleFromJSON(jsonObj));
             }
             u.setGroups(rlist.toArray(new Role[rlist.size()]));

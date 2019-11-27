@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 /**
  * Abstract implementation of the JSONDecorator
@@ -58,7 +60,11 @@ public abstract class AbstractDecorator implements JSONDecorator {
      * @return
      */
     protected String getPidFromJSON(JSONObject jsonObject) {
-        return jsonObject.getString("pid");
+        try {
+            return jsonObject.getString("pid");
+        } catch (JSONException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     /**
@@ -67,7 +73,7 @@ public abstract class AbstractDecorator implements JSONDecorator {
      * @return
      */
     protected boolean containsPidInJSON(JSONObject jsonObject) {
-        return jsonObject.containsKey("pid");
+        return jsonObject.has("pid");
     }
 
     /**

@@ -23,9 +23,9 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.sf.json.JSONObject;
-
 import org.easymock.EasyMock;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -37,7 +37,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 public class CollectionsDecoratorTest {
 	
 	@Test
-	public void testFindCollections() throws IOException, ParserConfigurationException, SAXException {
+	public void testFindCollections() throws IOException, ParserConfigurationException, SAXException, JSONException {
 		URL res = CollectionsDecoratorTest.class.getResource("rels-ext.xml");
 		Document document = XMLUtils.parseDocument(res.openStream(), true);
 		
@@ -54,7 +54,7 @@ public class CollectionsDecoratorTest {
     	Map<String, Object> runtimeContext = new HashMap<String, Object>();	
         coll.decorate(jsonObject, runtimeContext);
 
-        Assert.assertTrue(jsonObject.containsKey("collections"));
-        Assert.assertTrue(jsonObject.getJSONArray("collections").size() ==1);
+        Assert.assertTrue(jsonObject.has("collections"));
+        Assert.assertTrue(jsonObject.getJSONArray("collections").length() ==1);
 	}
 }

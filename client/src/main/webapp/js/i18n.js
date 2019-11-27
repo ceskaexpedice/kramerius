@@ -1,3 +1,5 @@
+/* global K5 */
+
 /**
  * @description
  * Envelope I18n operations. Accessed via singleton <code>K5</code>
@@ -40,7 +42,20 @@ I18N.prototype= {
         return lookUpKey(keys, this.ctx);
     },
     
+    initConfiguration: function(data) {
+        this.ctx["configuration"]=data;
+    },
     
+    changeLanguage:function(lang,country, whenready) {
+        $('.opacityloading').show();
+        K5.eventsHandler.addHandler(function(type, data) {
+            if (type === "i18n/dictionary") {
+                $('.opacityloading').hide();
+            }
+        });
+        this.askForDictionary(lang,country, whenready);
+    },
+
     /** 
      * Sends request for new dictionary. It fires "i18n/dictionary" event.
      * @param {string} lang - Requesting language
@@ -50,18 +65,36 @@ I18N.prototype= {
      */
     askForDictionary:function(lang,country, whenready) {
         $.getJSON("dictionary.vm?language=" + lang, _.bind(function(data) {
-                this.ctx['language']=lang;
-                this.ctx['country']=country;
-                this.ctx['dictionary']=data;
-                if (whenready != null) whenready.apply(null, [data]);
-                $.getJSON("api/vc", _.bind(function(data) {
+            this.ctx['language']=lang;
+            this.ctx['country']=country;
+            this.ctx['dictionary']=data;
+            if (whenready != null) whenready.apply(null, [data]);
+            $.getJSON("api/vc?sort=ASC&langCode=" + lang, _.bind(function(data) {
+                if (this.ctx["configuration"]["cdkSources"]) {
                     for(var i=0; i< data.length; i++){
                         this.ctx['dictionary'][data[i].pid] = data[i].descs[lang];
                     }
+                    $.getJSON("api/sources", _.bind(function(data) {
+                        this.ctx['linkToSources'] = {};
+                        for(var i=0; i< data.length; i++){
+                            this.ctx['dictionary'][data[i].pid] = data[i].descs[lang];
+                            this.ctx['linkToSources'][data[i].pid] = data[i].url;
+                        }
+                        if (whenready != null) whenready.apply(null, [data]);
+                        this.application.eventsHandler.trigger("i18n/dictionary",data);
+                    },this));
+                } else {
+                    for(var i=0; i< data.length; i++){
+                        this.ctx['dictionary'][data[i].pid] = data[i].descs[lang];
+                    }
+                    
                     if (whenready != null) whenready.apply(null, [data]);
                     this.application.eventsHandler.trigger("i18n/dictionary",data);
-                },this));
-	    },this));
+                }
+                
+            },this));
+        },this));
+
 	},
 
 
@@ -107,6 +140,10 @@ I18N.prototype= {
             return t;
         },
         
+        hasKey: function(key){
+            return this.ctx.dictionary.hasOwnProperty(key);
+        },
+        
         translatableElm:function(key, elmId) {
                 var t = this.ctx.dictionary[key]? this.ctx.dictionary[key]: key;
                 $(elmId).attr('data-key',key);
@@ -127,6 +164,10 @@ I18N.prototype= {
                         var key = $(this).data("key");
                         $(this).attr('title', K5.i18n.ctx.dictionary[key]);
                 });
+                $(obj).find('.translate_placeholder').each(function() {
+                        var key = $(this).data("key");
+                        $(this).attr('placeholder', K5.i18n.ctx.dictionary[key]);
+                });
         },
 
 
@@ -139,6 +180,10 @@ I18N.prototype= {
             $('.translate_title').each(function() {
                 var key = $(this).data("key");
                 $(this).attr('title', K5.i18n.ctx.dictionary[key]);
+            });
+            $('.translate_placeholder').each(function() {
+                    var key = $(this).data("key");
+                    $(this).attr('placeholder', K5.i18n.ctx.dictionary[key]);
             });
         }
 }

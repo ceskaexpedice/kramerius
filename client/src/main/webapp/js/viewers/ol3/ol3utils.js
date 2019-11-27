@@ -105,7 +105,7 @@ function _leftNavigationArrow() {
     }, this));
 
     icon.click(_.bind(function() {
-        K5.gui.selected.prev();
+        //K5.gui.selected.prev();
     }, this));
     return leftArrowContainerDiv;
 }
@@ -128,7 +128,7 @@ function _rightNavigationArrow() {
 
 
     icon.click(function() {
-        K5.gui.selected.next();
+        //K5.gui.selected.next();
     });
 
     return rightArrowContainerDiv;
@@ -229,13 +229,13 @@ function _optionspaneUnlocked(dkey) {
     $.get("svg.vm?svg=unlock",function(data) {
         $("#options_lock").html(data);            
     });
-    if (lockDataKey) {
+    if (dkey) {
         $("#options_lock").attr("data-key",dkey);
         $("#options_lock").attr("title",K5.i18n.ctx.dictionary[dkey]);
     }
 }
 
-function _optionspane() {
+function _optionspane(visibilityOptions) {
     var optionsDiv = $("<div/>",{"id":"options","class":"options"});
     optionsDiv.css("position","absolute");
     var ul = $("<ul/>");
@@ -250,7 +250,8 @@ function _optionspane() {
         if (datakey) {
             div.attr("data-key",datakey);
         }
-
+        div.addClass("translate_title");
+        
         if (title) {
             div.attr("title",title);
         }
@@ -261,43 +262,76 @@ function _optionspane() {
 
         li.append(div);
         if (func) {
+            jQuery(div).mousedown(function(e){ e.preventDefault(); });
             div.click(func);
         }
 
         return div;
     }
-    
-    icondiv(li(ul),"options_fit","fit","buttons.fit",K5.i18n.ctx.dictionary["buttons.fit"], function() {
-        K5.gui.selected.fit();
-    });
 
-    icondiv(li(ul),"options_rotate_left","rotateleft","buttons.fit",K5.i18n.ctx.dictionary["buttons.rotateleft"],function() {
-        K5.gui.selected.rotateLeft();
-    });
-    
-    icondiv(li(ul),"options_rotate_right","rotateright","buttons.fit",K5.i18n.ctx.dictionary["buttons.rotateright"],function() {
-        K5.gui.selected.rotateRight();
-    });
-
-    icondiv(li(ul),"options_plus","plus","buttons.zoomin",K5.i18n.ctx.dictionary["buttons.zoomin"], function() {
-        K5.gui.selected.zoomIn();
-    });
-
-    icondiv(li(ul),"options_minus","minus","buttons.zoomout",K5.i18n.ctx.dictionary["buttons.zoomout"], function() {
-        K5.gui.selected.zoomOut();
-    });
-
-    icondiv(li(ul),"options_lock","unlock","buttons.zoomlock",K5.i18n.ctx.dictionary["buttons.zoomlock"], function() {
-        var visible = $("#options_minus").is(":visible");
-        if (visible) {
-            K5.gui.selected.lockZoom();
-            _optionspaneLocked("buttons.zoomunlock");
+    if (!visibilityOptions || visibilityOptions.maximize) {
+        if(!K5.gui["maximized"]){
+            icondiv(li(ul),"options_maximize","maximize","buttons.maximize",K5.i18n.ctx.dictionary["buttons.maximize"], function() {
+                K5.gui.selected.maximize();
+            });
         } else {
-            K5.gui.selected.unlockZoom();
-            _optionspaneUnlocked("buttons.zoomlock");
+            icondiv(li(ul),"options_maximize","minimize","buttons.minimize",K5.i18n.ctx.dictionary["buttons.minimize"], function() {
+                K5.gui.selected.maximize();
+            });
         }
-    });
-    
+    }
+
+    if (!visibilityOptions || visibilityOptions.fit) {
+        icondiv(li(ul), "options_fit", "fit", "buttons.fit", K5.i18n.ctx.dictionary["buttons.fit"], function () {
+            K5.gui.selected.fit();
+        });
+    }
+
+    if (!visibilityOptions || visibilityOptions.rotateleft) {
+        icondiv(li(ul), "options_rotate_left", "rotateleft", "buttons.rotateleft", K5.i18n.ctx.dictionary["buttons.rotateleft"], function () {
+            K5.gui.selected.rotateLeft();
+        });
+    }
+
+    if (!visibilityOptions || visibilityOptions.rotateright) {
+        icondiv(li(ul), "options_rotate_right", "rotateright", "buttons.rotateright", K5.i18n.ctx.dictionary["buttons.rotateright"], function () {
+            K5.gui.selected.rotateRight();
+        });
+    }
+
+    if (!visibilityOptions || visibilityOptions.zoomin) {
+        icondiv(li(ul), "options_plus", "plus", "buttons.zoomin", K5.i18n.ctx.dictionary["buttons.zoomin"], function () {
+            K5.gui.selected.zoomIn();
+        });
+    }
+
+    if (!visibilityOptions || visibilityOptions.zoomout) {
+        icondiv(li(ul), "options_minus", "minus", "buttons.zoomout", K5.i18n.ctx.dictionary["buttons.zoomout"], function () {
+            K5.gui.selected.zoomOut();
+        });
+    }
+
+    if (!visibilityOptions || visibilityOptions.lock) {
+        icondiv(li(ul), "options_lock", "unlock", "buttons.zoomlock", K5.i18n.ctx.dictionary["buttons.zoomlock"], function () {
+            var visible = $("#options_minus").is(":visible");
+            if (visible) {
+                K5.gui.selected.lockZoom();
+                _optionspaneLocked("buttons.zoomunlock");
+            } else {
+                K5.gui.selected.unlockZoom();
+                _optionspaneUnlocked("buttons.zoomlock");
+            }
+        });
+    }
+
+    /*
+    if (visibilityOptions && visibilityOptions.zoomout) {
+        icondiv(li(ul), "options_findnext", "minus", "buttons.zoomout", K5.i18n.ctx.dictionary["buttons.zoomout"], function () {
+            //K5.gui.selected.zoomOut();
+        });
+    }*/
+
+
     optionsDiv.append(ul);
 
     return optionsDiv;

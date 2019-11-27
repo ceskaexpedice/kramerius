@@ -1,0 +1,743 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+   <lst name="responseHeader">
+      <int name="status">0</int>
+      <int name="QTime">1</int>
+      <lst name="params">
+         <str name="q">parent_pid:"uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8"</str>
+      </lst>
+   </lst>
+   <result name="response" numFound="226" start="0">
+      <doc>
+         <str name="PID">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         <date name="created_date">2014-07-07T06:50:32.089Z</date>
+         <int name="datum_begin">0</int>
+         <int name="datum_end">0</int>
+         <str name="datum_str">199u</str>
+         <arr name="dc.identifier">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+            <str>signature:00150-1070.454</str>
+            <str>sysno:000469418</str>
+            <str>000469418</str>
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         </arr>
+         <str name="dc.title">Lidský kapitál a investice do vzdělání (16. ročník, 2013)</str>
+         <str name="ddt" />
+         <arr name="document_type">
+            <str>monograph</str>
+         </arr>
+         <str name="dostupnost">public</str>
+         <str name="fedora.model">monograph</str>
+         <str name="handle" />
+         <str name="img_full_mime">application/pdf</str>
+         <str name="issn" />
+         <arr name="keywords">
+            <str>lidský kapitál</str>
+            <str>vzdělávání</str>
+            <str>ekonomické aspekty</str>
+            <str>human capital</str>
+            <str>education</str>
+            <str>economic aspects</str>
+            <str>lidský kapitál</str>
+         </arr>
+         <int name="level">0</int>
+         <str name="mdt">331.108.23</str>
+         <arr name="model_path">
+            <str>monograph</str>
+         </arr>
+         <date name="modified_date">2016-03-30T12:28:23.87Z</date>
+         <int name="pages_count">0</int>
+         <arr name="parent_pid">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         </arr>
+         <arr name="pid_path">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         </arr>
+         <arr name="rels_ext_index">
+            <int>0</int>
+         </arr>
+         <int name="rok">0</int>
+         <str name="root_pid">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         <str name="root_title">Lidský kapitál a investice do vzdělání (16. ročník, 2013)</str>
+         <str name="status">Active</str>
+         <arr name="text">
+            <str>Lidský kapitál a investice do vzdělání (16. ročník, 2013)</str>
+            <str>lidský kapitál</str>
+            <str>vzdělávání</str>
+            <str>ekonomické aspekty</str>
+            <str>human capital</str>
+            <str>education</str>
+            <str>economic aspects</str>
+            <str>lidský kapitál</str>
+            <str />
+         </arr>
+         <str name="title_sort">LIDSKY KAPITAL A INVESTICE DO VZDELANI</str>
+         <bool name="viewable">true</bool>
+         <bool name="virtual">false</bool>
+      </doc>
+      <doc>
+         <str name="PID">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@1</str>
+         <date name="created_date">2014-07-07T06:50:32.089Z</date>
+         <int name="datum_begin">0</int>
+         <int name="datum_end">0</int>
+         <str name="datum_str">199u</str>
+         <str name="dc.title">1</str>
+         <arr name="document_type">
+            <str>page</str>
+         </arr>
+         <str name="dostupnost">public</str>
+         <str name="fedora.model">page</str>
+         <str name="handle" />
+         <str name="img_full_mime">application/pdf</str>
+         <int name="level">1</int>
+         <arr name="model_path">
+            <str>monograph/page</str>
+         </arr>
+         <date name="modified_date">2016-03-30T12:28:23.87Z</date>
+         <int name="pages_count">0</int>
+         <arr name="parent_pid">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         </arr>
+         <arr name="pid_path">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@1</str>
+         </arr>
+         <arr name="rels_ext_index">
+            <int>0</int>
+         </arr>
+         <int name="rok">0</int>
+         <str name="root_pid">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         <str name="root_title">Lidský kapitál a investice do vzdělání (16. ročník, 2013)</str>
+         <str name="status">Active</str>
+         <arr name="text">
+            <str>1</str>
+            <str>LIDSKÝ KAPITÁL A INVESTICE DO VZDĚLÁNÍ 
+HUMAN CAPITAL AND INVESTMENT 
+IN EDUCATION
+PROCEEDINGS OF THE 16th INTERNATIONAL SCIENTIFIC CONFERENCE
+SBORNÍK Z 16. MEZINÁRODNÍ VĚDECKÉ KONFERENCE
+Praha, 10. října 2013 / Prague, October 10th, 2013 
+Vysoká škola finanční a správní 
+University of Finance and Administration Prague</str>
+         </arr>
+         <bool name="viewable">true</bool>
+         <bool name="virtual">true</bool>
+      </doc>
+      <doc>
+         <str name="PID">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@2</str>
+         <date name="created_date">2014-07-07T06:50:32.089Z</date>
+         <int name="datum_begin">0</int>
+         <int name="datum_end">0</int>
+         <str name="datum_str">199u</str>
+         <str name="dc.title">2</str>
+         <arr name="document_type">
+            <str>page</str>
+         </arr>
+         <str name="dostupnost">public</str>
+         <str name="fedora.model">page</str>
+         <str name="handle" />
+         <str name="img_full_mime">application/pdf</str>
+         <int name="level">1</int>
+         <arr name="model_path">
+            <str>monograph/page</str>
+         </arr>
+         <date name="modified_date">2016-03-30T12:28:23.87Z</date>
+         <int name="pages_count">0</int>
+         <arr name="parent_pid">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         </arr>
+         <arr name="pid_path">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@2</str>
+         </arr>
+         <arr name="rels_ext_index">
+            <int>0</int>
+         </arr>
+         <int name="rok">0</int>
+         <str name="root_pid">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         <str name="root_title">Lidský kapitál a investice do vzdělání (16. ročník, 2013)</str>
+         <str name="status">Active</str>
+         <arr name="text">
+            <str>2</str>
+            <str>Lidský kapitál a investice do vzdělání 
+Praha, 10. října 2013, Vysoká škola finanční a správní 
+Sborník z 16. mezinárodní vědecké konference 
+ 
+Editor: doc. Radim Valenčík, CSc. 
+ 
+Vydala Vysoká škola finanční a správní, o.p.s.  
+Estonská 500, 101 00 Praha 10 
+Edice EUPRESS, číslo 186 
+Druhé vydání 
+Formát: Online, www.vsfs.cz/lidskykapital 
+Prepress: VŠFS, Educo Uni Group, a. s.  
+ 
+Tato publikace ani autorské příspěvky neprošly jazykovou úpravou. Za příspěvky odpovídají autoři. 
+ 
+© Vysoká škola finanční a správní, o.p.s., 2013 
+ 
+ISBN 978-80-7408-085-2 
+ 
+ 
+Human Capital and Investment in Education 
+Prague, October 10th, 2013, University of Finance and Administration Prague 
+Proceedings of The 16th International Scientific Conference 
+ 
+Editor: doc. Radim Valenčík, CSc. 
+ 
+Publisher: Vysoká škola finanční a správní, o.p.s. (University of Finance and Administration) 
+Estonská 500, 101 00 Praha 10, Czech Republic  
+Edition EUPRESS, number 186 
+Second edition  
+Form: Online, http://www.vsfs.cz/humancapital 
+Prepress: VŠFS, Educo Uni Group, a. s.  
+ 
+This publication and papers has not undergone language editing.  
+ 
+© Vysoká škola finanční a správní, o.p.s., 2013 
+ 
+ISBN 978-80-7408-085-2</str>
+         </arr>
+         <bool name="viewable">true</bool>
+         <bool name="virtual">true</bool>
+      </doc>
+      <doc>
+         <str name="PID">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@3</str>
+         <date name="created_date">2014-07-07T06:50:32.089Z</date>
+         <int name="datum_begin">0</int>
+         <int name="datum_end">0</int>
+         <str name="datum_str">199u</str>
+         <str name="dc.title">3</str>
+         <arr name="document_type">
+            <str>page</str>
+         </arr>
+         <str name="dostupnost">public</str>
+         <str name="fedora.model">page</str>
+         <str name="handle" />
+         <str name="img_full_mime">application/pdf</str>
+         <int name="level">1</int>
+         <arr name="model_path">
+            <str>monograph/page</str>
+         </arr>
+         <date name="modified_date">2016-03-30T12:28:23.87Z</date>
+         <int name="pages_count">0</int>
+         <arr name="parent_pid">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         </arr>
+         <arr name="pid_path">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@3</str>
+         </arr>
+         <arr name="rels_ext_index">
+            <int>0</int>
+         </arr>
+         <int name="rok">0</int>
+         <str name="root_pid">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         <str name="root_title">Lidský kapitál a investice do vzdělání (16. ročník, 2013)</str>
+         <str name="status">Active</str>
+         <arr name="text">
+            <str>3</str>
+            <str>Sborník ze 16. ročníku vědecké konference 
+Lidský kapitál a investice do vzdělání 
+(Textová část) 
+ 
+ 
+Obsah 
+ÚVOD KE SBORNÍKU ZE 16. ROČNÍKU KONFERENCE LIDSKÝ KAPITÁL A INVESTICE 
+DO VZDĚLÁNÍ ................................................................................................................................... 4 
+ 
+English Section ................................................................................................................................. 11 
+1 SOCIAL RESPONSIBILITIES OF THE BUSINESSMAN: 60 YEARS AFTER (R)               
+Jindřichovská, Šárka Kocmanová, Dana Kubičková ......................................................................... 11 
+2 GENERATION Y: MAIN MANAGERIAL AND EDUCATIONAL CHALLENGES (R)       
+Soňa Ferenčíková ............................................................................................................................... 19 
+3 DIVERSIFICATION OF UNIVERSITY EDUCATION (INSTITUTIONS, PROGRAMMES) 
+SEEN FROM THE PERSPECTIVE OF THE INTENDED AMENDMENT OF THE 
+UNIVERSITY LAW (R)                                                                                                                     
+Vladimír Čechák ................................................................................................................................ 30 
+4 THE QUALITY OF HIGHER EDUCATION AS A PREREQUISITE FOR A SUCCESSFUL 
+CAREER START (R)                                                                                                                         
+Miloš Krejčí, Naděžda Petrů .............................................................................................................. 43 
+5 RECRUITMENT PROCESS WITH THE HELP OF TALENT MANAGEMENT - 
+UNIVERSITY AND PRIVATE COMPANY COOPERATION (R)                                                  
+Michal Hlavnička, Miloš Krejčí......................................................................................................... 57 
+6 THE EFFECT OF HUMAN CAPITAL ON FEMALE LABOR FORCE PARTICIPATION 
+RATE: THE CASE STUDY OF IRAN (R)                                                                                        
+Zahra (Mila) Elmi, Kheizaran Roostaei ............................................................................................. 72 
+7 FEATURES OF HEALTH SYSTEM DEVELOPMENT IN KAZAKHSTAN AND THE 
+PROBLEM OF A COMPLEX ASSESSMENT OF SOCIAL AND ECONOMIC BENEFITS OF 
+PUBLIC HEALTH POLICY (R)                                                                                                        
+Zhibek H. Khusainova, Yerlan S. Ibadildinov ................................................................................... 79 
+8 FORMATION AND DEVELOPMENT OF ECONOMY OF KNOWLEDGE AND 
+KAZAKHSTAN’S FEATURE (R)                                                                                                     
+Zhibek S. Khussainova, Zhartay M. Zhartay. .................................................................................... 88 
+9 INDUSTRY IMPROVEMENT AND INNOVATIONS IN KAZAKHSTAN (R)                     
+Gulnur A. Raikhanova ....................................................................................................................... 92</str>
+         </arr>
+         <bool name="viewable">true</bool>
+         <bool name="virtual">true</bool>
+      </doc>
+      <doc>
+         <str name="PID">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@4</str>
+         <date name="created_date">2014-07-07T06:50:32.089Z</date>
+         <int name="datum_begin">0</int>
+         <int name="datum_end">0</int>
+         <str name="datum_str">199u</str>
+         <str name="dc.title">4</str>
+         <arr name="document_type">
+            <str>page</str>
+         </arr>
+         <str name="dostupnost">public</str>
+         <str name="fedora.model">page</str>
+         <str name="handle" />
+         <str name="img_full_mime">application/pdf</str>
+         <int name="level">1</int>
+         <arr name="model_path">
+            <str>monograph/page</str>
+         </arr>
+         <date name="modified_date">2016-03-30T12:28:23.87Z</date>
+         <int name="pages_count">0</int>
+         <arr name="parent_pid">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         </arr>
+         <arr name="pid_path">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@4</str>
+         </arr>
+         <arr name="rels_ext_index">
+            <int>0</int>
+         </arr>
+         <int name="rok">0</int>
+         <str name="root_pid">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         <str name="root_title">Lidský kapitál a investice do vzdělání (16. ročník, 2013)</str>
+         <str name="status">Active</str>
+         <arr name="text">
+            <str>4</str>
+            <str>10 SOCIAL MECHANISM OF STATE REGULATION OF A LABOR MARKET (R)             
+Nesip. N. Eskendir, Batzhan N. Akmoldina ...................................................................................... 96 
+ 
+Česká sekce ..................................................................................................................................... 101 
+11 NEJLEPŠÍHO UČITELE DO NAŠÍ ŠKOLY                                                                        
+Jaroslav A. Jirásek............................................................................................................................ 101 
+12 JE NEJVÍCE INOVATIVNÍ FIRMA USA VSKUTKU PROCESNĚ INOVATIVNÍ? (R) 
+Petr Wawrosz, Ondřej Procházka, Veronika Cahová ...................................................................... 103 
+13 KVALITA PRACOVNÍHO ŽIVOTA V EVROPSKÉM A CELOSVĚTOVÉM 
+KONTEXTU (R)                                                                                                                                
+Hana Beranová, Otakar Němec ........................................................................................................ 111 
+14 PROBLEMATIKA VYSOKÉHO ŠKOLSTVÍ                                                                     
+Michal Blahout, Petr Wawrosz ........................................................................................................ 122 
+15 KE KVALITĚ VYSOKOŠKOLSKÉHO VZDĚLÁVÁNÍ (R)                                              
+Vladislav Pavlát ............................................................................................................................... 132 
+16 VZDĚLÁVÁNÍ  A  VÝCHOVA  STUDENTŮ  VYSOKÝCH ŠKOL (R)                          
+Jaroslav Blaha .................................................................................................................................. 141 
+17 KONCEPTY STEWARDSHIP A GOVERNANCE VE ZDRAVOTNICTVÍ (R)                 
+Jan Mertl .......................................................................................................................................... 148 
+18 INTENZITA A EXTENZITA VÝVOJE VYBRANÝCH ZEMÍ EU (R)                              
+Mihola, Ivana Turková, Tomáš Listopad ......................................................................................... 160 
+19 KDE VZÍT A NEKRÁST                                                                                                          
+Ladislav Žák ..................................................................................................................................... 168 
+20 DŮCHODOVÉ SPOŘENÍ: FISKÁLNÍ &amp; INVESTIČNÍ ILUZE &amp; LŽI (R)                              
+Jaroslav Vostatek ............................................................................................................................. 172 
+21 K PROBLÉMU PODPORY ZDRAVÍ JAKO FAKTORU VYUŽITÍ LIDSKÉHO 
+KAPITÁLU (R)                                                                                                                                       
+Arnošt Klesla.................................................................................................................................... 179 
+ 
+Studentská sekce ............................................................................................................................ 187 
+22 PROBLÉM JMÉNEM MATEMATIKA                                                                               
+Tomáš Kosička ................................................................................................................................. 187 
+23 PROBLEMATIKA TERCIÁRNÍHO VZDĚLÁVÁNÍ (R)                                                   
+Michal Blahout ................................................................................................................................. 194 
+24 FINANCOVÁNÍ VYSOKÉHO ŠKOLSTVÍ V ČESKÉ REPUBLICE                                 
+Lukáš Novotný ................................................................................................................................. 204 
+25 OLIGOPOLNÍ HRÁČI V SEKTORU VÝROBY A PRODEJE LETADEL                           
+Václav Leinweber ............................................................................................................................ 206</str>
+         </arr>
+         <bool name="viewable">true</bool>
+         <bool name="virtual">true</bool>
+      </doc>
+      <doc>
+         <str name="PID">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@5</str>
+         <date name="created_date">2014-07-07T06:50:32.089Z</date>
+         <int name="datum_begin">0</int>
+         <int name="datum_end">0</int>
+         <str name="datum_str">199u</str>
+         <str name="dc.title">5</str>
+         <arr name="document_type">
+            <str>page</str>
+         </arr>
+         <str name="dostupnost">public</str>
+         <str name="fedora.model">page</str>
+         <str name="handle" />
+         <str name="img_full_mime">application/pdf</str>
+         <int name="level">1</int>
+         <arr name="model_path">
+            <str>monograph/page</str>
+         </arr>
+         <date name="modified_date">2016-03-30T12:28:23.87Z</date>
+         <int name="pages_count">0</int>
+         <arr name="parent_pid">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         </arr>
+         <arr name="pid_path">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@5</str>
+         </arr>
+         <arr name="rels_ext_index">
+            <int>0</int>
+         </arr>
+         <int name="rok">0</int>
+         <str name="root_pid">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         <str name="root_title">Lidský kapitál a investice do vzdělání (16. ročník, 2013)</str>
+         <str name="status">Active</str>
+         <arr name="text">
+            <str>5</str>
+            <str>26 POTŘEBUJEME VEŘEJNÉ ŠKOLSTVÍ?                                                                           
+Vítek Zažímal ................................................................................................................................... 215 
+27 TRAJEKTORIE VÝVOJE T-MOBILE CZECH REPUBLIC                                             . 
+Tomáš Listopad ................................................................................................................................ 216 
+28 VÝZNAM VZDĚLÁNÍ – VLASTNÍ ZKUŠENOST                                                            
+Sergej Krasnov ................................................................................................................................. 222</str>
+         </arr>
+         <bool name="viewable">true</bool>
+         <bool name="virtual">true</bool>
+      </doc>
+      <doc>
+         <str name="PID">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@6</str>
+         <date name="created_date">2014-07-07T06:50:32.089Z</date>
+         <int name="datum_begin">0</int>
+         <int name="datum_end">0</int>
+         <str name="datum_str">199u</str>
+         <str name="dc.title">6</str>
+         <arr name="document_type">
+            <str>page</str>
+         </arr>
+         <str name="dostupnost">public</str>
+         <str name="fedora.model">page</str>
+         <str name="handle" />
+         <str name="img_full_mime">application/pdf</str>
+         <int name="level">1</int>
+         <arr name="model_path">
+            <str>monograph/page</str>
+         </arr>
+         <date name="modified_date">2016-03-30T12:28:23.87Z</date>
+         <int name="pages_count">0</int>
+         <arr name="parent_pid">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         </arr>
+         <arr name="pid_path">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@6</str>
+         </arr>
+         <arr name="rels_ext_index">
+            <int>0</int>
+         </arr>
+         <int name="rok">0</int>
+         <str name="root_pid">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         <str name="root_title">Lidský kapitál a investice do vzdělání (16. ročník, 2013)</str>
+         <str name="status">Active</str>
+         <arr name="text">
+            <str>6</str>
+            <str>ÚVOD KE SBORNÍKU ZE 16. ROČNÍKU 
+KONFERENCE LIDSKÝ KAPITÁL A 
+INVESTICE DO VZDĚLÁNÍ 
+ 
+Dne 10.10.2013 úspěšně proběhl 16. ročník mezinárodní vědecké konference Lidský kapitál a 
+investice do vzdělání, kterou pořádala Vysoká škola finanční a správní o. p. s.  
+Jedním z významných přínosů konference byla poměrně vysoká účast odborníků z VŠFS, zejména 
+pak týmová vystoupení, která vznikla jak ve spolupráci mezi katedrami, tak i fakultami, s jinými 
+vysokými školami či ve spolupráci pedagogů a studentů. 
+Poměrně obsáhlá informace o jednom z hlavních témat této konference se dostala i do médií hned 
+v den, kdy se konference konala, tj. 10.10.2013, viz např.: 
+Českým ženám po 32. roku věku ubývá čtenářská, počítačová a numerická gramotnost daleko 
+rychleji než mužům. Vyplývá to z mezinárodního průzkumu Organizace pro hospodářskou 
+spolupráci a rozvoj (OECD). Jde zřejmě o české specifikum, které budou sociologové ještě zkoumat, 
+řekl ve čtvrtek sociolog Petr Matějů. Jedním z důvodů je i fakt, že v ČR nejsou dostupné flexibilní 
+úvazky pro ženy pečující o děti tak jako v jiných státech. "Ve chvíli, kdy ženy nemusejí rozvíjet své 
+schopnosti právě díky mateřství, protože vypadnou z trhu práce, to pravděpodobně působí na pokles 
+kompetencí, protože není stimul. A kde není stimul, není rozvoj," řekl Matějů. To má podle něj 
+fatální důsledky pro pozdější období. Vysvětluje to nejspíš i skutečnost, proč mívají ženy až 
+čtyřicetiprocentní mzdu ve srovnání se stejně vzdělanými muži. "Je to špatně, ale to vysvětlení tady 
+určité je," podotkl. OECD počátkem tohoto týdne zveřejnila první výsledky z výzkumu PIAAC. 
+Zkoumal osoby ve věku 16 až 65 let na přelomu roku 2011 a 2012, zúčastnilo se ho celkem 24 
+vyspělých států. Výsledky projektu byly tématem dnešní odborné konference Lidský kapitál a 
+investice do vzdělání, která se pořádala na Vysoké škole finanční a správní v Praze. Podle výkonné 
+ředitelky Institutu pro sociální a ekonomické analýzy (ISEA) Simony Weidnerové přerušení kariéry 
+v souvislosti s nástupem na mateřskou postihne spíše ženy s nižším vzděláváním. "Pro ně je 
+kariérou rodina," uvedla. Ženy vysokoškolačky naproti tomu přerušují kariéru na co nejkratší 
+možnou dobu. Současný systém české sociální politiky ale dobré podmínky pro vysokoškolačky 
+nevytváří, upozornila. "Když se podíváme na návratnost vysokoškolského vzdělání, tak v porovnání 
+mužů a žen mají ženy podstatně menší návratnost," zdůraznila. Weidnerová míní, že by se měl 
+změnit zákon v nemocenském pojištění, aby ženy měly výhodnější podmínky pro práci na mateřské a 
+rodičovské dovolené. Částečné úvazky jsou podle ní nabízeny málo a jsou obtížně dostupné. Situace 
+má dopad na důchody žen, které negativně ovlivňuje doba mateřské dovolené a délka studia. Tím se 
+otevírají rozdíly mezi výší penzí u mužů a žen. 
+Viz: http://www.novinky.cz/domaci/315810-cesky-nad-32-let-ztraceji-gramotnost-rychleji-nez-
+muzi.html 
+Referát S. Weidnerové oprávněně vzbudil pozornost, protože vycházel z pečlivé analýzy dat a 
+současně přinesl konkrétní, prokazatelně užitečné a realizovatelné návrhy. I řada dalších příspěvků 
+přednesených na konferenci obsahovala konkrétní vědecké i praktické přínosy.  
+Viz též:  
+http://zpravy.ihned.cz/cesko/c1-60985650-oecd-narazila-na-svetovy-unikat-zeny-v-cesku-ztraci-po-
+32-roku-gramotnost 
+http://www.tyden.cz/rubriky/domaci/ceskam-po-32-letech-ubyva-gramotnost-rychleji-nez-
+muzum_285367.html</str>
+         </arr>
+         <bool name="viewable">true</bool>
+         <bool name="virtual">true</bool>
+      </doc>
+      <doc>
+         <str name="PID">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@7</str>
+         <date name="created_date">2014-07-07T06:50:32.089Z</date>
+         <int name="datum_begin">0</int>
+         <int name="datum_end">0</int>
+         <str name="datum_str">199u</str>
+         <str name="dc.title">7</str>
+         <arr name="document_type">
+            <str>page</str>
+         </arr>
+         <str name="dostupnost">public</str>
+         <str name="fedora.model">page</str>
+         <str name="handle" />
+         <str name="img_full_mime">application/pdf</str>
+         <int name="level">1</int>
+         <arr name="model_path">
+            <str>monograph/page</str>
+         </arr>
+         <date name="modified_date">2016-03-30T12:28:23.87Z</date>
+         <int name="pages_count">0</int>
+         <arr name="parent_pid">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         </arr>
+         <arr name="pid_path">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@7</str>
+         </arr>
+         <arr name="rels_ext_index">
+            <int>0</int>
+         </arr>
+         <int name="rok">0</int>
+         <str name="root_pid">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         <str name="root_title">Lidský kapitál a investice do vzdělání (16. ročník, 2013)</str>
+         <str name="status">Active</str>
+         <arr name="text">
+            <str>7</str>
+            <str>http://zpravy.tiscali.cz/ceskym-zenam-rapidne-ubyva-po-32-roku-gramotnost-218658 
+Po skončení konference jsme v našem týmu vyhodnotili situaci (jak z hlediska toho, co přinesla 
+konference, tak i z hlediska společenského kontextu) a rozhodli se pokusit se v dalších čtyřech 
+létech uspořádat čtyři na sebe navazující a postupně gradující konference. Ty by vycházely z tradice 
+i tradičního zaměření dosavadních konferencí a vyústily by v předložení projektu vzájemně 
+provázaných reforem v oblasti sociálního investování a sociálního pojištění (tj. reforem v oblasti 
+financování vzdělání, péče o zdraví, penzijního systému, ale i péče o rodinu apod.). A to 
+v bezprostřední souvislosti s trendy zrodu ekonomiky založené na produktivních službách 
+spojených s nabýváním a uchováním lidského kapitálu. 
+Lze totiž předpokládat, že vláda či vlády, které budou působit po letošních mimořádných volbách, 
+nebudou mít ani chuť ani schopnost připravit, nechat projít odbornou a veřejnou diskusí a na 
+základě toho i prosadit reformy ve výše uvedených oblastech. Naléhavost těchto reforem přitom 
+roste a jejich nezbytnost (i škodlivost důsledků jejich odkládání) se bude ukazovat stále zřetelněji. 
+Patrně budeme opět svědky prosadit místo skutečných reforem tunely, tj. takové změny, které 
+problémy v uvedených oblastech neřeší, ale umožňují vytěžit znační prostředky ve prospěch 
+různých lobby. Dosavadní zkušenosti, odborný potenciál i rozsáhlé domácí i mezinárodní kontakty 
+mohou přinést i potřebnou autoritu série konferencí i výsledného projektu. To zvyšuje šanci na to, 
+že v návaznosti na volby, které patrně za čtyři roky, tj. v říjnu 2017 proběhnout, bude možno 
+pozitivně ovlivnit programy politických stran již v době jejich přípravy. Tak, aby nedošlo k takové 
+ideové (odborné, obsahové apod.) vyprázdněnosti, jak tomu je v těchto volbách a která se velmi 
+rychle projeví neschopností vyrovnat se s reálnými problémy. Pro kvalifikovanou změnu 
+vycházející z pochopení současného dění bude v tu dobu nejvyšší čas. 
+Pracovní hypotéza, ze které může vycházet koncepce reforem (a která bude při přípravě dalšího 
+ročníku i na samotné konferenci v roce 2014 podrobena kritické analýze), se může odvinout od 
+následujícího schématu prezentovaného na konferenci: 
+ 
+ 
+Tj. že zainteresovanost subjektů působících v oblasti produktivních služeb spojených 
+s nabýváním, uchováním a uplatněním lidského kapitálu, vytvoření zpětných vazeb mezi 
+efekty produktivních služeb a financováním těchto subjektů, může podstatným způsobem 
+přispět k vyšší dynamice ekonomického růstu, pozitivním změnám jeho charakteru a zvýšení 
+kvality života lidí. 
+Modrá plocha představuje celoživotní příjem člověka, který odpovídá tomu, co vyprodukoval: 
+- Tmavomodrá ve stávajícím typu ekonomického růstu. 
+- Světlemodrá (jejíž obsah je na obrázku dvojnásobný) ekonomickému růstu v podmínkách, kdy se 
+nejvýznamnější složkou ekonomiky stanou odvětví produktivních služeb, tj. odvětví spojená 
+s nabývání, uplatňováním a uchováním lidského kapitálu (zejména vzdělání, péče o zdraví, ale 
+kromě toho i vytváření absolventských sítí univerzit, péče o rodinu, relaxační a rekreační odvětví, 
+kultura apod.)</str>
+         </arr>
+         <bool name="viewable">true</bool>
+         <bool name="virtual">true</bool>
+      </doc>
+      <doc>
+         <str name="PID">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@8</str>
+         <date name="created_date">2014-07-07T06:50:32.089Z</date>
+         <int name="datum_begin">0</int>
+         <int name="datum_end">0</int>
+         <str name="datum_str">199u</str>
+         <str name="dc.title">8</str>
+         <arr name="document_type">
+            <str>page</str>
+         </arr>
+         <str name="dostupnost">public</str>
+         <str name="fedora.model">page</str>
+         <str name="handle" />
+         <str name="img_full_mime">application/pdf</str>
+         <int name="level">1</int>
+         <arr name="model_path">
+            <str>monograph/page</str>
+         </arr>
+         <date name="modified_date">2016-03-30T12:28:23.87Z</date>
+         <int name="pages_count">0</int>
+         <arr name="parent_pid">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         </arr>
+         <arr name="pid_path">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@8</str>
+         </arr>
+         <arr name="rels_ext_index">
+            <int>0</int>
+         </arr>
+         <int name="rok">0</int>
+         <str name="root_pid">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         <str name="root_title">Lidský kapitál a investice do vzdělání (16. ročník, 2013)</str>
+         <str name="status">Active</str>
+         <arr name="text">
+            <str>8</str>
+            <str>V ekonomice založené na produktivních službách je exponenciálně dynamický a současně trvale 
+udržitelný růst naprosto reálný. Je to navíc růst, který nejenže nezatěžuje životní prostředí, ale 
+naopak vede k odstraňování škod, které na něm byly napáchány. Je to dáno tím, že produkce 
+lidských schopností znamená zejména zvyšování inovačních schopností člověka, tj. jeho schopnosti 
+vytvářet vyšší užitky při radikálně se snižujícím množství přírodních vstupů. 
+Odpověď na otázku, jak může být ekonomický růst (a obecně i společenský vývoj jako takový) 
+velmi dynamický (dokonce exponenciálně dynamický) a současně trvale udržitelný (dlouhodobě 
+neomezený) je naprosto zásadní. Běžnému vědomí (tomu, které se omezuje setrvačným viděním 
+světa, které není dostatečně znalé toho, jak se historicky vyvíjely vize pozitivní vývoje společnosti, 
+které není schopno nadhledu i určité fantazie) se zdá být požadavek exponenciálně dynamického 
+růstu a současně trvalé udržitelnosti nespojitelný. Pro běžné vědomí něco takového není prostě 
+možné. Ale ono to možné je. Svět je ve své podstatě neomezený i nevyčerpatelný a právě tak jsou 
+neomezené i nevyčerpatelné naše možnosti jej poznávat a ovládat prostředí, ve kterém žijeme, 
+rozšiřovat si okruh našeho vlivu a vyvíjet se v tomto světě. 
+Představa o možnosti vzájemně spojit exponenciální ekonomický růst s trvalou udržitelností je 
+v dnešním světě naprosto zásadní. Bez této představy totiž budou vítězit: 
+- Buď globální konfrontační vize boje o přežití v rámci světa omezených zdrojů. 
+- Nebo romanticko-revolučnímu snění o blížící se katastrofě, po překonání které dojde k podřízení 
+všech lidí řízené redistribuci omezených zdrojů.   
+ 
+Přejít od stávající ekonomiky k ekonomice produktivních služeb (která bývá nazývána nepřesně 
+vzdělanostní ekonomikou, znalostní ekopnomikou apod.) je poměrně "snadné". "Stačí", aby se 
+ekonomické efekty, které vznikají ve směrech uvedených na obrázku, vracely těm ekonomickým 
+subjektům, které se o ně zasloužily. Tj. jak konkrétním lidem, tak i subjektům, které poskytují 
+produktivní služby. (Slova "snadné" a "stačí" jsem dal záměrně do uvozovek, protože to je právě to 
+nejsložitější.) Jinými slovy jde o to, aby ten, kdo např. poskytuje kvalitní vzdělávací služby vedoucí 
+k vyššímu příjmu těch, kterým je poskytuje, z toho měl zdroj příjmů, podobně jako ten, kdo jeho 
+služby využívá. A podobě v ostatních případech poskytování služeb spojených s výchovou dětí, 
+omezováním nemocnosti apod. Pokud totiž takovou zpětnou vazbu nedokážeme vytvořit, 
+nedokážeme novou ekonomiku, ekonomiku produktivní spotřeby odstartovat. Z vytvořených zdrojů 
+totiž budou mít užitek ti, co vznik nové ekonomiky blokují, zatímco ti, kteří by byli sto novou 
+ekonomiku prosadit, budou blokováni nedostatkem zdrojů pro svůj rozvoj.  
+K prosazení nové ekonomiky je nutný komplex vzájemně provázaných reforem v odvětvích 
+sociálního investování a sociálního pojištění (zejména vzdělání, péče o zdraví a penzijního 
+pojištění).  
+ 
+Mediální ohlasy na konferenci 
+Na konferenci se akreditovalo sedm novinářů (tři ze společného listu). Na akci se osobně dostavilo 
+šest novinářů, čtyři přímo na tiskovou konferenci. Sedmý si podklady vyžádal mailem. 
+Do 18. 10. bylo zveřejněno šest článků, čtyři s klíčovým slovem Vysoká škola finanční a správní, 
+dva s klíčovým slovem Petr Matějů (viz Příloha 2). Monitorovány jsou zpravodajské výstupy. 
+Materiály byly také uveřejněny na webu www.ucitelske-listy.cz a www.rozhlas.cz 
+(http://www.rozhlas.cz/zpravy/politika/_zprava/1270016). Radiožurnál příspěvek i vysílal. 
+Zpravodajské výstupy budou zkontrolovány ještě po měsíci od konference (zachycení měsíčníků). 
+ 
+Příloha: Tisková zpráva z konference Lidský kapitál a investice do vzdělání pořádané 
+Vysokou školou finanční a správní o. p. s. zveřejněná 10.10.2013: 
+Tradice konferencí na téma lidský kapitál a investice do vzdělání sahá do roku 2003, kdy se konal 
+první ročník. Každý ročník přichází s nějakou inovací. Loňské konference se tak zúčastnili 
+odborníci z 18 zemí. Při přípravě letošního ročníku se nám naskytla možnost využít naší tradiční 
+konference jako prvního odborného fóra, na kterém budou prezentovány a diskutovány výsledky 
+mimořádně významného mezinárodního projektu OECD PIAAC (Programme for International</str>
+         </arr>
+         <bool name="viewable">true</bool>
+         <bool name="virtual">true</bool>
+      </doc>
+      <doc>
+         <str name="PID">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@9</str>
+         <date name="created_date">2014-07-07T06:50:32.089Z</date>
+         <int name="datum_begin">0</int>
+         <int name="datum_end">0</int>
+         <str name="datum_str">199u</str>
+         <str name="dc.title">9</str>
+         <arr name="document_type">
+            <str>page</str>
+         </arr>
+         <str name="dostupnost">public</str>
+         <str name="fedora.model">page</str>
+         <str name="handle" />
+         <str name="img_full_mime">application/pdf</str>
+         <int name="level">1</int>
+         <arr name="model_path">
+            <str>monograph/page</str>
+         </arr>
+         <date name="modified_date">2016-03-30T12:28:23.87Z</date>
+         <int name="pages_count">0</int>
+         <arr name="parent_pid">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         </arr>
+         <arr name="pid_path">
+            <str>uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@9</str>
+         </arr>
+         <arr name="rels_ext_index">
+            <int>0</int>
+         </arr>
+         <int name="rok">0</int>
+         <str name="root_pid">uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8</str>
+         <str name="root_title">Lidský kapitál a investice do vzdělání (16. ročník, 2013)</str>
+         <str name="status">Active</str>
+         <arr name="text">
+            <str>9</str>
+            <str>Assessment of Adult Competencies) zaměřeného na formování kompetencí dospělých a jejich úlohu 
+v životním úspěchu a na pracovním trhu. Projekt PIAAC navazuje na dřívější šetření funkční 
+gramotnosti dospělých IALS/SIALS (International Adult Literacy Survey) z roku 1998, rovněž 
+koordinovaný OECD. Česká republika participovala na obou těchto významných mezinárodních 
+projektech, které významným způsobem přispívají k hlubšímu poznání procesů formování i 
+zhodnocování lidského kapitálu.  
+Šestnáctiletá tradice našich konferencí vedla zejména k následujícím závěrům: 
+1. Reformy v odvětvích, která se podílejí na nabývání, uchování a uplatnění lidského kapitálu 
+(zejména oblasti vzdělání a péče o zdraví) jsou nutnou podmínkou změn souvisejících se vznikem 
+vzdělanostní společnosti. 
+2. Tyto reformy, pokud mají být úspěšné, musejí být vzájemně propojeny jako komplex reforem v 
+oblasti sociálního investování a sociálního pojištění (tj. musejí zahrnovat i reformu penzijního 
+systému). 
+3. Mimořádně významné místo v těchto reformách zaujímají reformy terciárního vzdělání, které 
+hrají roli motoru reforem v ostatních oblastech. 
+4. Skutečnost, že jsme svědky jak v ČR, tak i dalších zemích nezbytnost zásadních reforem obcházet 
+dílčími či polovičatými opatřením, příp. dokonce reformy různým způsobem zneužívat, se projevuje 
+ve zhoršujících se ekonomických i sociálních parametrech těch, zemí, v nichž k tomu dochází, a 
+naléhavost dobře připravených hlubokých reforem ještě více zvyšuje.  
+Z tohoto hlediska letošní konference navázala jak na závěry předcházejících ročníků, tak na čerstvě 
+(tj. v 8. 10. 2013 v 11 hodin) oficiálně zveřejněná data z projektu PIAAC. Základní výsledky za 
+Českou republiku v mezinárodním srovnání byly již prezentovány na tiskové konferenci pořádané 
+MŠMT. Naše letošní konference je první, na které byly prezentovány výsledky analýz českých dat z 
+projektu PIAAC zaměřené zejména na následující otázky: 
+1. Jak se ve světle nových dat v ČR vyvíjely vzdělanostní nerovnosti?  
+Ve vývoji sociálně-ekonomických nerovností v šancích na dosažení vyššího vzdělání nelze v 
+dlouhodobé perspektivě identifikovat jednoznačný trend. Určitým překvapením je růst vlivu 
+sociálně-ekonomického statusu výchozí rodiny na dosažení středního vzdělání s maturitou, který je s 
+velikou pravděpodobností způsoben posilování negativní sociální výlučnosti středního vzdělání bez 
+maturity (vyučení). V přechodu mezi střední a vysokou školou a šancích na dosažení 
+vysokoškolského vzdělání hraje sociálně-ekonomický status výchozí rodiny významnou a bohužel 
+stále stejnou, tj. poměrně silnou, roli. Jediná skutečně zřetelná změna v šancích na dosažení vyššího 
+vzdělání, zejména vysokoškolského, se odehrála mezi muži a ženami. Zatímco na počátku 
+sledovaného období (tj. zhruba před čtyřiceti lety) byly šance žen na dosažení vysokoškolského 
+vzdělání mnohem nižší než šance mužů (u středoškolského vzdělání byly šance vyrovnané), v 
+průběhu posledních dvaceti let došlo v tomto směru doslova k revoluci: ženy mají dnes ve srovnání 
+s muži dvakrát větší šanci na dosažení středního vzdělání, v šancích na uskutečnění přechodu mezi 
+středním a vysokoškolským vzděláním a na dosažení vysokoškolského vzdělání byl vývoj 
+zvýhodňující ženy ještě výraznější: z poloviční šance žen ve srovnání s muži před čtyřiceti lety se 
+poměr změnil na třikrát větší šance žen ve srovnání s muži.  
+2. Co šetření PIAAC říká o formování kompetencí v ČR: vliv sociálního původu, pohlaví, vzdělání a 
+věku na úroveň kompetencí. 
+Podle očekávání jsou kompetence formovány jak dosaženým vzděláním, tak sociálním původem, 
+přičemž určitý, nikoli však zásadní, vliv má i pohlaví. Poměrně překvapivé je však zjištění, že téměř 
+dvě třetiny rozdílů v kompetencích v dospělém věku nelze připsat ani jednomu z těchto faktorů nebo 
+jejich společnému působení. To tedy znamená, že kompetence se utváří v průběhu života pod vlivem 
+jiných faktorů, které bychom mohli shrnout pod pojem "aktivní přístup k životu". K zajímavým 
+zjištěním patří i to, že vliv vzdělání matky na dosažené vzdělání i kompetence je celkově silnější než 
+vliv vzdělání otce.  
+Pokud jde o vliv pohlaví, analýza prokázala, že ženy sice ve srovnání s muži dosahují poněkud nižší 
+celkové hladiny kompetencí, vedle tohoto obecného vlivu se ale prosazují některé specifické vlivy, 
+jmenovitě určitá převaha žen nad muži v čtenářské gramotnosti a mírná převaha mužů nad ženami</str>
+         </arr>
+         <bool name="viewable">true</bool>
+         <bool name="virtual">true</bool>
+      </doc>
+   </result>
+</response>

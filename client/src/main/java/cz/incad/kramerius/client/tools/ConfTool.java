@@ -70,4 +70,14 @@ public class ConfTool {
             return "{}";
         }
     }
+    
+    public boolean resetIndexConfig(){
+        try {
+            IndexConfig.resetInstance();
+            return true;
+        } catch (Exception ex) {
+            Logger.getLogger(ConfTool.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
 }

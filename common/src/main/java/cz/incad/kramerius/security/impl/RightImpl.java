@@ -54,7 +54,7 @@ public class RightImpl implements Right {
     @Override
     public String getPid() {
         //TODO: remove this test
-        if (!this.pid.startsWith("uuid:")) {
+        if (!this.pid.startsWith("uuid:") && !this.pid.startsWith("vc:")) {
             return "uuid:"+this.pid;
         } else return this.pid;
     }

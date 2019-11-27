@@ -16,7 +16,9 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.item.decorators.details;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 
 public abstract class AbstractDetailDecorator extends AbstractItemDecorator {
@@ -27,7 +29,7 @@ public abstract class AbstractDetailDecorator extends AbstractItemDecorator {
         return details.split("##");
     }
 
-    public String getModel(JSONObject jsonObj) {
-        return jsonObj.containsKey("model") ? jsonObj.getString("model") : null;
+    public String getModel(JSONObject jsonObj) throws JSONException {
+        return jsonObj.has("model") ? jsonObj.getString("model") : null;
     }
 }

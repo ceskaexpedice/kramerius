@@ -28,9 +28,12 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.utils.solr.SolrUtils;
+
+
 
 public class SolrUtilsTest {
 
@@ -59,6 +62,29 @@ public class SolrUtilsTest {
         Assert.assertEquals("uuid:55219067-435f-11dd-b505-00145e5790ea", disectedPid);
     }
 
+
+    @Test
+    public void disectPIDFromPDFDoc() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        Document parsed = solrPDFDocument2();
+        //XMLUtils.getElements(parsed.getDocumentElement(),new XMLUT);
+        Element findElement = XMLUtils.findElement(parsed.getDocumentElement(), "result");
+        Assert.assertNotNull(findElement);
+        List<Element> elements = XMLUtils.getElements(findElement, new XMLUtils.ElementsFilter() {
+
+            @Override
+            public boolean acceptElement(Element element) {
+                return element.getNodeName().equals("doc");
+            }
+        });
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8", SolrUtils.disectPid(elements.get(0)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@1", SolrUtils.disectPid(elements.get(1)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@2", SolrUtils.disectPid(elements.get(2)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@3", SolrUtils.disectPid(elements.get(3)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@4", SolrUtils.disectPid(elements.get(4)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@5", SolrUtils.disectPid(elements.get(5)));
+        Assert.assertEquals("uuid:0823498e-bd85-4a98-b649-42ee5d43f5d8/@6", SolrUtils.disectPid(elements.get(6)));
+    }
+
     public static Document solrDocument() throws ParserConfigurationException, SAXException, IOException {
         InputStream is = SolrUtilsTest.class.getResourceAsStream("solr1.xml");
         Document parsed = XMLUtils.parseDocument(is);
@@ -74,6 +100,11 @@ public class SolrUtilsTest {
 
     public static Document solrPDFDocument() throws ParserConfigurationException, SAXException, IOException {
         InputStream is = SolrUtilsTest.class.getResourceAsStream("solrpdf.xml");
+        Document parsed = XMLUtils.parseDocument(is);
+        return parsed;
+    }
+    public static Document solrPDFDocument2() throws ParserConfigurationException, SAXException, IOException {
+        InputStream is = SolrUtilsTest.class.getResourceAsStream("solrpdf2.xml");
         Document parsed = XMLUtils.parseDocument(is);
         return parsed;
     }

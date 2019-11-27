@@ -3,6 +3,7 @@
 #parse("html_header.vm")
 <body>
 <div class="small">
+#parse("svg/docout.svg")
 #parse("svg/parent.svg")
 
 #parse("svg/arrowleft.svg")
@@ -21,6 +22,8 @@
 #parse("svg/markline-left.svg")
 #parse("svg/markline-right.svg")
 #parse("svg/arrow2d.svg")
+#parse("svg/maximize.svg")
+#parse("svg/minimize.svg")
 #parse("svg/fit.svg")
 #parse("svg/lupa.svg")
 #parse("svg/hit.svg")
@@ -35,6 +38,7 @@
 
 </div>
 <div class="big" >
+#parse("svg/docout.svg")
 #parse("svg/parent.svg")
 #parse("svg/arrowleft.svg")
 #parse("svg/arrowright.svg")
@@ -70,6 +74,8 @@
 
 </div>
 <div>
+#parse("svg/maximize.svg")
+#parse("svg/docout.svg")
 #parse("svg/parent.svg")
 #parse("svg/arrowleft.svg")
 #parse("svg/arrowright.svg")

@@ -2,8 +2,8 @@ package org.gradle;
 
 import org.gradle.api.*;
 import org.gradle.api.plugins.cargo.*;
-import org.gradle.api.plugins.cargo.tasks.remote.CargoDeployRemote;
-import org.gradle.api.plugins.cargo.tasks.remote.CargoUndeployRemote;
+//import org.gradle.api.plugins.cargo.tasks.remote.CargoDeployRemote;
+//import org.gradle.api.plugins.cargo.tasks.remote.CargoUndeployRemote;
 
 
 public class ServersExtension {
@@ -22,7 +22,8 @@ public class ServersExtension {
 
 		return true;
         }
-
+		
+		/*
         public void http(String ident, String address,String portKey, String unameKey, String pswdKey) {
                 if (checkProperty(unameKey, pswdKey,portKey)) {
                         String uname = this.project.property(unameKey);
@@ -81,7 +82,8 @@ public class ServersExtension {
                 undeploy.username = srv.userName;
                 undeploy.password = srv.password;
                 undeploy.containerId = srv.containerId;        
-        }        
+        } 
+		 */
 
         public List<Server> getServers() {
                 return this.servers;

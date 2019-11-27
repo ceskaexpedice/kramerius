@@ -1,7 +1,7 @@
 function ItemThumbs(appl, elem) {
     this.application = (appl || K5);
 
-    var jqSel = (elem || '#viewer>div.container');        
+    var jqSel = (elem || '#viewer>div.container>div.thumbs');        
     this.elem = $(jqSel);
 
     this.init();
@@ -25,11 +25,12 @@ ItemThumbs.prototype = {
     maxInfoLength: 100,
     init: function() {
 
-        $("ul.container").remove();
+        this.elem.empty();
 
         this.container = $('<ul/>');
         this.container.addClass('container');
         this.elem.append(this.container);
+        this.elem.css("width", "100%");
         this.width = this.elem.width() - this.containerMargin * 2;
         this.height = this.elem.height() - this.containerMargin * 2;
         this.hits = {};
@@ -106,7 +107,7 @@ ItemThumbs.prototype = {
                 this.setLoading(false);
             }
             $("#viewer>div.loading").hide();
-            this.getHits();
+            this.getHits(false);
 
             K5.eventsHandler.trigger("application/menu/ctxchanged", null);
 
@@ -122,14 +123,8 @@ ItemThumbs.prototype = {
             this.setLoading(true);
             $("#q").val(q);
             this.hits = {};
-            $('li.hit').each(function() {
-                $(this).tooltip("option", "content", $(this).data("tt"));
-            });
-            $('li.chit').each(function() {
-                $(this).tooltip("option", "content", $(this).data("tt"));
-            });
             $('li.thumb').removeClass("hit chit");
-            this.getHits();
+            this.getHits(true);
         }
         cleanWindow();
     },
@@ -142,24 +137,32 @@ ItemThumbs.prototype = {
             height: 75,
             position: {of: $("#contextbuttons>div.search"), my: "left top", at: "left bottom"},
 
-//            buttons: {
-//                "OK": function() {
-//                    th.dosearch();
-//                    //$(this).dialog("close");
-//                },
-//                Cancel: function() {
-//                    $(this).dialog("close");
-//                }
-//            },
-
             focus: function() {
                 $("#searchinside_q").focus();
                 $("#searchinside_q").select();
             }
         });
     },
-    getHits: function() {
-        if ($("#q").val() == "") {
+
+    _params: function() {
+        var params = {};
+        if (location.search) {
+            var parts = location.search.substring(1).split('&');
+
+            for (var i = 0; i < parts.length; i++) {
+                var nv = parts[i].split('=');
+                if (!nv[0]) continue;
+                params[nv[0]] = nv[1] || true;
+            }
+        }
+        return params;
+    },
+
+
+    getHits: function(showalert) {
+        var authorFlag = typeof this._params()['author'] !== 'undefined' && this._params()['author'] !== null;
+        var searchFlag = $("#q").val() !== ""  &&  $("#q").val() !== null  &&  typeof $("#q").val() !== 'undefined';
+        if (!authorFlag && !searchFlag && !isAdvancedSearch()) {
             return;
         }
         if (jQuery.isEmptyObject(this.hits)) {
@@ -170,14 +173,42 @@ ItemThumbs.prototype = {
             for (var i = 0; i < context.length; i++) {
                 pid_path += context[i].pid + "/";
             }
-            var q = "q=" + $("#q").val() + "&rows=5000&fq=pid_path:" + pid_path.replace(/:/g, "\\:") + "*";
-            var hl = "&hl=true&hl.fl=text_ocr&hl.mergeContiguous=true&hl.snippets=2";
+            var fq = setAdvSearch();
+
+            var q = "q=";
+            if(searchFlag && authorFlag){
+                q += "(text:" + $("#q").val()+" OR dc.creator:"+this._params()['author']+")";
+            } else if(searchFlag){
+                q += "(text:" + $("#q").val()+")";
+            } else if(authorFlag){
+                q += "(dc.creator:"+this._params()['author']+")";
+            }else if(fq !== ""){
+                q = "q=*:*";
+            }
+            q += "&rows=5000&fq=pid_path:" + pid_path.replace(/:/g, "\\:") + "*";
+
+            var hl = authorFlag ? "&hl=true&hl.fl=text_ocr,dc.creator&hl.mergeContiguous=true&hl.snippets=2" : "&hl=true&hl.fl=text_ocr&hl.mergeContiguous=true&hl.snippets=2";
+
             K5.api.askForSolr(q + hl, _.bind(function(data) {
+              var numFound = data.response.numFound;
                 console.log("Hits: " + data.response.numFound);
                 //console.log(JSON.stringify(data));
                 this.hits = data.response.docs;
                 this.highlighting = data.highlighting;
                 this.setHitClass();
+                
+                if(showalert){
+                    var key = 'common.page.plural_2';
+                    if (numFound > 4) {
+                        key = 'common.page.plural_2';
+                    } else if (numFound > 1) {
+                        key = 'common.page.plural_1';
+                    } else {
+                        key = 'common.page.singural';
+                    }
+                    alert(K5.i18n.ctx.dictionary["common.found"] + " " + numFound + " " + K5.i18n.ctx.dictionary[key]);
+                }
+                
             }, this));
         } else {
             this.setHitClass();
@@ -200,7 +231,7 @@ ItemThumbs.prototype = {
                     for (var j = 0; j < hl[pid].text_ocr.length; j++) {
                         hltext += '<div class="hl">' + hl[pid].text_ocr[j] + '</div>';
                     }
-                    $(this).tooltip("option", "content", tt + hltext);
+//                    $(this).tooltip("option", "content", tt + hltext);
                     break;
                 } else if (pid_path.indexOf(lipid) > -1) {
                     $(this).addClass('chit');
@@ -236,6 +267,8 @@ ItemThumbs.prototype = {
         if (this.thloaded >= this.thumbs.length) {
             this.setLoading(false);
             this.checkScroll();
+            var max = Math.max($("#viewer li.thumb img").width());
+            $("#viewer li.thumb").css("width", max + 40);
         }
     },
     checkScroll: function(){
@@ -291,6 +324,7 @@ ItemThumbs.prototype = {
     thumbCurWidth: 0,
     thumbCurHeight: 0,
     setCurThumbSize: function(w, h) {
+        return;
         if(w > this.thumbCurWidth || (h > this.thumbCurHeight && this.thumbCurHeight !== this.thumbMaxHeight)){
             //this.thumbCurWidth = Math.min(w, this.thumbMaxWidth);
             this.thumbCurWidth = w;
@@ -304,12 +338,14 @@ ItemThumbs.prototype = {
         }
     },
     setDimensions: function() {
-        
+        return;
         $('#viewer li.thumb').css('width', this.thumbMaxWidth).css('height', this.thumbMaxHeight);
         
     },
     addThumb: function(index) {
         var pid = this.thumbs[index].pid ? this.thumbs[index].pid : this.thumbs[index].PID;
+        var model = this.thumbs[index].model;
+        var datanode = this.thumbs[index].datanode;
 
         var imgsrc = 'api/item/' + pid + '/thumb';
         var img = $('<img/>', {src: "images/empty.gif"});
@@ -325,7 +361,7 @@ ItemThumbs.prototype = {
             if (itemths.imgHeight * relation > itemths.imgWidth) {
                 $(img).css("top", (itemths.thumbHeight - itemths.imgHeight)/2);
                 if(w > itemths.imgWidth){
-                    $(img).css("width", "calc(100% - 8px)");
+                    //$(img).css("width", "calc(100% - 8px)");
                     //$(img).attr("width", Math.min(w, itemths.imgWidth));
                 }else{
 //                    $(img).css("width", w);
@@ -333,7 +369,7 @@ ItemThumbs.prototype = {
             } else {
                 var finalh = Math.min(h, itemths.imgHeight);
 //                    $(img).attr("height", finalh);
-                    $(img).css("height", "calc(100% - 8px)");
+                    //$(img).css("height", "calc(100% - 8px)");
                     $(img).css("top", (itemths.thumbHeight - finalh)/2);
 //                if(h > itemths.imgHeight){
 //                    
@@ -356,7 +392,17 @@ ItemThumbs.prototype = {
         thumb.css('width', this.thumbWidth + "px");
         thumb.css('height', this.thumbHeight + "px");
         img.click(function() {
-            K5.api.gotoDisplayingItemPage(pid, $("#q").val());
+            var hash = hashParser();
+            hash.pid = pid;
+            var histDeep = getHistoryDeep() + 1;
+            hash.hist = histDeep;
+            if(datanode){
+                //hash.pmodel = model;
+            }else{
+                hash.pmodel = model;
+            }
+            K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
+            
         });
 
         var title = '<span class="title">' + K5.i18n.translatable('fedora.model.' + this.thumbs[index].model) + " " + this.thumbs[index].title + '</span>';
@@ -370,29 +416,33 @@ ItemThumbs.prototype = {
         this.container.append(thumb);
 
         thumb.append(img);
-        var infoDiv = $('<div/>', {class: "thumb_info"});
-        infoDiv.append(title);
-        thumb.append(infoDiv);
+//        var infoDiv = $('<div/>', {class: "thumb_info"});
+//        infoDiv.append(title);
+//        thumb.append(infoDiv);
+        thumb.append(tt);
         
         thumb.addClass('policy');
         if (this.thumbs[index].policy) {
             thumb.addClass(this.thumbs[index].policy);
         }
 
-        thumb.tooltip({
-            content: tt,
-            //position: {my: "left top", at: "left bottom+6"},
-            position: {my: "left top", at: "left top"},
-            open: function(event, ui) {
-                K5.i18n.k5translate($(ui.tooltip[0]));
-            }
-        });
+//        thumb.tooltip({
+//            content: tt,
+//            //position: {my: "left top", at: "left bottom+6"},
+//            position: {my: "left top", at: "left top"},
+//            open: function(event, ui) {
+//                K5.i18n.k5translate($(ui.tooltip[0]));
+//            }
+//        });
         this.container.append(thumb);
     },
     getDetails: function(json, info) {
         var model = json["model"];
         var details = json["details"];
         var root_title = json["root_title"];
+        if(root_title == null){
+            root_title = json.title;
+        }
         var detFull = "";
         var detShort = "";
         if (details) {

@@ -16,7 +16,10 @@
 #end
 
 #parse("footer.vm")
+#parse("cookie.vm")
 #parse("small/small.vm")
+
+
 
 </body>
 </html>

@@ -26,7 +26,9 @@ K5.eventsHandler.addHandler(function(type, configuration) {
 });
 
 var Results = function(elem) {
+    
     this.elem = elem;
+    this.displayStyle = "display";
     this._init();
 };
 
@@ -35,13 +37,17 @@ Results.prototype = {
         if (this.resultsLoaded)
             return;
         this.addContextButtons();
-        $("#search_results").resize(_.bind(function() {
-            this.srResize();
+        
+        K5.eventsHandler.addHandler(_.bind(function(type, data) {
+            if (type === "window/resized") {
+                this.srResize();
+            }
         }, this));
-        this.getDocs();
-        var hash = window.location.hash;
-        if (hash.length > 1) {
-            if (hash.substring(1) === "asrow")
+
+        this.getDocs(false);
+        var hash = hashParser();
+        if (hash.hasOwnProperty(this.displayStyle) > 1) {
+            if (hash[this.displayStyle] === "asrow")
                 this.setRowStyle();
         }
         this.touchStart = 0;
@@ -77,28 +83,32 @@ Results.prototype = {
 
     },
     onScroll: function() {
-        if ($('#search_results_docs .more_docs').length > 0) {
+        if ($('#search_results_docs .more_docs').length > 0 && !this.loadingDocs) {
             var el = $('#search_results_docs .more_docs');
             if (isScrolledIntoView($(el), $('#search_results_docs'))) {
+              this.loadingDocs = true;
                 var start = $('#search_results_docs .more_docs').data('start');
                 $("#start").val(start);
-                this.getDocs();
+                this.getDocs(true);
             }
         }
     },
-    getDocs: function() {
+    getDocs: function(isMore) {
         $('.opacityloading').show();
-        $.get("raw_results.vm?" + $("#search_form").serialize(), _.bind(function(data) {
+        this.srResize();
+        var start = isMore ? $("#start").val() : 0 ; 
+        
+        $.get("raw_results.vm?" + $("#search_form").serialize() + "&start=" + start, _.bind(function(data) {
             //console.log(data);
             $('#search_results_docs .more_docs').remove();
             var json = jQuery.parseJSON(data);
-            var numFound = this.loadDocs(json);
+            K5.eventsHandler.trigger("results/loaded", json);
+            this.loadDocs(json);
             if (!this.resultsLoaded) {
-                this.setHeader(numFound);
                 this.srResize();
-                K5.eventsHandler.trigger("results/loaded", json);
             }
             $('.opacityloading').hide();
+            this.loadingDocs = false;
             this.resultsLoaded = true;
         }, this));
     },
@@ -136,7 +146,17 @@ Results.prototype = {
             var start = parseInt(res.responseHeader.params.rows) + parseInt(res.responseHeader.params.start);
             $("#search_results_docs").append('<div class="more_docs" data-start="' + start + '">more...</div>');
         }
-        return numFound;
+        
+        
+            
+        $("div.collections").mouseenter(function(){
+            $(this).children("div.cols").show();
+        });
+        $("div.collections").mouseleave(function(){
+            $(this).children("div.cols").hide();
+        });
+
+        this.setHeader(numFound);
     },
     addContextButtons: function() {
         var text = $("#results_menu").html();
@@ -145,15 +165,19 @@ Results.prototype = {
     srResize: function() {
         var h = window.innerHeight - $('#header').height() - $('#footer').height();
         $('#search_results').css('height', h);
-        $('#search_results_docs').css('height', h - $('#search_results_header').height() - 5);
+        var h2 = h - $('#search_results_header').height() - 5;
+        $('#search_results_docs').css('height', h2);
+        $('#facets').css('height', h2 - 30); //30 = 2x15 padding 
     },
     setRowStyle: function() {
-        $('.search_result').addClass('as_row');
-        $('.as_row>div.thumb>div.info').each(function() {
+        $('#search_results').addClass('as_row');
+        $('.as_row>.search_result>div.thumb>div.info').each(function() {
             var w = $(this).parent().width() - $(this).prev().width() - 20;
             $(this).css('width', w);
         });
-        window.location.hash = "asrow";
+        var hash = hashParser();
+        hash[this.displayStyle] = "asrow";
+        window.location.hash = jsonToHash(hash);
     },
     setHeader: function(numFound) {
         var key = 'common.title.plural_2';
@@ -169,9 +193,12 @@ Results.prototype = {
         $("#search_results_header>div.totals>span.total").text(numFound);
     },
     setThumbsStyle: function() {
-        $('.search_result').removeClass('as_row');
+        $('#search_results').removeClass('as_row');
         $('.search_result>div.thumb>div.info').css('width', '');
-        window.location.hash = "asthumb";
+        
+        var hash = hashParser();
+        hash[this.displayStyle] = "asthumb";
+        window.location.hash = jsonToHash(hash);
     }
 };
 
@@ -250,22 +277,20 @@ Result.prototype = {
 //        }
         var fedora_model = doc[fieldMappings.fedora_model];
         var typtitulu = doc["model_path"][0].split("/")[0];
-        var modeltag;
+        var modeltag = $('<div class="collapsed">');
         if ((this.collapsed && this.collapsed > 1)) {
             linkpid = doc['root_pid'];
-            var key = 'common.documents.plural_1';
+            var key = 'common.hits.plural_1';
             if (this.collapsed > 4) {
-                key = 'common.documents.plural_2';
-            } else {
-                key = 'common.documents.plural_1';
+                key = 'common.hits.plural_2';
             }
             var tx = K5.i18n.translatable(key);
-            modeltag = '<div class="collapsed">' + this.collapsed + ' ' + tx + ' ' + K5.i18n.translatable('model.locativ.' + typtitulu) + '</div>';
+            modeltag.append(this.collapsed + ' ' + tx + ' ' + K5.i18n.translatable('model.locativ.' + typtitulu));
         } else if (fedora_model === typtitulu) {
-            modeltag = '<div class="collapsed">' + K5.i18n.translatable('fedora.model.' + typtitulu) + '</div>';
+            modeltag.append(K5.i18n.translatable('fedora.model.' + typtitulu));
         } else {
-            modeltag = '<div class="collapsed">' + K5.i18n.translatable('fedora.model.' + fedora_model) + ' ' +
-                    K5.i18n.translatable('model.locativ.' + typtitulu) + '</div>';
+            modeltag.append(K5.i18n.translatable('fedora.model.' + fedora_model) + ' ' +
+                    K5.i18n.translatable('model.locativ.' + typtitulu));
         }
 
 //        info.short += modeltag;
@@ -286,7 +311,11 @@ Result.prototype = {
         var policy = $('<div/>', {class: 'policy'});
         if (doc['dostupnost']) {
             policy.addClass(doc['dostupnost']);
-            policy.attr("title", doc['dostupnost']);
+            policy.addClass("translate_title");
+            policy.attr("data-key","dostupnost."+doc['dostupnost']);
+            //policy.attr("title", doc['dostupnost']);
+            policy.attr("title", K5.i18n.translate("dostupnost."+doc['dostupnost']));
+			
         }
 
         var divimg = $('<div/>', {class: 'img'});
@@ -322,13 +351,28 @@ Result.prototype = {
                 position: {my: "left top", at: "right top"}
             });
         }
+        
+        if(doc.hasOwnProperty("collection") && doc.collection.length>0){
+            var collTag  = $("<div/>", {class: "collections"});
+            collTag.append('<span class="ui-icon ui-icon-folder-open">collections</span>');
+            var collDiv = $('<div class="cols shadow-bottom ui-widget ui-widget-content">');
+            for(var i=0; i< doc.collection.length; i++){
+                collDiv.append('<div class="collection">' + K5.i18n.translatable(doc.collection[i]) + '</div>');
+            }
+
+            collTag.append(collDiv);
+            modeltag.prepend(collTag);
+        }
 
         thumb.append(modeltag);
         this.elem.append(policy);
 
 
         thumb.click(function() {
-            K5.api.gotoDisplayingItemPage(linkpid, $("#q").val());
+            var hash = hashParser();
+            hash.pid = linkpid;
+            //hash.pmodel = typtitulu;
+            K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
         });
 
     },

@@ -20,14 +20,13 @@
 package cz.incad.Kramerius.views.statistics;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
+import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
 
 /**
@@ -56,17 +55,35 @@ public class ModelStatisticsViewObject extends AbstractStatisticsViewObject {
     public String getSelectedModel() throws IOException {
         HttpServletRequest request = this.servletRequestProvider.get();
         String type = request.getParameter("val");
+        
         ResourceBundle resBundle = resService.getResourceBundle("labels", this.localesProvider.get());
         String str = resBundle.getString("fedora.model."+type);
         return str;
     }
-    
-    
-    
+
+
+
+    public String getCurrentYear() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        return ""+year;
+    }
+
+
+    public String getPreviousYear() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        return ""+(year-1);
+    }
+
+
+
     public List<String> getModels() {
         StatisticReport report = statisticsAccessLog.getReportById(ModelStatisticReport.REPORT_ID);
         return report.getOptionalValues();
     }
+
+
 
     
     public String getPrev() {
@@ -77,7 +94,7 @@ public class ModelStatisticsViewObject extends AbstractStatisticsViewObject {
         String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
         int sizeInt = Integer.parseInt(size);
         int offsetInt = Math.max((Integer.parseInt(offset)-sizeInt), 0);
-        return "javascript:statistics.reloadModelReport(_action(),'"+type+"','"+val+"',"+offsetInt+","+size+");";
+        return "javascript:statistics.reloadModelReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),'"+type+"','"+val+"',"+offsetInt+","+size+");";
     }
 
     public String getNext() {
@@ -88,7 +105,7 @@ public class ModelStatisticsViewObject extends AbstractStatisticsViewObject {
         String type = request.getParameter("type");
         int sizeInt = Integer.parseInt(size);
         int offsetInt = (Integer.parseInt(offset))+sizeInt;
-        return "javascript:statistics.reloadModelReport(_action(),'"+type+"','"+val+"',"+offsetInt+","+size+");";
+        return "javascript:statistics.reloadModelReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),'"+type+"','"+val+"',"+offsetInt+","+size+");";
     }
 
 }

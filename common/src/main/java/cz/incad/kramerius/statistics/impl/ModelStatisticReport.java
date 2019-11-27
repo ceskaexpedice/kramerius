@@ -22,9 +22,15 @@ package cz.incad.kramerius.statistics.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.antlr.stringtemplate.StringTemplate;
 
@@ -36,7 +42,14 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IPAddressFilter;
+import cz.incad.kramerius.statistics.filters.ModelFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
+import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
 /**
@@ -44,35 +57,55 @@ import cz.incad.kramerius.utils.database.Offset;
  */
 public class ModelStatisticReport implements StatisticReport {
 
-    
-    public static final String REPORT_ID="model";
-    
+
+    public static final Logger LOGGER = Logger.getLogger(ModelStatisticReport.class.getName());
+
+    public static final String REPORT_ID = "model";
+
+
+
     @Inject
     @Named("kramerius4")
     Provider<Connection> connectionProvider;
 
     @Override
-    public List<Map<String,Object>> getReportPage(ReportedAction repAction, Offset rOffset, Object filteringValue) {
-        final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModelReport");
-        statRecord.setAttribute("model", filteringValue);
-        statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
-        statRecord.setAttribute("paging", true);
-        String sql = statRecord.toString();
-        List<Map<String,Object>> returns = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
-                Map<String, Object> val = new HashMap<String, Object>();
-                val.put(COUNT_KEY, rs.getInt("count"));
-                val.put(PID_KEY, rs.getString("pid"));
-                val.put(TITLE_KEY, rs.getString("title"));
-                val.put(MODEL_KEY, rs.getString("model"));
-                
-                returnsList.add(val);
-                return super.handleRow(rs, returnsList);
-            }
-        }.executeQuery(sql, Integer.parseInt(rOffset.getOffset()), Integer.parseInt(rOffset.getSize()));
-    
-        return returns;
+    public List<Map<String, Object>> getReportPage(ReportedAction repAction,StatisticsFiltersContainer filters, Offset rOffset) {
+        try {
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
+            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
+            
+            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectModelReport");
+            statRecord.setAttribute("model", modelFilter.getModel());
+            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+            statRecord.setAttribute("paging", true);
+            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
+            statRecord.setAttribute("visibility", visFilter.asMap());
+            
+
+            @SuppressWarnings("rawtypes")
+            List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
+            String sql = statRecord.toString();
+            List<Map<String, Object>> returns = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
+                    Map<String, Object> val = new HashMap<>();
+                    val.put(COUNT_KEY, rs.getInt("count"));
+                    val.put(PID_KEY, rs.getString("pid"));
+                    val.put(TITLE_KEY, rs.getString("title"));
+                    val.put(MODEL_KEY, rs.getString("model"));
+                    returnsList.add(val);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(sql, params.toArray());
+
+            return returns;
+        } catch (ParseException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return new ArrayList<Map<String, Object>>();
+        }
     }
 
     @Override
@@ -87,37 +120,96 @@ public class ModelStatisticReport implements StatisticReport {
                 return super.handleRow(rs, returnsList);
             }
         }.executeQuery(sql);
-        
+
         return returns;
     }
-
 
     @Override
     public String getReportId() {
         return REPORT_ID;
     }
 
+    
+    
     @Override
-    public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup, Object filteringValue, Object... args) throws StatisticsReportException {
-        final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModelReport");
-        statRecord.setAttribute("model", filteringValue);
-        statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
-        statRecord.setAttribute("paging", false);
-        String sql = statRecord.toString();
-        new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
-                Map<String, Object> val = new HashMap<String, Object>();
-                val.put(COUNT_KEY, rs.getInt("count"));
-                val.put(PID_KEY, rs.getString("pid"));
-                val.put(TITLE_KEY, rs.getString("title"));
-                val.put(MODEL_KEY, rs.getString("model"));
-                sup.processReportRecord(val);
-                returnsList.add(val);
-                
-                return super.handleRow(rs, returnsList);
+    public void prepareViews(ReportedAction action, StatisticsFiltersContainer filters) throws StatisticsReportException {
+        try {
+            ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            IPAddressFilter ipAddr = filters.getFilter(IPAddressFilter.class);
+            
+            
+            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("prepareModelView");
+            statRecord.setAttribute("model", modelFilter.getModel());
+            statRecord.setAttribute("action", action != null ? action.name() : null);
+            statRecord.setAttribute("paging", false);
+            
+            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
+            if (ipAddr.hasValue()) {
+                statRecord.setAttribute("ipaddr", ipAddr.getValue());
             }
-        }.executeQuery(sql);
-        
+            
+            String sql = statRecord.toString();
+            
+            String viewName =  "statistics_grouped_by_sessionandpid_"+modelFilter.getModel();
+            boolean tableExists = DatabaseUtils.viewExists(connectionProvider.get(),viewName.toUpperCase());
+            if (!tableExists) {
+                JDBCUpdateTemplate updateTemplate = new JDBCUpdateTemplate(connectionProvider.get(), true);
+                updateTemplate.setUseReturningKeys(false);
+                updateTemplate
+                    .executeUpdate(sql);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new StatisticsReportException(e);
+        }
     }
+
+    @Override
+    public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup,
+            final StatisticsFiltersContainer filters) throws StatisticsReportException {
+        try {
+            ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
+            //IPAddressFilter ipAddrFilter = filters.getFilter(IPAddressFilter.class);
+
+            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModelReport");
+            statRecord.setAttribute("model", modelFilter.getModel());
+            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+            statRecord.setAttribute("paging", false);
+            
+            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
+            statRecord.setAttribute("visibility", visFilter.asMap());
+
+            
+            @SuppressWarnings("rawtypes")
+            List params = StatisticUtils.jdbcParams(dateFilter);
+            String sql = statRecord.toString();
+            new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
+                    Map<String, Object> val = new HashMap<String, Object>();
+                    val.put(COUNT_KEY, rs.getInt("count"));
+                    val.put(PID_KEY, rs.getString("pid"));
+                    val.put(TITLE_KEY, rs.getString("title"));
+                    val.put(MODEL_KEY, rs.getString("model"));
+
+
+                    sup.processReportRecord(val);
+                    returnsList.add(val);
+
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(sql,params.toArray());
+        } catch (ParseException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new StatisticsReportException(e);
+        }
+    }
+
+    
+
 }

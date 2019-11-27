@@ -18,7 +18,8 @@ package cz.incad.kramerius.rest.api.client.v50.client;
 
 import javax.ws.rs.core.MediaType;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -31,7 +32,7 @@ import cz.incad.kramerius.utils.BasicAuthenticationFilter;
  */
 public class LoginModuleExample {
 	
-	public static boolean checkLogin(String checkingLoginName, String pswd){ 
+	public static boolean checkLogin(String checkingLoginName, String pswd) throws JSONException{ 
 		// get info from userResource
 		Client c = Client.create();
 
@@ -39,8 +40,8 @@ public class LoginModuleExample {
 		r.addFilter(new BasicAuthenticationFilter(checkingLoginName, pswd));
 		String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
 		
-		JSONObject jsonObject = JSONObject.fromObject(t);
-		if (jsonObject.containsKey("lname")) {
+		JSONObject jsonObject = new JSONObject(t);
+		if (jsonObject.has("lname")) {
 			String loginName = jsonObject.getString("lname");
 			if (loginName.equals(checkingLoginName)) {
 				return true;
@@ -48,7 +49,7 @@ public class LoginModuleExample {
 		} else return false;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws JSONException {
 		boolean validLogin = checkLogin("krameriusAdmin", "krameriusAdmin");
 		System.out.println("is valid login name and password ? "+validLogin);
 

@@ -1,5 +1,5 @@
 <head>
-
+#set($reseted = $conf.resetIndexConfig())
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Cache-Control" content="no-cache" />
@@ -28,11 +28,9 @@
     <script src="$f" type="text/javascript" ></script>
     #end
 
-
-
     <title>$i18n.application.title</title>
     <script language="JavaScript" type="text/javascript">
-
+        
         $(document).ready(function() {
 	    // Initializing application	
 	    K5.init({
@@ -54,11 +52,31 @@
                 
                 //selected configurations 
                 "conf": {
+                    "i18n" :{
+                        "cdkSources":$conf.getString('cdkSources')
+                    },
                     "pdf":{
                         #if(!$conf.getBoolean('turnOffPdfCheck'))
                             "limit":$conf.getString('generatePdfMaxRange')
                          #end
 
+                     },
+                     "collections":{
+
+
+						#if($conf.getString('k5client.collection.sort'))
+                            "sort":"$conf.getString('k5client.collection.sort')"
+						#end
+						
+						#if($conf.getString('k5client.collection.sort') && $conf.getString('k5client.collection.sortType'))
+						,
+						#end
+						 
+						
+						#if($conf.getString('k5client.collection.sortType'))
+                            "sortType":"$conf.getString('k5client.collection.sortType')"
+						#end
+                     	
                      },
                     "authentication":{
                         "k5":true, #if($conf.getString('oauth.googleapis.com.consumer_key')) "gplus":true, #else "gplus":false, #end #if($conf.getString('oauth.graph.facebook.com.consumer_key')) "fb":true #else "fb":false #end

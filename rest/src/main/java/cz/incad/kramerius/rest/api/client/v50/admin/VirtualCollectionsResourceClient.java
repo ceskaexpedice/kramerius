@@ -18,7 +18,8 @@ package cz.incad.kramerius.rest.api.client.v50.admin;
 
 import javax.ws.rs.core.MediaType;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -37,8 +38,9 @@ public class VirtualCollectionsResourceClient {
 	/**
 	 * Vytvoreni nove
 	 * @return
+	 * @throws JSONException 
 	 */
-	public static String createVirtualCollection() {
+	public static String createVirtualCollection() throws JSONException {
     	Client c = Client.create();
 
         WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/vc");

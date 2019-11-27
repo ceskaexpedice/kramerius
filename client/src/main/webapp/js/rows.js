@@ -12,7 +12,7 @@ var YearRows = function(elem, options) {
     console.log(this.maxYear);
     this.init();
     var th = this;
-    $(this.elem).bind("yearChanged", function(event, params) {
+    $(".years").bind("yearChanged", function(event, params) {
         var y = parseInt(params.year);
         if(y + th.maxBands > th.maxYear){
             y = th.maxYear - th.maxBands + 1;
@@ -87,7 +87,7 @@ YearRows.prototype = {
         if (h < 1) {
             h = $(document).height();
         }
-        $('#rows').css('height', h - $('#header').height() - $('#canvasda').height());
+        $('#yearRows').css('height', h - $('#header').height() - $('#canvasda').height());
         this.bottomArrow.css({"top": this.$elem.height() - 50, left: 3});
 
     },
@@ -286,10 +286,10 @@ YearRow.prototype = {
         if (doc["dc.creator"]) {
             creator = '<div class="autor">' + doc["dc.creator"] + '</div>';
         }
-        title = '<div class="title">' + title + '</div>';
+        var titletag = '<div class="title">' + title + '</div>';
         if(title !== dctitle){
-            title = title + '<div class="dctitle">' + dctitle + '</div>';
-            shortTitle = shortTitle + '<div class="dctitle">' + dctitle + '</div>';
+            titletag = titletag + '<div class="dctitle">' + dctitle + '</div>';
+            shortTitle = shortTitle + '<div class="dctitle">' + dctitle.substring(Math.min(30, dctitle.length)) + '</div>';
         }
         var modeltag = '<div class="title">' + K5.i18n.translatable('fedora.model.' + model) + '</div>';
         thumb.data("pid", pid);
@@ -301,9 +301,9 @@ YearRow.prototype = {
         }
         thumb.append(policy);
         if (showToolTip) {
-            thumb.attr("title", title + creator + modeltag);
+            thumb.attr("title", titletag + creator + modeltag);
             thumb.tooltip({
-                content: title + creator,
+                content: titletag + creator,
                 position: {my: "left bottom-1", at: "right-1 bottom"}
             });
         }

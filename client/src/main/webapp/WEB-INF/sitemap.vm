@@ -10,6 +10,8 @@
         "home":"home.vm",
         "browse":"browse.vm",
         "login":"login.vm",
+        "changepswd":"changepswd.vm",
+        "changepswd_success":"changepswd_success.vm",
         "registration":"registration.vm",
         "printpart":"printpart.vm"
     }

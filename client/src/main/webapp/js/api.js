@@ -92,8 +92,22 @@ ClientAPIDev.prototype = {
      * @param {requestCallback} whenready  - Callback handling responses.
      * @method
      */
-    askForCollections : function(whenready) {
-        $.getJSON("api/vc", _.bind(function(data) {
+    askForCollections : function(sort, sortType, whenready) {
+	  
+	  var url = "api/vc";
+	  if (sort) {
+		  if (!sortType) {
+			sortType = "ALPHABET"
+	  	  }
+		  url = "api/vc?sort="+sort+"&sortType="+sortType+"&langCode="		  	
+	      if (K5 && K5.i18n.ctx.language){ 
+    	    url += K5.i18n.ctx.language;
+      	  } else {
+        	url += 'cs'; 
+      	  }
+	  }			
+
+        $.getJSON(url, _.bind(function(data) {
             var collections = {};
             for (var i = 0; i < data.length; i++) {
                 var pid = data[i].pid;
@@ -106,6 +120,28 @@ ClientAPIDev.prototype = {
             if (whenready)
                 whenready.apply(null, [ data ]);
             this.application.eventsHandler.trigger("api/vc", data);
+        }, this));
+    },
+
+    /**
+     * Request for sources
+     * @param {requestCallback} whenready  - Callback handling responses.
+     * @method
+     */
+    askForSources : function(whenready) {
+        $.getJSON("api/sources", _.bind(function(data) {
+            var collections = {};
+            for (var i = 0; i < data.length; i++) {
+                var pid = data[i].pid;
+                collections[pid] = {
+                    "cs" : data[i].descs.cs,
+                    "en" : data[i].descs.en
+                };
+            }
+            this.ctx["vc"] = collections;
+            if (whenready)
+                whenready.apply(null, [ data ]);
+            this.application.eventsHandler.trigger("api/sources", data);
         }, this));
     },
 
@@ -148,7 +184,11 @@ ClientAPIDev.prototype = {
      * @method
      */
     askForItem : function(pid, whenready) {
-        $.getJSON("api/item/" + pid, _.bind(function(data) {
+        // check page ?? Do it better
+    	if (pid && pid.split("@").length > 1) {
+    		pid = pid.split("@")[0];
+    	}
+    	$.getJSON("api/item/" + pid, _.bind(function(data) {
             if (!this.isKeyReady("item")) {
                 this.ctx["item"] = {};
             }
@@ -273,6 +313,33 @@ ClientAPIDev.prototype = {
     },
 
     /**
+     * Requesting rights from concrete pid
+     * @param {string} pid - Pid of object.
+     * @param {requestCallback} whenready  - Callback handling responses.
+     * @method
+     */
+    askForRights : function(pid, actions, whenready) {
+        var actions = _.reduce(actions, function(memo, value, index) {
+            if (index > 0) {
+                memo = memo + ",";
+            }
+            memo = memo + value;
+            return memo;
+        }, "");
+        $.getJSON("api/rights?pid=" + pid + "&actions="+actions, _.bind(function(data) {
+            if (!this.isKeyReady("item")) {
+               this.ctx["item"] = {};
+            }
+            if (!this.isKeyReady("item/" + pid)) {
+               this.ctx["item"][pid] = {};
+            }
+            this.ctx["item"][pid]['rights'] = data;
+            if (whenready)
+                whenready.apply(null, [ data ]);
+        }, this));
+    },
+
+    /**
      * Requesting children from concrete pid
      * @param {string} pid - Pid of object.
      * @param {requestCallback} whenready  - Callback handling responses.
@@ -392,7 +459,9 @@ ClientAPIDev.prototype = {
      * @param {requestCallback} okFunc  - Message has been sent callback.
      * @param {requestCallback} failFunc  - Something wrong callback.
      */
-    searchItemAndExploreChildren : function(pid, whenready) {
+    searchItemAndExploreChildren : function(hash, whenready) {
+        var pid =  hash.pid;
+        
         $.getJSON("api/item/" + pid + "/children", _.bind(function(data) {
             if (!this.isKeyReady("item")) {
                 this.ctx["item"] = {};
@@ -402,10 +471,18 @@ ClientAPIDev.prototype = {
             }
             this.ctx["item"][pid]['children'] = data;
             if (data.length == 1) {
-                this.searchItemAndExploreChildren(data[0].pid, whenready);
+                hash.pid = data[0].pid;
+                hash.pmodel = data[0].model;
+                this.searchItemAndExploreChildren(hash, whenready);
             } else {
-                if (whenready)
-                    whenready.apply(null, [ pid ]);
+                if(data.length>0 && data[0].datanode){
+                    hash.pid = data[0].pid;
+                    this.searchItemAndExploreChildren(hash, whenready);
+                }else{
+                    
+                    if (whenready)
+                        whenready.apply(null, [hash]);
+                }
             }
         }, this));
     },
@@ -414,9 +491,13 @@ ClientAPIDev.prototype = {
      * Search first pid to display and navigate browser to  this item.
      * @method
      */
-    gotoDisplayingItemPage : function(pid, q) {
-        this.searchItemAndExploreChildren(pid, _.bind(function(data) {
-            this.gotoItemPage(data, q);
+    gotoDisplayingItemPage : function(newhash) {
+        var hash = hashParser(newhash);
+        var pid = hash.pid;
+        
+        this.searchItemAndExploreChildren(hash, _.bind(function(data) {
+            //hash.pid = data;
+            this.gotoItemPage(jsonToHash(data), true);
         }, this));
     },
 
@@ -424,14 +505,15 @@ ClientAPIDev.prototype = {
      * Navigate browser to concrete item 
      * @method
      */
-    gotoItemPage : function(pid, q) {
+    gotoItemPage : function(pid, withParams) {
         var href = "";
-        if (q !== undefined) {
-            href += "?q=" + q + "&";
+        if (withParams) {
+            $('#search_form input[name="page"]').val("doc");
+            href += "index.vm?page=doc&" + $("#search_form").serialize() + "#" + pid;
+            $('#search_form input[name="page"]').val("search");
         } else {
-            href += "?";
+            href += "index.vm?page=doc#" + pid;
         }
-        href += "page=doc#" + pid;
         window.location.assign(href);
     },
 

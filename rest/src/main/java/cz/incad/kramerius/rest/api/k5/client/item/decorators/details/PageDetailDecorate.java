@@ -22,21 +22,19 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.json.JSONObject;
-
-import org.w3c.dom.Document;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootPidDecorate;
-import cz.incad.kramerius.rest.api.k5.client.utils.SOLRDecoratorUtils;
+import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 
 public class PageDetailDecorate extends AbstractDetailDecorator {
 
@@ -60,9 +58,9 @@ public class PageDetailDecorate extends AbstractDetailDecorator {
     @Override
     public void decorate(JSONObject jsonObject,
             Map<String, Object> runtimeContext) {
-        if (jsonObject.containsKey("pid")) {
-            String pid = jsonObject.getString("pid");
+        if (jsonObject.has("pid")) {
             try {
+                String pid = jsonObject.getString("pid");
 
                     Element doc = this.memo.getRememberedIndexedDoc(pid);
                     if (doc == null)
@@ -76,24 +74,29 @@ public class PageDetailDecorate extends AbstractDetailDecorator {
                             String[] details = super.details(array.get(0));
                             JSONObject detailsJSONObject = new JSONObject();
                             if (details.length > 0) {
-                                detailsJSONObject.put("pagenumber", details[0]);
+                                detailsJSONObject.put("pagenumber", ItemResourceUtils.preventAutomaticConversion(details[0]));
                             }
                             if (details.length > 1) {
                                 detailsJSONObject.put("type", details[1]);
                             }
-                            if (detailsJSONObject.keySet().size() > 0) {
+                            boolean moreThanZero = detailsJSONObject.keys().hasNext();
+                            if (moreThanZero) {
                                 jsonObject.put("details", detailsJSONObject);
                             }
                         }
                 }
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new GenericApplicationException(e.getMessage());
+            } catch (JSONException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new GenericApplicationException(e.getMessage());
             }
         }
     }
 
     @Override
-    public boolean apply(JSONObject jsonObject, String context) {
+    public boolean apply(JSONObject jsonObject, String context) throws JSONException {
         String m = super.getModel(jsonObject);
         TokenizedPath tpath = super.itemContext(tokenize(context));
         return tpath.isParsed() && m != null && m.equals("page");

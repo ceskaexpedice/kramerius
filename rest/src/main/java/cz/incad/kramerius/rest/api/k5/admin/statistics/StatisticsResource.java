@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -30,14 +28,14 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.security.IsActionAllowed;
@@ -48,6 +46,13 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsReportException;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IPAddressFilter;
+import cz.incad.kramerius.statistics.filters.ModelFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter.VisbilityType;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -68,29 +73,49 @@ public class StatisticsResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response getReportPage(@PathParam("report") String rip,
             @QueryParam("action") String raction,
-            @QueryParam("value") String val,
+            @QueryParam("dateFrom") String dateFrom,
+            @QueryParam("dateTo") String dateTo,
+            @QueryParam("model") String model,
+            @QueryParam("visibility") String visibility,
             @QueryParam("offset") String filterOffset,
             @QueryParam("resultSize") String filterResultSize) {
+        
+        //TODO: syncrhonization
         if (permit(userProvider.get())) {
             try {
+                DateFilter dateFilter = new DateFilter();
+                dateFilter.setFromDate(dateFrom);
+                dateFilter.setToDate(dateTo);
+                
+                ModelFilter modelFilter = new ModelFilter();
+                modelFilter.setModel(model);
+                
+                VisibilityFilter visFilter = new VisibilityFilter();
+                visFilter.setSelected(VisbilityType.valueOf(visibility));
+                
+                IPAddressFilter ipAddr = new IPAddressFilter();
+                
                 StatisticReport report = statisticsAccessLog.getReportById(rip);
                 Offset offset = new Offset("0", "25");
                 if (StringUtils.isAnyString(filterOffset)
                         && StringUtils.isAnyString(filterResultSize)) {
                     offset = new Offset(filterOffset, filterResultSize);
                 }
-
+                
+                report.prepareViews(raction != null ? ReportedAction.valueOf(raction) : null, new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter, modelFilter,visFilter, ipAddr}));
                 List<Map<String, Object>> repPage = report.getReportPage(
                         raction != null ? ReportedAction.valueOf(raction)
-                                : null, offset, val);
+                                : null,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter, modelFilter, ipAddr}), offset);
 
                 JSONArray jsonArr = new JSONArray();
                 for (Map<String, Object> map : repPage) {
                     JSONObject json = createJSON(map);
-                    jsonArr.add(json);
+                    jsonArr.put(json);
                 }
                 return Response.ok().entity(jsonArr.toString()).build();
             } catch (StatisticsReportException e) {
+                throw new GenericApplicationException(e.getMessage());
+            } catch (JSONException e) {
                 throw new GenericApplicationException(e.getMessage());
             }
         } else {
@@ -98,7 +123,7 @@ public class StatisticsResource {
         }
     }
 
-    private JSONObject createJSON(Map<String, Object> map) {
+    private JSONObject createJSON(Map<String, Object> map) throws JSONException {
         JSONObject json = new JSONObject();
         Set<String> keys = map.keySet();
         for (String k : keys) {

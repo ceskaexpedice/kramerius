@@ -378,6 +378,7 @@
         
         function renderNode(id, d){
             if(d.length>0){
+                $(jq(id)+">ul").remove();
                 $(jq(id)).append(d);
                 if($(jq(id)+">ul").html()==null || $(jq(id)+">ul").html().trim().length==0){
                     $(jq(id)+">ul").hide();
@@ -502,12 +503,12 @@
                     if(fq!=""){
                         fq += " OR ";
                     }
-                    fq += "pid_path:" + getPidPath(id).replace(/:/g, "\\:") + "*";
+                    fq += "pid_path:" + getPidPath(id).replace(/:/g, "\\:").toLowerCase() + "*";
                 });
                 fq = "&fq=" + fq;
             }else{
                 var fqval = $('#item_tree>li>ul>li:first').attr("id").split('_')[1];
-                fq = "&fq=pid_path:" + fqval.replace(/:/g, "\\:") + "*";
+                fq = "&fq=pid_path:" + fqval.toLowerCase().replace(/:/g, "\\:") + "*";
             }
             //var url = "searchXSL.jsp?q="+q+"&offset="+offset+"&xsl=insearch.xsl&collapsed=false&facet=false&fq=pid_path:"+pid+"*";
             var url = "inc/details/searchInside.jsp?q="+q+"&offset="+offset+"&xsl=insearch.xsl&collapsed=false&facet=false" + fq;

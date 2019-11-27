@@ -40,14 +40,23 @@ public class PublisherBuilder extends AbstractBuilder {
         XPath xpath = getFactory().newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         
-        XPathExpression expr = xpath.compile("//mods:originInfo[@transliteration='publisher']/mods:publisher/text()");
+        XPathExpression expr = xpath.compile("//mods:originInfo/mods:publisher/text()");
         Node node = (Node) expr.evaluate(document, XPathConstants.NODE);
+        if (node == null) {
+            expr = xpath.compile("//mods:originInfo[@transliteration='publisher']/mods:publisher/text()");
+            node = (Node) expr.evaluate(document, XPathConstants.NODE);
+        }
+
         if (node != null) {
             add(MODS_PUBLISHER, ((Text)node).getData(), map);
         }        
 
-        expr = xpath.compile("//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()");
+        expr = xpath.compile("//mods:originInfo/mods:dateIssued/text()");
         node = (Node) expr.evaluate(document, XPathConstants.NODE);
+        if (node == null) {
+            expr = xpath.compile("//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()");
+            node = (Node) expr.evaluate(document, XPathConstants.NODE);
+        }
         if (node != null) {
             add(MODS_DATE, ((Text)node).getData(), map);
         }        

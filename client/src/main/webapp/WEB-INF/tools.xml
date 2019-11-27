@@ -22,6 +22,8 @@
               key="css"/>
         <tool class="cz.incad.kramerius.client.tools.ConfTool"
               key="conf"/>
+        <tool class="cz.incad.kramerius.client.tools.UTFSortTool"
+              key="utfsort"/>
               
         <tool key="item" class="cz.incad.kramerius.client.tools.Item" />
         <tool key="search" class="cz.incad.kramerius.client.tools.Search" />

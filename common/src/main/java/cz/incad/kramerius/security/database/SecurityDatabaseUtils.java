@@ -25,6 +25,8 @@ import java.sql.SQLException;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 
+import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
+
 public class SecurityDatabaseUtils {
 
     static StringTemplateGroup DATABASE_GROUP = loadStGroup();
@@ -32,6 +34,13 @@ public class SecurityDatabaseUtils {
     
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SecurityDatabaseUtils.class.getName());
 
+    public static StringTemplateGroup stGroup;
+    static {
+        InputStream is = LoggedUserDatabaseInitializator.class.getResourceAsStream("res/database.stg");
+        stGroup = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
+    }
+
+    
     public static StringTemplateGroup stGroup() {
         return DATABASE_GROUP;
     }

@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import cz.incad.kramerius.shib.utils.ShibbolethUtils;
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -48,6 +48,19 @@ public class MenuButtonsViewObject {
         HttpServletRequest request = this.requestProvider.get();
         if (request.getQueryString() != null) return request.getQueryString();
         else return "";
+    }
+
+    public boolean isUnderShibbolethSession() {
+        HttpServletRequest req = this.requestProvider.get();
+        return ShibbolethUtils.isUnderShibbolethSession(req);
+    }
+    
+    public boolean getShibbLogoutEnabled() {
+        HttpServletRequest req = this.requestProvider.get();
+        if (ShibbolethUtils.isUnderShibbolethSession(req)) {
+            return KConfiguration.getInstance().getConfiguration().getBoolean("security.shib.logout.enabled",false);
+        }
+        return true;
     }
 
 

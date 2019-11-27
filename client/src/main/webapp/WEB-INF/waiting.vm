@@ -1,4 +1,4 @@
-    <div class="loading spinner" style="display:none">
+    <div class="loading spinner" style="display:none;width: calc(100% - 350px);float:right;position:relative;">
       <div class="rect1"></div>
       <div class="rect2"></div>
       <div class="rect3"></div>
@@ -6,7 +6,7 @@
       <div class="rect5"></div>
     </div> 
 
-    <div class="opacityloading" style="display:none">
+    <div class="opacityloading" style="display:none;">
     <div class="spinner">
       <div class="rect1"></div>
       <div class="rect2"></div>

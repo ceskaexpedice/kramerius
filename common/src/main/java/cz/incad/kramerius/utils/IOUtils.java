@@ -3,6 +3,7 @@ package cz.incad.kramerius.utils;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.logging.Level;
 
@@ -25,11 +26,7 @@ public class IOUtils {
      */
     public static void copyStreams(InputStream is, OutputStream os)
             throws IOException {
-        byte[] buffer = new byte[8192];
-        int read = -1;
-        while ((read = is.read(buffer)) > 0) {
-            os.write(buffer, 0, read);
-        }
+        org.apache.commons.io.IOUtils.copy(is, os);
     }
 
     /**
@@ -92,6 +89,7 @@ public class IOUtils {
         }
     }
 
+    
     public static void saveToFile(String data, File file) throws IOException {
         FileOutputStream fos = null;
         try {
@@ -100,6 +98,30 @@ public class IOUtils {
         } finally {
             if (fos != null)
                 fos.close();
+        }
+    }
+    public static void saveToFile(InputStream data, File file) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            copyStreams(data, fos);
+        } finally {
+            if (fos != null)
+                fos.close();
+        }
+    }
+
+    public static void saveToFile(InputStream data, File file, boolean closeInput) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            copyStreams(data, fos);
+        } finally {
+            if (fos != null)
+                tryClose(fos);
+            if (closeInput) {
+                tryClose(data);
+            }
         }
     }
 
@@ -124,6 +146,20 @@ public class IOUtils {
         } finally {
             if (is != null)
                 is.close();
+        }
+
+    }
+    public static byte[] bos(InputStream is, boolean closeInput) throws IOException {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            copyStreams(is, bos);
+            return bos.toByteArray();
+        } finally {
+            if (is != null) {
+                if (closeInput) {
+                    is.close();
+                }
+            }
         }
 
     }
@@ -154,6 +190,27 @@ public class IOUtils {
         }
     }
 
+    public static void tryClose(Reader reader) {
+        try {
+            if (reader != null) {
+                reader.close();
+            }
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static void tryClose(Writer writer) {
+        try {
+            if (writer != null) {
+                writer.close();
+            }
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    
     public static void tryClose(InputStream is) {
         try {
             if (is != null) {

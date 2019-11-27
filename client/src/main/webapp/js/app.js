@@ -162,8 +162,8 @@ function Application() {
          * @member
          */
         this.serverLog = function(simplemess) {
-                $.get("log?message="+simplemess,function(data) { });
-        };        
+           $.get("log?message="+simplemess,function(data) { });
+        };
 
 
         
@@ -191,10 +191,14 @@ function Application() {
                 } else if (model === "periodicalvolume") {
 
                     info.short = root_title.substring(0, this.maxInfoLength) +
-                            K5.i18n.translatable('field.datum') + ": " + details.year + " ";
+                            K5.i18n.translatable('field.datum') + ": " + 
+                            details.year + " ";
                     info.full = "<div>" + root_title + "</div>" +
-                            K5.i18n.translatable('field.datum') + ": " + details.year + " ";
-                    info.min = K5.i18n.translatable('field.datum') + ": " + details.year + " ";
+                            K5.i18n.translatable('field.datum') + ": " + 
+                            details.year + " ";
+                    info.min = 
+                            //K5.i18n.translatable('field.datum') + ": " + 
+                            details.year + " ";
                     if (details.volumeNumber) {
                         var v = K5.i18n.translatable('mods.periodicalvolumenumber') + " " + details.volumeNumber;
                         info.short += v;
@@ -208,14 +212,22 @@ function Application() {
                     info.short = dArr[0] + " " + dArr[1] + " " + dArr[2] + " " + dArr[3];
                 } else if (model === "periodicalitem") {
                     if (details.issueNumber !== root_title) {
-                        var s = details.issueNumber + " " + details.date + " " + details.partNumber;
+                        var s = details.issueNumber + 
+                                " " + details.date + " " + 
+                                details.partNumber;
                         info.full = s;
                         info.short = s;
-                        info.min = s;
+                        info.min = 
+                                K5.i18n.translatable('common.number') + " " + details.partNumber +
+                                ". " + details.issueNumber + 
+                                " " + details.date + " " + 
+                                " ";
                     } else {
                         info.full = details.date + " " + details.partNumber;
                         info.short = details.date + " " + details.partNumber;
-                        info.min = details.date + " " + details.partNumber;
+                        info.min =
+                                K5.i18n.translatable('common.number') + " " + details.partNumber +
+                                ". " + details.date + " ";
                     }
                 } else if (model === "monographunit") {
                     info.full = details.title + " " + details.partNumber;
@@ -225,7 +237,7 @@ function Application() {
                     var s= K5.i18n.translatable('mods.page.partType.' + details.type);
                     info.full = s;
                     info.short = s;
-                    info.min = json.title + " " + s + ""  ;
+                    info.min = K5.i18n.translatable('common.page') + " " + json.title + " " + s + " "  ;
                 } else {
                     info.full = details;
                     info.short = details;
@@ -235,7 +247,7 @@ function Application() {
                 
                     info.short = " ";
                     info.full = " ";
-                    info.min = root_title;
+                    info.min =  json["title"];
             }
         };
 
@@ -257,13 +269,18 @@ function Application() {
                         this.i18n.askForDictionary(configuration["language"],configuration["country"]);
                 }
 
+                if (configuration["conf"]["i18n"]) {
+                    var i18nconf = configuration["conf"]["i18n"];
+                    this.i18n.initConfiguration(i18nconf);
+                }
+
                 if (configuration["page"]) {
                     this.gui.page=configuration["page"];
                 }
 
                 // receive collections 
                 if (configuration["page"] && configuration["page"]==="collections") {
-                        K5.api.askForCollections();
+                        //K5.api.askForCollections();
                 }
 
                 
@@ -272,6 +289,7 @@ function Application() {
                         K5.api.askForPopular();
                         K5.api.askForCool();
                 }
+				
 
                 if (configuration["conf"]["pdf"]) {
                     K5.outputs.pdf.initConfiguration(configuration["conf"]["pdf"]);
@@ -293,6 +311,15 @@ function Application() {
                                 this.gui.clipboard.init(configuration.session["clipboard"]);                                           
                         }
                 }
+
+                if (configuration.conf.collections["sort"]) {
+                        this.gui.vc.sort = configuration.conf.collections["sort"];                                           
+					
+				}
+				
+                if (configuration.conf.collections["sortType"]) {
+                        this.gui.vc.sortType = configuration.conf.collections["sortType"];                                           
+				}
                 
                 //context menu and viewers
                 if (configuration["defs"]) {
@@ -337,18 +364,22 @@ function Application() {
                 $(document).keydown(function(e) {
                     switch(e.which) {
                         case 37: // left
-                        K5.eventsHandler.trigger("application/keys/left",[]);
+                        K5.eventsHandler.trigger("application/keys/left",[e]);
                         break;
 
 
                         case 39: // right
-                        K5.eventsHandler.trigger("application/keys/right",[]);
+                        K5.eventsHandler.trigger("application/keys/right",[e]);
+                        break;
+                        
+                        case 27: // escape. Close dialogs
+                        divclose();
                         break;
 
 
                         default: return; // exit this handler for other keys
                     }
-                    e.preventDefault(); // prevent the default action (scroll / move caret)
+                    //e.preventDefault(); // prevent the default action (scroll / move caret)
                 });
 
                 //prevent scrolling

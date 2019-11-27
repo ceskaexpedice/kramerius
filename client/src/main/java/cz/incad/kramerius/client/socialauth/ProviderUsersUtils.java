@@ -1,12 +1,12 @@
 package cz.incad.kramerius.client.socialauth;
 
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.brickred.socialauth.Profile;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,14 +16,18 @@ import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
+import cz.incad.kramerius.auth.thirdparty.UsersWrapper;
 import cz.incad.kramerius.client.kapi.auth.AdminUser;
 import cz.incad.kramerius.client.kapi.auth.CallUserController;
-import cz.incad.kramerius.client.tools.BasicAuthenticationFilter;
+import cz.incad.kramerius.security.utils.UserUtils;
+import cz.incad.kramerius.utils.BasicAuthenticationFilter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ProviderUsersUtils {
 
-
+    public static Logger LOGGER = Logger.getLogger(ProviderUsersUtils.class.getName());
+    
+    
     static JSONArray getUser(HttpServletRequest req, UsersWrapper w)
             throws ConfigurationException, JSONException {
         Client c = Client.create();
@@ -45,7 +49,7 @@ public class ProviderUsersUtils {
         return jsonArr;
     }
 
-    
+
     // create user
     public static String createUser(HttpServletRequest req, UsersWrapper w,
             String password) throws JSONException, ConfigurationException {
@@ -61,8 +65,8 @@ public class ProviderUsersUtils {
     
         JSONObject object = new JSONObject();
         object.put("lname", w.getCalculatedName());
-        object.put("firstname", w.getProperty(UsersWrapper.FIRST_NAME_KEY));
-        object.put("surname", w.getProperty(UsersWrapper.LAST_NAME_KEY));
+        object.put("firstname", w.getProperty(UserUtils.FIRST_NAME_KEY));
+        object.put("surname", w.getProperty(UserUtils.LAST_NAME_KEY));
         object.put("password", password);
     
         r.addFilter(new BasicAuthenticationFilter(adminCaller.getUserName(),
@@ -99,11 +103,11 @@ public class ProviderUsersUtils {
                     .entity(object.toString(), MediaType.APPLICATION_JSON)
                     .put(String.class);
         } catch (UniformInterfaceException e) {
-            OpenIDSupport.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (ClientHandlerException  e) {
-            OpenIDSupport.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (JSONException e) {
-            OpenIDSupport.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
@@ -127,10 +131,9 @@ public class ProviderUsersUtils {
                     .type(MediaType.APPLICATION_JSON).delete(String.class);
     
         } catch (ClientHandlerException e) {
-            OpenIDSupport.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (UniformInterfaceException e) {
-            OpenIDSupport.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
-
 }

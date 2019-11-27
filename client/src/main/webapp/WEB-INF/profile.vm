@@ -10,25 +10,33 @@
             <div>
                 <h3>#translatable('common.favorites')</h3>
             </div>
-
             <div id="prfl_content_favorites">
             </div>
-
         </div>
 
         <div class="prfl_footer">
             <div class="right">
                 <div class="buttons">
                     <div class="button" data-ctx="item" style="display:none" onclick="K5.authentication.profileDisplay.appendCurrentToFavorites(true);">#translatable('ctx.actions.addtofavorites')</div> 
-                    <div class="button" data-ctx="dirty" onclick="K5.authentication.profileDisplay.store();">#translatable('common.saveandclose')</div>
-                    <div class="button" onclick="K5.authentication.profileDisplay.close();">#translatable('common.close')</div>
+                    <div class="button" onclick="K5.authentication.profileDisplay.store();">#translatable('common.close')</div>
                 </div>
             </div>
 
             <div class="left">
+#if(!$logControl.underShibbolethSession)
                 <div class="buttons">
+#if((!$logControl.underShibbolethSession) && (!$logControl.openIdSession))
+                    <!-- only k5 provider ?? -->
+                    <div class="button" onclick="link('?page=changepswd');">#translatable('application.changepswd')</div>
+#end
+
+#if(!$logControl.underShibbolethSession)
+                    <!-- shib remove -->
                     <div class="button" onclick="K5.authentication.logoutAndRedirect('index.vm');">#translatable('application.logout')</div>
+#end
+
                 </div>
+#end
             </div>
         </div>
 </div>

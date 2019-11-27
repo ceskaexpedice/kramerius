@@ -19,14 +19,10 @@ package cz.incad.kramerius.security.impl.http;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.configuration.Configuration;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -42,19 +38,13 @@ import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.UserImpl;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.NetworkUtils;
-import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class IsActionAllowedFromRequest implements IsActionAllowed {
 
-    
-    public static final String X_IP_FORWARD = "X_IP_FORWARD";
-    static String[] LOCALHOSTS = {"127.0.0.1","localhost","0:0:0:0:0:0:0:1","::1"};
-    static {
-        LOCALHOSTS = NetworkUtils.getLocalhostsAddress();
-    }
-    
+    public static final Logger LOGGER = Logger.getLogger(IsActionAllowedFromRequest.class.getName());
     
     private Logger logger;
     private Provider<HttpServletRequest> provider;
@@ -99,7 +89,7 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
     public boolean[] isActionAllowedForAllPath(String actionName, String pid, String stream, ObjectPidsPath path) {
         try {
             User user = this.currentLoggedUser.get();
-            RightCriteriumContext ctx = this.ctxFactory.create(pid,stream, user, getRemoteHost(), getRemoteAddress(KConfiguration.getInstance().getConfiguration()));
+            RightCriteriumContext ctx = this.ctxFactory.create(pid,stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get(), KConfiguration.getInstance().getConfiguration()));
             EvaluatingResult[] evalResults = this.rightsManager.resolveAllPath(ctx, pid, path, actionName, user);
             boolean[] results = new boolean[evalResults.length];
             for (int i = 0; i < results.length; i++) {
@@ -112,35 +102,13 @@ public class IsActionAllowedFromRequest implements IsActionAllowed {
         }
     }
 
-    String getRemoteAddress(Configuration conf) {
-        HttpServletRequest httpReq = this.provider.get();
-        String headerFowraded = httpReq.getHeader(X_IP_FORWARD);
-        if (StringUtils.isAnyString(headerFowraded) && matchConfigurationAddress(httpReq, conf)) {
-            return headerFowraded;
-        } else {
-            return httpReq.getRemoteAddr();
-        }
-    }
-
-    
-    boolean matchConfigurationAddress(HttpServletRequest httpReq, Configuration conf) {
-        String remoteAddr = httpReq.getRemoteAddr();
-        List<String> forwaredEnabled = conf.getList("x_ip_forwared_enabled_for",Arrays.asList(LOCALHOSTS));
-        if (!forwaredEnabled.isEmpty()) {
-            for (String pattern : forwaredEnabled) {
-                if (remoteAddr.matches(pattern)) return true;
-            }
-        }
-        return false;
-    }
-
     private String getRemoteHost() {
         HttpServletRequest httpReq = this.provider.get();
         return httpReq.getRemoteHost();
     }
 
     public boolean isAllowedInternalForFedoraDocuments(String actionName, String pid, String stream, ObjectPidsPath path, User user) throws RightCriteriumException {
-        RightCriteriumContext ctx = this.ctxFactory.create(pid, stream, user, getRemoteHost(), getRemoteAddress(KConfiguration.getInstance().getConfiguration()));
+        RightCriteriumContext ctx = this.ctxFactory.create(pid, stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get(),KConfiguration.getInstance().getConfiguration()));
         EvaluatingResult result = this.rightsManager.resolve(ctx, pid, path, actionName, user);
         return result != null ? resultOfResult(result) : false;
     }

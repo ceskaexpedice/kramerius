@@ -21,12 +21,12 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.ws.rs.core.MediaType;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.security.utils.PasswordDigest;
 import cz.incad.kramerius.utils.BasicAuthenticationFilter;
 
 /**
@@ -38,8 +38,9 @@ public class ClientUsersClient {
 	private static final String DEFAULT_NAME = "krameriusAdmin";
 	private static final String DEFAULT_PSWD = "krameriusAdmin";
 
-	/** Save new password */
-	public static String savePassword() {
+	/** Save new password 
+	 * @throws JSONException */
+	public static String savePassword() throws JSONException {
 		Client c = Client.create();
 
 		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user");
@@ -57,8 +58,9 @@ public class ClientUsersClient {
 	/**
 	 * Get user info
 	 * @return
+	 * @throws JSONException 
 	 */
-	public static String getUser() {
+	public static String getUser() throws JSONException {
 		Client c = Client.create();
 
 		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user");
@@ -74,8 +76,9 @@ public class ClientUsersClient {
 	/**
 	 * Get profile
 	 * @return
+	 * @throws JSONException 
 	 */
-	public static String getProfile() {
+	public static String getProfile() throws JSONException {
 		Client c = Client.create();
 		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user/profile");
 		r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
@@ -88,8 +91,9 @@ public class ClientUsersClient {
 	/**
 	 * Save profile
 	 * @return
+	 * @throws JSONException 
 	 */
-	public static void saveProfile(JSONObject profile) {
+	public static void saveProfile(JSONObject profile) throws JSONException {
 		Client c = Client.create();
 		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user/profile");
 		r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
@@ -98,13 +102,13 @@ public class ClientUsersClient {
 		String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(profile.toString()).post(String.class);
 	}
 	
-	public static void main(String[] args) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+	public static void main(String[] args) throws NoSuchAlgorithmException, UnsupportedEncodingException, JSONException {
 		String t = getUser();
 		System.out.println(t);
 		String st = savePassword();
 		System.out.println(st);
 		String profile = getProfile();
-		JSONObject jsonProfile = JSONObject.fromObject(profile);
+		JSONObject jsonProfile = new JSONObject(profile);
 		System.out.println(jsonProfile);
 		jsonProfile.put("myproperty", "myvalue");
 		saveProfile(jsonProfile);

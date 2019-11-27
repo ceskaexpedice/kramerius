@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.w3c.dom.Document;
@@ -33,6 +34,8 @@ import java.util.ArrayList;
 
 public class SOLRUtils {
 
+    public static final Logger LOGGER = Logger.getLogger(SOLRUtils.class.getName());
+    
     public static Map<Class, String> SOLR_TYPE_NAMES = new HashMap<Class, String>();
     static {
         SOLR_TYPE_NAMES.put(String.class, "str");
@@ -54,110 +57,128 @@ public class SOLRUtils {
     }
 
     public static Element value(Document doc, String val) {
-        return value(doc, null, val);
+        synchronized (doc) {
+            return value(doc, null, val);
+        }
     }
 
     public static Element value(Document doc, String attname, String val) {
-        Element strElm = doc.createElement("str");
-        if (attname != null)
-            strElm.setAttribute("name", attname);
-        strElm.setTextContent(val);
-        return strElm;
+        synchronized (doc) {
+            Element strElm = doc.createElement("str");
+            if (attname != null)
+                strElm.setAttribute("name", attname);
+            strElm.setTextContent(val);
+            return strElm;
+        }
     }
 
     public static Element value(Document doc, Integer val) {
-        return value(doc, null, val);
+        synchronized (doc) {
+            return value(doc, null, val);
+        }
     }
 
     public static Element value(Document doc, String attname, Integer val) {
-        Element strElm = doc.createElement("int");
-        if (attname != null)
-            strElm.setAttribute("name", attname);
-        strElm.setTextContent("" + val);
-        return strElm;
+        synchronized(doc) {
+            Element strElm = doc.createElement("int");
+            if (attname != null)
+                strElm.setAttribute("name", attname);
+            strElm.setTextContent("" + val);
+            return strElm;
+        }
     }
 
     public static Element arr(Document doc, String attname, List vals) {
-        Element arrElm = doc.createElement("arr");
-        if (attname != null)
-            arrElm.setAttribute("name", attname);
-        for (Object obj : vals) {
-            if (obj instanceof String) {
-                arrElm.appendChild(value(doc, (String) obj));
-            } else if (obj instanceof Integer) {
-                arrElm.appendChild(value(doc, (Integer) obj));
-            } else
-                throw new IllegalArgumentException("unsupported type "
-                        + obj.getClass().getName() + "");
+        synchronized(doc) {
+            Element arrElm = doc.createElement("arr");
+            if (attname != null)
+                arrElm.setAttribute("name", attname);
+            for (Object obj : vals) {
+                if (obj instanceof String) {
+                    arrElm.appendChild(value(doc, (String) obj));
+                } else if (obj instanceof Integer) {
+                    arrElm.appendChild(value(doc, (Integer) obj));
+                } else
+                    throw new IllegalArgumentException("unsupported type "
+                            + obj.getClass().getName() + "");
+            }
+            return arrElm;
         }
-        return arrElm;
     }
 
     public static <T> T value(final Element doc, final String attributeName,
             Class<T> clz) {
-        final String expectedTypeName = SOLR_TYPE_NAMES.get(clz);
-        List<Element> elms = XMLUtils.getElements(doc,
-                new XMLUtils.ElementsFilter() {
+        if (doc == null) {
+            throw new IllegalArgumentException("element must not be null");
+        }
+        synchronized(doc.getOwnerDocument()) {
+            final String expectedTypeName = SOLR_TYPE_NAMES.get(clz);
+            List<Element> elms = XMLUtils.getElements(doc,
+                    new XMLUtils.ElementsFilter() {
 
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        return (element.getNodeName().equals(expectedTypeName)
-                                && element.hasAttribute("name") && element
-                                .getAttribute("name").equals(attributeName));
-                    }
-                });
-        Object obj = elms.isEmpty() ? null : elms.get(0).getTextContent();
-        if (obj != null)
-            return value(obj.toString(), clz);
-        else
-            return null;
+                        @Override
+                        public boolean acceptElement(Element element) {
+                            return (element.getNodeName().equals(expectedTypeName)
+                                    && element.hasAttribute("name") && element
+                                    .getAttribute("name").equals(attributeName));
+                        }
+                    });
+            Object obj = elms.isEmpty() ? null : elms.get(0).getTextContent();
+            if (obj != null)
+                return value(obj.toString(), clz);
+            else
+                return null;
+        }
     }
 
     public static <T> List<T> array(final Element doc,
             final String attributeName, Class<T> clz) {
-        List<T> ret = new ArrayList<T>();
-        List<Element> elms = XMLUtils.getElements(doc,
-                new XMLUtils.ElementsFilter() {
+        synchronized(doc.getOwnerDocument()) {
+            List<T> ret = new ArrayList<T>();
+            List<Element> elms = XMLUtils.getElements(doc,
+                    new XMLUtils.ElementsFilter() {
 
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        return (element.getNodeName().equals("arr")
-                                && element.hasAttribute("name") && element
-                                .getAttribute("name").equals(attributeName));
-                    }
-                });
-        for (Element e : elms) {
-            ret.add(value(elms.get(0).getTextContent(), clz));
-        }
-        return ret;
+                        @Override
+                        public boolean acceptElement(Element element) {
+                            return (element.getNodeName().equals("arr")
+                                    && element.hasAttribute("name") && element
+                                    .getAttribute("name").equals(attributeName));
+                        }
+                    });
+            for (Element e : elms) {
+                ret.add(value(e.getTextContent(), clz));
+            }
+            return ret;
+        }        
     }
 
     
     //TODO: CDK Bugfix !! change basic array method !
     public static <T> List<T> narray(final Element doc,
             final String attributeName, Class<T> clz) {
-        List<T> ret = new ArrayList<T>();
-        List<Element> elms = XMLUtils.getElements(doc,
-                new XMLUtils.ElementsFilter() {
-
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        return (element.getNodeName().equals("arr")
-                                && element.hasAttribute("name") && element
-                                .getAttribute("name").equals(attributeName));
+        synchronized(doc.getOwnerDocument()) {
+            List<T> ret = new ArrayList<T>();
+            List<Element> elms = XMLUtils.getElements(doc,
+                    new XMLUtils.ElementsFilter() {
+                        @Override
+                        public boolean acceptElement(Element element) {
+                            return (element.getNodeName().equals("arr")
+                                    && element.hasAttribute("name") && element
+                                    .getAttribute("name").equals(attributeName));
+                        }
+                    });
+         
+            if (elms.size() >= 1) {
+                Element parentE = elms.get(0);
+                NodeList chnds = parentE.getChildNodes();
+                for (int i = 0,ll=chnds.getLength() ; i < ll; i++) {
+                    Node n = chnds.item(i);
+                    if (n.getNodeType() == Node.ELEMENT_NODE) {
+                        ret.add(value(n.getTextContent(), clz));
                     }
-                });
-     
-        if (elms.size() >= 1) {
-            Element parentE = elms.get(0);
-            NodeList chnds = parentE.getChildNodes();
-            for (int i = 0,ll=chnds.getLength() ; i < ll; i++) {
-                Node n = chnds.item(i);
-                if (n.getNodeType() == Node.ELEMENT_NODE) {
-                    ret.add(value(n.getTextContent(), clz));
                 }
             }
+            return ret;
         }
-        return ret;
     }
 }

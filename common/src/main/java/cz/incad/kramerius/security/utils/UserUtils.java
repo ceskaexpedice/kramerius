@@ -70,15 +70,18 @@ public class UserUtils {
         ((UserImpl)dbUser).setGroups(grps);
     }
     
-    /** Params to http request */
+    /** Params to request's header and session */
     public static final String USER_NAME_PARAM = "userName";
     public static final String PSWD_PARAM = "pswd";
-
+ 
+    public static final String FIRST_NAME_KEY="firstName";
+    public static final String LAST_NAME_KEY="lastName";
+    
+    
+    
     /** Params to http session */
     public static final String LOGGED_USER_PARAM = "loggedUser";
     public static final String LOGGED_USER_KEY_PARAM ="loggedUserKey";
-    
-    //public static final String LOGGED_USER_KEY = "loggedUser";
-
+ 
     
 }

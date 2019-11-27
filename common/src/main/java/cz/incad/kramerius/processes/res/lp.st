@@ -1,3 +1,4 @@
+
 <processes>
     <process>
         <!-- identifikator  -->
@@ -12,9 +13,9 @@
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <parameters>one two</parameters>
-		
-		<checkErrorStream>false</checkErrorStream>
-		
+
+        <checkErrorStream>false</checkErrorStream>
+
     </process>
 
     <process>
@@ -416,6 +417,90 @@
             <input class="cz.incad.kramerius.processes.manages.input.DeleteProcessesInput"></input>
         </templates>
         
+    </process>
+
+
+    <!-- Apply moving wall to subtree -->
+    <process>
+        <id>applymw</id>
+        <description>Apply moving wall</description>
+        <mainClass>cz.cas.lib.knav.ApplyMovingWall</mainClass>
+        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+    </process>
+    
+    <!-- Parametrized apply moving wall to subtree -->
+    <process>
+        <id>parametrizedapplymw</id>
+        <description>parametrized apply moving wall</description>
+        <!-- spoustena trida -->
+        <mainClass>cz.cas.lib.knav.ParametrizedApplyMovingWall</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+
+        <templates>
+            <input class="cz.cas.lib.knav.templates.ParametrizedApplyMWTemplate"></input>
+        </templates>
+        
+    </process>
+    
+
+    <!-- iterate over models -->
+    <process>
+        <id>iterated_appliedmw</id>
+        <description>Iterate over models and starts subprocesses</description>
+        <mainClass>cz.incad.kramerius.processes.impl.IterateNonParametrized</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>applymw ["$pid$"]</parameters>
+        <securedaction>aggregate</securedaction>
+    </process>
+
+    <!-- iterate over models -->
+    <process>
+        <id>parametrized_iterated_appliedmw</id>
+        <description>Iterate over models and starts subprocesses</description>
+        <mainClass>cz.cas.lib.knav.ParametrizedIterateRepoMovingWall</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>aggregate</securedaction>
+        <templates>
+            <input class="cz.cas.lib.knav.templates.ParametrizedIterateRepoApplyMWTemplate"></input>
+        </templates>
+    </process>
+
+    <!-- iterate over models -->
+    <process>
+        <id>iterated_mock</id>
+        <description>Iterate over models and starts subprocesses</description>
+        <mainClass>cz.incad.kramerius.processes.impl.IterateNonParametrized</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>mock ["$pid$","$model$","$index$"]</parameters>
+        <securedaction>aggregate</securedaction>
+    </process>
+    
+    <process>
+        <id>batchindexer</id>
+        <description>Batch indexer </description>
+        <mainClass>cz.cas.lib.knav.indexer.BatchIndexerSupport</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>reindex</securedaction>
+    </process>
+
+
+    <process>
+        <id>migrationindex</id>
+        <description>Index migrations</description>
+        <mainClass>cz.incad.kramerius.services.ParallelMigrateSolrIndexImpl</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>reindex</securedaction>
     </process>
 
 

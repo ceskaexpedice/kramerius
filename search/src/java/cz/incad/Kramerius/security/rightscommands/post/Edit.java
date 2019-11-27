@@ -80,7 +80,7 @@ public class Edit extends ServletRightsCommand {
                 hasRight = true;
                 break;
             } else {
-                throw new SecurityException("operation is not permited");
+                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));
             }
         } 
         // root object
@@ -88,7 +88,7 @@ public class Edit extends ServletRightsCommand {
             if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null ,new ObjectPidsPath(pid))) {
                 hasRight = true;
             } else {
-                throw new SecurityException("operation is not permited");
+                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));
             }
         }
         

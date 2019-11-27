@@ -1,7 +1,6 @@
-// $ANTLR 2.7.7 (20060906): "csv.g" -> "CSVParser.java"$
+// $ANTLR 2.7.7 (2006-11-01): "csv.g" -> "CSVParser.java"$
 
 	package cz.incad.kramerius.processes.os.impl.windows.csv;
-	
 	import java.util.*;
 
 public interface CSVParserTokenTypes {

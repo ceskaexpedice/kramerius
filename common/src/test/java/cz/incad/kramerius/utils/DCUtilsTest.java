@@ -34,6 +34,7 @@ public class DCUtilsTest {
     @Test
     public void testPeriodicalItem() throws ParserConfigurationException, SAXException, IOException {
         InputStream is = this.getClass().getResourceAsStream("dc.uuid91214030-80bb-11e0-b482-000d606f5dc6.xml");
+        
         Document doc = XMLUtils.parseDocument(is,true);
         String title = DCUtils.titleFromDC(doc);
         Assert.assertEquals("3",title);

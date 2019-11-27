@@ -1,4 +1,6 @@
 
+/* global K5, _ */
+
 /**
  * Register listener -> Create viewer 
  */
@@ -25,8 +27,7 @@ K5.eventsHandler.addHandler(function(type, configuration) {
     }
     if (type === "widow/url/hash") {
         if (K5.gui.page && K5.gui.page ==="doc") {
-            var phash = location.hash;
-            var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
+            var pid = hashParser().pid;
             if (K5.api.ctx.item && K5.api.ctx.item[pid]) {
                 if (K5.api.ctx.item[pid].pid) {
                         var data = K5.api.ctx.item[pid];
@@ -41,11 +42,27 @@ K5.eventsHandler.addHandler(function(type, configuration) {
     }
         
     if (type === "application/keys/left") {
+      if($("#viewer>div.searchinside").is(":visible") || $("#q").is(":focus")){
+        return;
+      } else {
+        configuration[0].preventDefault(); // prevent the default action (scroll / move caret)
         K5.gui["selected"].prev();
+      }
     }
 
     if (type === "application/keys/right") {
+      if($("#viewer>div.searchinside").is(":visible") || $("#q").is(":focus")){
+        return;
+      } else {
+        configuration[0].preventDefault(); // prevent the default action (scroll / move caret)
         K5.gui["selected"].next();
+      }
+    }
+
+    if (type === "window/resized") {
+        if (K5.gui["selected"]) {
+            K5.gui["selected"].wresized();
+        }
     }
 
     // changes in context buttons
@@ -55,8 +72,9 @@ K5.eventsHandler.addHandler(function(type, configuration) {
 
 });
 
-var phash = location.hash;
-var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
+//var phash = location.hash;
+//var pid = phash.startsWith("#!") ? phash.substring(2) : phash.substring(1);
+var pid = hashParser().pid;
 if (pid) K5.api.askForItem(pid);
 
 var maxwidth = $('html').css('max-width');
@@ -68,19 +86,20 @@ function _eventProcess(pid) {
     var data = K5.api.ctx["item"][pid];
     var viewer = K5.gui["viewers"].select(data);
 
+    
+    
     K5.api.ctx["item"]["selected"] = pid;
-    if (K5.gui.selected) {
+    if (K5.gui.hasOwnProperty('selected') && K5.gui.selected !== null) {
         K5.gui.selected.clearContainer();
         if (K5.gui.selected.download) {
             K5.gui.selected.download.cleanDialog();
         }
-        
-        $("#viewer>div.loading").show();
+        $("#viewer>div.container>div.loading").show();
     }
 
     var okfunc = _.bind(function() {
         
-        $("#viewer>div.loading").hide();
+        $("#viewer>div.container>div.loading").hide();
 
         var instance = K5.gui["viewers"].instantiate(viewer.object);        
         K5.gui["selected"] = mixInto(new ItemSupport(K5), instance);
@@ -89,11 +108,29 @@ function _eventProcess(pid) {
 
         K5.gui["selected"]["ctx"] = {};    
 
+        if (K5.gui["selected"].containsLeftStructure && K5.gui["selected"].containsLeftStructure()) {
+                        
+            if(typeof K5.gui["selected-left"] != 'undefined'){
+                if (K5.gui["selected"].leftStructureSettings) {
+                    K5.gui["selected-left"].setSettings( K5.gui["selected"].leftStructureSettings());
+                }
+                K5.gui["selected-left"].process();
+            }else{
+                if (K5.gui["selected"].leftStructureSettings) {
+                    K5.gui["selected-left"] = new LeftThumbs(K5, '#viewer>div.container>div.thumbs',K5.gui["selected"].leftStructureSettings());
+                } else {
+                    K5.gui["selected-left"] = new LeftThumbs(K5, '#viewer>div.container>div.thumbs');
+                }
+            }
+                 
+            //K5.gui["selected-left"].init();
+        }
+
         K5.gui.selected["disabledDisplay"] = false;
     });
     var failfunc = _.bind(function() {
 
-        $("#viewer>div.loading").hide();
+        $("#viewer>div.container>div.loading").hide();
 
         var nviewer = K5.gui["viewers"].findByName('forbidden');
         var instance = K5.gui["viewers"].instantiate(nviewer.object);        
@@ -103,13 +140,28 @@ function _eventProcess(pid) {
         K5.gui["selected"] = mixInto(new ItemSupport(K5), instance);
         K5.gui["selected"].initItemSupport();
         K5.gui["selected"].open();
-
+        
+        if (K5.gui["selected"].containsLeftStructure && K5.gui["selected"].containsLeftStructure()) {
+            if(typeof K5.gui["selected-left"] != 'undefined'){
+                K5.gui["selected-left"].process();   
+            }else{
+                K5.gui["selected-left"] =  new LeftThumbs();   
+            }
+            //K5.gui["selected-left"].init();
+        }
+        
         K5.gui.selected["disabledDisplay"] = true;
     });
 
     K5.gui["viewers"].forbiddenCheck(viewer.object,okfunc,failfunc); 
-        
+    
 
+
+    
+    
+    
+    //thumbViewer.open();
+    
     function _metadatainit() {
             $("#metadata").hide();
             if (data.model === "page") {
@@ -198,6 +250,34 @@ ItemSupport.prototype = {
         this.renderContext();
     },
     
+    maximize:function(){
+
+        if(K5.gui["maximized"]){
+            this.restore();
+        }else{
+        	$("#metadata").hide();
+            $(".thumbs").hide();
+            $("#viewer>div.breadcrumbs").hide();
+            $("#viewer>div.container").css("width", "100%");
+            $("#viewer div.ol").css("width", "100%");
+            K5.gui["maximized"] = true;
+            this.clearContainer();
+            this.open();
+        }
+    },
+    
+    restore:function(){
+        //$("#header").show();
+        $("#metadata").show();
+        $(".thumbs").show();
+        $("#viewer>div.breadcrumbs").show();
+        $("#viewer>div.container").css("width", "calc(100% - 340px)");
+        $("#viewer div.ol").css("width", "calc(100% - 350px)");
+        K5.gui["maximized"] = false;
+        this.clearContainer();
+        this.open();
+    },
+    
     addContextButtons: function() {
         _ctxbuttonsrefresh();
     },
@@ -245,24 +325,46 @@ ItemSupport.prototype = {
 
 
     renderContext: function() {
-        $(".context").remove();
+        $("#metadata>div.full").empty();
         var pid = K5.api.ctx["item"]["selected"];
         var data = K5.api.ctx["item"][pid];
 
-        this.itemContext = data.context[0];
+        this.itemContext = data.context.sort(function (a, b) { return b.length - a.length; })[0];
+
         var contextDiv = $("<div/>", {class: "context"});
-        contextDiv.append('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
+        var titleH = $('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
+        
+        var model = K5.api.ctx["item"][pid]['model'];
+        model = K5.i18n.ctx.dictionary["fedora.model." + model];
+        $('.mtd_footer .prev').attr('title', K5.i18n.ctx.dictionary["buttons.prev"] + " " + model);
+        $('.mtd_footer .prev').data('key', "buttons.prev");
+        $('.mtd_footer .next').attr('title', K5.i18n.ctx.dictionary["buttons.next"] + " " + model);
+        $('.mtd_footer .next').data('key', "buttons.next");
+        
+        //contextDiv.append('<h2>' + K5.api.ctx["item"][pid]['root_title'] + '</h2>');
         for (var i = 0; i < this.itemContext.length; i++) {
             var p = this.itemContext[i].pid;
             var div = $('<div/>');
             
             this.biblioModsXml(div, p, this.itemContext[i].model);
             contextDiv.append(div);
+            
         }
-        contextDiv.insertBefore("#metadata");
+        $("#metadata>div.full").append(titleH);
+        $("#metadata>div.full").append(contextDiv);
+        this.renderDonator();
+        contextDiv.height($("#metadata>div.full").height() - titleH.height() - 10);
     },
 
-    
+    renderDonator: function(){
+        var pid = K5.api.ctx["item"]["selected"];
+        var data = K5.api.ctx["item"][pid];
+        if(data.hasOwnProperty("donator")){
+            var donatorDiv = $("<div/>", {class: "donator"});
+            donatorDiv.append('<img src="api/item/'+data.donator+'/streams/LOGO"/>');
+            $(".mtd_footer dialogs_footer").prepend(donatorDiv);
+        }
+    },
    
     
     /**
@@ -327,6 +429,17 @@ ItemSupport.prototype = {
 
         return (itemContext.length > 1);
     },
+    
+    /**
+     * Process resize event
+     * @method      
+     */       
+    wresized: function(){
+        var contextDiv = $("#metadata>div.full>div.context");
+        var titleH = $("#metadata>div.full>h2");
+        contextDiv.height($("#metadata>div.full").height() - titleH.height() - 10);
+    },
+    
     /**
      * Returns parent pid
      * @method      
@@ -339,7 +452,12 @@ ItemSupport.prototype = {
         
         if (this.itemContext.length > 1) {
             var parentPid = itemContext[itemContext.length - 2].pid;
-            K5.api.gotoItemPage(parentPid, $("#q").val());
+            var hash = hashParser();
+            hash.pid = parentPid;
+            var histDeep = getHistoryDeep() + 1;
+            hash.hist = histDeep;
+            K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
+            
         }
     },
     /**
@@ -358,7 +476,11 @@ ItemSupport.prototype = {
             }, -1);
             if (index <= arr.length - 2) {
                 var nextPid = arr[index + 1].pid;
-                K5.api.gotoItemPage(nextPid, $("#q").val());
+                var hash = hashParser();
+                hash.pid = nextPid;
+                var histDeep = getHistoryDeep() + 1;
+                hash.hist = histDeep;
+                K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
             }
         } else {
             K5.api.askForItemSiblings(K5.api.ctx["item"]["selected"], function(data) {
@@ -368,7 +490,11 @@ ItemSupport.prototype = {
                 }, -1);
                 if (index < arr.length - 2) {
                     var nextPid = arr[index + 1].pid;
-                    K5.api.gotoItemPage(nextPid, $("#q").val());
+                    var hash = hashParser();
+                    hash.pid = nextPid;
+                    var histDeep = getHistoryDeep() + 1;
+                    hash.hist = histDeep;
+                    K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
                 }
             });
         }
@@ -390,7 +516,11 @@ ItemSupport.prototype = {
             }, -1);
             if (index > 0) {
                 var prevPid = arr[index - 1].pid;
-                K5.api.gotoItemPage(prevPid, $("#q").val());
+                var hash = hashParser();
+                hash.pid = prevPid;
+                var histDeep = getHistoryDeep() + 1;
+                hash.hist = histDeep;
+                K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
             }
 
         } else {
@@ -401,10 +531,22 @@ ItemSupport.prototype = {
                 }, -1);
                 if (index > 0) {
                     var prevPid = arr[index - 1].pid;
-                    K5.api.gotoItemPage(prevPid, $("#q").val());
+                    var hash = hashParser();
+                    hash.pid = prevPid;
+                    var histDeep = getHistoryDeep() + 1;
+                    hash.hist = histDeep;
+                    K5.api.gotoDisplayingItemPage(jsonToHash(hash), $("#q").val());
                 }
             });
         }
+    },
+    toggleView: function(){
+        $("#viewer .thumb img").toggle();
+        $("svg.toggle .line").toggle();
+        $("svg.toggle .img").toggle();
+    },
+    toogleModsView: function(){
+        $("div.modsxml li.node").toggleClass("fullmods");
     },
         
     /**
@@ -438,6 +580,10 @@ ItemSupport.prototype = {
         $("#searchinside_q").select();
 
         this._searchInsideArrow();
+    },
+    dosearch: function() {
+        var q = $("#searchinside_q").val();
+        K5.eventsHandler.trigger("app/searchInside", q);
     },
 
     /**

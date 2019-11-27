@@ -17,21 +17,27 @@
 package cz.incad.kramerius.rest.api.k5.client.item.decorators;
 
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import net.sf.json.JSONObject;
-import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
-import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator.TokenizedPath;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class HandleDecorate extends AbstractItemDecorator {
 
+    public static final Logger LOGGER = Logger.getLogger(HandleDecorate.class.getName());
+    
     private static final String KEY = "HREF";
 
     @Inject
@@ -45,10 +51,25 @@ public class HandleDecorate extends AbstractItemDecorator {
     @Override
     public void decorate(JSONObject jsonObject, Map<String, Object> context) {
         if (containsPidInJSON(jsonObject)) {
-            String str = ApplicationURL.applicationURL(
-                    this.requestProvider.get()).toString()
-                    + "/handle/" + getPidFromJSON(jsonObject);
-            JSONUtils.link(jsonObject, "handle", str);
+            try {
+                String pidFromJSON = getPidFromJSON(jsonObject);
+                PIDParser pidParser = new PIDParser(pidFromJSON);
+                pidParser.objectPid();
+                pidParser.getObjectId();
+                String namespaceId = pidParser.getNamespaceId();
+                if (namespaceId.equals("uuid")) {
+                    String str = ApplicationURL.applicationURL(
+                            this.requestProvider.get()).toString()
+                            + "/handle/" + pidFromJSON;
+                    JSONUtils.link(jsonObject, "handle", str);
+                }
+            } catch (LexerException e) {
+                LOGGER.log(Level.WARNING,e.getMessage(),e);
+                throw new GenericApplicationException(e.getMessage());
+            } catch (JSONException e) {
+                LOGGER.log(Level.WARNING,e.getMessage(),e);
+                throw new GenericApplicationException(e.getMessage());
+            }
         }
     }
 

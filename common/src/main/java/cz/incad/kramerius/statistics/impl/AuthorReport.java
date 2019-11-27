@@ -23,10 +23,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.antlr.stringtemplate.StringTemplate;
 
@@ -39,6 +42,9 @@ import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IPAddressFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -47,6 +53,8 @@ import cz.incad.kramerius.utils.database.Offset;
  *
  */
 public class AuthorReport implements StatisticReport{
+    
+    public static final Logger LOGGER = Logger.getLogger(AuthorReport.class.getName());
     
     public static final String REPORT_ID = "author";
     
@@ -57,25 +65,41 @@ public class AuthorReport implements StatisticReport{
 
     
     @Override
-    public List<Map<String, Object>> getReportPage(ReportedAction repAction, Offset rOffset, Object filteredValue) {
-        final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
-        authors.setAttribute("action", repAction != null ? repAction.name() : null);
-        authors.setAttribute("paging", true);
-        String sql = authors.toString();
-        Connection conn = connectionProvider.get();
-		List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(conn) {
-
-            @Override
-            public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
-                Map<String, Object> map = new HashMap<String, Object>();
-                map.put("count", rs.getInt("count"));
-                map.put("author_name", rs.getString("author_name"));
-                returnsList.add(map);
-                return super.handleRow(rs, returnsList);
+    public List<Map<String, Object>> getReportPage(ReportedAction repAction,StatisticsFiltersContainer filters, Offset rOffset) {
+        try {
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
+            
+            final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
+            authors.setAttribute("action", repAction != null ? repAction.name() : null);
+            authors.setAttribute("paging", true);
+            authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            authors.setAttribute("toDefined", dateFilter.getToDate() != null);
+            if (ipFilter.hasValue()) {
+                authors.setAttribute("ipaddr", ipFilter.getValue());
             }
-        }.executeQuery(sql.toString(), Integer.parseInt(rOffset.getOffset()), Integer.parseInt(rOffset.getSize()));
-        
-        return auths;
+            
+            @SuppressWarnings("rawtypes")
+            List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
+            String sql = authors.toString();
+            Connection conn = connectionProvider.get();
+            List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(conn) {
+
+                @Override
+                public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.put("count", rs.getInt("count"));
+                    map.put("author_name", rs.getString("author_name"));
+                    returnsList.add(map);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(sql.toString(), params.toArray());
+            
+            return auths;
+        } catch (ParseException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return new ArrayList<Map<String, Object>>();
+        }
     }
 
     @Override
@@ -88,24 +112,50 @@ public class AuthorReport implements StatisticReport{
         return REPORT_ID;
     }
 
-    
-    @Override
-    public void processAccessLog(final ReportedAction repAction,final StatisticsReportSupport sup,Object filteredValue, Object ... args) throws StatisticsReportException {
-        final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
-        authors.setAttribute("action", repAction != null ? repAction.name() : null);
-        authors.setAttribute("paging", false);
-        String sql = authors.toString();
-        new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
 
-            @Override
-            public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
-                Map<String, Object> map = new HashMap<String, Object>();
-                map.put("count", rs.getInt("count"));
-                map.put("author_name", rs.getString("author_name"));
-                returnsList.add(map);
-                sup.processReportRecord(map);
-                return super.handleRow(rs, returnsList);
-            }
-        }.executeQuery(sql.toString());
+    @Override
+    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) {
+        // TODO Auto-generated method stub
+        
     }
+
+    @Override
+    public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup,
+            StatisticsFiltersContainer filters) throws StatisticsReportException {
+        try {
+            final DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
+
+            final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
+            authors.setAttribute("action", repAction != null ? repAction.name() : null);
+            authors.setAttribute("paging", false);
+            authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            authors.setAttribute("toDefined", dateFilter.getToDate() != null);
+
+            if (ipFilter.hasValue()) {
+                authors.setAttribute("ipaddr", ipFilter.getValue());
+            }
+
+            @SuppressWarnings("rawtypes")
+            List params = StatisticUtils.jdbcParams(dateFilter);
+
+            String sql = authors.toString();
+            new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
+
+                @Override
+                public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.put("count", rs.getInt("count"));
+                    map.put("author_name", rs.getString("author_name"));
+                    returnsList.add(map);
+                    sup.processReportRecord(map);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(sql.toString(),params.toArray());
+        } catch (ParseException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new StatisticsReportException(e);
+       }
+    }
+
 }

@@ -4,13 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,18 +22,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-
-import biz.sourcecode.base64Coder.Base64Coder;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import biz.sourcecode.base64Coder.Base64Coder;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -52,8 +48,9 @@ import cz.incad.kramerius.service.ReplicationService;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.replication.FormatType;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.virtualcollections.VirtualCollection;
-import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.CollectionUtils;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
 /**
  * CDK replication resource
@@ -93,6 +90,10 @@ public class CDKReplicationsResource {
 
     @Inject
     Provider<User> userProvider;
+    
+    @Inject
+    @Named("fedora")
+    CollectionsManager colManager;
 
 
     @GET
@@ -100,12 +101,10 @@ public class CDKReplicationsResource {
     public Response getVirtualCollections() throws IOException {
         if (checkPermission()) {
             try {
-                List<VirtualCollection> vcs = VirtualCollectionsManager
-                        .getVirtualCollections(fedoraAccess,
-                                new ArrayList<String>());
+                List<Collection> vcs = this.colManager.getCollections();
                 JSONArray jsonArr = new JSONArray();
-                for (VirtualCollection vc : vcs) {
-                    jsonArr.add(virtualCollectionTOJSON(vc));
+                for (Collection vc : vcs) {
+                    jsonArr.put(CollectionUtils.virtualCollectionTOJSON(vc));
                 }
                 return Response.ok().entity(jsonArr.toString()).build();
             } catch (Exception e) {
@@ -116,20 +115,6 @@ public class CDKReplicationsResource {
             throw new ActionNotAllowed("action is not allowed");
     }
 
-
-    public static JSONObject virtualCollectionTOJSON(VirtualCollection vc) {
-        JSONObject jsonObj = new JSONObject();
-        jsonObj.put("pid", vc.getPid());
-        jsonObj.put("label", vc.getLabel());
-        jsonObj.put("canLeave", vc.isCanLeave());
-        JSONObject jsonMap = new JSONObject();
-        Map<String, String> descMAp = vc.getDescriptionsMap();
-        for (String k : descMAp.keySet()) {
-            jsonMap.put(k, descMAp.get(k));
-        }
-        jsonObj.put("descs", jsonMap);
-        return jsonObj;
-    }
 
     @GET
     @Path("prepare")
@@ -172,31 +157,6 @@ public class CDKReplicationsResource {
     }
 
     @GET
-    @Path("prepare")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response prepareJSON(@QueryParam("date") String date,
-            @QueryParam("offset") @DefaultValue("0") String offset,
-            @QueryParam("rows") @DefaultValue("100") String rows)
-            throws ReplicateException, UnsupportedEncodingException {
-        try {
-            if (checkPermission()) {
-                if (date == null) {
-                    date = FORMAT.format(new Date());
-                }
-                // TODO: permissions
-                Document document = this.solrAccess.request(makeRequestURL(
-                        date, offset, rows) + "&wt=json");
-                return Response.ok().entity(document).build();
-            } else
-                throw new ActionNotAllowed("action is not allowed");
-        } catch (FileNotFoundException e) {
-            throw new ReplicateException(e);
-        } catch (IOException e) {
-            throw new ReplicateException(e);
-        }
-    }
-
-    @GET
     @Path("{pid}/solrxml")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getExportedSolrXML(@PathParam("pid") String pid)
@@ -213,6 +173,25 @@ public class CDKReplicationsResource {
             throw new ReplicateException(e);
         }
     }
+
+    @GET
+    @Path("{pid}/{page}/solrxml")
+    @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
+    public Response getCombinedPidExportedSolrXML(@PathParam("pid") String pid,@PathParam("page") String page)
+            throws ReplicateException, UnsupportedEncodingException {
+        try {
+            if (checkPermission()) {
+                Document solrDoc = this.solrAccess.getSolrDataDocument(pid+"/"+page);
+                return Response.ok().entity(solrDoc).build();
+            } else
+                throw new ActionNotAllowed("action is not allowed");
+        } catch (FileNotFoundException e) {
+            throw new ObjectNotFound("cannot find pid '" + pid + "'");
+        } catch (IOException e) {
+            throw new ReplicateException(e);
+        }
+    }
+
 
     @GET
     @Path("{pid}/foxml")
@@ -275,12 +254,14 @@ public class CDKReplicationsResource {
                 char[] encoded = Base64Coder.encode(bytes);
                 JSONObject jsonObj = new JSONObject();
                 jsonObj.put("raw", new String(encoded));
-                return Response.ok().entity(jsonObj).build();
+                return Response.ok().entity(jsonObj.toString()).build();
             } else
                 throw new ActionNotAllowed("action is not allowed");
         } catch (FileNotFoundException e) {
             throw new ObjectNotFound("cannot find pid '" + pid + "'");
         } catch (IOException e) {
+            throw new ReplicateException(e);
+        } catch (JSONException e) {
             throw new ReplicateException(e);
         }
     }

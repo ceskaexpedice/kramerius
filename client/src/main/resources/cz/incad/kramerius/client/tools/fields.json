@@ -7,6 +7,8 @@
         "dc_identifier:": "dc.identifier"
     },
     "facets":["model_path", "keywords", "collection", "dostupnost"],
+    "otherParams":{
+    },
     "browse":{
         "models": ["monograph","periodical","article"]
     },

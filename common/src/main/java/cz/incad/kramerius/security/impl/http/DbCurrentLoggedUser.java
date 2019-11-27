@@ -16,12 +16,9 @@
  */
 package cz.incad.kramerius.security.impl.http;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.sql.ResultSet;
@@ -36,24 +33,18 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.UserImpl;
-import cz.incad.kramerius.security.impl.http.shibrules.ShibRuleLexer;
-import cz.incad.kramerius.security.impl.http.shibrules.ShibRuleParser;
-import cz.incad.kramerius.security.impl.http.shibrules.shibs.ShibRules;
-import cz.incad.kramerius.security.impl.http.shibrules.shibs.ShibbolethContext;
-import cz.incad.kramerius.security.impl.http.shibrules.shibs.ShibbolethContextImpl;
 import cz.incad.kramerius.security.jaas.K4LoginModule;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.security.utils.UserUtils;
-import cz.incad.kramerius.shib.utils.ShibbolethUtils;
 import cz.incad.kramerius.users.UserProfile;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
 public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
@@ -67,28 +58,15 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
     public User getPreviousLoggedUser(HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession();
-        if (session !=  null) {
-            if (session.getAttribute(SHIB_USER_KEY) != null) {
-                    if (session.getAttribute(SHIB_USER_KEY).equals("true")) {
-                        if (ShibbolethUtils.isUnderShibbolethSession(httpServletRequest)) {
-                          return getSessionUser(session);
-                        } else {
-                            LOGGER.fine("shib key defined but no shibboleth session");
-                            LOGGER.fine("clear attributes");
-                            User sessionUser = getSessionUser(session);
-                            if (sessionUser != null) {
-                                clearRightsInSession(sessionUser);
-                                clearSessionUser(session);
-                            }
-                            return null;
-                        }
-                    } else return getSessionUser(session);
-            } else {
+        if (session != null) {
+            if (this.loggedUsersSingleton.isLoggedUser(this.provider)) {
                 return getSessionUser(session);
-            }
-        } else return null;
+            } else return null;
+        }
+        else return null;
     }
 
+    
 
     public void clearSessionUser(HttpSession session) {
         if (session.getAttribute(UserUtils.LOGGED_USER_PARAM) != null) {
@@ -105,56 +83,9 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
 
     protected void tryToLog(HttpServletRequest httpServletRequest) throws NoSuchAlgorithmException, FileNotFoundException, RecognitionException, TokenStreamException, IOException {
-        if (ShibbolethUtils.isUnderShibbolethSession(httpServletRequest)) {
-            tryToLogShib(httpServletRequest);
-        } else {
-            tryToLogDB(httpServletRequest);
-        }
+        tryToLogDB(httpServletRequest);
     }
 
-
-    // log with schibboleth
-    public void tryToLogShib(HttpServletRequest httpServletRequest) throws FileNotFoundException, IOException, RecognitionException, TokenStreamException {
-    	Principal p = httpServletRequest.getUserPrincipal();
-    	String val = ((p != null && p.getName()!=null) ? httpServletRequest.getUserPrincipal().getName() : httpServletRequest.getRemoteUser());
-    	User user = new UserImpl(-1, "", "", val, 1);
-        // evaluating shib mapping file
-        evaluateShibRules(user);
-
-        cz.incad.kramerius.security.utils.UserUtils.associateCommonGroup(user, userManager);
-        HttpServletRequest request = this.provider.get();
-        HttpSession session = request.getSession(true);
-        if (session.getAttribute(SECURITY_FOR_REPOSITORY_KEY) == null) {
-            saveRightsIntoSession(user);
-        }
-
-        final Locale foundLocale = localeFromProfile(user);
-        storeLoggedUser(user,  new HashMap<String, Object>(){{
-            put(SHIB_USER_KEY,"true");
-            if (foundLocale != null) {
-                put("client_locale",foundLocale);
-            }
-        }});
-    }
-
-
-    public void evaluateShibRules(User user) throws IOException, FileNotFoundException, RecognitionException, TokenStreamException {
-        //ShibContext ctx = new ShibContext(this.provider.get(), user, this.userManager);
-
-        ShibbolethContext ctx = new ShibbolethContextImpl( ((UserImpl)user), this.userManager,this.provider.get());
-        
-        String shibRulesPath = KConfiguration.getInstance().getShibAssocRules();
-        LOGGER.fine("reading rules file :"+shibRulesPath);
-        String readAsString = IOUtils.readAsString(new FileInputStream(shibRulesPath), Charset.forName("UTF-8"), true);
-        ShibRuleLexer shibRuleLexer = new ShibRuleLexer(new StringReader(readAsString));
-        ShibRuleParser shibRuleParser = new ShibRuleParser(shibRuleLexer);
-
-        ShibRules shibRules = shibRuleParser.shibRules();
-        LOGGER.fine("shib rules parsed and trying to evaluate");
-
-        shibRules.evaluate(ctx);
-        LOGGER.fine("shib rules evaluated");
-    }
 
     public void tryToLogDB(HttpServletRequest httpServletRequest) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         Principal principal = httpServletRequest.getUserPrincipal();
@@ -195,21 +126,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                     }
                     put("PREPARING_PROFILE",PREPARED_PROFILE);
                 }});
-            } else {
-                // do nothing
             }
-
-
-            /*
-        } else if (profile.getJSONData().containsKey(CLIENT_LOCALE)) {
-            String lang =  profile.getJSONData().getString(CLIENT_LOCALE);
-            Locale foundLocale = this.textsService.findLocale(lang);
-            return foundLocale != null ? foundLocale : getDefault(request);
-       */
-
-
-
-
         } else if ((httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM) != null) && (httpServletRequest.getParameter(UserUtils.PSWD_PARAM) != null)) {
             HashMap<String, Object> foundUser = K4LoginModule.findUser(this.connectionProvider.get(), httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM));
             if (foundUser != null) {
@@ -237,39 +154,36 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
 
     public Locale localeFromProfile(User user) {
-        UserProfile profile = this.userProfileManager.getProfile(user);
-        String lang =  "";
-        
-        if (profile != null && profile.getJSONData().containsKey("client_locale")){
-            lang = profile.getJSONData().getString("client_locale");
-        } else{
-            return null;
+        try {
+            UserProfile profile = this.userProfileManager.getProfile(user);
+            String lang =  "";
+            
+            if (profile != null && profile.getJSONData().has("client_locale")){
+                lang = profile.getJSONData().getString("client_locale");
+            } else{
+                return null;
+            }
+            final Locale foundLocale = this.textsService.findLocale(lang);
+            return foundLocale;
+        } catch (JSONException e) {
+            throw new IllegalStateException(e.getMessage());
         }
-        final Locale foundLocale = this.textsService.findLocale(lang);
-        return foundLocale;
     }
 
     public String getColumnsFromProfile(User user) {
-        UserProfile profile = this.userProfileManager.getProfile(user);
-        if (profile.getJSONData().containsKey("results")) {
-            JSONObject results = profile.getJSONData().getJSONObject("results");
-            if (results.containsKey("columns")) {
-                return results.getString("columns");
+        try {
+            UserProfile profile = this.userProfileManager.getProfile(user);
+            if (profile.getJSONData().has("results")) {
+                JSONObject results = profile.getJSONData().getJSONObject("results");
+                if (results.has("columns")) {
+                    return results.getString("columns");
+                }
             }
+            return "2";
+        } catch (JSONException e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
-        return "2";
     }
-
-
-    public boolean isShibKeyDefined() {
-        HttpSession session = this.provider.get().getSession();
-        Object shibKey = session.getAttribute(SHIB_USER_KEY);
-        if ((shibKey != null) && (shibKey.equals("true"))) {
-            return true;
-        } else return false;
-    }
-
-
     public void storeLoggedUser(User user,  Map<String, Object> additionalValues) {
         try {
             HttpSession session = this.provider.get().getSession();

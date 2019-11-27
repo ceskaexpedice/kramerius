@@ -11,7 +11,7 @@ function ZoomifyStaticImage(appl, selector) {
         
         this.url = this.makeStaticURL(this.application.api.ctx["item"]["selected"]);
         
-        var jqSel = (selector || '#viewer>div.container');        
+        var jqSel = (selector || '#viewer>div.container>div.ol');        
         this.elem = $(jqSel);
         
         this._tmpimage = new Image();
@@ -106,7 +106,10 @@ ZoomifyStaticImage.prototype.open = function() {
         this.elem.append(_rightNavigationArrow());    
 
         var optionsDiv = _optionspane();
-        this.elem.append(optionsDiv);    
+        if ($("#options").length > 0) {
+            $("#options").remove();
+        }
+        this.elem.append(optionsDiv);
 
 
         var mapDiv = $("<div/>",{"id":"map"});
@@ -160,6 +163,7 @@ ZoomifyStaticImage.prototype.open = function() {
         
 
                 this.map.on('moveend',function() {
+                    /*
                     var curpage = K5.gui.selected.currentPage();
                     if (curpage[2] < 0) {
                         K5.gui.selected.next();
@@ -168,7 +172,8 @@ ZoomifyStaticImage.prototype.open = function() {
                     var wdth = $("#map").width();
                     if (curpage[0] > wdth) {
                         K5.gui.selected.prev();
-                    } 
+                    }*/
+                    
                 });
 
                 this.map.on('postrender', _.bind(function(evt) {
@@ -238,7 +243,9 @@ ZoomifyStaticImage.prototype.addContextButtons=  function() {
 
 
 ZoomifyStaticImage.prototype.relativePosition = function() {
-        return $("#map").position();        
+        // return $("#map").position();        
+        return $("#map").offset();
+
 }
 
 ZoomifyStaticImage.prototype.rotateLeft = function() {
@@ -467,4 +474,8 @@ ZoomifyStaticImage.prototype.selectionStartNotif = function() {
 
 ZoomifyStaticImage.prototype.selectionEndNotif = function() {
     $("#options").show();
+}
+
+ZoomifyStaticImage.prototype.containsLeftStructure = function() {
+    return true;
 }
