@@ -1,4 +1,5 @@
 include	'shared:common'
+include 'shared:migration'
 //include	'shared:common-intest'
 include	'rest'
 include	'search'
