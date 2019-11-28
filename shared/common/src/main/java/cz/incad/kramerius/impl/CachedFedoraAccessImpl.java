@@ -388,6 +388,25 @@ public class CachedFedoraAccessImpl  implements FedoraAccess, FedoraCacheAwarene
 
     @Override
     public void changeNotification() {
+    }
 
+    @Override
+    public String getFirstItemPid(Document relsExt) throws IOException {
+        return this.fedoraAccess.getFirstItemPid(relsExt);
+    }
+
+    @Override
+    public String getFirstItemPid(String pid) throws IOException {
+        return this.fedoraAccess.getFirstItemPid(pid);
+    }
+
+    @Override
+    public String getFirstVolumePid(Document relsExt) throws IOException {
+        return this.fedoraAccess.getFirstVolumePid(relsExt);
+    }
+
+    @Override
+    public String getFirstVolumePid(String pid) throws IOException {
+        return this.fedoraAccess.getFirstVolumePid(pid);
     }
 }

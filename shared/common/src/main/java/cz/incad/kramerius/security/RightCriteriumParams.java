@@ -20,11 +20,11 @@ package cz.incad.kramerius.security;
  * User defined parameters (raw values) for criterium. 
  */
 public interface RightCriteriumParams {
-	
-	/**
-	 * Returns id of criterium
-	 * @return
-	 */
+
+    /**
+     * Returns id of criterium
+     * @return
+     */
     public int getId();
     
     /**

@@ -27,10 +27,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -200,14 +197,19 @@ public class ExtendedFields {
     }
 
     public String toXmlString(int pageNum) throws Exception {
+        Set<String> texts = new HashSet<>();
+
         StringBuilder sb = new StringBuilder();
         for (String s : pid_paths) {
             sb.append("<field name=\"pid_path\">").append(s).append(pageNum == 0 ? "" : "/@" + pageNum).append("</field>");
             String[] pids = s.split("/");
             if (pageNum != 0) {
                 sb.append("<field name=\"parent_pid\">").append(pids[pids.length - 1]).append("</field>");
-                sb.append("<field name=\"text\">").append(getPDFPage(pageNum)).append("</field>");
-                
+                // TODO: Do it better. For now, i have to use any field which is aldrady defined
+                // in the future consider of interoducing field text_pdf
+                String pdfText = getPDFPage(pageNum);
+                texts.add(pdfText);
+
             } else {
                 if (pids.length == 1) {
                     sb.append("<field name=\"parent_pid\">").append(pids[0]).append("</field>");
@@ -216,7 +218,14 @@ public class ExtendedFields {
                 }
             }
         }
-        
+
+        if (!texts.isEmpty()) {
+            StringBuilder textsBuilder = new StringBuilder();
+            texts.stream().forEach(item -> textsBuilder.append(item));
+            sb.append("<field name=\"text_ocr\">").append(textsBuilder).append("</field>");
+        }
+
+
         for (Integer i : rels_ext_indexes) {
             sb.append("<field name=\"rels_ext_index\">").append(i).append("</field>");
         }

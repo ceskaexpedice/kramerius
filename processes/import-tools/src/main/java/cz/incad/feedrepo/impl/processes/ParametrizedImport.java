@@ -54,7 +54,7 @@ public class ParametrizedImport {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(), e);
         }
-        
+
         ImportToRepos.main(new String[0]);
         //standard import program
         //Import.main(new String[0]);

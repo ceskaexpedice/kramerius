@@ -6,10 +6,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,11 +63,16 @@ public class AltoSupportServlet extends HttpServlet {
         String q = req.getParameter("q");
         String pid = req.getParameter("pid");
         try {
-            String query = URLEncoder.encode(q+" AND PID:"+pid.replace(":", "\\:"),"UTF-8");
-            String searchUrl = KConfiguration.getInstance().getConfiguration().getString("api.point")+"/search?"+"q="+query+"&hl=true";
+
+
+            String filterQuery = "PID:"+URLEncoder.encode(pid.replace(":", "\\:"),"UTF-8");
+            String query = URLEncoder.encode(q,"UTF-8");
+            String fieldList = URLEncoder.encode("text text_ocr text_ocr_lemmatized text_ocr_lemmatized_ascii", "UTF-8");
+
+            String searchUrl = KConfiguration.getInstance().getConfiguration().getString("api.point")+"/search?"+"fq="+filterQuery+"&q="+query+"&defType=edismax&qf="+fieldList+"&hl=true";
             String xml = get(searchUrl, null, null);
             Document parsed = XMLUtils.parseDocument(new StringReader(xml));
-            List<String> hterms = findHighlightTerm(parsed.getDocumentElement(), pid);
+            Set<String> hterms = findHighlightTerm(parsed.getDocumentElement(), pid);
             JSONObject jsonObject = new JSONObject();
             for (String sterm : hterms) {
                 String altoUrl = KConfiguration.getInstance().getConfiguration().getString("api.point")+"/item/"+pid+"/streams/ALTO";
@@ -79,7 +81,6 @@ public class AltoSupportServlet extends HttpServlet {
                 byte[] bytes = alto.getBytes(Charset.forName("UTF-8"));
                 
                 Document parsedAlto = XMLUtils.parseDocument(new ByteArrayInputStream(bytes));
-
                 AltoDisected disected2 = cz.incad.kramerius.utils.ALTOUtils.disectAlto(sterm, parsedAlto);
                 jsonObject.put(sterm, disected2.toJSON());
                 
@@ -95,7 +96,7 @@ public class AltoSupportServlet extends HttpServlet {
         }
     }
     
-    public static List<String> findHighlightTerm(final Element elm, final String pid) {
+    public static Set<String> findHighlightTerm(final Element elm, final String pid) {
         List<Element> elmRecursive = XMLUtils.getElementsRecursive(elm, new ElementsFilter() {
             @Override
             public boolean acceptElement(Element itm) {
@@ -122,27 +123,39 @@ public class AltoSupportServlet extends HttpServlet {
                 });
                 found.addAll(nfound);
             }
-            
-            List<String> terms = new ArrayList<String>();
+
+            List<String> fieldList = Arrays.asList("text","text_ocr", "text_ocr_lemmatized", "text_ocr_lemmatized_ascii");
+            Set<String> terms = new HashSet<>();
             for (Element docEl : found) {
-                List<String> textArray = SOLRUtils.array(docEl, "text", String.class);
-                for (String text : textArray) {
-                    String textContent = textContent(text);
-                    if (textContent != null) {
-                        terms.add(textContent);
+
+                for (String fieldName :
+                        fieldList) {
+
+                    List<String> textArray = SOLRUtils.array(docEl, fieldName, String.class);
+                    for (String text : textArray) {
+                        if (text != null) {
+                            String textContent = textContent(text);
+                            if (textContent != null) {
+                                terms.add(textContent);
+                            }
+                        }
                     }
-                }
-                if (textArray.isEmpty()) {
-                    String value = SOLRUtils.value(docEl, "text", String.class);
-                    String textContent = textContent(value);
-                    if (textContent != null) {
-                        terms.add(textContent);
+                    if (textArray.isEmpty()) {
+                        String value = SOLRUtils.value(docEl, fieldName, String.class);
+                        if (value != null) {
+                            String textContent = textContent(value);
+                            if (textContent != null) {
+                                terms.add(textContent);
+                            }
+                        }
                     }
+
                 }
+
             }
             
             return terms;
-        } else return new ArrayList<String>();
+        } else return new HashSet<>();
         
     }
 

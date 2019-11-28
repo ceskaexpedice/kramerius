@@ -22,7 +22,7 @@ import cz.incad.kramerius.service.impl.IndexerProcessStarter.TokensFilter;
  */
 public class CollectPidForIndexing {
 
-    public static final int MAXIMUM_DOCUMENTS = 100;
+    public static final int MAXIMUM_DOCUMENTS = 90;
 
     
     private List<String> collectedPids = new ArrayList<String>();

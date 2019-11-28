@@ -26,6 +26,10 @@ import org.kramerius.importmets.MetsConvertor;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import java.io.File;
+import org.apache.commons.configuration.Configuration;
+import org.kramerius.importmets.MetsConvertor;
 
 /**
  * Parametrized mets NKD import
@@ -41,13 +45,32 @@ public class ParametrizedMetsNKDImport {
                 @ParameterName("convertTargetDirectory")File targetDirectory, 
                 @ParameterName("ingestSkip")Boolean ingestSkip,
                 @ParameterName("startIndexer")Boolean startIndexer,
-                @ParameterName("defaultRights")Boolean defaultRights) {
-        
+                @ParameterName("defaultRights")Boolean defaultRights,
+                @ParameterName("imageServerTilesURLPrefix")String isTilesPrefix,
+                @ParameterName("imageServerImagesURLPrefix")String isImagesPrefix,
+                @ParameterName("imageServerDirectory")String isDirectory
+    ) {
+
         System.setProperty("convert.defaultRights", defaultRights.toString());
         System.setProperty("ingest.startIndexer", startIndexer.toString());
         System.setProperty("ingest.skip", ingestSkip.toString());
 
-        
+        if (isTilesPrefix != null || isImagesPrefix != null || isDirectory != null) {
+            if (isTilesPrefix != null && isImagesPrefix != null && isDirectory != null) {
+                Configuration config = KConfiguration.getInstance().getConfiguration();
+
+                config.setProperty("convert.imageServerTilesURLPrefix", isTilesPrefix);
+                config.setProperty("convert.imageServerImagesURLPrefix", isImagesPrefix);
+                config.setProperty("convert.imageServerDirectory", isDirectory);
+            } else {
+                throw new IllegalArgumentException("Using optional imageserver parameters requires all of them being defined" +
+                        isImagesPrefix == null ? ", isImagesPrefix cannot be null" :  "" +
+                        isTilesPrefix == null ? ", isTilesPrefix cannot be null" : "" +
+                        isDirectory == null ? ", isDirectory cannot be null" : ""
+                );
+            }
+        }
+
         try {
             //TODO: I18N
             ProcessStarter.updateName("Parametrizovany import NDK METS z '"+convertDirectory.getAbsolutePath()+"'");

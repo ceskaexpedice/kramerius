@@ -100,7 +100,36 @@ public class SolrUtils   {
         XPathExpression pathExpr = fact.newXPath().compile("//arr[@name='model_path']/str");
         return pathExpr;
     }
-
+    
+    /**
+     * Constructs XPath for disecting fedora model
+     * @return Compiled XPath expression
+     * @throws XPathExpressionException Cannot compile xpath
+     */
+    public static XPathExpression fedoraModelExpr() throws XPathExpressionException {
+        XPathExpression fedoraModelExpr = fact.newXPath().compile("//str[@name='fedora.model']");
+        return fedoraModelExpr;
+    }
+    
+    /**
+     * Constructs XPath for disecting parent PID
+     * @return Compiled XPath expression
+     * @throws XPathExpressionException Cannot compile xpath
+     */
+    public static XPathExpression parentPidExpr() throws XPathExpressionException {
+        XPathExpression pidExpr = fact.newXPath().compile("//arr[@name='parent_pid']/str");
+        return pidExpr;
+    }
+    
+    /**
+     * Constructs XPath for disecting date
+     * @return Compiled XPath expression
+     * @throws XPathExpressionException Cannot compile xpath
+     */
+    public static XPathExpression dateExpr() throws XPathExpressionException {
+        XPathExpression dateExpr = fact.newXPath().compile("//str[@name='datum_str']");
+        return dateExpr;
+    }
     
     /**
      * Disects pid paths from given parsed solr document
@@ -175,6 +204,57 @@ public class SolrUtils   {
                 return list;
             }
             return new ArrayList<String>();
+        }
+    }
+    
+    /**
+     * Disect fedora model from given solr document
+     * @param parseDocument Parsed solr document
+     * @return fedora model
+     * @throws XPathExpressionException cannot disect fedora model
+     */
+    public static String disectFedoraModel(Document parseDocument) throws XPathExpressionException {
+        synchronized(parseDocument) {
+            Node fedoraModelNode = (Node) fedoraModelExpr().evaluate(parseDocument, XPathConstants.NODE);
+            if (fedoraModelNode != null) {
+                Element fedoraModelElm = (Element) fedoraModelNode;
+                return fedoraModelElm.getTextContent().trim();
+            }
+            return null;
+        }
+    }
+    
+    /**
+     * Disect parent PID from given solr document
+     * @param parseDocument Parsed solr document
+     * @return parent PID
+     * @throws XPathExpressionException cannot disect parent PID
+     */
+    public static String disectParentPid(Document parseDocument) throws XPathExpressionException {
+        synchronized(parseDocument) {
+            Node parentPidNode = (Node) parentPidExpr().evaluate(parseDocument, XPathConstants.NODE);
+            if (parentPidNode != null) {
+                Element parentPidElm = (Element) parentPidNode;
+                return parentPidElm.getTextContent().trim();
+            }
+            return null;
+        }
+    }
+    
+    /**
+     * Disect date from given solr document
+     * @param parseDocument Parsed solr document
+     * @return date
+     * @throws XPathExpressionException cannot disect date
+     */
+    public static String disectDate(Document parseDocument) throws XPathExpressionException {
+        synchronized(parseDocument) {
+            Node dateNode = (Node) dateExpr().evaluate(parseDocument, XPathConstants.NODE);
+            if (dateNode != null) {
+                Element dateElm = (Element) dateNode;
+                return dateElm.getTextContent().trim();
+            }
+            return null;
         }
     }
 

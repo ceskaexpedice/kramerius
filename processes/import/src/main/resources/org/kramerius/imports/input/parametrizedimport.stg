@@ -41,9 +41,13 @@ form(postfixdiv, importDirectory,importRootDirectory,  startIndexer, updateExist
         window.onProcessFormSend = function() {
             var startIndexer = \$('#startIndexer').attr('checked');
             var updateExisting = \$('#updateExisting').attr('checked');
+            var replaceDC = \$('#replaceDC').attr('checked');
+            var replaceMODs = \$('#replaceMODs').attr('checked');
+
             var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
             var vals = 'importDirectory='+encodeURI(\$('#importDirectory').val().escapeChars(charsThatMustBeEscaped))
                 +';startIndexer='+startIndexer+';updateExisting='+updateExisting
+                +';onlyReplaceDC='+replaceDC+';onlyReplaceMODS='+replaceMODs
                 ;
             
             var url = "lr?action=form_post&def=parametrizedimport&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
@@ -123,13 +127,18 @@ form(postfixdiv, importDirectory,importRootDirectory,  startIndexer, updateExist
         <input type="checkbox" id="startIndexer" name="startIndexer" value="startIndexer">$bundle.("import.indexerstart")$</input>
     $endif$
     <br>
-    
+
     <div style="display:none">
      $if(updateExisting)$
         <input type="checkbox" style="display:none" id="updateExisting" name="updateExisting" value="updateExisting" checked />
     $else$
         <input type="checkbox" style="display:none" id="updateExisting" name="updateExisting" value="updateExisting" />
     $endif$
+
+    <input type="checkbox" id="replaceDC" name="replaceDC" value="replaceDC"  >$bundle.("import.replaceDC")$</input>
+
+    <input type="checkbox" id="replaceMODs" name="replaceMODs" value="replaceMODs">$bundle.("import.replaceMODs")$</input>
+
     </div>
 </fieldset>
 

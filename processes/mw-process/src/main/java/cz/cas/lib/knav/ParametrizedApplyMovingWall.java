@@ -27,7 +27,7 @@ public class ParametrizedApplyMovingWall {
 
 
     @Process
-    public static void process(@ParameterName("userValue") String uVal, @ParameterName("pids") String pidsString) throws XPathExpressionException, IOException, RightCriteriumException, RepositoryException {
+    public static void process(@ParameterName("userValue") String uVal,  @ParameterName("mode") String mode, @ParameterName("pids") String pidsString) throws XPathExpressionException, IOException, RightCriteriumException, RepositoryException {
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
@@ -36,6 +36,7 @@ public class ParametrizedApplyMovingWall {
         CollectPidForIndexing coll = new CollectPidForIndexing();
 
         String[] pids = pidsString.split(",");
-        ApplyMWUtils.applyMWOverPidsArray(fa, sa, coll, uVal, pids);
+
+        ApplyMWUtils.applyMWOverPidsArray(fa, sa, coll, uVal, mode, pids);
     }
 }

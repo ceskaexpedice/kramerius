@@ -1,47 +1,33 @@
-<!--
 
-List if embedded processes;
-Every process could have following structure:
-
-<process>
-    <id>ident</id> - process indentifier
-    <description>Description</description> -  Process descritpion
-    <mainClass>cz.incad.kramerius.processes.mock.MockLPProcess</mainClass> - Main class of process
-    <standardOs>lrOut</standardOs> - Folder for standard output - default value is lrOut
-    <errOs>lrErr</errOs> - Folder for standard error -default value is lrErr
-    <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters> - Standard java process parameters
-    <parameters>one two</parameters> - Parameters for starting mainClass
-
-    <templates>
-        <input class="cz.incad.kramerius.processes.mock.wizard.FolderTemplates"></input> - class is responsible for rendering template for user inputs
-        <output class="cz.incad.kramerius.processes.mock.logs.LogsOutputTemplate"></output> - class is responsible for rendering process output results
-    </templates>
-
-    <securedaction>mock</securedaction> - security action associated with the process - only the user who has right to start 'mock' porcesses is allowed to start
-                                        - this process
-
-</process>
-
--->
 <processes>
-    <!-- process for testing purposes -->
     <process>
+        <!-- identifikator  -->
         <id>mock</id>
+        <!-- jenom popis -->
         <description>mock</description>
+        <!-- spoustena trida -->
         <mainClass>cz.incad.kramerius.processes.mock.MockLPProcess</mainClass>
+        <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <parameters>one two</parameters>
+		
 		<checkErrorStream>false</checkErrorStream>
+		
     </process>
 
-    <!-- process for testing purposes -->
     <process>
+        <!-- wiz...  -->
         <id>wmock</id>
+        <!-- jenom popis -->
         <description>Mocked process</description>
+        <!-- spoustena trida -->
         <mainClass>cz.incad.kramerius.processes.mock.wizard.WizardMockLPProcess</mainClass>
+        <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <parameters>/home/pavels/tmp two</parameters>
@@ -54,12 +40,14 @@ Every process could have following structure:
         <securedaction>mock</securedaction>
     </process>
 
-    <!-- process for testing purposes -->
     <process>
         <id>defaultmock</id>
         <description>Mocked process</description>
+        <!-- spoustena trida -->
         <mainClass>cz.incad.kramerius.processes.mock.wizard.DefaultWizardMockLPProcess</mainClass>
+        <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <parameters>lp-name lp-value</parameters>
@@ -71,7 +59,7 @@ Every process could have following structure:
         
     </process>
 
-    <!-- Static export with input templates; suited for use in UI -->
+
     <process>
         <id>parametrized_static_export</id>
         <description>Parametrized static export</description>
@@ -84,7 +72,7 @@ Every process could have following structure:
         <securedaction>export</securedaction>
     </process>
 
-    <!-- Static pdf export to CD medium  -->
+
     <process>
         <id>static_export_CD</id>
         <description>Statický export do PDF na CD</description>
@@ -101,10 +89,12 @@ Every process could have following structure:
         <securedaction>export</securedaction>
     </process>
 
-    <!-- Static pdf export to DVD medium  -->
     <process>
+        <!-- identifikator  -->
         <id>static_export_DVD</id>
+        <!-- jenom popis -->
         <description>Statický export do PDF na DVD</description>
+        <!-- spoustena trida -->
         <mainClass>cz.incad.kramerius.lp.PDFExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
@@ -118,7 +108,6 @@ Every process could have following structure:
         <securedaction>export</securedaction>
     </process>
 
-    <!-- Index & Reindex process -->
     <process>
         <id>reindex</id>
         <description>Reindexace</description>
@@ -224,7 +213,6 @@ Every process could have following structure:
         <errOs>lrErr</errOs>
     </processes>
 
-    <!-- K3 replication process - deprecated - it will be removed in the future -->
     <process>
         <id>replicationrights</id>
         <description>Replication rights</description>
@@ -233,7 +221,6 @@ Every process could have following structure:
         <errOs>lrErr</errOs>
     </process>
 
-    <!-- Set public process -->
     <process>
         <id>setpublic</id>
         <description>Set public</description>
@@ -248,7 +235,6 @@ Every process could have following structure:
         -->
     </process>
 
-    <!-- Set private process -->
     <process>
         <id>setprivate</id>
         <description>Set private</description>
@@ -263,7 +249,7 @@ Every process could have following structure:
         -->
     </process>
 
-    <!-- Delete something from fedora - it should be followed by reindex process -->
+
     <process>
         <id>delete</id>
         <description>Delete</description>
@@ -272,7 +258,6 @@ Every process could have following structure:
         <errOs>lrErr</errOs>
     </process>
 
-    <!-- Sort relation process - it should be followed by reindex process -->
     <process>
         <id>sort</id>
         <description>Sort relations</description>
@@ -281,8 +266,6 @@ Every process could have following structure:
         <errOs>lrErr</errOs>
     </process>
 
-
-    <!-- Export FOXML processs  -->
     <process>
         <id>export</id>
         <description>Export</description>

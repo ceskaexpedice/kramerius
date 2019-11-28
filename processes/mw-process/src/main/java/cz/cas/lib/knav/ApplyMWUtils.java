@@ -30,6 +30,11 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.utils.solr.SolrUtils;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
 
 /**
  * Apply MW Utility
@@ -44,13 +49,14 @@ public class ApplyMWUtils {
      * @param sa SolrAccess
      * @param coll Collects pids for indexing
      * @param userValue User defined values
+     * @param mode Year or month
      * @param pids PIDS array
      * @throws IOException
      * @throws RightCriteriumException
      * @throws XPathExpressionException
      */
     public static void applyMWOverPidsArray(FedoraAccess fa, SolrAccess sa,
-            CollectPidForIndexing coll, String userValue, String[] pids)
+            CollectPidForIndexing coll, String userValue, String mode, String[] pids)
             throws IOException, RightCriteriumException,
             XPathExpressionException, RepositoryException {
         String title = ApplyMWUtils.updateMovingWallTitle(pids, sa);
@@ -59,7 +65,7 @@ public class ApplyMWUtils {
             for (int i = 0; i < pids.length; i++) {
                 if (pids.length > 0) {
                     for (String pid : pids) {
-                        ApplyMWUtils.movingWallOnTree(pid, userValue, fa, sa, coll);
+                        ApplyMWUtils.movingWallOnTree(pid, userValue, mode, fa, sa, coll);
                     }
                 }
             }
@@ -74,7 +80,7 @@ public class ApplyMWUtils {
 
     /**
      * Human readable title of the process
-     * 
+     *
      * @param sa
      *            SolrAccess
      */
@@ -126,22 +132,28 @@ public class ApplyMWUtils {
     /**
      * Process one tree and subtree
      * 
-     * @param masterPid
-     *            Starting root of tree
-     * @param fa
-     *            FedoraAccess instance
-     * @param sa
-     *            SolrAccess instance
+     * @param masterPid Starting root of tree
+     * @param userValue value of moving wall
+     * @param mode mode of moving wall
+     * @param fa FedoraAccess instance
+     * @param sa SolrAccess instance
      * @throws IOException
      * @throws RightCriteriumException
      * @throws XPathExpressionException
      */
-    public static void movingWallOnTree(String masterPid, String userValue, FedoraAccess fa, SolrAccess sa,
+    public static void movingWallOnTree(String masterPid, String userValue, String mode, FedoraAccess fa, SolrAccess sa,
             CollectPidForIndexing coll) throws IOException,
             RightCriteriumException, XPathExpressionException, RepositoryException {
+        String firstModel = null;
+        String firstPid = null;
+
         ApplyMovingWall.LOGGER.info("Setting public | private flag for pid " + masterPid);
-        ApplyMWUtils.process(fa, sa, masterPid, userValue, coll);
+        firstPid = masterPid;
+        firstModel = ApplyMWUtils.getModel(masterPid);
+        ApplyMWUtils.process(fa, sa, masterPid, firstPid, firstModel, userValue, mode, coll);
+
         List<String> pids = fa.getPids(masterPid);
+        ApplyMWUtils.process(fa, sa, masterPid, firstPid, firstModel, userValue, mode, coll);
 
         String[] root;
         ObjectPidsPath[] path = sa.getPath(masterPid);
@@ -157,9 +169,8 @@ public class ApplyMWUtils {
                 }
             }
 
-
         for (String onePid : pids) {
-            ApplyMWUtils.process(fa, sa, onePid, userValue, coll);
+            ApplyMWUtils.process(fa, sa, onePid, firstPid, firstModel, userValue, mode, coll);
         }
     }
 
@@ -174,7 +185,8 @@ public class ApplyMWUtils {
      * @throws RightCriteriumException
      * @throws XPathExpressionException
      */
-    public static void process(FedoraAccess fa, SolrAccess sa, String onePid, String userValue,
+    public static void process(FedoraAccess fa, SolrAccess sa, String onePid,
+            String firstPid, String firstModel, String userValue, String mode,
             CollectPidForIndexing coll) throws IOException,
             RightCriteriumException, XPathExpressionException, RepositoryException {
         ProcessCriteriumContext ctx = new ProcessCriteriumContext(onePid, fa,
@@ -197,7 +209,7 @@ public class ApplyMWUtils {
                     .getConfiguration());
         }
         ApplyMovingWall.LOGGER.info("Used value is: " + wall);
-        mw.setCriteriumParamValues(new Object[] { "" + wall });
+        mw.setCriteriumParamValues(new Object[] { "" + wall, mode, firstModel, firstPid });
         EvaluatingResult result = mw.evalute();
         String flagFromRELSEXT = ApplyMWUtils.disectFlagFromRELSEXT(onePid, fa);
         if (result == EvaluatingResult.TRUE) {
@@ -297,5 +309,23 @@ public class ApplyMWUtils {
         int wall = conf.getInt("mwprocess.wall", 70);
         return wall;
     
+    }
+
+    public static String getModel(String pid) {
+        Document doc;
+        String fedoraModel = null;
+        try {
+            doc = SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + pid + "\"");
+            fedoraModel = SolrUtils.disectFedoraModel(doc);
+        } catch (IOException ex) {
+            Logger.getLogger(ApplyMWUtils.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParserConfigurationException ex) {
+            Logger.getLogger(ApplyMWUtils.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SAXException ex) {
+            Logger.getLogger(ApplyMWUtils.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (XPathExpressionException ex) {
+            Logger.getLogger(ApplyMWUtils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return fedoraModel;
     }
 }

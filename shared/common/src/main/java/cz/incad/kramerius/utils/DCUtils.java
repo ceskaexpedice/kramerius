@@ -49,8 +49,22 @@ public class DCUtils {
          
     }
 
+    /**
+     * Rights from Dublin core
+     * @param doc
+     * @return
+     */
     public static String rightsFromDC(org.w3c.dom.Document doc) {
-        Element elm = findElement(doc.getDocumentElement(), "rights", DC_NAMESPACE_URI); 
+        return rightsFromDC(doc.getDocumentElement());
+    }
+
+    /**
+     * Rights from Dublin core
+     * @param docElement
+     * @return
+     */
+    public static String rightsFromDC(Element docElement) {
+        Element elm = findElement(docElement, "rights", DC_NAMESPACE_URI);
         if (elm != null) {
             String policy = elm.getTextContent().trim();
             return policy;

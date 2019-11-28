@@ -17,6 +17,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.service.ExportService;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -27,6 +28,12 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import java.io.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ExportServiceImpl implements ExportService {
     public static final Logger LOGGER = Logger.getLogger(ExportServiceImpl.class.getName());
@@ -132,7 +139,11 @@ public class ExportServiceImpl implements ExportService {
                 InputStream foxml = fedoraAccess.getFoxml(p);
                 store(exportDirectory, p,foxml);
             }catch(Exception ex){
-                LOGGER.warning("Cannot export object "+p+", skipping: "+ex);
+                if (configuration.getConfiguration().getBoolean("export.shouldStopWhenFail", true)) {
+                    throw ex;
+                } else {
+                    LOGGER.warning("Cannot export object "+p+", skipping: "+ex);
+                }
             }
         }
     }

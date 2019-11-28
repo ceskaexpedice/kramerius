@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.AbstractFedoraAccess;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
@@ -19,8 +20,11 @@ import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.impl.Fedora4Repository;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 import org.apache.commons.io.IOUtils;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
@@ -48,6 +52,7 @@ public class Fedora4AccessImpl extends AbstractFedoraAccess {
 //            throw new IOException(e);
 //        }
     }
+
 
     @Override
     public Repository getInternalAPI() throws RepositoryException  {

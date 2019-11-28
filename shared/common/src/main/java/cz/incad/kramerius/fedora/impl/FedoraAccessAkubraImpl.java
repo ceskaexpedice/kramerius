@@ -390,4 +390,26 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
     public void shutdown() {
         manager.shutdown();
     }
+
+
+
+//    @Override
+//    public String getFirstItemPid(Document relsExt) throws IOException {
+//        return null;
+//    }
+//
+//    @Override
+//    public String getFirstItemPid(String pid) throws IOException {
+//        return null;
+//    }
+//
+//    @Override
+//    public String getFirstVolumePid(Document relsExt) throws IOException {
+//        return null;
+//    }
+//
+//    @Override
+//    public String getFirstVolumePid(String pid) throws IOException {
+//        return null;
+//    }
 }

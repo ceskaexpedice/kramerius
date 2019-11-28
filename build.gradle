@@ -16,51 +16,50 @@
  */
 
 /*plugins {
-	id 'com.gradle.build-scan' version '1.0'
+    id 'com.gradle.build-scan' version '1.0'
 }
 
+
 buildScan {
-	licenseAgreementUrl = 'https://gradle.com/terms-of-service'
-	licenseAgree = 'yes'
+    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
+    licenseAgree = 'yes'
 }*/
 println "Building K4-K5; please read BUILD-README.txt"
 
 apply plugin: 'java' // -> generate javadoc
 
 configurations {
-	/**
-	 * Contains external editors
-	 */
-	editors {
-		transitive = false
-	}
-
+    /**
+     * Contains external editors
+     */
+    editors {
+        transitive = false
+    }
 }
 
 
 configurations.all {
-	exclude module: 'slf4j-log4j12'
+    exclude module: 'slf4j-log4j12'
 }
 
 
+
 dependencies {
-	// editor dependency
-	//editors group: "cz.incad.kramerius", name: "editor", version: "5.1.0", ext: "war"
-	// rightseditor dependency
-	editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.0", ext: "war"
-
-
+    // editor dependency
+    editors group: "cz.incad.kramerius", name: "editor", version: "5.1.1", ext: "war"
+    // rightseditor dependency
+    editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.0", ext: "war"
 }
 
 
 
 repositories {
-	mavenLocal()
+    mavenLocal()
 }
 
 allprojects {
-	group='cz.incad.kramerius'
-	version='6.1.2-alpha'
+    group='cz.incad.kramerius'
+    version='6.1.2-alpha'
 }
 
 
@@ -69,155 +68,155 @@ allprojects {
  */
 allprojects {
 
-	apply plugin:'java'
-	apply plugin: 'eclipse'
-	apply plugin: 'maven'
+    apply plugin:'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'maven'
 
-	compileJava.options.encoding = 'UTF-8'
-
-
-	ext.guiceversion ='4.2.2'
-	ext.postgresversion = '42.1.4'
-	ext.slf4jversion='1.6.0'
-	ext.jerseyversion = '1.17.1'
-
-	ext.generatedSources = "generated-sources"
+    compileJava.options.encoding = 'UTF-8'
 
 
-	sourceCompatibility = 1.8
-	targetCompatibility= 1.8
+    ext.guiceversion ='4.2.2'
+    ext.postgresversion = '42.1.4'
+    ext.slf4jversion='1.6.0'
+    ext.jerseyversion = '1.17.1'
+
+    ext.generatedSources = "generated-sources"
+
+
+    sourceCompatibility = 1.8
+    targetCompatibility= 1.8
 
     configurations {
         database
     }
 
-	dependencies {
+    dependencies {
 
-		// postgresql to all subprojects
-		compile "org.postgresql:postgresql:${postgresversion}"
+        // postgresql to all subprojects
+        compile "org.postgresql:postgresql:${postgresversion}"
         database "org.postgresql:postgresql:${postgresversion}"
 
-		// guice to all subprojects
-		compile "com.google.inject:guice:${guiceversion}"
-		compile "com.google.inject.extensions:guice-multibindings:${guiceversion}"
-		compile "com.google.inject.extensions:guice-multibindings:${guiceversion}"
-		compile "com.google.inject.extensions:guice-servlet:${guiceversion}"
-		compile "com.google.inject.extensions:guice-assistedinject:${guiceversion}"
-		compile "javax.inject:javax.inject:1"
+        // guice to all subprojects
+        compile "com.google.inject:guice:${guiceversion}"
+        compile "com.google.inject.extensions:guice-multibindings:${guiceversion}"
+        compile "com.google.inject.extensions:guice-multibindings:${guiceversion}"
+        compile "com.google.inject.extensions:guice-servlet:${guiceversion}"
+        compile "com.google.inject.extensions:guice-assistedinject:${guiceversion}"
+        compile "javax.inject:javax.inject:1"
 
-		// logging
-		compile "org.slf4j:slf4j-api:${slf4jversion}"
-		compile "org.slf4j:log4j-over-slf4j:${slf4jversion}"
-		compile "org.slf4j:slf4j-jdk14:${slf4jversion}"
-		compile "org.slf4j:jcl-over-slf4j:${slf4jversion}"
+        // logging
+        compile "org.slf4j:slf4j-api:${slf4jversion}"
+        compile "org.slf4j:log4j-over-slf4j:${slf4jversion}"
+        compile "org.slf4j:slf4j-jdk14:${slf4jversion}"
+        compile "org.slf4j:jcl-over-slf4j:${slf4jversion}"
 
-		//junit to all subprojects
-		testCompile "junit:junit:4.4"
-		testCompile "org.easymock:easymock:3.0"
+        //junit to all subprojects
+        testCompile "junit:junit:4.4"
+        testCompile "org.easymock:easymock:3.0"
 
-	}
+    }
 
-	repositories {
-		/** libraries doesn't exist in public repo */
-		flatDir {
-			dirs "../buildSrc/lib"
-		}
-		flatDir {
-			dirs "../../buildSrc/lib"
-		}
-
-		
-		maven {
-			url "http://kramerius.googlecode.com/svn/mvnrepo"
-		}
-
-		maven {
-			url "http://aplikator.googlecode.com/svn/mvnrepository"
-		}
+    repositories {
+        /** libraries doesn't exist in public repo */
+        flatDir {
+            dirs "../buildSrc/lib"
+        }
+        flatDir {
+            dirs "../../buildSrc/lib"
+        }
 
 
-		mavenLocal()
-		mavenCentral()
+        maven {
+            url "http://kramerius.googlecode.com/svn/mvnrepo"
+        }
+
+        maven {
+            url "http://aplikator.googlecode.com/svn/mvnrepository"
+        }
 
 
-		maven {
-			url "http://download.java.net/maven/2/"
-		}
-
-		maven {
-			url "http://m2.duraspace.org/content/repositories/releases"
-		}
-
-		maven {
-			url "https://maven.java.net/content/repositories/snapshots/"
-		}
-
-		maven {
-			url "http://guiceyfruit.googlecode.com/svn/repo/releases/"
-		}
+        mavenLocal()
+        mavenCentral()
 
 
-		maven {
-			url "http://jsdoctk-plugin.googlecode.com/svn/repo"
-		}
+        maven {
+            url "http://download.java.net/maven/2/"
+        }
 
-		maven {
-			url "http://repository.springsource.com/maven/bundles/external"
-		}
+        maven {
+            url "http://m2.duraspace.org/content/repositories/releases"
+        }
 
-		maven {
-			url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases"
-		}
+        maven {
+            url "https://maven.java.net/content/repositories/snapshots/"
+        }
 
-		maven {
-			url "http://download.osgeo.org/webdav/geotools/"
-		}
-
-		maven {
-			url "http://repo.jfrog.org/artifactory/libs-releases/"
-		}
-
-		maven {
-			url "https://maven.atlassian.com/content/groups/public"
-		}
-
-		maven {
-			url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
-		}
-
-	}
-
-	tasks.withType(Javadoc) {
-		options.addStringOption('Xdoclint:none', '-quiet')
-	}
-
-	//~ overwrite windows encoding
-	test {
-		systemProperty "file.encoding", "utf-8"
-	}
-
-	tasks.withType(JavaCompile) {
-		options.encoding = 'UTF-8'
-		options.fork = true
-
-		// if there JDK6_HOME path defined; use it
-		if (System.env.JDK6_HOME != null) {
-			options.bootClasspath = "$System.env.JDK6_HOME/jre/lib/rt.jar"
-			options.bootClasspath += "$File.pathSeparator$System.env.JDK6_HOME/jre/lib/jsse.jar"
-			// if there JDK7_HOME path defined; use it
-		} else if (System.env.JDK7_HOME != null) {
-			options.bootClasspath = "$System.env.JDK7_HOME/jre/lib/rt.jar"
-			options.bootClasspath += "$File.pathSeparator$System.env.JDK7_HOME/jre/lib/jsse.jar"
-		}
-	}
+        maven {
+            url "http://guiceyfruit.googlecode.com/svn/repo/releases/"
+        }
 
 
-	// ~ overwritten windows encoding
+        maven {
+            url "http://jsdoctk-plugin.googlecode.com/svn/repo"
+        }
 
-	// remove all dependencies without group id
-	install.repositories.mavenInstaller.pom.whenConfigured {pom ->
-		pom.dependencies.removeAll { it.groupId == null || it.groupId.equals("") }
-	}
+        maven {
+            url "http://repository.springsource.com/maven/bundles/external"
+        }
+
+        maven {
+            url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases"
+        }
+
+        maven {
+            url "http://download.osgeo.org/webdav/geotools/"
+        }
+
+        maven {
+            url "http://repo.jfrog.org/artifactory/libs-releases/"
+        }
+
+        maven {
+            url "https://maven.atlassian.com/content/groups/public"
+        }
+
+        maven {
+            url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
+        }
+
+    }
+
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+
+    //~ overwrite windows encoding
+    test {
+        systemProperty "file.encoding", "utf-8"
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        options.fork = true
+
+        // if there JDK6_HOME path defined; use it
+        if (System.env.JDK6_HOME != null) {
+            options.bootClasspath = "$System.env.JDK6_HOME/jre/lib/rt.jar"
+            options.bootClasspath += "$File.pathSeparator$System.env.JDK6_HOME/jre/lib/jsse.jar"
+            // if there JDK7_HOME path defined; use it
+        } else if (System.env.JDK7_HOME != null) {
+            options.bootClasspath = "$System.env.JDK7_HOME/jre/lib/rt.jar"
+            options.bootClasspath += "$File.pathSeparator$System.env.JDK7_HOME/jre/lib/jsse.jar"
+        }
+    }
+
+
+    // ~ overwritten windows encoding
+
+    // remove all dependencies without group id
+    install.repositories.mavenInstaller.pom.whenConfigured {pom ->
+        pom.dependencies.removeAll { it.groupId == null || it.groupId.equals("") }
+    }
 
 
 }
@@ -226,54 +225,54 @@ allprojects {
  * Distribution task; zipInstallDir first
  */
 task distZip(type:Zip, dependsOn: 'zipInstallDir') {
-	description "Create full distribution zip"
-	baseName "kramerius"
-	group "Distribution"
-	//from {'client/build/libs'}
-	from {'search/build/libs'}
-	from {'security/security-core/build/libs'}
-	from configurations.editors
+    description "Create full distribution zip"
+    baseName "kramerius"
+    group "Distribution"
+    //from {'client/build/libs'}
+    from {'search/build/libs'}
+    from {'security/security-core/build/libs'}
+    from configurations.editors
     from configurations.database
-	from {'build/installation'}
+    from {'build/installation'}
     eachFile {
         it.path = it.path.replace('-5.1.0.war', '.war')
     }
 
-	//from 'build/distributions/kramerius-javadoc.zip'
+    //from 'build/distributions/kramerius-javadoc.zip'
 }
 /**
  * Patch distribution task
  */
 task distPatchZip(type:Zip) {
-	description "Create patch distribution zip"
-	baseName "kramerius-patch"
-	group "Distribution"
-	//from {'client/build/libs'}
-	from {'search/build/libs'}
-	from {'security-core/build/libs'}
+    description "Create patch distribution zip"
+    baseName "kramerius-patch"
+    group "Distribution"
+    //from {'client/build/libs'}
+    from {'search/build/libs'}
+    from {'security-core/build/libs'}
 }
 
 
 // zip installaton directory
 task zipInstallDir(type:Zip) {
-	description "Create zip from installation directory"
-	baseName "installation"
-	from "installation"
-	destinationDir file('build/installation')
+    description "Create zip from installation directory"
+    baseName "installation"
+    from "installation"
+    destinationDir file('build/installation')
 }
 
 
 // disabled distributions
 task zipAllJavadocs(type: Zip) {
-	String[] _spr = ["shared:common","security:security-core","rest","search"];
-	description "create javadocs for ${_spr} and zip it"
-	baseName "kramerius-javadoc"
-	for(String project in _spr) {
-		dependsOn(":${project}:javadoc")
-		into(project) {
-			from(tasks.getByPath(":${project}:javadoc").destinationDir)
-		}
+    String[] _spr = ["shared:common","security:security-core","rest","search"];
+    description "create javadocs for ${_spr} and zip it"
+    baseName "kramerius-javadoc"
+    for(String project in _spr) {
+        dependsOn(":${project}:javadoc")
+        into(project) {
+            from(tasks.getByPath(":${project}:javadoc").destinationDir)
+        }
 
-	}
+    }
 }
 

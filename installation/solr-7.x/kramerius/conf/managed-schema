@@ -7,33 +7,33 @@
         <fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
 
         <fieldtype name="binary" class="solr.BinaryField"/>
-        <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-        <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true"
+        <fieldType name="int" class="solr.IntPointField" omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="float" class="solr.FloatPointField" omitNorms="true"
                    positionIncrementGap="0"/>
-        <fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-        <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" omitNorms="true"
-                   positionIncrementGap="0"/>
-
-        <fieldType name="tint" class="solr.TrieIntField" docValues="true" precisionStep="8" positionIncrementGap="0"/>
-        <fieldType name="tfloat" class="solr.TrieFloatField" docValues="true" precisionStep="8"
-                   positionIncrementGap="0"/>
-        <fieldType name="tlong" class="solr.TrieLongField" docValues="true" precisionStep="8" positionIncrementGap="0"/>
-        <fieldType name="tdouble" class="solr.TrieDoubleField" docValues="true" precisionStep="8"
+        <fieldType name="long" class="solr.LongPointField" omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="double" class="solr.DoublePointField" omitNorms="true"
                    positionIncrementGap="0"/>
 
-        <fieldType name="tints" class="solr.TrieIntField" docValues="true" precisionStep="8" positionIncrementGap="0"
+        <fieldType name="tint" class="solr.IntPointField" docValues="true" positionIncrementGap="0"/>
+        <fieldType name="tfloat" class="solr.FloatPointField" docValues="true"
+                   positionIncrementGap="0"/>
+        <fieldType name="tlong" class="solr.LongPointField" docValues="true" positionIncrementGap="0"/>
+        <fieldType name="tdouble" class="solr.DoublePointField" docValues="true"
+                   positionIncrementGap="0"/>
+
+        <fieldType name="tints" class="solr.IntPointField" docValues="true" positionIncrementGap="0"
                    multiValued="true"/>
-        <fieldType name="tfloats" class="solr.TrieFloatField" docValues="true" precisionStep="8"
+        <fieldType name="tfloats" class="solr.FloatPointField" docValues="true"
                    positionIncrementGap="0" multiValued="true"/>
-        <fieldType name="tlongs" class="solr.TrieLongField" docValues="true" precisionStep="8" positionIncrementGap="0"
+        <fieldType name="tlongs" class="solr.LongPointField" docValues="true" positionIncrementGap="0"
                    multiValued="true"/>
-        <fieldType name="tdoubles" class="solr.TrieDoubleField" docValues="true" precisionStep="8"
+        <fieldType name="tdoubles" class="solr.DoublePointField" docValues="true"
                    positionIncrementGap="0" multiValued="true"/>
 
-        <fieldType name="tdate" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0"/>
-        <fieldType name="tdates" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0"
+        <fieldType name="tdate" class="solr.DatePointField" docValues="true" positionIncrementGap="0"/>
+        <fieldType name="tdates" class="solr.DatePointField" docValues="true" positionIncrementGap="0"
                    multiValued="true"/>
-        <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
+        <fieldType name="date" class="solr.DatePointField" omitNorms="true" positionIncrementGap="0"/>
 
         <fieldType name="random" class="solr.RandomSortField" indexed="true"/>
 
@@ -433,13 +433,13 @@
 
         <!-- box field -->
         <fieldType name="bbox" class="solr.BBoxField"  geo="true"  numberType="_bbox_coord" storeSubFields="false"/>
-        <fieldType name="_bbox_coord" class="solr.TrieDoubleField" precisionStep="8" docValues="true" stored="false"/>
+        <fieldType name="_bbox_coord" class="solr.DoublePointField" docValues="true" stored="false"/>
 
         <!--
          A Geohash is a compact representation of a latitude longitude pair in a single field.
          See http://wiki.apache.org/solr/SpatialSearch
         -->
-        <fieldtype name="geohash" class="solr.GeoHashField"/>
+        <fieldtype name="geohash" class="solr.LatLonPointSpatialField"/>
 
     </types>
 
@@ -503,10 +503,9 @@
 
         <!-- text ocr -->
         <field name="text_ocr" type="text_general_not_lemmatized" indexed="true" stored="true" storeOffsetsWithPositions="true" />
-        <field name="text_ocr_lemmatized" type="text_general_lemmatized" indexed="true" stored="true" storeOffsetsWithPositions="true"/>
-        <field name="text_ocr_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="true" storeOffsetsWithPositions="true"/>
-        <field name="text_ocr_lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="true" storeOffsetsWithPositions="true"/>
-
+        <field name="text_ocr_lemmatized" type="text_general_lemmatized" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
+        <field name="text_ocr_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
+        <field name="text_ocr_lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
 
         <field name="pages_count" type="int" default="0" indexed="true" stored="true"/>
 
@@ -556,14 +555,24 @@
         <field name="location" type="location_rpt" indexed="true" stored="true" multiValued="true"/>
         <!-- geo coordinates for defined as box -->
         <field name="range" type="bbox"/>
-    </fields>
+		
+		<!-- center point coordinate --> 
+        <field name="center" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
+
+	</fields>
 
     <!-- Field to use to determine and enforce document uniqueness.
       Unless this field is marked with required="false", it will be a required field
     -->
     <uniqueKey>PID</uniqueKey>
 
+    <!-- field for the QueryParser to use when an explicit fieldname is absent,
+            not supported in Solr 7, moved to solrconfig.xml -->
+    <!-- <defaultSearchField>text</defaultSearchField> -->
 
+    <!-- SolrQueryParser configuration: defaultOperator="AND|OR",
+            not supported in Solr 7, moved to solrconfig.xml -->
+    <!-- <solrQueryParser defaultOperator="AND"/> -->
 
     <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
@@ -583,32 +592,20 @@
     <copyField source="text_ocr" dest="text"/>
 
     <!-- lemmatized fields; stop words -->
-    <!--copyField source="dc.title" dest="text_lemmatized"/>
+    <copyField source="dc.title" dest="text_lemmatized"/>
     <copyField source="keywords" dest="text_lemmatized"/>
     <copyField source="dc.description" dest="text_lemmatized"/>
-    <copyField source="dc.title" dest="text_lemmatized"/>
     <copyField source="dc.creator" dest="text_lemmatized"/>
     <copyField source="details" dest="text_lemmatized"/>
-    <copyField source="text_ocr" dest="text_lemmatized"/-->
+    <copyField source="text_ocr" dest="text_lemmatized"/>
 
     <!-- lemmatized ascii fields; stop words -->
-    <!--copyField source="dc.title" dest="text_lemmatized_ascii"/>
+    <copyField source="dc.title" dest="text_lemmatized_ascii"/>
     <copyField source="keywords" dest="text_lemmatized_ascii"/>
     <copyField source="dc.description" dest="text_lemmatized_ascii"/>
-    <copyField source="dc.title" dest="text_lemmatized_ascii"/>
     <copyField source="dc.creator" dest="text_lemmatized_ascii"/>
     <copyField source="details" dest="text_lemmatized_ascii"/>
-    <copyField source="text_ocr" dest="text_lemmatized_ascii"/-->
-
-    <!-- lemmatized  fields; text; no stopwords -->
-    <!--copyField source="dc.title" dest="text_lemmatized_nostopwords"/>
-    <copyField source="keywords" dest="text_lemmatized_nostopwords"/>
-    <copyField source="dc.description" dest="text_lemmatized_nostopwords"/>
-    <copyField source="dc.title" dest="text_lemmatized_nostopwords"/>
-    <copyField source="dc.creator" dest="text_lemmatized_nostopwords"/>
-    <copyField source="details" dest="text_lemmatized_nostopwords"/>
-    <copyField source="text_ocr" dest="text_lemmatized_nostopwords"/-->
-
+    <copyField source="text_ocr" dest="text_lemmatized_ascii"/>
 
     <!-- root title; lemmatized fields -->
     <copyField source="root_title" dest="root_title_lemmatized"/>
