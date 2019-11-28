@@ -1,9 +1,6 @@
 package org.kramerius.replications;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,83 +16,90 @@ import cz.incad.kramerius.utils.StringUtils;
 
 public class ZeroPhase extends AbstractPhase {
 
-	public static final Logger LOGGER = Logger.getLogger(ZeroPhase.class.getName());
-	
-	
-	@Override
-	public void start(String url, String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
+    public static final Logger LOGGER = Logger.getLogger(ZeroPhase.class.getName());
+
+
+    @Override
+    public void start(String url, String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
         validate(url, replicationCollections);
-	}
+    }
 
 
 
-	private void validate(String url, String replicationCollections) throws PhaseException {
-		try {
-        	if (Boolean.parseBoolean(replicationCollections)) {
-            	String pid = K4ReplicationProcess.pidFrom(url);
-    			String infoURL = StringUtils.minus(StringUtils.minus(url, pid),"handle/")+"api/v5.0/info";
-    			InputStream inputStream = RESTHelper.inputStream(infoURL, "", "");
-    			int[] version = versions(inputStream);
-    			try {
-    				validate(version);
-    			} catch (PhaseException e) {
-    				List<Integer> ints = new ArrayList<>();
-    				for (Integer integer : version) { ints.add(integer); }
-    				LOGGER.warning("Cannot replicate virtual collections; invalid version on the source "+ints);
-				}
-        	}
+    private void validate(String url, String replicationCollections) throws PhaseException {
+        try {
+            if (Boolean.parseBoolean(replicationCollections)) {
+                String pid = K4ReplicationProcess.pidFrom(url);
+                String infoURL = StringUtils.minus(StringUtils.minus(url, pid),"handle/")+"api/v5.0/info";
+                InputStream inputStream = RESTHelper.inputStream(infoURL, "", "");
+                int[] version = versions(inputStream);
+                try {
+                    validate(version);
+                } catch (PhaseException e) {
+                    List<Integer> ints = new ArrayList<>();
+                    for (Integer integer : version) { ints.add(integer); }
+                    LOGGER.warning("Cannot replicate virtual collections; invalid version on the source "+ints);
+                }
+            }
         } catch (IOException e) {
-			throw new PhaseException(this, e.getMessage());
-		}
-	}
+            throw new PhaseException(this, e.getMessage());
+        }
+    }
 
 
 
-	protected void validate(int[] version) throws PhaseException {
-		if (version.length == 3) {
-			int _v = version[0]*100+version[1]*10+version[2];
-			if (_v <537) {
-				throwInvalidVersionException(version);
-			}
-		} else {
-			throwInvalidVersionException(version);
-		}
-	}
+    protected void validate(int[] version) throws PhaseException {
+        if (version.length == 3) {
+            int _v = version[0]*100+version[1]*10+version[2];
+            if (_v <537) {
+                throwInvalidVersionException(version);
+            }
+        } else {
+            throwInvalidVersionException(version);
+        }
+    }
 
 
 
-	private void throwInvalidVersionException(int[] version) throws PhaseException {
-		List<Integer> ints = new ArrayList<Integer>();
-		for (Integer integer : version) { ints.add(integer); }
-		throw new PhaseException(this, "not valid version "+ints);
-	}
+    private void throwInvalidVersionException(int[] version) throws PhaseException {
+        List<Integer> ints = new ArrayList<Integer>();
+        for (Integer integer : version) { ints.add(integer); }
+        throw new PhaseException(this, "not valid version "+ints);
+    }
 
 
 
 
 
 
-	private static int[] versions(InputStream inputStream) throws IOException {
-		JSONObject jsonobj = new JSONObject(IOUtils.readAsString(inputStream, Charset.forName("UTF-8"), true));
-		String string = jsonobj.getString("version");
-		StringTokenizer tokenizer = new StringTokenizer(string, ".");
-		String masterVersion = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
-		String minorVersion = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
-		String patchVersion = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
-		String qualifier = patchVersion.contains("_") ? patchVersion.substring(patchVersion.indexOf("_"), patchVersion.length()) : "";
+    private static int[] versions(InputStream inputStream) throws IOException {
+        JSONObject jsonobj = new JSONObject(IOUtils.readAsString(inputStream, Charset.forName("UTF-8"), true));
+        String string = jsonobj.getString("version");
+        StringTokenizer tokenizer = new StringTokenizer(string, ".");
+        String masterVersion = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
+        String minorVersion = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
+        String patchVersion = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
 
-		patchVersion = !qualifier.equals("") ? patchVersion.substring(0, patchVersion.indexOf("_")) : patchVersion;
-		
-		return  new int[] {Integer.parseInt(masterVersion),Integer.parseInt(minorVersion),Integer.parseInt(patchVersion)};
-	}
+        String qualifier = "";
+        if (patchVersion.contains("_") ||  patchVersion.contains("-")) {
+            if (patchVersion.contains("_")) {
+                qualifier = patchVersion.substring(patchVersion.indexOf("_"), patchVersion.length());
+                patchVersion = !qualifier.equals("") ? patchVersion.substring(0, patchVersion.indexOf("_")) : patchVersion;
+            } else if (patchVersion.contains("-")) {
+                qualifier = patchVersion.substring(patchVersion.indexOf("-"), patchVersion.length());
+                patchVersion = !qualifier.equals("") ? patchVersion.substring(0, patchVersion.indexOf("-")) : patchVersion;
+            }
+        }
+        return  new int[] {Integer.parseInt(masterVersion),Integer.parseInt(minorVersion),Integer.parseInt(patchVersion)};
+    }
 
 
-	
-	
-	@Override
-	public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url,
-			String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
+
+
+    @Override
+    public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url,
+            String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
         validate(url, replicationCollections);
-	}
+    }
 
 }

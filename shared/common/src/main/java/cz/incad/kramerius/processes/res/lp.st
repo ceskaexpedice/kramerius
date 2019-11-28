@@ -543,7 +543,7 @@
 
         <templates>
             <input class="org.kramerius.replications.input.DataMigrationInputTemplate"></input>
-			<output class="org.kramerius.replications.output.DataMigrationOutputTemplate"></output>
+            <output class="org.kramerius.replications.output.DataMigrationOutputTemplate"></output>
         </templates>
     </process>
 
