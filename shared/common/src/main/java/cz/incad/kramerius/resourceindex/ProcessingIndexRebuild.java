@@ -60,7 +60,12 @@ public class ProcessingIndexRebuild {
         try {
             long start = System.currentTimeMillis();
             feeder.deleteProcessingIndex();
-            Path objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("objectStore.path"));
+            Path objectStoreRoot = null;
+            if (KConfiguration.getInstance().getConfiguration().getBoolean("legacyfs")){
+                objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("object_store_base"));
+            } else {
+                objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("objectStore.path"));
+            }
             Files.walk(objectStoreRoot).parallel().filter(Files::isRegularFile).forEach(path -> {
                 try {
                     FileInputStream inputStream = new FileInputStream(path.toFile());
