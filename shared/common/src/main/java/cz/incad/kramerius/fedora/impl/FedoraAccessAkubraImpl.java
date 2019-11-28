@@ -378,9 +378,15 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
 
 
     @Override
-    public InputStream getFoxml(String pid) throws IOException {
+    public InputStream getFoxml(String pid, boolean archive) throws IOException {
         try {
-            return this.manager.retrieveObject(pid);
+            if (archive){
+                DigitalObject obj = manager.readObjectFromStorage(pid);
+                manager.resolveArchivedDatastreams(obj);
+                return this.manager.marshallObject(obj);
+            }else {
+                return this.manager.retrieveObject(pid);
+            }
         } catch (Exception e) {
             throw new IOException(e);
         }

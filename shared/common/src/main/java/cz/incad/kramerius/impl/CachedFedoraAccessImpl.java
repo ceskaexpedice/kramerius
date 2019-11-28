@@ -377,8 +377,8 @@ public class CachedFedoraAccessImpl  implements FedoraAccess, FedoraCacheAwarene
 
 
     @Override
-    public InputStream getFoxml(String pid) throws IOException {
-        return this.fedoraAccess.getFoxml(pid);
+    public InputStream getFoxml(String pid, boolean archive) throws IOException {
+        return this.fedoraAccess.getFoxml(pid, archive);
     }
 
     @Override

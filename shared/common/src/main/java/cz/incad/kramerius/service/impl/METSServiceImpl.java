@@ -27,14 +27,7 @@ public class METSServiceImpl implements METSService {
 
 	@Override
 	public void exportMETS(String pid, OutputStream os) {
-		String p = pid.replace(INFO, "");
-		try {
-			InputStream is = fedoraAccess.getFoxml(p);
-			IOUtils.copy(is, os);
-		} catch (IOException e) {
-			LOGGER.severe(e.getMessage());
-			throw new RuntimeException(e);
-		}
+		throw new UnsupportedOperationException("METS export format is not supported");
 
 	}
 

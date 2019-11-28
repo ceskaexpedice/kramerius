@@ -32,7 +32,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import cz.incad.kramerius.fedora.impl.Fedora4AccessImpl;
+import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
 import org.easymock.EasyMock;
 import org.w3c.dom.Attr;
@@ -187,7 +187,7 @@ public class ImportDataPrepare {
         String objectId = pidParser.getObjectId();
         
         String path = "/org/kramerius/fedora/res/"+objectId+".xml";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true)).anyTimes();
     }
 
@@ -197,7 +197,7 @@ public class ImportDataPrepare {
         String objectId = pidParser.getObjectId();
         
         String path = "/org/kramerius/fedora/res/"+objectId+".nonconsistent.xml";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true)).anyTimes();
     }
 
@@ -265,7 +265,7 @@ public class ImportDataPrepare {
         pidParser.objectPid();
 
         String path = "/org/kramerius/fedora/res/"+pidParser.getObjectId()+".dc.xml";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         Document document = XMLUtils.parseDocument(resStream, true);
         EasyMock.expect(fa.getDC(pid)).andReturn(document).anyTimes();
     }
@@ -275,7 +275,7 @@ public class ImportDataPrepare {
         pidParser.objectPid();
 
         String path = "/org/kramerius/fedora/res/"+pidParser.getObjectId()+".mods.xml";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         Document document = XMLUtils.parseDocument(resStream, true);
         EasyMock.expect(fa.getBiblioMods(pid)).andReturn(document).anyTimes();
     }
@@ -285,7 +285,7 @@ public class ImportDataPrepare {
         pidParser.objectPid();
 
         String path = "/org/kramerius/fedora/res/"+pidParser.getObjectId()+".datastreams.xml";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         expect(fa.getFedoraDataStreamsList(pid)).andReturn(resStream);
     }
         

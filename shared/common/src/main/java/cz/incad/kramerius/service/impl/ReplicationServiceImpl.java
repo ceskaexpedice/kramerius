@@ -157,7 +157,7 @@ public class ReplicationServiceImpl implements ReplicationService{
     public byte[] getExportedFOXML(String pid, FormatType fType) throws ReplicateException,IOException {
         ReplicationFormat  format = formatInstantiate(fType.getClazz());
         try {
-            InputStream foxml = fedoraAccess.getFoxml(pid);
+            InputStream foxml = fedoraAccess.getFoxml(pid, true);
             byte[] exported = IOUtils.toByteArray(foxml);
             if (format != null) {
                 return format.formatFoxmlData(exported, null, null);
@@ -179,7 +179,7 @@ public class ReplicationServiceImpl implements ReplicationService{
 			Object... formatParams) throws ReplicateException, IOException {
         ReplicationFormat  format = formatInstantiate(fType.getClazz());
         try {
-            byte[] exported = IOUtils.toByteArray(fedoraAccess.getFoxml(pid));
+            byte[] exported = IOUtils.toByteArray(fedoraAccess.getFoxml(pid, true));
             if (format != null) {
             	if (formatParams != null && formatParams.length >= 1) {
                     return format.formatFoxmlData(exported, formatParams);

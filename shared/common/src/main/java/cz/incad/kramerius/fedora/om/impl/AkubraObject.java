@@ -561,32 +561,7 @@ public class AkubraObject implements RepositoryObject {
 
     @Override
     public void removeLiteral(String relation, String namespace, String value) throws RepositoryException {
-        try {
-            RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
-            Document document = XMLUtils.parseDocument(stream.getContent(), true);
-            Element relationElement = XMLUtils.findElement(document.getDocumentElement(), (element) -> {
-                String elmNamespace = element.getNamespaceURI();
-                String elmLocalname = element.getLocalName();
-                String elmResourceAttribute = element.getTextContent();
-                return (elmNamespace.equals(namespace)) && (elmLocalname.equals(relation)) && elmResourceAttribute.equals(value);
-            });
-
-            if (relationElement != null) {
-                relationElement.getParentNode().removeChild(relationElement);
-                changeRelations(document);
-            } else {
-                LOGGER.warning("Cannot find literal '" + namespace + relation);
-            }
-            this.updateSPARQL(Fedora4Repository.DELETE_LITERAL(relation, namespace, value));
-        } catch (ParserConfigurationException e) {
-            throw new RepositoryException(e);
-        } catch (SAXException e) {
-            throw new RepositoryException(e);
-        } catch (IOException e) {
-            throw new RepositoryException(e);
-        } catch (TransformerException e) {
-            throw new RepositoryException(e);
-        }
+       throw new UnsupportedOperationException("removeLiteral is not supported");
     }
 
     @Override

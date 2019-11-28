@@ -10,6 +10,7 @@ import org.akubraproject.BlobStore;
 import org.akubraproject.fs.FSBlobStore;
 import org.akubraproject.map.IdMapper;
 import org.akubraproject.map.IdMappingBlobStore;
+import org.apache.commons.io.IOUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -286,6 +287,21 @@ public class AkubraDOManager {
         }
     }
 
+    public InputStream marshallObject(DigitalObject object){
+        try {
+        StringWriter stringWriter = new StringWriter();
+        synchronized (marshaller) {
+            marshaller.marshal(object, stringWriter);
+        }
+        return  new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8"));
+        } catch (Exception e) {
+            LOGGER.warning("Could not marshall object: " + e);
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
     private void setLastModified(DigitalObject object) {
         boolean propertyExists = false;
         List<PropertyType> propertyTypeList = object.getObjectProperties().getProperty();
@@ -355,6 +371,27 @@ public class AkubraDOManager {
                     } catch (LowlevelStorageException e) {
                         LOGGER.warning("Could not remove managed datastream from Akubra: " + e);
                     }
+                }
+            }
+        }
+    }
+
+    public void resolveArchivedDatastreams(DigitalObject object){
+        for (DatastreamType datastreamType : object.getDatastream()) {
+            resolveArchiveManagedStream(datastreamType);
+        }
+
+    }
+
+    private void resolveArchiveManagedStream( DatastreamType datastream) {
+        if ("M".equals(datastream.getCONTROLGROUP())) {
+            for (DatastreamVersionType datastreamVersion : datastream.getDatastreamVersion()) {
+                try {
+                    InputStream stream = retrieveDatastream(datastreamVersion.getContentLocation().getREF());
+                    datastreamVersion.setBinaryContent(IOUtils.toByteArray(stream));
+                    datastreamVersion.setContentLocation(null);
+                }catch(Exception ex){
+                    LOGGER.warning("Could not resolve archive managed datastream: " + ex);
                 }
             }
         }
