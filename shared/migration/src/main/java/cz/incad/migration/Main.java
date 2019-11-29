@@ -61,11 +61,12 @@ public class Main {
 
                     db = DriverManager.getConnection(url, userName, userPass);
 
-                    LOGGER.info("Moving streams .. ");
+                    LOGGER.info("Moving streams ... ");
                     LegacyMigrationParts.STREAMS.doMigrationPart(db, args);
-                    LOGGER.info("Moving objects ..");
+                    LOGGER.info("Finished moving streams.");
+                    LOGGER.info("Moving objects ...");
                     LegacyMigrationParts.OBJECTS.doMigrationPart(db, args);
-
+                    LOGGER.info("Finished moving objects.");
                 } finally {
                     db.close();
                 }
