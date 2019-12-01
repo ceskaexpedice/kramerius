@@ -28,7 +28,7 @@ Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Mo
 Členové vývojového týmu:
 KNAV - M. Lhoták, M. Duda, J. Křížová; 
 NK ČR – T. Foltýn, Z. Vozár, V. Jiroušek, K. Košťálová; 
-MZK – L. Kravecová, P. Žabička, M. Indrák; 
+MZK – M. Smetánková, P. Žabička, M. Indrák; 
 NTK – J. Kolátor, J. Dobiášovský; 
 NLK – F. Kříž;
 SVKUL - A. Brožek;
