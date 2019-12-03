@@ -2,15 +2,10 @@ package cz.incad.migration;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
-import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import org.akubraproject.map.IdMapper;
@@ -29,26 +24,23 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static cz.incad.kramerius.resourceindex.ProcessingIndexRebuild.rebuildProcessingIndex;
-import static cz.incad.migration.Utils.*;
+import static cz.incad.migration.Utils.DOMIMPL;
+import static cz.incad.migration.Utils.SERIALIZER;
 
 /**
  * Set of parts dedicated for moving data from MZK to CDK
  */
 public enum LegacyMigrationParts {
-
-
 
 
     /**
@@ -59,7 +51,7 @@ public enum LegacyMigrationParts {
         public void doMigrationPart(Connection db, String[] args) throws SQLException {
             String datastreamPaths = KConfiguration.getInstance().getProperty("datastreamStore.path");
             String datastreamPattern = KConfiguration.getInstance().getProperty("datastreamStore.pattern");
-            dbSelect(db,"datastreampaths", new File(datastreamPaths), datastreamPattern,"select * from datastreampaths where tokendbid > "+args[1]+" order by tokendbid", (f) -> {
+            dbSelect(db, "datastreampaths", new File(datastreamPaths), datastreamPattern, "select * from datastreampaths where tokendbid > " + args[1] + " order by tokendbid", (f) -> {
             });
         }
     },
@@ -75,15 +67,22 @@ public enum LegacyMigrationParts {
 
             String objectPaths = KConfiguration.getInstance().getProperty("objectStore.path");
             String objectPattern = KConfiguration.getInstance().getProperty("objectStore.pattern");
-            dbSelect(db,"objectpaths", new File(objectPaths), objectPattern, "select * from objectpaths where tokendbid > "+args[2]+" order by tokendbid", (f) -> {
-                try {
-                    FileInputStream inputStream = new FileInputStream(f);
-                    DigitalObject digitalObject = createDigitalObject(inputStream);
-                    rebuildProcessingIndex(feeder, digitalObject);
-                } catch (Exception ex) {
-                    LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
-                }
-            });
+            Consumer<File> consumer = null;
+            if ("true".equalsIgnoreCase(args[3])) {
+                consumer = (f) -> {
+                    try {
+                        FileInputStream inputStream = new FileInputStream(f);
+                        DigitalObject digitalObject = createDigitalObject(inputStream);
+                        rebuildProcessingIndex(feeder, digitalObject);
+                    } catch (Exception ex) {
+                        LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
+                    }
+                };
+            } else {
+                consumer = f -> {
+                };
+            }
+            dbSelect(db, "objectpaths", new File(objectPaths), objectPattern, "select * from objectpaths where tokendbid > " + args[2] + " order by tokendbid", consumer);
         }
 
 
@@ -98,8 +97,6 @@ public enum LegacyMigrationParts {
     private static void dbSelect(Connection db, String tablename, File targetDir, String directoryPattern, String sqlCommand, Consumer<File> consumer) throws SQLException {
         IdMapper idMapper = new HashPathIdMapper(directoryPattern);
         final long start = System.currentTimeMillis();
-        //Stack<Integer> stack = new Stack<>();
-        //stack.push(new Integer(0));
         final AtomicInteger currentIteration = new AtomicInteger(0);
         List<Pair<String, String>> ids = new JDBCQueryTemplate<Pair<String, String>>(db, false) {
 
@@ -118,8 +115,8 @@ public enum LegacyMigrationParts {
                 File objectFile = new File(path);
                 if (objectFile.exists()) {
                     String internalId = idMapper.getInternalId(getBlobId(token)).toString();
-                    String subdirPath = internalId.substring(internalId.indexOf(":")+1, internalId.lastIndexOf("/"));
-                    String targetFileName = internalId.substring( internalId.lastIndexOf("/")+1);
+                    String subdirPath = internalId.substring(internalId.indexOf(":") + 1, internalId.lastIndexOf("/"));
+                    String targetFileName = internalId.substring(internalId.lastIndexOf("/") + 1);
                     File directory = new File(targetDir, subdirPath);
                     directory.mkdirs();
 

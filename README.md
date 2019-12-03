@@ -7,6 +7,8 @@ Aktuální distribuční verze je k dispozici v sekci Releases na projektovém s
 
 Zapojení do České digitální knihovny je možné od verze Kramerius 5.
 
+
+### Upozornění pro vývojáře: Do větve master byla zmergována větev akubra. 
 ----
 
 # Systém Kramerius 
