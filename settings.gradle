@@ -1,9 +1,7 @@
 include	'shared:common'
-include 'shared:migration'
 //include	'shared:common-intest'
 include	'rest'
 include	'search'
-include 'client'
 
 include	'processes:import'
 include	'processes:import-cmdtool'
@@ -22,6 +20,7 @@ include	'processes:indexer'
 include 'processes:solr-migration'
 include	'processes:static-export'
 include 'processes:data-migration'
+include 'processes:migration'
 
 include 'security:security-core'
 include 'security:authfilters'

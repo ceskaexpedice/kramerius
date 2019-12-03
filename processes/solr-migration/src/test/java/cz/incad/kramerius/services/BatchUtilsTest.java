@@ -1,8 +1,13 @@
 package cz.incad.kramerius.services;
 
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.indexer.FedoraOperations;
+import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import junit.framework.TestCase;
+import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,8 +24,14 @@ import static cz.incad.kramerius.services.BatchUtils.*;
 public class BatchUtilsTest extends TestCase {
 
     public void testDefaultTransform() throws IOException, SAXException, ParserConfigurationException, TransformerException, MigrateSolrIndexException {
+
+        FedoraOperations fedoraOperations = EasyMock.createMockBuilder(FedoraOperations.class).withConstructor(FedoraAccess.class, IResourceIndex.class). withArgs(null, null).createMock();
+        EasyMock.replay(fedoraOperations);
+
+
         // nekopirovat text, spravne
         Document feedDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+
         Element add = feedDocument.createElement("add");
         Element destDoc = feedDocument.createElement("doc");
         add.appendChild(destDoc);
@@ -31,7 +42,8 @@ public class BatchUtilsTest extends TestCase {
 
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element doc = XMLUtils.findElement(parsed.getDocumentElement(), "doc");
-        transform(doc, feedDocument,destDoc);
+
+        transform(doc, feedDocument,destDoc , fedoraOperations );
 
         // must be defined as copiied field
         Element text = BatchUtils.findByAttribute(destDoc, "text");
@@ -48,6 +60,9 @@ public class BatchUtilsTest extends TestCase {
     }
 
     public void testPdfNoTextOcrTransform() throws IOException, SAXException, ParserConfigurationException, TransformerException, MigrateSolrIndexException {
+        FedoraOperations fedoraOperations = EasyMock.createMockBuilder(FedoraOperations.class).withConstructor(FedoraAccess.class, IResourceIndex.class). withArgs(null, null).createMock();
+        EasyMock.replay(fedoraOperations);
+
         Document feedDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element add = feedDocument.createElement("add");
         Element destDoc = feedDocument.createElement("doc");
@@ -59,7 +74,7 @@ public class BatchUtilsTest extends TestCase {
 
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element doc = XMLUtils.findElement(parsed.getDocumentElement(), "doc");
-        transform(doc, feedDocument,destDoc);
+        transform(doc, feedDocument,destDoc, fedoraOperations);
 
         Element text = BatchUtils.findByAttribute(destDoc, "text");
         Assert.assertNotNull(text);
@@ -76,6 +91,10 @@ public class BatchUtilsTest extends TestCase {
     }
 
     public void testPdfTextOcrTransform() throws IOException, SAXException, ParserConfigurationException, TransformerException, MigrateSolrIndexException {
+
+        FedoraOperations fedoraOperations = EasyMock.createMockBuilder(FedoraOperations.class).withConstructor(FedoraAccess.class, IResourceIndex.class). withArgs(null, null).createMock();
+        EasyMock.replay(fedoraOperations);
+
         Document feedDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element add = feedDocument.createElement("add");
         Element destDoc = feedDocument.createElement("doc");
@@ -87,7 +106,7 @@ public class BatchUtilsTest extends TestCase {
 
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element doc = XMLUtils.findElement(parsed.getDocumentElement(), "doc");
-        transform(doc, feedDocument,destDoc);
+        transform(doc, feedDocument,destDoc, fedoraOperations);
 
 
         Element text = BatchUtils.findByAttribute(destDoc, "text");

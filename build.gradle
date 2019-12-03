@@ -46,7 +46,7 @@ configurations.all {
 
 dependencies {
     // editor dependency
-    editors group: "cz.incad.kramerius", name: "editor", version: "5.1.1", ext: "war"
+    // editors group: "cz.incad.kramerius", name: "editor", version: "5.1.1", ext: "war"
     // rightseditor dependency
     editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.0", ext: "war"
 }
@@ -59,7 +59,7 @@ repositories {
 
 allprojects {
     group='cz.incad.kramerius'
-    version='6.1.2-alpha'
+    version='7.0.0-beta1'
 }
 
 
@@ -228,8 +228,8 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
     description "Create full distribution zip"
     baseName "kramerius"
     group "Distribution"
-    //from {'client/build/libs'}
     from {'search/build/libs'}
+    from {'processes/migration/build/distributions'}
     from {'security/security-core/build/libs'}
     from configurations.editors
     from configurations.database
@@ -247,9 +247,10 @@ task distPatchZip(type:Zip) {
     description "Create patch distribution zip"
     baseName "kramerius-patch"
     group "Distribution"
-    //from {'client/build/libs'}
+    from configurations.database
     from {'search/build/libs'}
-    from {'security-core/build/libs'}
+    from {'processes/migration/build/distributions'}
+    from {'security/security-core/build/libs'}
 }
 
 

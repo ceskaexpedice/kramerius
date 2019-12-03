@@ -1,5 +1,6 @@
 package cz.incad.kramerius.services;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -76,7 +77,17 @@ public class BatchUtils {
         } else return "";
     }
 
-    public static void transform(Element sourceDocElm, Document destDocument,Element destDocElem) throws MigrateSolrIndexException  {
+    public static void transform(Element sourceDocElm, Document destDocument,Element destDocElem) throws MigrateSolrIndexException {
+        try {
+            FedoraOperations operations = new FedoraOperations();
+            transform(sourceDocElm,destDocument,  destDocElem,operations);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static void transform(Element sourceDocElm, Document destDocument,Element destDocElem, FedoraOperations operations) throws MigrateSolrIndexException  {
         String pid = pid(sourceDocElm);
         if (sourceDocElm.getNodeName().equals("doc")) {
             NodeList childNodes = sourceDocElm.getChildNodes();
@@ -91,7 +102,7 @@ public class BatchUtils {
                     }
                 }
             }
-            browseAuthorsAndTitles(sourceDocElm, destDocument, destDocElem);
+            browseAuthorsAndTitles(sourceDocElm, destDocument, destDocElem, operations);
             if (MigrationUtils.configuredBuildCompositeId()) {
                 enhanceByCompositeId(destDocument, destDocElem);
             }
@@ -199,10 +210,20 @@ public class BatchUtils {
     }
 
 
-    // special not stored fields  browse_autor, browse_title
-    public static void browseAuthorsAndTitles(Element sourceDocElm,Document ndoc, Element docElm)  {
+    public static void browseAuthorsAndTitles(Element sourceDocElm,Document ndoc, Element docElm) {
         try {
             FedoraOperations operations = new FedoraOperations();
+            browseAuthorsAndTitles(sourceDocElm,ndoc,docElm, operations);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+
+    // special not stored fields  browse_autor, browse_title
+    public static void browseAuthorsAndTitles(Element sourceDocElm,Document ndoc, Element docElm, FedoraOperations operations)  {
+        try {
 
             // browse author -- skip
             Element browseAuthorInSource = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {

@@ -71,7 +71,6 @@ public class MainMenuConfiguration extends AbstractModule {
         // prava
         adminItems.addBinding().to(CollectionsRightsAdministration.class);
  
-        adminItems.addBinding().to(MetadataEditor.class);
         adminItems.addBinding().to(MovingWallProcess.class);
 
 
