@@ -78,7 +78,7 @@ public class FedoraOperations {
 
         try {
             //return fa.getAPIM().export(pid, foxmlFormat, "public");
-            InputStream is = fa.getFoxml(pid);
+            InputStream is = fa.getFoxml(pid, false);
             return IOUtils.toByteArray(is);
             //return fa.getFoxml(pid);
         } catch (Exception e) {
@@ -90,7 +90,7 @@ public class FedoraOperations {
 
         logger.log(Level.INFO, "getFoxmlFromPid pid={0}", pid);
         try {
-            foxmlRecord = IOUtils.toByteArray(fa.getFoxml(pid));// fa.getAPIM().export(pid, foxmlFormat, "public");
+            foxmlRecord = IOUtils.toByteArray(fa.getFoxml(pid,false));// fa.getAPIM().export(pid, foxmlFormat, "public");
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error getting object", e);
             throw new Exception("Fedora Object " + pid + " not found. ", e);

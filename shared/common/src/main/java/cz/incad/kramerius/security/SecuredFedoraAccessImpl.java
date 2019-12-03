@@ -222,12 +222,12 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
 
     @Override
-    public InputStream getFoxml(String pid) throws IOException {
+    public InputStream getFoxml(String pid, boolean archive) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         paths = ensurePidPathForUnindexedObjects(pid, paths);
         for (int i = 0; i < paths.length; i++) {
             if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, paths[i])) {
-                return rawAccess.getFoxml(pid);
+                return rawAccess.getFoxml(pid, archive);
             }
         }
         throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, pid, null));

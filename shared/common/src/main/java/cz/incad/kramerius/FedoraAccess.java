@@ -473,7 +473,7 @@ public interface FedoraAccess {
     @Deprecated
     List<Map<String, String>> getStreamsOfObject(String pid)  throws IOException;
 
-    InputStream getFoxml(String pid) throws IOException;
+    InputStream getFoxml(String pid, boolean archive) throws IOException;
 
     default void shutdown(){};
 

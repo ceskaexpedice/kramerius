@@ -103,56 +103,56 @@ public class DataPrepare {
     
     public static InputStream datastreams33() {
         String path = "/cz/incad/kramerius/fedora/res/datastreams_3_3";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         return resStream;
     }
 
     public static InputStream datastreams34() {
         String path = "/cz/incad/kramerius/fedora/res/datastreams_3_4";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         return resStream;
     }
 
     public static InputStream datastreams36() {
         String path = "/cz/incad/kramerius/fedora/res/datastreams_3_6";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         return resStream;
     }
 
     
     public static InputStream dsProfile33() {
         String path = "/cz/incad/kramerius/fedora/res/dsprofile_3_3";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         return resStream;
     }
 
     public static InputStream dsProfile36() {
         String path = "/cz/incad/kramerius/fedora/res/dsprofile_3_6";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         return resStream;
     }
 
     public static InputStream dsProfile34() {
         String path = "/cz/incad/kramerius/fedora/res/dsprofile_3_4";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         return resStream;
     }
 
     public static InputStream fedoraProfile33() {
         String path = "/cz/incad/kramerius/fedora/res/describe_3_3";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         return resStream;
     }
 
     public static InputStream fedoraProfile34() {
         String path = "/cz/incad/kramerius/fedora/res/describe_3_4";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         return resStream;
     }
 
     public static InputStream fedoraProfile36() {
         String path = "/cz/incad/kramerius/fedora/res/describe_3_6";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         return resStream;
     }
 
@@ -185,7 +185,7 @@ public class DataPrepare {
         String objectId = pidParser.getObjectId();
         
         String path = "/cz/incad/kramerius/fedora/res/"+objectId+".xml";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true)).anyTimes();
     }
 
@@ -195,7 +195,7 @@ public class DataPrepare {
         String objectId = pidParser.getObjectId();
         
         String path = "/cz/incad/kramerius/fedora/res/"+objectId+".jpg";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         byte[] bytes = IOUtils.bos(resStream, true);
         expect(fa.getImageFULL(pid)).andReturn(new ByteArrayInputStream(bytes)).anyTimes();
     }
@@ -321,7 +321,7 @@ public class DataPrepare {
         pidParser.objectPid();
 
         String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".dc.xml";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         Document document = XMLUtils.parseDocument(resStream, true);
         EasyMock.expect(fa.getDC(pid)).andReturn(document).anyTimes();
     }
@@ -331,7 +331,7 @@ public class DataPrepare {
         pidParser.objectPid();
 
         String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".mods.xml";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         Document document = XMLUtils.parseDocument(resStream, true);
         EasyMock.expect(fa.getBiblioMods(pid)).andReturn(document).anyTimes();
     }
@@ -341,7 +341,7 @@ public class DataPrepare {
         pidParser.objectPid();
 
         String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".datastreams.xml";
-        InputStream resStream = Fedora4AccessImpl.class.getResourceAsStream(path);
+        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
         expect(fa.getFedoraDataStreamsList(pid)).andReturn(resStream);
     }
 
