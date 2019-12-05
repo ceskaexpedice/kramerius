@@ -8,7 +8,8 @@ import java.io.IOException;
 public class DataMigration extends AbstractMainMenuItem implements AdminMenuItem {
     @Override
     public boolean isRenderable() {
-        return (hasUserAllowedPlanProcess("ndkmets"));
+        return false;
+        //return (hasUserAllowedPlanProcess("ndkmets"));
     }
 
 

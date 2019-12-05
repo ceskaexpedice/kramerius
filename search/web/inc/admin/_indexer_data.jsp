@@ -126,10 +126,12 @@ function _deleteFromIndexData(pid){
                     <td><fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message></td>
                     <td><input type="button"  id="check_integrity" onclick="checkIndexIntegrity();" value="Check searching index" class="ui-state-default ui-corner-all" /></td>
                 </tr>
+                <!--
                 <tr>
                     <td><fmt:message bundle="${lctx}">administrator.menu.dialogs.check_processing_integrity</fmt:message></td>
                     <td><input type="button"  id="check_integrity_processing" onclick="checkIndexIntegrityProcessingIndex();" value="Check processing index" class="ui-state-default ui-corner-all" /></td>
                 </tr>
+                -->
             </table>
         </div>
     </div>

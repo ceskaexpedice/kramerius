@@ -409,7 +409,7 @@ var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['admin
     });
 }
 function rebuildProcessingIndex(){
-var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['administrator.menu.dialogs.check_processing_integrity'];
+var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['administrator.menu.dialogs.processing_rebuild'];
     showConfirmDialog(text, function(){
       var url = "lr?action=start&def=processing_rebuild&out=text";
       processStarter("processing_rebuild").start(url);

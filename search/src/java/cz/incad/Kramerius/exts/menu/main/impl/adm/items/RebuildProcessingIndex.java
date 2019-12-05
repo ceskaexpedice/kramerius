@@ -9,14 +9,14 @@ public class RebuildProcessingIndex extends AbstractMainMenuItem implements Admi
 
     @Override
     public boolean isRenderable() {
-        return false;
+        return true;
     }
 
     @Override
     public String getRenderedItem() throws IOException {
         return renderMainMenuItem(
                 "javascript:rebuildProcessingIndex(); javascript:hideAdminMenu();",
-                "administrator.menu.dialogs.rebuild_processing", false);
+                "administrator.menu.dialogs.processing_rebuild.title", false);
     }
 }
 
