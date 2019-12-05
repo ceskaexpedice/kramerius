@@ -172,9 +172,7 @@
                 selectNodeView(id);
             });
 
-            $('#donator.viewer').bind('viewReady', function(event, viewerOptions){
-                checkDonator(viewerOptions);
-            });
+
 <c:if test="${!empty showSuggest && showSuggest=='true' }">
             $('#suggest.viewer').bind('viewReady', function(event, viewerOptions){
                 getSuggested(viewerOptions);
@@ -361,13 +359,15 @@
 
         var autoLoaded = [];
         function loadTreeNode(id){
+
             if(autoLoaded[id]){
                 renderNode(id, autoLoaded[id]);
                 return;
             }
+
             var pid = id.split('_')[1];
-            
             var path = id.split('_')[0];
+
             var url = 'inc/details/treeNode.jsp?pid=' + pid + '&model_path=' + path;
             $.get(url, function(data){
                 var d = trim10(data);
@@ -544,11 +544,6 @@
         return uuids;
     }
     
-    function checkDonator(id){
-            $.get('inc/details/donator.jsp?uuid='+k4Settings.selectedPath[0].split("_")[1], function(data){
-                $('#donator').html(data);
-            });
-    }
 
 <c:if test="${!empty showSuggest && showSuggest=='true' }">   
     function getSuggested(viewerOptions){

@@ -35,6 +35,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,41 +86,46 @@ public class VirtualCollectionsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response post(JSONObject jsonObj) {
+    public Response post(JSONObject jsonObj) throws SolrServerException {
         if (permit(this.userProvider.get())) {
             try {
+                Collection collection = null;
+                String collectionPid = null;
+                String label = jsonObj.has("label") ? jsonObj.getString("label") : "nolabel";
+                boolean canLeaveFlag = jsonObj.has("canLeave") ? jsonObj.getBoolean("canLeave") : false;
 
-                String createdPID = CollectionUtils.create(this.fedoraAccess);
-                Collection vc = this.manager.getCollection(createdPID);
-                if (vc != null) {
-                    String label = jsonObj.has("label") ? jsonObj.getString("label") : "nolabel";
-                    boolean canLeaveFlag = jsonObj.has("canLeave") ? jsonObj.getBoolean("canLeave") : false;
-                    CollectionUtils.modify(createdPID, label, canLeaveFlag, fedoraAccess);
-                    Collection newVc = this.manager.getCollection(createdPID);
-                    if (newVc != null) {
-                        if (jsonObj.has("descs")) {
-                            Map<String, String> map = new HashMap<String, String>();
-                            JSONObject descs = jsonObj.getJSONObject("descs");
-                            for (Iterator keys = descs.keys(); keys.hasNext();) {
-                                String k = (String) keys.next();
-                                map.put(k.toString(), descs.getString(k.toString()));
-                            }
 
-                            CollectionUtils.modifyTexts(newVc.getPid(), fedoraAccess, map);
-                            // new lookup
-                            newVc = this.manager.getCollection(createdPID);
-                        }
+                if (jsonObj.has("descs")) {
+                    Map<String, String> map = new HashMap<String, String>();
+                    JSONObject descs = jsonObj.getJSONObject("descs");
+                    for (Iterator keys = descs.keys(); keys.hasNext(); ) {
+                        String k = (String) keys.next();
+                        map.put(k.toString(), descs.getString(k.toString()));
                     }
-                    return Response.ok().entity(virtualCollectionTOJSON(newVc).toString()).build();
+
+                    collectionPid = CollectionUtils.create(this.fedoraAccess, label, canLeaveFlag, map, null);
+                    this.fedoraAccess.getInternalAPI().commitTransaction();
+                    this.fedoraAccess.getInternalAPI().getProcessingIndexFeeder().commit();
+                    collection = this.manager.getCollection(collectionPid);
                 } else {
-                    throw new ObjectNotFound("cannot find virtual collection '" + createdPID + "'");
+                    collectionPid = CollectionUtils.create(this.fedoraAccess, label, canLeaveFlag, new HashMap<>(), null);
+                    this.fedoraAccess.getInternalAPI().getProcessingIndexFeeder().commit();
+                    collection = this.manager.getCollection(collectionPid);
                 }
+                return Response.ok().entity(virtualCollectionTOJSON(collection).toString()).build();
+            } catch (InterruptedException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new GenericApplicationException(e.getMessage());
+            } catch (RepositoryException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new GenericApplicationException(e.getMessage());
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw new GenericApplicationException(e.getMessage());
-            } catch (JSONException e) {
-                throw new GenericApplicationException(e.getMessage());
             } catch (CollectionException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new GenericApplicationException(e.getMessage());
+            } catch (JSONException e) {
                 throw new GenericApplicationException(e.getMessage());
             }
         } else
@@ -140,7 +148,7 @@ public class VirtualCollectionsResource {
                         Map<String, String> map = new HashMap<String, String>();
                         JSONObject descs = jsonObj.getJSONObject("descs");
 
-                        for (Iterator keys = descs.keys(); keys.hasNext();) {
+                        for (Iterator keys = descs.keys(); keys.hasNext(); ) {
                             String k = (String) keys.next();
                             map.put(k.toString(), descs.getString(k.toString()));
                         }
@@ -158,6 +166,8 @@ public class VirtualCollectionsResource {
             } catch (JSONException e) {
                 throw new GenericApplicationException(e.getMessage());
             } catch (CollectionException e) {
+                throw new GenericApplicationException(e.getMessage());
+            } catch (RepositoryException e) {
                 throw new GenericApplicationException(e.getMessage());
             }
         } else

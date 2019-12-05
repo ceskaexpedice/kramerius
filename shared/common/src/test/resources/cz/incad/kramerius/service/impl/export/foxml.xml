@@ -1,0 +1,693 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject VERSION="1.1" PID="uuid:43101770-b03b-11dd-8673-000d606f5dc6"
+xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+<foxml:objectProperties>
+<foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="[5]"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="fedoraAdmin"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2010-12-16T15:59:49.858Z"/>
+<foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2016-03-30T12:06:02.875Z"/>
+</foxml:objectProperties>
+<foxml:datastream ID="AUDIT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="AUDIT.0" LABEL="Audit Trail for this object" CREATED="2010-12-16T15:59:49.858Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:format/xml.fedora.audit">
+<foxml:xmlContent>
+<audit:auditTrail xmlns:audit="info:fedora/fedora-system:def/audit#">
+<audit:record ID="AUDREC1">
+<audit:process type="Fedora API-M"/>
+<audit:action>ingest</audit:action>
+<audit:componentID/>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2014-06-26T23:22:46.290Z</audit:date>
+<audit:justification>Initial ingest</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC2">
+<audit:process type="Fedora API-M"/>
+<audit:action>modifyDatastreamByValue</audit:action>
+<audit:componentID>DC</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-01-12T09:15:18.909Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC3">
+<audit:process type="Fedora API-M"/>
+<audit:action>purgeDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-01-12T09:15:19.067Z</audit:date>
+<audit:justification> . . . Purged datastream (ID=POLICY), versions ranging from the beginning of time to the end of time.  This resulted in the permanent removal of 1 datastream version(s) (2010-12-16T16:59:50.000Z) and all associated audit records.</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC4">
+<audit:process type="Fedora API-M"/>
+<audit:action>addDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-01-12T09:15:19.096Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC5">
+<audit:process type="Fedora API-M"/>
+<audit:action>modifyDatastreamByValue</audit:action>
+<audit:componentID>DC</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-01-12T09:39:36.408Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC6">
+<audit:process type="Fedora API-M"/>
+<audit:action>purgeDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-01-12T09:39:36.525Z</audit:date>
+<audit:justification> . . . Purged datastream (ID=POLICY), versions ranging from the beginning of time to the end of time.  This resulted in the permanent removal of 1 datastream version(s) (2016-01-12T10:15:19.096Z) and all associated audit records.</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC7">
+<audit:process type="Fedora API-M"/>
+<audit:action>addDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-01-12T09:39:36.560Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC8">
+<audit:process type="Fedora API-M"/>
+<audit:action>modifyDatastreamByValue</audit:action>
+<audit:componentID>DC</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-01-12T11:29:05.978Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC9">
+<audit:process type="Fedora API-M"/>
+<audit:action>purgeDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-01-12T11:29:06.088Z</audit:date>
+<audit:justification> . . . Purged datastream (ID=POLICY), versions ranging from the beginning of time to the end of time.  This resulted in the permanent removal of 1 datastream version(s) (2016-01-12T10:39:36.560Z) and all associated audit records.</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC10">
+<audit:process type="Fedora API-M"/>
+<audit:action>addDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-01-12T11:29:06.126Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC11">
+<audit:process type="Fedora API-M"/>
+<audit:action>ingest</audit:action>
+<audit:componentID/>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-02-19T15:03:19.689Z</audit:date>
+<audit:justification>Initial ingest</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC12">
+<audit:process type="Fedora API-M"/>
+<audit:action>modifyDatastreamByValue</audit:action>
+<audit:componentID>DC</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T10:29:04.247Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC13">
+<audit:process type="Fedora API-M"/>
+<audit:action>purgeDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T10:29:04.601Z</audit:date>
+<audit:justification> . . . Purged datastream (ID=POLICY), versions ranging from the beginning of time to the end of time.  This resulted in the permanent removal of 1 datastream version(s) (2016-01-12T12:29:06.126Z) and all associated audit records.</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC14">
+<audit:process type="Fedora API-M"/>
+<audit:action>addDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T10:29:04.678Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC15">
+<audit:process type="Fedora API-M"/>
+<audit:action>modifyDatastreamByValue</audit:action>
+<audit:componentID>DC</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T10:33:11.378Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC16">
+<audit:process type="Fedora API-M"/>
+<audit:action>purgeDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T10:33:11.512Z</audit:date>
+<audit:justification> . . . Purged datastream (ID=POLICY), versions ranging from the beginning of time to the end of time.  This resulted in the permanent removal of 1 datastream version(s) (2016-03-30T12:29:04.678Z) and all associated audit records.</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC17">
+<audit:process type="Fedora API-M"/>
+<audit:action>addDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T10:33:11.563Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC18">
+<audit:process type="Fedora API-M"/>
+<audit:action>modifyDatastreamByValue</audit:action>
+<audit:componentID>DC</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T10:38:50.553Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC19">
+<audit:process type="Fedora API-M"/>
+<audit:action>purgeDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T10:38:50.662Z</audit:date>
+<audit:justification> . . . Purged datastream (ID=POLICY), versions ranging from the beginning of time to the end of time.  This resulted in the permanent removal of 1 datastream version(s) (2016-03-30T12:33:11.563Z) and all associated audit records.</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC20">
+<audit:process type="Fedora API-M"/>
+<audit:action>addDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T10:38:50.695Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC21">
+<audit:process type="Fedora API-M"/>
+<audit:action>modifyDatastreamByValue</audit:action>
+<audit:componentID>DC</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T11:47:14.845Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC22">
+<audit:process type="Fedora API-M"/>
+<audit:action>purgeDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T11:47:15.006Z</audit:date>
+<audit:justification> . . . Purged datastream (ID=POLICY), versions ranging from the beginning of time to the end of time.  This resulted in the permanent removal of 1 datastream version(s) (2016-03-30T12:38:50.695Z) and all associated audit records.</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC23">
+<audit:process type="Fedora API-M"/>
+<audit:action>addDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T11:47:15.060Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC24">
+<audit:process type="Fedora API-M"/>
+<audit:action>modifyDatastreamByValue</audit:action>
+<audit:componentID>DC</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T12:01:20.993Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC25">
+<audit:process type="Fedora API-M"/>
+<audit:action>purgeDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T12:01:21.128Z</audit:date>
+<audit:justification> . . . Purged datastream (ID=POLICY), versions ranging from the beginning of time to the end of time.  This resulted in the permanent removal of 1 datastream version(s) (2016-03-30T13:47:15.060Z) and all associated audit records.</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC26">
+<audit:process type="Fedora API-M"/>
+<audit:action>addDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T12:01:21.172Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC27">
+<audit:process type="Fedora API-M"/>
+<audit:action>modifyDatastreamByValue</audit:action>
+<audit:componentID>DC</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T12:03:38.192Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC28">
+<audit:process type="Fedora API-M"/>
+<audit:action>purgeDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T12:03:38.315Z</audit:date>
+<audit:justification> . . . Purged datastream (ID=POLICY), versions ranging from the beginning of time to the end of time.  This resulted in the permanent removal of 1 datastream version(s) (2016-03-30T14:01:21.172Z) and all associated audit records.</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC29">
+<audit:process type="Fedora API-M"/>
+<audit:action>addDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T12:03:38.358Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC30">
+<audit:process type="Fedora API-M"/>
+<audit:action>modifyDatastreamByValue</audit:action>
+<audit:componentID>DC</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T12:06:02.704Z</audit:date>
+<audit:justification/>
+</audit:record>
+<audit:record ID="AUDREC31">
+<audit:process type="Fedora API-M"/>
+<audit:action>purgeDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T12:06:02.840Z</audit:date>
+<audit:justification> . . . Purged datastream (ID=POLICY), versions ranging from the beginning of time to the end of time.  This resulted in the permanent removal of 1 datastream version(s) (2016-03-30T14:03:38.358Z) and all associated audit records.</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC32">
+<audit:process type="Fedora API-M"/>
+<audit:action>addDatastream</audit:action>
+<audit:componentID>POLICY</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2016-03-30T12:06:02.875Z</audit:date>
+<audit:justification/>
+</audit:record>
+</audit:auditTrail>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="IMG_FULL" STATE="A" CONTROL_GROUP="M" VERSIONABLE="false">
+<foxml:datastreamVersion ID="IMG_FULL.0" LABEL="" CREATED="2010-12-16T15:59:49.000Z" MIMETYPE="image/vnd.djvu" SIZE="4715">
+<foxml:binaryContent> 
+              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
+</foxml:binaryContent> 
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="IMG_THUMB" STATE="A" CONTROL_GROUP="M" VERSIONABLE="false">
+<foxml:datastreamVersion ID="IMG_THUMB.0" LABEL="" CREATED="2010-12-16T15:59:50.000Z" MIMETYPE="image/jpeg" SIZE="1877">
+<foxml:binaryContent> 
+              /9j/4AAQSkZJRgABAgAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwg
+              JC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIy
+              MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCACAAFQDASIAAhEBAxEB/8QA
+              HwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIh
+              MUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVW
+              V1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXG
+              x8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQF
+              BgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAV
+              YnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOE
+              hYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq
+              8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDR8KeHdIufCmkyy6TYyyPaxs7vboxYlRySRzW8PCmg7c/2Jpv/
+              AICJ/hUXgk58F6Pxz9kjH/joroiOORnFcLvc2voYw8KeHiP+QHpn/gJH/hR/wifh/I/4kem/+Akf+Faw
+              JbORin5wopagYr+FvD44/sLTP/ASP/CiLwtogznRNNx2/wBEj/wrdAyORzTGYIwJzj0FGo7mR/wiuhf9
+              ATTv/AVP8KRvC2gd9F04f9uqf4VuLjmhl3/hQK5gN4X0Ff8AmCacff7Kn+FIPCvh9v8AmB6Zn/rzj/wr
+              eZM03btGaNQucxL4Y0TzDjR9Px6fZk/worZl/wBa2KKWpXMzK8EZ/wCEM0c9f9FT+VdMORXN+Bs/8IXo
+              +P8An1T+VdKoq3uQMK+35VGMh+eh/SrLcLTBjHNFhBgnikK7uooJ54p6nFFgGKp5zTs88Uo60h60WGKe
+              RUbAgc1KCMe9MfpSAoS/fPHWilYZPWigZkeB2/4ovRx/06p/KulBOOK5XwKSPB+k56fZU/lXToTt+b1p
+              vcQ/JbqOaUHK4xTc4o3YagQoBzyKA3OO9KGznB/GkI+Y+tACp94mjbyaAMUhPrQAoAzSPzwKQYIoJ+Wk
+              MqHqaKCCDgdKKBmN4Lx/whuj/wDXpF/6CK6NcY61y3gwn/hDtI5/5dI//QRXQAnHFHULaFr5fWoZgxYb
+              Ww2afGDj5qcBgYA60CHAHHUZpw6U0dKXI/GgBPxpEkDOyHGR/KnAVGAVctj8aBEhXPNRv0J9KlHIqGbh
+              GwOxoGV88n60UNwxopDOc8JOU8IaOoXn7HF/6CK6OFyW4XjvXP8AhMhfCOjZHJsocf8AfArordicDAx7
+              UPcfQsqN1P2njFNGAcU/O0dCaZAoXtikKAEHHSlDUuQaAG5AOOlI2MU18FsUhOAB1oAeO1RzHg/SnZwK
+              jkOVPB6UARS4V8e1FMmP7zj0opDMHwmufCWjf9eMH/ota6CBfLHPNYPhP5fCmjD/AKcIP/Ra1vckYxmn
+              1GWQQR1p5wcVXRSowTzUqnjrTRIZxRu55ND0zGTQwHkq3HftUcisVBU/MDQeCTTQW6nkUgJC3FRO4xS4
+              75qMg9eooGRu/wA34UVCW+Y5HeikPQzfDAx4W0df+nGD/wBFrW6gKisbwzH/AMU7pXPH2KH/ANAFbbJh
+              MZ5p9QZIuTTiSBwAfrTVj2rwOo5pGBBHzcelMkUszDPahd3WmpkjnoKduUd6Vxg2/FRkMD94808vzUbO
+              O+MUXCwvzYxjtSr8ycrg0zzAOfaozcgfxUAQONsrjPf+lFQvMrzOc9wP0FFIoi8OHHh7S/8Ar0iz/wB8
+              CtkyKgBz+FcloOu6Ymg2CPqNmGW3jBBmUEfKPetP+3NIbrq1kCO32hP8aOojeWVWHWkLAHPvxWEviHR0
+              b/kK2OPe5T/GnSeJtEC/8hiw/wDAlP8AGmFjaDDHvUTH0rJTxRoYB3a1pw+t3H/jUTeJtCJ/5Demf+Bc
+              f+NKzA01mm3/ADqCh4BHUVIdrZI6nvWK3ijQRj/idaaSP+nuP/Gm/wDCVaGrH/id6cc/9Pcf+NFmM1ZW
+              YKVzVJiT2zjqapy+KtDcYGsaecf9PSf40sfiPQyhDaxpucd7uP8Axosw0GOX819p4yP5CiqMviTRI53A
+              1azOSDlZlI6D0NFTZlWZ/9k=
+</foxml:binaryContent> 
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="IMG_PREVIEW" STATE="A" CONTROL_GROUP="M" VERSIONABLE="false">
+<foxml:datastreamVersion ID="IMG_PREVIEW.0" LABEL="" CREATED="2010-12-16T15:59:50.000Z" MIMETYPE="image/jpeg" SIZE="11463">
+<foxml:binaryContent> 
+              /9j/4AAQSkZJRgABAgAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwg
+              JC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIy
+              MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAIAAVIDASIAAhEBAxEB/8QA
+              HwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIh
+              MUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVW
+              V1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXG
+              x8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQF
+              BgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAV
+              YnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOE
+              hYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq
+              8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDy7wf4dj8Sau9pLLJGiRGUmPGThgMc/Wu6Hwjssf8AIRuf++V/
+              wrH+Egz4ou/+vJv/AENK9nVcD2rmqzkpWRpFJo8x/wCFSWnbULn/AL5X/Cof+FRAKQdVfdngiAYx/wB9
+              V6pnmnrg1l7SfcrlR5SvwhB/5i7/APgP/wDZVJ/wqCMA51eQnt+4Ax/49XqyxilMeTmj2k+4csTyYfCA
+              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
+              kf/Z
+</foxml:binaryContent> 
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="IMG_FULL_ADM" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="IMG_FULL_ADM.0" LABEL="Image administrative metadata" CREATED="2010-12-16T15:59:50.000Z" MIMETYPE="text/xml" SIZE="542">
+<foxml:xmlContent>
+<adm:Description xmlns:adm="http://www.qbizm.cz/kramerius-fedora/image-adm-description">
+                    <adm:ScanningDevice>a) přímá digitalizace;
+b) hybridní kamera;
+c) PROSERV Datentechnik;
+d) HYBRID TECH 40li;
+e) PROView;
+f) 6.10;
+g) Business Graphics Datentechnik;
+</adm:ScanningDevice>
+                    <adm:ScanningParameters>a) 300 DPI;
+b) 24 bit;
+c) Rgb;
+</adm:ScanningParameters>
+                    <adm:OtherImagingInformation>pravidla popisu verze 1;
+</adm:OtherImagingInformation>
+                </adm:Description>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="TEXT_OCR" STATE="A" CONTROL_GROUP="M" VERSIONABLE="false">
+<foxml:datastreamVersion ID="TEXT_OCR.0" LABEL="" CREATED="2010-12-16T15:59:50.000Z" MIMETYPE="text/plain" SIZE="4">
+<foxml:binaryContent> 
+              77u/Kg==
+</foxml:binaryContent> 
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="TEXT_OCR_ADM" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="TEXT_OCR_ADM.0" LABEL="Image administrative metadata" CREATED="2010-12-16T15:59:50.000Z" MIMETYPE="text/xml" SIZE="108">
+<foxml:xmlContent>
+<adm:Description xmlns:adm="http://www.qbizm.cz/kramerius-fedora/image-adm-description"/>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="BIBLIO_MODS" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="BIBLIO_MODS.0" LABEL="BIBLIO_MODS description of current object" CREATED="2010-12-16T15:59:50.000Z" MIMETYPE="text/xml" SIZE="899">
+<foxml:xmlContent>
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+                    <mods:mods version="3.3">
+                        <mods:identifier type="urn">43101770-b03b-11dd-8673-000d606f5dc6</mods:identifier>
+                        <mods:identifier type="sici"/>
+                        <mods:typeOfResource>text</mods:typeOfResource>
+                        <mods:part type="Blank">
+                            <mods:detail type="pageNumber">
+                                <mods:number>[5]</mods:number>
+                            </mods:detail>
+                            <mods:detail type="pageIndex">
+                                <mods:number>4</mods:number>
+                            </mods:detail>
+                            <mods:text/>
+                        </mods:part>
+                    </mods:mods>
+                </mods:modsCollection>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="DC.10" LABEL="Dublin Core Record for this object" CREATED="2016-03-30T12:06:02.704Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="468">
+<foxml:xmlContent>
+<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+  <dc:title>[5]</dc:title>
+  <dc:type>model:page</dc:type>
+  <dc:identifier>uuid:43101770-b03b-11dd-8673-000d606f5dc6</dc:identifier>
+  <dc:rights>policy:public</dc:rights>
+</oai_dc:dc>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="RELS-EXT.26" LABEL="RDF Statements about this object" CREATED="2016-03-30T12:06:02.797Z" MIMETYPE="application/rdf+xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="963">
+<foxml:xmlContent>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+<rdf:Description rdf:about="info:fedora/uuid:43101770-b03b-11dd-8673-000d606f5dc6">
+	<hasModel xmlns="info:fedora/fedora-system:def/model#" rdf:resource="info:fedora/model:page"/>
+	<rdf:isPartOf rdf:resource="info:fedora/uuid:0eaa6730-9068-11dd-97de-000d606f5dc6"/>
+	<itemID xmlns="http://www.openarchives.org/OAI/2.0/">uuid:43101770-b03b-11dd-8673-000d606f5dc6</itemID>
+	<file xmlns="http://www.nsdl.org/ontologies/relationships#">4011400005.djvu</file>
+	<tiles-url xmlns="http://www.nsdl.org/ontologies/relationships#">kramerius4://deepZoomCache</tiles-url>
+	<replicatedFrom xmlns="http://www.nsdl.org/ontologies/relationships#">http://194.108.215.227:8080/search/handle/uuid:43101770-b03b-11dd-8673-000d606f5dc6</replicatedFrom>
+	<rdf:isMemberOfCollection rdf:resource="info:fedora/vc:9ea88ca8-36d7-48bb-89f5-25d2a56cb0ee"/>
+	<policy xmlns="http://www.nsdl.org/ontologies/relationships#">policy:public</policy>
+</rdf:Description>
+
+</rdf:RDF>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="POLICY" STATE="A" CONTROL_GROUP="E" VERSIONABLE="false">
+<foxml:datastreamVersion ID="POLICY.0" LABEL="" CREATED="2016-03-30T12:06:02.875Z" MIMETYPE="application/rdf+xml">
+<foxml:contentLocation TYPE="URL" REF="http://local.fedora.server/fedora/get/policy:public/POLICYDEF"/>
+</foxml:datastreamVersion>
+</foxml:datastream>
+</foxml:digitalObject>

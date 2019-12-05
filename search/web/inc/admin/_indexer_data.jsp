@@ -50,6 +50,28 @@
     pageContext.setAttribute("top_models", models);
     pageContext.setAttribute("canSort", canSort);
 %>
+
+
+<script>
+function _deleteFromIndexData(pid){
+
+	  showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
+		  var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"delete;"
+          var status = $( "tr[pid='"+pid+"'] .indexer_result_status" );
+          var statusFlag = status.hasClass("indexer_result_indexed");
+		  var pids = [pid];
+		  for(var i=0; i<pids.length; i++){
+			  urlbuffer=urlbuffer+encodeURI("{")+encodeURI(replaceAll(pid, ":","\\:"))+";"+encodeURI(replaceAll(pid, ":","\\:"))+";false;"+statusFlag+encodeURI("}");
+			  if (i<pids.length-1) {
+				  urlbuffer=urlbuffer+";"
+			  }
+		  }
+		  processStarter("delete").start(urlbuffer);
+	  });
+}
+</script>
+
+
 <style type="text/css">
     #indexerContent div.section{
         border-bottom:1px solid rgba(0, 30, 60, 0.9); 
@@ -99,15 +121,25 @@
             <input type="button" onclick="confirmIndexDocByPid($('#pid_to_index').val(), '');" value="index_pid" class="ui-state-default ui-corner-all" />
         </div>
         <div class="section">
-            <fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message>&nbsp;
-            <input type="button"  id="check_integrity" onclick="checkIndexIntegrity();" value="check" class="ui-state-default ui-corner-all" />    
+            <table>
+                <tr>
+                    <td><fmt:message bundle="${lctx}">administrator.menu.dialogs.check_integrity</fmt:message></td>
+                    <td><input type="button"  id="check_integrity" onclick="checkIndexIntegrity();" value="Check searching index" class="ui-state-default ui-corner-all" /></td>
+                </tr>
+                <!--
+                <tr>
+                    <td><fmt:message bundle="${lctx}">administrator.menu.dialogs.check_processing_integrity</fmt:message></td>
+                    <td><input type="button"  id="check_integrity_processing" onclick="checkIndexIntegrityProcessingIndex();" value="Check processing index" class="ui-state-default ui-corner-all" /></td>
+                </tr>
+                -->
+            </table>
         </div>
     </div>
+
     <div id="indexer_browse_models" class="indexer_data_container">  
         <div class="section">
             <fmt:message bundle="${lctx}">fedora.model</fmt:message>: 
             <%@include file="_indexer_models.jsp" %>&nbsp;
-        <fmt:message bundle="${lctx}">administrator.menu.dialogs.rows</fmt:message>: <input type="text" id="doc_rows" value="50" size="4" style="text-align: right;" />
             <input type="button" onclick="confirmIndexModel($('#top_models_select').val());" value="<fmt:message bundle="${lctx}">administrator.menu.dialogs.index_model</fmt:message>" class="ui-state-default ui-corner-all" />
         </div> 
         <table id="indexer_data_model" cellpadding="0" cellspacing="0" class="indexer_selected" style="display:none;" width="100%">
@@ -117,9 +149,15 @@
                 <fmt:message bundle="${lctx}">administrator.menu.dialogs.dc.title</fmt:message>
                 </th>
                 <th style="min-width:240px;" align="left">PID</th>
+                <th style="min-width:240px;" align="left">Link</th>
                 <th style="min-width:138px;" align="left">
+
                     <input type="hidden" id="indexer_order_dir" value="${order_dir}" />
                     <input type="hidden" id="indexer_offset" value="0" />
+
+                    <input type="hidden" id="model_offset" value="0" />
+                    <input type="hidden" id="model_order_dir" value="0" />
+
                     <c:choose>
                         <c:when test="${canSort}">
                         <a href="javascript:orderDocuments('date')"><fmt:message>common.date</fmt:message></a>
@@ -130,9 +168,14 @@
                     </c:choose>
                     
                     <span id="date_order_arrow" class="ui-icon ui-icon-arrowthick-1-n">order</span>
-                </th></tr></thead>
+                </th>
+                </tr>
+
+                </thead>
+
             <tbody style="overflow:auto;display:block;width:100%;"><tr><td align="center" colspan="3" width="768"><img src="img/loading.gif" /></td></tr></tbody>
             <tfoot class="indexer_head">
+                <table width
                 <tr>
                 <td width="100%" class="pager"  align="center">
                     <span class="prev"><a href="javascript:prevFedoraDocuments();">previous</a></span>&nbsp;&nbsp;&nbsp;
@@ -147,7 +190,6 @@
     <div class="section">
         <input id="search_fedora_text" type="text" />
         <a href="javascript:searchFedora(0);"><img border="0" align="top" src="img/lupa_orange.png" alt="Search"></a>&nbsp;
-        <fmt:message bundle="${lctx}">administrator.menu.dialogs.rows</fmt:message>: <input type="text" id="indexer_search_doc_rows" value="25" size="4" style="text-align: right;" />
     </div>
     <table id="indexer_data_search" cellpadding="0" cellspacing="0" class="indexer_selected" style="display:none;" width="100%">
         <thead class="indexer_head"><tr style="display:block;width:100%;">
@@ -157,6 +199,7 @@
             (<fmt:message bundle="${lctx}">document.type</fmt:message>)
             </th>
             <th style="min-width:240px;" align="left">PID</th>
+            <th style="min-width:240px;" align="left">Link</th>
             <th style="min-width:138px;" align="left"><span><fmt:message>common.date</fmt:message></span></th></tr></thead>
         <tbody style="overflow:auto;display:block;width:100%;">
             <tr>
@@ -182,11 +225,12 @@
     });
     $('#indexer_tabs').tabs();
 function prevFedoraDocuments(){
-    var rows = parseInt($('#doc_rows').val());
-    loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())-rows, "");
+    var rows = parseInt((typeof $('#doc_rows').val() != "undefined") ? test : "20");
+    var offset = Math.max(parseInt($('#indexer_offset').val())-rows,0);
+    loadFedoraDocuments($('#top_models_select').val(),offset , "");
 }
 function nextFedoraDocuments(){
-    var rows = parseInt($('#doc_rows').val());
+    var rows = parseInt((typeof $('#doc_rows').val() != "undefined") ? test : "20");
     loadFedoraDocuments($('#top_models_select').val(), parseInt($('#indexer_offset').val())+rows, "");
 }
 function orderDocuments(field){
@@ -244,7 +288,7 @@ function loadFedoraDocuments(model, offset, sort, rows){
         }else{
             $("#indexer_data_model .prev").hide();
         }
-        if($('#indexer_result_rows').length>0){
+        if($('.indexer_result').length>0){
             $("#indexer_data_model .next").show();
         }else{
             $("#indexer_data_model .next").hide();

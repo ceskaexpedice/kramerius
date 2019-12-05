@@ -68,19 +68,10 @@ class WSImportPlugin implements Plugin<ProjectInternal> {
                                         final String deleteTaskName = sourceSet.getTaskName("GenerateDelete", "");
                                         Delete dtask = project.getTasks().create(deleteTaskName, Delete.class);
  
-					// lookup wsdl files
-                                        /*
-					for(File f:files) {
-						if (f.getName().toLowerCase().endsWith(".wsdl")) {
-                                        		wTask.addWsdl(f);
-						}
-					}*/
-                                        
 
-                                        Set<File> keySet = relativePaths.keySet();
-					for(File w:keySet) {
-                                                wTask.addWsdl(w,relativePaths.get(w));
-                                        }					
+					Set<File> keySet = relativePaths.keySet();
+						for(File w:keySet) {wTask.addWsdl(w,relativePaths.get(w));
+					}
 					
 					
 					wTask.getConventionMapping().map("xjcClasspath", new Callable<Object>() {

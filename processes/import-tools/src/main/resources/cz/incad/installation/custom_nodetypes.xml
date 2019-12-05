@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!--
+  Kramerius node types 
+ -->
+<nodeTypes xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+           xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
+		   xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#"
+		   xmlns:fedora-models="info:fedora/fedora-system:def/model#">
+	
+  <!-- Kramerius resource -->	
+ <nodeType name="kramerius:resource"
+            isMixin="true" hasOrderableChildNodes="false" primaryItemName=""
+            isAbstract="true" isQueryable="false">
+    <supertypes>
+      <supertype>nt:unstructured</supertype>
+    </supertypes>
+				 
+		<propertyDefinition name="fedora-models:model"
+                 requiredType="String" autoCreated="false" mandatory="false"
+                 onParentVersion="IGNORE" protected="false" multiple="false"
+                 isFullTextSearchable="true" isQueryOrderable="true"
+                 availableQueryOperators="OP_EQ OP_NE OP_LT OP_LE OP_GT OP_GE"/>
+
+  </nodeType>
+
+  <nodeType name="kramerius:datastream"
+            isMixin="true" hasOrderableChildNodes="false" primaryItemName=""
+            isAbstract="true" isQueryable="false">
+    <supertypes>
+      <supertype>nt:unstructured</supertype>
+    </supertypes>
+  </nodeType>
+  
+</nodeTypes>

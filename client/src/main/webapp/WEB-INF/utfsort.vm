@@ -1,1 +1,0 @@
-#if($params.term)$utfsort.translate($params.term)#end

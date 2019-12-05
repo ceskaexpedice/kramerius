@@ -693,7 +693,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         return props;
     }
     
-    public static String[] getParams(HttpServletRequest req) throws RecognitionException, TokenStreamException {
+    public static String[] getParams(HttpServletRequest req) throws RecognitionException, TokenStreamException, UnsupportedEncodingException {
         String parametersString = req.getParameter("params");
         if ((parametersString !=null) && (!parametersString.trim().equals("")))  {
             return parametersString.split(",");

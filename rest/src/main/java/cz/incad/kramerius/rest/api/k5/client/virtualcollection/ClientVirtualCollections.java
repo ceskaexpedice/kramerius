@@ -61,8 +61,9 @@ public class ClientVirtualCollections {
     public static final Logger LOGGER = Logger
             .getLogger(ClientVirtualCollections.class.getName());
 
+
     @Inject
-    @Named("solr")
+    @Named("fedora")
     CollectionsManager manager;
 
     @Inject

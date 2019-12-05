@@ -1,0 +1,57 @@
+description "Integrations tests"
+
+apply plugin: 'java'
+
+dependencies {
+    compile project(':shared:common')
+    compile project(':security:security-core')
+
+    testCompile('org.apache.solr:solr-core:6.3.0')
+}
+
+
+configurations {
+    all*.exclude group: 'org.ow2.asm'
+}
+
+tasks.withType(Test) {
+    it.dependsOn "startFedora"
+    it.finalizedBy "stopFedora"
+}
+
+
+
+def file = "fcrepo-webapp-4.7.4-jetty-console.jar"
+def fedora = "fcrepo-4.7.4"
+def url = "https://github.com/fcrepo4/fcrepo4/releases/download/${fedora}/${file}"
+
+task copyCompileLibs(type: Copy) {
+    into "${System.getProperty('user.home')}/.kramerius4/it"
+    from configurations.compile.filter { it.name.startsWith("common")}
+}
+
+task downloadFile {
+    doLast {
+        def folder = new File("${System.getProperty('user.home')}/.kramerius4/it");
+        if (!folder.exists()) folder.mkdirs();
+        def f = new File(folder, "${file}")
+        if (!f.exists()) {
+            new URL(url).withInputStream{ i -> f.withOutputStream{ it << i }}
+        }
+    }
+}
+
+task startFedora(type: JavaExec,dependsOn: [copyCompileLibs,downloadFile]) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'cz.incad.kramerius.fedora.it.ITSupport'
+    args 'START'
+}
+
+task stopFedora(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'cz.incad.kramerius.fedora.it.ITSupport'
+    args 'STOP'
+}
+
+
+

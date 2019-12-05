@@ -1,0 +1,96 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+    <mods:mods xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xlink="http://www.w3.org/1999/xlink" version="3.5">
+        <mods:classification authority="udc">(6)</mods:classification>
+        <mods:classification authority="udc">(084.3)32</mods:classification>
+        <mods:classification authority="Konspekt">7</mods:classification>
+        <mods:classification authority="Konspekt">7</mods:classification>
+        <mods:classification authority="udc" edition="Konspekt">913(6)</mods:classification>
+        <mods:classification authority="udc" edition="Konspekt">912</mods:classification>
+        <mods:genre>cartographic</mods:genre>
+        <mods:genre authority="marcgt">map</mods:genre>
+        <mods:genre authority="czenas">politické a správní mapy</mods:genre>
+        <mods:identifier type="uuid">633e164b-0811-40b1-b474-535f85dcb6df</mods:identifier>
+        <mods:language>
+            <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+        </mods:language>
+        <mods:location>
+            <mods:physicalLocation authority="siglaADR">BOA001</mods:physicalLocation>
+            <mods:shelfLocator>Skř.9A-0345.510</mods:shelfLocator>
+        </mods:location>
+        <mods:name type="corporate">
+            <mods:namePart>Ústřední správa geodézie a kartografie</mods:namePart>
+            <mods:role>
+                <mods:roleTerm authority="marcrelator" type="code">pbl</mods:roleTerm>
+            </mods:role>
+        </mods:name>
+        <mods:name type="corporate">
+            <mods:namePart>Orbis (nakladatelství a vydavatelství)</mods:namePart>
+            <mods:role>
+                <mods:roleTerm authority="marcrelator" type="code">prt</mods:roleTerm>
+            </mods:role>
+        </mods:name>
+        <mods:note altRepGroup="00" type="statement of responsibility"></mods:note>
+        <mods:note>Na rubu doprovodný stránkovaný text (19 s.), doplňkové mapy a titul</mods:note>
+        <mods:originInfo>
+            <mods:place>
+                <mods:placeTerm authority="marccountry" type="code">xr-</mods:placeTerm>
+            </mods:place>
+            <mods:place>
+                <mods:placeTerm type="text">[Praha]</mods:placeTerm>
+            </mods:place>
+            <mods:publisher>Ústřední správa geodesie a kartografie</mods:publisher>
+            <mods:dateIssued>1955</mods:dateIssued>
+            <mods:edition>1. vyd.</mods:edition>
+            <mods:issuance>monographic</mods:issuance>
+        </mods:originInfo>
+        <mods:part type="volume"></mods:part>
+        <mods:physicalDescription>
+            <mods:form authority="gmd">kartografický dokument</mods:form>
+            <mods:form authority="marccategory">map</mods:form>
+            <mods:form authority="marcsmd">map</mods:form>
+            <mods:extent>1 mapa : barev. ; 73 x 69 cm, na listu 83 x 75 cm, složeno na 21 x 15 cm</mods:extent>
+        </mods:physicalDescription>
+        <mods:recordInfo>
+            <mods:recordContentSource authority="marcorg">BOA001</mods:recordContentSource>
+            <mods:recordCreationDate encoding="iso8601">20171116T075613</mods:recordCreationDate>
+            <mods:recordChangeDate encoding="iso8601">20171116T075821</mods:recordChangeDate>
+            <mods:recordIdentifier source="CZ-BrMZ">00136061</mods:recordIdentifier>
+            <mods:languageOfCataloging>
+                <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+            </mods:languageOfCataloging>
+            <mods:recordOrigin>Converted from MARCXML to MODS version 3.5 using MARC21slim2MODS3.xsl
+                (Revision 1.97 2014/05/21, ProArc patch 12.298 2017/09/01)</mods:recordOrigin>
+            <mods:descriptionStandard>aacr</mods:descriptionStandard>
+        </mods:recordInfo>
+        <mods:relatedItem type="series">
+            <mods:titleInfo>
+                <mods:title>Soubor politických map</mods:title>
+            </mods:titleInfo>
+        </mods:relatedItem>
+        <mods:subject>
+            <mods:geographicCode authority="marcgac">f------</mods:geographicCode>
+        </mods:subject>
+        <mods:subject authority="Konspekt">
+            <mods:topic>Geografie Afriky, reálie, cestování</mods:topic>
+        </mods:subject>
+        <mods:subject authority="Konspekt">
+            <mods:topic>Mapy. Atlasy. Glóby</mods:topic>
+        </mods:subject>
+        <mods:subject>
+            <mods:cartographics>
+                <mods:scale>Měřítko 1:12 000 000 ;</mods:scale>
+                <mods:projection>plochojevné válcové zobrazení</mods:projection>
+                <mods:coordinates>(017°40´46&quot; z.d.--063°42´26&quot; v.d./046°59´15&quot; s.š.--037°00´19&quot; j.š.)</mods:coordinates>
+            </mods:cartographics>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:geographic>Afrika</mods:geographic>
+        </mods:subject>
+        <mods:tableOfContents>Vegetační oblasti -- Národnosti -- Hustota obyvatelstva -- Přírodní bohatství</mods:tableOfContents>
+        <mods:titleInfo>
+            <mods:title>Afrika</mods:title>
+        </mods:titleInfo>
+        <mods:typeOfResource>cartographic</mods:typeOfResource>
+    </mods:mods>
+</mods:modsCollection>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject VERSION="1.1" PID="uuid:5035a48a-5e2e-486c-8127-2fa650842e46"
+xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+<foxml:objectProperties>
+<foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Illustrovaný průvodce Jičín a Prachovské skály"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="svkhk"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2014-06-25T19:05:17.680Z"/>
+<foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2014-06-26T23:30:25.888Z"/>
+</foxml:objectProperties>
+<foxml:datastream ID="AUDIT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="AUDIT.0" LABEL="Audit Trail for this object" CREATED="2014-06-25T19:05:17.680Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:format/xml.fedora.audit">
+<foxml:xmlContent>
+<audit:auditTrail xmlns:audit="info:fedora/fedora-system:def/audit#">
+<audit:record ID="AUDREC1">
+<audit:process type="Fedora API-M"/>
+<audit:action>ingest</audit:action>
+<audit:componentID></audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2014-06-26T23:30:25.888Z</audit:date>
+<audit:justification>Initial ingest</audit:justification>
+</audit:record>
+</audit:auditTrail>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="BIBLIO_MODS" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="BIBLIO_MODS.1" LABEL="Metadata Object Description" CREATED="2014-06-25T19:06:05.481Z" MIMETYPE="text/xml" FORMAT_URI="http://www.loc.gov/mods/v3" SIZE="5285">
+<foxml:xmlContent>
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+                    <mods:mods xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xlink="http://www.w3.org/1999/xlink" version="3.5">
+                        <mods:classification authority="udc">913:338.483.1</mods:classification>
+                        <mods:classification authority="udc">(437.313)</mods:classification>
+                        <mods:classification authority="udc">(437.31-17)</mods:classification>
+                        <mods:classification authority="udc">(036)913</mods:classification>
+                        <mods:classification authority="udc">908(437.1)Jičín</mods:classification>
+                        <mods:classification authority="udc">908(437.1)Prachovské skály</mods:classification>
+                        <mods:genre>volume</mods:genre>
+                        <mods:genre authority="czenas">turistické průvodce</mods:genre>
+                        <mods:identifier type="uuid">5035a48a-5e2e-486c-8127-2fa650842e46</mods:identifier>
+                        <mods:identifier type="ccnb">cnb000573734</mods:identifier>
+                        <mods:language>
+                            <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+  </mods:language>
+                        <mods:location>
+                            <mods:physicalLocation authority="siglaADR">HKA001</mods:physicalLocation>
+                            <mods:shelfLocator>309 018</mods:shelfLocator>
+  </mods:location>
+                        <mods:name type="corporate">
+                            <mods:namePart>Klub československých turistů (Jičín, Česko)</mods:namePart>
+  </mods:name>
+                        <mods:note altRepGroup="00" type="statement of responsibility"></mods:note>
+                        <mods:note>Vydavatel: Odbor K.Č.S. turistů v Jičíně</mods:note>
+                        <mods:originInfo>
+                            <mods:place>
+<mods:placeTerm authority="marccountry" type="code">xr</mods:placeTerm>
+    </mods:place>
+                            <mods:place>
+<mods:placeTerm type="text">V Jičíně</mods:placeTerm>
+    </mods:place>
+                            <mods:publisher>Nákladem Ciz. kom. při Odboru K.Č.S.T.</mods:publisher>
+                            <mods:dateIssued>1922</mods:dateIssued>
+                            <mods:issuance>monographic</mods:issuance>
+  </mods:originInfo>
+                        <mods:part type="volume"></mods:part>
+                        <mods:physicalDescription>
+                            <mods:form authority="marcform">print</mods:form>
+                            <mods:extent>24 s. : il. ; 17 cm</mods:extent>
+  </mods:physicalDescription>
+                        <mods:recordInfo>
+                            <mods:recordContentSource authority="marcorg">ABA001</mods:recordContentSource>
+                            <mods:recordCreationDate encoding="iso8601">20140625T210517</mods:recordCreationDate>
+                            <mods:recordChangeDate encoding="iso8601">20140625T210605</mods:recordChangeDate>
+                            <mods:recordIdentifier source="CZ HkSVK">000240126</mods:recordIdentifier>
+                            <mods:languageOfCataloging>
+<mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+    </mods:languageOfCataloging>
+                            <mods:recordOrigin>Converted from MARCXML to MODS version 3.5 using MARC21slim2MODS3-5.xsl
+                (Revision 1.97 2014/05/21, ProArc patch 158 2014/05/30)</mods:recordOrigin>
+                            <mods:descriptionStandard>aacr</mods:descriptionStandard>
+  </mods:recordInfo>
+                        <mods:subject>
+                            <mods:geographicCode authority="marcgac">e-xr---</mods:geographicCode>
+                            <mods:geographicCode>e-xr-kr</mods:geographicCode>
+                            <mods:geographicCode>e-xr-cc</mods:geographicCode>
+  </mods:subject>
+                        <mods:subject authority="czenas">                   
+         <mods:topic>turistické zajímavosti</mods:topic>
+                            <mods:geographic>Česko</mods:geographic>
+  </mods:subject>
+                        <mods:subject authority="czenas">
+                            <mods:geographic>Jičín (Česko)</mods:geographic>
+  </mods:subject>
+                        <mods:subject authority="czenas">
+                            <mods:geographic>Jičín-oblast (Česko)</mods:geographic>
+  </mods:subject>
+                        <mods:subject authority="czenas">
+                            <mods:geographic>Prachovské skály (Česko)</mods:geographic>
+  </mods:subject>
+                        <mods:targetAudience authority="marctarget">adult</mods:targetAudience>
+                        <mods:titleInfo>
+                            <mods:title>Illustrovaný průvodce Jičín a Prachovské skály</mods:title>
+  </mods:titleInfo>
+                        <mods:titleInfo type="alternative">
+                            <mods:title>Jičín a Prachovské skály</mods:title>
+  </mods:titleInfo>
+                        <mods:typeOfResource>text</mods:typeOfResource>
+</mods:mods>
+                </mods:modsCollection>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="DC.1" LABEL="Dublin Core Record for this object" CREATED="2014-06-25T19:06:05.566Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="1731">
+<foxml:xmlContent>
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+  <dc:title>Illustrovaný průvodce Jičín a Prachovské skály</dc:title>
+  <dc:title>Jičín a Prachovské skály</dc:title>
+  <dc:creator>Klub československých turistů (Jičín, Česko)</dc:creator>
+  <dc:subject>turistické zajímavosti</dc:subject>
+  <dc:subject>Česko</dc:subject>
+  <dc:subject>Jičín (Česko)</dc:subject>
+  <dc:subject>Jičín-oblast (Česko)</dc:subject>
+  <dc:subject>Prachovské skály (Česko)</dc:subject>
+  <dc:subject>913:338.483.1</dc:subject>
+  <dc:subject>(437.313)</dc:subject>
+  <dc:subject>(437.31-17)</dc:subject>
+  <dc:subject>(036)913</dc:subject>
+  <dc:subject>908(437.1)Jičín</dc:subject>
+  <dc:subject>908(437.1)Prachovské skály</dc:subject>
+  <dc:description>Vydavatel: Odbor K.Č.S. turistů v Jičíně</dc:description>
+  <dc:publisher>Nákladem Ciz. kom. při Odboru K.Č.S.T.</dc:publisher>
+  <dc:date>1922</dc:date>
+  <dc:type>text</dc:type>
+  <dc:type>volume</dc:type>
+  <dc:type>turistické průvodce</dc:type>
+  <dc:type>model:monograph</dc:type>
+  <dc:format>print</dc:format>
+  <dc:format>24 s. : il. ; 17 cm</dc:format>
+  <dc:identifier>uuid:5035a48a-5e2e-486c-8127-2fa650842e46</dc:identifier>
+  <dc:identifier>ccnb:cnb000573734</dc:identifier>
+  <dc:source>HKA001</dc:source>
+  <dc:source>309 018</dc:source>
+  <dc:language>cze</dc:language>
+  <dc:coverage>V Jičíně</dc:coverage>
+  <dc:rights>group:svkhk_members</dc:rights>
+  <dc:rights>policy:private</dc:rights>
+</oai_dc:dc>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="RELS-EXT.1" LABEL="RDF Statements about this object" CREATED="2014-06-26T23:30:25.888Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="5608">
+<foxml:xmlContent>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:fedora-rels-ext="info:fedora/fedora-system:def/relations-external#" xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#" xmlns:proarc-rels="http://proarc.lib.cas.cz/relations#">
+                    <rdf:Description rdf:about="info:fedora/uuid:5035a48a-5e2e-486c-8127-2fa650842e46">
+                        <fedora-model:hasModel rdf:resource="info:fedora/model:monograph"></fedora-model:hasModel>
+                        <oai:itemID xmlns:oai="http://www.openarchives.org/OAI/2.0/">uuid:5035a48a-5e2e-486c-8127-2fa650842e46</oai:itemID>
+                        <kramerius:policy>policy:private</kramerius:policy>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:12993b4a-71b4-4f19-8953-0701243cc25d"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:f80d5a2f-c546-4d21-ae64-9845afb324a6"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:fce78e00-ac07-4567-9b80-b2c2a85f4dfb"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:ab4352b3-51a6-45d3-9291-00255d1ff92c"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:6ec4a1bd-2dd8-4904-80f6-7c7dd602fb9a"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:86c0425f-11fd-406b-8def-6726ad87982b"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:59214633-55ba-4ec9-87d7-87e1d06d0a20"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:05aa3058-2b8f-455f-84fe-3b2f3a7a4ccd"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:9b26fa00-7a44-4daf-8ce5-cd8d83894a01"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:8750edbf-8522-4643-95ba-0c7b13806d00"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:a9221f76-0e89-46c1-a70a-ad935f05f4bf"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:24f0d1ee-cde1-4ba7-9571-87ef76c88222"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:e64f9af3-21b1-48ad-aa6c-feb8ea903fcf"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:b1239398-da95-4563-b3ef-db7cc7bef504"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:5fd068f0-d061-4794-a300-165bd5c5e2d1"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:8a2c74be-b1da-437d-887d-7832e2150e8c"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:3f5748df-47c7-4961-a850-c15bccf9b336"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:fcdf5a31-0def-4610-bc9e-7778504f7e63"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:1741748c-7373-4e61-8b41-186f49d5db21"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:bf691c79-1ae3-42c4-a798-ecfd42ac4038"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:3f630d71-91e7-47a3-a601-4a997de9563f"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:2bfba27c-f849-4843-8283-663dbaa2bfcf"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:8b7ad793-3fb7-4d99-8c11-636f9fbb9798"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:139c40bd-ef72-4b8f-9beb-c40bc3c2304e"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:94375287-d103-43ad-a5dc-f95657e9bd24"></kramerius:hasPage>                
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:bed77e96-c96d-488c-83e6-9e99d838cbe4"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:158436a6-2216-498f-9f9f-01b56b30d074"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:d0653a4c-b4f1-414c-85e9-597047739b7c"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:59bff0e2-6e42-4b0a-964e-1f0a126b3ab2"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:70347d7e-2f03-491d-99c3-cd5073387af1"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:d7af9a4e-a889-43bd-bac1-30567e0de5ba"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:a7fef00e-2372-4783-8cae-f368cd4f97f1"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:ed4765c8-20c4-45c9-b809-4933afceb6b1"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:4ca1e377-5812-41c1-bf1d-1733a1ea4193"></kramerius:hasPage>
+
+                        <hasDonator xmlns="http://www.nsdl.org/ontologies/relationships#" rdf:resource="info:fedora/donator:norway"></hasDonator>
+
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:4ca1e377-5812-41c1-bf1d-1733a1ea4193"></kramerius:hasPage>
+
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:48f2efc6-9885-41e3-9e2f-9d2f9ed9b650"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:442f0a7e-4d83-48b3-8a61-284343ed25cd"></kramerius:hasPage>
+                    </rdf:Description>
+                </rdf:RDF>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+</foxml:digitalObject>

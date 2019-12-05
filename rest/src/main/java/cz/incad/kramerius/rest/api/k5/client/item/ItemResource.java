@@ -1,53 +1,15 @@
 package cz.incad.kramerius.rest.api.k5.client.item;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriBuilderException;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.StreamHeadersObserver;
+import cz.incad.kramerius.*;
 import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardUtils;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
+import cz.incad.kramerius.resourceindex.IResourceIndex;
+import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowedXML;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
@@ -68,15 +30,34 @@ import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Item endpoint
- * 
+ *
  * @author pavels
- * 
  */
 @Path("/v5.0/item")
 public class ItemResource {
@@ -92,15 +73,18 @@ public class ItemResource {
     SolrAccess solrAccess;
 
     @Inject
+    IResourceIndex resourceIndex;
+
+    @Inject
     Provider<HttpServletRequest> requestProvider;
-    
+
     @Inject
     Provider<HttpServletResponse> responseProvider;
-    
+
     @Inject
     JSONDecoratorsAggregate decoratorsAggregate;
 
-    
+
     @Inject
     SolrMemoization solrMemoization;
 
@@ -117,14 +101,17 @@ public class ItemResource {
     @Inject
     RepositoryUrlManager urlManager;
 
-    
+
     @GET
     @Path("{pid}/foxml")
-    @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
+    @Produces({MediaType.APPLICATION_XML + ";charset=utf-8"})
     public Response foxml(@PathParam("pid") String pid) {
         boolean access = false;
         try {
             ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            if (paths.length == 0) {
+                paths = this.resourceIndex.getPath(pid);
+            }
             for (ObjectPidsPath path : paths) {
                 if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, path)) {
                     access = true;
@@ -148,9 +135,11 @@ public class ItemResource {
                 return Response.ok().entity(stream).build();
             } else throw new ActionNotAllowedXML("access denied");
         } catch (IOException e) {
-            throw new PIDNotFound("cannot foxml for  " + pid);
+            throw new PIDNotFound("cannot parse foxml for  " + pid);
         } catch (ReplicateException e) {
-            throw new PIDNotFound("cannot foxml for  " + pid);
+            throw new PIDNotFound("cannot parse foxml for  " + pid);
+        } catch (ResourceIndexException e) {
+            throw new PIDNotFound("cannot parse foxml for  " + pid);
         }
     }
 
@@ -158,7 +147,7 @@ public class ItemResource {
     @HEAD
     @Path("{pid}/streams/{dsid}")
     public Response streamHead(@PathParam("pid") String pid,
-            @PathParam("dsid") String dsid) {
+                               @PathParam("dsid") String dsid) {
         checkPid(pid);
         try {
             checkPid(pid);
@@ -179,16 +168,17 @@ public class ItemResource {
                         AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
                         ResponseBuilder builder = AudioStreamForwardUtils.HEAD(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
                         return builder.build();
-                        
+
                     } else {
                         String mimeTypeForStream = this.fedoraAccess
                                 .getMimeTypeForStream(pid, dsid);
 
                         class _StreamHeadersObserver implements StreamHeadersObserver {
                             ResponseBuilder respBuilder = null;
+
                             @Override
                             public void observeHeaderFields(int statusCode,
-                                    Map<String, List<String>> headerFields) {
+                                                            Map<String, List<String>> headerFields) {
                                 respBuilder = Response.status(statusCode);
                                 Set<String> keys = headerFields.keySet();
                                 for (String k : keys) {
@@ -203,9 +193,9 @@ public class ItemResource {
                                 return this.respBuilder;
                             }
                         }
-                        
+
                         _StreamHeadersObserver observer = new _StreamHeadersObserver();
-                        this.fedoraAccess.observeStreamHeaders(pid, dsid,observer);
+                        this.fedoraAccess.observeStreamHeaders(pid, dsid, observer);
 
                         if (observer.getBuider() != null) {
                             return observer.getBuider().type(mimeTypeForStream).build();
@@ -224,14 +214,14 @@ public class ItemResource {
         } catch (SecurityException e) {
             throw new ActionNotAllowed(e.getMessage());
         }
-        
-        
-    }    
-    
+
+
+    }
+
     @GET
     @Path("{pid}/streams/{dsid}")
     public Response stream(@PathParam("pid") String pid,
-            @PathParam("dsid") String dsid) {
+                           @PathParam("dsid") String dsid) {
         try {
             checkPid(pid);
             if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
@@ -250,7 +240,7 @@ public class ItemResource {
                         AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
                         ResponseBuilder builder = AudioStreamForwardUtils.GET(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
                         return builder.build();
-                        
+
                     } else {
                         final InputStream is = this.fedoraAccess.getDataStream(pid,
                                 dsid);
@@ -283,43 +273,40 @@ public class ItemResource {
 
     @GET
     @Path("{pid}/streams")
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response streams(@PathParam("pid") String pid) {
         try {
             checkPid(pid);
             JSONObject jsonObject = new JSONObject();
             if (!PIDSupport.isComposedPID(pid)) {
-                Document datastreams = this.fedoraAccess
-                        .getFedoraDataStreamsListAsDocument(pid);
-                Element documentElement = datastreams.getDocumentElement();
-                List<Element> elms = XMLUtils.getElements(documentElement);
-                for (Element e : elms) {
+                List<Map<String, String>> streamsOfObject = this.fedoraAccess.getStreamsOfObject(pid);
+
+                for (Map<String, String> stream : streamsOfObject) {
+                    String dsiId = stream.get("dsid");
+                    String label = stream.get("label");
+                    String mimeType = stream.get("mimeType");
                     JSONObject streamObj = new JSONObject();
-                    String dsiId = e.getAttribute("dsid");
 
                     if (FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsiId))
                         continue;
-
-                    String label = e.getAttribute("label");
                     streamObj.put("label", label);
-
-                    String mimeType = e.getAttribute("mimeType");
                     streamObj.put("mimeType", mimeType);
-
                     jsonObject.put(dsiId, streamObj);
+
+
                 }
             }
             return Response.ok().entity(jsonObject.toString()).build();
-        } catch (IOException e) {
-            throw new PIDNotFound(e.getMessage());
         } catch (JSONException e1) {
+            throw new GenericApplicationException(e1.getMessage());
+        } catch (IOException e1) {
             throw new GenericApplicationException(e1.getMessage());
         }
     }
 
     @GET
     @Path("{pid}/children")
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response children(@PathParam("pid") String pid) {
         try {
             checkPid(pid);
@@ -339,7 +326,7 @@ public class ItemResource {
 
     @GET
     @Path("{pid}/siblings")
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response siblings(@PathParam("pid") String pid) {
         try {
             checkPid(pid);
@@ -370,6 +357,31 @@ public class ItemResource {
         }
     }
 
+
+    @GET
+    @Path("{pid}/parents")
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    public Response parents(@PathParam("pid") String pid) {
+        try {
+            checkPid(pid);
+            List<String> parentPids = resourceIndex.getParentsPids(pid);
+            JSONArray parents = new JSONArray();
+            for (String parentPid : parentPids) {
+                JSONObject parent = new JSONObject();
+                parent.put("pid", parentPid);
+                parents.put(parent);
+            }
+            return Response.ok().entity(parents.toString()).build();
+        } catch (ResourceIndexException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
+
+
     private JSONObject siblings(String pid, ObjectPidsPath onePath)
             throws ProcessSubtreeException, IOException, JSONException {
 
@@ -378,7 +390,7 @@ public class ItemResource {
         if (onePath.getLength() >= 2) {
             String[] pth = onePath.getPathFromRootToLeaf();
             parentPid = pth[pth.length - 2];
-            
+
             children = ItemResourceUtils.solrChildrenPids(parentPid, new ArrayList<String>(), this.solrAccess, this.solrMemoization);
         } else {
             children.add(pid);
@@ -391,7 +403,7 @@ public class ItemResource {
                     .path("{pid}/siblings").build(pid).toString();
             p = PIDSupport.convertToK4Type(p);
             JSONObject jsonObject = JSONUtils.pidAndModelDesc(p,
-                    uriString,this.solrMemoization, this.decoratorsAggregate, uriString);
+                    uriString, this.solrMemoization, this.decoratorsAggregate, uriString);
             pathArray.put(jsonObject);
         }
         object.put("path", pathArray);
@@ -413,7 +425,7 @@ public class ItemResource {
 
     @GET
     @Path("{pid}/full")
-    public Response full(@PathParam("pid") String pid, @QueryParam("asFile")String asFile) {
+    public Response full(@PathParam("pid") String pid, @QueryParam("asFile") String asFile) {
         try {
             checkPid(pid);
             if (PIDSupport.isComposedPID(pid)) {
@@ -427,25 +439,25 @@ public class ItemResource {
                         + "/img?pid="
                         + fpid
                         + "&stream=IMG_FULL&action=TRANSCODE&page=" + rpage;
-                
+
                 if (StringUtils.isAnyString(asFile)) {
-                    suri = suri +"&asFile=true";
+                    suri = suri + "&asFile=true";
                 }
                 URI uri = new URI(suri);
-                
+
                 return Response.temporaryRedirect(uri).build();
             } else {
-                
+
                 String suri = ApplicationURL
                         .applicationURL(this.requestProvider.get())
                         + "/img?pid=" + pid + "&stream=IMG_FULL&action=GETRAW";
-                
+
                 if (StringUtils.isAnyString(asFile)) {
-                    suri = suri +"&asFile=true";
+                    suri = suri + "&asFile=true";
                 }
 
                 URI uri = new URI(suri);
-                
+
                 return Response.temporaryRedirect(uri).build();
             }
         } catch (URISyntaxException e) {
@@ -534,14 +546,14 @@ public class ItemResource {
             }
         } catch (IOException e) {
             throw new PIDNotFound("pid not found");
-        } catch(Exception e) {
-            throw new PIDNotFound("error while parsing pid ("+pid+")");
+        } catch (Exception e) {
+            throw new PIDNotFound("error while parsing pid (" + pid + ")");
         }
     }
-    
+
     @GET
     @Path("{pid}")
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response basic(@PathParam("pid") String pid) {
         try {
             if (pid != null) {
@@ -550,7 +562,7 @@ public class ItemResource {
 
                     JSONObject jsonObject = new JSONObject();
                     String uriString = basicURL(pid);
-                    JSONUtils.pidAndModelDesc(pid, jsonObject,uriString, this.solrMemoization,
+                    JSONUtils.pidAndModelDesc(pid, jsonObject, uriString, this.solrMemoization,
                             this.decoratorsAggregate, null);
 
                     return Response.ok().entity(jsonObject.toString()).build();
@@ -589,7 +601,7 @@ public class ItemResource {
 
     /**
      * Basic URL
-     * 
+     *
      * @param pid
      * @return
      */

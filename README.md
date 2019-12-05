@@ -1,12 +1,17 @@
-###Novinky
+### Novinky
+
+Přechod na repozitář Fedora 4 commons
+
 
 Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub (https://github.com/ceskaexpedice/kramerius/releases/latest)
 
 Zapojení do České digitální knihovny je možné od verze Kramerius 5.
 
+
+### Upozornění pro vývojáře: Do větve master byla zmergována větev akubra. 
 ----
 
-#Systém Kramerius 
+# Systém Kramerius 
 
 je softwarové řešení pro zpřístupnění digitálních dokumentů. Primárně je určen pro digitalizované knihovní sbírky, monografie a periodika. Využit může být ke zpřístupnění dalších typů dokumentů např. map, hudebnin a starých tisků, případně částí dokumentů jako jsou články a kapitoly. Systém je vhodný také pro tzv. digital born dokumenty, tedy dokumenty, které vznikly v elektronické podobě. Kramerius je průběžně upravován tak, aby struktura metadat odpovídala standardům vyhlašovaným Národní knihovnou České republiky. Systém poskytuje rozhraní pro přístup koncových uživatelů, zajišťující vyhledávání v metadatech a v plných textech, generování vícestránkových PDF dokumentů z vybraných stran, vytváření virtuálních sbírek a další operace nad uloženou sbírkou digitálních dokumentů.
 
@@ -16,18 +21,18 @@ V testování je verze 6, ve které došlo k významnému vývojové mu kroku ze
 
 Uživatelské rozhraní je přístupné ve většině současných webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer, který však není doporučován, vzhledem k tomu, že nepodporuje standardy.
 
-##Licence
+## Licence
 
 Kramerius je open source systém, který je vyvíjen pod licencí GNU GPL v3. http://www.gnu.org/licenses/gpl-3.0.en.html
 
-##Vývojový tým
+## Vývojový tým
 
 Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Moravské zemské knihovny v Brně, Národní technické knihovny, Národní lékařské knihovny, Městské knihovny v Praze a Severočeské vědecké knihovny v Ústí nad Labem. Technologickým partnerem jsou společnosti Galderon a INOVATIKA.
 
 Členové vývojového týmu:
 KNAV - M. Lhoták, M. Duda, J. Křížová; 
 NK ČR – T. Foltýn, Z. Vozár, V. Jiroušek, K. Košťálová; 
-MZK – L. Kravecová, P. Žabička, M. Indrák; 
+MZK – M. Smetánková, P. Žabička, M. Indrák; 
 NTK – J. Kolátor, J. Dobiášovský; 
 NLK – F. Kříž;
 SVKUL - A. Brožek;
@@ -46,7 +51,7 @@ lhotak@knav.cz
 
 
 
-##Financování
+## Financování
 
 V současné době je financování vývoje zajištěno zejména z grantů MK ČR prostřednictvím dotačních programů NAKI (projekt RightLib 2018-2022) a VISK (individuální roční projekty). Od roku 2019 je vývoj provázán i s rozvojem výzkumné infrastruktury LINDAT/CLARIAH-CZ umístěné na národní cestovní mapě velkých výzkumných infrastruktur. 
 
@@ -66,7 +71,7 @@ Službu instalace lze také objednat na http://www.unidata.cz/system-kramerius
 
 Distribuovanou instalaci u společnosti Incad, která zajišťuje analytické a programátorské práce http://www.incad.cz
 
-##Komunikace
+## Komunikace
 Hlášení o chybách a požadavky na novou funkcionalitu zadávejte pomocí formuláře New Issue v sekci Issues. 
 
 Při požadavku na přidání vlastní funkcionality do standardní distribuce systému Kramerius prosím kontaktujte administrátory projektu. Jednodušší změny v rámci existujících modulů bude možné řešit připravením pull requestu, složitější úpravy bude třeba řešit individuálně.
@@ -79,7 +84,7 @@ První příhlášení do konference: https://mailman.lib.cas.cz/mailman/listinf
 Do mailové konference je možné posílat hlášení chyb, návrhy na vylepšení a vývoj i na přispění ke zdrojovému kódu Krameria.
 
 
-##Podpora systému Kramerius
+## Podpora systému Kramerius
 
 Systém Kramerius je open source řešení. SW podporu poskytuje vývojový tým. Pro garantované termíny musí mít instituce uzavřenu samostatnou smlouvu o podpoře.
 
@@ -88,4 +93,6 @@ SPRÁVA SYSTÉMU
 Správa a dohled instalovaného systému může být zajištěna na základě individuální dohody např. od http://www.unidata.cz/ nebo http://www.inovatika.cz
 
 Instalaci a správu systému mohou, vzhledem k licenci pod kterou je systém vyvíjen, zajišťovat i jiné subjekty.
+
+[![Join the chat at https://gitter.im/ceskaexpedice/kramerius](https://badges.gitter.im/ceskaexpedice/kramerius.svg)](https://gitter.im/ceskaexpedice/kramerius?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 

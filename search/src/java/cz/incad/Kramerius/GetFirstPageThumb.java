@@ -53,7 +53,6 @@ public class GetFirstPageThumb extends GuiceServlet {
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
      * @param response servlet response
      */
     protected void processRequest(HttpServletRequest req, HttpServletResponse response)

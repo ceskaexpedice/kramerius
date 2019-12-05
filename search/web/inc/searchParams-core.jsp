@@ -48,10 +48,15 @@
     <%--
     <c:param name="fl" value="PID,score,root_title,path,pid_path,root_pid,dc.title,details,fedora.model,model_path,dc.creator,datum,page_format,text" />
     --%>
-    
 
+    <%--
+    <c:param name="ql" value="root_title^10,root_title_lemmatized^10,root_title_lemmatized_ascii^10,text,text_lemmatized,text_lemmatized_ascii" />
     <c:param name="qf" value="root_title^10 root_title_lemmatized^10 root_title_lemmatized_ascii^10 text text_lemmatized text_lemmatized_ascii" />
-    
+    --%>
+
+    <c:param name="ql" value="root_title^10,root_title_lemmatized^10,root_title_lemmatized_ascii^10,text" />
+    <c:param name="qf" value="root_title^10 root_title_lemmatized^10 root_title_lemmatized_ascii^10 text" />
+
     <c:forEach var="fqs" items="${paramValues.fq}">
         <c:if test="${fn:startsWith(fqs, 'document_type')}">
             <c:set var="isCollapsed" value="false" scope="request" />

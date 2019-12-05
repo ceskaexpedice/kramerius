@@ -11,7 +11,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
-import cz.incad.utils.SafeSimpleDateFormat;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -55,6 +54,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.utils.*;
+
 public abstract class AbstractImageServlet extends GuiceServlet {
 
     protected static final DateFormat[] XSD_DATE_FORMATS = {
@@ -66,8 +67,8 @@ public abstract class AbstractImageServlet extends GuiceServlet {
             new SafeSimpleDateFormat("yyyy-MM-dd") };
 
     /**
-	 * 
-	 */
+     *
+     */
     private static final long serialVersionUID = 1L;
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -93,7 +94,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     // protected Provider<Connection> fedora3Provider;
 
     public static BufferedImage scale(BufferedImage img, Rectangle pageBounds,
-            HttpServletRequest req, ScalingMethod scalingMethod) {
+                                      HttpServletRequest req, ScalingMethod scalingMethod) {
         String spercent = req.getParameter(SCALE_PARAMETER);
         String sheight = req.getParameter(SCALED_HEIGHT_PARAMETER);
         String swidth = req.getParameter(SCALED_WIDTH_PARAMETER);
@@ -142,21 +143,21 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     }
 
     protected BufferedImage rawFullImage(String uuid,
-            HttpServletRequest request, int page) throws IOException,
+                                         HttpServletRequest request, int page) throws IOException,
             MalformedURLException, XPathExpressionException {
         return KrameriusImageSupport.readImage(uuid,
                 FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, page);
     }
 
     protected BufferedImage rawImage(String uuid, String stream,
-            HttpServletRequest request, int page) throws IOException,
+                                     HttpServletRequest request, int page) throws IOException,
             MalformedURLException, XPathExpressionException {
         return KrameriusImageSupport.readImage(uuid, stream, this.fedoraAccess,
                 page);
     }
 
     protected void writeImage(HttpServletRequest req, HttpServletResponse resp,
-            BufferedImage image, OutputFormats format) throws IOException {
+                              BufferedImage image, OutputFormats format) throws IOException {
         if ((format.equals(OutputFormats.JPEG))
                 || (format.equals(OutputFormats.PNG))) {
             resp.setContentType(format.getMimeType());
@@ -169,7 +170,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     }
 
     protected void setDateHaders(String pid, String streamName,
-            HttpServletResponse resp) throws IOException {
+                                 HttpServletResponse resp) throws IOException {
         Date lastModifiedDate = lastModified(pid, streamName);
         Calendar instance = Calendar.getInstance();
         instance.roll(Calendar.YEAR, 1);
@@ -179,31 +180,12 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     }
 
     private Date lastModified(String pid, String stream) throws IOException {
-        Date date = null;
-        Document streamProfile = fedoraAccess.getStreamProfile(pid, stream);
+        return this.fedoraAccess.getStreamLastmodifiedFlag(pid, stream);
 
-        Element elm = XMLUtils.findElement(streamProfile.getDocumentElement(),
-                "dsCreateDate",
-                FedoraNamespaces.FEDORA_MANAGEMENT_NAMESPACE_URI);
-        if (elm != null) {
-            String textContent = elm.getTextContent();
-            for (DateFormat df : XSD_DATE_FORMATS) {
-                try {
-                    date = df.parse(textContent);
-                    break;
-                } catch (ParseException e) {
-                    //
-                }
-            }
-        }
-        if (date == null) {
-            date = new Date();
-        }
-        return date;
     }
 
     protected void setResponseCode(String pid, String streamName,
-            HttpServletRequest request, HttpServletResponse response)
+                                   HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         long dateHeader = request.getDateHeader("If-Modified-Since");
         if (dateHeader != -1) {
@@ -310,8 +292,8 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     }
 
     public static void setStringTemplateModel(String uuid,
-            String dataStreamPath, StringTemplate template,
-            FedoraAccess fedoraAccess) throws UnsupportedEncodingException,
+                                              String dataStreamPath, StringTemplate template,
+                                              FedoraAccess fedoraAccess) throws UnsupportedEncodingException,
             IOException {
 
         List<String> folderList = new ArrayList<String>();
@@ -369,11 +351,4 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         }
     }
 
-    public static void main(String[] args) {
-        String testUrl = "ahoj nevim co dal $neni$";
-        StringTemplate template = new StringTemplate(testUrl);
-        template.setAttribute("baseFolder", "some val");
-        template.setAttribute("neni", "Je");
-        System.out.println(template.toString());
-    }
 }

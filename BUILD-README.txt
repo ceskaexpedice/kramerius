@@ -1,4 +1,4 @@
-For build project, we use gradle build tool (version 2.+). For more information, see  http://www.gradle.org/.
+For build project, we use gradle build tool (version 5.+). For more information, see  http://www.gradle.org/.
 
 Display all tasks: 
 
@@ -17,7 +17,7 @@ Creating full distribution (contains rightseditor,editor, K5, Client and javadoc
 
 gradle clean build distZip -> creates zip file
 
-Note: It is expected you have rightseditor and editor wars in your m2 repo.
+Note: It is expected you have rightseditor and editor wars in your m2 manager.
 
 Creating patch distribution (K5 core, K5 Client, security-core only)
 

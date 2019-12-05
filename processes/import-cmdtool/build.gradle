@@ -1,0 +1,27 @@
+description "Import tools" 
+
+
+compileJava {
+    // This only works when forking and passing 'javac' as an executable
+    options.compilerArgs << '-XDignore.symbol.file'    
+    options.fork = true
+    options.forkOptions.executable = 'javac'
+}
+ 
+
+
+dependencies {
+    compile project(':security:security-core')
+    compile project(':shared:common')
+    
+    compile project(':processes:import-jaxb')
+    compile project(':processes:import-jaxb-periodical')
+    compile project(':processes:import-jaxb-monograph')
+
+
+    compile 'commons-codec:commons-codec:1.5'
+    compile 'org.safehaus.jug:jug:2.0.0:lgpl@jar'
+}
+
+
+

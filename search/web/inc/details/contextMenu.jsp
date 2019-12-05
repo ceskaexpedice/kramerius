@@ -47,8 +47,8 @@
         height: 16px;
         overflow:hidden;
         text-indent: -99999px;
-        display:block;
-        float:left;
+        display:inline-block;
+        float:none;
     }
 
     #contextMenu .scope>span{
@@ -155,7 +155,8 @@
 <script  src="js/underscore-min.js" language="javascript" type="text/javascript"></script>
 <link href="js/prettify.css" type="text/css" rel="stylesheet" />
 <script type="text/javascript" src="js/prettify.js"></script>
-<script src="js/mods.js" type="text/javascript" ></script>
+
+
 <script type="text/javascript">
     
     var policyPublic = ${policyPublic};
@@ -861,11 +862,7 @@
       function serverSort() {
           var structs = pidstructs();
           var u = "lr?action=start&def=sort&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
-          
-          showConfirmDialog(dictionary['administrator.dialogs.sort.confirm'], function(){
           processStarter("sort").start(u);
-          
-        });
       }
 
       function deletePid(){

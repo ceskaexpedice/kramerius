@@ -7,7 +7,6 @@ import java.util.Map;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
-import cz.incad.kramerius.impl.fedora.FedoraStreamUtils;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.Collection.Description;
 

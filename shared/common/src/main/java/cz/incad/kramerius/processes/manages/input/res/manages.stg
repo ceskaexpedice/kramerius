@@ -1,0 +1,89 @@
+/** templates for metsimport process */
+group manages;
+
+post(states,bundle) ::=<< >>
+
+form(states,batchStates,bundle) ::=<<
+
+
+<div style="width:100%">
+    <script language="JavaScript" type="text/javascript"> 
+    <!--    
+        // send parameters to server
+        window.onProcessFormSend = function() {
+            var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
+
+            var state = \$('#process_states').val();
+            var batchState = \$('#batch_process_states').val();
+            if (console) {
+                console.log(\$('#process_date_from').val().escapeChars(charsThatMustBeEscaped));
+            }
+            
+            var vals = 'from='+\$('#process_date_from').val().escapeChars(charsThatMustBeEscaped)
+                +';to='+   \$('#process_date_to').val().escapeChars(charsThatMustBeEscaped);
+            if (state !== "none") {
+                vals = vals+';state='+state;    
+            }
+
+            if (batchState !== "none") {
+                vals = vals+';batchState='+batchState;    
+            }
+
+            var url = "lr?action=form_post&def=delete_processes&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
+            if (console) console.log(url);
+            processStarter("delete_processes").start(url);
+        }
+
+
+        \$( "#process_date_from" ).datepicker({
+            dateFormat: 'dd/mm/yy'
+        });
+        
+        \$( "#process_date_to" ).datepicker({
+            dateFormat: 'dd/mm/yy'
+        });
+    -->        
+    </script>
+
+
+
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend>$bundle.("parametrizeddeleteprocesses.filtr")$</legend>
+    <table style="width:100%">
+
+    <tr><td colspan="2">
+    <label>$bundle.("parametrizeddeleteprocesses.states.selection")$</label>
+    </td></tr>
+
+    <tr><td colspan="2">
+    <select id="process_states">
+        <option value="none">$bundle.("parametrizeddeleteprocesses.states.selection.all")$</option>
+        $states:{st|<option value="$st$">$st$</option>}$
+    </select>
+    </td></tr>
+    
+    <tr><td colspan="2">
+    <label>$bundle.("parametrizeddeleteprocesses.batchStates.selection")$</label>
+    </td></tr>
+
+    <tr><td colspan="2">
+    <select id="batch_process_states">
+        <option value="none">$bundle.("parametrizeddeleteprocesses.batchStates.selection.all")$</option>
+        $batchStates:{st|<option value="$st$">$st$</option>}$
+    </select>
+    </td></tr>
+    
+    <tr><td>
+    $bundle.("parametrizeddeleteprocesses.datefrom.label")$
+    </td><td><input id="process_date_from"></input></td></tr>
+        
+    <tr><td>
+    $bundle.("parametrizeddeleteprocesses.dateto.label")$</td><td><input id="process_date_to"></input>    
+    </td></tr>
+    
+    </table>    
+    
+</fieldset>
+</div>
+
+>>

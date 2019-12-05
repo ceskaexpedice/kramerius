@@ -1,0 +1,16 @@
+description "Authentication filters"
+
+
+dependencies {
+    compile project(':shared:common')
+    compile project(':security:security-core')
+    compile "org.brickred:socialauth:4.12"
+    compile 'commons-codec:commons-codec:1.5'
+}
+
+
+
+
+
+
+

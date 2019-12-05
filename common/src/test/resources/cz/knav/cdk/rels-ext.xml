@@ -1,9 +1,0 @@
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#">
-          <rdf:Description rdf:about="info:fedora/uuid:e15bdb43-41d4-48c7-bb64-7d3d1e2f769c">
-            <fedora-model:hasModel xmlns:fedora-model="info:fedora/fedora-system:def/model#" rdf:resource="info:fedora/model:map"></fedora-model:hasModel>
-            <oai:itemID xmlns:oai="http://www.openarchives.org/OAI/2.0/">uuid:e15bdb43-41d4-48c7-bb64-7d3d1e2f769c</oai:itemID>
-            <kramerius:policy>policy:public</kramerius:policy>
-            <kramerius:hasPage rdf:resource="info:fedora/uuid:8925543d-2edc-4541-9108-bcca9dff25d6"></kramerius:hasPage>
-          <replicatedFrom xmlns="http://www.nsdl.org/ontologies/relationships#">http://kramerius.mzk.cz/search/handle/uuid:e15bdb43-41d4-48c7-bb64-7d3d1e2f769c</replicatedFrom><replicatedFrom xmlns="http://www.nsdl.org/ontologies/relationships#">http://cdk-test.lib.cas.cz/search/handle/uuid:e15bdb43-41d4-48c7-bb64-7d3d1e2f769c</replicatedFrom></rdf:Description>
-        </rdf:RDF>

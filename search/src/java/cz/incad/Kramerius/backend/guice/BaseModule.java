@@ -16,7 +16,6 @@ import cz.incad.kramerius.audio.urlMapping.CachingFedoraUrlManager;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.impl.CachedFedoraAccessImpl;
 import cz.incad.kramerius.impl.CachedSolrAccessImpl;
-import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.MostDesirableImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.processes.GCScheduler;
@@ -43,7 +42,6 @@ import cz.incad.kramerius.virtualcollections.impl.CDKVirtualCollectionsGetImpl;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
-import cz.incad.kramerius.virtualcollections.impl.solr.SolrCollectionManagerImpl;
 import org.apache.http.nio.client.HttpAsyncClient;
 import org.ehcache.CacheManager;
 
@@ -57,10 +55,9 @@ import java.util.Locale;
  * Base kramerius module
  */
 public class BaseModule extends AbstractModule {
-
-    @Override
+	
+	@Override
     protected void configure() {
-        bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
         bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(SecuredFedoraAccessImpl.class).in(Scopes.SINGLETON);
         bind(FedoraAccess.class).annotatedWith(Names.named("cachedFedoraAccess")).to(CachedFedoraAccessImpl.class).in(Scopes.SINGLETON);
 
@@ -98,8 +95,7 @@ public class BaseModule extends AbstractModule {
         bind(Collection.class).toProvider(VirtualCollectionProvider.class);
         
         bind(CollectionsManager.class).annotatedWith(Names.named("fedora")).to(FedoraCollectionsManagerImpl.class);
-        bind(CollectionsManager.class).annotatedWith(Names.named("solr")).to(SolrCollectionManagerImpl.class);
-        
+
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
 

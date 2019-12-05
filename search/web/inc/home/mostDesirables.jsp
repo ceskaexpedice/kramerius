@@ -28,6 +28,7 @@
 <c:forEach items="${mostDesirableViewObject.pids}" var="uuid" varStatus="status">
     <c:url var="url" value="${kConfigSolrHost}/select/" >
         <c:param name="q" value="PID:\"${uuid}\"" />
+        <c:param name="wt" value="xml" />
     </c:url>
     <c:catch var="exceptions"> 
         <c:import url="${url}" var="xml" charEncoding="UTF-8" />

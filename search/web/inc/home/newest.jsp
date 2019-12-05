@@ -18,6 +18,7 @@
 <view:kconfig var="newest_query" key="search.newest.query" defaultValue="level:0" />
 <c:url var="url" value="${kconfig.solrHost}/select" >
     <c:param name="q" value="${newest_query}" />
+    <c:param name="wt" value="xml" />
     <c:choose>
         <c:when test="${param.rows != null}" >
             <c:set var="rows" value="${param.rows}" scope="request" />

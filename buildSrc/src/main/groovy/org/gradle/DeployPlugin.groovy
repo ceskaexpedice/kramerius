@@ -11,14 +11,6 @@ import org.gradle.api.tasks.SourceSet
 
 import java.util.concurrent.Callable
 
-class DeployPlugin implements Plugin<ProjectInternal> {
-	
-
-	void apply(final ProjectInternal project) {
-                // apply java plugin
-                //project.getPlugins().apply(CargoBasePlugin.class);
+class DeployPlugin /*implements Plugin<ProjectInternal>*/ {
 		
-                // extensions object and create deployremotecontainer tasks
-				//project.extensions.create("deployment", ServersExtension.class, project);		
-	}
 }

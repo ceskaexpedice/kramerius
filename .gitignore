@@ -39,3 +39,17 @@ classes
 deploy
 gradle/wrapper
 gradlew*
+
+**/build
+**/out
+**/nbactions.xml
+
+**/index/*
+
+
+
+**/tlog/*
+
+
+
+/time

@@ -16,6 +16,8 @@
 <c:url var="url" value="${kconfig.solrHost}/select" >
     <c:param name="q" >PID:"${param.pid}"</c:param>
     <c:param name="rows" value="1" />
+    <c:param name="wt" value="xml" />
+
 </c:url>
 <c:catch var="exceptions">
     <c:import url="${url}" var="xml" charEncoding="UTF-8" />

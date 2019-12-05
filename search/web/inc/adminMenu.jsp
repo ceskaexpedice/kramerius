@@ -401,6 +401,21 @@ var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['admin
     });
 }
 
+function checkIndexIntegrityProcessingIndex(){
+var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['administrator.menu.dialogs.check_processing_integrity'];
+    showConfirmDialog(text, function(){
+      var url = "lr?action=start&def=processing_check&out=text";
+      processStarter("processing_check").start(url);
+    });
+}
+function rebuildProcessingIndex(){
+var text = dictionary['administrator.dialogs.confirm'] + " " + dictionary['administrator.menu.dialogs.processing_rebuild'];
+    showConfirmDialog(text, function(){
+      var url = "lr?action=start&def=processing_rebuild&out=text";
+      processStarter("processing_rebuild").start(url);
+    });
+}
+
 function indexDoc(pid, title){
     showConfirmDialog('Confirm index dokumentu', function(){
     var prefix = "info\:fedora\/";
@@ -735,13 +750,13 @@ ParameterizedProcess.prototype.open = function(definition, paramsMapping) {
     
     paramsMapping = paramsMapping ? paramsMapping : {};
 
-    var pMappingsUrl = "{"+reduce(function(base, element, status) {
+    var pMappingsUrl = encodeURI("{")+reduce(function(base, element, status) {
     	if (!status.first) {
         	base = base + ";";
         }
     	base = base + element;
     	return base; 
-    }, "", this._asArr(paramsMapping))+"}";
+    }, "", this._asArr(paramsMapping))+encodeURI("{");
     		  
     var url = "lr?action=form_get&def="+definition;
 

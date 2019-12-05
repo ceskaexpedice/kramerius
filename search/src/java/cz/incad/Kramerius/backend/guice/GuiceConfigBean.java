@@ -13,11 +13,9 @@ import java.util.logging.Level;
 
 import javax.servlet.ServletContextEvent;
 
-import com.google.gwt.user.client.ui.DelegatingFocusListenerCollection;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.name.Named;
 import com.google.inject.servlet.GuiceServletContextListener;
@@ -33,12 +31,16 @@ import cz.incad.kramerius.imaging.guice.ImageModule;
 import cz.incad.kramerius.pdf.guice.PDFModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
 import cz.incad.kramerius.processes.guice.LongRunningProcessModule;
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.rest.api.guice.IiifServletModule;
 import cz.incad.kramerius.security.guice.GuiceSecurityModule;
 import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
 import cz.incad.kramerius.service.guice.I18NModule;
 import cz.incad.kramerius.service.guice.MailModule;
 import cz.incad.kramerius.service.guice.ServicesModule;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.DatabaseStatisticsModule;
 import cz.incad.kramerius.users.guice.LoggedUsersModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -67,7 +69,13 @@ public class GuiceConfigBean extends GuiceServletContextListener {
     @Override
     protected Injector getInjector() {
     	List<AbstractModule> modules = new ArrayList<AbstractModule>(Arrays.asList(
-                new BaseModule(), // base  module
+
+    	        new RepoModule(), // repo module
+                new SolrModule(),
+                new ResourceIndexModule(),
+                new DatabaseStatisticsModule(),
+
+    	        new BaseModule(), // base  module
                 
                 new ServicesModule(), // base services
                 

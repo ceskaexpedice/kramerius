@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import cz.incad.kramerius.utils.FedoraUtils;
 import org.antlr.stringtemplate.StringTemplate;
 
 import cz.incad.kramerius.FedoraAccess;
@@ -55,7 +56,10 @@ public class TitlesForObjects {
             if (SpecialObjects.findSpecialObject(currentPid) != null) {
                 modelsMap.put(currentPid, SpecialObjects.findSpecialObject(displayedPid).name()+modelPostfix);
             } else {
-                String kramModel = fedoraAccess.getKrameriusModelName(displayedPid);
+                String kramModel = "none";
+                if (fedoraAccess.isStreamAvailable(displayedPid, FedoraUtils.RELS_EXT_STREAM)) {
+                    kramModel =fedoraAccess.getKrameriusModelName(displayedPid);
+                }
                 String localizedModel = bundleService.getResourceBundle("labels", locale).getString("document.type."+kramModel);
                 modelsMap.put(currentPid, localizedModel+modelPostfix);
             }
@@ -78,7 +82,10 @@ public class TitlesForObjects {
             if (SpecialObjects.findSpecialObject(currentPid) != null) {
                 dctitlesMap.put(currentPid, SpecialObjects.findSpecialObject(pidForTitle).name()+titlePostfix);
             } else {
-                String titleFromDC = DCUtils.titleFromDC(fedoraAccess.getDC(pidForTitle));
+                String titleFromDC = "none";
+                if (fedoraAccess.isStreamAvailable(pidForTitle, FedoraUtils.DC_STREAM)) {
+                    titleFromDC = DCUtils.titleFromDC(fedoraAccess.getDC(pidForTitle));
+                }
                 /*
                 if (titleFromDC.length() > 10) {
                     titleFromDC = titleFromDC.substring(0,10)+"...";

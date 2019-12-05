@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.util.logging.Level;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,32 +17,32 @@ import com.google.inject.name.Named;
 import biz.sourcecode.base64Coder.Base64Coder;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.CollectionUtils;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
-import cz.incad.kramerius.virtualcollections.VirtualCollectionsManager;
-import cz.incad.kramerius.virtualcollections.impl.AbstractCollectionManager;
 
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.fedora.api.ObjectProfile;
+
 
 public class VirtualCollectionServlet extends GuiceServlet {
 
@@ -180,7 +179,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
                 String encodedProfile = req.getParameter("encodedData");
                 byte[] decoded = Base64Coder.decode(encodedProfile);
 
-                CollectionUtils.modifyLangDatastream(collection, language, AbstractCollectionManager.LONG_TEXT_DS_PREFIX+language,new String(decoded, "UTF-8"), fedoraAccess);
+                CollectionUtils.modifyLangDatastream(collection, language, FedoraCollectionsManagerImpl.LONG_TEXT_DS_PREFIX +language,new String(decoded, "UTF-8"), fedoraAccess);
             }
         },
 
@@ -206,7 +205,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
                         ByteArrayOutputStream bos = new ByteArrayOutputStream();
                         IOUtils.copyStreams(inputStream, bos);;
                         LOGGER.info("Creating stream '"+streamName+"' for collection '"+collection+"'");
-                        CollectionUtils.modifyImageDatastream(collection, streamName, contentType, bos.toByteArray(), fedoraAccess);
+                        CollectionUtils.modifyManagedDatastream(collection, streamName, contentType, bos.toByteArray(), fedoraAccess);
                     } else {
                         throw new IllegalArgumentException("illegal argument! ");
                     }
@@ -224,7 +223,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
         CHECK {
 
             @Override
-            void doPerform(VirtualCollectionServlet vc, FedoraAccess fedoraAccess, CollectionsManager colMan, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException {
+            void doPerform(VirtualCollectionServlet vc, FedoraAccess fedoraAccess, CollectionsManager colMan, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException, RepositoryException {
                 String pid = req.getParameter("pid");
                 String collection = req.getParameter("collection");
                 resp.setContentType("text/plain");
@@ -261,8 +260,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
                         if(token!=null){
                             url += "&token=" + token;
                         }
-                        //ProcessUtils.startProcess("virtualcollections", url)
-                        ProcessStarter.httpGet(url);
+                        ProcessUtils.httpGet(url);
                     }
                 }
                 String[] collections = req.getParameterValues("add");
@@ -273,7 +271,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
                         if(token!=null){
                             url += "&token=" + token;
                         }
-                        ProcessStarter.httpGet(url);
+                        ProcessUtils.httpGet(url);
                     }
                 }
 
@@ -281,7 +279,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
 
                 LOGGER.info("indexer URL:" + url);
                 try {
-                    ProcessStarter.httpGet(url);
+                    ProcessUtils.httpGet(url);
                 } catch (Exception e) {
                     LOGGER.severe("Error spawning indexer for " + pid + ":" + e);
                 }
@@ -330,10 +328,12 @@ public class VirtualCollectionServlet extends GuiceServlet {
         LABEL {
 
             @Override
-            void doPerform(VirtualCollectionServlet vc, FedoraAccess fedoraAccess, CollectionsManager colMan, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException {
+            void doPerform(VirtualCollectionServlet vc, FedoraAccess fedoraAccess, CollectionsManager colMan, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException, CollectionException {
                 String pid = req.getParameter("pid");
-                ObjectProfile op = fedoraAccess.getAPIA().getObjectProfile(pid, null);
-                vc.writeOutput(req, resp, op.getObjLabel());
+                Collection collection = colMan.getCollection(pid);
+                if (collection != null) {
+                    vc.writeOutput(req, resp, collection.getLabel());
+                }
             }
         },
         /**
@@ -342,7 +342,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
         CREATE {
 
             @Override
-            void doPerform(VirtualCollectionServlet vc, FedoraAccess fedoraAccess, CollectionsManager colMan, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException, InterruptedException {
+            void doPerform(VirtualCollectionServlet vc, FedoraAccess fedoraAccess, CollectionsManager colMan, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException, InterruptedException, RepositoryException {
                 
                 boolean canLeave = Boolean.parseBoolean(req.getParameter("canLeave"));
                 Map<String, String> plainTexts = new HashMap<String, String>();
@@ -354,8 +354,9 @@ public class VirtualCollectionServlet extends GuiceServlet {
                         plainTexts.put(langCode, req.getParameter(p));
                     }
                 }
-                
+
                 String pid = CollectionUtils.create(fedoraAccess, null, canLeave, plainTexts, new CollectionUtils.CollectionManagerWait(colMan));
+
                 resp.setContentType("text/plain");
                 vc.writeOutput(req, resp, pid);
             }
@@ -377,7 +378,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
         CHANGE {
 
             @Override
-            void doPerform(VirtualCollectionServlet vc, FedoraAccess fedoraAccess, CollectionsManager colMan, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException {
+            void doPerform(VirtualCollectionServlet vc, FedoraAccess fedoraAccess, CollectionsManager colMan, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException, RepositoryException {
                 String[] langs = vc.getLangs();
                 String pid = req.getParameter("pid");
                 boolean canLeave = Boolean.parseBoolean(req.getParameter("canLeave"));

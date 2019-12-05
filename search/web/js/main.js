@@ -81,13 +81,13 @@ pids) {
     if (!pids)
         pids = this.pids;
     return baseUrl
-            + "{"
+            + encodeURI("{")
             + reduce(function(base, item, status) {
 
-                base = base + item.pid.replaceAll(":", "\\:")
+                base = base + encodeURI(item.pid.replaceAll(":", "\\:"))
                         + (status.last ? "" : ";");
                 return base;
-            }, "", pids) + "}";
+            }, "", pids) + encodeURI("}");
 }
 
 /** Download original */

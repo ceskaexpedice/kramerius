@@ -1,30 +1,29 @@
-include 'security-core'
-include	'fedora-api'
-include	'common' 
-
-include	'import'
-include	'import-cmdtool'
-include	'import-jaxb'
-include	'import-jaxb-periodical'
-include 'import-jaxb-monograph'
-include	'import-jaxb-alto'
-include	'import-jaxb-mets'
-include	'import-jaxb-mods'
-include	'import-jaxb-dc'
-include	'import-jaxb-mets'
-include	'import-jaxb-srwdc'
-include	'import-mets' 
-
-include	'indexer'
-//include	'k5indexer'
-include	'static-export'
+include	'shared:common'
+//include	'shared:common-intest'
 include	'rest'
-include	'search' 
-include 'client'
-include 'mw-process'
-include 'authfilters'
-include 'solr-migration'
-include 'cdkstrictfilter'
+include	'search'
+
+include	'processes:import'
+include	'processes:import-cmdtool'
+include	'processes:import-jaxb'
+include	'processes:import-jaxb-periodical'
+include 'processes:import-jaxb-monograph'
+include	'processes:import-jaxb-alto'
+include	'processes:import-jaxb-mets'
+include	'processes:import-jaxb-mods'
+include	'processes:import-jaxb-dc'
+include	'processes:import-jaxb-mets'
+include	'processes:import-jaxb-srwdc'
+include	'processes:import-mets'
+include 'processes:mw-process'
+include	'processes:indexer'
+include 'processes:solr-migration'
+include	'processes:static-export'
+include 'processes:data-migration'
+include 'processes:migration'
+
+include 'security:security-core'
+include 'security:authfilters'
 
 
 // filter property -DremoveProjs=projectA,projectB,..
@@ -34,6 +33,5 @@ rootProject.children.removeAll { project ->
         String[] projs = filterProjs.split(",");
         return Arrays.asList(projs).indexOf(project.name) >= 0;
     } else return false;
-}	
-  
+}
 

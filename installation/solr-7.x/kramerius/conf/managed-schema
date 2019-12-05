@@ -465,13 +465,14 @@
 
         <!-- text search - default field  -->
         <field name="text" type="text_general_not_lemmatized" indexed="true" stored="true" multiValued="true" />
-        <field name="text_lemmatized" type="text_general_lemmatized" indexed="true" stored="false" multiValued="true" />
-        <field name="text_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="false"
+        <!--field name="text_lemmatized" type="text_general_lemmatized" indexed="true" stored="true" multiValued="true" />
+        <field name="text_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="true"
                multiValued="true"/>
-        <field name="text_lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="false"
-               multiValued="true"/>
+        <field name="text_lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="true"
+               multiValued="true"/-->
 
         <field name="timestamp" type="date" indexed="true" stored="false" default="NOW" multiValued="false"/>
+
 
         <field name="fedora.model" type="string" indexed="true" stored="true" docValues="true"/>
         <field name="document_type" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
@@ -498,6 +499,7 @@
         <field name="title_lemmatized" type="text_general_lemmatized" indexed="true" stored="false"/>
         <field name="title_lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="false"/>
         <field name="title_lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="false"/>
+
 
         <!-- text ocr -->
         <field name="text_ocr" type="text_general_not_lemmatized" indexed="true" stored="true" storeOffsetsWithPositions="true" />
@@ -535,6 +537,7 @@
         <field name="language" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
         <field name="dc.description" type="text_fgs" indexed="true" stored="true" multiValued="true"/>
 
+
         <field name="details" type="string" indexed="true" stored="true" multiValued="true"/>
 
         <field name="facet_title" type="string" indexed="true" stored="true" docValues="true"/>
@@ -552,10 +555,11 @@
         <field name="location" type="location_rpt" indexed="true" stored="true" multiValued="true"/>
         <!-- geo coordinates for defined as box -->
         <field name="range" type="bbox"/>
-      	<!-- center point coordinate -->
+		
+		<!-- center point coordinate --> 
         <field name="center" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
 
-    </fields>
+	</fields>
 
     <!-- Field to use to determine and enforce document uniqueness.
       Unless this field is marked with required="false", it will be a required field
@@ -613,6 +617,12 @@
     <copyField source="dc.title" dest="title_lemmatized"/>
     <copyField source="dc.title" dest="title_lemmatized_ascii"/>
     <copyField source="dc.title" dest="title_lemmatized_nostopwords"/>
+
+    <!-- text_ocr -->
+    <copyField source="text_ocr" dest="text_ocr_lemmatized"/>
+    <copyField source="text_ocr" dest="text_ocr_lemmatized_ascii"/>
+    <copyField source="text_ocr" dest="text_ocr_lemmatized_nostopwords"/>
+
 
     <copyField source="browse_title" dest="search_title"/>
     <copyField source="dc.creator" dest="facet_autor"/>

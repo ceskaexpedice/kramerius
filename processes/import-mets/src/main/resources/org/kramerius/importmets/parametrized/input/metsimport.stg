@@ -1,0 +1,174 @@
+/** sablony pro mock process */
+group metsimport;
+
+
+/** migration folder selection */
+selectionJSTreeConvert() ::=<<
+\$("#metsimport__selectedConvertDirectory").text(p);
+>>
+
+/** target folder selection */
+selectionJSTreeTarget() ::=<<
+\$("#metsimport__selectedTargetDirectory").text(p);
+>>
+
+
+form(convertDirectory,targetDirectory,convertRootDirectory, visibility,otherSettingsTemplate, bundle) ::=<<
+
+<div style="width:100%">
+    <script language="JavaScript" type="text/javascript"> 
+    <!--    
+        \$('#importToFedora').change( function() {
+            var importToFedora = \$('#importToFedora').attr('checked');
+            if (importToFedora) {
+                \$('#startIndexer').removeAttr("disabled");
+            } else {
+                \$('#startIndexer').removeAttr("checked");
+                \$('#startIndexer').attr("disabled", true);
+            }
+        });
+        // send parameters to server
+        window.onProcessFormSend = function() {
+            var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
+
+            var startIndexer = \$('#startIndexer').attr('checked');
+            var defaultRights = \$('#defaultRightsPublic').attr('checked');
+            var importToFedora = \$('#importToFedora').attr('checked');
+            var ingestSkip = !importToFedora;
+
+
+            var vals = 'convertTargetDirectory='+\$('#targetDirectory').val().escapeChars(charsThatMustBeEscaped)
+                +';convertDirectory='+   \$('#convertDirectory').val().escapeChars(charsThatMustBeEscaped)
+                +';startIndexer='+   startIndexer
+                +';defaultRights='+ defaultRights
+                +';ingestSkip='+ingestSkip;
+
+            var url = "lr?action=form_post&def=ndkmets&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
+            processStarter("ndkmets").start(url);
+        }
+
+        // show directory dialog
+        function MetsImportDirectoryTree() {
+            this.targetDirectoryDialog = null;
+            this.convertDirectoryDialog = null;
+        }
+
+        MetsImportDirectoryTree.prototype.openConvertDirectory=function() {
+            if (this.convertDirectoryDialog) {
+                this.convertDirectoryDialog.dialog('open');
+            } else {
+                this.convertDirectoryDialog = \$("#metsimport__select_convert_directory").dialog({
+                bgiframe: true,
+                width:  450,
+                height:  400,
+                modal: true,
+                title: '',
+                buttons: 
+                    [{
+                        text:dictionary['common.ok'],
+                        click:bind(function() {
+                            \$("#convertDirectory").val(\$("#metsimport__selectedConvertDirectory").text());
+                            this.convertDirectoryDialog.dialog("close"); 
+                        },this) 
+                    },{
+                        text:dictionary['common.close'],
+                        click:bind(function() {
+                            this.convertDirectoryDialog.dialog("close"); 
+                        },this) 
+                    }]
+                });
+                
+            }
+        }
+    
+        MetsImportDirectoryTree.prototype.openTargetDirectory=function() {
+            if (this.targetDirectoryDialog) {
+                this.targetDirectoryDialog.dialog('open');
+            } else {
+                this.targetDirectoryDialog = \$("#metsimport__select_target_directory").dialog({
+                bgiframe: true,
+                width:  450,
+                height:  400,
+                modal: true,
+                title: '',
+                buttons: 
+                    [{
+                        text:dictionary['common.ok'],
+                        click:bind(function() {
+                            \$("#targetDirectory").val(\$("#metsimport__selectedTargetDirectory").text());
+                            this.targetDirectoryDialog.dialog("close"); 
+                        },this) 
+                    },{
+                        text:dictionary['common.close'],
+                        click:bind(function() {
+                            this.targetDirectoryDialog.dialog("close"); 
+                        },this) 
+                    }]
+                });
+                
+            }
+        }
+
+        $makeJSTree(treeRoot="metsimport__targetDirectoryTree", bindfunction="selectionJSTreeTarget")$
+        $makeJSTree(treeRoot="metsimport__selectConvertFolderTree", bindfunction="selectionJSTreeConvert")$
+
+        var directoryTree = new MetsImportDirectoryTree();
+
+    -->        
+    </script>
+
+
+
+<!-- vyber adresaru -->
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("parametrizedconvert.directories.fields")$</legend>
+    <label>$bundle.("parametrizedconvert.convert.directory")$</label><br>
+    <input style="width:80%" type="text"  id="convertDirectory" value="$convertDirectory$"></input>
+    <input type="button" onclick="directoryTree.openConvertDirectory();" value="$bundle.("parametrizedconvert.convert.directory.selection")$"></input>
+    <br>
+    
+    <label>$bundle.("parametrizedconvert.target.directory")$</label> <br>
+    <input style="width:80%" type="text"  id="targetDirectory" value="$targetDirectory$"></input>
+    <input type="button" onclick="directoryTree.openTargetDirectory();" value="$bundle.("parametrizedconvert.convert.directory.selection")$"></input>
+</fieldset>
+
+<!-- public/private; udelat dle nastaveni -->
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.defaultrights.fields")$</legend>
+    $if(visibility)$
+    <input type="radio" id="defaultRightsPublic" name="defaultRights" value="$bundle.("k3replication.defaultrights.public")$" checked>$bundle.("k3replication.defaultrights.public")$</input>
+    <input type="radio" name="defaultRights" value="$bundle.("k3replication.defaultrights.private")$">$bundle.("k3replication.defaultrights.private")$</input>
+    $else$
+    <input type="radio" id="defaultRightsPublic" name="defaultRights" value="$bundle.("k3replication.defaultrights.public")$">$bundle.("k3replication.defaultrights.public")$</input>
+    <input type="radio" name="defaultRights" value="$bundle.("k3replication.defaultrights.private")$" checked>$bundle.("k3replication.defaultrights.private")$</input>
+    $endif$
+</fieldset>
+
+<!-- ostatni nastaveni  -->
+$(otherSettingsTemplate)()$
+
+
+    <div id="metsimport__select_convert_directory" style="display:none">
+        <h3>  $bundle.("parametrizedconvert.convert.selection.dialog")$</h3>
+        <div id="metsimport__selectConvertFolderTree">
+            $tree(root=convertRootDirectory)$
+        </div>
+
+        <div id="metsimport__selectedConvertDirectory" style="display:none"></div>    
+    </div>    
+
+
+    <div id="metsimport__select_target_directory" style="display:none">
+
+        <h3>  $bundle.("parametrizedconvert.convert.selection.dialog")$ </h3>
+
+        <div id="metsimport__targetDirectoryTree">
+            $tree(root=convertRootDirectory)$
+        </div>
+
+        <div id="metsimport__selectedTargetDirectory" style="display:none"></div>    
+    </div>    
+    
+</div>
+
+>>

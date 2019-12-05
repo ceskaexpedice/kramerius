@@ -22,9 +22,7 @@ import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.logging.Level;
 
 import javax.servlet.ServletException;
@@ -290,8 +288,10 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                     resp.setHeader("Content-disposition", "attachment; filename=" + fileNameFromRelsExt);
                 }
                 
-                copyStreams(is, resp.getOutputStream());
-                
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                copyStreams(is, bos);
+                byte[] arr = bos.toByteArray();
+                copyStreams(new ByteArrayInputStream(arr), resp.getOutputStream());
             }
         };
         

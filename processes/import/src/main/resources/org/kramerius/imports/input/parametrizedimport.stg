@@ -1,0 +1,157 @@
+/** sablony pro mock process */
+group parametrizedimport;
+
+
+/** jedna polozka stromu */
+treeNode(item) ::=<<
+    $if(item.leaf)$
+
+    <li id="$item.id$"><a href="#">$item.itemName$</a></li>
+
+    $else$
+    <li id="$item.id$">
+    <a href="#">$item.itemName$</a>
+    $tree(root=item)$
+    </li>
+    $endif$
+
+>>
+
+
+/** strom */
+tree(root) ::=<<
+    <ul>
+        $root.children:{item|$treeNode(item=item)$}$ 
+    </ul>
+>>
+
+
+
+
+
+form(postfixdiv, importDirectory,importRootDirectory,  startIndexer, updateExisting, bundle) ::=<<
+
+<div style="width:100%">
+    <script language="JavaScript" type="text/javascript"> 
+    <!--    
+	
+	
+	
+        // send parameters to server
+        window.onProcessFormSend = function() {
+            var startIndexer = \$('#startIndexer').attr('checked');
+            var updateExisting = \$('#updateExisting').attr('checked');
+            var replaceDC = \$('#replaceDC').attr('checked');
+            var replaceMODs = \$('#replaceMODs').attr('checked');
+
+            var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
+            var vals = 'importDirectory='+encodeURI(\$('#importDirectory').val().escapeChars(charsThatMustBeEscaped))
+                +';startIndexer='+startIndexer+';updateExisting='+updateExisting
+                +';onlyReplaceDC='+replaceDC+';onlyReplaceMODS='+replaceMODs
+                ;
+            
+            var url = "lr?action=form_post&def=parametrizedimport&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
+            processStarter("parametrizedimport").start(url);
+        }
+
+
+        // show directory dialog
+        function ShowDirectoryTree() {
+            this.dialog = null;
+        }
+    
+        ShowDirectoryTree.prototype.openTree=function() {
+
+            if (this.dialog) {
+                this.dialog.dialog('open');
+            } else {
+                this.dialog = \$("#_selectImportFolderDialog").dialog({
+                bgiframe: true,
+                width:  450,
+                height:  400,
+                modal: true,
+                title: '',
+                buttons: 
+                    [{
+                        text:dictionary['common.ok'],
+                        click:bind(function() {
+                            \$("#importDirectory").val(\$("#_selectedImportFolder").text());
+                            this.dialog.dialog("close"); 
+                        },this) 
+                    },{
+                        text:dictionary['common.close'],
+                        click:bind(function() {
+                            this.dialog.dialog("close"); 
+                        },this) 
+                    }]
+                });
+                
+				
+
+    	      \$(function () {
+	    	       \$("#_selectImportFolderTree_$postfixdiv$").jstree({ 
+    	    	        "plugins" : [ "themes", "html_data", "ui" ]
+        	    	})
+            		.bind("select_node.jstree", function (event, data) { 
+                		var p = data.rslt.obj.attr("id");
+		                \$("#_selectedImportFolder").text(p);
+    		        });
+	    	    });
+            
+            
+            }
+
+
+        }
+    
+		
+        var directoryTree = new ShowDirectoryTree();
+        
+    -->        
+    </script>
+
+<!-- vyber adresaru -->
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("parametrizedconvert.directories.fields")$</legend>
+    <label>$bundle.("import.directory")$</label><br>
+    <input style="width:80%" type="text"  id="importDirectory" value="$importDirectory$"></input>
+    <input type="button" onclick="directoryTree.openTree();" value="$bundle.("import.directory.selection")$"></input>
+</fieldset>
+
+<!-- spustit indexer  -->
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.othersettings.fields")$</legend>
+    $if(startIndexer)$
+        <input type="checkbox" id="startIndexer" name="startIndexer" value="startIndexer" checked>$bundle.("import.indexerstart")$</input>
+    $else$
+        <input type="checkbox" id="startIndexer" name="startIndexer" value="startIndexer">$bundle.("import.indexerstart")$</input>
+    $endif$
+    <br>
+
+    <div style="display:none">
+     $if(updateExisting)$
+        <input type="checkbox" style="display:none" id="updateExisting" name="updateExisting" value="updateExisting" checked />
+    $else$
+        <input type="checkbox" style="display:none" id="updateExisting" name="updateExisting" value="updateExisting" />
+    $endif$
+
+    <input type="checkbox" id="replaceDC" name="replaceDC" value="replaceDC"  >$bundle.("import.replaceDC")$</input>
+
+    <input type="checkbox" id="replaceMODs" name="replaceMODs" value="replaceMODs">$bundle.("import.replaceMODs")$</input>
+
+    </div>
+</fieldset>
+
+
+
+    <div id="_selectImportFolderDialog" style="display:none">
+        <h3>  $bundle.("import.selection.dialog")$</h3>
+        <div id="_selectImportFolderTree_$postfixdiv$">
+            $tree(root=importRootDirectory)$
+        </div>
+
+        <div id="_selectedImportFolder" style="display:none"></div>    
+    </div>    
+</div>
+
+>>

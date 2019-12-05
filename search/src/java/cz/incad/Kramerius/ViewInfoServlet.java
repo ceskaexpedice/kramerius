@@ -100,7 +100,7 @@ public class ViewInfoServlet extends GuiceServlet {
     Provider<User> currentLoggedUserProvider;
 
     @Inject
-    @Named("solr")
+    @Named("fedora")
     CollectionsManager collectionGet;
     
     private InputStream dataStream;

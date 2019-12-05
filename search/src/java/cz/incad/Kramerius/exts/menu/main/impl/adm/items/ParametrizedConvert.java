@@ -36,6 +36,4 @@ public class ParametrizedConvert extends AbstractMainMenuItem implements AdminMe
             "javascript:parametrizedProcess.open('parametrizedconvert'); javascript:hideAdminMenu();",
             "administrator.menu.dialogs.parametrizedconvert.title", false);
     }
-
-    
 }

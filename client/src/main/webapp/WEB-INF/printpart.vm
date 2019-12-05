@@ -1,8 +1,0 @@
-<div id="login">
-    <div class="loginbox">
-        #parse("login_form.vm")
-        <div>
-            <h3> Prihlaseni do knihovny Vaclava Mateje Krameria ve verzi 5 </h3>
-        </div>
-    </div>
-</div>
