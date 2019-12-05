@@ -238,6 +238,7 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
         it.path = it.path.replace('-5.1.0.war', '.war')
     }
 
+    exclude "**.tar"
     //from 'build/distributions/kramerius-javadoc.zip'
 }
 /**
@@ -251,6 +252,8 @@ task distPatchZip(type:Zip) {
     from {'search/build/libs'}
     from {'processes/migration/build/distributions'}
     from {'security/security-core/build/libs'}
+
+    exclude "**.tar"
 }
 
 
