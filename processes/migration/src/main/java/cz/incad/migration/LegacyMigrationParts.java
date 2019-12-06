@@ -10,6 +10,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import org.akubraproject.map.IdMapper;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.fcrepo.common.Constants;
 import org.fcrepo.common.FaultException;
 import org.fcrepo.common.PID;
@@ -69,6 +70,11 @@ public enum LegacyMigrationParts {
             String objectPattern = KConfiguration.getInstance().getProperty("objectStore.pattern");
             Consumer<File> consumer = null;
             if ("true".equalsIgnoreCase(args[3])) {
+                try {
+                    feeder.deleteProcessingIndex();
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Error in deleteProcessingIndex: ", e);
+                }
                 consumer = (f) -> {
                     try {
                         FileInputStream inputStream = new FileInputStream(f);
@@ -140,7 +146,7 @@ public enum LegacyMigrationParts {
         }.executeQuery(sqlCommand);
     }
 
-    private static DigitalObject createDigitalObject(InputStream inputStream) {
+    static DigitalObject createDigitalObject(InputStream inputStream) {
         DigitalObject obj = null;
         try {
             synchronized (unmarshaller) {
@@ -170,9 +176,9 @@ public enum LegacyMigrationParts {
 
 
     // Message after 60 iterations
-    static int LOG_MESSAGE_ITERATION = 10000;
+    static int LOG_MESSAGE_ITERATION = KConfiguration.getInstance().getConfiguration().getInt("akubra.migration.logfrequency", 10000);
 
-    private static URI getBlobId(String token) {
+    static URI getBlobId(String token) {
         try {
             int i = token.indexOf('+');
             if (i == -1) {
