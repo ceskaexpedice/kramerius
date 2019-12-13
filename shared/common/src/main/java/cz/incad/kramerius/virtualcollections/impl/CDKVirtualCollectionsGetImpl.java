@@ -177,7 +177,8 @@ public class CDKVirtualCollectionsGetImpl implements CDKVirtualCollectionsGet {
         String pid = jsonObject.getString("pid");
         String label = jsonObject.getString("label");
         boolean cleave = jsonObject.getBoolean("canLeave");
-        Collection col = new Collection(pid,label, cleave);
+        String url = jsonObject.has("url") ? jsonObject.getString("url") : "";
+        Collection col = new Collection(pid,label,url ,cleave);
         JSONObject descs = jsonObject.getJSONObject("descs");
         Iterator keys = descs.keys();
         while (keys.hasNext()) {

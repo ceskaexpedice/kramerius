@@ -85,16 +85,12 @@ public class FedoraCollectionsManagerImpl implements CollectionsManager {
                     if (this.fa.isObjectAvailable(cPid)) {
                         if (this.fa.isStreamAvailable(cPid, FedoraUtils.DC_STREAM)) {
                             Document dc = fa.getDC(cPid);
-                            Collection col = new Collection(cPid, dcTitle(dc), dcType(dc));
+                            Collection col = new Collection(cPid, dcTitle(dc), dcUrl(dc), dcType(dc));
                             enhanceNumberOfDocs(col);
                             enhanceDescriptions(col);
                             cols.add(col);
                         } else {
-                            LOGGER.warning("Collection '"+cPid+"' doesn't defined DC Stream - title is missing, canLeave flag is missing");
-                            Collection col = new Collection(cPid, "no-name", true);
-                            enhanceNumberOfDocs(col);
-                            cols.add(col);
-
+                            LOGGER.warning("Collection '"+cPid+"' doesn't exist");
                         }
                     } else {
                         LOGGER.warning("Collection '"+cPid+"' doesn't exist");
@@ -121,8 +117,8 @@ public class FedoraCollectionsManagerImpl implements CollectionsManager {
     }
 
     public SolrAccess getSolrAccess() {
-		return sa;
-	}
+        return sa;
+    }
 
     public void setSolrAccess(SolrAccess sa) {
         this.sa = sa;
@@ -159,15 +155,13 @@ public class FedoraCollectionsManagerImpl implements CollectionsManager {
             if (this.fa.isObjectAvailable(pid)) {
                 if (this.fa.isStreamAvailable(pid, FedoraUtils.DC_STREAM)) {
                     Document doc = this.fa.getDC(pid);
-                    Collection col = new Collection(pid, dcTitle(doc), dcType(doc));
+
+                    Collection col = new Collection(pid, dcTitle(doc), dcUrl(doc),dcType(doc));
                     enhanceNumberOfDocs(col);
                     enhanceDescriptions(col);
                     return col;
                 } else {
-                    LOGGER.warning("Collection '"+pid+"' doesn't defined DC Stream - title is missing, canLeave flag is missing");
-                    Collection col = new Collection(pid, "no-name", true);
-                    enhanceNumberOfDocs(col);
-                    return col;
+                    throw new CollectionException("Collection '"+pid+"' doesn't exist");
                 }
             } else throw new CollectionException("Collection '"+pid+"' doesn't exist");
         } catch (XPathExpressionException e) {
@@ -180,13 +174,13 @@ public class FedoraCollectionsManagerImpl implements CollectionsManager {
     }
 
     protected void enhanceNumberOfDocs(Collection col) throws IOException, XPathExpressionException {
-    	Document response = this.sa.request("fq=level:0&q=collection:(\""+col.getPid()+"\")&rows=0");
-    	Element resElement = XMLUtils.findElement(response.getDocumentElement(), "result");
-    	if (resElement != null){
-    		String attribute = resElement.getAttribute("numFound");
-    		int parsedInt = Integer.parseInt(attribute);
-    		col.setNumberOfDocs(parsedInt);
-    	}
+        Document response = this.sa.request("fq=level:0&q=collection:(\""+col.getPid()+"\")&rows=0");
+        Element resElement = XMLUtils.findElement(response.getDocumentElement(), "result");
+        if (resElement != null){
+            String attribute = resElement.getAttribute("numFound");
+            int parsedInt = Integer.parseInt(attribute);
+            col.setNumberOfDocs(parsedInt);
+        }
     }
 
     protected void enhanceDescriptions(Collection col) throws IOException, XPathExpressionException {
@@ -233,24 +227,34 @@ public class FedoraCollectionsManagerImpl implements CollectionsManager {
             return "";
     }
 
+    protected String dcUrl(Document doc) throws XPathExpressionException {
+        XPath xpath = factory.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        XPathExpression expr = xpath.compile("//dc:source/text()");
+        Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
+        if (node != null) {
+            return StringEscapeUtils.escapeXml(node.getNodeValue());
+        } else
+            return "";
+    }
 
     protected class NumberOfDocuments implements Comparator<Collection> {
 
         private SortOrder ordering;
 
 
-		public NumberOfDocuments(SortOrder ordering) {
-			super();
-			this.ordering = ordering;
-		}
+        public NumberOfDocuments(SortOrder ordering) {
+            super();
+            this.ordering = ordering;
+        }
 
 
-		@Override
-		public int compare(Collection o1, Collection o2) {
-			Integer i1 = this.ordering.equals(SortOrder.ASC) ? new Integer(o1.getNumberOfDocs()) : new Integer(o2.getNumberOfDocs());
-			Integer i2 = this.ordering.equals(SortOrder.ASC) ? new Integer(o2.getNumberOfDocs()) : new Integer(o1.getNumberOfDocs());
-			return i1.compareTo(i2);
-		}
+        @Override
+        public int compare(Collection o1, Collection o2) {
+            Integer i1 = this.ordering.equals(SortOrder.ASC) ? new Integer(o1.getNumberOfDocs()) : new Integer(o2.getNumberOfDocs());
+            Integer i2 = this.ordering.equals(SortOrder.ASC) ? new Integer(o2.getNumberOfDocs()) : new Integer(o1.getNumberOfDocs());
+            return i1.compareTo(i2);
+        }
 
     }
 

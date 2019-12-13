@@ -27,7 +27,6 @@ import cz.incad.kramerius.rest.api.k5.admin.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
 import cz.incad.kramerius.rest.api.k5.admin.users.RolesResource;
 import cz.incad.kramerius.rest.api.k5.admin.users.UsersResource;
-import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.feedback.FeedbackResource;
@@ -103,7 +102,6 @@ public class ApiServletModule extends JerseyServletModule {
         bind(RightsResource.class);
         bind(UsersResource.class);
         bind(RolesResource.class);
-        bind(VirtualCollectionsResource.class);
 
         bind(StatisticsResource.class);
 

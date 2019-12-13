@@ -144,7 +144,7 @@ public class VirtualCollectionViewObject {
         Locale locale = this.localeProvider.get();
         List<Collection> ncols = new ArrayList<Collection>();
         for (Collection rCol : rawCollection) {
-            Collection col = new Collection(rCol.getPid(),rCol.getLabel(),rCol.isCanLeaveFlag());
+            Collection col = new Collection(rCol.getPid(),rCol.getLabel(), rCol.getUrl() ,rCol.isCanLeaveFlag());
             col.setNumberOfDocs(rCol.getNumberOfDocs());
             Description l = rCol.lookup(locale.getLanguage());
             if (l != null) {

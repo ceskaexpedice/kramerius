@@ -1,0 +1,8 @@
+
+
+dependencies {
+    compile project(':shared:common')
+    compile project(':processes:import')
+}
+
+

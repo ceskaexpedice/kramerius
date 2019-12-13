@@ -114,11 +114,12 @@
     </servlet>
         
     <!-- Servelt pro manipulaci virtualnich sbirek -->
+    <!--
     <servlet>
         <servlet-name>vc</servlet-name>
         <servlet-class>cz.incad.Kramerius.views.virtualcollection.VirtualCollectionServlet</servlet-class>
     </servlet>
-
+    -->
 
     <!--  
        Servlet for image manipulation.  Can manipulate with image streams in fedora 
@@ -327,11 +328,13 @@
         <servlet-name>imageServlet</servlet-name>
         <url-pattern>/img</url-pattern>
     </servlet-mapping>
-    
+
+    <!--
     <servlet-mapping>
         <servlet-name>vc</servlet-name>
         <url-pattern>/vc</url-pattern>
     </servlet-mapping>
+    -->
 
     <servlet-mapping>
         <servlet-name>thumb</servlet-name>

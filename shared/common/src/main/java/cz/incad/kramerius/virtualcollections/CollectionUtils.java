@@ -84,7 +84,7 @@ public class CollectionUtils {
     
     
     /** Methods bellow are mostly moved from previous implementation of virtual collections */
-    public static String create(FedoraAccess fedoraAccess,String title,boolean canLeaveFlag, Map<String, String>plainTexts, CollectionWait wait) throws IOException, InterruptedException, RepositoryException {
+    public static String create(String passedPid, FedoraAccess fedoraAccess,String title, String url,boolean canLeaveFlag, Map<String, String>plainTexts, CollectionWait wait) throws IOException, InterruptedException, RepositoryException {
         final List<String> retvals =new ArrayList<>();
         Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(), (repo)->{
             String pid = null;
@@ -94,7 +94,7 @@ public class CollectionUtils {
                     //String encoded = Base64.encodeBase64String(plainTexts.get(k).getBytes("UTF-8"));;
                     encodedTexts.put(k, plainTexts.get(k));
                 }
-                pid = "vc:" + UUID.randomUUID().toString();
+                pid = passedPid != null ? passedPid : "vc:" + UUID.randomUUID().toString();
                 InputStream stream = CollectionUtils.class.getResourceAsStream("vc_template.stg");
                 String content = IOUtils.toString(stream, Charset.forName("UTF-8"));
 
@@ -102,10 +102,13 @@ public class CollectionUtils {
 
                 RepositoryObject collection = repo.createOrFindObject(pid);
 
+                //dc(pid, title, canLeave, url) ::= <<
+
                 StringTemplate dcTemplate = grp.getInstanceOf("dc");
                 dcTemplate.setAttribute("pid", pid);
                 dcTemplate.setAttribute("title", title != null ? title : pid);
                 dcTemplate.setAttribute("canLeave", canLeaveFlag);
+                dcTemplate.setAttribute("url", url);
                 collection.createStream(FedoraUtils.DC_STREAM, "text/xml", new ByteArrayInputStream(dcTemplate.toString().getBytes(Charset.forName("UTF-8"))));
 
                 if (plainTexts.containsKey("cs")) {

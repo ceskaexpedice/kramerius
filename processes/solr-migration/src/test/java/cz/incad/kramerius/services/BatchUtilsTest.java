@@ -43,7 +43,7 @@ public class BatchUtilsTest extends TestCase {
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element doc = XMLUtils.findElement(parsed.getDocumentElement(), "doc");
 
-        transform(doc, feedDocument,destDoc , fedoraOperations );
+        transform(doc, feedDocument,destDoc );
 
         // must be defined as copiied field
         Element text = BatchUtils.findByAttribute(destDoc, "text");
@@ -74,7 +74,7 @@ public class BatchUtilsTest extends TestCase {
 
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element doc = XMLUtils.findElement(parsed.getDocumentElement(), "doc");
-        transform(doc, feedDocument,destDoc, fedoraOperations);
+        transform(doc, feedDocument,destDoc);
 
         Element text = BatchUtils.findByAttribute(destDoc, "text");
         Assert.assertNotNull(text);
@@ -106,7 +106,7 @@ public class BatchUtilsTest extends TestCase {
 
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element doc = XMLUtils.findElement(parsed.getDocumentElement(), "doc");
-        transform(doc, feedDocument,destDoc, fedoraOperations);
+        transform(doc, feedDocument,destDoc);
 
 
         Element text = BatchUtils.findByAttribute(destDoc, "text");

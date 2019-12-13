@@ -16,7 +16,9 @@ public class RepoModule extends AbstractModule {
     
     @Override
     protected void configure() {
-        this.bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessAkubraImpl.class).in(Scopes.SINGLETON);
+
+        this.bind(FedoraAccess.class).annotatedWith(Names.named("akubraFedoraAccess")).to(FedoraAccessAkubraImpl.class).in(Scopes.SINGLETON);
+        //this.bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessAkubraImpl.class).in(Scopes.SINGLETON);
         this.bind(CacheManager.class).annotatedWith(Names.named("akubraCacheManager")).toProvider(EhCacheProvider.class).in(Scopes.SINGLETON);
     }
 

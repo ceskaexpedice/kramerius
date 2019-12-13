@@ -81,6 +81,7 @@ public class MigrationUtils {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 InputStream entityInputStream = resp.getEntityInputStream();
                 IOUtils.copyStreams(entityInputStream, bos);
+                LOGGER.log(Level.SEVERE, "status "+resp.getStatus() +" error message "+new String(bos.toByteArray(), "UTF-8"));
             }
         } catch (UniformInterfaceException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

@@ -3,6 +3,8 @@ include	'shared:common'
 include	'rest'
 include	'search'
 
+include 'bridge'
+
 include	'processes:import'
 include	'processes:import-cmdtool'
 include	'processes:import-jaxb'

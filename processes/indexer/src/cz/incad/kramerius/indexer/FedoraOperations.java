@@ -251,6 +251,12 @@ public class FedoraOperations {
         }
     }
 
+    public static String prepareCzechString(String s) throws IOException {
+        UTFSort utf_sort = new UTFSort();
+        utf_sort.init();
+        return utf_sort.translate(s);
+    }
+
     public String prepareCzech(String s) throws Exception {
         //return removeDiacritic(s).toLowerCase().replace("ch", "hz");
         return utf_sort.translate(s);

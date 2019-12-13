@@ -17,8 +17,13 @@
 package cz.incad.Kramerius;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Level;
 
 import javax.servlet.ServletConfig;
@@ -29,8 +34,11 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.database.VersionInitializer;
 import cz.incad.kramerius.database.VersionService;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.processes.GCScheduler;
@@ -44,6 +52,9 @@ import cz.incad.kramerius.statistics.database.StatisticDatabaseInitializator;
 import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.virtualcollections.CollectionUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Starting point for K4 application
@@ -67,6 +78,11 @@ public class StartupServlet extends GuiceServlet {
 
     @Inject
     LifeCycleHookRegistry lifecycleRegistry;
+
+
+    @Inject
+    @Named("akubraFedoraAccess")
+    FedoraAccess acc;
 
     @Override
     public void init() throws ServletException {
@@ -99,9 +115,40 @@ public class StartupServlet extends GuiceServlet {
             versionService.updateNewVersion();
 
             this.pdfService.init();
+
+            if (acc != null) {
+
+                Repository internalAPI = acc.getInternalAPI();
+                InputStream resourceAsStream = FedoraAccess.class.getClassLoader().getResourceAsStream("/res/default_sources.json");
+                JSONArray jsonArray = new JSONArray(org.apache.commons.io.IOUtils.toString(resourceAsStream, "UTF-8"));
+                for (int i=0, ll=jsonArray.length();i<ll;i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                    String pid = jsonObject.getString("pid");
+                    String url = jsonObject.getString("url");
+
+                    JSONObject descs = jsonObject.getJSONObject("descs");
+                    if (!internalAPI.objectExists(pid)) {
+                        Map<String, String> map = new HashMap<>();
+                        Iterator keys = descs.keys();
+                        while(keys.hasNext()) {
+                            String key = (String) keys.next();
+                            map.put(key, descs.getString(key));
+                        }
+
+                        CollectionUtils.create(pid, acc, "", url, true, map, null);
+                    }
+                }
+            }
+
+            // update sources
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (RepositoryException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (InterruptedException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             if (connection != null) {

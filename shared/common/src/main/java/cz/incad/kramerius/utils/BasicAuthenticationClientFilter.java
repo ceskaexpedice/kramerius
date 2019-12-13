@@ -1,14 +1,13 @@
-package org.kramerius.replications;
-
-import java.util.ArrayList;
-import java.util.List;
-
+package cz.incad.kramerius.utils;
 
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.core.util.Base64;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BasicAuthenticationClientFilter extends ClientFilter {
 

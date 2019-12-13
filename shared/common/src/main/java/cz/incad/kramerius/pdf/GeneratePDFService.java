@@ -36,7 +36,7 @@ public interface GeneratePDFService {
      * @throws DocumentException Error has been occurred in PDF generation
      */
     public void fullPDFExport(ObjectPidsPath path, OutputStreams outputs, Break brk, String djvuUrl, String i18Url, int[] rect) throws IOException, ProcessSubtreeException, DocumentException;
-	
+
     
     /**
      * Generate PDF for title 
@@ -50,32 +50,32 @@ public interface GeneratePDFService {
      * @throws IOException IO error has been occured
      * @throws ProcessSubtreeException algorithm cannot traverse over tree
      */
-	public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException;
-	
-	
-	public void generateCustomPDF(PreparedDocument doc, /*String parentUUID,*/ OutputStream os, FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
+    public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException;
 
-	
-	public PreparedDocument generateCustomPDF( PreparedDocument doc,  OutputStream os, Break brk,   FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
 
-	
-	
-	/**
-	 * Folder for templates
-	 * @return templates folder 
-	 */
-	public File templatesFolder();
+    public void generateCustomPDF(PreparedDocument doc, /*String parentUUID,*/ OutputStream os, FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
 
-	/**
-	 * Folder for fonts
-	 * @return fonts folder
-	 */
-	public File fontsFolder();
 
-	//TODO: move
-	/**
-	 * Initialization method
-	 */
-	public void init() throws IOException;
+    public PreparedDocument generateCustomPDF( PreparedDocument doc,  OutputStream os, Break brk,   FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
+
+
+
+    /**
+     * Folder for templates
+     * @return templates folder
+     */
+    public File templatesFolder();
+
+    /**
+     * Folder for fonts
+     * @return fonts folder
+     */
+    public File fontsFolder();
+
+    //TODO: move
+    /**
+     * Initialization method
+     */
+    public void init() throws IOException;
 }
 
