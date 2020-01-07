@@ -1,24 +1,16 @@
 package cz.incad.kramerius.service.impl;
 
 
-import com.sun.javafx.collections.MappingChange;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.impl.SolrAccessImpl;
-import cz.incad.kramerius.utils.IOUtils;
-
-import java.io.*;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
+import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.service.ExportService;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -29,6 +21,12 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import java.io.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ExportServiceImpl implements ExportService {
     public static final Logger LOGGER = Logger.getLogger(ExportServiceImpl.class.getName());

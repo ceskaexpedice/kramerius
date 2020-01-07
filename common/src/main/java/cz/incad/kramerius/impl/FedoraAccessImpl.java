@@ -188,7 +188,65 @@ public class FedoraAccessImpl implements FedoraAccess {
     public String getDonator(String pid) throws IOException {
         return getDonator(getRelsExt(pid));
     }
-
+    
+    @Override
+    public String getFirstItemPid(Document relsExt)
+            throws IOException {
+        try {
+            Element foundElement = XMLUtils.findElement(relsExt.getDocumentElement(), "hasItem", FedoraNamespaces.KRAMERIUS_URI);
+            if (foundElement != null) {
+                String sform = foundElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                PIDParser pidParser = new PIDParser(sform);
+                pidParser.disseminationURI();
+                String pidItem = "uuid:" + pidParser.getObjectId();
+                return pidItem;
+            } else {
+                return "";
+            }
+        } catch (DOMException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IllegalArgumentException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IllegalArgumentException(e);
+        }
+    }
+    
+    @Override
+    public String getFirstItemPid(String pid) throws IOException {
+        Document relsExt = getRelsExt(pid);
+        return getFirstItemPid(relsExt);
+    }
+    
+    @Override
+    public String getFirstVolumePid(Document relsExt) throws IOException {
+ 
+        try {
+            Element foundElement = XMLUtils.findElement(relsExt.getDocumentElement(), "hasVolume", FedoraNamespaces.KRAMERIUS_URI);
+            if (foundElement != null) {
+                String sform = foundElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                PIDParser pidParser = new PIDParser(sform);
+                pidParser.disseminationURI();
+                String pidVolume = "uuid:" + pidParser.getObjectId();
+                return pidVolume;
+            } else {
+                return "";
+            }
+        } catch (DOMException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IllegalArgumentException(e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IllegalArgumentException(e);
+        }
+    }
+    
+    @Override
+    public String getFirstVolumePid(String pid) throws IOException {
+        Document relsExt = getRelsExt(pid);
+        return getFirstVolumePid(relsExt);
+    }
+    
     @Override
     public Document getBiblioMods(String pid) throws IOException {
         try {

@@ -16,14 +16,14 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class ParametrizedIterateRepoMovingWall {
 
     @Process
-    public static void process(@ParameterName("userValue") String uVal) throws XPathExpressionException, IOException, RightCriteriumException {
+    public static void process(@ParameterName("userValue") String uVal, @ParameterName("mode") String mode) throws XPathExpressionException, IOException, RightCriteriumException {
         List<String> topLevelModels = KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels");
         RepositoryItemsSupport repoItems = new SolrRepoItemsSupport("PID");
         for (String m : topLevelModels) {
             List<String> pids = repoItems.findPidsByModel(m);
             for (int i = 0; i < pids.size(); i++) {
                 String p = pids.get(i);
-                String [] processArgs = new String[] {uVal,p};
+                String [] processArgs = new String[] {uVal, mode, p};
                 ProcessUtils.startProcess("applymw", processArgs);
             }
         }

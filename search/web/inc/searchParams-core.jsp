@@ -248,7 +248,9 @@
     </c:choose>
     <c:param name="defType" value="edismax" />
 </c:url>
-    <c:import url="${url}" var="xml" charEncoding="UTF-8" />
+    <!--c:import url="${url}" var="xml" charEncoding="UTF-8" /-->
+    <view:import url="${url}" var="xml" charEncoding="UTF-8"  />
+
     <c:if test="${wt == 'xml'}">
     <x:parse var="doc" xml="${xml}"  />
     </c:if>
