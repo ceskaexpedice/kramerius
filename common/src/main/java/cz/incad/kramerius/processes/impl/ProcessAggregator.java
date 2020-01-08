@@ -34,26 +34,13 @@ public class ProcessAggregator {
         String uuid = System.getProperty(ProcessStarter.UUID_KEY);
         
         String def = args[0];
-        String[] processDefsParams = null;
+        String[] processDefsParams = Arrays.copyOfRange(args, 1, args.length);
         
-        // it has three parameters: private/public, true/false, uuid
-        if (def.equals("setprivate") || def.equals("setpublic")) {
-            processDefsParams = Arrays.copyOfRange(args, 2, args.length);
-        }
-        else {
-          processDefsParams = Arrays.copyOfRange(args, 1, args.length);  
-        }
         
         for (int i = 0; i < processDefsParams.length; i++) {
             LOGGER.info("starting process ("+def+" with params "+Arrays.asList(processDefsParams[i]));
             String encodedParams =  URLEncoder.encode(processDefsParams[i], "UTF-8");
             
-            if (def.equals("setprivate") || def.equals("setpublic")) {
-                String level = args[1];
-                String uuidParam = java.net.URLDecoder.decode( encodedParams, "UTF-8" );
-                uuidParam = uuidParam.substring(uuidParam.indexOf("{") + 1, uuidParam.indexOf("}"));
-                encodedParams = "{" + level + ";" + uuidParam + "}";
-            }
             ProcessUtils.startProcess(def, encodedParams);
         }
         

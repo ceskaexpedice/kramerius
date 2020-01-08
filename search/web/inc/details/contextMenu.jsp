@@ -978,7 +978,6 @@
           this.dialog = null;
           this.policyName = "setpublic";
           this.aggregate = true;
-          this.level = false;
       }
 
       ChangeFlag.prototype.startProcess = function() {
@@ -996,9 +995,7 @@
           this.policyName = value;
           var structs = pidstructs();     
           this.aggregate = structs.length > 1;
-          var checkbox = $("#changeFlag #level");
-          this.level = checkbox.attr('checked');
-          var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams={"+this.policyName+ ";" +this.level+ ";",structs)+"}" : "lr?action=start&out=text&def="+this.policyName+"&nparams={"+this.level+","+structs[0].pid.replaceAll(":","\\:")+"}";
+          var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams={"+this.policyName+";",structs)+"}" : "lr?action=start&out=text&def="+this.policyName+"&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
           
           processStarter(this.policyName).start(u);
       }
