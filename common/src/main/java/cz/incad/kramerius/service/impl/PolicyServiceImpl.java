@@ -59,6 +59,24 @@ public class PolicyServiceImpl implements PolicyService {
             }
         }
     }
+    
+    @Override
+    public void setPolicy(String pid, String policyName, String level) throws IOException {
+        Set<String> pids = fedoraAccess.getPids(pid);
+        if (level != null && level.equals("true")) {
+            setPolicyForNode(pid, policyName);
+        }
+        else {
+            for (String s : pids) {
+                String p = s.replace(INFO, "");
+                try{
+                    setPolicyForNode(p, policyName);
+                }catch(Exception ex){
+                    LOGGER.warning("Cannot set policy for object "+p+", skipping: "+ex);
+                }
+            }
+        }
+    }
 
     public void setPolicyForNode(String pid, String policyName) {
         LOGGER.info("Set policy pid: "+pid+" policy: "+policyName);
@@ -170,7 +188,8 @@ public class PolicyServiceImpl implements PolicyService {
     }
 
     /**
-     * args[1] - uuid of the root item (withou uuid: prefix)
+     * args[2] - uuid of the root item (withou uuid: prefix)
+     * args[1] - if this process is only for the selected level
      * args[0] - policy to set (public, private)
      * @throws IOException
      */
@@ -179,13 +198,13 @@ public class PolicyServiceImpl implements PolicyService {
         LOGGER.info("PolicyService: "+Arrays.toString(args));
         if (args.length >= 2) {
             //TODO: I18N
-            ProcessStarter.updateName("Priznak  '"+args[0]+" pro titul "+args[1]);
+            ProcessStarter.updateName("Priznak  '"+args[0]+" pro titul "+args[2]);
         }
         PolicyServiceImpl inst = new PolicyServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null, null);
         inst.configuration = KConfiguration.getInstance();
-        inst.setPolicy(args[1], args[0]);
-        IndexerProcessStarter.spawnIndexer(true, "Reindex policy "+args[1]+":"+args[0], args[1]);
+        inst.setPolicy(args[2], args[0], args[1]);
+        IndexerProcessStarter.spawnIndexer(true, "Reindex policy "+args[2]+":"+args[0], args[2]);
         LOGGER.info("PolicyService finished.");
     }
 }
