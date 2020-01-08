@@ -551,13 +551,14 @@ public class SolrOperations {
 
     public static String prepareDocForIndexing(boolean compositeId, String rawXML) throws ParserConfigurationException, SAXException, IOException,
             TransformerException, UnsupportedEncodingException {
-        rawXML = removeTroublesomeCharacters(rawXML);
         Document document = XMLUtils.parseDocument(new StringReader(rawXML));
+        Element docroot = document.getDocumentElement();
         if (compositeId) {
             PrepareIndexDocUtils.enhanceByCompositeId(document, document.getDocumentElement());
         }
         rawXML = PrepareIndexDocUtils.wrapByAddCommand(document);
-        return rawXML;
+        String docSrc = removeTroublesomeCharacters(rawXML);
+        return docSrc;
     }
 
     public static String prepareDocForIndexing(String rawXML) throws ParserConfigurationException, SAXException, IOException,
@@ -566,17 +567,8 @@ public class SolrOperations {
     }
 
     
-    public static String removeTroublesomeCharacters(String inString) throws UnsupportedEncodingException {
-        // XML 1.0
-        // #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-        String xml10pattern = "[^"
-                + "\u0009\r\n"
-                + "\u0020-\uD7FF"
-                + "\uE000-\uFFFD"
-                + "\ud800\udc00-\udbff\udfff"
-                + "]";
-        return inString.replaceAll(xml10pattern, "");
-        //return inString.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", " ");
+    private static String removeTroublesomeCharacters(String inString) throws UnsupportedEncodingException {
+        return inString.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", " ");
 
     }
 

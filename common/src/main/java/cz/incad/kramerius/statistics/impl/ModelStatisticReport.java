@@ -51,7 +51,6 @@ import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import cz.incad.kramerius.utils.database.Offset;
-import javax.swing.JOptionPane;
 
 /**
  * @author pavels
@@ -84,7 +83,7 @@ public class ModelStatisticReport implements StatisticReport {
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
             statRecord.setAttribute("visibility", visFilter.asMap());
-
+            
 
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
@@ -137,7 +136,7 @@ public class ModelStatisticReport implements StatisticReport {
         try {
             ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
+            IPAddressFilter ipAddr = filters.getFilter(IPAddressFilter.class);
             
             
             final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("prepareModelView");
@@ -147,10 +146,12 @@ public class ModelStatisticReport implements StatisticReport {
             
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
+            if (ipAddr.hasValue()) {
+                statRecord.setAttribute("ipaddr", ipAddr.getValue());
+            }
             
             String sql = statRecord.toString();
-
+            
             String viewName =  "statistics_grouped_by_sessionandpid_"+modelFilter.getModel();
             boolean tableExists = DatabaseUtils.viewExists(connectionProvider.get(),viewName.toUpperCase());
             if (!tableExists) {
@@ -182,6 +183,7 @@ public class ModelStatisticReport implements StatisticReport {
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
             statRecord.setAttribute("visibility", visFilter.asMap());
+
             
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);

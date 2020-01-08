@@ -75,11 +75,13 @@ public class AuthorReport implements StatisticReport{
             authors.setAttribute("paging", true);
             authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             authors.setAttribute("toDefined", dateFilter.getToDate() != null);
-            authors.setAttribute("ipaddr", ipFilter.getIpAddress());
-           
+            if (ipFilter.hasValue()) {
+                authors.setAttribute("ipaddr", ipFilter.getValue());
+            }
+            
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
-            String sql = authors.toString();  
+            String sql = authors.toString();
             Connection conn = connectionProvider.get();
             List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(conn) {
 
@@ -129,12 +131,15 @@ public class AuthorReport implements StatisticReport{
             authors.setAttribute("paging", false);
             authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             authors.setAttribute("toDefined", dateFilter.getToDate() != null);
-            authors.setAttribute("ipaddr", ipFilter.getIpAddress());
+
+            if (ipFilter.hasValue()) {
+                authors.setAttribute("ipaddr", ipFilter.getValue());
+            }
 
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
 
-            String sql = authors.toString();         
+            String sql = authors.toString();
             new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
 
                 @Override

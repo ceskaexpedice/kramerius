@@ -262,8 +262,7 @@ public class FedoraOperations {
             logger.log(Level.FINE,
                     "getDatastreamText  pid={0} dsId={1} mimetype={2} dsBuffer={3}",
                     new Object[]{pid, dsId, mimetype, dsBuffer.toString()});
-            String text = dsBuffer.toString();
-            return SolrOperations.removeTroublesomeCharacters(text);
+            return dsBuffer.toString();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Cant get datastream " + dsId);
             throw new Exception(e.getClass().getName() + ": " + e.toString());
