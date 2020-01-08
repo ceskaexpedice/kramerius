@@ -57,8 +57,8 @@ Statistics.prototype.showDialog = function() {
             $(document.body).append(pdiv);
             this.dialog = $("#statistic").dialog({
                 bgiframe: true,
-                width:  600,
-                height:  450,
+                width:  700,
+                height:  510,
                 modal: true,
                 title: dictionary['statistics.main_dialog'],
                 buttons: [{
@@ -74,8 +74,8 @@ Statistics.prototype.showDialog = function() {
 }
 
 /** Lang **/
-Statistics.prototype.reloadLangReport=function(action,visibility,dateFrom, dateTo,type, val, offset,size) {
-    var url = "inc/admin/_statistics_langs.jsp?type=lang&val="+val+"&offset="+offset+"&size="+size;
+Statistics.prototype.reloadLangReport=function(action, visibility, dateFrom, dateTo,type, val, offset, size, ipAddresses, uniqueIPAddresses) {
+    var url = "inc/admin/_statistics_langs.jsp?type=lang&val="+val+"&offset="+offset+"&size="+size+"&ipaddresses="+ipAddresses+"&uniqueipaddresses="+uniqueIPAddresses;
     if (action !== null) {
         url = url +'&action='+action;
     }
@@ -86,9 +86,16 @@ Statistics.prototype.reloadLangReport=function(action,visibility,dateFrom, dateT
 }
 
 
-Statistics.prototype.langCSV=function(action,visibility,dateFrom, dateTo) {
+Statistics.prototype.langCSV=function(action, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('lang','CSV'); // 'stats?format=CSV&report=lang';
-    url = url + "&visibility="+visibility
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
+    
+    if(console) {
+        console.log(" langCSV "+url);
+    }
+    
     if (action !== null) {
         url = url +'&action='+action;
         url= this._datefilter(url,dateFrom, dateTo);
@@ -99,9 +106,15 @@ Statistics.prototype.langCSV=function(action,visibility,dateFrom, dateTo) {
     }
 }
 
-Statistics.prototype.langXML=function(action,visibility,dateFrom, dateTo) {
+Statistics.prototype.langXML=function(action, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('lang','XML'); // 'stats?format=CSV&report=lang';
-    url = url + "&visibility="+visibility
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
+    
+    if(console) {
+        console.log(" langCSV "+url);
+    }
     if (action !== null) {
         url = url +'&action='+action;
         url= this._datefilter(url,dateFrom, dateTo);
@@ -114,13 +127,16 @@ Statistics.prototype.langXML=function(action,visibility,dateFrom, dateTo) {
     }
 }
 
-Statistics.prototype.showLangReport = function(action,visibility,dateFrom, dateTo) {
+Statistics.prototype.showLangReport = function(action, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     if(console) {
         console.log(" action "+action);
     }
     var url = "inc/admin/_statistics_langs.jsp?type=lang&val=x"+"&visibility="+visibility;
     if (action) url = url + "&action="+action;
     url = this._datefilter(url,dateFrom, dateTo);
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
+    
     $.get(url, bind(function(data) {
         var dDialog = this.reportDialogs['lang'];
         if (dDialog) {
@@ -149,8 +165,9 @@ Statistics.prototype.showLangReport = function(action,visibility,dateFrom, dateT
 
 
 /** Author **/
-Statistics.prototype.reloadAuthorsReport=function(action,visibility,dateFrom, dateTo, type, val, offset,size) {
-    var url = "inc/admin/_statistics_authors.jsp?type=author&val="+val+"&offset="+offset+"&size="+size+"&visibility="+visibility;
+Statistics.prototype.reloadAuthorsReport=function(action,visibility,dateFrom, dateTo, type, val, offset, size, ipAddresses, uniqueIPAddresses) {
+    var url = "inc/admin/_statistics_authors.jsp?type=author&val="+val+"&offset="+offset+"&size="+size+"&visibility="+visibility+
+                                                "&size="+size+"&ipaddresses="+ipAddresses+"&uniqueipaddresses="+uniqueIPAddresses;
     if (action !== null) {
         url = url + '&action='+action;
     }
@@ -161,13 +178,15 @@ Statistics.prototype.reloadAuthorsReport=function(action,visibility,dateFrom, da
 }
 
 
-Statistics.prototype.showAuthorReport = function(action,visibility, dateFrom, dateTo) {
+Statistics.prototype.showAuthorReport = function(action, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = "inc/admin/_statistics_authors.jsp?type=author&val=x"+"&visibility="+visibility;
     if (action !== null) {
         url = url + '&action='+action;
     }
-	url = this._datefilter(url,dateFrom, dateTo);
-	
+    url = this._datefilter(url,dateFrom, dateTo);
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
+    
     $.get(url, bind(function(data) {
         var dDialog = this.reportDialogs['author'];
         if (dDialog) {
@@ -195,9 +214,16 @@ Statistics.prototype.showAuthorReport = function(action,visibility, dateFrom, da
     
 }
 
-Statistics.prototype.authorCSV=function(action,visibility, dateFrom, dateTo) {
+Statistics.prototype.authorCSV=function(action, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('author','CSV'); // 'stats?format=CSV&report=author';
-    url = url + "&visibility="+visibility
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
+    
+    if(console) {
+        console.log(" authorCSV "+url);
+    }
+    
     if (action !== null) {
         url = url +'&action='+action;
         url = this._datefilter(url,dateFrom, dateTo);
@@ -210,10 +236,16 @@ Statistics.prototype.authorCSV=function(action,visibility, dateFrom, dateTo) {
     }
 }
 
-Statistics.prototype.authorXML=function(action,visibility, dateFrom, dateTo) {
+Statistics.prototype.authorXML=function(action,visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('author','XML'); // 'stats?format=CSV&report=author';
     url = url + (action === null ? '':'');    
-    url = url + "&visibility="+visibility
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
+    
+    if(console) {
+        console.log(" authorXML "+url);
+    }
     if (action !== null) {
         url = url +'&action='+action;
 		url = this._datefilter(url,dateFrom, dateTo);
@@ -315,13 +347,15 @@ Statistics.prototype.showPidsReport = function(action,visibility,pids, dateFrom,
 
 
 /** Model **/
-Statistics.prototype.showModelReport = function(action,visibility,dateFrom, dateTo,model) {
+Statistics.prototype.showModelReport = function(action, visibility, dateFrom, dateTo, model, ipAddresses, uniqueIPAddresses) {
     if(console) {
-        console.log(" action "+action +" and model "+model);
+        console.log(" action "+action +" and model "+model + " uniqueIPAddresses " + uniqueIPAddresses);
     }
     var url = "inc/admin/_statistics_model.jsp?type=model&val="+model+"&visibility="+visibility;
     url = this._datefilter(url,dateFrom,dateTo);
 	if (action) url = url + "&action="+action;
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
     $.get(url, bind(function(data) {
         var modelDialog = this.reportDialogs['model'];
         if (modelDialog) {
@@ -349,10 +383,11 @@ Statistics.prototype.showModelReport = function(action,visibility,dateFrom, date
     },this));    
 }
 
-Statistics.prototype.reloadModelReport=function(action,visibility, dateFrom, dateTo,type, val, offset,size) {
-    var url = "inc/admin/_statistics_model.jsp?type="+type+"&val="+val+"&visibility="+visibility+"&offset="+offset+"&size="+size;
+Statistics.prototype.reloadModelReport=function(action,visibility, dateFrom, dateTo,type, val, offset, size, ipAddresses, uniqueIPAddresses) {
+    var url = "inc/admin/_statistics_model.jsp?type="+type+"&val="+val+"&visibility="+visibility+"&offset="+offset+"&size="+size+
+                                               "&ipaddresses="+ipAddresses+"&uniqueipaddresses="+uniqueIPAddresses;
     if(console) {
-        console.log(" action "+action +" and model "+val);
+        console.log(" action "+action +" and model "+val + " ipAddressa"+ ipAddresses);
     }
     if (action) url = url + "&action="+action;
 	url = this._datefilter(url,dateFrom,dateTo);
@@ -360,12 +395,17 @@ Statistics.prototype.reloadModelReport=function(action,visibility, dateFrom, dat
         $("#statistic_report_model").html(data);
     },this));
 }
-Statistics.prototype.modelCSV=function(action,visibility,filteredVal, dateFrom, dateTo) {
+Statistics.prototype.modelCSV=function(action,visibility,filteredVal, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('model','CSV'); // 'stats?format=CSV&report=model';
     if (action !== null) {
         url = url +'&action='+action;
     }
-    url = url + "&visibility="+visibility
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
+    if(console) {
+        console.log(" modelCSV "+url);
+    }
     if (filteredVal !== null) {
         url = url +'&filteredValue='+filteredVal;
 		url= this._datefilter(url,dateFrom, dateTo);
@@ -375,12 +415,14 @@ Statistics.prototype.modelCSV=function(action,visibility,filteredVal, dateFrom, 
     }
 }
 
-Statistics.prototype.modelXML=function(action,visibility, filteredVal,dateFrom, dateTo) {
+Statistics.prototype.modelXML=function(action,visibility, filteredVal,dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('model','XML'); // 'stats?format=XML&report=model';
     if (action !== null) {
         url = url +'&action='+action;
     }
-    url = url + "&visibility="+visibility
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
     if (filteredVal !== null) {
         url = url +'&filteredValue='+filteredVal;
 		url= this._datefilter(url,dateFrom, dateTo);
