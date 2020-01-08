@@ -127,6 +127,7 @@ public abstract class AbstractStatisticsViewObject {
                 HttpServletRequest request = this.servletRequestProvider.get();
                 String type = request.getParameter("type");
                 String val = request.getParameter("val");
+                String ip = request.getParameter("ipaddresses");
 
                 String actionFilter = request.getParameter("action");
                 String offset = request.getParameter("offset") != null ? request.getParameter("offset") : "0";
@@ -138,7 +139,15 @@ public abstract class AbstractStatisticsViewObject {
                 VisibilityFilter visFilter = getVisbilityFilter();
                 
                 IPAddressFilter ipAddr = new IPAddressFilter();
-                
+                if (ip != null && !ip.isEmpty()) {
+                   ip = ip.replace(",", "|");
+                   ip = ip.replace(" ", "");
+                   ipAddr.setIpAddress(ip);
+                }
+                else {
+                    ipAddr.setIpAddress(ipAddr.getValue());
+                }
+
                 StatisticReport report = statisticsAccessLog.getReportById(type);
                 Offset reportOff = new Offset(offset, size);
                 report.prepareViews(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter, ipAddr}));

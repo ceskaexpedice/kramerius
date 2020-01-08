@@ -79,7 +79,7 @@ public class StatisticsResource {
             @QueryParam("visibility") String visibility,
             @QueryParam("offset") String filterOffset,
             @QueryParam("resultSize") String filterResultSize) {
-        
+            
         //TODO: syncrhonization
         if (permit(userProvider.get())) {
             try {
