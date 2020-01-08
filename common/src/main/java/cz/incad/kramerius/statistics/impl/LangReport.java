@@ -70,11 +70,7 @@ public class LangReport implements StatisticReport{
             langss.setAttribute("action", repAction != null ? repAction.name() : null);
             langss.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             langss.setAttribute("toDefined", dateFilter.getToDate() != null);
-
-            if (ipFilter.hasValue()) {
-                langss.setAttribute("ipaddr", ipFilter.getValue());
-            }
-
+            langss.setAttribute("ipaddr", ipFilter.getIpAddress());
             
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
@@ -129,10 +125,7 @@ public class LangReport implements StatisticReport{
             langs.setAttribute("action", repAction != null ? repAction.name() : null);
             langs.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             langs.setAttribute("toDefined", dateFilter.getToDate() != null);
-            
-            if (ipFilter.hasValue()) {
-                langs.setAttribute("ipaddr", ipFilter.getValue());
-            }
+            langs.setAttribute("ipaddr", ipFilter.getIpAddress());
 
 
             @SuppressWarnings("rawtypes")
