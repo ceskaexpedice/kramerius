@@ -107,7 +107,11 @@ public class StatisticsExportServlet extends GuiceServlet {
             ipAddr.setIpAddress(ipAddresses);
         }
         else {
-            ipAddr.setIpAddress(ipAddr.getValue());
+            String ipConfigVal = ipAddr.getValue();
+            if (ipConfigVal != null) {
+                ipConfigVal = ipConfigVal.replace("*", "%");
+            }
+            ipAddr.setIpAddress(ipConfigVal);
         }
         
         MultimodelFilter multimodelFilter = new MultimodelFilter();

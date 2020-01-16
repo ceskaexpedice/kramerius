@@ -146,7 +146,11 @@ public abstract class AbstractStatisticsViewObject {
                    ipAddr.setIpAddress(ip);
                 }
                 else {
-                    ipAddr.setIpAddress(ipAddr.getValue());
+                    String ipConfigVal = ipAddr.getValue();
+                    if (ipConfigVal != null) {
+                        ipConfigVal = ipConfigVal.replace("*", "%");
+                    }
+                    ipAddr.setIpAddress(ipConfigVal);
                 }
 
                 StatisticReport report = statisticsAccessLog.getReportById(type);
