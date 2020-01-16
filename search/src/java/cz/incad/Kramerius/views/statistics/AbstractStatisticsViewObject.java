@@ -141,6 +141,7 @@ public abstract class AbstractStatisticsViewObject {
                 IPAddressFilter ipAddr = new IPAddressFilter();
                 if (ip != null && !ip.isEmpty()) {
                    ip = ip.replace(",", "|");
+                   ip = ip.replace("*", "%");
                    ip = ip.replace(" ", "");
                    ipAddr.setIpAddress(ip);
                 }

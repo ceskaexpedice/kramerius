@@ -102,6 +102,7 @@ public class StatisticsExportServlet extends GuiceServlet {
         IPAddressFilter ipAddr = new IPAddressFilter();
         if (ipAddresses != null && !ipAddresses.isEmpty()) {
             ipAddresses = ipAddresses.replace(",", "|");
+            ipAddresses = ipAddresses.replace("*", "%");
             ipAddresses = ipAddresses.replace(" ", "");   
             ipAddr.setIpAddress(ipAddresses);
         }
