@@ -92,7 +92,7 @@ public class AuthorReport implements StatisticReport{
            
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
-            String sql = authors.toString();
+            String sql = authors.toString();  
             Connection conn = connectionProvider.get();
             List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(conn) {
 

@@ -129,7 +129,9 @@ public abstract class AbstractStatisticsViewObject {
                 String type = request.getParameter("type");
                 String val = request.getParameter("val");
                 String ip = request.getParameter("ipaddresses");
+                
                 String uniqueIP = request.getParameter("uniqueipaddresses");
+
                 String actionFilter = request.getParameter("action");
                 String offset = request.getParameter("offset") != null ? request.getParameter("offset") : "0";
                 String size = request.getParameter("size") != null ? request.getParameter("size") : "20";

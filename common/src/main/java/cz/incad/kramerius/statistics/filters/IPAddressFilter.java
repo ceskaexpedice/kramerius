@@ -30,6 +30,7 @@ public class IPAddressFilter implements StatisticsFilter {
         return ipAddress;
     }
     
+    // napsat osetreni spatne hodnoty
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
     }

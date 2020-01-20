@@ -66,7 +66,16 @@ public class LangReport implements StatisticReport{
     public List<Map<String, Object>> getReportPage(ReportedAction repAction,  StatisticsFiltersContainer filters,Offset rOffset) {
         try {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            
             IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
+            /*              
+            final StringTemplate langss = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
+            langss.setAttribute("action", repAction != null ? repAction.name() : null);
+            langss.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            langss.setAttribute("toDefined", dateFilter.getToDate() != null);
+            langss.setAttribute("ipaddr", ipFilter.getIpAddress());
+            */
+          
             UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
             
             Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
@@ -80,10 +89,12 @@ public class LangReport implements StatisticReport{
                langs = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectLangReportUnique"); 
             }
+          
             langs.setAttribute("action", repAction != null ? repAction.name() : null);
             langs.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             langs.setAttribute("toDefined", dateFilter.getToDate() != null);
             langs.setAttribute("ipaddr", ipFilter.getIpAddress());
+
             
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);

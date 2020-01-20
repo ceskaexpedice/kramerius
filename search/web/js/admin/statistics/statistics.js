@@ -86,6 +86,12 @@ Statistics.prototype.reloadLangReport=function(action, visibility, dateFrom, dat
 }
 
 
+/*
+Statistics.prototype.langCSV=function(action, visibility, dateFrom, dateTo, ipAddresses) {
+    var url = this._url('lang','CSV'); // 'stats?format=CSV&report=lang';
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+    */
 Statistics.prototype.langCSV=function(action, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('lang','CSV'); // 'stats?format=CSV&report=lang';
     url = url + "&visibility="+visibility;
@@ -106,6 +112,12 @@ Statistics.prototype.langCSV=function(action, visibility, dateFrom, dateTo, ipAd
     }
 }
 
+/*
+Statistics.prototype.langXML=function(action, visibility, dateFrom, dateTo, ipAddresses) {
+    var url = this._url('lang','XML'); // 'stats?format=CSV&report=lang';
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+*/
 Statistics.prototype.langXML=function(action, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('lang','XML'); // 'stats?format=CSV&report=lang';
     url = url + "&visibility="+visibility;
@@ -214,6 +226,12 @@ Statistics.prototype.showAuthorReport = function(action, visibility, dateFrom, d
     
 }
 
+/*
+Statistics.prototype.authorCSV=function(action, visibility, dateFrom, dateTo, ipAddresses) {
+    var url = this._url('author','CSV'); // 'stats?format=CSV&report=author';
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+*/
 Statistics.prototype.authorCSV=function(action, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('author','CSV'); // 'stats?format=CSV&report=author';
     url = url + "&visibility="+visibility;
@@ -236,6 +254,10 @@ Statistics.prototype.authorCSV=function(action, visibility, dateFrom, dateTo, ip
     }
 }
 
+/*
+Statistics.prototype.authorXML=function(action,visibility, dateFrom, dateTo, ipAddresses) {
+=======
+*/
 Statistics.prototype.authorXML=function(action,visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('author','XML'); // 'stats?format=CSV&report=author';
     url = url + (action === null ? '':'');    
@@ -347,6 +369,9 @@ Statistics.prototype.showPidsReport = function(action,visibility,pids, dateFrom,
 
 
 /** Model **/
+/*
+Statistics.prototype.showModelReport = function(action, visibility, dateFrom, dateTo, model, ipAddresses) {
+*/
 Statistics.prototype.showModelReport = function(action, visibility, dateFrom, dateTo, model, ipAddresses, uniqueIPAddresses) {
     if(console) {
         console.log(" action "+action +" and model "+model + " uniqueIPAddresses " + uniqueIPAddresses);
@@ -395,6 +420,10 @@ Statistics.prototype.reloadModelReport=function(action,visibility, dateFrom, dat
         $("#statistic_report_model").html(data);
     },this));
 }
+
+/*
+Statistics.prototype.modelCSV=function(action,visibility,filteredVal, dateFrom, dateTo, ipAddresses) {
+*/
 Statistics.prototype.modelCSV=function(action,visibility,filteredVal, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('model','CSV'); // 'stats?format=CSV&report=model';
     if (action !== null) {
@@ -415,6 +444,9 @@ Statistics.prototype.modelCSV=function(action,visibility,filteredVal, dateFrom, 
     }
 }
 
+/*
+Statistics.prototype.modelXML=function(action,visibility, filteredVal,dateFrom, dateTo, ipAddresses) {
+*/
 Statistics.prototype.modelXML=function(action,visibility, filteredVal,dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('model','XML'); // 'stats?format=XML&report=model';
     if (action !== null) {
