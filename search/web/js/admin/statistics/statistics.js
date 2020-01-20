@@ -139,6 +139,11 @@ Statistics.prototype.langXML=function(action, visibility, dateFrom, dateTo, ipAd
     }
 }
 
+
+
+/*
+Statistics.prototype.showLangReport = function(action, visibility, dateFrom, dateTo, ipAddresses) {
+*/
 Statistics.prototype.showLangReport = function(action, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     if(console) {
         console.log(" action "+action);
@@ -190,6 +195,9 @@ Statistics.prototype.reloadAuthorsReport=function(action,visibility,dateFrom, da
 }
 
 
+/*
+Statistics.prototype.showAuthorReport = function(action, visibility, dateFrom, dateTo, ipAddresses) {
+*/
 Statistics.prototype.showAuthorReport = function(action, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = "inc/admin/_statistics_authors.jsp?type=author&val=x"+"&visibility="+visibility;
     if (action !== null) {
@@ -370,6 +378,7 @@ Statistics.prototype.showPidsReport = function(action,visibility,pids, dateFrom,
 
 /** Model **/
 /*
+Statistics.prototype.showModelReport = function(action, visibility, dateFrom, dateTo, model, ipAddresses) {
 Statistics.prototype.showModelReport = function(action, visibility, dateFrom, dateTo, model, ipAddresses) {
 */
 Statistics.prototype.showModelReport = function(action, visibility, dateFrom, dateTo, model, ipAddresses, uniqueIPAddresses) {

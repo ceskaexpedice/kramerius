@@ -106,10 +106,16 @@ public class StatisticsExportServlet extends GuiceServlet {
         IPAddressFilter ipAddr = new IPAddressFilter();
         if (ipAddresses != null && !ipAddresses.isEmpty()) {
             ipAddresses = ipAddresses.replace(",", "|");
+            ipAddresses = ipAddresses.replace("*", "%");
             ipAddresses = ipAddresses.replace(" ", "");   
             ipAddr.setIpAddress(ipAddresses);
         }
         else {
+            String ipConfigVal = ipAddr.getValue();
+            if (ipConfigVal != null) {
+                ipConfigVal = ipConfigVal.replace("*", "%");
+            }
+            ipAddr.setIpAddress(ipConfigVal);
             ipAddr.setIpAddress(ipAddr.getValue());
         }
         

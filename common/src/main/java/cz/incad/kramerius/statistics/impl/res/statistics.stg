@@ -171,7 +171,7 @@ $endif$
 /** ipaddr filter **/
 ipAddrFilter(ipaddr) ::=<<
 $if(ipaddr)$
-AND NOT remote_ip_address::text SIMILAR TO  '$ipaddr$'
+AND NOT remote_ip_address::text SIMILAR TO '$ipaddr$'
 $endif$
 >>
 

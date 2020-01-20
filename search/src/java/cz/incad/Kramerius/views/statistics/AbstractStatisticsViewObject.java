@@ -147,10 +147,16 @@ public abstract class AbstractStatisticsViewObject {
                 IPAddressFilter ipAddr = new IPAddressFilter();
                 if (ip != null && !ip.isEmpty()) {
                    ip = ip.replace(",", "|");
+                   ip = ip.replace("*", "%");
                    ip = ip.replace(" ", "");
                    ipAddr.setIpAddress(ip);
                 }
                 else {
+                    String ipConfigVal = ipAddr.getValue();
+                    if (ipConfigVal != null) {
+                        ipConfigVal = ipConfigVal.replace("*", "%");
+                    }
+                    ipAddr.setIpAddress(ipConfigVal);
                     ipAddr.setIpAddress(ipAddr.getValue());
                 }
 
