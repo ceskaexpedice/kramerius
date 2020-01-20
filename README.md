@@ -1,5 +1,6 @@
 ###Novinky
 
+
 Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub (https://github.com/ceskaexpedice/kramerius/releases/latest)
 
 Zapojení do České digitální knihovny je možné od verze Kramerius 5.
@@ -27,7 +28,7 @@ Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Mo
 Členové vývojového týmu:
 KNAV - M. Lhoták, M. Duda, J. Křížová; 
 NK ČR – T. Foltýn, Z. Vozár, V. Jiroušek, K. Košťálová; 
-MZK – L. Kravecová, P. Žabička, M. Indrák; 
+MZK – M. Smetánková, P. Žabička, M. Indrák; 
 NTK – J. Kolátor, J. Dobiášovský; 
 NLK – F. Kříž;
 SVKUL - A. Brožek;
@@ -88,4 +89,6 @@ SPRÁVA SYSTÉMU
 Správa a dohled instalovaného systému může být zajištěna na základě individuální dohody např. od http://www.unidata.cz/ nebo http://www.inovatika.cz
 
 Instalaci a správu systému mohou, vzhledem k licenci pod kterou je systém vyvíjen, zajišťovat i jiné subjekty.
+
+[![Join the chat at https://gitter.im/ceskaexpedice/kramerius](https://badges.gitter.im/ceskaexpedice/kramerius.svg)](https://gitter.im/ceskaexpedice/kramerius?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 

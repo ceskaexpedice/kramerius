@@ -46,6 +46,7 @@ import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.IPAddressFilter;
 import cz.incad.kramerius.statistics.filters.ModelFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
 import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
@@ -75,9 +76,19 @@ public class ModelStatisticReport implements StatisticReport {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
             VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
+            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
             
-            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
+            final StringTemplate statRecord;
+            
+            if (isUniqueSelected == false) {
+                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectModelReport");
+            }
+            else {
+               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectModelReportUnique"); 
+            }
             statRecord.setAttribute("model", modelFilter.getModel());
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
             statRecord.setAttribute("paging", true);
@@ -173,8 +184,20 @@ public class ModelStatisticReport implements StatisticReport {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
             //IPAddressFilter ipAddrFilter = filters.getFilter(IPAddressFilter.class);
-
-            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModelReport");
+            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
+            
+            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
+            final StringTemplate statRecord;
+            
+            if (isUniqueSelected == false) {
+                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectModelReport");
+            }
+            else {
+               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectModelReportUnique"); 
+            }
+            
             statRecord.setAttribute("model", modelFilter.getModel());
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
             statRecord.setAttribute("paging", false);

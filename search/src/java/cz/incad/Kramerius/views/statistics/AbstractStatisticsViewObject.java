@@ -47,6 +47,7 @@ import cz.incad.kramerius.statistics.filters.IPAddressFilter;
 import cz.incad.kramerius.statistics.filters.ModelFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
 import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.statistics.filters.VisibilityFilter.VisbilityType;
 import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
@@ -128,16 +129,21 @@ public abstract class AbstractStatisticsViewObject {
                 String type = request.getParameter("type");
                 String val = request.getParameter("val");
                 String ip = request.getParameter("ipaddresses");
+                
+                String uniqueIP = request.getParameter("uniqueipaddresses");
 
                 String actionFilter = request.getParameter("action");
                 String offset = request.getParameter("offset") != null ? request.getParameter("offset") : "0";
                 String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
-                
+
                 DateFilter dateFilter = getDateFilter();
                 ModelFilter modelFilter = new ModelFilter();
                 modelFilter.setModel(val);
                 VisibilityFilter visFilter = getVisbilityFilter();
                 
+                UniqueIPAddressesFilter uniqueIPFilter = new UniqueIPAddressesFilter();
+                uniqueIPFilter.setUniqueIPAddressesl(Boolean.valueOf(uniqueIP));
+
                 IPAddressFilter ipAddr = new IPAddressFilter();
                 if (ip != null && !ip.isEmpty()) {
                    ip = ip.replace(",", "|");
@@ -151,7 +157,7 @@ public abstract class AbstractStatisticsViewObject {
                 StatisticReport report = statisticsAccessLog.getReportById(type);
                 Offset reportOff = new Offset(offset, size);
                 report.prepareViews(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter, ipAddr}));
-                this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter,ipAddr}), reportOff);
+                this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter,ipAddr, uniqueIPFilter}), reportOff);
             }
             return this.data;
         } catch (IOException e) {
