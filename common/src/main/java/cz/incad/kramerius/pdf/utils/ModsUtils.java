@@ -37,6 +37,8 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.utils.XMLUtils;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
 
 public class ModsUtils {
 
@@ -84,6 +86,21 @@ public class ModsUtils {
     }
     
     
+    public static ArrayList<String> languagesFromMods(org.w3c.dom.Document mods) throws XPathExpressionException, IOException {
+        ArrayList<String> languages  = new ArrayList<String>();
+        XPath xpath = FACTORY.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        XPathExpression expr = xpath.compile("//mods:language/mods:languageTerm");
+        NodeList set = (NodeList) expr.evaluate(mods, XPathConstants.NODESET);
+        for (int i = 0,ll=set.getLength(); i < ll; i++) {
+            Node languageNode = set.item(i);
+            if (languageNode.getNodeType() == Node.ELEMENT_NODE) {
+                String languageText = languageNode.getTextContent();
+                languages.add(languageText);
+            }
+        }
+        return languages;
+    }
     
     
     

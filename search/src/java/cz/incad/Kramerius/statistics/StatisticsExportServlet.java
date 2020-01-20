@@ -59,7 +59,8 @@ public class StatisticsExportServlet extends GuiceServlet {
     public static final String FORMAT_ATTRIBUTE = "format";
     public static final String ACTION_ATTRIBUTE = "action";
     public static final String VISIBILITY_ATTRIBUTE = "visibility";
-
+    public static final String IP_ATTRIBUTE = "ipaddresses";
+    public static final String UNIQUE_IP_ATTRIBUTE = "uniqueipaddresses";
     public static final String ANNUAL_YEAR = "annualyear";
 
 
@@ -85,6 +86,8 @@ public class StatisticsExportServlet extends GuiceServlet {
         String reportId = req.getParameter(REPORT_ID_ATTRIBUTE);
         String filteredValue = req.getParameter(MODEL_ATTRIBUTE);
         String visibilityValue = req.getParameter(VISIBILITY_ATTRIBUTE);
+        String ipAddresses = req.getParameter(IP_ATTRIBUTE);
+        String uniqueIpAddresses = req.getParameter(UNIQUE_IP_ATTRIBUTE);
 
         String annual = req.getParameter(ANNUAL_YEAR);
         AnnualYearFilter annualYearFilter = new AnnualYearFilter();
@@ -97,8 +100,19 @@ public class StatisticsExportServlet extends GuiceServlet {
         ModelFilter modelFilter = new ModelFilter();
         modelFilter.setModel(filteredValue);
         
+        UniqueIPAddressesFilter uniqueIPFilter = new UniqueIPAddressesFilter();
+        uniqueIPFilter.setUniqueIPAddressesl(Boolean.valueOf(uniqueIpAddresses));
+        
         IPAddressFilter ipAddr = new IPAddressFilter();
-
+        if (ipAddresses != null && !ipAddresses.isEmpty()) {
+            ipAddresses = ipAddresses.replace(",", "|");
+            ipAddresses = ipAddresses.replace(" ", "");   
+            ipAddr.setIpAddress(ipAddresses);
+        }
+        else {
+            ipAddr.setIpAddress(ipAddr.getValue());
+        }
+        
         MultimodelFilter multimodelFilter = new MultimodelFilter();
         
         if (visibilityValue != null) visibilityValue = visibilityValue.toUpperCase();
@@ -123,7 +137,7 @@ public class StatisticsExportServlet extends GuiceServlet {
                     resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
                     //TODO: Syncrhonization
                     report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter, ipAddr, multimodelFilter, annualYearFilter}));
-                    report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter,ipAddr, multimodelFilter, annualYearFilter}));
+                    report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter,ipAddr, multimodelFilter, annualYearFilter, uniqueIPFilter}));
                     selectedFormatter.afterProcess(resp);
                 }
             } catch (StatisticsReportException e) {
