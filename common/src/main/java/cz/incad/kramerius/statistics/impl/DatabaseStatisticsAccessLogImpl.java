@@ -53,6 +53,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
+import cz.incad.kramerius.pdf.utils.ModsUtils;
 import cz.incad.kramerius.processes.NotReadyException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
@@ -66,6 +67,8 @@ import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
+import java.util.logging.Logger;
+import javax.xml.xpath.XPathExpressionException;
 
 /**
  * @author pavels
@@ -139,17 +142,34 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                     Object dateFromDC = DCUtils.dateFromDC(dc);
                     dateFromDC = dateFromDC != null ? dateFromDC : new JDBCUpdateTemplate.NullObject(String.class);
                     
-                    Object languageFromDc = DCUtils.languageFromDC(dc) ;
+                    Object languageFromDc = DCUtils.languageFromDC(dc);
                     languageFromDc = languageFromDc != null ? languageFromDc : new JDBCUpdateTemplate.NullObject(String.class);
-                    
+                                      
                     Object title = DCUtils.titleFromDC(dc);
                     title = title != null ? title : new JDBCUpdateTemplate.NullObject(String.class);
 
                     Object rights = DCUtils.rightsFromDC(dc);
                     rights = rights != null ? rights : new JDBCUpdateTemplate.NullObject(String.class);
                     
-                    InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, languageFromDc, title, pathIndex);
-                    commands.add(insertDetail);
+                    Document mods =  fedoraAccess.getBiblioMods(pid);
+                    ArrayList<String> languagesFromMods = null;
+                   
+                    try {
+                        languagesFromMods = ModsUtils.languagesFromMods(mods);
+                    } catch (XPathExpressionException ex) {
+                        Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    
+                    if (!languagesFromMods.isEmpty()) {
+                        for (String languageFromMods : languagesFromMods) {
+                            InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, languageFromMods, title, pathIndex);
+                            commands.add(insertDetail);
+                        }
+                    }
+                    else {
+                        InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, languageFromDc, title, pathIndex); 
+                        commands.add(insertDetail);
+                    }
                     
                     String[] creatorsFromDC = DCUtils.creatorsFromDC(dc);
                     for (String cr : creatorsFromDC) {
