@@ -45,6 +45,7 @@ import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.IPAddressFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -69,8 +70,20 @@ public class AuthorReport implements StatisticReport{
         try {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
+            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
             
-            final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
+            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
+            final StringTemplate authors;
+            
+            if (isUniqueSelected == false) {
+                authors = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectAuthorReport");
+            }
+            else {
+               authors = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectAuthorReportUnique"); 
+            }
+            
             authors.setAttribute("action", repAction != null ? repAction.name() : null);
             authors.setAttribute("paging", true);
             authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
@@ -123,8 +136,20 @@ public class AuthorReport implements StatisticReport{
         try {
             final DateFilter dateFilter = filters.getFilter(DateFilter.class);
             IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
-
-            final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
+            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
+            
+            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();         
+            final StringTemplate authors;
+            
+            if (isUniqueSelected == false) {
+                authors = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectAuthorReport");
+            }
+            else {
+               authors = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectAuthorReportUnique"); 
+            }
+            
             authors.setAttribute("action", repAction != null ? repAction.name() : null);
             authors.setAttribute("paging", false);
             authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);

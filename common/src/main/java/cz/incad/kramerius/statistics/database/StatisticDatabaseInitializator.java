@@ -61,6 +61,7 @@ public class StatisticDatabaseInitializator {
                 alterStatisticsAuthorTablePrimaryKey(connection);
                 createFirstFunction(connection);
                 createLastFunction(connection);
+                createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
             } else if (versionCondition(version, "<", "6.0.0")) {
@@ -73,6 +74,7 @@ public class StatisticDatabaseInitializator {
                 alterStatisticsAuthorTablePrimaryKey(connection);
                 createFirstFunction(connection);
                 createLastFunction(connection);
+                createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
             } else if (versionCondition(version, "=", "6.0.0")) {
@@ -84,6 +86,7 @@ public class StatisticDatabaseInitializator {
                 alterStatisticsAuthorTablePrimaryKey(connection);
                 createFirstFunction(connection);
                 createLastFunction(connection);
+                createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
             } else if (versionCondition(version, "=", "6.1.0")) {
@@ -93,6 +96,7 @@ public class StatisticDatabaseInitializator {
                 alterStatisticsAuthorTablePrimaryKey(connection);
                 createFirstFunction(connection);
                 createLastFunction(connection);
+                createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
             } else if ((versionCondition(version, ">", "6.1.0")) && (versionCondition(version, "<", "6.5.0"))) {
@@ -100,18 +104,22 @@ public class StatisticDatabaseInitializator {
                 alterStatisticsAuthorTablePrimaryKey(connection);
                 createFirstFunction(connection);
                 createLastFunction(connection);
+                createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
             } else if (versionCondition(version, ">=", "6.5.0")&& (versionCondition(version, "<", "6.6.4"))) {
                 createFirstFunction(connection);
                 createLastFunction(connection);
+                createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
             } else if ((versionCondition(version, ">=", "6.6.4")) && (versionCondition(version, "<", "6.6.5"))) {
+                createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
             } else if (versionCondition(version, ">=", "6.6.5")) {
                 createLangsView(connection);
+                createTmpAuthorView(connection);
                 createAuthorsView(connection);
             }
         } catch (SQLException e) {
@@ -297,6 +305,30 @@ public class StatisticDatabaseInitializator {
         new JDBCTransactionTemplate(connection, false).updateWithTransaction(lastAgg, last);
     }
 
+    public static void createTmpAuthorView(Connection connection) throws SQLException, IOException {
+        JDBCCommand tmpAuthorsView = new JDBCCommand() {
+
+            @Override
+            public Object executeJDBCCommand(Connection con) throws SQLException {
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
+                template.setUseReturningKeys(false);
+                
+                template.executeUpdate(
+                        "CREATE OR REPLACE VIEW _tmp_authors_view AS "
+                                + "SELECT first(record_id) as record_id, "
+                                + "first(dta.pid) as pid, "
+                                + "first(model) as model, "
+                                + "first(session_id) as session_id "
+                                + "FROM statistic_access_log_detail_authors auth "
+                                + "JOIN statistics_access_log sta USING (record_id) "
+                                + "JOIN statistic_access_log_detail dta USING(record_id) "
+                                + "GROUP BY record_id;"
+                                ,new Object[0]);
+                return null;
+            }
+        };
+        new JDBCTransactionTemplate(connection, false).updateWithTransaction(tmpAuthorsView);
+    }
 
     public static void createAuthorsView(Connection connection) throws SQLException, IOException {
         JDBCCommand authorsView = new JDBCCommand() {
@@ -306,22 +338,22 @@ public class StatisticDatabaseInitializator {
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
-                        "CREATE or REPLACE VIEW _authors_view as "+
-                        "select last(record_id) as record_id, "+
-                        "last(author_id) as author_id, "+
-                        "last(author_name) as author_name, "+ 
-                        "last(dta.pid) as pid, "+
-                        "last(model) as model, "+
-                        "last(session_id) as session_id, "+
-                        "last(date) as \"date\", "+
-                        "last(rights) as rights, "+
-                        "last(stat_action) as stat_action, "+
-                        "last(remote_ip_address) as remote_ip_address "+
-                        "from statistic_access_log_detail_authors auth "+
-                        "join statistics_access_log sta using(record_id) "+
-                        "join statistic_access_log_detail dta using(record_id) "+
-                        "group by record_id "+
-                                "",new Object[0]);
+                        "CREATE or REPLACE VIEW _authors_view AS "+
+                        "SELECT record_id, "
+                                + "author_id, "
+                                + "author_name, "
+                                + "dta.pid as pid, "
+                                + "model, "
+                                + "session_id, "
+                                + "date, "
+                                + "rights, "
+                                + "stat_action, "
+                                + "remote_ip_address "
+                                + "FROM statistic_access_log_detail_authors auth "
+                                + "JOIN statistics_access_log sta USING (record_id) "
+                                + "JOIN statistic_access_log_detail dta USING(record_id) "
+                                + "JOIN _tmp_authors_view USING (record_id, model, session_id);"
+                                ,new Object[0]);
                 return null;
             }
         };
@@ -337,20 +369,24 @@ public class StatisticDatabaseInitializator {
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
-                        "CREATE or REPLACE VIEW _langs_view as "+
-                        "SELECT  "+
-                        "last(dta.pid) AS pid, "+
-                        "last(dta.model) AS model, "+
-                        "last(sta.session_id) AS session_id, "+
-                        "last(sta.date) AS date, "+
-                        "last(dta.rights) AS rights, "+
-                        "last(sta.stat_action) AS stat_action, "+
-                        "last(dta.lang) as lang, "+
-                        "last(remote_ip_address) as remote_ip_address "+
-                       "FROM statistics_access_log sta "+
-                         "JOIN statistic_access_log_detail dta USING (record_id) "+
-                      "GROUP BY sta.record_id;"+
-                                "",new Object[0]);
+                        "CREATE or REPLACE VIEW _langs_view AS " +
+                            "(SELECT t1.record_id, pid, model, session_id, date, rights, stat_action, CASE WHEN lang1 IS NULL THEN lang2 ELSE lang1 END as lang, remote_ip_address "
+                            + "FROM "
+                                + "(SELECT * FROM "
+                                    + "(SELECT  sta.record_id as record_id, dta.pid as pid, dta.model as model, sta.session_id as session_id, sta.date as date, dta.rights as rights, sta.stat_action as stat_action,dta.lang as lang1, remote_ip_address as remote_ip_address "
+                                    + "FROM statistics_access_log sta "
+                                    + "JOIN statistic_access_log_detail dta USING (record_id)) AS tmp "
+                                    + "WHERE (tmp.model = 'article') OR (tmp.model = 'page'  AND ((tmp.record_id, 'periodical') in "
+                                        + "(SELECT  sta.record_id as record_id, dta.model as model "
+                                        + "FROM statistics_access_log sta "
+                                        + "JOIN statistic_access_log_detail dta USING (record_id)))) "
+                                        + "OR (tmp.model = 'monograph')  OR  (tmp.model = 'archive') OR (tmp.model = 'manuscript') OR (tmp.model = 'sheetmusic') OR (tmp.model = 'soundrecording') OR (tmp.model = 'graphic') OR (tmp.model = 'map')) as T1 "
+                                + "LEFT JOIN "
+                                + "(SELECT  sta.record_id as record_id, dta.lang as lang2 "
+                                + "FROM statistics_access_log sta "
+                                + "JOIN statistic_access_log_detail dta USING (record_id) "
+                                + "WHERE dta.model = 'periodicalitem') as T2 "
+                                + "ON (t1.lang1 IS NULL AND t1.model = 'page' AND t1.record_id = t2.record_id));",new Object[0]);
                 return null;
             }
         };

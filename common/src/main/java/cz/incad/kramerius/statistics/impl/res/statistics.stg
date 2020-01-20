@@ -67,7 +67,7 @@ prepareModelView(action, model, paging, fromDefined, toDefined, ipaddr) ::=<<
   GROUP BY l.session_id,model,d.pid,stat_action;
 >>
 
-selectModelReport(action, model, paging, fromDefined, toDefined,visibility) ::=<<
+selectModelReport(action, model, paging, fromDefined, toDefined, visibility) ::=<<
     $if(action)$ 
     
     select count(*) as count,
@@ -81,8 +81,8 @@ selectModelReport(action, model, paging, fromDefined, toDefined,visibility) ::=<
      order by count DESC   
     $if(paging)$ $paging()$ $endif$
 
-    $else$   
-
+    $else$ 
+  
     select count(*) as count,
          pid,
          max(date) as date,
@@ -93,7 +93,50 @@ selectModelReport(action, model, paging, fromDefined, toDefined,visibility) ::=<
          group by pid
      order by count DESC   
     $if(paging)$ $paging()$ $endif$
+
+    $endif$   
+>>
+
+selectModelReportUnique(action, model, paging, fromDefined, toDefined, visibility) ::=<<
+    $if(action)$ 
     
+    SELECT count(*) as count,
+        pid, 
+        max(date) as date, 
+        last(model) as model, 
+        last(title) as title 
+    FROM (SELECT DISTINCT ON (pid, stat_action, date, remote_ip_address)
+            pid,
+            stat_action,  
+            date_trunc('day', date) as date, 
+            remote_ip_address, 
+            title, 
+            model  
+          FROM _$model$_model_view
+          WHERE stat_action='$action$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ $visibilityFilter(visibility=visibility)$ ) as db
+    GROUP BY pid 
+    ORDER BY count DESC    
+    $if(paging)$ $paging()$ $endif$
+
+    $else$ 
+  
+    SELECT count(*) as count,
+        pid, 
+        max(date) as date, 
+        last(model) as model, 
+        last(title) as title 
+    FROM (SELECT DISTINCT ON (pid, stat_action, date, remote_ip_address)
+            pid,
+            stat_action,  
+            date_trunc('day', date) as date, 
+            remote_ip_address, 
+            title, 
+            model  
+          FROM _$model$_model_view
+          WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ $visibilityFilter(visibility=visibility)$ ) as db
+    GROUP BY pid 
+    ORDER BY count DESC 
+    $if(paging)$ $paging()$ $endif$
     $endif$   
 >>
 
@@ -133,25 +176,55 @@ $endif$
 >>
 
 /** author */ 
-selectAuthorReport(action, paging,fromDefined, toDefined,visibility, ipaddr) ::=<<
+selectAuthorReport(action, paging, fromDefined, toDefined, visibility, ipaddr) ::=<<
     $if(action)$ 
-select count(*) as count, author_name from 
-(
- select last(author_name) as author_name from _authors_view where stat_action='$action$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$ 
- group by  session_id
+SELECT COUNT(*) as count, author_name 
+FROM (SELECT DISTINCT ON (author_name, session_id, pid, stat_action, remote_ip_address)
+        author_name
+    FROM _authors_view 
+    WHERE stat_action='$action$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$ 
 ) as nauth
-group by author_name
-order by count DESC   
+GROUP BY author_name
+ORDER BY count DESC   
 $if(paging)$ $paging()$ $endif$
     $else$   
 
-select count(*) as count, author_name from 
-(
- select last(author_name) as author_name from _authors_view where 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$
- group by  session_id
+SELECT COUNT(*) as count, author_name 
+FROM (SELECT DISTINCT ON (author_name, session_id, pid, stat_action, remote_ip_address)
+        author_name
+    FROM _authors_view 
+    WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$ 
 ) as nauth
-group by author_name
-order by count DESC   
+GROUP BY author_name
+ORDER BY count DESC  
+$if(paging)$ $paging()$ $endif$
+    $endif$   
+>>
+
+
+selectAuthorReportUnique(action, paging, fromDefined, toDefined, visibility, ipaddr) ::=<<
+    $if(action)$ 
+SELECT COUNT(*) as count, author_name 
+FROM (SELECT DISTINCT ON (author_name, pid, stat_action, date, remote_ip_address)
+        author_name,
+	date_trunc('day', date) as date
+    FROM _authors_view 
+    WHERE stat_action='$action$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$ 
+) as nauth
+GROUP BY author_name
+ORDER BY count DESC  
+$if(paging)$ $paging()$ $endif$
+    $else$   
+
+SELECT COUNT(*) as count, author_name 
+FROM (SELECT DISTINCT ON (author_name, pid, stat_action, date, remote_ip_address)
+        author_name,
+	date_trunc('day', date) as date
+    FROM _authors_view 
+    WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$ 
+) as nauth
+GROUP BY author_name
+ORDER BY count DESC 
 $if(paging)$ $paging()$ $endif$
     $endif$   
 >>
@@ -161,26 +234,50 @@ paging() ::=<<offset ? limit ?>>
 
 
 /** language */
-selectLangReport(action,fromDefined, toDefined,visibility,ipaddr) ::=<<
+selectLangReport(action, fromDefined, toDefined, visibility, ipaddr) ::=<<
     $if(action)$ 
     
-select count(*) as count, lang from 
-(
- select last(lang) as lang from _langs_view where  salog.stat_action='$action$'  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$
- group by  session_id
+SELECT COUNT(*) as count, lang 
+FROM (SELECT DISTINCT ON (lang, pid, stat_action, session_id, remote_ip_address) lang
+      FROM _langs_view WHERE lang IS NOT NULL AND stat_action='$action$'  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$
 ) as nlang
-group by lang
-order by count DESC   
+GROUP BY lang
+ORDER BY count DESC   
 
     $else$   
 
-select count(*) as count, lang from 
-(
- select last(lang) as lang from _langs_view where  1=1  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$
- group by  session_id
+SELECT COUNT(*) as count, lang 
+FROM (SELECT DISTINCT ON (lang, pid, stat_action, session_id, remote_ip_address) lang
+      FROM _langs_view WHERE  1=1 AND lang IS NOT NULL $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$
 ) as nlang
-group by lang
-order by count DESC   
+GROUP BY lang
+ORDER BY count DESC    
+    
+    $endif$   
+>>
+
+selectLangReportUnique(action, fromDefined, toDefined, visibility, ipaddr) ::=<<
+    $if(action)$ 
+    
+SELECT COUNT(*) as count, lang 
+FROM (SELECT DISTINCT ON (lang, pid, stat_action, date, remote_ip_address)
+                lang,
+                date_trunc('day', date) as date
+      FROM _langs_view WHERE lang IS NOT NULL AND stat_action='$action$'  $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$
+) as nlang
+GROUP BY lang
+ORDER BY count DESC  
+
+    $else$   
+
+SELECT COUNT(*) as count, lang 
+FROM (SELECT DISTINCT ON (lang, pid, stat_action, date, remote_ip_address)
+                lang,
+                date_trunc('day', date) as date
+      FROM _langs_view WHERE  1=1 AND lang IS NOT NULL $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$
+) as nlang
+GROUP BY lang
+ORDER BY count DESC  
     
     $endif$   
 >>
