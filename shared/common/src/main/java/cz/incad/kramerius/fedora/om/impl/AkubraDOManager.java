@@ -81,7 +81,9 @@ public class AkubraDOManager {
         cacheInvalidator.addMessageListener(new MessageListener<String>() {
             @Override
             public void onMessage(Message<String> message) {
-                objectCache.remove(message.getMessageObject());
+                if (objectCache != null && message != null) {
+                    objectCache.remove(message.getMessageObject());
+                }
             }
         });
     }
