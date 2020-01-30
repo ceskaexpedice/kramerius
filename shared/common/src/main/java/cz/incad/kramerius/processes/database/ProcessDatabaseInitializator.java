@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2010 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,10 +27,9 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.database.VersionService;
-import cz.incad.kramerius.security.database.InitSecurityDatabaseMethodInterceptor;
-import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
 /**
  * Database initialization - processes table
@@ -39,7 +38,7 @@ import cz.incad.kramerius.utils.IOUtils;
 public class ProcessDatabaseInitializator {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessDatabaseInitializator.class.getName());
-    
+
     public static void initDatabase(Connection connection, VersionService versionService) {
         try {
             String v = versionService.getVersion();
@@ -117,9 +116,12 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
-            } else if (versionCondition(v, ">", "5.3.0"))  {
+            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.7.0"))  {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
+                }
+                if (!DatabaseUtils.viewExists(connection,"process_batch")){// (5.3.0 - 6.6.6) -> 6.7.0
+                    createProcessBatchView(connection);
                 }
             }
         } catch (SQLException e) {
@@ -145,20 +147,20 @@ public class ProcessDatabaseInitializator {
         if (!DatabaseUtils.tableExists(connection,"PROCESSES")) {
             createProcessTable(connection);
         }
-        
+
         if (!DatabaseUtils.columnExists(connection, "PROCESSES", "STARTEDBY")) {
             alterProcessTableStartedByColumn(connection);
         }
-        
+
         if (!DatabaseUtils.columnExists(connection, "PROCESSES", "TOKEN")) {
             alterProcessTableProcessToken(connection);
         }
-        
+
         if (!DatabaseUtils.columnExists(connection, "PROCESSES", "PROCESS_ID")) {
             changeDatabaseBecauseShibb(connection);
         }
-        
-        
+
+
         if (!DatabaseUtils.tableExists(connection, "PROCESS_2_TOKEN")) {
             createToken2SessionkeysMapping(connection); // zavislost na session_keys
         }
@@ -183,6 +185,16 @@ public class ProcessDatabaseInitializator {
         if (!DatabaseUtils.columnExists(connection, "PROCESSES","IP_ADDR")) {
             alterProcessTableIPADDR(connection);
         }
+
+        createProcessBatchView(connection);
+    }
+
+    public static void createProcessBatchView(Connection connection) throws SQLException, IOException {
+        InputStream is = ProcessDatabaseInitializator.class.getResourceAsStream("res/initprocessbatchview.sql");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.setUseReturningKeys(false);
+        String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        template.executeUpdate(sqlScript);
     }
 
     public static void createToken2SessionkeysMapping(Connection connection) throws SQLException, IOException {
@@ -193,7 +205,7 @@ public class ProcessDatabaseInitializator {
         LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
     }
 
-    
+
     public static void createProcessTable(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
                 "CREATE TABLE PROCESSES(DEFID VARCHAR(255), " +
@@ -203,13 +215,13 @@ public class ProcessDatabaseInitializator {
             		"STATUS int, " +
             		"NAME VARCHAR(1024), " +
             		"PARAMS VARCHAR(4096), "+
-            		"STARTEDBY INT)"); 
+            		"STARTEDBY INT)");
             int r = prepareStatement.executeUpdate();
             LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
     }
 
     public static void alterProcessTableStartedByColumn(Connection con) throws SQLException {
-        
+
         PreparedStatement prepareStatement = con.prepareStatement(
                 "ALTER TABLE PROCESSES ADD COLUMN STARTEDBY INT");
             try {
@@ -230,7 +242,7 @@ public class ProcessDatabaseInitializator {
             DatabaseUtils.tryClose(prepareStatement);
         }
     }
-    
+
     public static void alterProcessTableParamsMappingToken(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
             "ALTER TABLE PROCESSES ADD COLUMN PARAMS_MAPPING VARCHAR(4096);");
@@ -240,7 +252,7 @@ public class ProcessDatabaseInitializator {
         } finally {
             DatabaseUtils.tryClose(prepareStatement);
         }
-    }    
+    }
 
 
     public static void alterProcessTableTokenActive(Connection con) throws SQLException {
@@ -252,7 +264,7 @@ public class ProcessDatabaseInitializator {
         } finally {
             DatabaseUtils.tryClose(prepareStatement);
         }
-    }    
+    }
 
     public static void alterProcessTableProcess2TokenAuthToken(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
@@ -263,8 +275,8 @@ public class ProcessDatabaseInitializator {
         } finally {
             DatabaseUtils.tryClose(prepareStatement);
         }
-    }    
-    
+    }
+
     public static void alterProcessTableAuthToken(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
             "ALTER TABLE PROCESSES ADD COLUMN AUTH_TOKEN VARCHAR(255);");
@@ -274,7 +286,7 @@ public class ProcessDatabaseInitializator {
         } finally {
             DatabaseUtils.tryClose(prepareStatement);
         }
-    }    
+    }
 
 
     public static void alterProcessTableBatchState(Connection con) throws SQLException {
@@ -286,7 +298,7 @@ public class ProcessDatabaseInitializator {
         } finally {
             DatabaseUtils.tryClose(prepareStatement);
         }
-    }    
+    }
 
     public static void alterProcessTableFinished(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
@@ -297,7 +309,7 @@ public class ProcessDatabaseInitializator {
         } finally {
             DatabaseUtils.tryClose(prepareStatement);
         }
-    }    
+    }
 
     public static void  updateProcessTableBatchStates(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
@@ -315,16 +327,16 @@ public class ProcessDatabaseInitializator {
         }
     }
 
-    
+
     public static void changeDatabaseBecauseShibb(Connection con) throws SQLException {
         boolean autocommit = con.getAutoCommit();
         con.setAutoCommit(false);
         PreparedStatement alterProcessIdPS=null,createUniqueIndexPS=null,createSequencePS=null,updateProcessPS=null,createViewPS=null,
         loginnamePS=null,firstnamePS=null,surnamePS=null,
         usernamekeyPS=null, updateNamesPS=null;
-        
-        
-        
+
+
+
         try {
             // UPDATE PROCESS ID
             alterProcessIdPS = con.prepareStatement("ALTER TABLE PROCESSES ADD COLUMN PROCESS_ID INTEGER");
@@ -366,16 +378,16 @@ public class ProcessDatabaseInitializator {
             r = surnamePS.executeUpdate();
             LOGGER.log(Level.FINEST, "ALTER TABLE surname: updated rows {0}", r);
 
-            
+
             // ADD USER_KEY COLUMN
             usernamekeyPS = con.prepareStatement("ALTER TABLE PROCESSES  " +
             		" ADD COLUMN USER_KEY VARCHAR(255)");
             r = usernamekeyPS.executeUpdate();
             LOGGER.log(Level.FINEST, "ALTER TABLE NAMES: updated rows {0}", r);
 
-            
 
-            updateNamesPS = con.prepareStatement(                    
+
+            updateNamesPS = con.prepareStatement(
                     " update processes p set " +
                     "   surname=(select surname from user_entity where user_id= p.startedby), " +
                     "   loginname=(select loginname from user_entity where user_id= p.startedby), " +
@@ -383,8 +395,8 @@ public class ProcessDatabaseInitializator {
             );
             r = updateNamesPS.executeUpdate();
             LOGGER.log(Level.FINEST, "UPDATE TABLE: updated rows {0}", r);
-            
-            
+
+
             con.commit();
 
         } catch(SQLException se) {
@@ -392,7 +404,7 @@ public class ProcessDatabaseInitializator {
             throw se;
         } finally {
             con.setAutoCommit(autocommit);
-            
+
             DatabaseUtils.tryClose(alterProcessIdPS);
             DatabaseUtils.tryClose(createUniqueIndexPS);
             DatabaseUtils.tryClose(createSequencePS);
@@ -404,7 +416,7 @@ public class ProcessDatabaseInitializator {
             DatabaseUtils.tryClose(loginnamePS);
             DatabaseUtils.tryClose(firstnamePS);
             DatabaseUtils.tryClose(surnamePS);
-            
+
         }
     }
 }

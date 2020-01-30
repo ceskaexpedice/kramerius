@@ -103,6 +103,8 @@ public class StartupServlet extends GuiceServlet {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             if (connection != null) {
                 DatabaseUtils.tryClose(connection);

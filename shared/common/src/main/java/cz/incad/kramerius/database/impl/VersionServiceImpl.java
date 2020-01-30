@@ -66,7 +66,6 @@ public class VersionServiceImpl implements VersionService {
         } finally {
                 if (connection != null) DatabaseUtils.tryClose(connection);
         }
-        
     }
 
 
@@ -76,8 +75,11 @@ public class VersionServiceImpl implements VersionService {
         String version = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
         String curVersion = getVersion();
         if ((curVersion == null) || (!curVersion.equals(version))) {
+            System.out.println(String.format("raising database version (%s -> %s)", curVersion, version));
             JDBCUpdateTemplate template = new JDBCUpdateTemplate(this.connectionProvider.get(), true);
             template.executeUpdate("insert into DBVERSIONS values(nextval('DB_VERSIONS_SEQUENCE'),'"+version+"')");
+        } else {
+            System.out.println("database version: " + curVersion);
         }
     }
     
