@@ -30,11 +30,19 @@
 
 --jinak FAILED(3)
 
+--functions
 DROP AGGREGATE IF EXISTS batch_state(integer) CASCADE;
 DROP FUNCTION IF EXISTS update_batch_state(integer,integer);
-DROP VIEW IF EXISTS process_batch;
-DROP MATERIALIZED VIEW IF EXISTS process_batch_materialized;
 
+--ordinary (live) view - just for testing
+DROP VIEW IF EXISTS process_batch_not_precomputed;
+
+--materialized view
+DROP TRIGGER IF EXISTS update_process_batch_on_process_state_change on processes;
+DROP TRIGGER IF EXISTS update_process_batch_on_process_insert on processes;
+DROP TRIGGER IF EXISTS update_process_batch_on_process_delete on processes;
+DROP FUNCTION IF EXISTS refresh_process_batch();
+DROP MATERIALIZED VIEW IF EXISTS process_batch;
 
 --first param is current (batch) state, secon param is process state
 CREATE OR REPLACE FUNCTION update_batch_state(integer, integer) RETURNS integer AS '
@@ -103,9 +111,9 @@ CREATE AGGREGATE batch_state(integer)
     initcond = 5
 );
 
---(ne-materialized verze) view pro batch procesu
+--(ne-materialized verze) view pro batch procesu, jen pro testovani
 --todo: ownerFirstname a ownerSurname nebude potreba, neni to na razeni a pro jednotlive procesy se to pak vezme joinem
-CREATE VIEW process_batch AS
+CREATE VIEW process_batch_not_precomputed AS
 SELECT
     processes.token AS batch_token,
     batch_state(processes.status) AS batch_state,
@@ -129,10 +137,8 @@ SELECT
     first_process_id DESC;
 
 --materialized verze view pro batch procesu
---kvuli toho, aby cteni, listovani procesy nebylo pomale (kolem 3 sekund pro 125k procesu pro ne-materialized verzi)
---potom by se ale mela resit aktualizace view triggerem, pokud je pridan novy proces
---optimalizace: omezeni na situace, kdy uz existuje jiny proces se stejnym tokenem, ale musi byt jistota, ze logika nedoplnuje token az dodatecne
-CREATE MATERIALIZED VIEW process_batch_materialized AS
+--kvuli toho, aby cteni, listovani procesy bylo pouzitelne (coz neni pri cekani kolem 3 sekund pro 125k procesu pro ne-materialized verzi)
+CREATE MATERIALIZED VIEW process_batch AS
 SELECT
     processes.token AS batch_token,
     batch_state(processes.status) AS batch_state,
@@ -156,11 +162,42 @@ SELECT
     first_process_id DESC;
 
 
+--funkce pro obnoveni materialized view
+CREATE FUNCTION refresh_process_batch() RETURNS TRIGGER AS '
+    BEGIN
+        REFRESH MATERIALIZED VIEW process_batch;
+        RETURN NULL;
+    END;
+' LANGUAGE plpgsql;
+
+
+--trigger, ktery pri zmene stavu nektereho procesu prekeneruje cele materialized view process_batch
+--TODO: jeste optimalizovat, pro 125k procesu to trva jednotky sekund a deje se to pri zmene stavu kazdeho procesu
+--moznosti optimalizace: 1. omezit sloupce v process_batch jen na ty nezbytne pro razeni (nejspis jen mirne zrychleni), 2. misto materialized view to delat vlastni tabulkou a menit jen dotceny radek, ne vsechno
+CREATE TRIGGER update_process_batch_on_process_state_change
+    AFTER UPDATE ON processes
+    FOR EACH ROW
+    WHEN (OLD.status IS DISTINCT FROM NEW.status)
+    EXECUTE PROCEDURE refresh_process_batch();
+
+--podobne trigger po vlozeni procesu
+CREATE TRIGGER update_process_batch_on_process_insert
+    AFTER INSERT ON processes
+    FOR STATEMENT
+    EXECUTE PROCEDURE refresh_process_batch();
+
+--podobne trigger po odstraneni procesu
+CREATE TRIGGER update_process_batch_on_process_delete
+    AFTER DELETE ON processes
+    FOR STATEMENT
+    EXECUTE PROCEDURE refresh_process_batch();
+
+
 --TODO:
 --mely by se pouklizet data, napr. odstranit batch_state z tabulky processes, taky pid (stejne nahrazen process_id)
 --v produkci nechat jen jednu verzi view, asi materialized
 
 --TODO: tohle jen docasne pro testovani, odstranit
 --GRANT ALL PRIVILEGES ON DATABASE kramerius4 TO readaccess;
+--GRANT ALL PRIVILEGES ON TABLE process_batch_not_precomputed TO readaccess;
 --GRANT ALL PRIVILEGES ON TABLE process_batch TO readaccess;
---GRANT ALL PRIVILEGES ON TABLE process_batch_materialized TO readaccess;

@@ -120,9 +120,11 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES","IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
-                if (!DatabaseUtils.viewExists(connection,"process_batch")){// (5.3.0 - 6.6.6) -> 6.7.0
+                if (!DatabaseUtils.viewExists(connection,"process_batch")){// (5.3.0 - 6.6.6) -> 6.7.1
                     createProcessBatchView(connection);
+                }else{
                 }
+            } else { // >= 6.7.0
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
