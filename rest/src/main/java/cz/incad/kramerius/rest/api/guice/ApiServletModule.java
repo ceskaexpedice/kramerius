@@ -64,6 +64,7 @@ import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 import cz.incad.kramerius.rest.api.k5.client.user.ClientUserResource;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
+import cz.incad.kramerius.rest.api.processes.ProcessResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyReader;
@@ -80,15 +81,14 @@ public class ApiServletModule extends JerseyServletModule {
 
     @Override
     protected void configureServlets() {
-        // API Resources
+        // API 4.6 Resources
         bind(ReplicationsResource.class);
         bind(CDKReplicationsResource.class);
         bind(LRResource.class);
 
-        // k5 - znovu...
+        // API 5.0 Resources
         bind(ClientUserResource.class);
         bind(ItemResource.class);
-        
         bind(FeederResource.class);
         bind(ClientVirtualCollections.class);
         bind(SearchResource.class);
@@ -97,13 +97,15 @@ public class ApiServletModule extends JerseyServletModule {
         bind(PDFResource.class);
         bind(AsyncPDFResource.class);
         bind(InfoResource.class);
-
         bind(RightsResource.class);
         bind(UsersResource.class);
         bind(RolesResource.class);
         bind(VirtualCollectionsResource.class);
-
         bind(StatisticsResource.class);
+
+        // API 6.0 Resources
+        bind(ProcessResource.class);
+
 
         bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
                 .asEagerSingleton();
