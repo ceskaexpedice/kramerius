@@ -45,6 +45,7 @@ import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.IPAddressFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -69,19 +70,29 @@ public class AuthorReport implements StatisticReport{
         try {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
+            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
             
-            final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
+            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
+            final StringTemplate authors;
+            
+            if (isUniqueSelected == false) {
+                authors = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectAuthorReport");
+            }
+            else {
+               authors = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectAuthorReportUnique"); 
+            }
+            
             authors.setAttribute("action", repAction != null ? repAction.name() : null);
             authors.setAttribute("paging", true);
             authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             authors.setAttribute("toDefined", dateFilter.getToDate() != null);
-            if (ipFilter.hasValue()) {
-                authors.setAttribute("ipaddr", ipFilter.getValue());
-            }
-            
+            authors.setAttribute("ipaddr", ipFilter.getIpAddress());
+           
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
-            String sql = authors.toString();
+            String sql = authors.toString();  
             Connection conn = connectionProvider.get();
             List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(conn) {
 
@@ -125,21 +136,30 @@ public class AuthorReport implements StatisticReport{
         try {
             final DateFilter dateFilter = filters.getFilter(DateFilter.class);
             IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
-
-            final StringTemplate authors = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
+            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
+            
+            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();         
+            final StringTemplate authors;
+            
+            if (isUniqueSelected == false) {
+                authors = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectAuthorReport");
+            }
+            else {
+               authors = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectAuthorReportUnique"); 
+            }
+            
             authors.setAttribute("action", repAction != null ? repAction.name() : null);
             authors.setAttribute("paging", false);
             authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             authors.setAttribute("toDefined", dateFilter.getToDate() != null);
-
-            if (ipFilter.hasValue()) {
-                authors.setAttribute("ipaddr", ipFilter.getValue());
-            }
+            authors.setAttribute("ipaddr", ipFilter.getIpAddress());
 
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
 
-            String sql = authors.toString();
+            String sql = authors.toString();         
             new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
 
                 @Override

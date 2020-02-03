@@ -82,7 +82,8 @@ public class AnnualStatisticsReport implements StatisticReport {
                     modelFilter,
                     getDateFilter(container.getFilter(AnnualYearFilter.class)),
                     container.getFilter(IPAddressFilter.class),
-                    new VisibilityFilter()
+                    new VisibilityFilter(),
+                    container.getFilter(UniqueIPAddressesFilter.class)
             };
             ModelStatisticReport report = new ModelStatisticReport();
             report.connectionProvider = connectionProvider;

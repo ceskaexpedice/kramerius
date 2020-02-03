@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletRequest;
  *
  */
 public class AuthorStatisticsViewObject extends AbstractStatisticsViewObject {
-
-
+    
+    
     public String getNext() {
         HttpServletRequest request = this.servletRequestProvider.get();
         String offset = request.getParameter("offset") != null ? request.getParameter("offset") : "0";
@@ -35,7 +35,8 @@ public class AuthorStatisticsViewObject extends AbstractStatisticsViewObject {
         String val = request.getParameter("val");
         int sizeInt = Integer.parseInt(size);
         int offsetInt = (Integer.parseInt(offset))+sizeInt;
-        return "javascript:statistics.reloadAuthorsReport(_action(),_visibility(),'"+val+"',"+offsetInt+","+size+");";
+        String type = "type";
+        return "javascript:statistics.reloadAuthorsReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),'"+type+"','"+val+"',"+offsetInt+","+size+", _ip_address(), _ip_address_unique());";
     }
     
     public String getPrev() {
@@ -45,7 +46,8 @@ public class AuthorStatisticsViewObject extends AbstractStatisticsViewObject {
         String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
         int sizeInt = Integer.parseInt(size);
         int offsetInt = Math.max((Integer.parseInt(offset)-sizeInt), 0);
-        return "javascript:statistics.reloadAuthorsReport(_action(),_visibility(),'"+val+"',"+offsetInt+","+size+");";
+        String type = "type";
+        return "javascript:statistics.reloadAuthorsReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),'"+type+"','"+val+"',"+offsetInt+","+size+", _ip_address(), _ip_address_unique());";
     }
 
     public String getGraphTitle() {
