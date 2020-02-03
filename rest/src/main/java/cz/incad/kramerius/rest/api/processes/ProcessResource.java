@@ -257,8 +257,7 @@ public class ProcessResource {
 
     private String toBatchStateName(Integer batchStateCode) {
         switch (batchStateCode) {
-            //TODO: zmenit, planned by melo byt 0, tady jsem se drzel cislovani podle stavu procesu, ale to uz muzu ignorovat, jen je potreba upravit funkci pro pocitani batch stavu
-            case 5:
+            case 0:
                 return "PLANNED";
             case 1:
                 return "RUNNING";
@@ -274,7 +273,7 @@ public class ProcessResource {
     private int toBatchStateCode(String batchStateName) {
         switch (batchStateName) {
             case "PLANNED":
-                return 5; //TODO: change to 0
+                return 0;
             case "RUNNING":
                 return 1;
             case "FINISHED":

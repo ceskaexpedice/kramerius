@@ -8,10 +8,10 @@
 
 --zacnu na BATCH_PLANNED a iteruju pres procesy
 
---jsem BATCH_PLANNED(5), vidim NOT_RUNNING(0)/PLANNED(5) => BATCH_PLANNED(5)
---jsem BATCH_PLANNED(5), vidim RUNNING(1) => BATCH_RUNNING(1)
---jsem BATCH_PLANNED(5), vidim FAILED(3)/WARNING(9)/KILLED(4) => BATCH_FAILED(3)
---jsem BATCH_PLANNED(5), vidim FINISHED(2) => BATCH_FINISHED(2)
+--jsem BATCH_PLANNED(0), vidim NOT_RUNNING(0)/PLANNED(5) => BATCH_PLANNED(0)
+--jsem BATCH_PLANNED(0), vidim RUNNING(1) => BATCH_RUNNING(1)
+--jsem BATCH_PLANNED(0), vidim FAILED(3)/WARNING(9)/KILLED(4) => BATCH_FAILED(3)
+--jsem BATCH_PLANNED(0), vidim FINISHED(2) => BATCH_FINISHED(2)
 
 --jsem BATCH_RUNNING(1), vidim NOT_RUNNING(0)/PLANNED(5) => BATCH_RUNNING(1)
 --jsem BATCH_RUNNING(1), vidim RUNNING(1) => BATCH_RUNNING(1)
@@ -48,11 +48,11 @@ DROP MATERIALIZED VIEW IF EXISTS process_batch;
 CREATE OR REPLACE FUNCTION update_batch_state(integer, integer) RETURNS integer AS '
   DECLARE r int;
   BEGIN
-    IF $1 = 5 THEN
+    IF $1 = 0 THEN
         IF $2 = 0 THEN
-            RETURN 5;
+            RETURN 0;
         ELSIF $2 = 5 THEN
-            RETURN 5;
+            RETURN 0;
         ELSIF $2 = 1 THEN
             RETURN 1;
         ELSIF $2 = 3 THEN
