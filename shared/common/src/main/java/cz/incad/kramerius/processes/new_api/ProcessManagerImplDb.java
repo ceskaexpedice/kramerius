@@ -28,12 +28,14 @@ public class ProcessManagerImplDb implements ProcessManager {
         if (connection == null) {
             throw new NotReadyException("connection not ready");
         }
+        String query = "SELECT count(*) FROM process_batch as batch" + buildFilterClause(filter);
+        //System.out.println(query);
         List<Integer> list = new JDBCQueryTemplate<Integer>(connection, false) {
             public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
                 returnsList.add(rs.getInt("count"));
                 return true;
             }
-        }.executeQuery("SELECT count(*) FROM process_batch as batch" + buildFilterClause(filter));
+        }.executeQuery(query);
         return list.get(0);
     }
 
@@ -85,7 +87,7 @@ public class ProcessManagerImplDb implements ProcessManager {
     }
 
     @Override
-    public List<Batch> getBatches(Filter filter, int offset, int limit) {
+    public List<ProcessInBatch> getProcessesInBatches(Filter filter, int offset, int limit) {
         Connection connection = connectionProvider.get();
         if (connection == null) {
             throw new NotReadyException("connection not ready");
@@ -105,14 +107,14 @@ public class ProcessManagerImplDb implements ProcessManager {
                         "processes.firstname AS batch_owner_firstname," +
                         "processes.surname AS batch_owner_surname," +
 
-                        "processes.process_id," +
-                        "processes.uuid," +
-                        "processes.defid," +
-                        "processes.name," +
-                        "processes.status AS state," +
-                        "processes.planned," +
-                        "processes.started," +
-                        "processes.finished" +
+                        "processes.process_id AS process_id," +
+                        "processes.uuid AS process_uuid," +
+                        "processes.defid AS process_defid," +
+                        "processes.name AS process_name," +
+                        "processes.status AS process_state," +
+                        "processes.planned AS process_planned," +
+                        "processes.started AS process_started," +
+                        "processes.finished AS process_finished" +
 
                         " FROM" +
                         " (" + filteredBatchQuery + ") batch" +
@@ -121,24 +123,34 @@ public class ProcessManagerImplDb implements ProcessManager {
                         " ON" +
                         " batch.batch_token=processes.token" +
                         " ORDER BY " +
-                        " processes.process_id DESC";
+                        " process_id DESC";
         //System.out.println(joinQuery);
 
-        return new JDBCQueryTemplate<Batch>(connection) {
+        return new JDBCQueryTemplate<ProcessInBatch>(connection) {
             @Override
-            public boolean handleRow(ResultSet rs, List<Batch> returnsList) throws SQLException {
-                Batch batch = new Batch();
-                batch.token = rs.getString("batch_token");
-                batch.id = rs.getString("batch_id");
-                batch.stateCode = rs.getInt("batch_state");
-                batch.planned = toLocalDateTime(rs.getTimestamp("batch_planned"));
-                batch.started = toLocalDateTime(rs.getTimestamp("batch_started"));
-                batch.finished = toLocalDateTime(rs.getTimestamp("batch_finished"));
-                batch.ownerLogin = rs.getString("batch_owner_login");
-                batch.ownerFirstname = rs.getString("batch_owner_firstname");
-                batch.ownerSurname = rs.getString("batch_owner_surname");
-                //batch. = rs.getString("batch_");
-                returnsList.add(batch);
+            public boolean handleRow(ResultSet rs, List<ProcessInBatch> returnsList) throws SQLException {
+                ProcessInBatch processInBatch = new ProcessInBatch();
+                processInBatch.batchToken = rs.getString("batch_token");
+                processInBatch.batchId = rs.getString("batch_id");
+                processInBatch.batchStateCode = rs.getInt("batch_state");
+                processInBatch.batchPlanned = toLocalDateTime(rs.getTimestamp("batch_planned"));
+                processInBatch.batchStarted = toLocalDateTime(rs.getTimestamp("batch_started"));
+                processInBatch.batchFinished = toLocalDateTime(rs.getTimestamp("batch_finished"));
+                processInBatch.batchOwnerLogin = rs.getString("batch_owner_login");
+                processInBatch.batchOwnerFirstname = rs.getString("batch_owner_firstname");
+                processInBatch.batchOwnerSurname = rs.getString("batch_owner_surname");
+                processInBatch.batchSize = rs.getInt("batch_size");
+
+                processInBatch.processId = rs.getString("process_id");
+                processInBatch.processUuid = rs.getString("process_uuid");
+                processInBatch.processDefid = rs.getString("process_defid");
+                processInBatch.processName = rs.getString("process_name");
+                processInBatch.processStateCode = rs.getInt("process_state");
+                processInBatch.processPlanned = toLocalDateTime(rs.getTimestamp("process_planned"));
+                processInBatch.processStarted = toLocalDateTime(rs.getTimestamp("process_started"));
+                processInBatch.processFinished = toLocalDateTime(rs.getTimestamp("process_finished"));
+
+                returnsList.add(processInBatch);
                 return super.handleRow(rs, returnsList);
             }
         }.executeQuery(joinQuery);

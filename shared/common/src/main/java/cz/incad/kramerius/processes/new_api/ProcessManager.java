@@ -6,6 +6,6 @@ public interface ProcessManager {
 
     public Integer getBatchesCount(Filter filter);
 
-    public List<Batch> getBatches(Filter filter, int offset, int limit);
+    public List<ProcessInBatch> getProcessesInBatches(Filter filter, int offset, int limit);
 
 }

@@ -1,7 +1,7 @@
 package cz.incad.kramerius.rest.api.processes;
 
-import cz.incad.kramerius.processes.new_api.Batch;
 import cz.incad.kramerius.processes.new_api.Filter;
+import cz.incad.kramerius.processes.new_api.ProcessInBatch;
 import cz.incad.kramerius.processes.new_api.ProcessManager;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 @Path("/v6.0/processes")
@@ -40,8 +40,8 @@ public class ProcessResource {
     /**
      * Returns filtered batches
      *
-     * @param offset
-     * @param limit
+     * @param offsetStr
+     * @param limitStr
      * @param filterOwner owner id (login)
      * @param filterFrom
      * @param filterUntil
@@ -49,16 +49,17 @@ public class ProcessResource {
      * @return
      */
     @GET
+    @Path("/batches")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getBatches(
-            @QueryParam("offset") String offset,
-            @QueryParam("limit") String limit,
+            @QueryParam("offset") String offsetStr,
+            @QueryParam("limit") String limitStr,
             @QueryParam("owner") String filterOwner,
             @QueryParam("from") String filterFrom,
             @QueryParam("until") String filterUntil,
             @QueryParam("state") String filterState
-            //TODO: sort by selected columns, ASC, DESC
-            //TODO: ASC, DESC pro default order by process_id, coz je priblizne podle naplanovani
+            //TODO: ASC, DESC pro default razeni (batch.planned)
+            //a mozna i alternativni razeni
     ) {
        /* String loggedUserKey = findLoggedUserKey();
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
@@ -75,31 +76,31 @@ public class ProcessResource {
 
         if (permitted) {
             try {
-                //OFFSET & LIMIT
-                int offsetInt = DEFAULT_OFFSET;
-                if (StringUtils.isAnyString(offset)) {
+                //offset & limit
+                int offset = DEFAULT_OFFSET;
+                if (StringUtils.isAnyString(offsetStr)) {
                     try {
-                        offsetInt = Integer.valueOf(offset);
-                        if (offsetInt < 0) {
-                            throw new BadRequestException("offset must be zero or positive, '%s' is not", offset);
+                        offset = Integer.valueOf(offsetStr);
+                        if (offset < 0) {
+                            throw new BadRequestException("offset must be zero or positive, '%s' is not", offsetStr);
                         }
                     } catch (NumberFormatException e) {
-                        throw new BadRequestException("offset must be integer, '%s' is not", offset);
+                        throw new BadRequestException("offset must be integer, '%s' is not", offsetStr);
                     }
                 }
-                int limitInt = DEFAULT_LIMIT;
-                if (StringUtils.isAnyString(limit)) {
+                int limit = DEFAULT_LIMIT;
+                if (StringUtils.isAnyString(limitStr)) {
                     try {
-                        limitInt = Integer.valueOf(limit);
-                        if (limitInt < 1) {
-                            throw new BadRequestException("limit must be positive, '%s' is not", limit);
+                        limit = Integer.valueOf(limitStr);
+                        if (limit < 1) {
+                            throw new BadRequestException("limit must be positive, '%s' is not", limitStr);
                         }
                     } catch (NumberFormatException e) {
-                        throw new BadRequestException("limit must be integer, '%s' is not", limit);
+                        throw new BadRequestException("limit must be integer, '%s' is not", limitStr);
                     }
                 }
 
-                //FILTER
+                //filter
                 Filter filter = new Filter();
                 if (StringUtils.isAnyString(filterOwner)) {
                     filter.owner = filterOwner;
@@ -114,7 +115,23 @@ public class ProcessResource {
                     filter.stateCode = toBatchStateCode(filterState);
                 }
 
-                return getBatches(filter, offsetInt, limitInt);
+                //response size
+                int totalSize = this.processManager.getBatchesCount(filter);
+                JSONObject result = new JSONObject();
+                result.put("offset", offset);
+                result.put("limit", limit);
+                result.put("total_size", totalSize);
+
+                //batch & process data
+                List<ProcessInBatch> pibs = this.processManager.getProcessesInBatches(filter, offset, limit);
+                List<Batch> batches = extractBatchesWithProcesses(pibs);
+                JSONArray batchesJson = new JSONArray();
+                for (Batch batch : batches) {
+                    JSONObject batchJson = batchToJson(batch);
+                    batchesJson.put(batchJson);
+                }
+                result.put("batches", batchesJson);
+                return Response.ok().entity(result.toString()).build();
             } catch (BadRequestException e) {
                 throw e;
             } catch (Throwable e) {
@@ -137,34 +154,96 @@ public class ProcessResource {
         }
     }
 
-    private Response getBatches(Filter filter, int offset, int limit) {
-        try {
-            int size = this.processManager.getBatchesCount(filter);
-            JSONObject result = new JSONObject();
-            result.put("offset", offset);
-            result.put("limit", limit);
-            //batches
-            List<Batch> batches = this.processManager.getBatches(filter, offset, limit);
-            JSONArray batchesJson = new JSONArray();
-            for (Batch batch : batches) {
-                JSONObject batchJson = new JSONObject();
-                batchJson.put("batch_token", batch.token);
-                batchJson.put("batch_id", batch.id);
-                batchJson.put("batch_state", toBatchStateName(batch.stateCode));
-                batchJson.put("batch_planned", formatDateTimeFromDb(batch.planned));
-                batchJson.put("batch_started", formatDateTimeFromDb(batch.started));
-                batchJson.put("batch_finished", formatDateTimeFromDb(batch.finished));
-                batchJson.put("batch_owner_login", batch.ownerLogin);
-                batchJson.put("batch_owner_firstname", batch.ownerFirstname);
-                batchJson.put("batch_owner_surname", batch.ownerSurname);
-                //batchJson.put("", batch.);
-                batchesJson.put(batchJson);
+    private List<Batch> extractBatchesWithProcesses(List<ProcessInBatch> allPibs) {
+        Map<String, List<ProcessInBatch>> pibListByToken = new HashMap<>();
+        for (ProcessInBatch pib : allPibs) {
+            if (!pibListByToken.containsKey(pib.batchToken)) {
+                pibListByToken.put(pib.batchToken, new ArrayList<>());
             }
-            result.put("total_size", size);
-            result.put("items", batchesJson);
-            return Response.ok().entity(result.toString()).build();
-        } catch (Throwable e) {
-            throw new GenericApplicationException(e.getMessage());
+            List<ProcessInBatch> pibList = pibListByToken.get(pib.batchToken);
+            pibList.add(pib);
+        }
+        List<Batch> result = new ArrayList<>(pibListByToken.size());
+        for (List<ProcessInBatch> pibsOfBatch : pibListByToken.values()) {
+            ProcessInBatch firstPib = pibsOfBatch.get(0);
+            Batch batch = new Batch();
+            batch.token = firstPib.batchToken;
+            batch.id = firstPib.batchId;
+            batch.stateCode = firstPib.batchStateCode;
+            batch.planned = firstPib.batchPlanned;
+            batch.started = firstPib.batchStarted;
+            batch.finished = firstPib.batchFinished;
+            batch.ownerLogin = firstPib.batchOwnerLogin;
+            batch.ownerFirstname = firstPib.batchOwnerFirstname;
+            batch.ownerSurname = firstPib.batchOwnerSurname;
+            for (ProcessInBatch pib : pibsOfBatch) {
+                Process process = new Process();
+                process.uuid = pib.processUuid;
+                process.id = pib.processId;
+                process.defid = pib.processDefid;
+                process.name = pib.processName;
+                process.stateCode = pib.processStateCode;
+                process.planned = pib.processPlanned;
+                process.started = pib.processStarted;
+                process.finished = pib.processFinished;
+                batch.processes.add(process);
+            }
+            result.add(batch);
+        }
+        Collections.sort(result, Comparator.comparing(o -> o.planned));
+        return result;
+    }
+
+    private JSONObject batchToJson(Batch batch) {
+        JSONObject json = new JSONObject();
+        //batch
+        JSONObject batchJson = new JSONObject();
+        batchJson.put("token", batch.token);
+        batchJson.put("id", batch.id);
+        batchJson.put("state", toBatchStateName(batch.stateCode));
+        batchJson.put("planned", formatDateTimeFromDb(batch.planned));
+        batchJson.put("started", formatDateTimeFromDb(batch.started));
+        batchJson.put("finished", formatDateTimeFromDb(batch.finished));
+        batchJson.put("owner_login", batch.ownerLogin);
+        batchJson.put("owner_firstname", batch.ownerFirstname);
+        batchJson.put("owner_surname", batch.ownerSurname);
+        json.put("batch", batchJson);
+        //processes
+        JSONArray processArray = new JSONArray();
+        for (Process process : batch.processes) {
+            JSONObject processJson = new JSONObject();
+            processJson.put("id", process.id);
+            processJson.put("uuid", process.uuid);
+            processJson.put("defid", process.defid);
+            processJson.put("name", process.name);
+            processJson.put("state", toProcessStateName(process.stateCode));
+            processJson.put("planned", formatDateTimeFromDb(process.planned));
+            processJson.put("started", formatDateTimeFromDb(process.started));
+            processJson.put("finished", formatDateTimeFromDb(process.finished));
+            processArray.put(processJson);
+        }
+        json.put("processes", processArray);
+        return json;
+    }
+
+    private String toProcessStateName(Integer stateCode) {
+        switch (stateCode) {
+            case 0:
+                return "NOT_RUNNING";
+            case 1:
+                return "RUNNING";
+            case 2:
+                return "FINISHED";
+            case 3:
+                return "FAILED";
+            case 4:
+                return "KILLED";
+            case 5:
+                return "PLANNED";
+            case 9:
+                return "WARNING";
+            default:
+                return "UNKNOWN";
         }
     }
 
@@ -206,8 +285,28 @@ public class ProcessResource {
                 throw new BadRequestException("unknown state '%s'", batchStateName);
         }
     }
-}
 
-//TODO:
-//http://localhost:8080/search/api/v6.0/processes?offset=0&state=RUNNING
-//total_size=1, ale 2 items
+    public static final class Batch {
+        public String token;
+        public String id;
+        public Integer stateCode;
+        public LocalDateTime planned;
+        public LocalDateTime started;
+        public LocalDateTime finished;
+        public String ownerLogin;
+        public String ownerFirstname;
+        public String ownerSurname;
+        List<Process> processes = new ArrayList<>();
+    }
+
+    public static final class Process {
+        public String id;
+        public String uuid;
+        public String defid;
+        public String name;
+        public Integer stateCode;
+        public LocalDateTime planned;
+        public LocalDateTime started;
+        public LocalDateTime finished;
+    }
+}
