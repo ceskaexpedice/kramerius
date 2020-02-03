@@ -74,71 +74,71 @@ public class ProcessResource {
         //TODO: access control
         boolean permitted = true;
 
-        if (permitted) {
-            try {
-                //offset & limit
-                int offset = DEFAULT_OFFSET;
-                if (StringUtils.isAnyString(offsetStr)) {
-                    try {
-                        offset = Integer.valueOf(offsetStr);
-                        if (offset < 0) {
-                            throw new BadRequestException("offset must be zero or positive, '%s' is not", offsetStr);
-                        }
-                    } catch (NumberFormatException e) {
-                        throw new BadRequestException("offset must be integer, '%s' is not", offsetStr);
-                    }
-                }
-                int limit = DEFAULT_LIMIT;
-                if (StringUtils.isAnyString(limitStr)) {
-                    try {
-                        limit = Integer.valueOf(limitStr);
-                        if (limit < 1) {
-                            throw new BadRequestException("limit must be positive, '%s' is not", limitStr);
-                        }
-                    } catch (NumberFormatException e) {
-                        throw new BadRequestException("limit must be integer, '%s' is not", limitStr);
-                    }
-                }
-
-                //filter
-                Filter filter = new Filter();
-                if (StringUtils.isAnyString(filterOwner)) {
-                    filter.owner = filterOwner;
-                }
-                if (StringUtils.isAnyString(filterFrom)) {
-                    filter.from = parseLocalDateTime(filterFrom);
-                }
-                if (StringUtils.isAnyString(filterUntil)) {
-                    filter.until = parseLocalDateTime(filterUntil);
-                }
-                if (StringUtils.isAnyString(filterState)) {
-                    filter.stateCode = toBatchStateCode(filterState);
-                }
-
-                //response size
-                int totalSize = this.processManager.getBatchesCount(filter);
-                JSONObject result = new JSONObject();
-                result.put("offset", offset);
-                result.put("limit", limit);
-                result.put("total_size", totalSize);
-
-                //batch & process data
-                List<ProcessInBatch> pibs = this.processManager.getProcessesInBatches(filter, offset, limit);
-                List<Batch> batches = extractBatchesWithProcesses(pibs);
-                JSONArray batchesJson = new JSONArray();
-                for (Batch batch : batches) {
-                    JSONObject batchJson = batchToJson(batch);
-                    batchesJson.put(batchJson);
-                }
-                result.put("batches", batchesJson);
-                return Response.ok().entity(result.toString()).build();
-            } catch (BadRequestException e) {
-                throw e;
-            } catch (Throwable e) {
-                throw new GenericApplicationException(e.getMessage());
-            }
-        } else {
+        if (!permitted) {
             throw new ActionNotAllowed("action is not allowed");
+        }
+
+        try {
+            //offset & limit
+            int offset = DEFAULT_OFFSET;
+            if (StringUtils.isAnyString(offsetStr)) {
+                try {
+                    offset = Integer.valueOf(offsetStr);
+                    if (offset < 0) {
+                        throw new BadRequestException("offset must be zero or positive, '%s' is not", offsetStr);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("offset must be integer, '%s' is not", offsetStr);
+                }
+            }
+            int limit = DEFAULT_LIMIT;
+            if (StringUtils.isAnyString(limitStr)) {
+                try {
+                    limit = Integer.valueOf(limitStr);
+                    if (limit < 1) {
+                        throw new BadRequestException("limit must be positive, '%s' is not", limitStr);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("limit must be integer, '%s' is not", limitStr);
+                }
+            }
+
+            //filter
+            Filter filter = new Filter();
+            if (StringUtils.isAnyString(filterOwner)) {
+                filter.owner = filterOwner;
+            }
+            if (StringUtils.isAnyString(filterFrom)) {
+                filter.from = parseLocalDateTime(filterFrom);
+            }
+            if (StringUtils.isAnyString(filterUntil)) {
+                filter.until = parseLocalDateTime(filterUntil);
+            }
+            if (StringUtils.isAnyString(filterState)) {
+                filter.stateCode = toBatchStateCode(filterState);
+            }
+
+            //response size
+            int totalSize = this.processManager.getBatchesCount(filter);
+            JSONObject result = new JSONObject();
+            result.put("offset", offset);
+            result.put("limit", limit);
+            result.put("total_size", totalSize);
+
+            //batch & process data
+            List<ProcessInBatch> pibs = this.processManager.getProcessesInBatches(filter, offset, limit);
+            List<Batch> batches = extractBatchesWithProcesses(pibs);
+            JSONArray batchesJson = new JSONArray();
+            for (Batch batch : batches) {
+                JSONObject batchJson = batchToJson(batch);
+                batchesJson.put(batchJson);
+            }
+            result.put("batches", batchesJson);
+            return Response.ok().entity(result.toString()).build();
+        } catch (BadRequestException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
@@ -201,9 +201,9 @@ public class ProcessResource {
         batchJson.put("token", batch.token);
         batchJson.put("id", batch.id);
         batchJson.put("state", toBatchStateName(batch.stateCode));
-        batchJson.put("planned", formatDateTimeFromDb(batch.planned));
-        batchJson.put("started", formatDateTimeFromDb(batch.started));
-        batchJson.put("finished", formatDateTimeFromDb(batch.finished));
+        batchJson.put("planned", toFormattedStringOrNull(batch.planned));
+        batchJson.put("started", toFormattedStringOrNull(batch.started));
+        batchJson.put("finished", toFormattedStringOrNull(batch.finished));
         batchJson.put("owner_login", batch.ownerLogin);
         batchJson.put("owner_firstname", batch.ownerFirstname);
         batchJson.put("owner_surname", batch.ownerSurname);
@@ -217,9 +217,9 @@ public class ProcessResource {
             processJson.put("defid", process.defid);
             processJson.put("name", process.name);
             processJson.put("state", toProcessStateName(process.stateCode));
-            processJson.put("planned", formatDateTimeFromDb(process.planned));
-            processJson.put("started", formatDateTimeFromDb(process.started));
-            processJson.put("finished", formatDateTimeFromDb(process.finished));
+            processJson.put("planned", toFormattedStringOrNull(process.planned));
+            processJson.put("started", toFormattedStringOrNull(process.started));
+            processJson.put("finished", toFormattedStringOrNull(process.finished));
             processArray.put(processJson);
         }
         json.put("processes", processArray);
@@ -247,7 +247,7 @@ public class ProcessResource {
         }
     }
 
-    private String formatDateTimeFromDb(LocalDateTime dateTime) {
+    private String toFormattedStringOrNull(LocalDateTime dateTime) {
         if (dateTime == null) {
             return null;
         } else {
