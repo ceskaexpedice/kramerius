@@ -154,10 +154,7 @@ public class LangReport implements StatisticReport{
             langs.setAttribute("action", repAction != null ? repAction.name() : null);
             langs.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             langs.setAttribute("toDefined", dateFilter.getToDate() != null);
-            
-            if (ipFilter.hasValue()) {
-                langs.setAttribute("ipaddr", ipFilter.getValue());
-            }
+            langs.setAttribute("ipaddr", ipFilter.getIpAddress());
 
 
             @SuppressWarnings("rawtypes")

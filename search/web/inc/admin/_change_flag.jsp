@@ -52,8 +52,8 @@
 
 
     <input type="radio" value="setpublic" name="flag" checked="checked"><view:msg>administrator.dialogs.changevisibility.public</view:msg></input>
-    <input type="radio" value="setprivate" name="flag"><view:msg>administrator.dialogs.changevisibility.private</view:msg></input>
-
+    <input type="radio" value="setprivate" name="flag"><view:msg>administrator.dialogs.changevisibility.private</view:msg></input><br/>
+    <input type="checkbox" id="level" name="level"><view:msg>administrator.dialogs.changevisibility.level</view:msg></input>
 </scrd:securedContent>
 
 </div>
