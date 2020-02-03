@@ -9,6 +9,8 @@ import javax.inject.Provider;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -42,6 +44,7 @@ public class ProcessManagerImplDb implements ProcessManager {
             StringBuilder builder = new StringBuilder();
             builder.append(" WHERE");
             boolean firstCondition = true;
+            //owner
             if (filter.owner != null) {
                 if (!firstCondition) {
                     builder.append(" AND");
@@ -50,7 +53,33 @@ public class ProcessManagerImplDb implements ProcessManager {
                 }
                 builder.append(" batch.ownerlogin='").append(filter.owner).append("'");
             }
-            //TODO: filter by datetime, (batch) state
+            //from
+            if (filter.from != null) {
+                if (!firstCondition) {
+                    builder.append(" AND");
+                } else {
+                    firstCondition = false;
+                }
+                builder.append(" batch.planned>='").append(filter.from).append("'");
+            }
+            //until
+            if (filter.until != null) {
+                if (!firstCondition) {
+                    builder.append(" AND");
+                } else {
+                    firstCondition = false;
+                }
+                builder.append(" batch.finished<='").append(filter.until).append("'");
+            }
+            //state
+            if (filter.stateCode != null) {
+                if (!firstCondition) {
+                    builder.append(" AND");
+                } else {
+                    firstCondition = false;
+                }
+                builder.append(" batch.batch_state=").append(filter.stateCode);
+            }
             return builder.toString();
         }
     }
@@ -101,10 +130,10 @@ public class ProcessManagerImplDb implements ProcessManager {
                 Batch batch = new Batch();
                 batch.token = rs.getString("batch_token");
                 batch.id = rs.getString("batch_id");
-                batch.state = rs.getString("batch_state");
-                batch.planned = rs.getString("batch_planned");
-                batch.started = rs.getString("batch_started");
-                batch.finished = rs.getString("batch_finished");
+                batch.stateCode = rs.getInt("batch_state");
+                batch.planned = toLocalDateTime(rs.getTimestamp("batch_planned"));
+                batch.started = toLocalDateTime(rs.getTimestamp("batch_started"));
+                batch.finished = toLocalDateTime(rs.getTimestamp("batch_finished"));
                 batch.ownerLogin = rs.getString("batch_owner_login");
                 batch.ownerFirstname = rs.getString("batch_owner_firstname");
                 batch.ownerSurname = rs.getString("batch_owner_surname");
@@ -113,5 +142,13 @@ public class ProcessManagerImplDb implements ProcessManager {
                 return super.handleRow(rs, returnsList);
             }
         }.executeQuery(joinQuery);
+    }
+
+    private LocalDateTime toLocalDateTime(Timestamp timestamp) {
+        if (timestamp == null) {
+            return null;
+        } else {
+            return timestamp.toLocalDateTime();
+        }
     }
 }
