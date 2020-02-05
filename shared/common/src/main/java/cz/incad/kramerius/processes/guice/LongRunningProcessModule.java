@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+import com.google.inject.servlet.ServletScopes;
 
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcessManager;
@@ -32,6 +33,8 @@ public class LongRunningProcessModule extends AbstractModule {
         // long running process modul
         bind(DefinitionManager.class).to(LRProcessDefinitionManagerImpl.class).in(Scopes.SINGLETON);
         bind(LRProcessManager.class).to(DatabaseProcessManager.class).in(Scopes.SINGLETON);
+        //bind(ProcessManager.class).to(ProcessManagerImplDb.class).in(ServletScopes.REQUEST);
+        //bind(ProcessManager.class).to(ProcessManagerImplDb.class).in(ServletScopes.SESSION);
         bind(ProcessManager.class).to(ProcessManagerImplDb.class).in(Scopes.SINGLETON);
         bind(String.class).annotatedWith(Names.named("LIBS")).toInstance(System.getProperty(DEFAULT_LIBS_KEY));
         bind(InputTemplateFactory.class).to(InputTemplateFactoryImpl.class).in(Scopes.SINGLETON);
