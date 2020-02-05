@@ -174,12 +174,12 @@
             <script type="text/javascript">
               function _current_annual() {
                   var ip = $("#report_ip_addresses").val();
-                  window.open("stats?format=CSV&report=annual&visibility=all&annualyear=${statistics.currentYear}&ipaddresses="+ ip +"&uniqueipaddresses=" + _ip_address_unique(), "_blank");
+                  window.open("stats?format=CSV&report=annual&action=" + _action() + "&visibility=" + _visibility() + "&annualyear=${statistics.currentYear}&ipaddresses="+ ip +"&uniqueipaddresses=" + _ip_address_unique(), "_blank");
               }
               
               function _previous_annual() {
                   var ip = $("#report_ip_addresses").val();
-                  window.open("stats?format=CSV&report=annual&visibility=all&annualyear=${statistics.previousYear}&ipaddresses="+ ip +"&uniqueipaddresses=" + _ip_address_unique(), "_blank");
+                  window.open("stats?format=CSV&report=annual&action=" + _action() + "&visibility=" + _visibility() + "&annualyear=${statistics.previousYear}&ipaddresses="+ ip +"&uniqueipaddresses=" + _ip_address_unique(), "_blank");
               }
              </script>
 

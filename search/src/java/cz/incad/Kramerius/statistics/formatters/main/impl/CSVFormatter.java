@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletResponse;
 
 import cz.incad.Kramerius.statistics.formatters.main.StatisticsExportMainLogFormatter;
+import static cz.incad.Kramerius.statistics.formatters.report.StatisticsReportFormatter.DEFAULT_ENCODING;
 import cz.incad.Kramerius.statistics.formatters.utils.StringUtils;
 
 /**
@@ -49,7 +50,6 @@ public class CSVFormatter implements StatisticsExportMainLogFormatter {
     
     @Override
     public void beforeProcess(HttpServletResponse response) throws IOException {
-        this.os = response.getOutputStream();
         this.firstLine = true;
         this.printHeader();
     }
@@ -140,6 +140,12 @@ public class CSVFormatter implements StatisticsExportMainLogFormatter {
         return CSV_MIME_TYPE;
     }
 
+    @Override
+    public void addInfo(HttpServletResponse response, String info) throws IOException {
+        this.os = response.getOutputStream();
+        String comment = "# " + "CSV export"+ "\n";
+        this.os.write(comment.getBytes(DEFAULT_ENCODING));
+    }
     
 }
     

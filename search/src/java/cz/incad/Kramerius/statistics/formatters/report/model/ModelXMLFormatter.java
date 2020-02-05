@@ -53,7 +53,6 @@ public class ModelXMLFormatter implements StatisticsReportFormatter{
 
     @Override
     public void beforeProcess(HttpServletResponse response) throws IOException {
-        this.os = response.getOutputStream();
         this.os.write("<records>\n".getBytes(DEFAULT_ENCODING));
     }
 
@@ -86,4 +85,13 @@ public class ModelXMLFormatter implements StatisticsReportFormatter{
     public String getReportId() {
         return ModelStatisticReport.REPORT_ID;
     }
+
+    @Override
+    public void addInfo(HttpServletResponse response, String info) throws IOException {
+        this.os = response.getOutputStream();
+        String text = "Report dle modelu: ";
+        String comment = "<!-- " + text + info + " -->";
+        this.os.write(comment.getBytes(DEFAULT_ENCODING));
+    }
+    
 }

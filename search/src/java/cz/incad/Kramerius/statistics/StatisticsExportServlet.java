@@ -116,7 +116,18 @@ public class StatisticsExportServlet extends GuiceServlet {
                 ipConfigVal = ipConfigVal.replace("*", "%");
             }
             ipAddr.setIpAddress(ipConfigVal);
-            ipAddr.setIpAddress(ipAddr.getValue());
+        }
+        
+        if (action != null && action.equals("null")) {
+            action = null;
+        }
+        
+        if (dateFrom == null) {
+            dateFrom = "";
+        }
+        
+        if (dateTo == null) {
+            dateTo = "";
         }
         
         MultimodelFilter multimodelFilter = new MultimodelFilter();
@@ -137,6 +148,12 @@ public class StatisticsExportServlet extends GuiceServlet {
                     }
                 }
                 if (selectedFormatter != null) {
+                    String info = null;
+                    info = ((annual == null) ? "" : annual + ", ") + ((filteredValue == null) ? "" : filteredValue + ", ") + ((dateFrom.equals("")) ? "" : "od: " + dateFrom + ", ") + ((dateTo.equals("")) ? "" : "do: " + dateTo + ", ") 
+                            + "akce: " + ((action == null) ? "ALL" : action) + ", viditelnosti: " + visibilityValue + ", "
+                            + ((ipAddr.getIpAddress().equals("")) ? "" : "zakázané IP adresy: " + ipAddr.getIpAddress() + ", ")
+                            + "unikátní IP adresy: " + uniqueIpAddresses + ".";
+                    selectedFormatter.addInfo(resp, info);
                     selectedFormatter.beforeProcess(resp);
                     resp.setCharacterEncoding("UTF-8");
                     resp.setContentType(selectedFormatter.getMimeType());
@@ -158,6 +175,12 @@ public class StatisticsExportServlet extends GuiceServlet {
                 }
             }
             if (selectedFormatter != null) {
+                String info = null;
+                    info = ((annual == null) ? "" : annual + ", ") + ((filteredValue == null) ? "" : filteredValue + ", ") + ((dateFrom.equals("")) ? "" : "od: " + dateFrom + ", ") + ((dateTo.equals("")) ? "" : "do: " + dateTo + ", ") 
+                            + "akce: " + ((action == null) ? "ALL" : action) + ", viditelnosti: " + visibilityValue + ", "
+                            + ((ipAddr.getIpAddress().equals("")) ? "" : "zakázané IP adresy: " + ipAddr.getIpAddress() + ", ")
+                            + "unikátní IP adresy: " + uniqueIpAddresses + ".";
+                selectedFormatter.addInfo(resp, info);
                 selectedFormatter.beforeProcess(resp);
                 resp.setCharacterEncoding("UTF-8");
                 resp.setContentType(selectedFormatter.getMimeType());
