@@ -28,11 +28,11 @@
 --jsem BATCH_FINISHED(2), vidim FAILED(3)/WARNING(9)/KILLED(4) => BATCH_FAILED(3)
 --jsem BATCH_FINISHED(2), vidim FINISHED(2) => BATCH_FINISHED(2)
 
---jinak FAILED(3)
+--jinak BATCH_FAILED(3)
 
 --functions
 DROP AGGREGATE IF EXISTS batch_state(integer) CASCADE;
-DROP FUNCTION IF EXISTS update_batch_state(integer,integer);
+DROP FUNCTION IF EXISTS update_batch_state(integer,integer) CASCADE;
 
 --ordinary (live) view - just for testing
 DROP VIEW IF EXISTS process_batch_not_precomputed;
@@ -108,7 +108,7 @@ CREATE AGGREGATE batch_state(integer)
 (
     sfunc = update_batch_state,
     stype = integer,
-    initcond = 5
+    initcond = 0
 );
 
 --(ne-materialized verze) view pro batch procesu, jen pro testovani
