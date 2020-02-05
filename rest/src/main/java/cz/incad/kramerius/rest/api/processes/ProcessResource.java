@@ -190,7 +190,6 @@ public class ProcessResource {
             }
             result.add(batch);
         }
-        Collections.sort(result, Comparator.comparing(o -> o.planned));
         return result;
     }
 

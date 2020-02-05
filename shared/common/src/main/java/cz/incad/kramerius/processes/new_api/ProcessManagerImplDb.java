@@ -123,7 +123,7 @@ public class ProcessManagerImplDb implements ProcessManager {
                         " ON" +
                         " batch.batch_token=processes.token" +
                         " ORDER BY " +
-                        " process_id DESC";
+                        " batch_id DESC, process_id ASC";
         //System.out.println(joinQuery);
 
         return new JDBCQueryTemplate<ProcessInBatch>(connection) {
