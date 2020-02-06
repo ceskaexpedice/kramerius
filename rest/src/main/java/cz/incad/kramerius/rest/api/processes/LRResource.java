@@ -672,6 +672,7 @@ public class LRResource {
     public String findLoggedUserKey() {
         
         if (groupToken() != null) {
+            //TODO: tohle nedava smysl, pri zjistovani loggedUserKey se dopocitava batch stav, velmi matouci flow
             if (lrProcessManager.isAuthTokenClosed(authToken())) {
                 //throw new SecurityException("access denided");
                 throw new ActionNotAllowed("action is not allowed");

@@ -11,7 +11,6 @@ import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
-import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowedXML;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
@@ -133,7 +132,7 @@ public class ItemResource {
                     }
                 };
                 return Response.ok().entity(stream).build();
-            } else throw new ActionNotAllowedXML("access denied");
+            } else throw new ActionNotAllowed("access denied");
         } catch (IOException e) {
             throw new PIDNotFound("cannot parse foxml for  " + pid);
         } catch (ReplicateException e) {

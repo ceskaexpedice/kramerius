@@ -1,26 +1,36 @@
 package cz.incad.kramerius.rest.api.processes;
 
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.new_api.Filter;
 import cz.incad.kramerius.processes.new_api.ProcessInBatch;
 import cz.incad.kramerius.processes.new_api.ProcessManager;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+import cz.incad.kramerius.rest.api.exceptions.UnauthorizedException;
+import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.utils.UserUtils;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.inject.Provider;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @Path("/v6.0/processes")
@@ -30,12 +40,26 @@ public class ProcessResource {
 
     private static final Integer DEFAULT_OFFSET = 0;
     private static final Integer DEFAULT_LIMIT = 10;
+    private static final boolean DEV_DISABLE_ACCESS_CONTROL = true;
 
     //@Inject
     //LRProcessManager lrProcessManager;
 
     @Inject
     ProcessManager processManager;
+
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
+
+    //TODO: matouci jmeno, asi prejmenovat zpet na RightsResolver, vsude se to vola jako isActionAllowed.isActionAllowed()
+    @Inject
+    IsActionAllowed rightsResolver;
+
+    @Inject
+    Provider<User> userProvider;
+
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
 
     /**
      * Returns filtered batches
@@ -58,27 +82,21 @@ public class ProcessResource {
             @QueryParam("from") String filterFrom,
             @QueryParam("until") String filterUntil,
             @QueryParam("state") String filterState
-            //TODO: ASC, DESC pro default razeni (batch.planned)
-            //a mozna i alternativni razeni
     ) {
-       /* String loggedUserKey = findLoggedUserKey();
-        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
-        if (user == null) {
-            // no user
-            //throw new SecurityException("access denided");
-            throw new ActionNotAllowed("action is not allowed");
-        }
-
-        boolean permitted = permit(actionAllowed, user);
-        */
-        //TODO: access control
-        boolean permitted = true;
-
-        if (!permitted) {
-            throw new ActionNotAllowed("action is not allowed");
-        }
-
         try {
+            //access control
+            if (!DEV_DISABLE_ACCESS_CONTROL) {
+                String loggedUserKey = findLoggedUserKey();
+                User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+                if (user == null) {
+                    throw new UnauthorizedException(); //401
+                }
+                boolean allowed = rightsResolver.isActionAllowed(user, SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
+                if (!allowed) {
+                    throw new ActionNotAllowed("user '%s' is not allowed to manage processes", user.getLoginname()); //403
+                }
+            }
+
             //offset & limit
             int offset = DEFAULT_OFFSET;
             if (StringUtils.isAnyString(offsetStr)) {
@@ -135,11 +153,17 @@ public class ProcessResource {
             }
             result.put("batches", batchesJson);
             return Response.ok().entity(result.toString()).build();
-        } catch (BadRequestException e) {
+        } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
             throw new GenericApplicationException(e.getMessage());
         }
+    }
+
+    public String findLoggedUserKey() {
+        //TODO: otestovat, nebo zmenit
+        userProvider.get(); //TODO: neni uplne zrejme, proc tohle vodlat. Co se deje v AbstractLoggedUserProvider a LoggedUsersSingletonImpl vypada zmatecne
+        return (String) requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
     }
 
     private LocalDateTime parseLocalDateTime(String string) {
