@@ -63,12 +63,12 @@ public class ProcessResource {
     /**
      * Returns filtered batches
      *
-     * @param offsetStr
-     * @param limitStr
-     * @param filterOwner owner id (login)
-     * @param filterFrom
-     * @param filterUntil
-     * @param filterState state name (nebo code?)
+     * @param offsetStr   offset
+     * @param limitStr    limit
+     * @param filterOwner filter to batches run by user with this id (login)
+     * @param filterFrom  filter to batches started after this datetime, format is 2019-01-01T00:00:00
+     * @param filterUntil filter to batches finished before this datetime, format is 2019-12-31T23:59:59
+     * @param filterState filter to batches with this state (possible values are PLANNED, RUNNING, FINISHED, or FAILED)
      * @return
      */
     @GET
@@ -159,7 +159,7 @@ public class ProcessResource {
         }
     }
 
-    public String findLoggedUserKey() {
+    private String findLoggedUserKey() {
         //TODO: otestovat, nebo zmenit
         userProvider.get(); //TODO: neni uplne zrejme, proc tohle vodlat. Co se deje v AbstractLoggedUserProvider a LoggedUsersSingletonImpl vypada zmatecne
         return (String) requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
