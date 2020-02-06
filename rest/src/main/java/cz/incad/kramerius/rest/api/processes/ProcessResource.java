@@ -8,7 +8,7 @@ import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.exceptions.UnauthorizedException;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
@@ -51,9 +51,8 @@ public class ProcessResource {
     @Inject
     LoggedUsersSingleton loggedUsersSingleton;
 
-    //TODO: matouci jmeno, asi prejmenovat zpet na RightsResolver, vsude se to vola jako isActionAllowed.isActionAllowed()
     @Inject
-    IsActionAllowed rightsResolver;
+    RightsResolver rightsResolver;
 
     @Inject
     Provider<User> userProvider;

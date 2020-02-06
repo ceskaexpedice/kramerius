@@ -58,7 +58,7 @@ import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.exceptions.UpdateException;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.FormalNamesMapping;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -88,7 +88,7 @@ public class UsersResource {
     Provider<User> userProvider;
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver actionAllowed;
 
     // public static final String[] COLS = new String[]
     // {"user_id","name","surname","loginname"};

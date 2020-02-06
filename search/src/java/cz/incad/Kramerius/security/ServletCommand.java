@@ -39,7 +39,7 @@ import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.User;
@@ -82,7 +82,7 @@ public abstract class ServletCommand {
     protected UserManager userManager;
 
     @Inject
-    protected IsActionAllowed actionAllowed;
+    protected RightsResolver actionAllowed;
 
     @Inject
     protected RightCriteriumWrapperFactory criteriumWrapperFactory;

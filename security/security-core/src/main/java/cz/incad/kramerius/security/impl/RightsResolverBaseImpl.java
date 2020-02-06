@@ -21,12 +21,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.IsActionAllowedBase;
+import cz.incad.kramerius.security.RightsResolverBase;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
-public class IsActionAllowedBaseImpl implements IsActionAllowedBase {
+public class RightsResolverBaseImpl implements RightsResolverBase {
     
     // rightsadmin
     // rightssubadmin

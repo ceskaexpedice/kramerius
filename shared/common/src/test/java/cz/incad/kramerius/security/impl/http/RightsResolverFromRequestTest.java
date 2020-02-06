@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 
+import cz.incad.kramerius.security.RightsResolver;
 import org.apache.commons.configuration.Configuration;
 import org.easymock.EasyMock;
 import org.junit.Assert;
@@ -14,7 +15,7 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-public class IsActionAllowedFromRequestTest {
+public class RightsResolverFromRequestTest {
 
     @Test
     public void testForwardAddress() {
@@ -32,8 +33,8 @@ public class IsActionAllowedFromRequestTest {
         
         Configuration conf = KConfiguration.getInstance().getConfiguration();
         conf.setProperty("x_ip_forwared_enabled_for", Arrays.asList(IPAddressUtils.LOCALHOSTS));
-        
-        IsActionAllowedFromRequest isActionAllowed = new IsActionAllowedFromRequest(null, reqProvider, null, null, null);
+
+        RightsResolver righsResolver = new RightsResolverFromRequest(null, reqProvider, null, null, null);
         String rAddres = IPAddressUtils.getRemoteAddress(req, conf);
         Assert.assertTrue("192.167.1.2".equals(rAddres));
         Assert.assertFalse("127.0.0.1".equals(rAddres));
@@ -55,8 +56,8 @@ public class IsActionAllowedFromRequestTest {
         
         Configuration conf = KConfiguration.getInstance().getConfiguration();
         conf.setProperty("x_ip_forwared_enabled_for", Arrays.asList());
-        
-        IsActionAllowedFromRequest isActionAllowed = new IsActionAllowedFromRequest(null, reqProvider, null, null, null);
+
+        RightsResolver righsResolver = new RightsResolverFromRequest(null, reqProvider, null, null, null);
         String rAddres = IPAddressUtils.getRemoteAddress(req, conf);
         Assert.assertTrue("192.167.1.2".equals(rAddres));
         Assert.assertFalse("127.0.0.1".equals(rAddres));

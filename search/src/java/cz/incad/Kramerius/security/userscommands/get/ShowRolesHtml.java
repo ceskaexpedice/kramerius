@@ -18,7 +18,6 @@ package cz.incad.Kramerius.security.userscommands.get;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -29,13 +28,10 @@ import org.antlr.stringtemplate.StringTemplate;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.Kramerius.security.strenderers.RoleWrapper;
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;
 import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.utils.K4Collections;
@@ -45,7 +41,7 @@ public class ShowRolesHtml extends AbstractRoleCommand {
     java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ShowRolesHtml.class.getName());
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver actionAllowed;
     
     @Inject
     LoggedUsersSingleton loggedUsersSingleton;

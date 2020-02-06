@@ -22,11 +22,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 /**
- * IsActionAllowedFromRequestCached
+ * RightsResolverFromRequestCached
  *
  * @author Martin Rumanek
  */
-public class IsActionAllowedFromRequestCached extends IsActionAllowedFromRequest{
+public class RightsResolverFromRequestCached extends RightsResolverFromRequest {
     static class CacheKey implements Serializable {
         private final String PID;
         private final User user;
@@ -66,10 +66,10 @@ public class IsActionAllowedFromRequestCached extends IsActionAllowedFromRequest
     private static final String CACHE_ALIAS = "ActionAllowedCache";
 
     @Inject
-    public IsActionAllowedFromRequestCached(Logger logger, Provider<HttpServletRequest> provider,
-                                            RightsManager rightsManager, RightCriteriumContextFactory contextFactory,
-                                            Provider<User> currentUserProvider, CacheManager cacheManager,
-                                            KConfiguration configuration) {
+    public RightsResolverFromRequestCached(Logger logger, Provider<HttpServletRequest> provider,
+                                           RightsManager rightsManager, RightCriteriumContextFactory contextFactory,
+                                           Provider<User> currentUserProvider, CacheManager cacheManager,
+                                           KConfiguration configuration) {
         super(logger, provider, rightsManager, contextFactory, currentUserProvider);
 
         this.provider = provider;

@@ -17,7 +17,6 @@
 package cz.incad.Kramerius.views.rights;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,18 +38,15 @@ import cz.incad.Kramerius.security.strenderers.TitlesForObjects;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightsManager;
-import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.utils.params.ParamsLexer;
-import cz.incad.kramerius.utils.params.ParamsParser;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.virtualcollections.CollectionException;
@@ -70,7 +66,7 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
     RightsManager rightsManager;
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver actionAllowed;
     
     @Inject
     Provider<User> userProvider;

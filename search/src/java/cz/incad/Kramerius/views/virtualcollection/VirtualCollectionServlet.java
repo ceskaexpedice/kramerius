@@ -60,7 +60,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
     CollectionsManager collectionManager;
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver actionAllowed;
 
     @Inject
     Provider<User> userProvider;

@@ -76,7 +76,7 @@ import cz.incad.kramerius.rest.api.processes.exceptions.LogsNotFound;
 import cz.incad.kramerius.rest.api.processes.exceptions.NoDefinitionFound;
 import cz.incad.kramerius.rest.api.processes.exceptions.NoProcessFound;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -138,7 +138,7 @@ public class LRResource {
     Provider<User> userProvider;
     
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver actionAllowed;
     
     @Inject
     Application application;
@@ -704,12 +704,12 @@ public class LRResource {
     }
 
 
-    boolean permit(IsActionAllowed rightsResolver, User user) {
+    boolean permit(RightsResolver rightsResolver, User user) {
         boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH) : false;
         return permited;
     }
 
-    boolean permit(IsActionAllowed rightsResolver, SecuredActions action, User user) {
+    boolean permit(RightsResolver rightsResolver, SecuredActions action, User user) {
         boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH) || 
                             (action != null && rightsResolver.isActionAllowed(user, action.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH))) : false ;
         return permited;

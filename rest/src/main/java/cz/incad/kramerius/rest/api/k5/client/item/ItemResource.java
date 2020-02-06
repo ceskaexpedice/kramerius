@@ -18,7 +18,7 @@ import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
 import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.User;
@@ -88,7 +88,7 @@ public class ItemResource {
     SolrMemoization solrMemoization;
 
     @Inject
-    IsActionAllowed isActionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     ReplicationService replicationService;
@@ -112,7 +112,7 @@ public class ItemResource {
                 paths = this.resourceIndex.getPath(pid);
             }
             for (ObjectPidsPath path : paths) {
-                if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, path)) {
+                if (this.rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, path)) {
                     access = true;
                     break;
                 }
@@ -165,7 +165,7 @@ public class ItemResource {
                         User user = this.userProvider.get();
 
                         AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
-                        ResponseBuilder builder = AudioStreamForwardUtils.HEAD(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
+                        ResponseBuilder builder = AudioStreamForwardUtils.HEAD(audioStreamId, request, responseBuilder, solrAccess, user, this.rightsResolver, urlManager);
                         return builder.build();
 
                     } else {
@@ -237,7 +237,7 @@ public class ItemResource {
                         HttpServletRequest request = this.requestProvider.get();
                         User user = this.userProvider.get();
                         AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
-                        ResponseBuilder builder = AudioStreamForwardUtils.GET(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
+                        ResponseBuilder builder = AudioStreamForwardUtils.GET(audioStreamId, request, responseBuilder, solrAccess, user, this.rightsResolver, urlManager);
                         return builder.build();
 
                     } else {

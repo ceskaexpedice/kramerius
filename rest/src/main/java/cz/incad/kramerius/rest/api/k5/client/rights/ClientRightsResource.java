@@ -38,7 +38,7 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.virtualcollections.CollectionException;
@@ -50,7 +50,7 @@ public class ClientRightsResource {
     public static final Logger LOGGER = Logger.getLogger(ClientRightsResource.class.getName());
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver actionAllowed;
 
     @Inject
     SolrAccess solrAccess;

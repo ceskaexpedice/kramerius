@@ -39,7 +39,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
@@ -83,7 +83,7 @@ public class CDKReplicationsResource {
     SolrAccess solrAccess;
 
     @Inject
-    IsActionAllowed isActionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -144,7 +144,7 @@ public class CDKReplicationsResource {
     boolean checkPermission() throws IOException {
         ObjectPidsPath path = new ObjectPidsPath(
                 SpecialObjects.REPOSITORY.getPid());
-        if (this.isActionAllowed.isActionAllowed(
+        if (this.rightsResolver.isActionAllowed(
                 SecuredActions.EXPORT_CDK_REPLICATIONS.getFormalName(),
                 SpecialObjects.REPOSITORY.getPid(), null, path))
             return true;

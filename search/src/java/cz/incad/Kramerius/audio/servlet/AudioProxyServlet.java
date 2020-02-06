@@ -25,7 +25,7 @@ import cz.incad.kramerius.audio.AudioStreamForwardUtils;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.audio.servlets.ServletAudioHttpRequestForwarder;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.User;
 
 import java.io.IOException;
@@ -56,7 +56,7 @@ public class AudioProxyServlet extends GuiceServlet {
     private static final Logger LOGGER = Logger.getLogger(AudioProxyServlet.class.getName());
 
 	@Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver actionAllowed;
     @Inject
     SolrAccess solrAccess;
     @Inject
