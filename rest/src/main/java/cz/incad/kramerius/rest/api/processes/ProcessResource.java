@@ -1,6 +1,10 @@
 package cz.incad.kramerius.rest.api.processes;
 
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.processes.DefinitionManager;
+import cz.incad.kramerius.processes.LRProcess;
+import cz.incad.kramerius.processes.LRProcessDefinition;
+import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.new_api.Filter;
 import cz.incad.kramerius.processes.new_api.ProcessInBatch;
 import cz.incad.kramerius.processes.new_api.ProcessManager;
@@ -14,8 +18,11 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
@@ -27,12 +34,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 @Path("/v6.0/processes")
@@ -42,10 +47,17 @@ public class ProcessResource {
 
     private static final Integer DEFAULT_OFFSET = 0;
     private static final Integer DEFAULT_LIMIT = 10;
-    private static final boolean DEV_DISABLE_ACCESS_CONTROL = true;
+    private static final boolean DEV_DISABLE_ACCESS_CONTROL_FOR_READ_ONLY_OPS = true;
 
-    //@Inject
-    //LRProcessManager lrProcessManager;
+    //TODO: proverit
+    private static final String AUTH_TOKEN_HEADER_KEY = "auth-token";
+    private static final String TOKEN_ATTRIBUTE_KEY = "token";
+
+    @Inject
+    LRProcessManager lrProcessManager; //here only for scheduling
+
+    @Inject
+    DefinitionManager definitionManager; //process definitions
 
     @Inject
     ProcessManager processManager;
@@ -86,7 +98,7 @@ public class ProcessResource {
     ) {
         try {
             //access control
-            if (!DEV_DISABLE_ACCESS_CONTROL) {
+            if (!DEV_DISABLE_ACCESS_CONTROL_FOR_READ_ONLY_OPS) {
                 String loggedUserKey = findLoggedUserKey();
                 User user = this.loggedUsersSingleton.getUser(loggedUserKey);
                 if (user == null) {
@@ -163,6 +175,7 @@ public class ProcessResource {
 
     /**
      * Schedules new process
+     *
      * @param processDefinition
      * @return
      */
@@ -171,25 +184,150 @@ public class ProcessResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response scheduleProcess(JSONObject processDefinition) {
         try {
-            if (processDefinition != null) {
-                String uuid = "uuid:123";
-                URI uri = UriBuilder.fromResource(ProcessResource.class).path("{uuid}").build(uuid);
-                JSONObject result = new JSONObject();
-                result.put("uuid", uuid);
-                result.put("definition", processDefinition);
-                return Response
-                        .created(uri)
-                        .entity(result.toString()).build();
-            } else {
-                throw new BadRequestException("missing process processDefinition");
+            if (processDefinition == null) {
+                throw new BadRequestException("missing process definition");
             }
+            if (!processDefinition.has("type")) {
+                throw new BadRequestException("empty type");
+            }
+            String type = processDefinition.getString("type");
+            JSONObject params = new JSONObject();
+            if (processDefinition.has("params")) {
+                params = processDefinition.getJSONObject("params");
+            }
+            //System.out.println(params);
+            List<String> paramsList = paramsToList(type, params);
+            return scheduleProcess(type, paramsList);
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
+            e.printStackTrace();
             throw new GenericApplicationException(e.getMessage());
         }
     }
 
+    private List<String> paramsToList(String type, JSONObject params) {
+        switch (type) {
+            case "test": {
+                Integer duration = 1;
+                if (params.has("duration")) {
+                    //TODO: test when not int
+                    duration = params.getInt("duration");
+                }
+                Integer processesInBatch = 1;
+                if (params.has("processesInBatch")) {
+                    //TODO: test when not int
+                    processesInBatch = params.getInt("processesInBatch");
+                }
+                Boolean fail = false;
+                if (params.has("fail")) {
+                    //TODO: test when not boolean
+                    fail = params.getBoolean("fail");
+                }
+                List<String> array = new ArrayList<>();
+                array.add(duration.toString());
+                array.add(processesInBatch.toString());
+                array.add(fail.toString());
+                return array;
+            }
+            default: {
+                throw new BadRequestException("unsupported process type '%s'", type);
+            }
+        }
+    }
+
+    private Response scheduleProcess(String type, List<String> params) {
+        LRProcessDefinition definition = processDefinition(type);
+        if (definition == null) {
+            throw new BadRequestException("process definition for type '%' not found", type);
+        }
+
+        //access control
+        String loggedUserKey = findLoggedUserKey();
+        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        if (user == null) {
+            throw new UnauthorizedException(); //401
+        }
+        SecuredActions actionFromDef = securedAction(type, definition);
+        //System.out.println(actionFromDef);
+        //TODO: proverit, vypada to, ze actionFromDef byva null a tak se chytne druha klauzule
+        boolean allowed = (rightsResolver.isActionAllowed(user, SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH)
+                || (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH)));
+        if (!allowed) {
+            throw new ActionNotAllowed("user '%s' is not allowed to manage processes", user.getLoginname()); //403
+        }
+
+        LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
+        //System.out.println("newProcess: " + newProcess);
+        //tohle vypada, ze se je k nicemu, ve vysledku se to jen uklada do databaze do processes.params_mapping a to ani ne vzdy
+        // select planned, params_mapping from processes where params_mapping!='' order by planned desc limit 10;
+        newProcess.setLoggedUserKey(loggedUserKey);
+        newProcess.setParameters(params);
+        newProcess.setUser(user);
+
+
+        if (definition.isInputTemplateDefined()) { //'plain' process
+            System.out.println("plain process");
+            newProcess.planMe(new Properties(), IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
+            lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
+            URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
+            return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
+        } else { //'parametrized' process
+            System.out.println("parametrized process");
+            Properties props = new Properties();
+            /*for (Iterator iterator = mapping.keys(); iterator.hasNext(); ) {
+                String key = (String) iterator.next();
+                try {
+                    props.put(key.toString(), mapping.get(key).toString());
+                } catch (JSONException e) {
+                    throw new GenericApplicationException(e.getMessage());
+                }
+            }*/
+            newProcess.planMe(props, IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
+            lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
+            URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
+            return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
+        }
+    }
+
+    //TODO: proverit fungovani
+    private LRProcessDefinition processDefinition(String processType) {
+        definitionManager.load();
+        LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(processType);
+        return definition;
+    }
+
+    //TODO: proverit fungovani
+    private SecuredActions securedAction(String processType, LRProcessDefinition definition) {
+        return definition.getSecuredAction() != null ? SecuredActions.findByFormalName(definition.getSecuredAction()) : SecuredActions.findByFormalName(processType);
+    }
+
+    private JSONObject lrPRocessToJSONObject(LRProcess lrProcess) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("uuid", lrProcess.getUUID());
+        jsonObject.put("pid", lrProcess.getPid()); //empty
+        jsonObject.put("type", lrProcess.getDefinitionId());
+        jsonObject.put("state", lrProcess.getProcessState().toString());
+        //jsonObject.put("batchState", lrProcess.getBatchState().toString());
+        jsonObject.put("name", lrProcess.getProcessName());
+        if (lrProcess.getPlannedTime() > 0) {
+            jsonObject.put("planned", toFormattedStringOrNull(lrProcess.getPlannedTime()));
+        }
+        jsonObject.put("userid", lrProcess.getLoginname()); //empty
+        jsonObject.put("userFirstname", lrProcess.getFirstname()); //empty
+        jsonObject.put("userSurname", lrProcess.getSurname()); //empty
+        return jsonObject;
+    }
+
+    public String authToken() {
+        return requestProvider.get().getHeader(AUTH_TOKEN_HEADER_KEY);
+    }
+
+    public String groupToken() {
+        HttpServletRequest request = requestProvider.get();
+        String gtoken = request.getHeader(TOKEN_ATTRIBUTE_KEY);
+        return gtoken;
+    }
 
     private String findLoggedUserKey() {
         //TODO: otestovat, nebo zmenit
@@ -307,6 +445,12 @@ public class ProcessResource {
         } else {
             return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(dateTime);
         }
+    }
+
+    private String toFormattedStringOrNull(long timeInSeconds) {
+
+        LocalDateTime localDateTime = LocalDateTime.ofEpochSecond(timeInSeconds, 0, ZoneOffset.UTC);
+        return toFormattedStringOrNull(localDateTime);
     }
 
     private String toBatchStateName(Integer batchStateCode) {

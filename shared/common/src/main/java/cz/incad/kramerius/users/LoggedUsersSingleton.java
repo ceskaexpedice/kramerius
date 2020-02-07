@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.users.impl.LoggedUsersSingletonImpl;
 
 /**
  * Manages logged users 
