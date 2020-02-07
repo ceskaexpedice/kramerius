@@ -265,15 +265,14 @@ public class ProcessResource {
         newProcess.setParameters(params);
         newProcess.setUser(user);
 
-
         if (definition.isInputTemplateDefined()) { //'plain' process
-            System.out.println("plain process");
+            //System.out.println("plain process");
             newProcess.planMe(new Properties(), IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
             lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
             URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
             return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
         } else { //'parametrized' process
-            System.out.println("parametrized process");
+            //System.out.println("parametrized process");
             Properties props = new Properties();
             /*for (Iterator iterator = mapping.keys(); iterator.hasNext(); ) {
                 String key = (String) iterator.next();
@@ -383,6 +382,7 @@ public class ProcessResource {
             }
             result.add(batch);
         }
+        Collections.sort(result, (o1, o2) -> -1 * o1.planned.compareTo(o2.planned));
         return result;
     }
 
