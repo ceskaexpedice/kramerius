@@ -24,6 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -158,6 +160,36 @@ public class ProcessResource {
             throw new GenericApplicationException(e.getMessage());
         }
     }
+
+    /**
+     * Schedules new process
+     * @param processDefinition
+     * @return
+     */
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response scheduleProcess(JSONObject processDefinition) {
+        try {
+            if (processDefinition != null) {
+                String uuid = "uuid:123";
+                URI uri = UriBuilder.fromResource(ProcessResource.class).path("{uuid}").build(uuid);
+                JSONObject result = new JSONObject();
+                result.put("uuid", uuid);
+                result.put("definition", processDefinition);
+                return Response
+                        .created(uri)
+                        .entity(result.toString()).build();
+            } else {
+                throw new BadRequestException("missing process processDefinition");
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
+
 
     private String findLoggedUserKey() {
         //TODO: otestovat, nebo zmenit
