@@ -87,7 +87,7 @@ public class RightsResource {
     RightCriteriumWrapperFactory critFactory;
 
     @Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver;
 
   
     /**
@@ -455,7 +455,7 @@ public class RightsResource {
 	
 	boolean permit(User user) {
     	if (user != null)
-    		return  this.actionAllowed.isActionAllowed(user,SecuredActions.ADMINISTRATE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH);
+    		return  this.rightsResolver.isActionAllowed(user,SecuredActions.ADMINISTRATE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH);
     	else 
     		return false;
     }

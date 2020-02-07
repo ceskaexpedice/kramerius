@@ -17,7 +17,6 @@
 package cz.incad.Kramerius.security.rightscommands.post;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -26,15 +25,9 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.NotImplementedException;
-
-import cz.incad.Kramerius.security.RightsServlet;
-import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.impl.RightImpl;
@@ -76,7 +69,7 @@ public class Edit extends ServletRightsCommand {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
+            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
                 hasRight = true;
                 break;
             } else {
@@ -85,7 +78,7 @@ public class Edit extends ServletRightsCommand {
         } 
         // root object
         if (paths.length  == 0) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null ,new ObjectPidsPath(pid))) {
+            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null ,new ObjectPidsPath(pid))) {
                 hasRight = true;
             } else {
                 throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));

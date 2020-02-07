@@ -31,7 +31,6 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.impl.RightImpl;
-import cz.incad.kramerius.utils.FedoraUtils;
 
 public class Create extends ServletRightsCommand {
     
@@ -78,7 +77,7 @@ public class Create extends ServletRightsCommand {
         
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
+            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
                 hasRight = true;
                 break;
             } else {
@@ -87,7 +86,7 @@ public class Create extends ServletRightsCommand {
         } 
         // root object
         if (paths.length  == 0) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, new ObjectPidsPath(pid))) {
+            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, new ObjectPidsPath(pid))) {
                 hasRight = true;
             } else {
                 throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));

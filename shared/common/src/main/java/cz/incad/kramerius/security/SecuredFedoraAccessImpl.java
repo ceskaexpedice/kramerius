@@ -54,12 +54,12 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     private DiscStrucutreForStore discStrucutreForStore;
 
     @Inject
-    public SecuredFedoraAccessImpl(@Named("cachedFedoraAccess") FedoraAccess rawAccess, DiscStrucutreForStore discStrucutreForStore, SolrAccess solrAccess, RightsResolver actionAllowed) {
+    public SecuredFedoraAccessImpl(@Named("cachedFedoraAccess") FedoraAccess rawAccess, DiscStrucutreForStore discStrucutreForStore, SolrAccess solrAccess, RightsResolver rightsResolver) {
         super();
         this.rawAccess = rawAccess;
         this.discStrucutreForStore = discStrucutreForStore;
         this.solrAccess = solrAccess;
-        this.rightsResolver = actionAllowed;
+        this.rightsResolver = rightsResolver;
     }
 
     @Override

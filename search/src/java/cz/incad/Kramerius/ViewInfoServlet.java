@@ -80,7 +80,7 @@ public class ViewInfoServlet extends GuiceServlet {
     DeepZoomCacheService deepZoomCacheService;
 
     @Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver;
 
     
     @Inject
@@ -318,7 +318,7 @@ public class ViewInfoServlet extends GuiceServlet {
     public MappedPath findPathWithFirstAccess(HttpServletRequest req, String pid, ObjectPidsPath[] paths,SecuredActions act) throws CollectionException {
         for (ObjectPidsPath objectPath : paths) {
             ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet);
-            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM ,path);
+            boolean[] allowedActionForPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM ,path);
             if (atLeastOneTrue(allowedActionForPath)) {
                 return new MappedPath(path, allowedActionForPath);
             }
@@ -330,7 +330,7 @@ public class ViewInfoServlet extends GuiceServlet {
         List<MappedPath> mappedPaths = new ArrayList<ViewInfoServlet.MappedPath>();
         for (ObjectPidsPath objectPath : paths) {
             ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet);
-            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM,path);
+            boolean[] allowedActionForPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM,path);
             mappedPaths.add(new MappedPath(path, allowedActionForPath));
         }
                 
@@ -338,12 +338,12 @@ public class ViewInfoServlet extends GuiceServlet {
     }
     
     
-/*    
+   /*
     public boolean[] fillActionsToJSON(HttpServletRequest req, String uuid, ObjectPidsPath[] paths, HashMap<String, HashMap<String, String>> secMapping,SecuredActions act) {
         
         for (ObjectPidsPath objectPath : paths) {
             ObjectPidsPath path = objectPath.injectRepository();
-            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), uuid,path);
+            boolean[] allowedActionForPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), uuid,path);
             for (boolean b : allowedActionForPath) {
                 if (b) break;
             }
@@ -356,7 +356,7 @@ public class ViewInfoServlet extends GuiceServlet {
         pathWithRepository.add(0, SpecialObjects.REPOSITORY.getUuid());
         Collections.reverse(pathWithRepository);
 
-        boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), uuid,paths);
+        boolean[] allowedActionForPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), uuid,paths);
         
         for (int j = 0; j < allowedActionForPath.length; j++) {
             if (!secMapping.containsKey(act.getFormalName())) {
@@ -367,7 +367,7 @@ public class ViewInfoServlet extends GuiceServlet {
         }
         return allowedActionForPath;
     }
-  */  
+  */
 
 
     private boolean resolutionFilePresent(String uuid) throws IOException, ParserConfigurationException, SAXException {

@@ -88,7 +88,7 @@ public class UsersResource {
     Provider<User> userProvider;
 
     @Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver;
 
     // public static final String[] COLS = new String[]
     // {"user_id","name","surname","loginname"};
@@ -374,7 +374,7 @@ public class UsersResource {
 
     boolean permit(User user) {
         if (user != null)
-            return this.actionAllowed.isActionAllowed(user,
+            return this.rightsResolver.isActionAllowed(user,
                     SecuredActions.USERSADMIN.getFormalName(),
                     SpecialObjects.REPOSITORY.getPid(), null,
                     ObjectPidsPath.REPOSITORY_PATH);

@@ -49,10 +49,10 @@ public class WellcomeViewObject {
     Provider<Locale> provider;
 
     @Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver;
     
     public String getIntro() throws IOException {
-        boolean operationPermited = actionAllowed.isActionAllowed(SecuredActions.EDIT_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
+        boolean operationPermited = rightsResolver.isActionAllowed(SecuredActions.EDIT_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
         return operationPermited ? getTextIntro() : getTextIntro();
     }
     

@@ -61,7 +61,7 @@ public class RenameCriteriumParams extends ServletRightsCommand {
             Object paramsToRename = values.get("renameparams");
             Object newName = values.get("name");
 
-            if (this.actionAllowed.isActionAllowed(SecuredActions.CRITERIA_RIGHTS_MANAGE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
+            if (this.rightsResolver.isActionAllowed(SecuredActions.CRITERIA_RIGHTS_MANAGE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
                 RightCriteriumParams params = rightsManager.findParamById(Integer.parseInt(paramsToRename.toString()));
                 if (params != null) {
                     params.setShortDescription(newName.toString());

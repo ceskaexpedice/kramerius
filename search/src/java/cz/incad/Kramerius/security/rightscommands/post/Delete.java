@@ -85,7 +85,7 @@ public class Delete extends ServletRightsCommand {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
+            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
                 hasRight = true;
                 break;
             } else {

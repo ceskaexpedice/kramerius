@@ -39,7 +39,7 @@ public class IiifServlet extends AbstractImageServlet {
     private SolrAccess solrAccess;
 
     @Inject
-    private RightsResolver actionAllowed;
+    private RightsResolver rightsResolver;
 
     @Inject
     private Provider<User> userProvider;
@@ -70,7 +70,7 @@ public class IiifServlet extends AbstractImageServlet {
             ObjectPidsPath[] paths = solrAccess.getPath(pid);
             boolean permited = false;
             for (ObjectPidsPath pth : paths) {
-                permited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth);
+                permited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth);
                 if (permited) break;
             }
 

@@ -44,7 +44,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
     Provider<User> userProvider;
 
     @Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver;
     
     @Inject
     SolrAccess solrAccess;
@@ -151,7 +151,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
     private boolean canBeRead(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth)) {
+            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth)) {
                 return true;
             }
         }

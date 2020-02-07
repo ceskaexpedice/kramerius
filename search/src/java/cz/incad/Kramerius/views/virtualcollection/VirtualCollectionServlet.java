@@ -60,7 +60,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
     CollectionsManager collectionManager;
 
     @Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     Provider<User> userProvider;
@@ -68,7 +68,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
 
     boolean permit(User user) {
         if (user != null)
-            return this.actionAllowed.isActionAllowed(user, SecuredActions.VIRTUALCOLLECTION_MANAGE.getFormalName(),
+            return this.rightsResolver.isActionAllowed(user, SecuredActions.VIRTUALCOLLECTION_MANAGE.getFormalName(),
                     SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
         else
             return false;

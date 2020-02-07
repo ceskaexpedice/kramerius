@@ -81,7 +81,7 @@ public class RolesResource {
     Provider<User> userProvider;
     
     @Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver;
 
 	
 
@@ -215,7 +215,7 @@ public class RolesResource {
 	
     boolean permit(User user) {
     	if (user != null)
-    		return  this.actionAllowed.isActionAllowed(user,SecuredActions.USERSADMIN.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH);
+    		return  this.rightsResolver.isActionAllowed(user,SecuredActions.USERSADMIN.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH);
     	else 
     		return false;
     }

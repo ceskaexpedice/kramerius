@@ -87,7 +87,7 @@ public class RightsServlet extends GuiceServlet {
     transient UserManager userManager;
 
     @Inject
-    transient RightsResolver actionAllowed;
+    transient RightsResolver rightsResolver;
     
     
     @Inject

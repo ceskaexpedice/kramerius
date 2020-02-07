@@ -63,7 +63,7 @@ public class StatisticsResource {
     StatisticsAccessLog statisticsAccessLog;
 
     @Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     Provider<User> userProvider;
@@ -134,7 +134,7 @@ public class StatisticsResource {
 
     boolean permit(User user) {
         if (user != null)
-            return this.actionAllowed.isActionAllowed(user,
+            return this.rightsResolver.isActionAllowed(user,
                     SecuredActions.SHOW_STATISTICS.getFormalName(),
                     SpecialObjects.REPOSITORY.getPid(), null,
                     ObjectPidsPath.REPOSITORY_PATH);

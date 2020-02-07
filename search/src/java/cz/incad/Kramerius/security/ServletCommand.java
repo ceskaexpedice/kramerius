@@ -82,7 +82,7 @@ public abstract class ServletCommand {
     protected UserManager userManager;
 
     @Inject
-    protected RightsResolver actionAllowed;
+    protected RightsResolver rightsResolver;
 
     @Inject
     protected RightCriteriumWrapperFactory criteriumWrapperFactory;

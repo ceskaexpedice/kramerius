@@ -85,7 +85,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
     StatisticsAccessLog accessLog;
 
     @Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver;
     
     @Inject
     Provider<User> userProvider;
@@ -122,7 +122,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
                 ObjectPidsPath[] paths = solrAccess.getPath(pid);
                 boolean premited = false;
                 for (ObjectPidsPath pth : paths) {
-                    premited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth);
+                    premited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth);
                     if (premited) break;
                 }
                 
