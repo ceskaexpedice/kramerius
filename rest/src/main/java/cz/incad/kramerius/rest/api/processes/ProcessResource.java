@@ -82,7 +82,7 @@ public class ProcessResource {
      * @param filterOwner filter to batches run by user with this id (login)
      * @param filterFrom  filter to batches started after this datetime, format is 2019-01-01T00:00:00
      * @param filterUntil filter to batches finished before this datetime, format is 2019-12-31T23:59:59
-     * @param filterState filter to batches with this state (possible values are PLANNED, RUNNING, FINISHED, or FAILED)
+     * @param filterState filter to batches with this state (possible values are PLANNED, RUNNING, FINISHED, KILLED or FAILED)
      * @return
      */
     @GET
@@ -463,6 +463,8 @@ public class ProcessResource {
                 return "FINISHED";
             case 3:
                 return "FAILED";
+            case 4:
+                return "KILLED";
             default:
                 return "UNKNOWN";
         }
@@ -478,6 +480,8 @@ public class ProcessResource {
                 return 2;
             case "FAILED":
                 return 3;
+            case "KILLED":
+                return 4;
             default:
                 throw new BadRequestException("unknown state '%s'", batchStateName);
         }
