@@ -10,9 +10,8 @@ public class ProcessInBatch {
     public LocalDateTime batchPlanned;
     public LocalDateTime batchStarted;
     public LocalDateTime batchFinished;
-    public String batchOwnerLogin;
-    public String batchOwnerFirstname;
-    public String batchOwnerSurname;
+    public String batchOwnerId;
+    public String batchOwnerName;
     public int batchSize;
 
     public String processId;

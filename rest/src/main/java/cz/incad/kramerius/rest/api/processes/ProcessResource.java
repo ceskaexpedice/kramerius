@@ -484,9 +484,8 @@ public class ProcessResource {
             batch.planned = firstPib.batchPlanned;
             batch.started = firstPib.batchStarted;
             batch.finished = firstPib.batchFinished;
-            batch.ownerLogin = firstPib.batchOwnerLogin;
-            batch.ownerFirstname = firstPib.batchOwnerFirstname;
-            batch.ownerSurname = firstPib.batchOwnerSurname;
+            batch.ownerId = firstPib.batchOwnerId;
+            batch.ownerName = firstPib.batchOwnerName;
             for (ProcessInBatch pib : pibsOfBatch) {
                 Process process = new Process();
                 process.uuid = pib.processUuid;
@@ -515,9 +514,8 @@ public class ProcessResource {
         batchJson.put("planned", toFormattedStringOrNull(batch.planned));
         batchJson.put("started", toFormattedStringOrNull(batch.started));
         batchJson.put("finished", toFormattedStringOrNull(batch.finished));
-        batchJson.put("owner_login", batch.ownerLogin);
-        batchJson.put("owner_firstname", batch.ownerFirstname);
-        batchJson.put("owner_surname", batch.ownerSurname);
+        batchJson.put("owner_id", batch.ownerId);
+        batchJson.put("owner_name", batch.ownerName);
         json.put("batch", batchJson);
         //processes
         JSONArray processArray = new JSONArray();
@@ -535,6 +533,19 @@ public class ProcessResource {
         }
         json.put("processes", processArray);
         return json;
+    }
+
+    private String toFormattedStringOrNull(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return null;
+        } else {
+            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(dateTime);
+        }
+    }
+
+    private String toFormattedStringOrNull(long timeInSeconds) {
+        LocalDateTime localDateTime = LocalDateTime.ofEpochSecond(timeInSeconds, 0, ZoneOffset.UTC);
+        return toFormattedStringOrNull(localDateTime);
     }
 
     private String toProcessStateName(Integer stateCode) {
@@ -556,20 +567,6 @@ public class ProcessResource {
             default:
                 return "UNKNOWN";
         }
-    }
-
-    private String toFormattedStringOrNull(LocalDateTime dateTime) {
-        if (dateTime == null) {
-            return null;
-        } else {
-            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(dateTime);
-        }
-    }
-
-    private String toFormattedStringOrNull(long timeInSeconds) {
-
-        LocalDateTime localDateTime = LocalDateTime.ofEpochSecond(timeInSeconds, 0, ZoneOffset.UTC);
-        return toFormattedStringOrNull(localDateTime);
     }
 
     private String toBatchStateName(Integer batchStateCode) {
@@ -613,9 +610,8 @@ public class ProcessResource {
         public LocalDateTime planned;
         public LocalDateTime started;
         public LocalDateTime finished;
-        public String ownerLogin;
-        public String ownerFirstname;
-        public String ownerSurname;
+        public String ownerId;
+        public String ownerName;
         List<Process> processes = new ArrayList<>();
     }
 

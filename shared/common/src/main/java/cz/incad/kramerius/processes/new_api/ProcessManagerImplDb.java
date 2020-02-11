@@ -58,7 +58,7 @@ public class ProcessManagerImplDb implements ProcessManager {
                 } else {
                     firstCondition = false;
                 }
-                builder.append(" batch.ownerlogin='").append(filter.owner).append("'");
+                builder.append(" batch.ownerId='").append(filter.owner).append("'");
             }
             //from
             if (filter.from != null) {
@@ -109,9 +109,8 @@ public class ProcessManagerImplDb implements ProcessManager {
                             "batch.planned AS batch_planned," +
                             "batch.started AS batch_started," +
                             "batch.finished AS batch_finished," +
-                            "batch.ownerLogin AS batch_owner_login," +
-                            "processes.firstname AS batch_owner_firstname," +
-                            "processes.surname AS batch_owner_surname," +
+                            "batch.ownerId AS batch_owner_id," +
+                            "batch.ownerName AS batch_owner_name," +
 
                             "processes.process_id AS process_id," +
                             "processes.uuid AS process_uuid," +
@@ -142,9 +141,8 @@ public class ProcessManagerImplDb implements ProcessManager {
                     processInBatch.batchPlanned = toLocalDateTime(rs.getTimestamp("batch_planned"));
                     processInBatch.batchStarted = toLocalDateTime(rs.getTimestamp("batch_started"));
                     processInBatch.batchFinished = toLocalDateTime(rs.getTimestamp("batch_finished"));
-                    processInBatch.batchOwnerLogin = rs.getString("batch_owner_login");
-                    processInBatch.batchOwnerFirstname = rs.getString("batch_owner_firstname");
-                    processInBatch.batchOwnerSurname = rs.getString("batch_owner_surname");
+                    processInBatch.batchOwnerId = rs.getString("batch_owner_id");
+                    processInBatch.batchOwnerName = rs.getString("batch_owner_name");
                     processInBatch.batchSize = rs.getInt("batch_size");
 
                     processInBatch.processId = rs.getString("process_id");

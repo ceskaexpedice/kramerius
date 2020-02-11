@@ -110,7 +110,6 @@ CREATE AGGREGATE batch_state(integer)
 );
 
 --(ne-materialized verze) view pro batch procesu, jen pro testovani
---todo: ownerFirstname a ownerSurname nebude potreba, neni to na razeni a pro jednotlive procesy se to pak vezme joinem
 CREATE VIEW process_batch_not_precomputed AS
 SELECT
     processes.token AS batch_token,
@@ -124,9 +123,8 @@ SELECT
     min(processes.planned) AS planned,
     min(processes.started) AS started,
     max(processes.finished) AS finished,
-    min(processes.loginname) as ownerLogin,
-    min(processes.firstname) as ownerFirstname,
-    min(processes.surname) as ownerSurname
+    min(processes.owner_id) as ownerId,
+    min(processes.owner_name) as ownerName
   FROM
     processes
   GROUP BY
@@ -149,9 +147,8 @@ SELECT
     min(processes.planned) AS planned,
     min(processes.started) AS started,
     max(processes.finished) AS finished,
-    min(processes.loginname) as ownerLogin,
-    min(processes.firstname) as ownerFirstname,
-    min(processes.surname) as ownerSurname
+    min(processes.owner_id) as ownerId,
+    min(processes.owner_name) as ownerName
   FROM
     processes
   GROUP BY
@@ -172,6 +169,7 @@ CREATE FUNCTION refresh_process_batch() RETURNS TRIGGER AS '
 --trigger, ktery pri zmene stavu nektereho procesu prekeneruje cele materialized view process_batch
 --TODO: jeste optimalizovat, pro 125k procesu to trva jednotky sekund a deje se to pri zmene stavu kazdeho procesu
 --moznosti optimalizace: 1. omezit sloupce v process_batch jen na ty nezbytne pro razeni (nejspis jen mirne zrychleni), 2. misto materialized view to delat vlastni tabulkou a menit jen dotceny radek, ne vsechno
+--TODO: neaktualizuje se po zmene date-time, coz vypada, ze se prakticky deje (neprve se zmeni stav a az v dalsi operaci timestamp)
 CREATE TRIGGER update_process_batch_on_process_state_change
     AFTER UPDATE ON processes
     FOR EACH ROW
@@ -193,9 +191,4 @@ CREATE TRIGGER update_process_batch_on_process_delete
 
 --TODO:
 --mely by se pouklizet data, napr. odstranit batch_state z tabulky processes, taky pid (stejne nahrazen process_id)
---v produkci nechat jen jednu verzi view, asi materialized
-
---TODO: tohle jen docasne pro testovani, odstranit
---GRANT ALL PRIVILEGES ON DATABASE kramerius4 TO readaccess;
---GRANT ALL PRIVILEGES ON TABLE process_batch_not_precomputed TO readaccess;
---GRANT ALL PRIVILEGES ON TABLE process_batch TO readaccess;
+--v produkci nechat jen jednu verzi view - materialized, nebo jinak predpocitana
