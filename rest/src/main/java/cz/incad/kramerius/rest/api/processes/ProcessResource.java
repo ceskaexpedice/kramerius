@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -49,7 +50,6 @@ public class ProcessResource {
 
     private static final Integer DEFAULT_OFFSET = 0;
     private static final Integer DEFAULT_LIMIT = 10;
-    private static final boolean DEV_DISABLE_ACCESS_CONTROL_FOR_READ_ONLY_OPS = true;
 
     //TODO: proverit
     @Deprecated
@@ -113,22 +113,11 @@ public class ProcessResource {
     ) {
         try {
             //access control with basic access authentification (deprecated)
-            if (!DEV_DISABLE_ACCESS_CONTROL_FOR_READ_ONLY_OPS) {
-                String loggedUserKey = findLoggedUserKey();
-                User user = this.loggedUsersSingleton.getUser(loggedUserKey);
-                if (user == null) {
-                    throw new UnauthorizedException("user==null"); //401
-                }
-                boolean allowed = rightsResolver.isActionAllowed(user, SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
-                if (!allowed) {
-                    throw new ActionNotAllowed("user '%s' is not allowed to manage processes", user.getLoginname()); //403
-                }
-            }
+            checkAccessControlByBasicAccessAuth();
 
-            //nova autentizace
+            //autentizace
             AuthenticatedUser user = getAuthenticatedUser();
-            //System.out.println(user);
-            String role = ROLE_LIST_PROCESSES; //TODO
+            String role = ROLE_LIST_PROCESSES;
             if (!user.getRoles().contains(role)) {
                 throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
@@ -197,6 +186,21 @@ public class ProcessResource {
         }
     }
 
+    private void checkAccessControlByBasicAccessAuth() {
+        boolean disabled = true;
+        if (!disabled) {
+            String loggedUserKey = findLoggedUserKey();
+            User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+            if (user == null) {
+                throw new UnauthorizedException("user==null"); //401
+            }
+            boolean allowed = rightsResolver.isActionAllowed(user, SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
+            if (!allowed) {
+                throw new ActionNotAllowed("user '%s' is not allowed to manage processes", user.getLoginname()); //403
+            }
+        }
+    }
+
     private AuthenticatedUser getAuthenticatedUser() {
         String client = requestProvider.get().getHeader(AUTH_HEADER_CLIENT);
         String uid = requestProvider.get().getHeader(AUTH_HEADER_UID);
@@ -215,35 +219,46 @@ public class ProcessResource {
             con.setRequestProperty(AUTH_HEADER_UID, uid);
             con.setRequestProperty(AUTH_HEADER_ACCESS_TOKEN, accessToken);
             int status = con.getResponseCode();
+
+            //error with not 200
             if (status != 200) {
-                System.out.println("status: " + status);
-                throw new GenericApplicationException("error communicationg with authentification service (response status %d)", status);
-            }
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuffer content = new StringBuffer();
-            while ((inputLine = in.readLine()) != null) {
-                content.append(inputLine);
-            }
-            in.close();
-
-            JSONObject jsonObject = new JSONObject(content.toString());
-            //System.out.println(jsonObject.toString());
-            if (jsonObject.getBoolean("success")) {
-                JSONObject data = jsonObject.getJSONObject("data");
-                String id = data.getString("uid");
-                String name = data.getString("name");
-                List<String> roles = Collections.emptyList();
-                if (data.has("roles") && data.get("roles") != null && !data.isNull("roles")) {
-                    roles = commaSeparatedItemsToList(data.getString("roles"));
+                String message = "response status " + status;
+                String body = inputstreamToString(con.getErrorStream());
+                if (!body.isEmpty()) {
+                    JSONObject bodyJson = new JSONObject(body);
+                    if (bodyJson.has("errors")) {
+                        JSONArray errors = bodyJson.getJSONArray("errors");
+                        if (errors.length() > 0) {
+                            message = errors.getString(0);
+                        }
+                    }
                 }
-                return new AuthenticatedUser(id, name, roles);
-            } else { //session timeout/logged out/ ...
-                //TODO: otestovat (jak vypada json v pripade chyby?)
-                System.out.println(jsonObject.toString());
-                throw new UnauthorizedException(jsonObject.toString());
+                throw new GenericApplicationException("error communicationg with authentification service: %s", message);
             }
+            String body = inputstreamToString(con.getInputStream());
+            JSONObject bodyJson = new JSONObject(body);
+
+            //error with 200 but not success
+            if (!bodyJson.getBoolean("success")) {
+                String message = "";
+                if (bodyJson.has("errors")) {
+                    JSONArray errors = bodyJson.getJSONArray("errors");
+                    if (errors.length() > 0) {
+                        message = errors.getString(0);
+                    }
+                }
+                throw new GenericApplicationException("error communicationg with authentification service: %s", message);
+            }
+
+            //success
+            JSONObject data = bodyJson.getJSONObject("data");
+            String id = data.getString("uid");
+            String name = data.getString("name");
+            List<String> roles = Collections.emptyList();
+            if (data.has("roles") && data.get("roles") != null && !data.isNull("roles")) {
+                roles = commaSeparatedItemsToList(data.getString("roles"));
+            }
+            return new AuthenticatedUser(id, name, roles);
         } catch (WebApplicationException e) {
             throw e;
         } catch (JSONException e) {
@@ -251,6 +266,24 @@ public class ProcessResource {
             throw new GenericApplicationException("error parsing response from authentification service ", e);
         } catch (IOException e) {
             throw new GenericApplicationException("error communicationg with authentification service", e);
+        }
+    }
+
+    private String inputstreamToString(InputStream in) throws IOException {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(in));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = reader.readLine()) != null) {
+                content.append(inputLine);
+            }
+            reader.close();
+            return content.toString();
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
         }
     }
 
@@ -288,12 +321,10 @@ public class ProcessResource {
             if (processDefinition.has("params")) {
                 params = processDefinition.getJSONObject("params");
             }
-            //System.out.println(params);
             List<String> paramsList = paramsToList(type, params);
 
-            //nova autentizace
+            //autentizace
             AuthenticatedUser user = getAuthenticatedUser();
-            //System.out.println(user);
             String role = ROLE_SCHEDULE_PROCESSES;
             if (!user.getRoles().contains(role)) {
                 throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
@@ -342,21 +373,6 @@ public class ProcessResource {
         if (definition == null) {
             throw new BadRequestException("process definition for type '%' not found", type);
         }
-
-        //access control
-        /*String loggedUserKey = findLoggedUserKey();
-        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
-        if (user == null) {
-            throw new UnauthorizedException("user==null"); //401
-        }
-        SecuredActions actionFromDef = securedAction(type, definition);
-        //System.out.println(actionFromDef);
-        //TODO: proverit, vypada to, ze actionFromDef byva null a tak se chytne druha klauzule
-        boolean allowed = (rightsResolver.isActionAllowed(user, SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH)
-                || (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH)));
-        if (!allowed) {
-            throw new ActionNotAllowed("user '%s' is not allowed to manage processes", user.getLoginname()); //403
-        }*/
 
         LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
         //System.out.println("newProcess: " + newProcess);
