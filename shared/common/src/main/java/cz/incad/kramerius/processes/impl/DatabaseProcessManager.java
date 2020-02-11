@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2012 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -68,19 +68,19 @@ public class DatabaseProcessManager implements LRProcessManager {
 
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseProcessManager.class.getName());
-    
-    
-    
+
+
+
     @Inject
     @Named("kramerius4")
     private Provider<Connection> connectionProvider;
-    
+
     @Inject
     private DefinitionManager lrpdm;
-    
+
     @Inject
     private Provider<User> userProvider;
-    
+
     @Inject
     private LoggedUsersSingleton loggedUsersSingleton;
 
@@ -90,7 +90,7 @@ public class DatabaseProcessManager implements LRProcessManager {
         super();
     }
 
-    
+
     @Override
     public LRProcess getLongRunningProcess(String uuid) {
         Connection connection = connectionProvider.get();
@@ -110,16 +110,20 @@ public class DatabaseProcessManager implements LRProcessManager {
         return !processes.isEmpty() ? processes.get(0) : null;
     }
 
-    
+
     @Override
     public void registerLongRunningProcess(LRProcess lp, String loggedUserKey, Properties parametersMapping) {
         Connection connection = null;
         try {
             connection = connectionProvider.get();
-            if (connection == null)
+            if (connection == null) {
                 throw new NotReadyException("connection not ready");
-            
-            registerProcess(connection, lp, /* this.userProvider.get() */lp.getUser(), lp.getLoggedUserKey() , PropertiesStoreUtils.storeProperties(parametersMapping));
+            }
+            if(lp.getUser() == null){
+                registerProcess(connection, lp, PropertiesStoreUtils.storeProperties(parametersMapping));
+            } else {
+                registerProcess(connection, lp, /* this.userProvider.get() */lp.getUser(), lp.getLoggedUserKey() , PropertiesStoreUtils.storeProperties(parametersMapping));
+            }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
@@ -160,7 +164,7 @@ public class DatabaseProcessManager implements LRProcessManager {
         }
     }
 
-    
+
     @Override
     public void deleteBatchLongRunningProcess(LRProcess longRunningProcess) {
 
@@ -173,16 +177,16 @@ public class DatabaseProcessManager implements LRProcessManager {
             if (longRunningProcess.getProcessState().equals(States.RUNNING)) {
                 throw new ProcessManagerException("cannot delete process with state '"+longRunningProcess.getProcessState()+"'");
             }
-            
+
             List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
-            
+
             final String token = longRunningProcess.getGroupToken();
             final List<LRProcess> childSubprecesses = getLongRunningProcessesByGroupToken(token);
 
- 
+
             final int id = ProcessDatabaseUtils.getProcessId(longRunningProcess, connection);
             commands.add(new JDBCCommand() {
-                
+
                 @Override
                 public Object executeJDBCCommand(Connection con) throws SQLException {
                     PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESS_2_TOKEN where process_id = ?");
@@ -194,7 +198,7 @@ public class DatabaseProcessManager implements LRProcessManager {
             for (final LRProcess lrProcess : childSubprecesses) {
                 if (lrProcess.getAuthToken() != null) {
                     commands.add(new JDBCCommand() {
-                        
+
                         @Override
                         public Object executeJDBCCommand(Connection con) throws SQLException {
                             PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESS_2_TOKEN where auth_token = ?");
@@ -202,12 +206,12 @@ public class DatabaseProcessManager implements LRProcessManager {
                             return prepareStatement.executeUpdate();
                         }
                     });
-                    
+
                 }
             }
 
             commands.add(new JDBCCommand() {
-                
+
                 @Override
                 public Object executeJDBCCommand(Connection con) throws SQLException {
                     PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESS_2_TOKEN where auth_token = ?");
@@ -218,7 +222,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 
 
             commands.add(new JDBCCommand() {
-                
+
                 @Override
                 public Object executeJDBCCommand(Connection con) throws SQLException {
                     PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESSES where token = ?");
@@ -226,14 +230,14 @@ public class DatabaseProcessManager implements LRProcessManager {
                     return prepareStatement.executeUpdate();
                 }
             });
-            
+
             JDBCTransactionTemplate.Callbacks callbacks = new JDBCTransactionTemplate.Callbacks() {
-                
+
                 @Override
                 public void rollbacked() {
                     // do nothing
                 }
-                
+
                 @Override
                 public void commited() {
                     for (int i = 0; i < childSubprecesses.size(); i++) {
@@ -247,7 +251,7 @@ public class DatabaseProcessManager implements LRProcessManager {
                     }
                 }
             };
-            
+
             new JDBCTransactionTemplate(connection,true).updateWithTransaction(callbacks, (JDBCCommand[]) commands.toArray(new JDBCCommand[commands.size()]));
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -275,11 +279,11 @@ public class DatabaseProcessManager implements LRProcessManager {
             if (lrProcess.getProcessState().equals(States.RUNNING)) {
                 throw new ProcessManagerException("cannot delete process with state '"+lrProcess.getProcessState()+"'");
             }
-            
+
             final int id = ProcessDatabaseUtils.getProcessId(lrProcess, connection);
             final String uuid = lrProcess.getUUID();
             JDBCCommand deleteTokensMapping = new JDBCCommand() {
-                
+
                 @Override
                 public Object executeJDBCCommand(Connection con) throws SQLException {
                     PreparedStatement prepareStatement = con.prepareStatement("delete from PROCESS_2_TOKEN where process_id = ?");
@@ -289,7 +293,7 @@ public class DatabaseProcessManager implements LRProcessManager {
             };
 
             JDBCCommand deleteProcess = new JDBCCommand() {
-                
+
                 @Override
                 public Object executeJDBCCommand(Connection con) throws SQLException {
                     PreparedStatement prepareStatement = con.prepareStatement("delete from processes where UUID = ?");
@@ -298,12 +302,12 @@ public class DatabaseProcessManager implements LRProcessManager {
                 }
             };
             JDBCTransactionTemplate.Callbacks callbacks = new JDBCTransactionTemplate.Callbacks() {
-                
+
                 @Override
                 public void rollbacked() {
                     // do nothing
                 }
-                
+
                 @Override
                 public void commited() {
                     try {
@@ -338,7 +342,7 @@ public class DatabaseProcessManager implements LRProcessManager {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
-    
+
 
     public void updateLongRunningProcessFinishedDate(LRProcess lrProcess) {
         Connection connection = null;
@@ -351,7 +355,7 @@ public class DatabaseProcessManager implements LRProcessManager {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
-    
+
 
 
     @Override
@@ -368,8 +372,8 @@ public class DatabaseProcessManager implements LRProcessManager {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
-    
-    
+
+
 
     @Override
     public void updateLongRunninngProcessBatchState(LRProcess lrProcess) {
@@ -384,14 +388,14 @@ public class DatabaseProcessManager implements LRProcessManager {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
-        
+
     }
 
     public List<LRProcess> getPlannedProcess(int howMany) {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready");
-        
+
         StringBuffer buffer = new StringBuffer("select "+ProcessDatabaseUtils.printQueryProcessColumns()+ " from processes p where status = ? ORDER BY PLANNED LIMIT ? ");
 
         List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection){
@@ -402,9 +406,9 @@ public class DatabaseProcessManager implements LRProcessManager {
                 returnsList.add(processFromResultSet);
                 return super.handleRow(rs, returnsList);
             }
-            
+
         }.executeQuery(buffer.toString(),  States.PLANNED.getVal(), howMany);
-        
+
         return processes;
     }
 
@@ -414,13 +418,13 @@ public class DatabaseProcessManager implements LRProcessManager {
         if (connection == null)
             throw new NotReadyException("connection not ready ");
 
-        StringBuilder builder = new StringBuilder("select count(*) from processes p " 
+        StringBuilder builder = new StringBuilder("select count(*) from processes p "
                 + " join process_grouped_view v on (p.process_id=v.process_id) ");
 
         if (filter != null) {
             builder.append(filter.getSQLOffset());
         }
-        
+
         List<Integer> countList = new JDBCQueryTemplate<Integer>(connection) {
             @Override
             public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
@@ -431,8 +435,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 
         return !countList.isEmpty() ? countList.get(0) : 0;
     }
-    
-    
+
+
 
     private LRProcess processFromResultSet(ResultSet rs) throws SQLException {
         // CREATE TABLE PROCESSES(DEFID VARCHAR, UUID VARCHAR ,PID
@@ -456,18 +460,18 @@ public class DatabaseProcessManager implements LRProcessManager {
         String paramsMapping = rs.getString("params_mapping");
         int batchStatus = rs.getInt("BATCH_STATUS");
         String ipAddr = rs.getString("IP_ADDR");
-        
-        
+
+
         LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
         if (definition == null) {
             throw new RuntimeException("cannot find definition '" + definitionId + "'");
         }
-        
+
         LRProcess process = definition.loadProcess(uuid, pid, planned != null ? planned.getTime() : 0, States.load(status), BatchStates.load(batchStatus), name);
 
         process.setGroupToken(token);
         process.setAuthToken(authToken);
-        
+
         if (started != null)
             process.setStartTime(started.getTime());
         if (params != null) {
@@ -484,14 +488,14 @@ public class DatabaseProcessManager implements LRProcessManager {
             Properties props = PropertiesStoreUtils.loadProperties(paramsMapping);
             process.setParametersMapping(props);
         }
-        
+
         if (finished != null) {
             process.setFinishedTime(finished.getTime());
         }
         if (ipAddr != null) {
             process.setPlannedIPAddress(ipAddr);
         }
-        
+
         return process;
     }
 
@@ -564,7 +568,7 @@ public class DatabaseProcessManager implements LRProcessManager {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready");
-        StringBuffer buffer = new StringBuffer("select "+ProcessDatabaseUtils.printQueryProcessColumns()+",v.pcount as pcount from processes p " 
+        StringBuffer buffer = new StringBuffer("select "+ProcessDatabaseUtils.printQueryProcessColumns()+",v.pcount as pcount from processes p "
                 + " join process_grouped_view v on (p.process_id=v.process_id)");
 
         if (filter != null) {
@@ -626,10 +630,10 @@ public class DatabaseProcessManager implements LRProcessManager {
             DatabaseUtils.tryClose(connection);
         }
     }
-    
-    
-    
-    
+
+
+
+
 
     @Override
     public void closeAuthToken(String authToken) {
@@ -640,13 +644,13 @@ public class DatabaseProcessManager implements LRProcessManager {
     }
 
 
-    
+
     @Override
     public boolean isAuthTokenClosed(String authToken) {
         Connection connection = connectionProvider.get();
         if (connection == null)
             throw new NotReadyException("connection not ready");
-        
+
         List<Boolean> flags = new JDBCQueryTemplate<Boolean>(connection){
 
             @Override
@@ -655,10 +659,10 @@ public class DatabaseProcessManager implements LRProcessManager {
                 return super.handleRow(rs, returnsList);
             }
         }.executeQuery("select token_active from processes where auth_token=?", authToken);
-        
+
         // no flags
         if (flags.isEmpty()) return true;
-        
+
         for (Boolean flag : flags) {
             if (!flag.booleanValue()) return true;
         }
@@ -677,9 +681,9 @@ public class DatabaseProcessManager implements LRProcessManager {
                     returnsList.add(paramsMapping);
                     return super.handleRow(rs, returnsList);
                 }
-                
+
             }.executeQuery("select params_mapping from processes where uuid = ?", lrProcess.getUUID());
-            
+
             if (params.isEmpty()) {
                 properties.load(new StringReader(params.get(0)));
             }
@@ -687,7 +691,7 @@ public class DatabaseProcessManager implements LRProcessManager {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
         return properties;
-        
+
     }
 
 

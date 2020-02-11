@@ -8,10 +8,7 @@ import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.new_api.Filter;
 import cz.incad.kramerius.processes.new_api.ProcessInBatch;
 import cz.incad.kramerius.processes.new_api.ProcessManager;
-import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
-import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
-import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.rest.api.exceptions.UnauthorizedException;
+import cz.incad.kramerius.rest.api.exceptions.*;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -32,7 +29,12 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -50,8 +52,21 @@ public class ProcessResource {
     private static final boolean DEV_DISABLE_ACCESS_CONTROL_FOR_READ_ONLY_OPS = true;
 
     //TODO: proverit
+    @Deprecated
     private static final String AUTH_TOKEN_HEADER_KEY = "auth-token";
+    @Deprecated
     private static final String TOKEN_ATTRIBUTE_KEY = "token";
+
+    //TODO: move url into configuration
+    private static final String AUTH_URL = "https://api.kramerius.cloud/api/v1/auth/validate_token";
+    private static final String AUTH_HEADER_CLIENT = "client";
+    private static final String AUTH_HEADER_UID = "uid";
+    private static final String AUTH_HEADER_ACCESS_TOKEN = "access-token";
+
+    //TODO: prejmenovat role
+    private static final String ROLE_LIST_PROCESSES = "kramerius_admin";
+    private static final String ROLE_SCHEDULE_PROCESSES = "kramerius_admin";
+
 
     @Inject
     LRProcessManager lrProcessManager; //here only for scheduling
@@ -97,17 +112,25 @@ public class ProcessResource {
             @QueryParam("state") String filterState
     ) {
         try {
-            //access control
+            //access control with basic access authentification (deprecated)
             if (!DEV_DISABLE_ACCESS_CONTROL_FOR_READ_ONLY_OPS) {
                 String loggedUserKey = findLoggedUserKey();
                 User user = this.loggedUsersSingleton.getUser(loggedUserKey);
                 if (user == null) {
-                    throw new UnauthorizedException(); //401
+                    throw new UnauthorizedException("user==null"); //401
                 }
                 boolean allowed = rightsResolver.isActionAllowed(user, SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
                 if (!allowed) {
                     throw new ActionNotAllowed("user '%s' is not allowed to manage processes", user.getLoginname()); //403
                 }
+            }
+
+            //nova autentizace
+            AuthenticatedUser user = getAuthenticatedUser();
+            //System.out.println(user);
+            String role = ROLE_LIST_PROCESSES; //TODO
+            if (!user.getRoles().contains(role)) {
+                throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
 
             //offset & limit
@@ -169,8 +192,78 @@ public class ProcessResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
+            e.printStackTrace();
             throw new GenericApplicationException(e.getMessage());
         }
+    }
+
+    private AuthenticatedUser getAuthenticatedUser() {
+        String client = requestProvider.get().getHeader(AUTH_HEADER_CLIENT);
+        String uid = requestProvider.get().getHeader(AUTH_HEADER_UID);
+        String accessToken = requestProvider.get().getHeader(AUTH_HEADER_ACCESS_TOKEN);
+        if (!StringUtils.isAnyString(accessToken) || !StringUtils.isAnyString(uid) || !StringUtils.isAnyString(client)) {
+            throw new ProxyAuthenticationRequiredException("missing one of headaers '%s', '%s', or '%s'", AUTH_HEADER_CLIENT, AUTH_HEADER_UID, AUTH_HEADER_ACCESS_TOKEN);
+        }
+        try {
+            URL url = new URL(AUTH_URL);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            con.setInstanceFollowRedirects(false);
+            con.setConnectTimeout(1000);
+            con.setReadTimeout(1000);
+            con.setRequestProperty(AUTH_HEADER_CLIENT, client);
+            con.setRequestProperty(AUTH_HEADER_UID, uid);
+            con.setRequestProperty(AUTH_HEADER_ACCESS_TOKEN, accessToken);
+            int status = con.getResponseCode();
+            if (status != 200) {
+                System.out.println("status: " + status);
+                throw new GenericApplicationException("error communicationg with authentification service (response status %d)", status);
+            }
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+
+            JSONObject jsonObject = new JSONObject(content.toString());
+            //System.out.println(jsonObject.toString());
+            if (jsonObject.getBoolean("success")) {
+                JSONObject data = jsonObject.getJSONObject("data");
+                String id = data.getString("uid");
+                String name = data.getString("name");
+                List<String> roles = Collections.emptyList();
+                if (data.has("roles") && data.get("roles") != null && !data.isNull("roles")) {
+                    roles = commaSeparatedItemsToList(data.getString("roles"));
+                }
+                return new AuthenticatedUser(id, name, roles);
+            } else { //session timeout/logged out/ ...
+                //TODO: otestovat (jak vypada json v pripade chyby?)
+                System.out.println(jsonObject.toString());
+                throw new UnauthorizedException(jsonObject.toString());
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw new GenericApplicationException("error parsing response from authentification service ", e);
+        } catch (IOException e) {
+            throw new GenericApplicationException("error communicationg with authentification service", e);
+        }
+    }
+
+    private List<String> commaSeparatedItemsToList(String commaSeparated) {
+        List<String> result = new ArrayList<>();
+        if (commaSeparated == null || commaSeparated.trim().isEmpty()) {
+            return result;
+        }
+        String[] items = commaSeparated.split(",");
+        for (String item : items) {
+            result.add(item.trim());
+        }
+        return result;
     }
 
     /**
@@ -197,7 +290,15 @@ public class ProcessResource {
             }
             //System.out.println(params);
             List<String> paramsList = paramsToList(type, params);
-            return scheduleProcess(type, paramsList);
+
+            //nova autentizace
+            AuthenticatedUser user = getAuthenticatedUser();
+            //System.out.println(user);
+            String role = ROLE_SCHEDULE_PROCESSES;
+            if (!user.getRoles().contains(role)) {
+                throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            }
+            return scheduleProcess(type, paramsList, user.getId(), user.getName());
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -236,17 +337,17 @@ public class ProcessResource {
         }
     }
 
-    private Response scheduleProcess(String type, List<String> params) {
+    private Response scheduleProcess(String type, List<String> params, String ownerId, String ownerName) {
         LRProcessDefinition definition = processDefinition(type);
         if (definition == null) {
             throw new BadRequestException("process definition for type '%' not found", type);
         }
 
         //access control
-        String loggedUserKey = findLoggedUserKey();
+        /*String loggedUserKey = findLoggedUserKey();
         User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
-            throw new UnauthorizedException(); //401
+            throw new UnauthorizedException("user==null"); //401
         }
         SecuredActions actionFromDef = securedAction(type, definition);
         //System.out.println(actionFromDef);
@@ -255,20 +356,22 @@ public class ProcessResource {
                 || (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH)));
         if (!allowed) {
             throw new ActionNotAllowed("user '%s' is not allowed to manage processes", user.getLoginname()); //403
-        }
+        }*/
 
         LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
         //System.out.println("newProcess: " + newProcess);
         //tohle vypada, ze se je k nicemu, ve vysledku se to jen uklada do databaze do processes.params_mapping a to ani ne vzdy
         // select planned, params_mapping from processes where params_mapping!='' order by planned desc limit 10;
-        newProcess.setLoggedUserKey(loggedUserKey);
+        //newProcess.setLoggedUserKey(loggedUserKey);
         newProcess.setParameters(params);
-        newProcess.setUser(user);
+        //newProcess.setUser(user);
+        newProcess.setOwnerId(ownerId);
+        newProcess.setOwnerName(ownerName);
 
         if (definition.isInputTemplateDefined()) { //'plain' process
             //System.out.println("plain process");
             newProcess.planMe(new Properties(), IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
-            lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
+            //lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
             URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
             return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
         } else { //'parametrized' process
@@ -283,7 +386,7 @@ public class ProcessResource {
                 }
             }*/
             newProcess.planMe(props, IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
-            lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
+            //lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
             URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
             return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
         }

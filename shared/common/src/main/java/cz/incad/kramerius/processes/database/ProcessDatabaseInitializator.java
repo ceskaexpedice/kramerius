@@ -117,15 +117,17 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
-            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.7.0")) {
+            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.8.0")) { //(5.3.0 - 6.6.6) -> 6.7.5
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
-                if (!DatabaseUtils.viewExists(connection, "process_batch")) {// (5.3.0 - 6.6.6) -> 6.7.4
+                if (!DatabaseUtils.viewExists(connection, "PROCESS_BATCH")) {
                     createProcessBatchView(connection);
-                } else {
                 }
-            } else { // >= 6.7.0
+                if (!DatabaseUtils.columnExists(connection, "PROCESSES", "OWNER_ID")) {
+                    alterProcessTableOwnerData(connection);
+                }
+            } else { // >= 6.8.0
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -191,7 +193,13 @@ public class ProcessDatabaseInitializator {
             alterProcessTableIPADDR(connection);
         }
 
-        createProcessBatchView(connection);
+        if (!DatabaseUtils.viewExists(connection, "PROCESS_BATCH")) {
+            createProcessBatchView(connection);
+        }
+
+        if (!DatabaseUtils.columnExists(connection, "PROCESSES", "OWNER_ID")) {
+            alterProcessTableOwnerData(connection);
+        }
     }
 
     public static void createProcessBatchView(Connection connection) throws SQLException, IOException {
@@ -308,6 +316,19 @@ public class ProcessDatabaseInitializator {
     public static void alterProcessTableFinished(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
                 "ALTER TABLE PROCESSES ADD COLUMN FINISHED TIMESTAMP;");
+        try {
+            int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+        } finally {
+            DatabaseUtils.tryClose(prepareStatement);
+        }
+    }
+
+    public static void alterProcessTableOwnerData(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+                "ALTER TABLE processes " +
+                        "ADD COLUMN owner_id VARCHAR," +
+                        "ADD COLUMN owner_name VARCHAR;");
         try {
             int r = prepareStatement.executeUpdate();
             LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
