@@ -117,7 +117,7 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
-            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.8.0")) { //(5.3.0 - 6.6.6) -> 6.7.5
+            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.8.0")) { //(5.3.0 - 6.6.6) -> 6.7.6
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
@@ -126,6 +126,7 @@ public class ProcessDatabaseInitializator {
                 }
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "OWNER_ID")) {
                     alterProcessTableOwnerData(connection);
+                    updateProcessOwner(connection);
                 }
             } else { // >= 6.8.0
             }
@@ -199,11 +200,20 @@ public class ProcessDatabaseInitializator {
 
         if (!DatabaseUtils.columnExists(connection, "PROCESSES", "OWNER_ID")) {
             alterProcessTableOwnerData(connection);
+            updateProcessOwner(connection);
         }
     }
 
     public static void createProcessBatchView(Connection connection) throws SQLException, IOException {
         InputStream is = ProcessDatabaseInitializator.class.getResourceAsStream("res/initprocessbatchview.sql");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.setUseReturningKeys(false);
+        String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        template.executeUpdate(sqlScript);
+    }
+
+    public static void updateProcessOwner(Connection connection) throws SQLException, IOException {
+        InputStream is = ProcessDatabaseInitializator.class.getResourceAsStream("res/updateProcessOwner.sql");
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
         template.setUseReturningKeys(false);
         String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
