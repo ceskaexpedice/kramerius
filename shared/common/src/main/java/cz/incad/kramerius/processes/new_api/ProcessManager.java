@@ -8,4 +8,6 @@ public interface ProcessManager {
 
     public List<ProcessInBatch> getProcessesInBatches(Filter filter, int offset, int limit);
 
+    public List<ProcessOwner> getProcessesOwners();
+
 }

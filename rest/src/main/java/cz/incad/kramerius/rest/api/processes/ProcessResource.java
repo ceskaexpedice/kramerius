@@ -8,6 +8,7 @@ import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.new_api.Filter;
 import cz.incad.kramerius.processes.new_api.ProcessInBatch;
 import cz.incad.kramerius.processes.new_api.ProcessManager;
+import cz.incad.kramerius.processes.new_api.ProcessOwner;
 import cz.incad.kramerius.rest.api.exceptions.*;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
@@ -65,6 +66,7 @@ public class ProcessResource {
 
     //TODO: prejmenovat role
     private static final String ROLE_LIST_PROCESSES = "kramerius_admin";
+    private static final String ROLE_LIST_PROCESS_OWNERS = "kramerius_admin";
     private static final String ROLE_SCHEDULE_PROCESSES = "kramerius_admin";
 
 
@@ -88,6 +90,42 @@ public class ProcessResource {
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
+
+    /**
+     * Returns list of users who have scheduled some process
+     *
+     * @return
+     */
+    @GET
+    @Path("/owners")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getOwners() {
+        try {
+            //autentizace
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_LIST_PROCESS_OWNERS;
+            if (!user.getRoles().contains(role)) {
+                throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            }
+
+            List<ProcessOwner> owners = this.processManager.getProcessesOwners();
+            JSONArray ownersJson = new JSONArray();
+            for (ProcessOwner owner : owners) {
+                JSONObject ownerJson = new JSONObject();
+                ownerJson.put("id", owner.id);
+                ownerJson.put("name", owner.name);
+                ownersJson.put(ownerJson);
+            }
+            JSONObject result = new JSONObject();
+            result.put("owners", ownersJson);
+            return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
 
     /**
      * Returns filtered batches

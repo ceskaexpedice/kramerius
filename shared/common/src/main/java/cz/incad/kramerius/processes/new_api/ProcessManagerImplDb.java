@@ -163,6 +163,28 @@ public class ProcessManagerImplDb implements ProcessManager {
         }
     }
 
+    @Override
+    public List<ProcessOwner> getProcessesOwners() {
+        Connection connection = connectionProvider.get();
+        if (connection == null) {
+            throw new NotReadyException("connection not ready");
+        }
+        try {
+            return new JDBCQueryTemplate<ProcessOwner>(connection) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<ProcessOwner> returnsList) throws SQLException {
+                    ProcessOwner owner = new ProcessOwner();
+                    owner.id = rs.getString("owner_id");
+                    owner.name = rs.getString("owner_name");
+                    returnsList.add(owner);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery("SELECT DISTINCT owner_id, owner_name from processes ORDER BY owner_name ASC");
+        } finally {
+            DatabaseUtils.tryClose(connection);
+        }
+    }
+
     private LocalDateTime toLocalDateTime(Timestamp timestamp) {
         if (timestamp == null) {
             return null;
