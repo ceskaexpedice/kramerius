@@ -43,7 +43,7 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.logging.Logger;
 
-@Path("/v6.0/processes")
+@Path("/v6.0/admin/processes")
 public class ProcessResource {
 
     public static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
