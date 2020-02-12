@@ -5,10 +5,7 @@ import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.new_api.Filter;
-import cz.incad.kramerius.processes.new_api.ProcessInBatch;
-import cz.incad.kramerius.processes.new_api.ProcessManager;
-import cz.incad.kramerius.processes.new_api.ProcessOwner;
+import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.exceptions.*;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
@@ -64,10 +61,11 @@ public class ProcessResource {
     private static final String AUTH_HEADER_UID = "uid";
     private static final String AUTH_HEADER_ACCESS_TOKEN = "access-token";
 
-    //TODO: prejmenovat role
+    //TODO: prejmenovat role podle spravy uctu
+    private static final String ROLE_SCHEDULE_PROCESSES = "kramerius_admin";
     private static final String ROLE_LIST_PROCESSES = "kramerius_admin";
     private static final String ROLE_LIST_PROCESS_OWNERS = "kramerius_admin";
-    private static final String ROLE_SCHEDULE_PROCESSES = "kramerius_admin";
+    private static final String ROLE_DELETE_PROCESSES = "kramerius_admin";
 
 
     @Inject
@@ -130,6 +128,52 @@ public class ProcessResource {
             JSONObject result = new JSONObject();
             result.put("owners", ownersJson);
             //return
+            return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
+
+    @DELETE
+    @Path("/batches/by_first_process_id/{id}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response deleteBatch(@PathParam("id") String processId) {
+        try {
+            //autentizace
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_DELETE_PROCESSES;
+            if (!user.getRoles().contains(role)) {
+                throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            }
+            //id
+            Integer processIdInt = null;
+            if (StringUtils.isAnyString(processId)) {
+                try {
+                    processIdInt = Integer.valueOf(processId);
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("process_id must be integer, '%s' is not", processId);
+                }
+            }
+            //get batch data from db
+            Batch batch = this.processManager.getBatchByFirstProcessId(processIdInt);
+            if (batch == null) {
+                throw new BadRequestException("batch with first-process-id %d doesn't exist", processIdInt);
+            }
+            //check batch is deletable
+            String batchState = toBatchStateName(batch.stateCode);
+            if (!isDeletableState(batchState)) {
+                throw new BadRequestException("batch in state %s cannot be deleted", batchState);
+            }
+            //delete processes in batch
+            int deleted = this.processManager.deleteBatchByBatchToken(batch.token);
+            //return
+            JSONObject result = new JSONObject();
+            result.put("batch_id", batch.firstProcessId);
+            result.put("batch_token", batch.token);
+            result.put("processes_deleted", deleted);
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -220,9 +264,9 @@ public class ProcessResource {
 
             //batch & process data
             List<ProcessInBatch> pibs = this.processManager.getProcessesInBatches(filter, offset, limit);
-            List<Batch> batches = extractBatchesWithProcesses(pibs);
+            List<BatchWithProcesses> batchWithProcesses = extractBatchesWithProcesses(pibs);
             JSONArray batchesJson = new JSONArray();
-            for (Batch batch : batches) {
+            for (BatchWithProcesses batch : batchWithProcesses) {
                 JSONObject batchJson = batchToJson(batch);
                 batchesJson.put(batchJson);
             }
@@ -515,7 +559,7 @@ public class ProcessResource {
         }
     }
 
-    private List<Batch> extractBatchesWithProcesses(List<ProcessInBatch> allPibs) {
+    private List<BatchWithProcesses> extractBatchesWithProcesses(List<ProcessInBatch> allPibs) {
         Map<String, List<ProcessInBatch>> pibListByToken = new HashMap<>();
         for (ProcessInBatch pib : allPibs) {
             if (!pibListByToken.containsKey(pib.batchToken)) {
@@ -524,18 +568,18 @@ public class ProcessResource {
             List<ProcessInBatch> pibList = pibListByToken.get(pib.batchToken);
             pibList.add(pib);
         }
-        List<Batch> result = new ArrayList<>(pibListByToken.size());
+        List<BatchWithProcesses> result = new ArrayList<>(pibListByToken.size());
         for (List<ProcessInBatch> pibsOfBatch : pibListByToken.values()) {
             ProcessInBatch firstPib = pibsOfBatch.get(0);
-            Batch batch = new Batch();
-            batch.token = firstPib.batchToken;
-            batch.id = firstPib.batchId;
-            batch.stateCode = firstPib.batchStateCode;
-            batch.planned = firstPib.batchPlanned;
-            batch.started = firstPib.batchStarted;
-            batch.finished = firstPib.batchFinished;
-            batch.ownerId = firstPib.batchOwnerId;
-            batch.ownerName = firstPib.batchOwnerName;
+            BatchWithProcesses batchWithProcesses = new BatchWithProcesses();
+            batchWithProcesses.token = firstPib.batchToken;
+            batchWithProcesses.firstProcessId = firstPib.batchId;
+            batchWithProcesses.stateCode = firstPib.batchStateCode;
+            batchWithProcesses.planned = firstPib.batchPlanned;
+            batchWithProcesses.started = firstPib.batchStarted;
+            batchWithProcesses.finished = firstPib.batchFinished;
+            batchWithProcesses.ownerId = firstPib.batchOwnerId;
+            batchWithProcesses.ownerName = firstPib.batchOwnerName;
             for (ProcessInBatch pib : pibsOfBatch) {
                 Process process = new Process();
                 process.uuid = pib.processUuid;
@@ -546,30 +590,30 @@ public class ProcessResource {
                 process.planned = pib.processPlanned;
                 process.started = pib.processStarted;
                 process.finished = pib.processFinished;
-                batch.processes.add(process);
+                batchWithProcesses.processes.add(process);
             }
-            result.add(batch);
+            result.add(batchWithProcesses);
         }
         Collections.sort(result, (o1, o2) -> -1 * o1.planned.compareTo(o2.planned));
         return result;
     }
 
-    private JSONObject batchToJson(Batch batch) {
+    private JSONObject batchToJson(BatchWithProcesses batchWithProcesses) {
         JSONObject json = new JSONObject();
         //batch
         JSONObject batchJson = new JSONObject();
-        batchJson.put("token", batch.token);
-        batchJson.put("id", batch.id);
-        batchJson.put("state", toBatchStateName(batch.stateCode));
-        batchJson.put("planned", toFormattedStringOrNull(batch.planned));
-        batchJson.put("started", toFormattedStringOrNull(batch.started));
-        batchJson.put("finished", toFormattedStringOrNull(batch.finished));
-        batchJson.put("owner_id", batch.ownerId);
-        batchJson.put("owner_name", batch.ownerName);
+        batchJson.put("token", batchWithProcesses.token);
+        batchJson.put("id", batchWithProcesses.firstProcessId);
+        batchJson.put("state", toBatchStateName(batchWithProcesses.stateCode));
+        batchJson.put("planned", toFormattedStringOrNull(batchWithProcesses.planned));
+        batchJson.put("started", toFormattedStringOrNull(batchWithProcesses.started));
+        batchJson.put("finished", toFormattedStringOrNull(batchWithProcesses.finished));
+        batchJson.put("owner_id", batchWithProcesses.ownerId);
+        batchJson.put("owner_name", batchWithProcesses.ownerName);
         json.put("batch", batchJson);
         //processes
         JSONArray processArray = new JSONArray();
-        for (Process process : batch.processes) {
+        for (Process process : batchWithProcesses.processes) {
             JSONObject processJson = new JSONObject();
             processJson.put("id", process.id);
             processJson.put("uuid", process.uuid);
@@ -653,15 +697,12 @@ public class ProcessResource {
         }
     }
 
-    public static final class Batch {
-        public String token;
-        public String id;
-        public Integer stateCode;
-        public LocalDateTime planned;
-        public LocalDateTime started;
-        public LocalDateTime finished;
-        public String ownerId;
-        public String ownerName;
+    private boolean isDeletableState(String batchState) {
+        String[] deletableStates = new String[]{"FINISHED", "FAILED", "KILLED"};
+        return batchState != null && Arrays.asList(deletableStates).contains(batchState);
+    }
+
+    public static final class BatchWithProcesses extends Batch {
         List<Process> processes = new ArrayList<>();
     }
 

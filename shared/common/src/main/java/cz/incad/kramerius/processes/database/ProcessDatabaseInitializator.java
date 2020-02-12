@@ -117,7 +117,7 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
-            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.8.0")) { //(5.3.0 - 6.6.6) -> 6.7.7
+            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.8.0")) { //(5.3.0 - 6.6.6) -> 6.7.8
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }

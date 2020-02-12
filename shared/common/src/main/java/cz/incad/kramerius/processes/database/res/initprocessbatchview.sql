@@ -123,8 +123,8 @@ SELECT
     min(processes.planned) AS planned,
     min(processes.started) AS started,
     max(processes.finished) AS finished,
-    min(processes.owner_id) as ownerId,
-    min(processes.owner_name) as ownerName
+    min(processes.owner_id) as owner_id,
+    min(processes.owner_name) as owner_name
   FROM
     processes
   GROUP BY
@@ -147,8 +147,8 @@ SELECT
     min(processes.planned) AS planned,
     min(processes.started) AS started,
     max(processes.finished) AS finished,
-    min(processes.owner_id) as ownerId,
-    min(processes.owner_name) as ownerName
+    min(processes.owner_id) as owner_id,
+    min(processes.owner_name) as owner_name
   FROM
     processes
   GROUP BY

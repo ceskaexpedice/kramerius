@@ -1,18 +1,17 @@
 package cz.incad.kramerius.processes.new_api;
 
 import cz.incad.kramerius.processes.NotReadyException;
+import cz.incad.kramerius.processes.ProcessManagerException;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ProcessManagerImplDb implements ProcessManager {
@@ -30,7 +29,7 @@ public class ProcessManagerImplDb implements ProcessManager {
             throw new NotReadyException("connection not ready");
         }
         try {
-            String query = "SELECT count(*) FROM process_batch as batch" + buildFilterClause(filter);
+            String query = "SELECT count(*) FROM process_batch AS batch" + buildFilterClause(filter);
             //System.out.println(query);
             List<Integer> list = new JDBCQueryTemplate<Integer>(connection, false) {
                 public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
@@ -98,7 +97,7 @@ public class ProcessManagerImplDb implements ProcessManager {
             throw new NotReadyException("connection not ready");
         }
         try {
-            String filteredBatchQuery = String.format("SELECT * FROM process_batch as batch %s OFFSET %d LIMIT %d", buildFilterClause(filter), offset, limit);
+            String filteredBatchQuery = String.format("SELECT * FROM process_batch AS batch %s OFFSET %d LIMIT %d", buildFilterClause(filter), offset, limit);
             //System.out.println(filteredBatchQuery);
             String joinQuery =
                     "SELECT " +
@@ -109,8 +108,8 @@ public class ProcessManagerImplDb implements ProcessManager {
                             "batch.planned AS batch_planned," +
                             "batch.started AS batch_started," +
                             "batch.finished AS batch_finished," +
-                            "batch.ownerId AS batch_owner_id," +
-                            "batch.ownerName AS batch_owner_name," +
+                            "batch.owner_id AS batch_owner_id," +
+                            "batch.owner_name AS batch_owner_name," +
 
                             "processes.process_id AS process_id," +
                             "processes.uuid AS process_uuid," +
@@ -179,10 +178,60 @@ public class ProcessManagerImplDb implements ProcessManager {
                     returnsList.add(owner);
                     return super.handleRow(rs, returnsList);
                 }
-            }.executeQuery("SELECT DISTINCT owner_id, owner_name from processes ORDER BY owner_name ASC");
+            }.executeQuery("SELECT DISTINCT owner_id, owner_name FROM processes ORDER BY owner_name ASC");
         } finally {
             DatabaseUtils.tryClose(connection);
         }
+    }
+
+    @Override
+    public Batch getBatchByFirstProcessId(int firstProcessId) {
+        Connection connection = connectionProvider.get();
+        if (connection == null) {
+            throw new NotReadyException("connection not ready");
+        }
+        try {
+            String sql = "SELECT * FROM process_batch AS batch WHERE first_process_id = ?";
+            List<Batch> batches = new JDBCQueryTemplate<Batch>(connection) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<Batch> returnsList) throws SQLException {
+                    Batch batch = new Batch();
+                    batch.token = rs.getString("batch_token");
+                    batch.firstProcessId = rs.getString("first_process_id");
+                    batch.stateCode = rs.getInt("batch_state");
+                    batch.planned = toLocalDateTime(rs.getTimestamp("planned"));
+                    batch.started = toLocalDateTime(rs.getTimestamp("started"));
+                    batch.finished = toLocalDateTime(rs.getTimestamp("finished"));
+                    batch.ownerId = rs.getString("owner_id");
+                    batch.ownerName = rs.getString("owner_name");
+                    returnsList.add(batch);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(sql, firstProcessId);
+            return !batches.isEmpty() ? batches.get(0) : null;
+        } finally {
+            DatabaseUtils.tryClose(connection);
+        }
+    }
+
+    @Override
+    public int deleteBatchByBatchToken(String batchToken) {
+        Connection connection = connectionProvider.get();
+        if (connection == null) {
+            throw new NotReadyException("connection not ready");
+        }
+        try {
+            PreparedStatement prepareStatement = connection.prepareStatement("DELETE FROM processes WHERE token = ?");
+            prepareStatement.setString(1, batchToken);
+            int deleted = prepareStatement.executeUpdate();
+            return deleted;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new ProcessManagerException(e);
+        } finally {
+            DatabaseUtils.tryClose(connection);
+        }
+
     }
 
     private LocalDateTime toLocalDateTime(Timestamp timestamp) {
