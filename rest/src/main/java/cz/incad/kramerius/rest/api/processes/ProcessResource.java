@@ -107,8 +107,19 @@ public class ProcessResource {
             if (!user.getRoles().contains(role)) {
                 throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
-
+            //get data from db
             List<ProcessOwner> owners = this.processManager.getProcessesOwners();
+            //sort
+            owners.sort((o1, o2) -> {
+                if (o1.name.startsWith("_") && o1.name.startsWith("_")) {
+                    return o1.name.compareTo(o2.name);
+                } else if (o1.name.startsWith("_")) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            });
+            //convert to JSON
             JSONArray ownersJson = new JSONArray();
             for (ProcessOwner owner : owners) {
                 JSONObject ownerJson = new JSONObject();
@@ -118,6 +129,7 @@ public class ProcessResource {
             }
             JSONObject result = new JSONObject();
             result.put("owners", ownersJson);
+            //return
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;

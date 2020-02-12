@@ -6,9 +6,9 @@ DROP FUNCTION IF EXISTS update_process_owner();
 
 --set owner_id and owner_name from loginname, firstname and surname for existing data
 UPDATE processes SET owner_id = loginname where owner_id IS NULL;
-UPDATE processes SET owner_name = firstname || ' ' || surname WHERE owner_name IS NULL;
+UPDATE processes SET owner_name = '_' ||  firstname || ' ' || surname WHERE owner_name IS NULL;
 
---function to update owner_id and owner_name (if empty) from loginname, firstname, surname
+--function to update owner_id and owner_name (if empty) from loginname, firstname, surname, prefixed with '_'
 CREATE OR REPLACE FUNCTION update_process_owner() RETURNS TRIGGER AS
 $BODY$
   BEGIN
@@ -17,9 +17,9 @@ $BODY$
     UPDATE processes
         SET owner_id = loginname
         WHERE process_id = NEW.process_id AND owner_id IS NULL;
-    --set owner_name to firstname + ' ' + surname where empty
+    --set owner_name to '_' + firstname + ' ' + surname where empty
     UPDATE processes
-        SET owner_name = (firstname || ' ' || surname)
+        SET owner_name = ('_' || firstname || ' ' || surname)
         WHERE process_id = NEW.process_id AND owner_name IS NULL;
     --pozor, tahle funkce (spoustena triggerem po zmene v tabulce processes) meni stejnou tabulku
     --proto je potreba kontrolovat sloupce na prazdnost, jinak se zacyklime
