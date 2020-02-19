@@ -46,7 +46,6 @@ public class ExtendedFields {
     private ArrayList<String> pid_paths;
     private ArrayList<String> model_paths;
     HashMap<String, String> models_cache;
-    HashMap<String, String> dates_cache;
     HashMap<String, String> root_title_cache;
     Date datum;
     String datum_str;
@@ -75,7 +74,6 @@ public class ExtendedFields {
         KConfiguration config = KConfiguration.getInstance();
         this.fa = this.fo.fa;
         models_cache = new HashMap<String, String>();
-        dates_cache = new HashMap<String, String>();
         root_title_cache = new HashMap<String, String>();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         df = new SimpleDateFormat(config.getProperty("mods.date.format", "dd.MM.yyyy"));
@@ -86,7 +84,6 @@ public class ExtendedFields {
 
     public void clearCache() {
         models_cache.clear();
-        dates_cache.clear();
         root_title_cache.clear();
     }
 
