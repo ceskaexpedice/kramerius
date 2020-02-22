@@ -29,7 +29,8 @@
         <!-- err vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
-        <parameters>duration processesInBatch fail</parameters>
+        <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
+        <!--<parameters>duration processesInBatch finalState</parameters>-->
         <checkErrorStream>false</checkErrorStream>
     </process>
 

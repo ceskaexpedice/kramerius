@@ -5,6 +5,7 @@ import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
+import cz.incad.kramerius.processes.mock.TestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.exceptions.*;
 import cz.incad.kramerius.security.RightsResolver;
@@ -435,29 +436,51 @@ public class ProcessResource {
     private List<String> paramsToList(String type, JSONObject params) {
         switch (type) {
             case "test": {
+                //duration (of every process in batch)
                 Integer duration = 1;
-                if (params.has("duration")) {
-                    //TODO: test when not int
-                    duration = params.getInt("duration");
+                String durationKey = "duration";
+                if (params.has(durationKey)) {
+                    try {
+                        duration = params.getInt(durationKey);
+                        if (duration < 1) {
+                            throw new BadRequestException("invalid value (not a positive number) of %s: '%d'", durationKey, duration);
+                        }
+                    } catch (JSONException e) {
+                        throw new BadRequestException("invalid value (not a number) of %s: '%s'", durationKey, params.get(durationKey));
+                    }
                 }
+                //number of processes in batch
                 Integer processesInBatch = 1;
-                if (params.has("processesInBatch")) {
-                    //TODO: test when not int
-                    processesInBatch = params.getInt("processesInBatch");
+                String processesInBatchKey = "processesInBatch";
+                if (params.has(processesInBatchKey)) {
+                    try {
+                        processesInBatch = params.getInt(processesInBatchKey);
+                        if (processesInBatch < 1) {
+                            throw new BadRequestException("invalid value (not a positive number) of %s: '%d'", processesInBatchKey, processesInBatch);
+                        }
+                    } catch (JSONException e) {
+                        throw new BadRequestException("invalid value (not a number) of %s: '%s'", processesInBatchKey, params.get(processesInBatchKey));
+                    }
                 }
-                Boolean fail = false;
-                if (params.has("fail")) {
-                    //TODO: test when not boolean
-                    fail = params.getBoolean("fail");
+                //processes' final state
+                TestProcess.FinalState finalState = TestProcess.FinalState.FINISHED;
+                String finalStateKey = "finalState";
+                if (params.has(finalStateKey)) {
+                    String finalStateStr = params.getString(finalStateKey);
+                    try {
+                        finalState = TestProcess.FinalState.valueOf(finalStateStr);
+                    } catch (IllegalArgumentException e) {
+                        throw new BadRequestException("invalid value of %s: '%s'", finalStateKey, finalStateStr);
+                    }
                 }
                 List<String> array = new ArrayList<>();
                 array.add(duration.toString());
                 array.add(processesInBatch.toString());
-                array.add(fail.toString());
+                array.add(finalState.name());
                 return array;
             }
             default: {
-                throw new BadRequestException("unsupported process type '%s'", type);
+                throw new BadRequestException("unsupported process type %s", type);
             }
         }
     }
@@ -465,7 +488,7 @@ public class ProcessResource {
     private Response scheduleProcess(String type, List<String> params, String ownerId, String ownerName) {
         LRProcessDefinition definition = processDefinition(type);
         if (definition == null) {
-            throw new BadRequestException("process definition for type '%' not found", type);
+            throw new BadRequestException("process definition for type '%s' not found", type);
         }
 
         LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
@@ -502,7 +525,7 @@ public class ProcessResource {
         }
     }
 
-    //TODO: proverit fungovani
+    //TODO: proverit fungovani, prejmenovat
     private LRProcessDefinition processDefinition(String processType) {
         definitionManager.load();
         LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(processType);
