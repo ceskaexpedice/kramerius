@@ -19,14 +19,14 @@
 
     <process>
         <!-- identifikator  -->
-        <id>test</id>
-        <!-- jenom popis -->
+        <id>process-api-test</id>
+        <!-- popis -->
         <description>Proces pro testovani spravy procesu</description>
         <!-- spoustena trida -->
-        <mainClass>cz.incad.kramerius.processes.mock.TestProcess</mainClass>
+        <mainClass>cz.incad.kramerius.processes.mock.ProcessApiTestProcess</mainClass>
         <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
-        <!-- err vystup -->
+        <!-- chybovy vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->

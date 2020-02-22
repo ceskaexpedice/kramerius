@@ -11,9 +11,9 @@ import java.util.logging.Logger;
 /**
  * Definice procesu je dale v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st
  */
-public class TestProcess {
+public class ProcessApiTestProcess {
 
-    public static final Logger LOGGER = Logger.getLogger(TestProcess.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(ProcessApiTestProcess.class.getName());
 
     public static void main(String[] args) throws IOException {
         long start = System.currentTimeMillis();

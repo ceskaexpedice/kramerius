@@ -5,7 +5,7 @@ import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.mock.TestProcess;
+import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.exceptions.*;
 import cz.incad.kramerius.security.RightsResolver;
@@ -435,7 +435,7 @@ public class ProcessResource {
 
     private List<String> paramsToList(String type, JSONObject params) {
         switch (type) {
-            case "test": {
+            case "process-api-test": {
                 //duration (of every process in batch)
                 Integer duration = 1;
                 String durationKey = "duration";
@@ -463,12 +463,12 @@ public class ProcessResource {
                     }
                 }
                 //processes' final state
-                TestProcess.FinalState finalState = TestProcess.FinalState.FINISHED;
+                ProcessApiTestProcess.FinalState finalState = ProcessApiTestProcess.FinalState.FINISHED;
                 String finalStateKey = "finalState";
                 if (params.has(finalStateKey)) {
                     String finalStateStr = params.getString(finalStateKey);
                     try {
-                        finalState = TestProcess.FinalState.valueOf(finalStateStr);
+                        finalState = ProcessApiTestProcess.FinalState.valueOf(finalStateStr);
                     } catch (IllegalArgumentException e) {
                         throw new BadRequestException("invalid value of %s: '%s'", finalStateKey, finalStateStr);
                     }
@@ -480,7 +480,7 @@ public class ProcessResource {
                 return array;
             }
             default: {
-                throw new BadRequestException("unsupported process type %s", type);
+                throw new BadRequestException("unsupported process type '%s'", type);
             }
         }
     }
