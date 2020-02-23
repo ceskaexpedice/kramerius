@@ -58,9 +58,6 @@ public class ProcessResource {
 
     //TODO: move url into configuration
     private static final String AUTH_URL = "https://api.kramerius.cloud/api/v1/auth/validate_token";
-    private static final String AUTH_HEADER_CLIENT = "client";
-    private static final String AUTH_HEADER_UID = "uid";
-    private static final String AUTH_HEADER_ACCESS_TOKEN = "access-token";
 
     //TODO: prejmenovat role podle spravy uctu
     private static final String ROLE_SCHEDULE_PROCESSES = "kramerius_admin";
@@ -296,13 +293,9 @@ public class ProcessResource {
         }
     }
 
-    private AuthenticatedUser getAuthenticatedUser() {
-        String client = requestProvider.get().getHeader(AUTH_HEADER_CLIENT);
-        String uid = requestProvider.get().getHeader(AUTH_HEADER_UID);
-        String accessToken = requestProvider.get().getHeader(AUTH_HEADER_ACCESS_TOKEN);
-        if (!StringUtils.isAnyString(accessToken) || !StringUtils.isAnyString(uid) || !StringUtils.isAnyString(client)) {
-            throw new ProxyAuthenticationRequiredException("missing one of headaers '%s', '%s', or '%s'", AUTH_HEADER_CLIENT, AUTH_HEADER_UID, AUTH_HEADER_ACCESS_TOKEN);
-        }
+    private AuthenticatedUser getAuthenticatedUser() throws ProxyAuthenticationRequiredException {
+        ClientAuthHeaders authHeaders = ClientAuthHeaders.extract(requestProvider);
+        //System.out.println(authHeaders);
         try {
             URL url = new URL(AUTH_URL);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -310,15 +303,16 @@ public class ProcessResource {
             con.setInstanceFollowRedirects(false);
             con.setConnectTimeout(1000);
             con.setReadTimeout(1000);
-            con.setRequestProperty(AUTH_HEADER_CLIENT, client);
-            con.setRequestProperty(AUTH_HEADER_UID, uid);
-            con.setRequestProperty(AUTH_HEADER_ACCESS_TOKEN, accessToken);
+            con.setRequestProperty(ClientAuthHeaders.AUTH_HEADER_CLIENT, authHeaders.getClient());
+            con.setRequestProperty(ClientAuthHeaders.AUTH_HEADER_UID, authHeaders.getUid());
+            con.setRequestProperty(ClientAuthHeaders.AUTH_HEADER_ACCESS_TOKEN, authHeaders.getAccessToken());
             int status = con.getResponseCode();
 
             //error with not 200
             if (status != 200) {
                 String message = "response status " + status;
                 String body = inputstreamToString(con.getErrorStream());
+                System.err.println(body);
                 if (!body.isEmpty()) {
                     JSONObject bodyJson = new JSONObject(body);
                     if (bodyJson.has("errors")) {
@@ -408,15 +402,16 @@ public class ProcessResource {
             if (processDefinition == null) {
                 throw new BadRequestException("missing process definition");
             }
-            if (!processDefinition.has("type")) {
-                throw new BadRequestException("empty type");
+            if (!processDefinition.has("id")) {
+                throw new BadRequestException("empty id");
             }
-            String type = processDefinition.getString("type");
+            String id = processDefinition.getString("id");
             JSONObject params = new JSONObject();
             if (processDefinition.has("params")) {
                 params = processDefinition.getJSONObject("params");
             }
-            List<String> paramsList = paramsToList(type, params);
+            List<String> paramsList = paramsToList(id, params);
+            paramsList.addAll(extractAuthParams());
 
             //autentizace
             AuthenticatedUser user = getAuthenticatedUser();
@@ -424,7 +419,7 @@ public class ProcessResource {
             if (!user.getRoles().contains(role)) {
                 throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
-            return scheduleProcess(type, paramsList, user.getId(), user.getName());
+            return scheduleProcess(id, paramsList, user.getId(), user.getName());
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -433,12 +428,22 @@ public class ProcessResource {
         }
     }
 
-    private List<String> paramsToList(String type, JSONObject params) {
-        switch (type) {
-            case "process-api-test": {
+    private List<String> extractAuthParams() {
+        //TODO: jen docasne se auth data davaji mezi ostatni parametry (nakonec) proto, aby proces mohl pripadne spoustet podprocesy
+        ClientAuthHeaders authHeaders = ClientAuthHeaders.extract(requestProvider);
+        List<String> result = new ArrayList<>();
+        result.add(authHeaders.getClient());
+        result.add(authHeaders.getUid());
+        result.add(authHeaders.getAccessToken());
+        return result;
+    }
+
+    private List<String> paramsToList(String id, JSONObject params) {
+        switch (id) {
+            case ProcessApiTestProcess.ID: {
                 //duration (of every process in batch)
                 Integer duration = 1;
-                String durationKey = "duration";
+                String durationKey = ProcessApiTestProcess.PARAM_DURATION;
                 if (params.has(durationKey)) {
                     try {
                         duration = params.getInt(durationKey);
@@ -451,7 +456,7 @@ public class ProcessResource {
                 }
                 //number of processes in batch
                 Integer processesInBatch = 1;
-                String processesInBatchKey = "processesInBatch";
+                String processesInBatchKey = ProcessApiTestProcess.PARAM_PROCESSES_IN_BATCH;
                 if (params.has(processesInBatchKey)) {
                     try {
                         processesInBatch = params.getInt(processesInBatchKey);
@@ -464,7 +469,7 @@ public class ProcessResource {
                 }
                 //processes' final state
                 ProcessApiTestProcess.FinalState finalState = ProcessApiTestProcess.FinalState.FINISHED;
-                String finalStateKey = "finalState";
+                String finalStateKey = ProcessApiTestProcess.PARAM_FINAL_STATE;
                 if (params.has(finalStateKey)) {
                     String finalStateStr = params.getString(finalStateKey);
                     try {
@@ -480,15 +485,15 @@ public class ProcessResource {
                 return array;
             }
             default: {
-                throw new BadRequestException("unsupported process type '%s'", type);
+                throw new BadRequestException("unsupported process id '%s'", id);
             }
         }
     }
 
-    private Response scheduleProcess(String type, List<String> params, String ownerId, String ownerName) {
-        LRProcessDefinition definition = processDefinition(type);
+    private Response scheduleProcess(String id, List<String> params, String ownerId, String ownerName) {
+        LRProcessDefinition definition = processDefinition(id);
         if (definition == null) {
-            throw new BadRequestException("process definition for type '%s' not found", type);
+            throw new BadRequestException("process definition for id '%s' not found", id);
         }
 
         LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
@@ -526,9 +531,9 @@ public class ProcessResource {
     }
 
     //TODO: proverit fungovani, prejmenovat
-    private LRProcessDefinition processDefinition(String processType) {
+    private LRProcessDefinition processDefinition(String id) {
         definitionManager.load();
-        LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(processType);
+        LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(id);
         return definition;
     }
 
@@ -541,7 +546,7 @@ public class ProcessResource {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("uuid", lrProcess.getUUID());
         jsonObject.put("pid", lrProcess.getPid()); //empty
-        jsonObject.put("type", lrProcess.getDefinitionId());
+        jsonObject.put("id", lrProcess.getDefinitionId());
         jsonObject.put("state", lrProcess.getProcessState().toString());
         //jsonObject.put("batchState", lrProcess.getBatchState().toString());
         jsonObject.put("name", lrProcess.getProcessName());

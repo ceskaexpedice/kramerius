@@ -1,8 +1,15 @@
 package cz.incad.kramerius.processes.mock;
 
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
+import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
+import net.sf.json.JSONObject;
 
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
@@ -14,6 +21,15 @@ import java.util.logging.Logger;
 public class ProcessApiTestProcess {
 
     public static final Logger LOGGER = Logger.getLogger(ProcessApiTestProcess.class.getName());
+    public static final String ID = "process-api-test";
+    public static final String PARAM_DURATION = "duration";
+    public static final String PARAM_PROCESSES_IN_BATCH = "processesInBatch";
+    public static final String PARAM_FINAL_STATE = "finalState";
+
+    //autentizacni hlavicky pro planovani podrpocesu
+    public static final String API_AUTH_HEADER_CLIENT = "client";
+    public static final String API_AUTH_HEADER_UID = "uid";
+    public static final String API_AUTH_HEADER_ACCESS_TOKEN = "access-token";
 
     public static void main(String[] args) throws IOException {
         long start = System.currentTimeMillis();
@@ -28,12 +44,18 @@ public class ProcessApiTestProcess {
 
         //args
         LOGGER.info("args: " + Arrays.asList(args));
-        int durationInSeconds = Integer.valueOf(args[0]);
-        int processesInBatch = Integer.valueOf(args[1]);
-        FinalState finalState = FinalState.valueOf(args[2]);
+        int argsIndex = 0;
+        int durationInSeconds = Integer.valueOf(args[argsIndex++]);
+        int processesInBatch = Integer.valueOf(args[argsIndex++]);
+        FinalState finalState = FinalState.valueOf(args[argsIndex++]);
+
+        //TODO: autentizaci vyresit systematicky, zatim pres parametr tohohle konkretniho procesu
+        String authClient = args[argsIndex++];
+        String authUid = args[argsIndex++];
+        String authAccessToken = args[argsIndex++];
 
         //zmena nazvu
-        ProcessStarter.updateName(String.format("Proces pro testování správy procesů (duration=%ds, final_state=%s, processes_in_batch=%d)", durationInSeconds, finalState, processesInBatch));
+        ProcessStarter.updateName(String.format("Proces pro testování správy procesů (%s=%ds, %s=%s, processes_in_batch=%d)", PARAM_DURATION, durationInSeconds, PARAM_FINAL_STATE, finalState, processesInBatch));
 
         //cekani n sekund
         try {
@@ -45,7 +67,7 @@ public class ProcessApiTestProcess {
         }
 
         if (processesInBatch > 1) {
-            //TODO: naplanuj dalsi procesy v davce
+            scheduleProcess(durationInSeconds, processesInBatch - 1, finalState, authClient, authUid, authAccessToken);
         }
 
         LOGGER.info("total duration: " + formatTime(System.currentTimeMillis() - start));
@@ -63,6 +85,45 @@ public class ProcessApiTestProcess {
                 throw new RuntimeException("failed");
             case WARNING:
                 throw new WarningException("warning");//TODO: tohle vypada, ze nefunguje
+        }
+    }
+
+    public static void scheduleProcess(int durationInSeconds, int remainingProcessesInBatch, FinalState finalState, String authClient, String authUid, String authAccessToken) {
+        //v starem api to funguje tak, ze proces zavola servlet, stejne jako to dela externi klient
+        //viz IndexerProcessStarter.spawnIndexer
+        //takze se musi predavat i batch token
+        //TODO: takze to udelat podobne, coz ale bude znamenat, ze i samotne procesy budou muset volat nove API
+        //tj. upravit postupne vsechny procesy
+        //TODO: batch token - zatim se se spousti dalsi proces, jako by nebyl v davce
+
+        Client client = Client.create();
+        WebResource resource = client.resource(ProcessUtils.getNewAdminApiProcessesEndpoint() + "");
+        //resource.addFilter(new IndexerProcessStarter.TokensFilter());
+
+        JSONObject data = new JSONObject();
+        data.put("id", ID);
+        JSONObject params = new JSONObject();
+        params.put(PARAM_DURATION, durationInSeconds);
+        params.put(PARAM_PROCESSES_IN_BATCH, remainingProcessesInBatch);
+        params.put(PARAM_FINAL_STATE, finalState.name());
+        data.put("params", params);
+
+        //TODO: otestovat, jestli se vypropagujou chybove hlasky, treba pri spatnem auth tokenu
+        try {
+            String response = resource
+                    .accept(MediaType.APPLICATION_JSON)
+                    .type(MediaType.APPLICATION_JSON)
+                    .header(API_AUTH_HEADER_CLIENT, authClient)
+                    .header(API_AUTH_HEADER_UID, authUid)
+                    .header(API_AUTH_HEADER_ACCESS_TOKEN, authAccessToken)
+                    .entity(data.toString(), MediaType.APPLICATION_JSON)
+                    .post(String.class);
+            //System.out.println("response: " + response);
+        } catch (UniformInterfaceException e) {
+            e.printStackTrace();
+            ClientResponse errorResponse = e.getResponse();
+            System.err.printf("message: " + errorResponse.toString());
+            System.err.printf(errorResponse.toString());
         }
     }
 
