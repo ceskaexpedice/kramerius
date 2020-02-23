@@ -45,14 +45,18 @@ public class ProcessApiTestProcess {
         //args
         LOGGER.info("args: " + Arrays.asList(args));
         int argsIndex = 0;
-        int durationInSeconds = Integer.valueOf(args[argsIndex++]);
-        int processesInBatch = Integer.valueOf(args[argsIndex++]);
-        FinalState finalState = FinalState.valueOf(args[argsIndex++]);
-
+        //TODO: vyresit batch_token.
+        // Bud takto (proces ho dostane v argumentech a pak ho posila pri planovani dalsiho procesu v davce), coz ale neni idealni, protoze klient rika, jaky bude batch_token
+        // Anebo nejake reseni podobne dosavadnimu, jenze tam to souviselo se session a z process_2_token se dalo sehnat mapovani session na process a batch
+        String batchToken = args[argsIndex++];
         //TODO: autentizaci vyresit systematicky, zatim pres parametr tohohle konkretniho procesu
+        //asi podobne, jako tabulka process_2_token, nebo primo do processes, kazdopadne kazdy proces by mel uchovavat client, uid, access-token
         String authClient = args[argsIndex++];
         String authUid = args[argsIndex++];
         String authAccessToken = args[argsIndex++];
+        int durationInSeconds = Integer.valueOf(args[argsIndex++]);
+        int processesInBatch = Integer.valueOf(args[argsIndex++]);
+        FinalState finalState = FinalState.valueOf(args[argsIndex++]);
 
         //zmena nazvu
         ProcessStarter.updateName(String.format("Proces pro testování správy procesů (%s=%ds, %s=%s, processes_in_batch=%d)", PARAM_DURATION, durationInSeconds, PARAM_FINAL_STATE, finalState, processesInBatch));
@@ -67,7 +71,7 @@ public class ProcessApiTestProcess {
         }
 
         if (processesInBatch > 1) {
-            scheduleProcess(durationInSeconds, processesInBatch - 1, finalState, authClient, authUid, authAccessToken);
+            scheduleNextProcessInBatch(batchToken, authClient, authUid, authAccessToken, durationInSeconds, processesInBatch - 1, finalState);
         }
 
         LOGGER.info("total duration: " + formatTime(System.currentTimeMillis() - start));
@@ -88,7 +92,7 @@ public class ProcessApiTestProcess {
         }
     }
 
-    public static void scheduleProcess(int durationInSeconds, int remainingProcessesInBatch, FinalState finalState, String authClient, String authUid, String authAccessToken) {
+    public static void scheduleNextProcessInBatch(String batchToken, String authClient, String authUid, String authAccessToken, int durationInSeconds, int remainingProcessesInBatch, FinalState finalState) {
         //v starem api to funguje tak, ze proces zavola servlet, stejne jako to dela externi klient
         //viz IndexerProcessStarter.spawnIndexer
         //takze se musi predavat i batch token
@@ -97,7 +101,9 @@ public class ProcessApiTestProcess {
         //TODO: batch token - zatim se se spousti dalsi proces, jako by nebyl v davce
 
         Client client = Client.create();
-        WebResource resource = client.resource(ProcessUtils.getNewAdminApiProcessesEndpoint() + "");
+        //TODO: zvazit, jestli batchToken nedat spis do URL, jakoze:
+        //POST
+        WebResource resource = client.resource(ProcessUtils.getNewAdminApiProcessesEndpoint() + "?batch_token=" + batchToken);
         //resource.addFilter(new IndexerProcessStarter.TokensFilter());
 
         JSONObject data = new JSONObject();
@@ -122,7 +128,7 @@ public class ProcessApiTestProcess {
         } catch (UniformInterfaceException e) {
             e.printStackTrace();
             ClientResponse errorResponse = e.getResponse();
-            System.err.printf("message: " + errorResponse.toString());
+            //System.err.printf("message: " + errorResponse.toString());
             System.err.printf(errorResponse.toString());
         }
     }

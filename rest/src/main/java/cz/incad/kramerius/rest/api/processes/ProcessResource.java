@@ -392,12 +392,13 @@ public class ProcessResource {
      * Schedules new process
      *
      * @param processDefinition
+     * @param batchToken Id of the batch, that this new process should belong to
      * @return
      */
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response scheduleProcess(JSONObject processDefinition) {
+    public Response scheduleProcess(JSONObject processDefinition, @QueryParam("batch_token") String batchToken) {
         try {
             if (processDefinition == null) {
                 throw new BadRequestException("missing process definition");
@@ -410,16 +411,21 @@ public class ProcessResource {
             if (processDefinition.has("params")) {
                 params = processDefinition.getJSONObject("params");
             }
-            List<String> paramsList = paramsToList(id, params);
+            if (batchToken == null || batchToken.trim().isEmpty()) {
+                batchToken = UUID.randomUUID().toString();
+            }
+            List<String> paramsList = new ArrayList<>();
+            paramsList.add(batchToken); //batch_token kvuli planovani dalsich procesu (aby byly ve stejne davce)
             paramsList.addAll(extractAuthParams());
-
+            paramsList.addAll(paramsToList(id, params));
             //autentizace
             AuthenticatedUser user = getAuthenticatedUser();
             String role = ROLE_SCHEDULE_PROCESSES;
             if (!user.getRoles().contains(role)) {
                 throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
-            return scheduleProcess(id, paramsList, user.getId(), user.getName());
+            //TODO: nijak se nekontroluje, jestli batchToken patri uzivateli, teoreticky by mohl uzivatel vlozit proces do stejne davky s procesem jineho uzivatele
+            return scheduleProcess(id, paramsList, user.getId(), user.getName(), batchToken);
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -490,13 +496,18 @@ public class ProcessResource {
         }
     }
 
-    private Response scheduleProcess(String id, List<String> params, String ownerId, String ownerName) {
+    private Response scheduleProcess(String id, List<String> params, String ownerId, String ownerName, String batchToken) {
         LRProcessDefinition definition = processDefinition(id);
         if (definition == null) {
             throw new BadRequestException("process definition for id '%s' not found", id);
         }
+        String authToken = authToken();
+        //System.out.println("authToken: " + authToken);
+        String groupToken = groupToken();
+        groupToken = batchToken;
+        //System.out.println("groupToken: " + groupToken);
 
-        LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
+        LRProcess newProcess = definition.createNewProcess(authToken, groupToken);
         //System.out.println("newProcess: " + newProcess);
         //tohle vypada, ze se je k nicemu, ve vysledku se to jen uklada do databaze do processes.params_mapping a to ani ne vzdy
         // select planned, params_mapping from processes where params_mapping!='' order by planned desc limit 10;
@@ -559,14 +570,14 @@ public class ProcessResource {
         return jsonObject;
     }
 
-    public String authToken() {
+    @Deprecated
+    private String authToken() {
         return requestProvider.get().getHeader(AUTH_TOKEN_HEADER_KEY);
     }
 
-    public String groupToken() {
-        HttpServletRequest request = requestProvider.get();
-        String gtoken = request.getHeader(TOKEN_ATTRIBUTE_KEY);
-        return gtoken;
+    @Deprecated
+    private String groupToken() {
+        return requestProvider.get().getHeader(TOKEN_ATTRIBUTE_KEY);
     }
 
     private String findLoggedUserKey() {
