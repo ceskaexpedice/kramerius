@@ -1,3 +1,23 @@
+--uklid mezivysledku
+DROP FUNCTION IF EXISTS refresh_process_batch_new_2() CASCADE;
+DROP TRIGGER IF EXISTS update_process_batch_new_on_process_change_2_insert on processes;
+DROP TRIGGER IF EXISTS update_process_batch_new_on_process_change_2_update on processes;
+DROP TABLE IF EXISTS process_batch_new CASCADE;
+
+--functions
+DROP AGGREGATE IF EXISTS batch_state(integer) CASCADE;
+DROP FUNCTION IF EXISTS update_batch_state(integer,integer) CASCADE;
+
+--ordinary (live) view - just for testing
+DROP VIEW IF EXISTS process_batch_not_precomputed;
+
+--materialized view
+DROP TRIGGER IF EXISTS update_process_batch_on_process_state_change on processes;
+DROP TRIGGER IF EXISTS update_process_batch_on_process_insert on processes;
+DROP TRIGGER IF EXISTS update_process_batch_on_process_delete on processes;
+DROP FUNCTION IF EXISTS refresh_process_batch();
+DROP MATERIALIZED VIEW IF EXISTS process_batch;
+
 
 --Agregacni funkce bude zjistovat stav davky procesu podle stavu potomku
 --see https://github.com/ceskaexpedice/kramerius/blob/b7b173c3d664d4982483131ff6a547f49d96f47e/common/src/main/java/cz/incad/kramerius/processes/States.java
@@ -39,20 +59,6 @@
 --jsem BATCH_KILLED(4), vidim KILLED(4) => BATCH_KILLED(4)
 
 --jinak BATCH_FAILED(3)
-
---functions
-DROP AGGREGATE IF EXISTS batch_state(integer) CASCADE;
-DROP FUNCTION IF EXISTS update_batch_state(integer,integer) CASCADE;
-
---ordinary (live) view - just for testing
-DROP VIEW IF EXISTS process_batch_not_precomputed;
-
---materialized view
-DROP TRIGGER IF EXISTS update_process_batch_on_process_state_change on processes;
-DROP TRIGGER IF EXISTS update_process_batch_on_process_insert on processes;
-DROP TRIGGER IF EXISTS update_process_batch_on_process_delete on processes;
-DROP FUNCTION IF EXISTS refresh_process_batch();
-DROP MATERIALIZED VIEW IF EXISTS process_batch;
 
 --first param is current (batch) state, secon param is process state
 CREATE OR REPLACE FUNCTION update_batch_state(integer, integer) RETURNS integer AS '
@@ -132,9 +138,27 @@ SELECT
   ORDER BY
     first_process_id DESC;
 
---materialized verze view pro batch procesu
---kvuli toho, aby cteni, listovani procesy bylo pouzitelne (coz neni pri cekani kolem 3 sekund pro 125k procesu pro ne-materialized verzi)
-CREATE MATERIALIZED VIEW process_batch AS
+--nova tabulka process_batch
+DROP TABLE IF EXISTS process_batch CASCADE;
+CREATE TABLE process_batch (
+    batch_token VARCHAR(255) NOT NULL,
+    batch_state INT NOT NULL,
+    process_count INT NOT NULL,
+    first_process_id INT NOT NULL,
+    first_process_state INT NOT NULL,
+    first_process_uuid VARCHAR(255) NOT NULL,
+    first_process_defid VARCHAR(255) NOT NULL,
+    first_process_name VARCHAR, --v processes.name muze byt null
+    planned TIMESTAMP,
+    started TIMESTAMP,
+    finished TIMESTAMP,
+    owner_id VARCHAR,
+    owner_name VARCHAR,
+    PRIMARY KEY (batch_token)
+);
+
+--inicializace radku v process_batch
+INSERT INTO process_batch (
 SELECT
     processes.token AS batch_token,
     batch_state(processes.status) AS batch_state,
@@ -154,41 +178,74 @@ SELECT
   GROUP BY
     processes.token
   ORDER BY
-    first_process_id DESC;
+    first_process_id DESC
+);
 
+--funkce pro aktualizaci konkretniho radku v process_batch
+DROP FUNCTION IF EXISTS refresh_process_batch() CASCADE;
+CREATE OR REPLACE FUNCTION refresh_process_batch() RETURNS TRIGGER AS
+$BODY$
+  BEGIN
+    RAISE NOTICE 'refresh_process_batch(), NEW.process_id=%', NEW.process_id;
+    DELETE FROM process_batch
+           WHERE batch_token = NEW.token;
+    RAISE NOTICE 'deleted, now inserting';
+    INSERT into process_batch (batch_token, batch_state, process_count, first_process_id, first_process_state, first_process_uuid, first_process_defid, first_process_name,planned,started,finished,owner_id,owner_name)
+    (SELECT
+        processes.token AS batch_token,
+        batch_state(processes.status) AS batch_state,
+        count(*) AS process_count,
+        min(processes.process_id) AS first_process_id,
+        min(processes.status) AS first_process_state,
+        min(processes.uuid) AS first_process_uuid,
+        min(processes.defid) AS first_process_defid,
+        min(processes.name) AS first_process_name,
+        min(processes.planned) AS planned,
+        min(processes.started) AS started,
+        max(processes.finished) AS finished,
+        min(processes.owner_id) AS owner_id,
+        min(processes.owner_name) AS owner_name
+      FROM
+        processes
+      WHERE
+        processes.token=NEW.token
+      GROUP BY
+        processes.token
+      ORDER BY
+        first_process_id DESC
+    )
+    ;
+    RAISE NOTICE 'inserted';
+    RETURN NULL;
+  END;
+$BODY$
+LANGUAGE plpgsql;
 
---funkce pro obnoveni materialized view
-CREATE FUNCTION refresh_process_batch() RETURNS TRIGGER AS '
-    BEGIN
-        REFRESH MATERIALIZED VIEW process_batch;
-        RETURN NULL;
-    END;
-' LANGUAGE plpgsql;
-
-
---trigger, ktery pri zmene stavu nektereho procesu prekeneruje cele materialized view process_batch
---TODO: jeste optimalizovat, pro 125k procesu to trva jednotky sekund a deje se to pri zmene stavu kazdeho procesu
---moznosti optimalizace: 1. omezit sloupce v process_batch jen na ty nezbytne pro razeni (nejspis jen mirne zrychleni), 2. misto materialized view to delat vlastni tabulkou a menit jen dotceny radek, ne vsechno
---TODO: neaktualizuje se po zmene date-time, coz vypada, ze se prakticky deje (neprve se zmeni stav a az v dalsi operaci timestamp)
-CREATE TRIGGER update_process_batch_on_process_state_change
-    AFTER UPDATE ON processes
-    FOR EACH ROW
-    WHEN (OLD.status IS DISTINCT FROM NEW.status)
-    EXECUTE PROCEDURE refresh_process_batch();
-
---podobne trigger po vlozeni procesu
+--trigger on insert
+DROP TRIGGER IF EXISTS update_process_batch_on_process_insert on processes;
 CREATE TRIGGER update_process_batch_on_process_insert
-    AFTER INSERT ON processes
-    FOR STATEMENT
+AFTER INSERT ON processes
+    FOR EACH ROW
     EXECUTE PROCEDURE refresh_process_batch();
 
---podobne trigger po odstraneni procesu
+--trigger on update
+DROP TRIGGER IF EXISTS update_process_batch_on_process_update on processes;
+CREATE TRIGGER update_process_batch_on_process_update
+AFTER UPDATE ON processes
+    FOR EACH ROW
+    WHEN (OLD.* IS DISTINCT FROM NEW.*)
+    EXECUTE PROCEDURE refresh_process_batch();
+
+--trigger on delete
+--TODO: opravit, nefunguje, protoze NEW neni definovano v refresh_process_batch
+DROP TRIGGER IF EXISTS update_process_batch_on_process_delete on processes;
 CREATE TRIGGER update_process_batch_on_process_delete
-    AFTER DELETE ON processes
-    FOR STATEMENT
+AFTER DELETE ON processes
+    FOR EACH ROW
     EXECUTE PROCEDURE refresh_process_batch();
-
 
 --TODO:
 --mely by se pouklizet data, napr. odstranit batch_state z tabulky processes, taky pid (stejne nahrazen process_id)
 --v produkci nechat jen jednu verzi view - materialized, nebo jinak predpocitana
+
+

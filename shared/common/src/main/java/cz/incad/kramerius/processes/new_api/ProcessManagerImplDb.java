@@ -57,7 +57,7 @@ public class ProcessManagerImplDb implements ProcessManager {
                 } else {
                     firstCondition = false;
                 }
-                builder.append(" batch.ownerId='").append(filter.owner).append("'");
+                builder.append(" batch.owner_id='").append(filter.owner).append("'");
             }
             //from
             if (filter.from != null) {
@@ -97,7 +97,7 @@ public class ProcessManagerImplDb implements ProcessManager {
             throw new NotReadyException("connection not ready");
         }
         try {
-            String filteredBatchQuery = String.format("SELECT * FROM process_batch AS batch %s OFFSET %d LIMIT %d", buildFilterClause(filter), offset, limit);
+            String filteredBatchQuery = String.format("SELECT * FROM process_batch AS batch %s order by first_process_id desc OFFSET %d LIMIT %d", buildFilterClause(filter), offset, limit);
             //System.out.println(filteredBatchQuery);
             String joinQuery =
                     "SELECT " +
@@ -231,7 +231,6 @@ public class ProcessManagerImplDb implements ProcessManager {
         } finally {
             DatabaseUtils.tryClose(connection);
         }
-
     }
 
     private LocalDateTime toLocalDateTime(Timestamp timestamp) {
