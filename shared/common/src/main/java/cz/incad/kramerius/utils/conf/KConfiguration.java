@@ -22,7 +22,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 
 public class KConfiguration {
-    
+
     public static final String DEFAULT_CONF_LOCATION = "res/configuration.properties";
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(KConfiguration.class.getName());
@@ -130,6 +130,10 @@ public class KConfiguration {
         return getProperty("solrHost");
     }
 
+    public String getSolrHostNew() {
+        return getProperty("searchSolrHost");
+    }
+
     public String getIndexerHost() {
         return getProperty("indexerHost");
     }
@@ -207,7 +211,7 @@ public class KConfiguration {
         String url = getProperty("usersEditorUrl","/rightseditor");
         return url;
     }
-    
+
     public String getEditorURL() {
         String url = getProperty("editorUrl");
         return normalizeURL(url);
@@ -253,12 +257,12 @@ public class KConfiguration {
     public float getDeepZoomJPEGQuality() {
         return getConfiguration().getFloat("deepZoom.jpegQuality", 0.9f);
     }
-    
+
     public boolean isDeepZoomEnabled() {
         return getConfiguration().getBoolean("deepZoom.deepZoomEnabled", false);
     }
-    
-    
+
+
     public boolean isDeepZoomForPathEnabled(String[] path) {
         Configuration configuration = getConfiguration();
         for (int i = path.length - 1; i >=0; i--) {
@@ -278,7 +282,7 @@ public class KConfiguration {
     	return resArray;
     }
 
-    
+
     public String getShibAssocRules() {
         return getConfiguration().getString("security.shib.rules", "${sys:user.home}/.kramerius4/shibrules.txt");
     }
@@ -286,7 +290,7 @@ public class KConfiguration {
     public String getShibLogout() {
         return getConfiguration().getString("security.shib.logout");
     }
-    
+
     public String getUrlOfIIPServer() {
         return getConfiguration().getString("UrlOfIIPserver", "");
     }
@@ -308,7 +312,7 @@ public class KConfiguration {
         return getConfiguration().getInt("cache.timeToLiveExpiration", 60);
     }
 
-    
+
     private static String normalizeURL(String url) {
         if (url != null) {
             url = url.endsWith("/") ? url : url + '/';

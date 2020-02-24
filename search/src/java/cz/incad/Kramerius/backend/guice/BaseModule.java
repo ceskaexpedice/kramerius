@@ -14,10 +14,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.CacheLifeCycleHook;
 import cz.incad.kramerius.audio.urlMapping.CachingFedoraUrlManager;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
-import cz.incad.kramerius.impl.CachedFedoraAccessImpl;
-import cz.incad.kramerius.impl.CachedSolrAccessImpl;
-import cz.incad.kramerius.impl.MostDesirableImpl;
-import cz.incad.kramerius.impl.SolrAccessImpl;
+import cz.incad.kramerius.impl.*;
 import cz.incad.kramerius.processes.GCScheduler;
 import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.database.Kramerius4ConnectionProvider;
@@ -72,6 +69,7 @@ public class BaseModule extends AbstractModule {
 
         
         bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
+        bind(SolrAccess.class).annotatedWith(Names.named("new-index")).to(SolrAccessImplNewIndex.class).in(Scopes.SINGLETON);
         bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);
 
         bind(METSService.class).to(METSServiceImpl.class);

@@ -1,34 +1,24 @@
 /*
  * Copyright (C) 2010 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package cz.incad.kramerius.utils.solr;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import cz.incad.kramerius.impl.SolrAccessImpl;
+import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
+import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpGet;
@@ -40,108 +30,135 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.utils.RESTHelper;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 import static org.apache.http.HttpStatus.SC_OK;
 
+
 /**
  * Utility helper class for SolrAccess
- * @see SolrAccessImpl
+ *
  * @author pavels
+ * @see SolrAccessImplNewIndex
  */
-public class SolrUtils   {
-    
-    public static final Logger LOGGER = Logger.getLogger(SolrUtils.class.getName());
+public class SolrUtilsNewIndex {
 
+    public static final Logger LOGGER = Logger.getLogger(SolrUtilsNewIndex.class.getName());
 
-    /** PID query */
-    public static final String UUID_QUERY="q=PID:";
-    /** Handle query */
-    public static final String HANDLE_QUERY="q=handle:";
-    /** Parent query */
-    public static final String PARENT_QUERY="q=parent_pid:";
-    
-    // factory instance
-    static XPathFactory fact =XPathFactory.newInstance();
-    
-    /** 
-     * Conscturcts XPath for disecting pid path 
+    /**
+     * PID query
+     */
+    public static final String UUID_QUERY = "q=PID:";
+    /**
+     * Handle query
+     */
+    public static final String HANDLE_QUERY = "q=handle:";
+    /**
+     * Parent query
+     */
+    public static final String PARENT_QUERY = "q=parent_pid:";
+
+    private final String solrHost;
+    private final XPathFactory fact = XPathFactory.newInstance();
+
+    public SolrUtilsNewIndex(String solrHost) {
+        this.solrHost = solrHost;
+    }
+
+    //TODO: promazat nepouzivane metody, bude jich vetsina
+
+    /**
+     * Conscturcts XPath for disecting pid path
+     *
      * @return Compiled XPath expression
      * @throws XPathExpressionException Cannot compile xpath
      */
-    public static XPathExpression pidPathExpr() throws XPathExpressionException {
+    public XPathExpression pidPathExpr() throws XPathExpressionException {
         XPathExpression pidPathExpr = fact.newXPath().compile("//arr[@name='pid_path']/str");
         return pidPathExpr;
     }
 
     /**
      * Constructs XPath for disecting PID
+     *
      * @return Compiled XPath expression
      * @throws XPathExpressionException Cannot compile xpath
      */
-    public static XPathExpression docPidExpr() throws XPathExpressionException {
+    public XPathExpression docPidExpr() throws XPathExpressionException {
         XPathExpression pidExpr = fact.newXPath().compile("//str[@name='PID']");
         return pidExpr;
     }
 
-    public static XPathExpression elmPidExpr() throws XPathExpressionException {
+    public XPathExpression elmPidExpr() throws XPathExpressionException {
         XPathExpression pidExpr = fact.newXPath().compile("str[@name='PID']");
         return pidExpr;
     }
 
     /**
      * Constructs XPath for disecting model path
+     *
      * @return Compiled XPath expression
      * @throws XPathExpressionException Cannot compile xpath
      */
-    public static XPathExpression modelPathExpr() throws XPathExpressionException {
+    public XPathExpression modelPathExpr() throws XPathExpressionException {
         XPathExpression pathExpr = fact.newXPath().compile("//arr[@name='model_path']/str");
         return pathExpr;
     }
-    
+
     /**
      * Constructs XPath for disecting fedora model
+     *
      * @return Compiled XPath expression
      * @throws XPathExpressionException Cannot compile xpath
      */
-    public static XPathExpression fedoraModelExpr() throws XPathExpressionException {
+    public XPathExpression fedoraModelExpr() throws XPathExpressionException {
         XPathExpression fedoraModelExpr = fact.newXPath().compile("//str[@name='fedora.model']");
         return fedoraModelExpr;
     }
-    
+
     /**
      * Constructs XPath for disecting parent PID
+     *
      * @return Compiled XPath expression
      * @throws XPathExpressionException Cannot compile xpath
      */
-    public static XPathExpression parentPidExpr() throws XPathExpressionException {
+    public XPathExpression parentPidExpr() throws XPathExpressionException {
         XPathExpression pidExpr = fact.newXPath().compile("//arr[@name='parent_pid']/str");
         return pidExpr;
     }
-    
+
     /**
      * Constructs XPath for disecting date
+     *
      * @return Compiled XPath expression
      * @throws XPathExpressionException Cannot compile xpath
      */
-    public static XPathExpression dateExpr() throws XPathExpressionException {
+    public XPathExpression dateExpr() throws XPathExpressionException {
         XPathExpression dateExpr = fact.newXPath().compile("//str[@name='datum_str']");
         return dateExpr;
     }
-    
+
     /**
      * Disects pid paths from given parsed solr document
+     *
      * @return pid paths
      * @throws XPathExpressionException cannot disect pid paths
      */
-    public static List<String> disectPidPaths( Document parseDocument) throws XPathExpressionException {
-        synchronized(parseDocument) {
+    public List<String> disectPidPaths(Document parseDocument) throws XPathExpressionException {
+        synchronized (parseDocument) {
             List<String> list = new ArrayList<String>();
-            NodeList paths = (org.w3c.dom.NodeList) pidPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
+            NodeList paths = (NodeList) pidPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
             if (paths != null) {
-                for (int i = 0,ll=paths.getLength(); i < ll; i++) {
+                for (int i = 0, ll = paths.getLength(); i < ll; i++) {
                     Node n = paths.item(i);
                     String text = n.getTextContent();
                     list.add(text.trim());
@@ -151,15 +168,16 @@ public class SolrUtils   {
             return new ArrayList<String>();
         }
     }
-    
+
     /**
      * Disect pid from given solr document
+     *
      * @param parseDocument Parsed solr document
-     * @return PID 
+     * @return PID
      * @throws XPathExpressionException cannot disect pid
      */
-    public static String disectPid(Document parseDocument) throws XPathExpressionException {
-        synchronized(parseDocument) {
+    public String disectPid(Document parseDocument) throws XPathExpressionException {
+        synchronized (parseDocument) {
             Node pidNode = (Node) docPidExpr().evaluate(parseDocument, XPathConstants.NODE);
             if (pidNode != null) {
                 Element pidElm = (Element) pidNode;
@@ -169,15 +187,15 @@ public class SolrUtils   {
         }
     }
 
-    public static String disectPid(Element topElem) throws XPathExpressionException {
-        synchronized(topElem.getOwnerDocument()) {
+    public String disectPid(Element topElem) throws XPathExpressionException {
+        synchronized (topElem.getOwnerDocument()) {
             Element foundElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
 
                 @Override
                 public boolean acceptElement(Element element) {
                     return (element.getNodeName().equals("str") && element.getAttribute("name") != null && element.getAttribute("name").equals("PID"));
                 }
-                
+
             });
             if (foundElement != null) {
                 return foundElement.getTextContent().trim();
@@ -187,16 +205,17 @@ public class SolrUtils   {
 
     /**
      * Disect models path from given solr document
+     *
      * @param parseDocument Parsed solr document
      * @return model paths
      * @throws XPathExpressionException cannot disect models path
      */
-    public static List<String> disectModelPaths(Document parseDocument) throws XPathExpressionException {
-        synchronized(parseDocument) {
+    public List<String> disectModelPaths(Document parseDocument) throws XPathExpressionException {
+        synchronized (parseDocument) {
             List<String> list = new ArrayList<String>();
             NodeList pathNodes = (NodeList) modelPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
             if (pathNodes != null) {
-                for (int i = 0,ll=pathNodes.getLength(); i < ll; i++) {
+                for (int i = 0, ll = pathNodes.getLength(); i < ll; i++) {
                     Node n = pathNodes.item(i);
                     String text = n.getTextContent();
                     list.add(text.trim());
@@ -206,15 +225,16 @@ public class SolrUtils   {
             return new ArrayList<String>();
         }
     }
-    
+
     /**
      * Disect fedora model from given solr document
+     *
      * @param parseDocument Parsed solr document
      * @return fedora model
      * @throws XPathExpressionException cannot disect fedora model
      */
-    public static String disectFedoraModel(Document parseDocument) throws XPathExpressionException {
-        synchronized(parseDocument) {
+    public String disectFedoraModel(Document parseDocument) throws XPathExpressionException {
+        synchronized (parseDocument) {
             Node fedoraModelNode = (Node) fedoraModelExpr().evaluate(parseDocument, XPathConstants.NODE);
             if (fedoraModelNode != null) {
                 Element fedoraModelElm = (Element) fedoraModelNode;
@@ -223,15 +243,16 @@ public class SolrUtils   {
             return null;
         }
     }
-    
+
     /**
      * Disect parent PID from given solr document
+     *
      * @param parseDocument Parsed solr document
      * @return parent PID
      * @throws XPathExpressionException cannot disect parent PID
      */
-    public static String disectParentPid(Document parseDocument) throws XPathExpressionException {
-        synchronized(parseDocument) {
+    public String disectParentPid(Document parseDocument) throws XPathExpressionException {
+        synchronized (parseDocument) {
             Node parentPidNode = (Node) parentPidExpr().evaluate(parseDocument, XPathConstants.NODE);
             if (parentPidNode != null) {
                 Element parentPidElm = (Element) parentPidNode;
@@ -240,15 +261,16 @@ public class SolrUtils   {
             return null;
         }
     }
-    
+
     /**
      * Disect date from given solr document
+     *
      * @param parseDocument Parsed solr document
      * @return date
      * @throws XPathExpressionException cannot disect date
      */
-    public static String disectDate(Document parseDocument) throws XPathExpressionException {
-        synchronized(parseDocument) {
+    public String disectDate(Document parseDocument) throws XPathExpressionException {
+        synchronized (parseDocument) {
             Node dateNode = (Node) dateExpr().evaluate(parseDocument, XPathConstants.NODE);
             if (dateNode != null) {
                 Element dateElm = (Element) dateNode;
@@ -259,29 +281,26 @@ public class SolrUtils   {
     }
 
 
-    public static Document getSolrDataInternalOffset(String query, String offset) throws IOException, ParserConfigurationException, SAXException {
-        String solrHost = KConfiguration.getInstance().getSolrHost();
-        String uri = solrHost +"/select?" +query+"&start="+offset+"&wt=xml";
+    public Document getSolrDataInternalOffset(String query, String offset) throws IOException, ParserConfigurationException, SAXException {
+        String uri = solrHost + "/select?" + query + "&start=" + offset + "&wt=xml";
         InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
         Document parseDocument = XMLUtils.parseDocument(inputStream);
         return parseDocument;
     }
 
-    public static Document getSolrDataInternal(String query) throws IOException, ParserConfigurationException, SAXException {
-        String solrHost = KConfiguration.getInstance().getSolrHost();
-        String uri = solrHost +"/select?" +query+"&wt=xml";
+    public Document getSolrDataInternal(String query) throws IOException, ParserConfigurationException, SAXException {
+        String uri = solrHost + "/select?" + query + "&wt=xml";
         InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
         Document parseDocument = XMLUtils.parseDocument(inputStream);
         return parseDocument;
     }
 
-    public static InputStream getSolrDataInternal(String query, String format) throws IOException {
-        String solrHost = KConfiguration.getInstance().getSolrHost();
-        String uri = solrHost +"/select?" +query;
+    public InputStream getSolrDataInternal(String query, String format) throws IOException {
+        String uri = solrHost + "/select?" + query;
         if (!uri.endsWith("&")) {
-            uri = uri + "&wt="+format;
+            uri = uri + "&wt=" + format;
         } else {
-        	uri = uri+"wt="+format;
+            uri = uri + "wt=" + format;
         }
         HttpGet httpGet = new HttpGet(uri);
         CloseableHttpClient client = HttpClients.createDefault();
@@ -294,28 +313,27 @@ public class SolrUtils   {
 
     }
 
-    public static InputStream getSolrTermsInternal(String query, String format) throws IOException, ParserConfigurationException, SAXException {
-        String solrHost = KConfiguration.getInstance().getSolrHost();
-        String uri = solrHost +"/terms?" +query;
+    public InputStream getSolrTermsInternal(String query, String format) throws IOException {
+        String uri = solrHost + "/terms?" + query;
         if (!uri.endsWith("&")) {
-            uri = uri + "&wt="+format;
+            uri = uri + "&wt=" + format;
         } else {
-        	uri = uri+"wt="+format;
+            uri = uri + "wt=" + format;
         }
         InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
         return inputStream;
     }
-    
-    public static String escapeQuery(String sourceQuery) {
+
+    public String escapeQuery(String sourceQuery) {
         char[] chars = sourceQuery.toCharArray();
         StringBuilder builder = new StringBuilder();
-        for(int i=0;i<chars.length;i++) {
+        for (int i = 0; i < chars.length; i++) {
             char ch = chars[i];
             switch (ch) {
                 case '+':
                 case '-':
                 case '!':
-                case  '(':
+                case '(':
                 case ')':
                 case '{':
                 case '}':
@@ -330,10 +348,10 @@ public class SolrUtils   {
                 case '\\':
                 case '/':
                     builder.append('\\').append(ch);
-                break;
+                    break;
                 case '&':
-                    if (i<chars.length) {
-                        ch = chars[i+1];
+                    if (i < chars.length) {
+                        ch = chars[i + 1];
                         if (ch == '&') {
                             builder.append('\\').append("&&");
                             i++;
@@ -345,8 +363,8 @@ public class SolrUtils   {
                     }
                     break;
                 case '|':
-                    if (i<chars.length) {
-                        ch = chars[i+1];
+                    if (i < chars.length) {
+                        ch = chars[i + 1];
                         if (ch == '|') {
                             builder.append('\\').append("||");
                             i++;
@@ -367,8 +385,6 @@ public class SolrUtils   {
         return builder.toString();
 
     }
-    
-    
 
-    
+
 }

@@ -61,6 +61,7 @@ import cz.incad.kramerius.rest.api.k5.client.pdf.AsyncPDFResource;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
+import cz.incad.kramerius.rest.api.k5.client.search.SearchResourceNew;
 import cz.incad.kramerius.rest.api.k5.client.user.ClientUserResource;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
@@ -105,7 +106,7 @@ public class ApiServletModule extends JerseyServletModule {
 
         // API 6.0 Resources
         bind(ProcessResource.class);
-
+        bind(SearchResourceNew.class);
 
         bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
                 .asEagerSingleton();
