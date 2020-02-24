@@ -1,8 +1,6 @@
---uklid mezivysledku
-DROP FUNCTION IF EXISTS refresh_process_batch_new_2() CASCADE;
-DROP TRIGGER IF EXISTS update_process_batch_new_on_process_change_2_insert on processes;
-DROP TRIGGER IF EXISTS update_process_batch_new_on_process_change_2_update on processes;
-DROP TABLE IF EXISTS process_batch_new CASCADE;
+---------------------------
+--        CLEANUP        --
+---------------------------
 
 --functions
 DROP AGGREGATE IF EXISTS batch_state(integer) CASCADE;
@@ -16,7 +14,12 @@ DROP TRIGGER IF EXISTS update_process_batch_on_process_state_change on processes
 DROP TRIGGER IF EXISTS update_process_batch_on_process_insert on processes;
 DROP TRIGGER IF EXISTS update_process_batch_on_process_delete on processes;
 DROP FUNCTION IF EXISTS refresh_process_batch();
-DROP MATERIALIZED VIEW IF EXISTS process_batch;
+DROP MATERIALIZED VIEW IF EXISTS process_batch CASCADE;
+
+
+---------------------------
+--    NEW DEFINITIONS    --
+---------------------------
 
 
 --Agregacni funkce bude zjistovat stav davky procesu podle stavu potomku
@@ -157,7 +160,7 @@ CREATE TABLE process_batch (
     PRIMARY KEY (batch_token)
 );
 
---inicializace radku v process_batch
+--uvodni inicializace process_batch
 INSERT INTO process_batch (
 SELECT
     processes.token AS batch_token,
@@ -185,13 +188,23 @@ SELECT
 DROP FUNCTION IF EXISTS refresh_process_batch() CASCADE;
 CREATE OR REPLACE FUNCTION refresh_process_batch() RETURNS TRIGGER AS
 $BODY$
+  DECLARE
+      rec record;
   BEGIN
-    RAISE NOTICE 'refresh_process_batch(), NEW.process_id=%', NEW.process_id;
+    CASE TG_OP
+      WHEN 'INSERT' THEN
+          rec = NEW;
+      WHEN 'UPDATE' THEN
+          rec = NEW;
+      WHEN 'DELETE' THEN
+          rec = OLD;
+    END CASE;
+    --RAISE NOTICE 'refresh_process_batch(), rec.process_id=%', rec.process_id;
     DELETE FROM process_batch
-           WHERE batch_token = NEW.token;
-    RAISE NOTICE 'deleted, now inserting';
-    INSERT into process_batch (batch_token, batch_state, process_count, first_process_id, first_process_state, first_process_uuid, first_process_defid, first_process_name,planned,started,finished,owner_id,owner_name)
-    (SELECT
+           WHERE batch_token = rec.token;
+    --RAISE NOTICE 'deleted, now inserting';
+    INSERT into process_batch
+    SELECT
         processes.token AS batch_token,
         batch_state(processes.status) AS batch_state,
         count(*) AS process_count,
@@ -208,14 +221,13 @@ $BODY$
       FROM
         processes
       WHERE
-        processes.token=NEW.token
+        processes.token=rec.token
       GROUP BY
         processes.token
       ORDER BY
         first_process_id DESC
-    )
     ;
-    RAISE NOTICE 'inserted';
+    --RAISE NOTICE 'inserted';
     RETURN NULL;
   END;
 $BODY$
@@ -237,7 +249,6 @@ AFTER UPDATE ON processes
     EXECUTE PROCEDURE refresh_process_batch();
 
 --trigger on delete
---TODO: opravit, nefunguje, protoze NEW neni definovano v refresh_process_batch
 DROP TRIGGER IF EXISTS update_process_batch_on_process_delete on processes;
 CREATE TRIGGER update_process_batch_on_process_delete
 AFTER DELETE ON processes
