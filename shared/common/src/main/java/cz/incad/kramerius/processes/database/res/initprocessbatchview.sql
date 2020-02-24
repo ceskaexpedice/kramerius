@@ -2,6 +2,13 @@
 --        CLEANUP        --
 ---------------------------
 
+--triggers, table
+DROP TRIGGER IF EXISTS update_process_batch_on_process_insert on processes;
+DROP TRIGGER IF EXISTS update_process_batch_on_process_update on processes;
+DROP TRIGGER IF EXISTS update_process_batch_on_process_delete on processes;
+DROP FUNCTION IF EXISTS refresh_process_batch() CASCADE;
+DROP TABLE IF EXISTS process_batch CASCADE;
+
 --functions
 DROP AGGREGATE IF EXISTS batch_state(integer) CASCADE;
 DROP FUNCTION IF EXISTS update_batch_state(integer,integer) CASCADE;
@@ -22,20 +29,26 @@ DROP MATERIALIZED VIEW IF EXISTS process_batch CASCADE;
 ---------------------------
 
 
---Agregacni funkce bude zjistovat stav davky procesu podle stavu potomku
+--Agregacni funkce bude zjistovat stav davky procesu podle stavu vsech procesu v davce
 --see https://github.com/ceskaexpedice/kramerius/blob/b7b173c3d664d4982483131ff6a547f49d96f47e/common/src/main/java/cz/incad/kramerius/processes/States.java
 
 --batch stavy budou jen PLANNED, RUNNING, FAILED, FINISHED
 --pro srozumitelnost je budu tady oznacovat BATCH_PLANNED, BATCH_RUNNING, BATCH_FAILED, BATCH_FINISHED
 --vyhodnoceni bude nasledovne:
 
---zacnu na BATCH_PLANNED a iteruju pres procesy
+--zacnu na BATCH_UNDEFINED a iteruju pres procesy
+
+--jsem BATCH_UNDEFINED(-1), vidim NOT_RUNNING(0)/PLANNED(5) => BATCH_PLANNED(0)
+--jsem BATCH_UNDEFINED(-1), vidim RUNNING(1) => BATCH_RUNNING(1)
+--jsem BATCH_UNDEFINED(-1), vidim FINISHED(2) => BATCH_FINISHED(2)
+--jsem BATCH_UNDEFINED(-1), vidim FAILED(3)/WARNING(9) => BATCH_FAILED(3)
+--jsem BATCH_UNDEFINED(-1), vidim KILLED(4) => BATCH_KILLED(4)
 
 --jsem BATCH_PLANNED(0), vidim NOT_RUNNING(0)/PLANNED(5) => BATCH_PLANNED(0)
 --jsem BATCH_PLANNED(0), vidim RUNNING(1) => BATCH_RUNNING(1)
---jsem BATCH_PLANNED(0), vidim FINISHED(2) => BATCH_FINISHED(2)
---jsem BATCH_PLANNED(0), vidim FAILED(3)/WARNING(9) => BATCH_FAILED(3)
---jsem BATCH_PLANNED(0), vidim KILLED(4) => BATCH_KILLED(4)
+--jsem BATCH_PLANNED(0), vidim FINISHED(2) => BATCH_RUNNING(1)
+--jsem BATCH_PLANNED(0), vidim FAILED(3)/WARNING(9) => BATCH_RUNNING(1)
+--jsem BATCH_PLANNED(0), vidim KILLED(4) => BATCH_RUNNING(1)
 
 --jsem BATCH_RUNNING(1), vidim NOT_RUNNING(0)/PLANNED(5) => BATCH_RUNNING(1)
 --jsem BATCH_RUNNING(1), vidim RUNNING(1) => BATCH_RUNNING(1)
@@ -67,7 +80,7 @@ DROP MATERIALIZED VIEW IF EXISTS process_batch CASCADE;
 CREATE OR REPLACE FUNCTION update_batch_state(integer, integer) RETURNS integer AS '
   DECLARE r int;
   BEGIN
-    IF $1 = 0 THEN -- BATCH_PLANNED
+    IF $1 = -1 THEN -- BATCH_UNDEFINED
            IF $2 = 0 THEN RETURN 0;
         ELSIF $2 = 5 THEN RETURN 0;
         ELSIF $2 = 1 THEN RETURN 1;
@@ -76,6 +89,15 @@ CREATE OR REPLACE FUNCTION update_batch_state(integer, integer) RETURNS integer 
         ELSIF $2 = 9 THEN RETURN 3;
         ELSIF $2 = 4 THEN RETURN 4;
         END IF;
+    ELSEIF $1 = 0 THEN -- BATCH_PLANNED
+            IF $2 = 0 THEN RETURN 0;
+         ELSIF $2 = 5 THEN RETURN 1;
+         ELSIF $2 = 1 THEN RETURN 1;
+         ELSIF $2 = 2 THEN RETURN 1;
+         ELSIF $2 = 3 THEN RETURN 1;
+         ELSIF $2 = 9 THEN RETURN 1;
+         ELSIF $2 = 4 THEN RETURN 1;
+         END IF;
     ELSIF $1 = 1 THEN -- BATCH_RUNNING
            IF $2 = 0 THEN RETURN 1;
         ELSIF $2 = 5 THEN RETURN 1;
@@ -115,7 +137,7 @@ CREATE AGGREGATE batch_state(integer)
 (
     sfunc = update_batch_state,
     stype = integer,
-    initcond = 0
+    initcond = -1
 );
 
 --(ne-materialized verze) view pro batch procesu, jen pro testovani
@@ -142,7 +164,6 @@ SELECT
     first_process_id DESC;
 
 --nova tabulka process_batch
-DROP TABLE IF EXISTS process_batch CASCADE;
 CREATE TABLE process_batch (
     batch_token VARCHAR(255) NOT NULL,
     batch_state INT NOT NULL,
@@ -185,7 +206,6 @@ SELECT
 );
 
 --funkce pro aktualizaci konkretniho radku v process_batch
-DROP FUNCTION IF EXISTS refresh_process_batch() CASCADE;
 CREATE OR REPLACE FUNCTION refresh_process_batch() RETURNS TRIGGER AS
 $BODY$
   DECLARE
@@ -234,14 +254,12 @@ $BODY$
 LANGUAGE plpgsql;
 
 --trigger on insert
-DROP TRIGGER IF EXISTS update_process_batch_on_process_insert on processes;
 CREATE TRIGGER update_process_batch_on_process_insert
 AFTER INSERT ON processes
     FOR EACH ROW
     EXECUTE PROCEDURE refresh_process_batch();
 
 --trigger on update
-DROP TRIGGER IF EXISTS update_process_batch_on_process_update on processes;
 CREATE TRIGGER update_process_batch_on_process_update
 AFTER UPDATE ON processes
     FOR EACH ROW
@@ -249,7 +267,6 @@ AFTER UPDATE ON processes
     EXECUTE PROCEDURE refresh_process_batch();
 
 --trigger on delete
-DROP TRIGGER IF EXISTS update_process_batch_on_process_delete on processes;
 CREATE TRIGGER update_process_batch_on_process_delete
 AFTER DELETE ON processes
     FOR EACH ROW
