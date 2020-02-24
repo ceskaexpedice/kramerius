@@ -117,7 +117,7 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
-            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.8.0")) { //(5.3.0 - 6.6.6) -> 6.7.9
+            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.9.0")) { //(5.3.0 - 6.6.6) -> 6.8.0
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
@@ -125,10 +125,8 @@ public class ProcessDatabaseInitializator {
                     alterProcessTableOwnerData(connection);
                     updateProcessOwner(connection);
                 }
-                if (!DatabaseUtils.tableExists(connection, "PROCESS_BATCH") || !DatabaseUtils.columnExists(connection, "PROCESS_BATCH", "OWNER_ID")) {
-                    createProcessBatchView(connection);
-                }
-            } else { // >= 6.8.0
+                dropAndCreateProcessBatchTable(connection);
+            } else { // >= 6.9.0
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -200,12 +198,20 @@ public class ProcessDatabaseInitializator {
         }
 
         if (!DatabaseUtils.tableExists(connection, "PROCESS_BATCH") || !DatabaseUtils.columnExists(connection, "PROCESS_BATCH", "OWNER_ID")) {
-            createProcessBatchView(connection);
+            dropAndCreateProcessBatchTable(connection);
         }
     }
 
-    public static void createProcessBatchView(Connection connection) throws SQLException, IOException {
-        InputStream is = ProcessDatabaseInitializator.class.getResourceAsStream("res/initprocessbatchview.sql");
+    /**
+     * Deletes and creates table process_batch and related functions and triggers.
+     * Content of this table is derived from table processes, so this opertion is idempotent.
+     *
+     * @param connection
+     * @throws SQLException
+     * @throws IOException
+     */
+    public static void dropAndCreateProcessBatchTable(Connection connection) throws SQLException, IOException {
+        InputStream is = ProcessDatabaseInitializator.class.getResourceAsStream("res/initprocessbatchtable.sql");
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
         template.setUseReturningKeys(false);
         String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);

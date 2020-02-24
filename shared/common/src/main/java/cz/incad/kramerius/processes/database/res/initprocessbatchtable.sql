@@ -16,14 +16,6 @@ DROP FUNCTION IF EXISTS update_batch_state(integer,integer) CASCADE;
 --ordinary (live) view - just for testing
 DROP VIEW IF EXISTS process_batch_not_precomputed;
 
---materialized view
-DROP TRIGGER IF EXISTS update_process_batch_on_process_state_change on processes;
-DROP TRIGGER IF EXISTS update_process_batch_on_process_insert on processes;
-DROP TRIGGER IF EXISTS update_process_batch_on_process_delete on processes;
-DROP FUNCTION IF EXISTS refresh_process_batch();
-DROP MATERIALIZED VIEW IF EXISTS process_batch CASCADE;
-
-
 ---------------------------
 --    NEW DEFINITIONS    --
 ---------------------------
