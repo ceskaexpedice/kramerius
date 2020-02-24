@@ -117,7 +117,7 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
-            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.8.0")) { //(5.3.0 - 6.6.6) -> 6.7.8
+            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.8.0")) { //(5.3.0 - 6.6.6) -> 6.7.9
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
@@ -125,7 +125,7 @@ public class ProcessDatabaseInitializator {
                     alterProcessTableOwnerData(connection);
                     updateProcessOwner(connection);
                 }
-                if (!DatabaseUtils.viewExists(connection, "PROCESS_BATCH") || !DatabaseUtils.columnExists(connection, "PROCESS_BATCH", "OWNER_ID")) {
+                if (!DatabaseUtils.tableExists(connection, "PROCESS_BATCH") || !DatabaseUtils.columnExists(connection, "PROCESS_BATCH", "OWNER_ID")) {
                     createProcessBatchView(connection);
                 }
             } else { // >= 6.8.0
@@ -199,7 +199,7 @@ public class ProcessDatabaseInitializator {
             updateProcessOwner(connection);
         }
 
-        if (!DatabaseUtils.viewExists(connection, "PROCESS_BATCH") || !DatabaseUtils.columnExists(connection, "PROCESS_BATCH", "OWNER_ID")) {
+        if (!DatabaseUtils.tableExists(connection, "PROCESS_BATCH") || !DatabaseUtils.columnExists(connection, "PROCESS_BATCH", "OWNER_ID")) {
             createProcessBatchView(connection);
         }
     }
