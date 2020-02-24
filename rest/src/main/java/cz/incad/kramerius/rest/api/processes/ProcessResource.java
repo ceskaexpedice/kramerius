@@ -399,6 +399,9 @@ public class ProcessResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response scheduleProcess(JSONObject processDefinition, @QueryParam("batch_token") String batchToken) {
+        //TODO: pro spousteni procesu ve stejne davce, coz vola jen proces krameria, posilat private klicem krameria podepsany batch_token, userName a userId
+        //takze se nebude provadet autentizace (requestu z procesu) pres spravu uzivatelu a proces nebude dostavat data z auth hlavicek, ale autentizovan bude tim, ze podepsal data
+        //a ne-proces klient nebude moc poslat batch_token a tedy se nabourat do jine davky
         try {
             if (processDefinition == null) {
                 throw new BadRequestException("missing process definition");
