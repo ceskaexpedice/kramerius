@@ -171,10 +171,26 @@ public class ExportServiceImpl implements ExportService {
 
     /**
      * args[0] uuid of the root object (without uuid: prefix)
+     * args[1] is information about exporting parents
      * @throws IOException
      */
     public static void main(String[] args) throws IOException, TransformerException, SAXException, ParserConfigurationException {
         LOGGER.info("Export service: "+Arrays.toString(args));
+        Boolean exportParents = null;
+        
+        if (args.length > 1) {
+            if (args[args.length - 1].equals("true")) {
+                exportParents = true;
+            }
+            if (args[args.length - 1].equals("false")) {
+                exportParents = false;
+            }
+        }
+        
+        if (exportParents != null) {
+            args = restArgs(args, 1);
+        }
+        
         for (int i = 0; i < args.length; i++) {
             ExportServiceImpl inst = new ExportServiceImpl();
             inst.fedoraAccess = new FedoraAccessImpl(null, null);
@@ -182,12 +198,25 @@ public class ExportServiceImpl implements ExportService {
             inst.solrAccess = new SolrAccessImpl();
             inst.exportTree(args[i]);
 
-            String property = inst.configuration.getProperty("export.parents");
-            if (Boolean.valueOf(property)) {
-                inst.exportParents(args[i]);
+            if (exportParents == null) {
+                String property = inst.configuration.getProperty("export.parents");
+                if (Boolean.valueOf(property)) {
+                    inst.exportParents(args[i]);
+                }
+            }
+            else {
+                if (exportParents == true) {
+                    inst.exportParents(args[i]);
+                }
             }
 
             LOGGER.info("ExportService finished.");
-		}
+        }
+    }
+    
+    static String[] restArgs(String[] args, int i) {
+        String[] nargs = new String[args.length - i];
+        System.arraycopy(args, 0, nargs, 0, args.length-i);
+        return nargs;
     }
 }

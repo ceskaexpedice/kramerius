@@ -890,11 +890,27 @@
       function exportFOXML(){
           var structs = pidstructs();
           if (structs.length > 1) {
-              var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={export;",structs)+"}";
-              processStarter("export").start(u);
+              var u = urlWithPidsWithoutBrackets("lr?action=start&def=aggregate&out=text&nparams={export;{", structs);
+              showConfirmYesNoDialog(dictionary['administrator.dialogs.exportFOXML.confirm'], 
+                  function(){
+                      u += ";true}}";
+                      processStarter("export").start(u);
+                   },
+                  function(){
+                      u += ";false}}";
+                      processStarter("export").start(u);
+                   });
           } else {
-              var u = urlWithPids("lr?action=start&def=export&out=text&nparams=",structs);
-              processStarter("export").start(u);
+              var u = "lr?action=start&def=export&out=text&nparams={" + structs[0].pid.replaceAll(":","\\:");
+              showConfirmYesNoDialog(dictionary['administrator.dialogs.exportFOXML.confirm'], 
+                  function(){
+                      u += ";true}";
+                      processStarter("export").start(u);
+                   },
+                  function(){
+                      u += ";false}";
+                      processStarter("export").start(u);
+                   });
           }
       }
 
