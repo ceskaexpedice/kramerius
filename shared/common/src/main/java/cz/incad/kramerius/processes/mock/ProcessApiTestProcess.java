@@ -1,5 +1,7 @@
 package cz.incad.kramerius.processes.mock;
 
+import com.hazelcast.internal.json.Json;
+import com.hazelcast.internal.json.JsonValue;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -26,10 +28,7 @@ public class ProcessApiTestProcess {
     public static final String PARAM_PROCESSES_IN_BATCH = "processesInBatch";
     public static final String PARAM_FINAL_STATE = "finalState";
 
-    //autentizacni hlavicky pro planovani podrpocesu
-    public static final String API_AUTH_HEADER_CLIENT = "client";
-    public static final String API_AUTH_HEADER_UID = "uid";
-    public static final String API_AUTH_HEADER_ACCESS_TOKEN = "access-token";
+    public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token";
 
     public static void main(String[] args) throws IOException {
         long start = System.currentTimeMillis();
@@ -45,15 +44,7 @@ public class ProcessApiTestProcess {
         //args
         LOGGER.info("args: " + Arrays.asList(args));
         int argsIndex = 0;
-        //TODO: vyresit batch_token.
-        // Bud takto (proces ho dostane v argumentech a pak ho posila pri planovani dalsiho procesu v davce), coz ale neni idealni, protoze klient rika, jaky bude batch_token
-        // Anebo nejake reseni podobne dosavadnimu, jenze tam to souviselo se session a z process_2_token se dalo sehnat mapovani session na process a batch
-        String batchToken = args[argsIndex++];
-        //TODO: autentizaci vyresit systematicky, zatim pres parametr tohohle konkretniho procesu
-        //asi podobne, jako tabulka process_2_token, nebo primo do processes, kazdopadne kazdy proces by mel uchovavat client, uid, access-token
-        String authClient = args[argsIndex++];
-        String authUid = args[argsIndex++];
-        String authAccessToken = args[argsIndex++];
+        String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         int durationInSeconds = Integer.valueOf(args[argsIndex++]);
         int processesInBatch = Integer.valueOf(args[argsIndex++]);
         FinalState finalState = FinalState.valueOf(args[argsIndex++]);
@@ -71,7 +62,7 @@ public class ProcessApiTestProcess {
         }
 
         if (processesInBatch > 1) {
-            scheduleNextProcessInBatch(batchToken, authClient, authUid, authAccessToken, durationInSeconds, processesInBatch - 1, finalState);
+            scheduleNextProcessInBatch(authToken, durationInSeconds, processesInBatch - 1, finalState);
         }
 
         LOGGER.info("total duration: " + formatTime(System.currentTimeMillis() - start));
@@ -92,44 +83,49 @@ public class ProcessApiTestProcess {
         }
     }
 
-    public static void scheduleNextProcessInBatch(String batchToken, String authClient, String authUid, String authAccessToken, int durationInSeconds, int remainingProcessesInBatch, FinalState finalState) {
-        //v starem api to funguje tak, ze proces zavola servlet, stejne jako to dela externi klient
+    public static void scheduleNextProcessInBatch(String authToken, int durationInSeconds, int remainingProcessesInBatch, FinalState finalState) {
+        //v starem api to funguje tak, ze proces zavola servlet (lr), stejne jako to dela externi klient, dokonce i pro zmeny stavu procesu apod.
         //viz IndexerProcessStarter.spawnIndexer
-        //takze se musi predavat i batch token
-        //TODO: takze to udelat podobne, coz ale bude znamenat, ze i samotne procesy budou muset volat nove API
-        //tj. upravit postupne vsechny procesy
-        //TODO: batch token - zatim se se spousti dalsi proces, jako by nebyl v davce
-
+        //tohle ted mame podobne, akorat se mi nelibi, jakym zpusobem volaji procesy lr servlet
+        //veci jako process-auth-token by mely byt mimo primy dosah procesu (ale metody ProcessHelper/ProcessStarter), toho nezajima infrastruktura, co ho pousit apod.
+        //tj. TODO: upravovat postupne vsechny procesy v ramci presunu jejich spousteni pres nove API
+        //takze treba ProcessHelper.scheduleProcess(defid, args), ProcessHelper.changeMyName(newName)
+        //cili bych omezil to, co muze byt proces.
+        //Ted obecna trida, co ma main() a tak nema jinou moznost (pro zmenu nazvu apod.), nez volat staticke metody odevsad, cimz tak k sobe ve vysledku muze nabalit pulku Krameria kvuli zavislostem
         Client client = Client.create();
-        //TODO: zvazit, jestli batchToken nedat spis do URL, jakoze:
-        //POST
-        WebResource resource = client.resource(ProcessUtils.getNewAdminApiProcessesEndpoint() + "?batch_token=" + batchToken);
-        //resource.addFilter(new IndexerProcessStarter.TokensFilter());
-
+        WebResource resource = client.resource(ProcessUtils.getNewAdminApiProcessesEndpoint());
         JSONObject data = new JSONObject();
-        data.put("id", ID);
+        data.put("defid", ID);
         JSONObject params = new JSONObject();
         params.put(PARAM_DURATION, durationInSeconds);
         params.put(PARAM_PROCESSES_IN_BATCH, remainingProcessesInBatch);
         params.put(PARAM_FINAL_STATE, finalState.name());
         data.put("params", params);
 
-        //TODO: otestovat, jestli se vypropagujou chybove hlasky, treba pri spatnem auth tokenu
         try {
             String response = resource
                     .accept(MediaType.APPLICATION_JSON)
                     .type(MediaType.APPLICATION_JSON)
-                    .header(API_AUTH_HEADER_CLIENT, authClient)
-                    .header(API_AUTH_HEADER_UID, authUid)
-                    .header(API_AUTH_HEADER_ACCESS_TOKEN, authAccessToken)
+                    .header(API_AUTH_HEADER_AUTH_TOKEN, authToken)
+                    //.header(API_AUTH_HEADER_CLIENT, authClient)
+                    //.header(API_AUTH_HEADER_UID, authUid)
+                    //.header(API_AUTH_HEADER_ACCESS_TOKEN, authAccessToken)
                     .entity(data.toString(), MediaType.APPLICATION_JSON)
                     .post(String.class);
             //System.out.println("response: " + response);
         } catch (UniformInterfaceException e) {
-            e.printStackTrace();
             ClientResponse errorResponse = e.getResponse();
-            //System.err.printf("message: " + errorResponse.toString());
-            System.err.printf(errorResponse.toString());
+            String responseBody = errorResponse.getEntity(String.class);
+            String bodyToPrint = responseBody;
+            if (responseBody != null) {
+                try {
+                    JsonValue jsonBody = Json.parse(responseBody);
+                    bodyToPrint = jsonBody.asString();
+                } catch (Throwable pe) {
+                    //not JSON
+                }
+            }
+            throw new RuntimeException(errorResponse.toString() + ": " + bodyToPrint, e);
         }
     }
 

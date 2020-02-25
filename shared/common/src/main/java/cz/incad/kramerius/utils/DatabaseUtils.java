@@ -73,10 +73,12 @@ public class DatabaseUtils {
     }
 
     public static void tryClose(Statement stmt) {
-        try {
-            stmt.close();
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+        if(stmt!=null) {
+            try {
+                stmt.close();
+            } catch (SQLException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            }
         }
     }
 

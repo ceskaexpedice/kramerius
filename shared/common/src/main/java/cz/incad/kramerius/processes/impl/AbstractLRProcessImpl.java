@@ -121,12 +121,13 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
         return this.startTime;
     }
 
-    public void planMe(Properties paramsMapping, String ipAddress) {
+    @Override
+    public Integer planMe(Properties paramsMapping, String ipAddress) {
         this.state = States.PLANNED;
         this.ipAddress = ipAddress;
         this.setPlannedTime(System.currentTimeMillis());
         
-        manager.registerLongRunningProcess(this, getLoggedUserKey(),
+        return manager.registerLongRunningProcess(this, getLoggedUserKey(),
                 paramsMapping);
     }
 

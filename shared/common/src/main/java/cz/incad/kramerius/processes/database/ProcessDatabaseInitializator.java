@@ -117,7 +117,7 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
-            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.9.0")) { //(5.3.0 - 6.6.6) -> 6.8.0
+            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.9.0")) { //(5.3.0 - 6.6.6) -> 6.8.1
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
@@ -126,6 +126,9 @@ public class ProcessDatabaseInitializator {
                     updateProcessOwner(connection);
                 }
                 dropAndCreateProcessBatchTable(connection);
+                if (!DatabaseUtils.tableExists(connection, "process_auth_token")) {
+                    createProcessAuthTokenTable(connection);
+                }
             } else { // >= 6.9.0
             }
         } catch (SQLException e) {
@@ -200,6 +203,10 @@ public class ProcessDatabaseInitializator {
         if (!DatabaseUtils.tableExists(connection, "PROCESS_BATCH") || !DatabaseUtils.columnExists(connection, "PROCESS_BATCH", "OWNER_ID")) {
             dropAndCreateProcessBatchTable(connection);
         }
+
+        if (!DatabaseUtils.tableExists(connection, "process_auth_token")) {
+            createProcessAuthTokenTable(connection);
+        }
     }
 
     /**
@@ -211,7 +218,7 @@ public class ProcessDatabaseInitializator {
      * @throws IOException
      */
     public static void dropAndCreateProcessBatchTable(Connection connection) throws SQLException, IOException {
-        InputStream is = ProcessDatabaseInitializator.class.getResourceAsStream("res/initprocessbatchtable.sql");
+        InputStream is = ProcessDatabaseInitializator.class.getResourceAsStream("res/initProcessBatchTable.sql");
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
         template.setUseReturningKeys(false);
         String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
@@ -227,11 +234,20 @@ public class ProcessDatabaseInitializator {
     }
 
     public static void createToken2SessionkeysMapping(Connection connection) throws SQLException, IOException {
-        InputStream is = ProcessDatabaseInitializator.class.getResourceAsStream("res/initprocesstoken.sql");
+        InputStream is = ProcessDatabaseInitializator.class.getResourceAsStream("res/initProcessToken.sql");
         String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
         PreparedStatement prepareStatement = connection.prepareStatement(sqlScript);
         int r = prepareStatement.executeUpdate();
         LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
+    }
+
+    //nahrazuje PROCESS_2_TOKEN - funguje podobne, jen se nepouzivaji sessionId
+    public static void createProcessAuthTokenTable(Connection connection) throws SQLException, IOException {
+        InputStream is = ProcessDatabaseInitializator.class.getResourceAsStream("res/initProcessAuthTokenTable.sql");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.setUseReturningKeys(false);
+        String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        template.executeUpdate(sqlScript);
     }
 
 

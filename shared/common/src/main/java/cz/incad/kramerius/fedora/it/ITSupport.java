@@ -184,8 +184,8 @@ public class ITSupport {
         private LRProcess process;
 
         @Override
-        public void registerLongRunningProcess(LRProcess lp, String sessionKey, Properties parametersMapping) {
-
+        public Integer registerLongRunningProcess(LRProcess lp, String sessionKey, Properties parametersMapping) {
+            return null;
         }
 
         @Override

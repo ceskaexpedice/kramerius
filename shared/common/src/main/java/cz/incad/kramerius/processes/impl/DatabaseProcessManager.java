@@ -112,7 +112,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 
 
     @Override
-    public void registerLongRunningProcess(LRProcess lp, String loggedUserKey, Properties parametersMapping) {
+    public Integer registerLongRunningProcess(LRProcess lp, String loggedUserKey, Properties parametersMapping) {
         Connection connection = null;
         try {
             connection = connectionProvider.get();
@@ -120,12 +120,13 @@ public class DatabaseProcessManager implements LRProcessManager {
                 throw new NotReadyException("connection not ready");
             }
             if(lp.getUser() == null){
-                registerProcess(connection, lp, PropertiesStoreUtils.storeProperties(parametersMapping));
+                return registerProcess(connection, lp, PropertiesStoreUtils.storeProperties(parametersMapping));
             } else {
-                registerProcess(connection, lp, /* this.userProvider.get() */lp.getUser(), lp.getLoggedUserKey() , PropertiesStoreUtils.storeProperties(parametersMapping));
+                return registerProcess(connection, lp, /* this.userProvider.get() */lp.getUser(), lp.getLoggedUserKey() , PropertiesStoreUtils.storeProperties(parametersMapping));
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return null;
         } finally {
             if (connection != null) {
                 try {

@@ -233,6 +233,63 @@ public class ProcessManagerImplDb implements ProcessManager {
         }
     }
 
+    @Override
+    public void setProcessAuthToken(int processId, String processAuthToken) {
+        Connection connection = connectionProvider.get();
+        if (connection == null) {
+            throw new NotReadyException("connection not ready");
+        }
+        try {
+            PreparedStatement prepareStatement = connection.prepareStatement("INSERT INTO process_auth_token (process_id, auth_token) VALUES (?,?);");
+            prepareStatement.setInt(1, processId);
+            prepareStatement.setString(2, processAuthToken);
+            prepareStatement.executeUpdate();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new ProcessManagerException(e);
+        } finally {
+            DatabaseUtils.tryClose(connection);
+        }
+    }
+
+    @Override
+    public ProcessAboutToScheduleSibling getProcessAboutToScheduleSiblingByAuthToken(String processAuthToken) {
+        Connection connection = connectionProvider.get();
+        if (connection == null) {
+            throw new NotReadyException("connection not ready");
+        }
+        try {
+            String sql = "" +
+                    " SELECT" +
+                    "  process.process_id AS process_id," +
+                    "  process.owner_id AS owner_id," +
+                    "  process.owner_name AS owner_name," +
+                    "  process.token AS batch_token" +
+                    " FROM" +
+                    "  processes AS process," +
+                    "  process_auth_token AS auth" +
+                    " WHERE" +
+                    "  auth.auth_token = ?" +
+                    "   AND" +
+                    "  process.process_id=auth.process_id";
+            List<ProcessAboutToScheduleSibling> processes = new JDBCQueryTemplate<ProcessAboutToScheduleSibling>(connection) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<ProcessAboutToScheduleSibling> returnsList) throws SQLException {
+                    int processId = rs.getInt("process_id");
+                    String ownerId = rs.getString("owner_id");
+                    String ownerName = rs.getString("owner_name");
+                    String batchToken = rs.getString("batch_token");
+                    ProcessAboutToScheduleSibling process = new ProcessAboutToScheduleSibling(processId, ownerId, ownerName, batchToken);
+                    returnsList.add(process);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(sql, processAuthToken);
+            return !processes.isEmpty() ? processes.get(0) : null;
+        } finally {
+            DatabaseUtils.tryClose(connection);
+        }
+    }
+
     private LocalDateTime toLocalDateTime(Timestamp timestamp) {
         if (timestamp == null) {
             return null;

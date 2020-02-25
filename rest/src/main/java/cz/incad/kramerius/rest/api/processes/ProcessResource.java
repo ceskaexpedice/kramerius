@@ -56,6 +56,8 @@ public class ProcessResource {
     @Deprecated
     private static final String TOKEN_ATTRIBUTE_KEY = "token";
 
+    private static final String HEADER_PROCESS_AUTH_TOKEN = "process-auth-token";
+
     //TODO: move url into configuration
     private static final String AUTH_URL = "https://api.kramerius.cloud/api/v1/auth/validate_token";
 
@@ -392,59 +394,60 @@ public class ProcessResource {
      * Schedules new process
      *
      * @param processDefinition
-     * @param batchToken Id of the batch, that this new process should belong to
      * @return
      */
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response scheduleProcess(JSONObject processDefinition, @QueryParam("batch_token") String batchToken) {
-        //TODO: pro spousteni procesu ve stejne davce, coz vola jen proces krameria, posilat private klicem krameria podepsany batch_token, userName a userId
-        //takze se nebude provadet autentizace (requestu z procesu) pres spravu uzivatelu a proces nebude dostavat data z auth hlavicek, ale autentizovan bude tim, ze podepsal data
-        //a ne-proces klient nebude moc poslat batch_token a tedy se nabourat do jine davky
+    public Response scheduleProcess(JSONObject processDefinition) {
         try {
+            String processAuthToken = requestProvider.get().getHeader(HEADER_PROCESS_AUTH_TOKEN);
             if (processDefinition == null) {
                 throw new BadRequestException("missing process definition");
             }
-            if (!processDefinition.has("id")) {
-                throw new BadRequestException("empty id");
+            if (!processDefinition.has("defid")) {
+                throw new BadRequestException("empty defid");
             }
-            String id = processDefinition.getString("id");
+            String defid = processDefinition.getString("defid");
             JSONObject params = new JSONObject();
             if (processDefinition.has("params")) {
                 params = processDefinition.getJSONObject("params");
             }
-            if (batchToken == null || batchToken.trim().isEmpty()) {
-                batchToken = UUID.randomUUID().toString();
+            if (processAuthToken != null) { //spousti proces (novy proces tedy bude jeho sourozenec ve stejne davce)
+                //autorizace
+                ProcessManager.ProcessAboutToScheduleSibling originalProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(processAuthToken);
+                if (originalProcess == null) {
+                    throw new UnauthorizedException("invalid token"); //401
+                }
+                String userId = originalProcess.getOwnerId();
+                String userName = originalProcess.getOwnerName();
+                String batchToken = originalProcess.getBatchToken();
+                List<String> paramsList = new ArrayList<>();
+                String newProcessAuthToken = UUID.randomUUID().toString();
+                paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
+                paramsList.addAll(paramsToList(defid, params));
+                return scheduleProcess(defid, paramsList, userId, userName, batchToken, newProcessAuthToken);
+            } else { //spousti user (pres weboveho klienta)
+                String batchToken = UUID.randomUUID().toString();
+                List<String> paramsList = new ArrayList<>();
+                String newProcessAuthToken = UUID.randomUUID().toString();
+                paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
+                paramsList.addAll(paramsToList(defid, params));
+                //autentizace
+                AuthenticatedUser user = getAuthenticatedUser();
+                //autorizace
+                String role = ROLE_SCHEDULE_PROCESSES;
+                if (!user.getRoles().contains(role)) {
+                    throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+                }
+                return scheduleProcess(defid, paramsList, user.getId(), user.getName(), batchToken, newProcessAuthToken);
             }
-            List<String> paramsList = new ArrayList<>();
-            paramsList.add(batchToken); //batch_token kvuli planovani dalsich procesu (aby byly ve stejne davce)
-            paramsList.addAll(extractAuthParams());
-            paramsList.addAll(paramsToList(id, params));
-            //autentizace
-            AuthenticatedUser user = getAuthenticatedUser();
-            String role = ROLE_SCHEDULE_PROCESSES;
-            if (!user.getRoles().contains(role)) {
-                throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
-            }
-            //TODO: nijak se nekontroluje, jestli batchToken patri uzivateli, teoreticky by mohl uzivatel vlozit proces do stejne davky s procesem jineho uzivatele
-            return scheduleProcess(id, paramsList, user.getId(), user.getName(), batchToken);
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
             e.printStackTrace();
             throw new GenericApplicationException(e.getMessage());
         }
-    }
-
-    private List<String> extractAuthParams() {
-        //TODO: jen docasne se auth data davaji mezi ostatni parametry (nakonec) proto, aby proces mohl pripadne spoustet podprocesy
-        ClientAuthHeaders authHeaders = ClientAuthHeaders.extract(requestProvider);
-        List<String> result = new ArrayList<>();
-        result.add(authHeaders.getClient());
-        result.add(authHeaders.getUid());
-        result.add(authHeaders.getAccessToken());
-        return result;
     }
 
     private List<String> paramsToList(String id, JSONObject params) {
@@ -499,14 +502,14 @@ public class ProcessResource {
         }
     }
 
-    private Response scheduleProcess(String id, List<String> params, String ownerId, String ownerName, String batchToken) {
-        LRProcessDefinition definition = processDefinition(id);
+    private Response scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken, String newProcessAuthToken) {
+        LRProcessDefinition definition = processDefinition(defid);
         if (definition == null) {
-            throw new BadRequestException("process definition for id '%s' not found", id);
+            throw new BadRequestException("process definition for defid '%s' not found", defid);
         }
-        String authToken = authToken();
+        String authToken = authToken(); //jen pro ilustraci, jak funguje stare api a jak se jmenovala hlavicka
         //System.out.println("authToken: " + authToken);
-        String groupToken = groupToken();
+        String groupToken = groupToken(); //jen pro ilustraci, jak funguje stare api a jak se jmenovala hlavicka
         groupToken = batchToken;
         //System.out.println("groupToken: " + groupToken);
 
@@ -520,15 +523,22 @@ public class ProcessResource {
         newProcess.setOwnerId(ownerId);
         newProcess.setOwnerName(ownerName);
 
-        if (definition.isInputTemplateDefined()) { //'plain' process
-            //System.out.println("plain process");
-            newProcess.planMe(new Properties(), IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
-            //lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
-            URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
-            return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
-        } else { //'parametrized' process
-            //System.out.println("parametrized process");
-            Properties props = new Properties();
+        Properties properties = definition.isInputTemplateDefined()
+                ? new Properties() //'plain' process
+                : extractPropertiesForParametrizedProcess(); //'parametrized' process
+        Integer processId = newProcess.planMe(properties, IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
+        if (processId == null) {
+            throw new RuntimeException("error scheduling new process");
+        }
+        processManager.setProcessAuthToken(processId, newProcessAuthToken);
+        //lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
+        URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
+        return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
+    }
+
+    private Properties extractPropertiesForParametrizedProcess() {
+        //System.out.println("parametrized process");
+        Properties props = new Properties();
             /*for (Iterator iterator = mapping.keys(); iterator.hasNext(); ) {
                 String key = (String) iterator.next();
                 try {
@@ -537,11 +547,7 @@ public class ProcessResource {
                     throw new GenericApplicationException(e.getMessage());
                 }
             }*/
-            newProcess.planMe(props, IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
-            //lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
-            URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
-            return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
-        }
+        return props;
     }
 
     //TODO: proverit fungovani, prejmenovat

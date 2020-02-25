@@ -154,6 +154,9 @@ SELECT
     processes.token
   ORDER BY
     first_process_id DESC;
+--drop this view and enable only for testing
+DROP VIEW IF EXISTS process_batch_not_precomputed;
+
 
 --nova tabulka process_batch
 CREATE TABLE process_batch (

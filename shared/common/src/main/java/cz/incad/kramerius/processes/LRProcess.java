@@ -88,8 +88,9 @@ public interface LRProcess {
      * Plan process to start
      *
      * @param paramsMapping Parameters mapping
+     * @return process_id of registered process, possibly null in some error sitautions
      */
-    public void planMe(Properties paramsMapping, String ipAddress);
+    public Integer planMe(Properties paramsMapping, String ipAddress);
 
 
     /**

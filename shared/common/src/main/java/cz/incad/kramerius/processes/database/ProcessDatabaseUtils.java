@@ -82,59 +82,77 @@ public class ProcessDatabaseUtils {
 
     }
 
-    public static void registerProcess(Connection con, LRProcess lp, String storedParams) throws SQLException {
-        PreparedStatement prepareStatement = con.prepareStatement(
-                "insert into processes(" +
-                        "   DEFID, " + //1
-                        "   UUID, " + //2
-                        "   PLANNED, " + //3
-                        "   STATUS, " + //4
-                        "   PARAMS, " + //5
-                        "   TOKEN, " +  //6
-                        "   PROCESS_ID, " + //
-                        "   PARAMS_MAPPING , " + //7
-                        "   BATCH_STATUS ," + //8
-                        "   TOKEN_ACTIVE, " + //9
-                        "   AUTH_TOKEN," + //10
-                        "   IP_ADDR," + //11
-                        "   OWNER_ID," + //12
-                        "   OWNER_NAME" + //13
-                        "   ) " +
-                        "   values " +
-                        "   (" +
-                        "       ?," + //1 - DEFID
-                        "       ?," + //2 - UUID
-                        "       ?," + //3 - PLANNED
-                        "       ?," + //4 - STATUS
-                        "       ?," + //5 - PARAMS
-                        "       ?," + //6 - TOKEN
-                        "       nextval('PROCESS_ID_SEQUENCE')," +
-                        "       ?," + //7 PARAMS_MAPPING
-                        "       ?," + //8 BATCH_STATUS
-                        "       ?," + //9 TOKEN_ACTIVE
-                        "       ?," + //10 AUTH_TOKEN
-                        "       ?," + //11 IP_ADDR
-                        "       ?," + //12 OWNER_ID
-                        "       ?" + //13 OWNER_NAME
-                        "   )");
-        try {
-            prepareStatement.setString(1, lp.getDefinitionId());
-            prepareStatement.setString(2, lp.getUUID());
-            prepareStatement.setTimestamp(3, new Timestamp(lp.getPlannedTime()));
-            prepareStatement.setInt(4, lp.getProcessState().getVal());
-            prepareStatement.setString(5, parametersToString(lp.getParameters(), lp.getUUID()));
-            prepareStatement.setString(6, lp.getGroupToken());
-            prepareStatement.setString(7, storedParams);
-            prepareStatement.setInt(8, lp.getBatchState().getVal());
-            prepareStatement.setBoolean(9, true);
-            prepareStatement.setString(10, lp.getAuthToken());
-            prepareStatement.setString(11, lp.getPlannedIPAddress());
-            prepareStatement.setString(12, lp.getOwnerId());
-            prepareStatement.setString(13, lp.getOwnerName());
+    /**
+     * @param con
+     * @param lp
+     * @param storedParams
+     * @return process_id of registered process
+     * @throws SQLException
+     */
+    public static int registerProcess(Connection con, LRProcess lp, String storedParams) throws SQLException {
+        PreparedStatement insertStatement = null;
 
-            prepareStatement.executeUpdate();
+        try {
+            //insert
+            insertStatement = con.prepareStatement(
+                    "INSERT INTO processes(" +
+                            "defid," + //1
+                            "uuid," + //2
+                            "planned," + //3
+                            "status," + //4
+                            "params," + //5
+                            "token," +  //6
+                            "process_id," + //
+                            "params_mapping," + //7
+                            "batch_status," + //8
+                            "token_active, " + //9
+                            "auth_token," + //10
+                            "ip_addr," + //11
+                            "owner_id," + //12
+                            "owner_name" + //13
+                            ")" +
+                            "values " +
+                            "  (" +
+                            "    ?," + //1 - DEFID
+                            "    ?," + //2 - UUID
+                            "    ?," + //3 - PLANNED
+                            "    ?," + //4 - STATUS
+                            "    ?," + //5 - PARAMS
+                            "    ?," + //6 - TOKEN
+                            "    nextval('PROCESS_ID_SEQUENCE')," +
+                            "    ?," + //7 PARAMS_MAPPING
+                            "    ?," + //8 BATCH_STATUS
+                            "    ?," + //9 TOKEN_ACTIVE
+                            "    ?," + //10 AUTH_TOKEN
+                            "    ?," + //11 IP_ADDR
+                            "    ?," + //12 OWNER_ID
+                            "    ?" + //13 OWNER_NAME
+                            "  )");
+            insertStatement.setString(1, lp.getDefinitionId());
+            insertStatement.setString(2, lp.getUUID());
+            insertStatement.setTimestamp(3, new Timestamp(lp.getPlannedTime()));
+            insertStatement.setInt(4, lp.getProcessState().getVal());
+            insertStatement.setString(5, parametersToString(lp.getParameters(), lp.getUUID()));
+            insertStatement.setString(6, lp.getGroupToken());
+            insertStatement.setString(7, storedParams);
+            insertStatement.setInt(8, lp.getBatchState().getVal());
+            insertStatement.setBoolean(9, true);
+            insertStatement.setString(10, lp.getAuthToken());
+            insertStatement.setString(11, lp.getPlannedIPAddress());
+            insertStatement.setString(12, lp.getOwnerId());
+            insertStatement.setString(13, lp.getOwnerName());
+            insertStatement.executeUpdate();
+
+            //get new process_id
+            List<Integer> list = new JDBCQueryTemplate<Integer>(con, false) {
+                public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+                    returnsList.add(rs.getInt("process_id"));
+                    return true;
+                }
+            }.executeQuery("SELECT process_id FROM processes WHERE uuid = ?", lp.getUUID());
+            return !list.isEmpty() ? list.get(0) : -1;
         } finally {
-            DatabaseUtils.tryClose(prepareStatement);
+            DatabaseUtils.tryClose(insertStatement);
         }
     }
 
@@ -154,8 +172,17 @@ public class ProcessDatabaseUtils {
         }
     }
 
+    /**
+     * @param con
+     * @param lp
+     * @param user
+     * @param loggedUserKey
+     * @param storedParams
+     * @return process_id of registered process
+     * @throws SQLException
+     */
     @Deprecated
-    public static void registerProcess(Connection con, LRProcess lp, User user, String loggedUserKey, String storedParams) throws SQLException {
+    public static int registerProcess(Connection con, LRProcess lp, User user, String loggedUserKey, String storedParams) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
                 "insert into processes(" +
                         "   DEFID, " + //1
@@ -217,6 +244,15 @@ public class ProcessDatabaseUtils {
             prepareStatement.setString(16, lp.getOwnerName());
 
             prepareStatement.executeUpdate();
+
+            //get new process_id
+            List<Integer> list = new JDBCQueryTemplate<Integer>(con, false) {
+                public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+                    returnsList.add(rs.getInt("process_id"));
+                    return true;
+                }
+            }.executeQuery("SELECT process_id FROM processes WHERE uuid = ?", lp.getUUID());
+            return !list.isEmpty() ? list.get(0) : -1;
         } finally {
             DatabaseUtils.tryClose(prepareStatement);
         }
