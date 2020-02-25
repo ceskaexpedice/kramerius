@@ -23,6 +23,28 @@ public class ProcessInBatch {
     public LocalDateTime processStarted;
     public LocalDateTime processFinished;
 
+    @Override
+    public String toString() {
+        return "ProcessInBatch{" +
+                "batchToken='" + batchToken + '\'' +
+                ", batchId='" + batchId + '\'' +
+                ", batchStateCode=" + batchStateCode +
+                ", batchPlanned=" + batchPlanned +
+                ", batchStarted=" + batchStarted +
+                ", batchFinished=" + batchFinished +
+                ", batchOwnerId='" + batchOwnerId + '\'' +
+                ", batchOwnerName='" + batchOwnerName + '\'' +
+                ", batchSize=" + batchSize +
+                ", processId='" + processId + '\'' +
+                ", processUuid='" + processUuid + '\'' +
+                ", processDefid='" + processDefid + '\'' +
+                ", processName='" + processName + '\'' +
+                ", processStateCode=" + processStateCode +
+                ", processPlanned=" + processPlanned +
+                ", processStarted=" + processStarted +
+                ", processFinished=" + processFinished +
+                '}';
+    }
 }
 
 

@@ -8,6 +8,7 @@ import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.exceptions.*;
+import cz.incad.kramerius.rest.api.processes.exceptions.NoProcessFound;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -63,8 +64,8 @@ public class ProcessResource {
 
     //TODO: prejmenovat role podle spravy uctu
     private static final String ROLE_SCHEDULE_PROCESSES = "kramerius_admin";
-    private static final String ROLE_LIST_PROCESSES = "kramerius_admin";
-    private static final String ROLE_LIST_PROCESS_OWNERS = "kramerius_admin";
+    private static final String ROLE_READ_PROCESSES = "kramerius_admin";
+    private static final String ROLE_READ_PROCESS_OWNERS = "kramerius_admin";
     private static final String ROLE_DELETE_PROCESSES = "kramerius_admin";
 
 
@@ -101,7 +102,7 @@ public class ProcessResource {
         try {
             //autentizace
             AuthenticatedUser user = getAuthenticatedUser();
-            String role = ROLE_LIST_PROCESS_OWNERS;
+            String role = ROLE_READ_PROCESS_OWNERS;
             if (!user.getRoles().contains(role)) {
                 throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
@@ -137,10 +138,74 @@ public class ProcessResource {
         }
     }
 
-    @DELETE
-    @Path("/batches/by_first_process_id/{id}")
+    @GET
+    @Path("/by_process_id/{process_id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response deleteBatch(@PathParam("id") String processId) {
+    public Response getProcess(@PathParam("process_id") String processId) {
+        try {
+            //autentizace
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_READ_PROCESSES;
+            if (!user.getRoles().contains(role)) {
+                throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            }
+            //id
+            Integer processIdInt = null;
+            if (StringUtils.isAnyString(processId)) {
+                try {
+                    processIdInt = Integer.valueOf(processId);
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("process_id must be integer, '%s' is not", processId);
+                }
+            }
+            //get process (& it's batch) data from db
+            ProcessInBatch processInBatch = processManager.getProcessInBatchByProcessId(processIdInt);
+            if (processInBatch == null) {
+                throw new NoProcessFound("there's no process with process_id=" + processId);
+            }
+            JSONObject result = processInBatchToJson(processInBatch);
+            return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
+
+    private JSONObject processInBatchToJson(ProcessInBatch processInBatch) {
+        JSONObject json = new JSONObject();
+        //batch
+        JSONObject batchJson = new JSONObject();
+        batchJson.put("token", processInBatch.batchToken);
+        batchJson.put("id", processInBatch.batchId);
+        batchJson.put("state", toBatchStateName(processInBatch.batchStateCode));
+        batchJson.put("planned", toFormattedStringOrNull(processInBatch.batchPlanned));
+        batchJson.put("started", toFormattedStringOrNull(processInBatch.batchStarted));
+        batchJson.put("finished", toFormattedStringOrNull(processInBatch.batchFinished));
+        batchJson.put("owner_id", processInBatch.batchOwnerId);
+        batchJson.put("owner_name", processInBatch.batchOwnerName);
+        json.put("batch", batchJson);
+        //process
+        JSONObject processJson = new JSONObject();
+        processJson.put("id", processInBatch.processId);
+        processJson.put("uuid", processInBatch.processUuid);
+        processJson.put("defid", processInBatch.processDefid);
+        processJson.put("name", processInBatch.processName);
+        processJson.put("state", toProcessStateName(processInBatch.processStateCode));
+        processJson.put("planned", toFormattedStringOrNull(processInBatch.processPlanned));
+        processJson.put("started", toFormattedStringOrNull(processInBatch.processStarted));
+        processJson.put("finished", toFormattedStringOrNull(processInBatch.processFinished));
+        JSONObject result = new JSONObject();
+        result.put("process", processJson);
+        result.put("batch", batchJson);
+        return result;
+    }
+
+    @DELETE
+    @Path("/batches/by_first_process_id/{process_id}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response deleteBatch(@PathParam("process_id") String processId) {
         try {
             //autentizace
             AuthenticatedUser user = getAuthenticatedUser();
@@ -211,7 +276,7 @@ public class ProcessResource {
 
             //autentizace
             AuthenticatedUser user = getAuthenticatedUser();
-            String role = ROLE_LIST_PROCESSES;
+            String role = ROLE_READ_PROCESSES;
             if (!user.getRoles().contains(role)) {
                 throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }

@@ -23,6 +23,12 @@ public interface ProcessManager {
     public List<ProcessInBatch> getProcessesInBatches(Filter filter, int offset, int limit);
 
     /**
+     * @param processId
+     * @return
+     */
+    public ProcessInBatch getProcessInBatchByProcessId(int processId);
+
+    /**
      * Returns users, that have ever scheduled any process
      *
      * @return
