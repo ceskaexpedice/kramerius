@@ -173,6 +173,47 @@ public class ProcessResource {
         }
     }
 
+    @GET
+    @Path("/by_process_uuid/{process_uuid}/logs/out")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getProcessLogOutByProcessUuid(@PathParam("process_uuid") String processUuid) {
+        //nahrazuje _processes_logs_std_json.jsp a _processes_logs_std_json.jsp
+        //see cz.incad.Kramerius.views.ProcessLogsViewObject
+        try {
+            //autentizace
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_READ_PROCESSES;
+            if (!user.getRoles().contains(role)) {
+                throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            }
+
+            LRProcess lrProces = lrProcessManager.getLongRunningProcess(processUuid);
+            if (lrProces == null) {
+                throw new BadRequestException("nenalezen proces s uuid:" + processUuid);
+            }
+            LRProcessDefinition procesDefinition = definitionManager.getLongRunningProcessDefinition(lrProces.getDefinitionId());
+            if (procesDefinition == null) {
+                throw new BadRequestException("nenalezena definice procesu s defid:" + lrProces.getDefinitionId());
+            }
+
+            ProcessLogsHelper processLogsHelper = new ProcessLogsHelper(lrProces, procesDefinition);
+
+            long fileSize = processLogsHelper.getStdFileSize();
+            String data = processLogsHelper.getStdOutData();
+
+            JSONObject result = new JSONObject();
+            result.put("size", fileSize);
+            result.put("data", data);
+            return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
+
+
     private JSONObject processInBatchToJson(ProcessInBatch processInBatch) {
         JSONObject json = new JSONObject();
         //batch
