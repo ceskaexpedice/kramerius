@@ -131,6 +131,12 @@ public class ExportServiceImpl implements ExportService {
             LOGGER.info("Exporting "+exportDirectory+" "+p);
             try{
                 store(exportDirectory, p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
+            } catch (ParserConfigurationException ex) {
+                Logger.getLogger(ExportServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SAXException ex) {
+                Logger.getLogger(ExportServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (TransformerException ex) {
+                Logger.getLogger(ExportServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             }catch(Exception ex){
                 if (configuration.getConfiguration().getBoolean("export.shouldStopWhenFail", true)) {
                     throw ex;
@@ -148,11 +154,15 @@ public class ExportServiceImpl implements ExportService {
     }
 
 
-    private void store(File exportDirectory, String name, byte[] contents) {
+    private void store(File exportDirectory, String name, byte[] contents) throws ParserConfigurationException, SAXException, IOException, TransformerException {
         String convertedName = name.replace("uuid:", "").replaceAll(":", "_")+ ".xml";
         File toFile = new File(exportDirectory, convertedName);
         OutputStream os = null;
         InputStream is = null;
+        
+        Document doc = XMLUtils.parseDocument(new ByteArrayInputStream(contents), true);
+        contents = changeNameForUrn(doc);
+        
         try {
             is = new ByteArrayInputStream(contents);
             os = new FileOutputStream(toFile);
@@ -168,7 +178,7 @@ public class ExportServiceImpl implements ExportService {
         }
 
     }
-
+    
     /**
      * args[0] uuid of the root object (without uuid: prefix)
      * args[1] is information about exporting parents
@@ -219,4 +229,47 @@ public class ExportServiceImpl implements ExportService {
         System.arraycopy(args, 0, nargs, 0, args.length-i);
         return nargs;
     }
+    
+    /** Detects if foxml contains only identifier - urn and not uuid, it will change it to uuid
+     * doc represents foxml of file to be exported
+     * @throws IOException
+     */
+    private byte[] changeNameForUrn(Document doc) throws TransformerException {
+        Element biblioMods = XMLUtils.findElement(doc.getDocumentElement(),(element) -> {
+                    return element.getLocalName().equals("datastream") && element.getAttribute("ID").equals("BIBLIO_MODS");
+                });
+        List<Element> biblioModsVersions = XMLUtils.getElements(biblioMods,(element) -> {
+                    return element.getLocalName().equals("datastreamVersion");
+                });
+        for (Element biblioModsVersion : biblioModsVersions) {
+            Element xmlContent = XMLUtils.findElement(biblioModsVersion, "xmlContent", "info:fedora/fedora-system:def/foxml#");
+            Element modsCollection = XMLUtils.findElement(xmlContent, "modsCollection", FedoraNamespaces.BIBILO_MODS_URI);
+            Element mods = XMLUtils.findElement(modsCollection, "mods", FedoraNamespaces.BIBILO_MODS_URI);
+            List<Element> identifiers = XMLUtils.getElements(mods,(element) -> {
+                    return element.getLocalName().equals("identifier");
+                });
+            
+            Element urn = null;
+            Boolean isThereUuid = false;
+            for (Element identifier : identifiers) {
+                if (identifier.hasAttribute("type")) {
+                    String type = identifier.getAttribute("type");
+                    if (type.equals("urn")) {
+                        urn = identifier;
+                    }
+                    if (type.equals("uuid")) {
+                        isThereUuid = true;
+                    }
+                }
+            }
+            if (isThereUuid == false && urn != null) {
+                urn.removeAttribute("type");
+                urn.setAttribute("type", "uuid");
+            }
+        }
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        XMLUtils.print(doc, bos);
+        return bos.toByteArray();
+    }
+    
 }
