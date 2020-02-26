@@ -2,6 +2,7 @@ package cz.incad.kramerius.fedora.om.impl;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.XmlClientConfigBuilder;
 import com.hazelcast.config.GroupConfig;
 import com.hazelcast.core.*;
 import com.qbizm.kramerius.imp.jaxb.*;
@@ -71,10 +72,21 @@ public class AkubraDOManager {
             LOGGER.log(Level.SEVERE, "Cannot init JAXB", e);
             throw new RuntimeException(e);
         }
-        ClientConfig config = new ClientConfig();
-        config.setInstanceName(KConfiguration.getInstance().getConfiguration().getString("hazelcast.instance"));
-        GroupConfig groupConfig = config.getGroupConfig();
-        groupConfig.setName(KConfiguration.getInstance().getConfiguration().getString("hazelcast.user"));
+        ClientConfig config = null;
+        File configFile = KConfiguration.getInstance().findConfigFile("hazelcast.clientconfig");
+        if (configFile != null) {
+            try (FileInputStream configStream = new FileInputStream(configFile)) {
+                config = new XmlClientConfigBuilder(configStream).build();
+            } catch (IOException ex) {
+                LOGGER.warning("Could not load Hazelcast config file " + configFile + ": " + ex);
+            }
+        }
+        if (config == null) {
+            config = new ClientConfig();
+            config.setInstanceName(KConfiguration.getInstance().getConfiguration().getString("hazelcast.instance"));
+            GroupConfig groupConfig = config.getGroupConfig();
+            groupConfig.setName(KConfiguration.getInstance().getConfiguration().getString("hazelcast.user"));
+        }
         hzInstance = HazelcastClient.newHazelcastClient(config);
         pidLocks = hzInstance.getMap("pidlocks");
         cacheInvalidator = hzInstance.getTopic("cacheInvalidator");
@@ -289,19 +301,18 @@ public class AkubraDOManager {
         }
     }
 
-    public InputStream marshallObject(DigitalObject object){
+    public InputStream marshallObject(DigitalObject object) {
         try {
-        StringWriter stringWriter = new StringWriter();
-        synchronized (marshaller) {
-            marshaller.marshal(object, stringWriter);
-        }
-        return  new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8"));
+            StringWriter stringWriter = new StringWriter();
+            synchronized (marshaller) {
+                marshaller.marshal(object, stringWriter);
+            }
+            return new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8"));
         } catch (Exception e) {
             LOGGER.warning("Could not marshall object: " + e);
             throw new RuntimeException(e);
         }
     }
-
 
 
     private void setLastModified(DigitalObject object) {
@@ -378,21 +389,21 @@ public class AkubraDOManager {
         }
     }
 
-    public void resolveArchivedDatastreams(DigitalObject object){
+    public void resolveArchivedDatastreams(DigitalObject object) {
         for (DatastreamType datastreamType : object.getDatastream()) {
             resolveArchiveManagedStream(datastreamType);
         }
 
     }
 
-    private void resolveArchiveManagedStream( DatastreamType datastream) {
+    private void resolveArchiveManagedStream(DatastreamType datastream) {
         if ("M".equals(datastream.getCONTROLGROUP())) {
             for (DatastreamVersionType datastreamVersion : datastream.getDatastreamVersion()) {
                 try {
                     InputStream stream = retrieveDatastream(datastreamVersion.getContentLocation().getREF());
                     datastreamVersion.setBinaryContent(IOUtils.toByteArray(stream));
                     datastreamVersion.setContentLocation(null);
-                }catch(Exception ex){
+                } catch (Exception ex) {
                     LOGGER.warning("Could not resolve archive managed datastream: " + ex);
                 }
             }

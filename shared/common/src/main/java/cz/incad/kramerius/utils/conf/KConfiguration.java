@@ -316,5 +316,27 @@ public class KConfiguration {
         return url;
     }
 
+    /**
+     * Find configuration file specified by given configurstion property
+     * File can have absolute path or relative to Kramerius configuration home folder (.kramerius4)
+     * @param fileProperty
+     * @return
+     */
+    public  File findConfigFile(String fileProperty){
+        String fileName = getConfiguration().getString(fileProperty);
+        if (fileName == null || "".equals(fileName)){
+            return null;
+        }
+        File retval = new File(fileName);
+        if (!retval.exists()){
+            retval = new File( WORKING_DIR + File.separator +fileName);
+            if (!retval.exists()){
+                LOGGER.warning("Could not find configuration file: "+ fileName);
+                return null;
+            }
+        }
+        return retval;
+    }
+
 
 }
