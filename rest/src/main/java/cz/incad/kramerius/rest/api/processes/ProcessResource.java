@@ -103,7 +103,7 @@ public class ProcessResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getOwners() {
         try {
-            //autentizace
+            //authentication
             AuthenticatedUser user = getAuthenticatedUser();
             String role = ROLE_READ_PROCESS_OWNERS;
             if (!user.getRoles().contains(role)) {
@@ -146,7 +146,7 @@ public class ProcessResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProcess(@PathParam("process_id") String processId) {
         try {
-            //autentizace
+            //authentication
             AuthenticatedUser user = getAuthenticatedUser();
             String role = ROLE_READ_PROCESSES;
             if (!user.getRoles().contains(role)) {
@@ -176,22 +176,51 @@ public class ProcessResource {
         }
     }
 
+    /**
+     * Nahrazuje _processes_logs_std_json.jsp, _processes_logs_std_json.jsp
+     *
+     * @param processUuid
+     * @param offsetStr
+     * @param limitStr
+     * @return
+     * @see cz.incad.Kramerius.views.ProcessLogsViewObject
+     */
     @GET
     @Path("/by_process_uuid/{process_uuid}/logs/out")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProcessLogsOutByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                    @QueryParam("offset") String offsetStr,
                                                    @QueryParam("limit") String limitStr) {
-        //nahrazuje _processes_logs_std_json.jsp a _processes_logs_std_json.jsp
-        //see cz.incad.Kramerius.views.ProcessLogsViewObject
+        return getProcessLogsByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, offsetStr, limitStr);
+    }
+
+    /**
+     * Nahrazuje _processes_logs_err_json.jsp, _processes_logs_err_json.jsp
+     *
+     * @param processUuid
+     * @param offsetStr
+     * @param limitStr
+     * @return
+     * @see cz.incad.Kramerius.views.ProcessLogsViewObject
+     */
+    @GET
+    @Path("/by_process_uuid/{process_uuid}/logs/err")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getProcessLogsErrByProcessUuid(@PathParam("process_uuid") String processUuid,
+                                                   @QueryParam("offset") String offsetStr,
+                                                   @QueryParam("limit") String limitStr) {
+        return getProcessLogsByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, offsetStr, limitStr);
+    }
+
+
+    private Response getProcessLogsByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String offsetStr, String limitStr) {
         try {
-            //autentizace
+            //authentication
             AuthenticatedUser user = getAuthenticatedUser();
             String role = ROLE_READ_PROCESSES;
             if (!user.getRoles().contains(role)) {
                 throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
-
             //offset & limit
             int offset = GET_LOGS_DEFAULT_OFFSET;
             if (StringUtils.isAnyString(offsetStr)) {
@@ -215,20 +244,16 @@ public class ProcessResource {
                     throw new BadRequestException("limit must be integer, '%s' is not", limitStr);
                 }
             }
-
+            //access to process data
             LRProcess lrProces = lrProcessManager.getLongRunningProcess(processUuid);
             if (lrProces == null) {
                 throw new BadRequestException("nenalezen proces s uuid:" + processUuid);
             }
             ProcessLogsHelper processLogsHelper = new ProcessLogsHelper(lrProces);
-
-            ProcessLogsHelper.LogType logType = ProcessLogsHelper.LogType.OUT;
-            long fileSize = processLogsHelper.getLogsFileSize(logType);
-            String data = processLogsHelper.getLogsFileData(logType, offset, limit);
-
+            //result
             JSONObject result = new JSONObject();
-            result.put("total_size", fileSize);
-            result.put("data", data);
+            result.put("total_size", processLogsHelper.getLogsFileSize(logType));
+            result.put("data", processLogsHelper.getLogsFileData(logType, offset, limit));
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -237,7 +262,6 @@ public class ProcessResource {
             throw new GenericApplicationException(e.getMessage());
         }
     }
-
 
     private JSONObject processInBatchToJson(ProcessInBatch processInBatch) {
         JSONObject json = new JSONObject();
@@ -273,7 +297,7 @@ public class ProcessResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response deleteBatch(@PathParam("process_id") String processId) {
         try {
-            //autentizace
+            //authentication
             AuthenticatedUser user = getAuthenticatedUser();
             String role = ROLE_DELETE_PROCESSES;
             if (!user.getRoles().contains(role)) {
@@ -337,10 +361,10 @@ public class ProcessResource {
             @QueryParam("state") String filterState
     ) {
         try {
-            //access control with basic access authentification (deprecated)
+            //access control with basic access authentication (deprecated)
             checkAccessControlByBasicAccessAuth();
 
-            //autentizace
+            //authentication
             AuthenticatedUser user = getAuthenticatedUser();
             String role = ROLE_READ_PROCESSES;
             if (!user.getRoles().contains(role)) {
@@ -544,8 +568,8 @@ public class ProcessResource {
             if (processDefinition.has("params")) {
                 params = processDefinition.getJSONObject("params");
             }
-            if (processAuthToken != null) { //spousti proces (novy proces tedy bude jeho sourozenec ve stejne davce)
-                //autorizace
+            if (processAuthToken != null) { //run by process (so the new process will be it'sibling in same batch)
+                //authentication & authorization
                 ProcessManager.ProcessAboutToScheduleSibling originalProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(processAuthToken);
                 if (originalProcess == null) {
                     throw new UnauthorizedException("invalid token"); //401
@@ -558,15 +582,15 @@ public class ProcessResource {
                 paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
                 paramsList.addAll(paramsToList(defid, params));
                 return scheduleProcess(defid, paramsList, userId, userName, batchToken, newProcessAuthToken);
-            } else { //spousti user (pres weboveho klienta)
+            } else { //run by user (through web client)
                 String batchToken = UUID.randomUUID().toString();
                 List<String> paramsList = new ArrayList<>();
                 String newProcessAuthToken = UUID.randomUUID().toString();
                 paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
                 paramsList.addAll(paramsToList(defid, params));
-                //autentizace
+                //authentication
                 AuthenticatedUser user = getAuthenticatedUser();
-                //autorizace
+                //authorization
                 String role = ROLE_SCHEDULE_PROCESSES;
                 if (!user.getRoles().contains(role)) {
                     throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
