@@ -1,9 +1,7 @@
 package cz.incad.kramerius.rest.api.processes;
 
 import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessDefinition;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -11,35 +9,32 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * jen docasne takto, bude potreba refactoring
- *
  * @see cz.incad.Kramerius.views.ProcessLogsViewObject
  */
 public class ProcessLogsHelper {
 
+    public enum LogType {
+        OUT,
+        ERR
+    }
+
     public static Logger LOGGER = Logger.getLogger(ProcessLogsHelper.class.getName());
 
     private final LRProcess process;
-    private LRProcessDefinition definition;
 
-    //offsety
-    //TODO: presunout do metod a nema to byt string;
-    private String stdFrom = "0";
-    private String errFrom = "0";
-
-    //limit
-    //TODO: presunout do metod a nema to byt string;
-    private String count = "50";
-
-    public ProcessLogsHelper(LRProcess process, LRProcessDefinition definition) {
+    public ProcessLogsHelper(LRProcess process) {
         this.process = process;
-        this.definition = definition;
     }
 
-    public long getErrorFileSize() throws IOException {
+    /**
+     * @param type type of log, either OUT for output log , or ERR for error log
+     * @return size of the log file in bytes
+     * @throws IOException
+     */
+    public long getLogsFileSize(LogType type) throws IOException {
         RandomAccessFile errorProcessRAFile = null;
         try {
-            errorProcessRAFile = this.process.getErrorProcessRAFile();
+            errorProcessRAFile = getProcessRAFile(type);
             return errorProcessRAFile.length();
         } catch (IOException ex) {
             LOGGER.log(Level.FINE, ex.getMessage(), ex);
@@ -49,36 +44,23 @@ public class ProcessLogsHelper {
         }
     }
 
-    public long getStdFileSize() throws IOException {
-        RandomAccessFile stdProcessRAFile = null;
-        try {
-            stdProcessRAFile = this.process.getStandardProcessRAFile();
-            return stdProcessRAFile.length();
-        } catch (IOException ex) {
-            LOGGER.log(Level.FINE, ex.getMessage(), ex);
-            return 0;
-        } finally {
-            if (stdProcessRAFile != null) stdProcessRAFile.close();
-        }
-    }
-
-    public File getStdOutDirectory() {
-        return new File(getProcessWorkingDirectory().getAbsolutePath() + File.separator + this.definition.getStandardStreamFolder() + File.separator + "stout.out");
-    }
-
-    public File getErrOutDirectory() {
-        return new File(getProcessWorkingDirectory().getAbsolutePath() + File.separator + this.definition.getErrStreamFolder() + File.separator + "sterr.err");
-    }
-
-    public String getErrOutData() {
+    /**
+     * @param type   type of log, either OUT for output log , or ERR for error log
+     * @param offset
+     * @param limit
+     * @return
+     */
+    public String getLogsFileData(LogType type, long offset, long limit) {
         RandomAccessFile raf = null;
         try {
-            raf = this.process.getErrorProcessRAFile();
-            return bufferFromRAF(raf, this.errFrom);
+            raf = getProcessRAFile(type);
+            return bufferFromRAF(raf, offset, limit);
         } catch (FileNotFoundException e) {
             LOGGER.log(Level.FINE, e.getMessage(), e);
+            return "";
         } catch (IOException e) {
             LOGGER.log(Level.FINE, e.getMessage(), e);
+            return "";
         } finally {
             try {
                 if (raf != null) raf.close();
@@ -86,42 +68,33 @@ public class ProcessLogsHelper {
                 LOGGER.log(Level.FINE, e.getMessage(), e);
             }
         }
-        return "";
     }
 
-    public String getProcessUUID() {
-        return process.getUUID();
-    }
-
-    public File getProcessWorkingDirectory() {
-        return process.processWorkingDirectory();
-    }
-
-    public String getStdOutData() {
-        RandomAccessFile raf = null;
-        try {
-            raf = this.process.getStandardProcessRAFile();
-            return bufferFromRAF(raf, this.stdFrom);
-        } catch (FileNotFoundException e) {
-            LOGGER.log(Level.FINE, e.getMessage(), e);
-        } catch (IOException e) {
-            LOGGER.log(Level.FINE, e.getMessage(), e);
+    private RandomAccessFile getProcessRAFile(LogType type) throws FileNotFoundException {
+        switch (type) {
+            case OUT:
+                return process.getStandardProcessRAFile();
+            case ERR:
+                return process.getErrorProcessRAFile();
+            default:
+                throw new RuntimeException();//impossible
         }
-        return "";
     }
 
-    private String bufferFromRAF(RandomAccessFile raf, String from) throws IOException {
-        long fromL = Long.parseLong(from);
-        long countL = Long.parseLong(this.count);
-
-        byte[] buffer = new byte[(int) countL];
-        raf.seek(fromL);
+    private String bufferFromRAF(RandomAccessFile raf, long offset, long limit) throws IOException {
+        byte[] buffer = new byte[(int) limit];
+        raf.seek(offset);
         int read = raf.read(buffer);
         if (read >= 0) {
             byte[] nbuffer = new byte[read];
             System.arraycopy(buffer, 0, nbuffer, 0, read);
             return new String(nbuffer);
-        } else return "";
+            //TODO: jeste docist do konce radku a to doplnit. Abysme neusekli log v polovine radku, i kdyz teda vysledek nebude presne limit bytu
+            //na zacatku to bud neresit, nebo znovu nacist z na novy radek to pred nim vynechat
+            //tim padem ve vysledku by mohl byt vysledek delsi nez limit (napr. pri offset 0 kdyz se limitem netrefim presne na konec radku), anebo kratsi (kdyz se offsetem netrefim na zacatek radku)
+        } else {
+            return "";
+        }
     }
 
 }

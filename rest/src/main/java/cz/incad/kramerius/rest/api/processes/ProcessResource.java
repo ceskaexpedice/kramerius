@@ -48,8 +48,11 @@ public class ProcessResource {
 
     public static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
 
-    private static final Integer DEFAULT_OFFSET = 0;
-    private static final Integer DEFAULT_LIMIT = 10;
+    private static final Integer GET_BATCHES_DEFAULT_OFFSET = 0;
+    private static final Integer GET_BATCHES_DEFAULT_LIMIT = 10;
+
+    private static final Integer GET_LOGS_DEFAULT_OFFSET = 0;
+    private static final Integer GET_LOGS_DEFAULT_LIMIT = 10;
 
     //TODO: proverit
     @Deprecated
@@ -176,7 +179,9 @@ public class ProcessResource {
     @GET
     @Path("/by_process_uuid/{process_uuid}/logs/out")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getProcessLogOutByProcessUuid(@PathParam("process_uuid") String processUuid) {
+    public Response getProcessLogsOutByProcessUuid(@PathParam("process_uuid") String processUuid,
+                                                   @QueryParam("offset") String offsetStr,
+                                                   @QueryParam("limit") String limitStr) {
         //nahrazuje _processes_logs_std_json.jsp a _processes_logs_std_json.jsp
         //see cz.incad.Kramerius.views.ProcessLogsViewObject
         try {
@@ -187,22 +192,42 @@ public class ProcessResource {
                 throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
 
+            //offset & limit
+            int offset = GET_LOGS_DEFAULT_OFFSET;
+            if (StringUtils.isAnyString(offsetStr)) {
+                try {
+                    offset = Integer.valueOf(offsetStr);
+                    if (offset < 0) {
+                        throw new BadRequestException("offset must be zero or positive, '%s' is not", offsetStr);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("offset must be integer, '%s' is not", offsetStr);
+                }
+            }
+            int limit = GET_LOGS_DEFAULT_LIMIT;
+            if (StringUtils.isAnyString(limitStr)) {
+                try {
+                    limit = Integer.valueOf(limitStr);
+                    if (limit < 1) {
+                        throw new BadRequestException("limit must be positive, '%s' is not", limitStr);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("limit must be integer, '%s' is not", limitStr);
+                }
+            }
+
             LRProcess lrProces = lrProcessManager.getLongRunningProcess(processUuid);
             if (lrProces == null) {
                 throw new BadRequestException("nenalezen proces s uuid:" + processUuid);
             }
-            LRProcessDefinition procesDefinition = definitionManager.getLongRunningProcessDefinition(lrProces.getDefinitionId());
-            if (procesDefinition == null) {
-                throw new BadRequestException("nenalezena definice procesu s defid:" + lrProces.getDefinitionId());
-            }
+            ProcessLogsHelper processLogsHelper = new ProcessLogsHelper(lrProces);
 
-            ProcessLogsHelper processLogsHelper = new ProcessLogsHelper(lrProces, procesDefinition);
-
-            long fileSize = processLogsHelper.getStdFileSize();
-            String data = processLogsHelper.getStdOutData();
+            ProcessLogsHelper.LogType logType = ProcessLogsHelper.LogType.OUT;
+            long fileSize = processLogsHelper.getLogsFileSize(logType);
+            String data = processLogsHelper.getLogsFileData(logType, offset, limit);
 
             JSONObject result = new JSONObject();
-            result.put("size", fileSize);
+            result.put("total_size", fileSize);
             result.put("data", data);
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
@@ -323,7 +348,7 @@ public class ProcessResource {
             }
 
             //offset & limit
-            int offset = DEFAULT_OFFSET;
+            int offset = GET_BATCHES_DEFAULT_OFFSET;
             if (StringUtils.isAnyString(offsetStr)) {
                 try {
                     offset = Integer.valueOf(offsetStr);
@@ -334,7 +359,7 @@ public class ProcessResource {
                     throw new BadRequestException("offset must be integer, '%s' is not", offsetStr);
                 }
             }
-            int limit = DEFAULT_LIMIT;
+            int limit = GET_BATCHES_DEFAULT_LIMIT;
             if (StringUtils.isAnyString(limitStr)) {
                 try {
                     limit = Integer.valueOf(limitStr);
