@@ -191,7 +191,7 @@ public class ProcessResource {
     public Response getProcessLogsOutByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                    @QueryParam("offset") String offsetStr,
                                                    @QueryParam("limit") String limitStr) {
-        return getProcessLogsByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, offsetStr, limitStr);
+        return getProcessLogsByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, offsetStr, limitStr);
     }
 
     /**
@@ -209,7 +209,7 @@ public class ProcessResource {
     public Response getProcessLogsErrByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                    @QueryParam("offset") String offsetStr,
                                                    @QueryParam("limit") String limitStr) {
-        return getProcessLogsByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, offsetStr, limitStr);
+        return getProcessLogsByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, offsetStr, limitStr);
     }
 
 
