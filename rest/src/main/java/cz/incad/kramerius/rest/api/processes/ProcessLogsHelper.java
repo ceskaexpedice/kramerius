@@ -5,6 +5,8 @@ import cz.incad.kramerius.processes.LRProcess;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,9 +50,16 @@ public class ProcessLogsHelper {
      * @param type   type of log, either OUT for output log , or ERR for error log
      * @param offset
      * @param limit
-     * @return
+     * @return logs by line
      */
-    public String getLogsFileData(LogType type, long offset, long limit) {
+    public List<String> getLogsFileData(LogType type, long offset, long limit) {
+        String asString = getLogsFileDataAsString(type, offset, limit);
+        String[] splitByNewLine = asString.split("\\r?\\n");
+        List<String> result = Arrays.asList(splitByNewLine);
+        return result;
+    }
+
+    private String getLogsFileDataAsString(LogType type, long offset, long limit) {
         RandomAccessFile raf = null;
         try {
             raf = getProcessRAFile(type);
@@ -69,6 +78,7 @@ public class ProcessLogsHelper {
             }
         }
     }
+
 
     private RandomAccessFile getProcessRAFile(LogType type) throws FileNotFoundException {
         switch (type) {

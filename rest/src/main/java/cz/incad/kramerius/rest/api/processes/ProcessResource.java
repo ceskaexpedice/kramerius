@@ -1,5 +1,6 @@
 package cz.incad.kramerius.rest.api.processes;
 
+
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
@@ -253,7 +254,12 @@ public class ProcessResource {
             //result
             JSONObject result = new JSONObject();
             result.put("total_size", processLogsHelper.getLogsFileSize(logType));
-            result.put("data", processLogsHelper.getLogsFileData(logType, offset, limit));
+            JSONArray linesJson = new JSONArray();
+            List<String> lines = processLogsHelper.getLogsFileData(logType, offset, limit);
+            for (String line : lines) {
+                linesJson.put(line);
+            }
+            result.put("lines", linesJson);
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
