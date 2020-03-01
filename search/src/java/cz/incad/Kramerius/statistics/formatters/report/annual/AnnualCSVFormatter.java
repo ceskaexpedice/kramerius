@@ -47,7 +47,6 @@ public class AnnualCSVFormatter implements StatisticsReportFormatter {
 
     @Override
     public void beforeProcess(HttpServletResponse response) throws IOException {
-        this.os = response.getOutputStream();
         this.cumulativeMap = new HashMap<>();
     }
 
@@ -75,6 +74,13 @@ public class AnnualCSVFormatter implements StatisticsReportFormatter {
         return CSV_MIME_TYPE;
     }
 
+    @Override
+    public void addInfo(HttpServletResponse response, String info) throws IOException {
+        this.os = response.getOutputStream();
+        String text = "Roční výkaz";
+        String comment = "# " + text + ", " + info + "\n";
+        this.os.write(comment.getBytes(DEFAULT_ENCODING));
+    }
 
 }
 

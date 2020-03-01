@@ -68,13 +68,6 @@ public class LangReport implements StatisticReport{
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             
             IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
-            /*              
-            final StringTemplate langss = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectLangReport");
-            langss.setAttribute("action", repAction != null ? repAction.name() : null);
-            langss.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            langss.setAttribute("toDefined", dateFilter.getToDate() != null);
-            langss.setAttribute("ipaddr", ipFilter.getIpAddress());
-            */
           
             UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
             
