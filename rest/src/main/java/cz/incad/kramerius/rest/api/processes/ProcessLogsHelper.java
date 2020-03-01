@@ -63,7 +63,7 @@ public class ProcessLogsHelper {
         RandomAccessFile raf = null;
         try {
             raf = getProcessRAFile(type);
-            return bufferFromRAF(raf, offset, limit);
+            return readFromRAF(raf, offset, limit);
         } catch (FileNotFoundException e) {
             LOGGER.log(Level.FINE, e.getMessage(), e);
             return "";
@@ -91,17 +91,33 @@ public class ProcessLogsHelper {
         }
     }
 
-    private String bufferFromRAF(RandomAccessFile raf, long offset, long limit) throws IOException {
+    private String readFromRAF(RandomAccessFile raf, long offset, long limit) throws IOException {
+        //ignore data before new line unless it is the very beginning of the file
+        //we don't want to start in the middle of the line, so we rather return less then limit by cutting the beginning
+        if (offset != 0) {
+            raf.seek(offset);
+            String remainsOfPreviousLine = raf.readLine();
+            offset = offset + remainsOfPreviousLine.length();
+            limit = limit + remainsOfPreviousLine.length();
+        }
         byte[] buffer = new byte[(int) limit];
         raf.seek(offset);
         int read = raf.read(buffer);
         if (read >= 0) {
             byte[] nbuffer = new byte[read];
             System.arraycopy(buffer, 0, nbuffer, 0, read);
-            return new String(nbuffer);
-            //TODO: jeste docist do konce radku a to doplnit. Abysme neusekli log v polovine radku, i kdyz teda vysledek nebude presne limit bytu
-            //na zacatku to bud neresit, nebo znovu nacist z na novy radek to pred nim vynechat
-            //tim padem ve vysledku by mohl byt vysledek delsi nez limit (napr. pri offset 0 kdyz se limitem netrefim presne na konec radku), anebo kratsi (kdyz se offsetem netrefim na zacatek radku)
+            String dataRead = new String(nbuffer);
+
+            //read to the end of line if there's still some data,
+            //we don't want to break lines, so we rather return slightly more then limit by adding data until new line
+            long newOffset = offset + limit;
+            if (newOffset < raf.length()) {
+                raf.seek(newOffset);
+                String remainsOfCurrentLine = raf.readLine();
+                return dataRead + remainsOfCurrentLine;
+            } else {
+                return dataRead;
+            }
         } else {
             return "";
         }
