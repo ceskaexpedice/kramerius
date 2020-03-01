@@ -79,7 +79,14 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 	
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
+        int length = getObjects().length;
         int wallFromConf = Integer.parseInt((String)getObjects()[0]);
+        
+        // for criterium rights, only one parameter -> value of the wall
+        if (length == 1) {
+              return evalute(wallFromConf);
+        }
+        
         String modeFromConf = (String)getObjects()[1];
         String firstModel = (String)getObjects()[2];
         String firstPid = (String)getObjects()[3];
@@ -164,6 +171,37 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     }
 
     
+    public EvaluatingResult evalute(int wallFromConf) throws RightCriteriumException {
+        try {
+            ObjectPidsPath[] pathsToRoot = getEvaluateContext().getPathsToRoot();
+            EvaluatingResult result = null;
+            for (ObjectPidsPath pth : pathsToRoot) {
+                String[] pids = pth.getPathFromLeafToRoot();
+                for (String pid : pids) {
+                    
+                    if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
+                    Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
+                    // try all xpaths on mods
+                    for (String xp : MODS_XPATHS) {
+                        result = resolveInternal(wallFromConf, null, pid, null, null, null, xp, biblioMods, this.xpfactory);
+                        if (result !=null) break;
+                    }
+                    // TRUE or FALSE -> rozhodnul, nevratil NOT_APPLICABLE
+                    if (result != null && (result.equals(EvaluatingResult.TRUE) ||  result.equals(EvaluatingResult.FALSE))) return result; 
+                }
+            }
+            return result != null ? result :EvaluatingResult.NOT_APPLICABLE;
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage());
+            return EvaluatingResult.NOT_APPLICABLE;
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage());
+            return EvaluatingResult.NOT_APPLICABLE;
+        } catch (XPathExpressionException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage());
+            return EvaluatingResult.NOT_APPLICABLE;
+        }   
+    }
     
     public static EvaluatingResult resolveInternal(int wallFromConf, String modeFromConf, String pid, String fedoraModel, String parentPid, Date parentDate, String xpath, Document xmlDoc,XPathFactory xpfactory) throws IOException, XPathExpressionException {
         if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResult.NOT_APPLICABLE;
@@ -281,6 +319,10 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         
         int monthFromMetadata = calFromMetadata.get(Calendar.MONTH);
         int currentMonth = currentCal.get(Calendar.MONTH);
+        
+        if (modeFromConf == null) {
+            modeFromConf = "year";
+        }
         
         if (modeFromConf.equals("month") && fedoraModel != null && (fedoraModel.equals("article") || fedoraModel.equals("page"))) {
            calFromMetadata.setTime(parentDate);
