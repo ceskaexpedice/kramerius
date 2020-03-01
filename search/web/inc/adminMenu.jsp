@@ -142,6 +142,34 @@ function showConfirmDialog(t,f){
     });
 }
 
+function showConfirmYesNoDialog(t,f1, f2){
+    $("#confirm_dialog").dialog('destroy');
+    $("#proccess_confirm_text").html(t);
+    $("#confirm_dialog").dialog({
+        resizable: false,
+        height:140,
+        modal: true,
+        buttons: [{
+            text:dictionary['common.yes'],
+            click:function() {
+                $(this).dialog('destroy');
+                f1();
+            }
+        },{
+            text:dictionary['common.no'],
+            click:function() {
+                $(this).dialog('destroy');
+                f2();
+            }
+        },{
+            text:dictionary['common.close'],
+            click:function() {
+                $(this).dialog('destroy');
+            }
+        }]
+    });
+}
+
 function showAdminMenu() {
 	$("#adminMenu").css("top",$("#header").offset().top + $("#header").height()+4);
 	$("#adminMenu").show();
