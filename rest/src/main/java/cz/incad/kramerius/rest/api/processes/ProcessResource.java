@@ -145,7 +145,7 @@ public class ProcessResource {
     @GET
     @Path("/by_process_id/{process_id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getProcess(@PathParam("process_id") String processId) {
+    public Response getProcessByProcessId(@PathParam("process_id") String processId) {
         try {
             //authentication
             AuthenticatedUser user = getAuthenticatedUser();

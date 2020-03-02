@@ -247,7 +247,7 @@ public class ProcessManagerImplDb implements ProcessManager {
                     " WHERE" +
                     "  process.process_id = ?" +
                     " AND" +
-                    "  batch.first_process_id = process.process_id";
+                    "  batch.batch_token = process.token";
             List<ProcessInBatch> processes = new JDBCQueryTemplate<ProcessInBatch>(connection) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<ProcessInBatch> returnsList) throws SQLException {
