@@ -188,9 +188,9 @@ public class PolicyServiceImpl implements PolicyService {
     }
 
     /**
-     * args[2] - uuid of the root item (withou uuid: prefix)
-     * args[1] - if this process is only for the selected level
      * args[0] - policy to set (public, private)
+     * args[1] - uuid of the root item
+     * args[2] - if this process is only for the selected level
      * @throws IOException
      */
 
@@ -198,13 +198,13 @@ public class PolicyServiceImpl implements PolicyService {
         LOGGER.info("PolicyService: "+Arrays.toString(args));
         if (args.length >= 2) {
             //TODO: I18N
-            ProcessStarter.updateName("Priznak  '"+args[0]+" pro titul "+args[2]);
+            ProcessStarter.updateName("Priznak  '"+args[0]+" pro titul "+args[1]);
         }
         PolicyServiceImpl inst = new PolicyServiceImpl();
         inst.fedoraAccess = new FedoraAccessImpl(null, null);
         inst.configuration = KConfiguration.getInstance();
-        inst.setPolicy(args[2], args[0], args[1]);
-        IndexerProcessStarter.spawnIndexer(true, "Reindex policy "+args[2]+":"+args[0], args[2]);
+        inst.setPolicy(args[1], args[0], args[2]);
+        IndexerProcessStarter.spawnIndexer(true, "Reindex policy "+args[1]+":"+args[0], args[1]);
         LOGGER.info("PolicyService finished.");
     }
 }
