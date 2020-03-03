@@ -90,6 +90,23 @@ pids) {
             }, "", pids) + encodeURI("}");
 }
 
+/**
+ * construct url from selected pids without brackets 
+ */
+function urlWithPidsWithoutBrackets(/** String */
+baseUrl, /** Array */
+pids) {
+    if (!pids)
+        pids = this.pids;
+    return baseUrl
+            + reduce(function(base, item, status) {
+
+                base = base + item.pid.replaceAll(":", "\\:")
+                        + (status.last ? "" : ";");
+                return base;
+            }, "", pids);
+}
+
 /** Download original */
 function DownloadOriginal() {
     this.dialog = null;

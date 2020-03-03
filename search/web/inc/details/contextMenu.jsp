@@ -888,11 +888,27 @@
       function exportFOXML(){
           var structs = pidstructs();
           if (structs.length > 1) {
-              var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"export;",structs)+"}";
-              processStarter("export").start(u);
+              var u = urlWithPidsWithoutBrackets("lr?action=start&def=aggregate&out=text&nparams=%7Bexport;%7B", structs);
+              showConfirmYesNoDialog(dictionary['administrator.dialogs.exportFOXML.confirm'], 
+                  function(){
+                      u += ";true%7D%7D";
+                      processStarter("export").start(u);
+                   },
+                  function(){
+                      u += ";false%7D%7D";
+                      processStarter("export").start(u);
+                   });
           } else {
-              var u = urlWithPids("lr?action=start&def=export&out=text&nparams=",structs);
-              processStarter("export").start(u);
+              var u = "lr?action=start&def=export&out=text&nparams=%7B" + encodeURI(structs[0].pid.replaceAll(":","\\\:"));
+              showConfirmYesNoDialog(dictionary['administrator.dialogs.exportFOXML.confirm'], 
+                  function(){
+                      u += ";true%7D";
+                      processStarter("export").start(u);
+                   },
+                  function(){
+                      u += ";false%7D";
+                      processStarter("export").start(u);
+                   });
           }
       }
 
@@ -977,6 +993,7 @@
           this.dialog = null;
           this.policyName = "setpublic";
           this.aggregate = true;
+          this.level = false;
       }
 
       ChangeFlag.prototype.startProcess = function() {
@@ -997,6 +1014,10 @@
           var structs = pidstructs();     
           this.aggregate = structs.length > 1;
           var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams="+encodeURI("{")+this.policyName+";",structs)+encodeURI("}") : "lr?action=start&out=text&def="+this.policyName+"&nparams="+encodeURI("{")+encodeURI(structs[0].pid.replaceAll(":","\\\:"))+encodeURI("}");
+
+          //var checkbox = $("#changeFlag #level");
+          //this.level = checkbox.attr('checked');
+          //var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams={"+this.policyName+ ";" +this.level+ ";",structs)+"}" : "lr?action=start&out=text&def="+this.policyName+"&nparams={"+this.level+","+structs[0].pid.replaceAll(":","\\:")+"}";
 
           processStarter(this.policyName).start(u);
       }

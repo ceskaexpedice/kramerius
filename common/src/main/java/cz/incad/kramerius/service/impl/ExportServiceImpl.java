@@ -7,6 +7,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.service.ExportService;
 import cz.incad.kramerius.utils.IOUtils;
@@ -23,6 +24,7 @@ import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,26 +48,27 @@ public class ExportServiceImpl implements ExportService {
         File exportDirectory = exportDirectory(pid);
 
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
-        for (ObjectPidsPath opid : paths) {
+        for (ObjectPidsPath opid: paths) {
             String[] set = opid.getPathFromLeafToRoot();
-            for (int i = 1; i < set.length; i++) {
+            for (int i = 1; i < set.length ; i++) {
                 String childPid = set[i];
-                String subChild = set[i - 1];
-                InputStream foxml = fedoraAccess.getFoxml(childPid, true);
-                Document doc = XMLUtils.parseDocument(foxml, true);
+                String subChild = set[i-1];
+                byte[] archives = fedoraAccess.getAPIM().export(childPid, "info:fedora/fedora-system:FOXML-1.1", "archive");
+                // remove everything but child
+                Document doc = XMLUtils.parseDocument(new ByteArrayInputStream(archives), true);
 
-                Element relsExt = XMLUtils.findElement(doc.getDocumentElement(), (element) -> {
+                Element relsExt = XMLUtils.findElement(doc.getDocumentElement(),(element) -> {
                     return element.getLocalName().equals("datastream") && element.getAttribute("ID").equals("RELS-EXT");
                 });
 
-                List<Element> relsExtVersions = XMLUtils.getElements(relsExt, (element) -> {
+                List<Element> relsExtVersions = XMLUtils.getElements(relsExt,(element) -> {
                     return element.getLocalName().equals("datastreamVersion");
                 });
 
                 Element relsExtVersion = latestVersion(relsExtVersions);
                 List<String> treePredicates = Arrays.asList(this.configuration.getPropertyList("fedora.treePredicates"));
                 Element xmlContent = XMLUtils.findElement(relsExtVersion, "xmlContent", "info:fedora/fedora-system:def/foxml#");
-                List<Element> elems = XMLUtils.getElements(XMLUtils.findElement(XMLUtils.findElement(xmlContent, "RDF", FedoraNamespaces.RDF_NAMESPACE_URI), "Description", FedoraNamespaces.RDF_NAMESPACE_URI), (element) -> {
+                List<Element> elems = XMLUtils.getElements(XMLUtils.findElement( XMLUtils.findElement(xmlContent, "RDF", FedoraNamespaces.RDF_NAMESPACE_URI), "Description",FedoraNamespaces.RDF_NAMESPACE_URI), (element) -> {
                     String localName = element.getLocalName();
                     String uri = element.getNamespaceURI();
                     if (uri.equals(FedoraNamespaces.KRAMERIUS_URI)) {
@@ -80,7 +83,7 @@ public class ExportServiceImpl implements ExportService {
                                     return true;
                                 }
                             } catch (LexerException e) {
-                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                                LOGGER.log(Level.SEVERE,e.getMessage(),e);
                                 return false;
                             }
                             return false;
@@ -88,12 +91,10 @@ public class ExportServiceImpl implements ExportService {
                     }
                     return false;
                 });
-                elems.stream().forEach((e) -> {
-                    e.getParentNode().removeChild(e);
-                });
+                elems.stream().forEach((e) -> {e.getParentNode().removeChild(e);});
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 XMLUtils.print(doc, bos);
-                store(exportDirectory, childPid, new ByteArrayInputStream(bos.toByteArray()));
+                store(exportDirectory, childPid, bos.toByteArray());
 
             }
         }
@@ -105,11 +106,11 @@ public class ExportServiceImpl implements ExportService {
         for (Element elm : relsExtVersions) {
             String id = elm.getAttribute("ID");
             int index = id.indexOf('.');
-            max = Math.max(Integer.parseInt(id.substring(index + 1)), max);
+            max = Math.max(Integer.parseInt(id.substring(index+1)),max);
         }
 
-        for (Element e : relsExtVersions) {
-            if (e.getAttribute("ID").equals("RELS-EXT." + max)) {
+        for (Element e:  relsExtVersions) {
+            if (e.getAttribute("ID").equals("RELS-EXT."+max)) {
                 return e;
             }
         }
@@ -119,7 +120,7 @@ public class ExportServiceImpl implements ExportService {
     @Override
     public void exportTree(String pid) throws IOException {
 
-        List<String> pids = fedoraAccess.getPids(pid);
+        Set<String> pids = fedoraAccess.getPids(pid);
         if (pids.isEmpty())
             return;
 
@@ -127,15 +128,20 @@ public class ExportServiceImpl implements ExportService {
         IOUtils.cleanDirectory(exportDirectory);
         for (String s : pids) {
             String p = s.replace(INFO, "");
-            LOGGER.info("Exporting " + exportDirectory + " " + p);
-            try {
-                InputStream foxml = fedoraAccess.getFoxml(p, true);
-                store(exportDirectory, p, foxml);
-            } catch (Exception ex) {
+            LOGGER.info("Exporting "+exportDirectory+" "+p);
+            try{
+                store(exportDirectory, p, fedoraAccess.getAPIM().export(p, "info:fedora/fedora-system:FOXML-1.1", "archive"));
+            } catch (ParserConfigurationException ex) {
+                Logger.getLogger(ExportServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SAXException ex) {
+                Logger.getLogger(ExportServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (TransformerException ex) {
+                Logger.getLogger(ExportServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }catch(Exception ex){
                 if (configuration.getConfiguration().getBoolean("export.shouldStopWhenFail", true)) {
                     throw ex;
                 } else {
-                    LOGGER.warning("Cannot export object " + p + ", skipping: " + ex);
+                    LOGGER.warning("Cannot export object "+p+", skipping: "+ex);
                 }
             }
         }
@@ -144,18 +150,24 @@ public class ExportServiceImpl implements ExportService {
     private File exportDirectory(String pid) {
         String exportRoot = configuration.getProperty("export.directory");
         IOUtils.checkDirectory(exportRoot);
-        return IOUtils.checkDirectory(exportRoot + File.separator + pid.replace("uuid:", "").replaceAll(":", "_"));
+        return IOUtils.checkDirectory(exportRoot+File.separator+pid.replace("uuid:", "").replaceAll(":", "_"));
     }
 
 
-    private void store(File exportDirectory, String name, InputStream is) {
-        String convertedName = name.replace("uuid:", "").replaceAll(":", "_") + ".xml";
+    private void store(File exportDirectory, String name, byte[] contents) throws ParserConfigurationException, SAXException, IOException, TransformerException {
+        String convertedName = name.replace("uuid:", "").replaceAll(":", "_")+ ".xml";
         File toFile = new File(exportDirectory, convertedName);
         OutputStream os = null;
+        InputStream is = null;
+        
+        Document doc = XMLUtils.parseDocument(new ByteArrayInputStream(contents), true);
+        contents = changeNameForUrn(doc);
+        
         try {
+            is = new ByteArrayInputStream(contents);
             os = new FileOutputStream(toFile);
             byte[] buf = new byte[BUFFER_SIZE];
-            for (int byteRead; (byteRead = is.read(buf, 0, BUFFER_SIZE)) >= 0; ) {
+            for (int byteRead; (byteRead = is.read(buf, 0, BUFFER_SIZE)) >= 0;) {
                 os.write(buf, 0, byteRead);
             }
             is.close();
@@ -166,17 +178,16 @@ public class ExportServiceImpl implements ExportService {
         }
 
     }
-
+    
     /**
      * args[0] uuid of the root object (without uuid: prefix)
-     *
+     * args[1] is information about exporting parents
      * @throws IOException
      */
     public static void main(String[] args) throws IOException, TransformerException, SAXException, ParserConfigurationException {
-        LOGGER.info("Export service: " + Arrays.toString(args));
-        com.google.inject.Injector injector = com.google.inject.Guice.createInjector(new cz.incad.kramerius.solr.SolrModule(), new cz.incad.kramerius.resourceindex.ResourceIndexModule(), new cz.incad.kramerius.fedora.RepoModule(), new cz.incad.kramerius.statistics.NullStatisticsModule());
-        FedoraAccess fa = injector.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("rawFedoraAccess")));
-
+        LOGGER.info("Export service: "+Arrays.toString(args));
+        Boolean exportParents = null;
+        
         if (args.length > 1) {
             if (args[args.length - 1].equals("true")) {
                 exportParents = true;
@@ -189,10 +200,10 @@ public class ExportServiceImpl implements ExportService {
         if (exportParents != null) {
             args = restArgs(args, 1);
         }
-
+        
         for (int i = 0; i < args.length; i++) {
             ExportServiceImpl inst = new ExportServiceImpl();
-            inst.fedoraAccess = fa;
+            inst.fedoraAccess = new FedoraAccessImpl(null, null);
             inst.configuration = KConfiguration.getInstance();
             inst.solrAccess = new SolrAccessImpl();
             inst.exportTree(args[i]);
@@ -200,10 +211,10 @@ public class ExportServiceImpl implements ExportService {
             if (exportParents == null) {
                 String property = inst.configuration.getProperty("export.parents");
                 if (Boolean.valueOf(property)) {
-                   inst.exportParents(args[i]);
+                    inst.exportParents(args[i]);
                 }
-            } else {
-				 ProcessStarter.updateName("Export FOXML, příznak pro export rodičů: " + exportParents + ", pro titul " + args[i]);
+            }
+            else {
                 if (exportParents == true) {
                     inst.exportParents(args[i]);
                 }
@@ -260,4 +271,5 @@ public class ExportServiceImpl implements ExportService {
         XMLUtils.print(doc, bos);
         return bos.toByteArray();
     }
+    
 }

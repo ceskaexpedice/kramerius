@@ -48,4 +48,6 @@ public interface StatisticsExportFormatter {
     public void beforeProcess(HttpServletResponse response) throws IOException;
     
     public void afterProcess(HttpServletResponse response) throws IOException;
+    
+    public void addInfo(HttpServletResponse response, String info) throws IOException;
 }

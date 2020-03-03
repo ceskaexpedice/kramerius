@@ -94,9 +94,9 @@ public class ModelStatisticsViewObject extends AbstractStatisticsViewObject {
         String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
         int sizeInt = Integer.parseInt(size);
         int offsetInt = Math.max((Integer.parseInt(offset)-sizeInt), 0);
-        return "javascript:statistics.reloadModelReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),'"+type+"','"+val+"',"+offsetInt+","+size+");";
+        return "javascript:statistics.reloadModelReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),'"+type+"','"+val+"',"+offsetInt+","+size+", _ip_address(), _ip_address_unique());";
     }
-
+    
     public String getNext() {
         HttpServletRequest request = this.servletRequestProvider.get();
         String offset = request.getParameter("offset") != null ? request.getParameter("offset") : "0";
@@ -105,7 +105,7 @@ public class ModelStatisticsViewObject extends AbstractStatisticsViewObject {
         String type = request.getParameter("type");
         int sizeInt = Integer.parseInt(size);
         int offsetInt = (Integer.parseInt(offset))+sizeInt;
-        return "javascript:statistics.reloadModelReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),'"+type+"','"+val+"',"+offsetInt+","+size+");";
+        return "javascript:statistics.reloadModelReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),'"+type+"','"+val+"',"+offsetInt+","+size+",_ip_address(), _ip_address_unique());";
     }
 
 }
