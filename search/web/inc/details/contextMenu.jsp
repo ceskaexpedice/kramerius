@@ -548,6 +548,17 @@
         // show download original dialog
         downloadOriginal.download(structs);
     }
+    
+    function addParamsToPid(structs, params){
+        var u = "";
+        for (var i=0;  i < structs.length; i++){
+            u = u +"{"+ structs[i].pid.replaceAll(":","\\:")+ ";" + params + "}";
+            if (i < structs.length-1) {
+                u = u + ";";
+            }
+        }
+        return u;
+    }
 
     <scrd:loggedusers>
 
@@ -890,14 +901,16 @@
       function exportFOXML(){
           var structs = pidstructs();
           if (structs.length > 1) {
-              var u = urlWithPidsWithoutBrackets("lr?action=start&def=aggregate&out=text&nparams={export;{", structs);
+              var u = "lr?action=start&def=aggregate&out=text&nparams={export;";
               showConfirmYesNoDialog(dictionary['administrator.dialogs.exportFOXML.confirm'], 
                   function(){
-                      u += ";true}}";
+                      u = u + addParamsToPid(structs, "true");
+                      u = u + "}";
                       processStarter("export").start(u);
                    },
                   function(){
-                      u += ";false}}";
+                      u = u + addParamsToPid(structs, "false");
+                      u = u + "}";
                       processStarter("export").start(u);
                    });
           } else {
@@ -1014,7 +1027,14 @@
           this.aggregate = structs.length > 1;
           var checkbox = $("#changeFlag #level");
           this.level = checkbox.attr('checked');
-          var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams={"+this.policyName+ ";" +this.level+ ";",structs)+"}" : "lr?action=start&out=text&def="+this.policyName+"&nparams={"+this.level+","+structs[0].pid.replaceAll(":","\\:")+"}";
+          if (this.aggregate) {
+              u = "lr?action=start&out=text&def=aggregate&out=text&nparams={"+ this.policyName +";";
+              u = u + addParamsToPid(structs, this.level);
+              u = u + "}";
+          }
+          else {
+              u = "lr?action=start&out=text&def="+this.policyName+"&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+this.level+"}";
+          }
           
           processStarter(this.policyName).start(u);
       }
@@ -1088,7 +1108,7 @@
       }
 
       var changeFlag = new ChangeFlag();
-            
+          
     </scrd:loggedusers>
 
 </script>

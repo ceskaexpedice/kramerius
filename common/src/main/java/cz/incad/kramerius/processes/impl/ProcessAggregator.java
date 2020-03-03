@@ -31,46 +31,13 @@ public class ProcessAggregator {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessAggregator.class.getName());
     
     public static void main(String[] args) throws Exception {
-        String uuid = System.getProperty(ProcessStarter.UUID_KEY);
-        
         String def = args[0];
-        String[] processDefsParams = null;
-        
-        // it has three parameters: private/public, true/false, uuid
-        if (def.equals("setprivate") || def.equals("setpublic")) {
-            processDefsParams = Arrays.copyOfRange(args, 2, args.length);
-        }
-        else {
-          processDefsParams = Arrays.copyOfRange(args, 1, args.length);  
-        }
-        
-        // it has two parameters: uuids, true/false
-        String exportParents = null;
-        if (def.equals("export")) {
-            int lastIndex = processDefsParams.length - 1;
-            
-            if (processDefsParams[lastIndex].equals("true") || processDefsParams[lastIndex].equals("false")) {
-                exportParents = processDefsParams[lastIndex];
-                processDefsParams = Arrays.copyOfRange(processDefsParams, 0, lastIndex);
-            }
-        }
-        
+        String[] processDefsParams = Arrays.copyOfRange(args, 1, args.length);  
+       
         for (int i = 0; i < processDefsParams.length; i++) {
             LOGGER.info("starting process ("+def+" with params "+Arrays.asList(processDefsParams[i]));
             String encodedParams =  URLEncoder.encode(processDefsParams[i], "UTF-8");
             
-            if (def.equals("setprivate") || def.equals("setpublic")) {
-                String level = args[1];
-                String uuidParam = java.net.URLDecoder.decode( encodedParams, "UTF-8" );
-                uuidParam = uuidParam.substring(uuidParam.indexOf("{") + 1, uuidParam.indexOf("}"));
-                encodedParams = "{" + level + ";" + uuidParam + "}";
-            }
-            
-            if (def.equals("export")) {
-                if (exportParents != null) {
-                    encodedParams = "{" + encodedParams + ";" + encodedParams + "}";
-                }
-            }
             ProcessUtils.startProcess(def, encodedParams);
         }
         

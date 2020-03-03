@@ -9,6 +9,7 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
+import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.service.ExportService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -180,7 +181,7 @@ public class ExportServiceImpl implements ExportService {
     }
     
     /**
-     * args[0] uuid of the root object (without uuid: prefix)
+     * args[0] uuid of the root object
      * args[1] is information about exporting parents
      * @throws IOException
      */
@@ -210,11 +211,13 @@ public class ExportServiceImpl implements ExportService {
 
             if (exportParents == null) {
                 String property = inst.configuration.getProperty("export.parents");
+                ProcessStarter.updateName("Export FOXML, příznak pro export rodičů: " + property + ", pro titul " + args[i]);
                 if (Boolean.valueOf(property)) {
                     inst.exportParents(args[i]);
                 }
             }
             else {
+                ProcessStarter.updateName("Export FOXML, příznak pro export rodičů: " + exportParents + ", pro titul " + args[i]);
                 if (exportParents == true) {
                     inst.exportParents(args[i]);
                 }
