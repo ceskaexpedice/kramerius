@@ -3,7 +3,6 @@ apply plugin: 'war'
 description "Admin web application"
 
 
-
 sourceSets {
     main {
         java {
@@ -16,12 +15,12 @@ sourceSets {
     }
 
     test {
-	java {
+        java {
             srcDir 'src/test'
-	}
-	resources {
-	    srcDir 'src/test'
-	}
+        }
+        resources {
+            srcDir 'src/test'
+        }
     }
 }
 
@@ -44,11 +43,11 @@ dependencies {
     compile project(':authfilters')
     compile project(':solr-migration')
 
-    compile 'javax.servlet:jstl:1.1.2'   
-    compile 'taglibs:standard:1.1.2'   
-    compile 'xalan:xalan:2.7.1'   
+    compile 'javax.servlet:jstl:1.1.2'
+    compile 'taglibs:standard:1.1.2'
+    compile 'xalan:xalan:2.7.1'
     compile 'net.sf:simplecaptcha:1.2.1'
-    compile 'xerces:xercesImpl:2.9.1'   
+    compile 'xerces:xercesImpl:2.9.1'
     compile 'com.foxtrottechnologies:javadjvu:0.8.09'
     compile 'com.foxtrottechnologies:djvuframe:0.8.09'
 
@@ -57,43 +56,43 @@ dependencies {
     compile "org.slf4j:slf4j-jdk14:${slf4jversion}"
 
     compile 'net.sf.json-lib:json-lib:2.4:jdk15'
-    
+
     compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.2'
-    
+
 }
 
 
-task gitcall(type:Exec) {
-   commandLine "git","rev-parse","HEAD"
-   standardOutput = new ByteArrayOutputStream()
-   doLast{
+task gitcall(type: Exec) {
+    commandLine "git", "rev-parse", "HEAD"
+    standardOutput = new ByteArrayOutputStream()
+    doLast {
         byte[] bytes = standardOutput.toByteArray()
-        ext.hash =new String(bytes).trim(); 
-   }     
+        ext.hash = new String(bytes).trim();
+    }
 }
 
 
 task infofile(dependsOn: gitcall) << {
-    def parentFolder = new File("$buildDir/resources/main")
-    parentFolder.mkdirs()
+        def parentFolder = new File("$buildDir/resources/main")
+        parentFolder.mkdirs()
 
-    def buildInfoFile = new File("$buildDir/resources/main/build.properties")
-    buildInfoFile.withWriter { writer ->
-        Properties props = new Properties()
-        props.setProperty('version', project.version.toString())
-        props.setProperty('hash', gitcall.hash)
-        props.store(writer, null)
-    }
+        def buildInfoFile = new File("$buildDir/resources/main/build.properties")
+        buildInfoFile.withWriter { writer ->
+            Properties props = new Properties()
+            props.setProperty('version', project.version.toString())
+            props.setProperty('hash', gitcall.hash)
+            props.store(writer, null)
+        }
 
-    println "Created build file ${buildInfoFile.absolutePath}"
+        println "Created build file ${buildInfoFile.absolutePath}"
 }
 
 processResources.dependsOn infofile
 
 war {
-    baseName='search'
-    archiveName ='search.war'
-    from 'web' 
+    baseName = 'search'
+    archiveName = 'search.war'
+    from 'web'
 }
 
 
