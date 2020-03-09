@@ -83,8 +83,10 @@ task infofile(dependsOn: gitcall) << {
             props.setProperty('hash', gitcall.hash)
             props.store(writer, null)
         }
+        def versionStr = project.version.toString()
+        def hashStr = gitcall.hash
 
-        println "Created build file ${buildInfoFile.absolutePath}"
+        println "Created build file ${buildInfoFile.absolutePath} with version ${versionStr} and hash ${hashStr} "
 }
 
 processResources.dependsOn infofile
