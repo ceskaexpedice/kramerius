@@ -335,6 +335,14 @@ public class StatisticDatabaseInitializator {
 
             @Override
             public Object executeJDBCCommand(Connection con) throws SQLException {
+                try {
+                    JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
+                    dropTemplate.setUseReturningKeys(false);
+                    dropTemplate.executeUpdate("DROP VIEW _authors_view");
+                } catch (SQLException e){
+                    LOGGER.info("Cannot DROP VIEW _authors_view:" + e);
+                }
+
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
