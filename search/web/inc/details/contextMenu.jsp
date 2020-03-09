@@ -549,6 +549,17 @@
         // show download original dialog
         downloadOriginal.download(structs);
     }
+    
+    function addParamsToPid(structs, params){
+        var u = "";
+        for (var i=0;  i < structs.length; i++){
+            u = u +encodeURI("{")+ encodeURI(structs[i].pid.replaceAll(":","\\:"))+ ";" + params + encodeURI("}");
+            if (i < structs.length-1) {
+                u = u + ";";
+            }
+        }
+        return u;
+    }
 
     <scrd:loggedusers>
 
@@ -886,16 +897,19 @@
     }
 
       function exportFOXML(){
+
           var structs = pidstructs();
           if (structs.length > 1) {
-              var u = urlWithPidsWithoutBrackets("lr?action=start&def=aggregate&out=text&nparams=%7Bexport;%7B", structs);
+              var u = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"export;";
               showConfirmYesNoDialog(dictionary['administrator.dialogs.exportFOXML.confirm'], 
                   function(){
-                      u += ";true%7D%7D";
+                      u = u + addParamsToPid(structs, "true");
+				  u = u + encodeURI("}");
                       processStarter("export").start(u);
                    },
                   function(){
-                      u += ";false%7D%7D";
+                      u = u + addParamsToPid(structs, "false");
+                      u = u + encodeURI("}");
                       processStarter("export").start(u);
                    });
           } else {
@@ -1013,12 +1027,19 @@
           this.policyName = value;
           var structs = pidstructs();     
           this.aggregate = structs.length > 1;
-          var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams="+encodeURI("{")+this.policyName+";",structs)+encodeURI("}") : "lr?action=start&out=text&def="+this.policyName+"&nparams="+encodeURI("{")+encodeURI(structs[0].pid.replaceAll(":","\\\:"))+encodeURI("}");
 
-          //var checkbox = $("#changeFlag #level");
-          //this.level = checkbox.attr('checked');
-          //var u = this.aggregate ?  _url("lr?action=start&out=text&def=aggregate&out=text&nparams={"+this.policyName+ ";" +this.level+ ";",structs)+"}" : "lr?action=start&out=text&def="+this.policyName+"&nparams={"+this.level+","+structs[0].pid.replaceAll(":","\\:")+"}";
 
+          var checkbox = $("#changeFlag #level");
+          this.level = checkbox.attr('checked');
+          if (this.aggregate) {
+              u = "lr?action=start&out=text&def=aggregate&out=text&nparams="+encodeURI("{")+ this.policyName +";";
+              u = u + addParamsToPid(structs, this.level);
+              u = u + encodeURI("}");
+          }
+          else {
+              u = "lr?action=start&out=text&def="+this.policyName+"&nparams="+encodeURI("{")+structs[0].pid.replaceAll(":","\\:")+";"+this.level+encodeURI("}");
+          }
+          
           processStarter(this.policyName).start(u);
       }
 
@@ -1091,7 +1112,7 @@
       }
 
       var changeFlag = new ChangeFlag();
-            
+          
     </scrd:loggedusers>
 
 </script>

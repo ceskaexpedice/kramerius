@@ -130,7 +130,7 @@ public class StatisticDatabaseInitializator {
     }
 
     /**
-     * @param connection
+     * @param con
      * @throws SQLException
      */
     private static void createDatesDurationViews(Connection con) throws SQLException {
@@ -335,6 +335,14 @@ public class StatisticDatabaseInitializator {
 
             @Override
             public Object executeJDBCCommand(Connection con) throws SQLException {
+                try {
+                    JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
+                    dropTemplate.setUseReturningKeys(false);
+                    dropTemplate.executeUpdate("DROP VIEW _authors_view");
+                } catch (SQLException e){
+                    LOGGER.info("Cannot DROP VIEW _authors_view:" + e);
+                }
+
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
@@ -366,11 +374,19 @@ public class StatisticDatabaseInitializator {
 
             @Override
             public Object executeJDBCCommand(Connection con) throws SQLException {
+                try {
+                    JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
+                    dropTemplate.setUseReturningKeys(false);
+                    dropTemplate.executeUpdate("DROP VIEW _langs_view");
+                } catch (SQLException e){
+                    LOGGER.info("Cannot DROP VIEW _langs_view:" + e);
+                }
+
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
                         "CREATE or REPLACE VIEW _langs_view AS " +
-                            "(SELECT t1.record_id, pid, model, session_id, date, rights, stat_action, CASE WHEN lang1 IS NULL THEN lang2 ELSE lang1 END as lang, remote_ip_address "
+                            "(SELECT  pid, model, session_id, date, rights, stat_action, CASE WHEN lang1 IS NULL THEN lang2 ELSE lang1 END as lang, remote_ip_address, t1.record_id "
                             + "FROM "
                                 + "(SELECT * FROM "
                                     + "(SELECT  sta.record_id as record_id, dta.pid as pid, dta.model as model, sta.session_id as session_id, sta.date as date, dta.rights as rights, sta.stat_action as stat_action,dta.lang as lang1, remote_ip_address as remote_ip_address "
