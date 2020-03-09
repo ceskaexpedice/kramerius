@@ -370,7 +370,7 @@ public class StatisticDatabaseInitializator {
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
                         "CREATE or REPLACE VIEW _langs_view AS " +
-                            "(SELECT t1.record_id, pid, model, session_id, date, rights, stat_action, CASE WHEN lang1 IS NULL THEN lang2 ELSE lang1 END as lang, remote_ip_address "
+                            "(SELECT  pid, model, session_id, date, rights, stat_action, CASE WHEN lang1 IS NULL THEN lang2 ELSE lang1 END as lang, remote_ip_address, t1.record_id "
                             + "FROM "
                                 + "(SELECT * FROM "
                                     + "(SELECT  sta.record_id as record_id, dta.pid as pid, dta.model as model, sta.session_id as session_id, sta.date as date, dta.rights as rights, sta.stat_action as stat_action,dta.lang as lang1, remote_ip_address as remote_ip_address "
