@@ -130,7 +130,7 @@ public class StatisticDatabaseInitializator {
     }
 
     /**
-     * @param connection
+     * @param con
      * @throws SQLException
      */
     private static void createDatesDurationViews(Connection con) throws SQLException {
@@ -366,6 +366,14 @@ public class StatisticDatabaseInitializator {
 
             @Override
             public Object executeJDBCCommand(Connection con) throws SQLException {
+                try {
+                    JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
+                    dropTemplate.setUseReturningKeys(false);
+                    dropTemplate.executeUpdate("DROP VIEW _langs_view");
+                } catch (SQLException e){
+                    LOGGER.info("Cannot DROP VIEW _langs_view:" + e);
+                }
+
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
