@@ -73,6 +73,28 @@ public class PolicyServiceImpl implements PolicyService {
         }
     }
 
+    
+    @Override
+    public void setPolicy(String pid, String policyName, String level) throws IOException {
+        List<String> pids = fedoraAccess.getPids(pid);
+        if (level != null && level.equals("true")) {
+            try{
+              setPolicyForNode(pid, policyName);
+            }catch(Exception ex){
+               LOGGER.warning("Cannot set policy for object "+pid+", skipping: "+ex);
+            }
+        }
+        else {
+            for (String s : pids) {
+                String p = s.replace(INFO, "");
+                try{
+                    setPolicyForNode(p, policyName);
+                }catch(Exception ex){
+                    LOGGER.warning("Cannot set policy for object "+p+", skipping: "+ex);
+                }
+            }
+        }
+    }
     public void setPolicyForNode(String pid, String policyName) throws RepositoryException {
         LOGGER.info("Set policy pid: "+pid+" policy: "+policyName);
         setPolicyDC(pid, policyName);

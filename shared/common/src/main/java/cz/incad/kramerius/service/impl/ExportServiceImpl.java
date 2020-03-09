@@ -14,6 +14,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.processes.starter.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -176,7 +177,7 @@ public class ExportServiceImpl implements ExportService {
         LOGGER.info("Export service: " + Arrays.toString(args));
         com.google.inject.Injector injector = com.google.inject.Guice.createInjector(new cz.incad.kramerius.solr.SolrModule(), new cz.incad.kramerius.resourceindex.ResourceIndexModule(), new cz.incad.kramerius.fedora.RepoModule(), new cz.incad.kramerius.statistics.NullStatisticsModule());
         FedoraAccess fa = injector.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("rawFedoraAccess")));
-
+        Boolean exportParents = null;
         if (args.length > 1) {
             if (args[args.length - 1].equals("true")) {
                 exportParents = true;
@@ -203,7 +204,7 @@ public class ExportServiceImpl implements ExportService {
                    inst.exportParents(args[i]);
                 }
             } else {
-				 ProcessStarter.updateName("Export FOXML, příznak pro export rodičů: " + exportParents + ", pro titul " + args[i]);
+                ProcessStarter.updateName("Export FOXML, příznak pro export rodičů: " + exportParents + ", pro titul " + args[i]);
                 if (exportParents == true) {
                     inst.exportParents(args[i]);
                 }
