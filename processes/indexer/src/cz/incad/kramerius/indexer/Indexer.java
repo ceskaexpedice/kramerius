@@ -29,6 +29,7 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.indexer.guice.GuiceModelInjector;
 
@@ -103,6 +104,8 @@ public class Indexer {
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Run failed", ex);
             throw new Exception(ex);
+        } finally {
+            AkubraDOManager.shutdown();
         }
     }
 

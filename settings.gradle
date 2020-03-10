@@ -1,5 +1,5 @@
 include	'shared:common'
-//include	'shared:common-intest'
+include	'shared:common-intest'
 include	'rest'
 include	'search'
 
