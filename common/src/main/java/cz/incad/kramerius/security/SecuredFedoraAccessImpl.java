@@ -228,6 +228,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
                 || FedoraUtils.TEXT_OCR_STREAM.equals(streamName)
                 || FedoraUtils.MP3_STREAM.equals(streamName)
                 || FedoraUtils.WAV_STREAM.equals(streamName)
+                || FedoraUtils.ALTO_STREAM.equals(streamName)
                 || FedoraUtils.OGG_STREAM.equals(streamName);
     }
 
