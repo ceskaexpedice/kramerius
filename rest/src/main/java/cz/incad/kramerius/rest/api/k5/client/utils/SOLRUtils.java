@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,7 +29,7 @@ import org.w3c.dom.NodeList;
 
 import cz.incad.kramerius.utils.XMLUtils;
 
-import java.util.ArrayList;
+
 
 public class SOLRUtils {
 

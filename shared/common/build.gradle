@@ -37,7 +37,7 @@ dependencies {
     compile name:"djvuframe-0.8.09"
     compile name:"javadjvu-0.8.09"
 
-    compile "commons-configuration:commons-configuration:1.6"
+    compile "commons-configuration:commons-configuration:1.10"
     compile "org.apache.commons:commons-lang3:3.5"
 
     /*

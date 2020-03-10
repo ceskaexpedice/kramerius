@@ -1,6 +1,20 @@
 package cz.incad.kramerius.processes.impl;
 
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.impl.SolrAccessImpl;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.antlr.stringtemplate.StringTemplate;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -9,23 +23,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.antlr.stringtemplate.StringTemplate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.impl.SolrAccessImpl;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-
 public class IterateNonParametrized {
 
     public static RepositoryItemsSupport repoItems;
-    
+
     public static void main(String[] args) throws JSONException, UnsupportedEncodingException {
         if (args.length == 2) {
             // first is definiton
@@ -33,7 +34,7 @@ public class IterateNonParametrized {
             //second is searialized parameters to subproesses
             String serializedFormOfArguments = args[1];
 
-            List<String> topLevelModels = KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels");
+            List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
             RepositoryItemsSupport repoItems = new SolrRepoItemsSupport("PID");
             for (String m : topLevelModels) {
                 List<String> pids = repoItems.findPidsByModel(m);
@@ -42,7 +43,7 @@ public class IterateNonParametrized {
                     ArrayList<String> alist = new ArrayList<String>();
                     String[] subProcsArgs = deserializeArguments(serializedFormOfArguments);
                     for (int j = 0; j < subProcsArgs.length; j++) {
-                        subProcsArgs[j]= template(subProcsArgs[j],p,""+i, m);
+                        subProcsArgs[j] = template(subProcsArgs[j], p, "" + i, m);
                     }
                     ProcessUtils.startProcess(def, subProcsArgs);
                 }
@@ -73,13 +74,13 @@ public class IterateNonParametrized {
 
 
     public static class SolrRepoItemsSupport implements RepositoryItemsSupport {
-        
+
         public static final Logger LOGGER = Logger.getLogger(SolrRepoItemsSupport.class.getName());
-        
+
         private SolrAccess solrAccess = null;
         private List<String> fList = new ArrayList<String>();
-        
-        public SolrRepoItemsSupport(String ... flist) {
+
+        public SolrRepoItemsSupport(String... flist) {
             super();
             this.solrAccess = new SolrAccessImpl();
             this.fList = Arrays.asList(flist);
@@ -87,7 +88,7 @@ public class IterateNonParametrized {
 
         @Override
         public List<String> findPidsByModel(String model) {
-            List<String> pids = new  ArrayList<String>();
+            List<String> pids = new ArrayList<String>();
             try {
                 int rows = 10000;
                 int size = 1; // 1 for the first iteration
@@ -97,13 +98,13 @@ public class IterateNonParametrized {
                     String request = "q=fedora.model:\"" + model
                             + "\"&rows=" + rows + "&start=" + offset;
                     if (!fList.isEmpty()) {
-                        request+="&fl=";
-                        for (int i = 0,bl=fList.size(); i < bl; i++) {
+                        request += "&fl=";
+                        for (int i = 0, bl = fList.size(); i < bl; i++) {
                             if (i >= 0) request += ",";
                             request += fList.get(i);
                         }
                     }
-                    
+
                     Document resp = solrAccess.request(request);
                     Element resultelm = XMLUtils.findElement(resp.getDocumentElement(), "result");
                     // define size
@@ -118,7 +119,7 @@ public class IterateNonParametrized {
                                         return false;
                                 }
                             });
-                    
+
                     for (Element docelm : elms) {
                         Element element = XMLUtils.findElement(docelm, new XMLUtils.ElementsFilter() {
                             @Override
