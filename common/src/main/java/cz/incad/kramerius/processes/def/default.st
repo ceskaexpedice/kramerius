@@ -25,7 +25,7 @@ form(bundle, fields, process) ::=<<
             vals = vals +  ';$f.name$='+\$('#$f.name$').val().escapeChars(charsThatMustBeEscaped);
             }$
             
-            var url = "lr?action=form_post&def=$process$&paramsMapping={"+vals+"}&out=text";
+            var url = "lr?action=form_post&def=$process$&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             processStarter("$process$").start(url);
                                     
         }
