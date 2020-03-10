@@ -184,6 +184,10 @@ allprojects {
             url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
         }
 
+        maven {
+            url "https://jitpack.io"
+        }
+
     }
 
     tasks.withType(Javadoc) {

@@ -104,8 +104,6 @@ public class Indexer {
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Run failed", ex);
             throw new Exception(ex);
-        } finally {
-            AkubraDOManager.shutdown();
         }
     }
 

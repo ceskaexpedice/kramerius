@@ -1,5 +1,6 @@
 package cz.incad.kramerius.fedora.om.impl;
 
+import ca.thoughtwire.lock.DistributedLockService;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
@@ -40,6 +41,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,7 +51,9 @@ public class AkubraDOManager {
     private ILowlevelStorage storage;
 
     private static HazelcastInstance hzInstance;
-    private static IMap<String, Integer> pidLocks;
+    //private static IMap<String, Integer> pidLocks;
+
+    private static DistributedLockService lockService ;
     private static ITopic<String> cacheInvalidator;
 
     private static Cache<String, DigitalObject> objectCache;
@@ -88,7 +93,8 @@ public class AkubraDOManager {
             groupConfig.setName(KConfiguration.getInstance().getConfiguration().getString("hazelcast.user"));
         }
         hzInstance = HazelcastClient.newHazelcastClient(config);
-        pidLocks = hzInstance.getMap("pidlocks");
+        //pidLocks = hzInstance.getMap("pidlocks");
+        lockService = DistributedLockService.newHazelcastLockService(hzInstance);
         cacheInvalidator = hzInstance.getTopic("cacheInvalidator");
         cacheInvalidator.addMessageListener(new MessageListener<String>() {
             @Override
@@ -173,8 +179,9 @@ public class AkubraDOManager {
         DigitalObject retval = objectCache.get(pid);
         if (retval == null) {
             Object obj = null;
-            try {
-                InputStream inputStream = this.storage.retrieveObject(pid);
+            Lock lock = getReadLock(pid);
+            try (InputStream inputStream = this.storage.retrieveObject(pid);){
+
                 synchronized (unmarshaller) {
                     obj = unmarshaller.unmarshal(inputStream);
                 }
@@ -182,6 +189,8 @@ public class AkubraDOManager {
                 return null;
             } catch (Exception e) {
                 throw new IOException(e);
+            } finally {
+                lock.unlock();
             }
             retval = (DigitalObject) obj;
             objectCache.put(pid, retval);
@@ -198,15 +207,18 @@ public class AkubraDOManager {
     }
 
     public InputStream retrieveObject(String objectKey) throws IOException {
+        Lock lock = getReadLock(objectKey);
         try {
             return storage.retrieveObject(objectKey);
         } catch (LowlevelStorageException e) {
             throw new IOException(e);
+        } finally {
+            lock.unlock();
         }
     }
 
     public void deleteObject(String pid) throws IOException {
-        getWriteLock(pid);
+        Lock lock = getWriteLock(pid);
         try {
             DigitalObject object = readObjectFromStorage(pid);
             for (DatastreamType datastreamType : object.getDatastream()) {
@@ -219,12 +231,12 @@ public class AkubraDOManager {
             }
         } finally {
             invalidateCache(pid);
-            releaseWriteLock(pid);
+            lock.unlock();
         }
     }
 
     public void deleteStream(String pid, String streamId) throws IOException {
-        getWriteLock(pid);
+        Lock lock = getWriteLock(pid);
         try {
             DigitalObject object = readObjectFromStorage(pid);
             List<DatastreamType> datastreamList = object.getDatastream();
@@ -249,7 +261,7 @@ public class AkubraDOManager {
             }
         } finally {
             invalidateCache(pid);
-            releaseWriteLock(pid);
+            lock.unlock();
         }
     }
 
@@ -268,7 +280,7 @@ public class AkubraDOManager {
     }
 
     public void commit(DigitalObject object, String streamId) throws IOException {
-        getWriteLock(object.getPID());
+        Lock lock = getWriteLock(object.getPID());
         try {
             List<DatastreamType> datastreamList = object.getDatastream();
             Iterator<DatastreamType> iterator = datastreamList.iterator();
@@ -297,7 +309,7 @@ public class AkubraDOManager {
             }
         } finally {
             invalidateCache(object.getPID());
-            releaseWriteLock(object.getPID());
+            lock.unlock();
         }
     }
 
@@ -435,15 +447,24 @@ public class AkubraDOManager {
     }
 
 
-    private static void getWriteLock(String pid) {
+    private static Lock getWriteLock(String pid) {
         if (pid == null) {
             throw new IllegalArgumentException("pid cannot be null");
         }
-        pidLocks.lock(pid);
+        //pidLocks.lock(pid);
+        ReadWriteLock lock = lockService.getReentrantReadWriteLock(pid);
+        lock.writeLock().lock();
+        return lock.writeLock();
     }
 
-    private static void releaseWriteLock(String pid) {
-        pidLocks.unlock(pid);
+    private static Lock getReadLock(String pid) {
+        if (pid == null) {
+            throw new IllegalArgumentException("pid cannot be null");
+        }
+        //pidLocks.lock(pid);
+        ReadWriteLock lock = lockService.getReentrantReadWriteLock(pid);
+        lock.readLock().lock();
+        return lock.readLock();
     }
 
     private static void invalidateCache(String pid) {
@@ -452,6 +473,11 @@ public class AkubraDOManager {
 
 
     public static void shutdown() {
-        hzInstance.shutdown();
+        if (lockService != null) {
+            lockService.shutdown();
+        }
+        if (hzInstance != null) {
+            hzInstance.shutdown();
+        }
     }
 }
