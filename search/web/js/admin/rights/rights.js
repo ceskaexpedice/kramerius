@@ -260,10 +260,10 @@ AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids
 	if (this.id) { url += "&id="+this.id; }
 	
 	if (this.actions) {
-		url=url+"&actions={"+reduce(function(base, item, status) {
+		url=url+"&actions="+encodeURI("{")+reduce(function(base, item, status) {
 	    	base = base+item+ (status.last ? "": ";");
 	        return base;
-	    }, "",this.actions)+"}";        
+	    }, "",this.actions)+encodeURI("}");
 	}
 	
 
