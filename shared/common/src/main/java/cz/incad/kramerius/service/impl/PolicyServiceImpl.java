@@ -238,7 +238,11 @@ public class PolicyServiceImpl implements PolicyService {
         inst.fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
 
         inst.configuration = KConfiguration.getInstance();
-        inst.setPolicy(args[1], args[0]);
+        if (args.length>=3){
+            inst.setPolicy(args[1], args[0], args[2]);
+        } else {
+            inst.setPolicy(args[1], args[0]);
+        }
         try {
             IndexerProcessStarter.spawnIndexer(true, "Reindex policy "+args[1]+":"+args[0], args[1]);
         } catch (Exception e) {
