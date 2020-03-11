@@ -810,7 +810,7 @@
               var escapedTitle = replaceAll(title, ',', '');
               escapedTitle = replaceAll(escapedTitle, '\n', '');
               escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-              urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
+              urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+encodeURI(escapedTitle);
           }else{
               urlbuffer = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"reindex;"
               for(var i=0; i<pids.length; i++){
