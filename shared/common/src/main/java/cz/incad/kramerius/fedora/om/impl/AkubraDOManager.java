@@ -447,21 +447,19 @@ public class AkubraDOManager {
     }
 
 
-    private static Lock getWriteLock(String pid) {
+    public static Lock getWriteLock(String pid) {
         if (pid == null) {
             throw new IllegalArgumentException("pid cannot be null");
         }
-        //pidLocks.lock(pid);
         ReadWriteLock lock = lockService.getReentrantReadWriteLock(pid);
         lock.writeLock().lock();
         return lock.writeLock();
     }
 
-    private static Lock getReadLock(String pid) {
+    public static Lock getReadLock(String pid) {
         if (pid == null) {
             throw new IllegalArgumentException("pid cannot be null");
         }
-        //pidLocks.lock(pid);
         ReadWriteLock lock = lockService.getReentrantReadWriteLock(pid);
         lock.readLock().lock();
         return lock.readLock();

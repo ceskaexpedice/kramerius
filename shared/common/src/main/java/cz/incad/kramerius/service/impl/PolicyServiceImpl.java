@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +30,7 @@ import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
@@ -97,9 +99,14 @@ public class PolicyServiceImpl implements PolicyService {
     }
     public void setPolicyForNode(String pid, String policyName) throws RepositoryException {
         LOGGER.info("Set policy pid: "+pid+" policy: "+policyName);
-        setPolicyDC(pid, policyName);
-        setPolicyRELS_EXT(pid, policyName);
-        setPolicyPOLICY(pid, policyName);
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            setPolicyDC(pid, policyName);
+            setPolicyRELS_EXT(pid, policyName);
+            setPolicyPOLICY(pid, policyName);
+        }finally{
+            writeLock.unlock();
+        }
     }
 
     private void setPolicyDC(String pid, String policyName) throws RepositoryException {
