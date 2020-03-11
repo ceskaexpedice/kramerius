@@ -17,10 +17,12 @@
 package cz.incad.kramerius.imaging.impl;
 
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
 
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 
 import com.google.inject.Inject;
@@ -130,11 +132,16 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
         LOGGER.info("deleting deep zoom url for '"+pid+"'");
         Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(), (repo)->{
             if (repo.objectExists(pid)) {
-                RepositoryObject object = repo.getObject(pid);
+                Lock writeLock = AkubraDOManager.getWriteLock(pid);
+                try {
+                    RepositoryObject object = repo.getObject(pid);
 
-                boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
-                if (flag) {
-                    object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                    boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                    if (flag) {
+                        object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                    }
+                }finally{
+                    writeLock.unlock();
                 }
             }
 
@@ -144,12 +151,17 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     void setFlagToPIDInternal(String pid, String tilesUrl) throws RepositoryException {
         Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(), (repo)->{
             if (repo.objectExists(pid)) {
-                RepositoryObject object = repo.getObject(pid);
-                boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
-                if (flag) {
-                    object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                Lock writeLock = AkubraDOManager.getWriteLock(pid);
+                try {
+                    RepositoryObject object = repo.getObject(pid);
+                    boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                    if (flag) {
+                        object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                    }
+                    object.addLiteral("tiles-url", FedoraNamespaces.KRAMERIUS_URI, tilesUrl);
+                }finally{
+                    writeLock.unlock();
                 }
-                object.addLiteral("tiles-url", FedoraNamespaces.KRAMERIUS_URI, tilesUrl);
             }
         });
     }

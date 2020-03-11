@@ -22,6 +22,7 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.*;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
@@ -43,6 +44,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,14 +84,18 @@ public final class RelationServiceImpl implements RelationService {
                 String dsContent = Saver.save(relsExt, model);
 
                 Repository repo = fedoraAccess.getInternalAPI();
-                if (repo.getObject(pid).streamExists(FedoraUtils.RELS_EXT_STREAM)) {
-                    repo.getObject(pid).removeRelationsByNamespace(FedoraNamespaces.KRAMERIUS_URI);
-                    repo.getObject(pid).removeRelationsByNameAndNamespace("isMemberOfCollection",FedoraNamespaces.RDF_NAMESPACE_URI);
-                    repo.getObject(pid).deleteStream(FedoraUtils.RELS_EXT_STREAM);
+                Lock writeLock = AkubraDOManager.getWriteLock(pid);
+                try {
+                    if (repo.getObject(pid).streamExists(FedoraUtils.RELS_EXT_STREAM)) {
+                        repo.getObject(pid).removeRelationsByNamespace(FedoraNamespaces.KRAMERIUS_URI);
+                        repo.getObject(pid).removeRelationsByNameAndNamespace("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI);
+                        repo.getObject(pid).deleteStream(FedoraUtils.RELS_EXT_STREAM);
+                    }
+                    byte[] bytes = dsContent.getBytes("UTF-8");
+                    repo.getObject(pid).createStream(FedoraUtils.RELS_EXT_STREAM, "text/xml", new ByteArrayInputStream(bytes));
+                }finally{
+                    writeLock.unlock();
                 }
-                byte[] bytes = dsContent.getBytes("UTF-8");
-                repo.getObject(pid).createStream(FedoraUtils.RELS_EXT_STREAM,"text/xml", new ByteArrayInputStream(bytes));
-
 
                 List<String> movedPids = new ArrayList<>();
                 for (KrameriusModels kind : model.getRelationKinds()) {

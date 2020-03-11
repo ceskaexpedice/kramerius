@@ -1,31 +1,28 @@
 package org.kramerius;
 
-import com.google.inject.*;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.qbizm.kramerius.imp.jaxb.*;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
-import cz.incad.kramerius.relation.RelationService;
-import cz.incad.kramerius.relation.impl.RelationServiceImpl;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
-import cz.incad.kramerius.service.impl.SortingServiceImpl;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -46,8 +43,8 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
-import java.net.URLConnection;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -93,17 +90,17 @@ public class Import {
 
     /**
      * @param args
-     * @throws UnsupportedEncodingException 
+     * @throws UnsupportedEncodingException
      */
     public static void main(String[] args) throws IOException, RepositoryException, SolrServerException {
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
+        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
         String importDirectory = System.getProperties().containsKey("import.directory") ? System.getProperty("import.directory") : KConfiguration.getInstance().getProperty("import.directory");
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Import.ingest(fa, feeder , sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
+        Import.ingest(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
     }
-    
+
 
     public static void ingest(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
         log.info("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
@@ -117,8 +114,8 @@ public class Import {
                 return;
             }
 
-            boolean updateExisting = Boolean.valueOf (System.getProperties().containsKey("ingest.updateExisting") ? System.getProperty("ingest.updateExisting") : KConfiguration.getInstance().getConfiguration().getString("ingest.updateExisting", "false"));
-            log.info("INGEST updateExisting: "+updateExisting);
+            boolean updateExisting = Boolean.valueOf(System.getProperties().containsKey("ingest.updateExisting") ? System.getProperty("ingest.updateExisting") : KConfiguration.getInstance().getConfiguration().getString("ingest.updateExisting", "false"));
+            log.info("INGEST updateExisting: " + updateExisting);
 
 
             long start = System.currentTimeMillis();
@@ -144,7 +141,7 @@ public class Import {
                     throw new RuntimeException(e);
                 }
                 try {
-                    for (String line; (line = reader.readLine()) != null;) {
+                    for (String line; (line = reader.readLine()) != null; ) {
                         if ("".equals(line)) {
                             continue;
                         }
@@ -192,7 +189,7 @@ public class Import {
                     StringBuilder pids = new StringBuilder();
                     String pidSeparator = KConfiguration.getInstance().getConfiguration().getString("indexer.pidSeparator", ";");
                     for (TitlePidTuple tpt : roots) {
-                        if (pids.length()>0){
+                        if (pids.length() > 0) {
                             pids.append(pidSeparator);
                         }
                         pids.append(tpt.pid);
@@ -201,13 +198,13 @@ public class Import {
                     try {
                         String waitIndexerProperty = System.getProperties().containsKey("ingest.startIndexer.wait") ? System.getProperty("ingest.startIndexer.wait") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer.wait", "1000");
                         // should wait
-                        log.info("Waiting for soft commit :"+waitIndexerProperty+" s");
+                        log.info("Waiting for soft commit :" + waitIndexerProperty + " s");
                         Thread.sleep(Integer.parseInt(waitIndexerProperty));
 
                         IndexerProcessStarter.spawnIndexer(true, importFile.getName(), pids.toString());
                         log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
                     } catch (Exception e) {
-                        log.log(Level.WARNING, e.getMessage(),e);
+                        log.log(Level.WARNING, e.getMessage(), e);
                     }
                 }
             } else {
@@ -240,9 +237,9 @@ public class Import {
 
             File[] children = importFile.listFiles();
 
-            for (File f : children){
-                if ("update.list".equalsIgnoreCase(f.getName())){
-                    log.info("File update.list detected in folder "+importFile);
+            for (File f : children) {
+                if ("update.list".equalsIgnoreCase(f.getName())) {
+                    log.info("File update.list detected in folder " + importFile);
                     parseUpdateList(f);
                 }
             }
@@ -265,7 +262,7 @@ public class Import {
                     dobj = (DigitalObject) obj;
                 }
             } catch (Exception e) {
-                log.warning("Skipping file " + importFile.getName() + " - not an FOXML object. ("+e+")");
+                log.warning("Skipping file " + importFile.getName() + " - not an FOXML object. (" + e + ")");
                 log.log(Level.WARNING, "Underlying error was:", e);
                 return;
             }
@@ -294,23 +291,30 @@ public class Import {
 
 
                                     String mimeType = "text/xml";
-                                    if (fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).streamExists(ds.getID())) {
-                                        mimeType = fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
-                                        fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
+                                    Lock writeLock = AkubraDOManager.getWriteLock(transactionDigitalObject.getPID());
+                                    try {
+                                        if (fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).streamExists(ds.getID())) {
+                                            mimeType = fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
+                                            fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
+                                        }
+                                        fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).createStream(ds.getID(), mimeType, new ByteArrayInputStream(outputStream.toByteArray()));
+                                    } finally {
+                                        writeLock.unlock();
                                     }
-                                    fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).createStream(ds.getID(), mimeType, new ByteArrayInputStream(outputStream.toByteArray()));
-
 
                                 } else if (dsversion.getBinaryContent() != null) {
                                     throw new RuntimeException("Update of managed binary datastream content is not supported.");
                                 } else if (dsversion.getContentLocation() != null) {
 
                                     final DigitalObject transactionDigitalObject = dobj;
-
-                                    String mimeType = fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
-                                    fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
-                                    fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).createRedirectedStream(ds.getID(),dsversion.getContentLocation().getREF(), mimeType);
-
+                                    Lock writeLock = AkubraDOManager.getWriteLock(transactionDigitalObject.getPID());
+                                    try {
+                                        String mimeType = fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
+                                        fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
+                                        fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).createRedirectedStream(ds.getID(), dsversion.getContentLocation().getREF(), mimeType);
+                                    } finally {
+                                        writeLock.unlock();
+                                    }
 
                                 }
                             }
@@ -328,14 +332,14 @@ public class Import {
                     checkRoot(transactionDigitalObject, roots);
 
                 }
-            }catch (Throwable t){
-                log.severe("Error when ingesting PID: "+dobj.getPID()+", "+ t.getMessage());
+            } catch (Throwable t) {
+                log.severe("Error when ingesting PID: " + dobj.getPID() + ", " + t.getMessage());
                 throw new RuntimeException(t);
             }
         }
     }
 
-    private static void parseUpdateList(File listFile){
+    private static void parseUpdateList(File listFile) {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(listFile));
@@ -344,17 +348,17 @@ public class Import {
             throw new RuntimeException(e);
         }
         try {
-            for (String line; (line = reader.readLine()) != null;) {
+            for (String line; (line = reader.readLine()) != null; ) {
                 if ("".equals(line.trim()) || line.trim().startsWith("#")) {
                     continue;
                 }
                 String[] lineItems = line.split(" ");
-                if (lineItems.length<2){
+                if (lineItems.length < 2) {
                     continue;
                 }
-                List<String> streams = new ArrayList<String>(lineItems.length-1);
-                for (int i=0;i<lineItems.length-1;i++){
-                    if (!"".equals(lineItems[i+1])) {
+                List<String> streams = new ArrayList<String>(lineItems.length - 1);
+                for (int i = 0; i < lineItems.length - 1; i++) {
+                    if (!"".equals(lineItems[i + 1])) {
                         streams.add(lineItems[i + 1]);
                     }
                 }
@@ -368,7 +372,7 @@ public class Import {
     }
 
     public static void ingest(Repository repo, InputStream is, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException, RepositoryException, JAXBException, LexerException, TransformerException {
-        
+
         long start = System.currentTimeMillis();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         IOUtils.copyStreams(is, bos);
@@ -379,25 +383,25 @@ public class Import {
                 obj = (DigitalObject) unmarshaller.unmarshal(new ByteArrayInputStream(bytes));
             }
             pid = ((DigitalObject) obj).getPID();
-            ingest(repo, obj, pid,updateExisting);
+            ingest(repo, obj, pid, updateExisting);
         } catch (cz.incad.kramerius.fedora.om.RepositoryException sfex) {
 
             //if (sfex.getMessage().contains("ObjectExistsException")) {
             if (objectExists(repo, pid)) {
-                if (updateExisting){
+                if (updateExisting) {
                     log.info("Replacing existing object " + pid);
-                    try{
+                    try {
                         repo.deleteobject(pid);
-                        log.info("purged old object "+pid);
-                    }catch(Exception ex){
+                        log.info("purged old object " + pid);
+                    } catch (Exception ex) {
                         log.severe("Cannot purge object " + pid + ", skipping: " + ex);
                         throw new RuntimeException(ex);
                     }
                     try {
                         if (obj != null) {
-                            ingest(repo, obj, pid,updateExisting);
+                            ingest(repo, obj, pid, updateExisting);
                         }
-                        log.info("Ingested new object "+pid);
+                        log.info("Ingested new object " + pid);
                     } catch (cz.incad.kramerius.fedora.om.RepositoryException rsfex) {
                         log.severe("Replace ingest SOAP fault:" + rsfex);
                         throw new RuntimeException(rsfex);
@@ -407,7 +411,7 @@ public class Import {
                         roots.add(npt);
                         log.info("Added replaced object for indexing:" + pid);
                     }
-                }else {
+                } else {
                     log.info("Merging with existing object " + pid);
                     if (merge(repo, bytes)) {
                         if (sortRelations != null) {
@@ -449,7 +453,7 @@ public class Import {
 
         try {
             FileInputStream is = new FileInputStream(file);
-            ingest(repo , is, pid, sortRelations, roots, updateExisting);
+            ingest(repo, is, pid, sortRelations, roots, updateExisting);
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Ingestion error ", ex);
             throw new RuntimeException(ex);
@@ -484,20 +488,25 @@ public class Import {
 
 
         boolean touched = false;
-        for (RDFTuple t : ingested) {
-            if (t.object != null) {
-                try {
-                    if (t.literal) {
-                        repo.getObject(pid).addLiteral(t.predicate, t.namespace, t.object);
-                    } else {
-                        repo.getObject(pid).addRelation(t.predicate, t.namespace, t.object);
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            for (RDFTuple t : ingested) {
+                if (t.object != null) {
+                    try {
+                        if (t.literal) {
+                            repo.getObject(pid).addLiteral(t.predicate, t.namespace, t.object);
+                        } else {
+                            repo.getObject(pid).addRelation(t.predicate, t.namespace, t.object);
+                        }
+                        //port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, t.literal, null);
+                        touched = true;
+                    } catch (Exception ex) {
+                        log.log(Level.SEVERE, "WARNING - could not add relationship:" + t + "(" + ex + ")", ex);
                     }
-                    //port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, t.literal, null);
-                    touched = true;
-                } catch (Exception ex) {
-                    log.log(Level.SEVERE,"WARNING - could not add relationship:" + t + "(" + ex + ")", ex);
                 }
             }
+        }finally{
+            writeLock.unlock();
         }
         return touched;
     }
@@ -522,9 +531,9 @@ public class Import {
                         String predicate = r.getName().getLocalPart();
                         String object = r.getAttributeValue(r.getNamespaceURI("rdf"), "resource");
                         boolean literal = false;
-                        if (object == null){
+                        if (object == null) {
                             object = r.getElementText();
-                            if (object != null){
+                            if (object != null) {
                                 literal = true;
                             }
                         }
@@ -543,7 +552,7 @@ public class Import {
         return retval;
     }
 
-    private static void ingest(Repository repo, DigitalObject dob, String pid, boolean updateExisting) throws  RepositoryException {
+    private static void ingest(Repository repo, DigitalObject dob, String pid, boolean updateExisting) throws RepositoryException {
         //long start = System.currentTimeMillis();
         try {
             repo.ingestObject(dob);
@@ -571,7 +580,7 @@ public class Import {
             if (splitted.length == 2) {
                 //FedoraNamespaces.
             } else {
-                log.log(Level.SEVERE, "expecting value size "+splitted.length);
+                log.log(Level.SEVERE, "expecting value size " + splitted.length);
             }
             String value = pt.getVALUE();
         }
@@ -580,30 +589,30 @@ public class Import {
         pidPArser.objectPid();
         String objId = pidPArser.getObjectPid();
 
-        RepositoryObject obj = repo.createOrFindObject( objId/*+"?mixin=fedora:object"*/);
+        RepositoryObject obj = repo.createOrFindObject(objId/*+"?mixin=fedora:object"*/);
 
         List<DatastreamType> datastream = dob.getDatastream();
         // reorder - RELS-EXT should be the last
         List<DatastreamType> ndatastreams = new ArrayList<>();
-        datastream.stream().forEach((ds)->{
+        datastream.stream().forEach((ds) -> {
             String id = ds.getID();
             if (id.equals(FedoraUtils.RELS_EXT_STREAM)) {
                 ndatastreams.add(ds);
             } else {
-                ndatastreams.add(0,ds);
+                ndatastreams.add(0, ds);
             }
         });
 
         for (DatastreamType ds : ndatastreams) {
             String id = ds.getID();
             String controlgroup = ds.getCONTROLGROUP();
-            DatastreamVersionType latestDs =  ds.getDatastreamVersion().isEmpty() ? null : ds.getDatastreamVersion().get(ds.getDatastreamVersion().size()-1);
+            DatastreamVersionType latestDs = ds.getDatastreamVersion().isEmpty() ? null : ds.getDatastreamVersion().get(ds.getDatastreamVersion().size() - 1);
             if (latestDs != null) {
                 if (controlgroup.equals("X")) {
                     byte[] xmlContent = xmlContent(latestDs);
                     if (xmlContent != null) {
                         //String s = IOUtils.toString(xmlContent, "UTF-8");
-                        createDataStream(repo,obj, id, latestDs,xmlContent, dob, updateExisting);
+                        createDataStream(repo, obj, id, latestDs, xmlContent, dob, updateExisting);
                     }
                 } else if (controlgroup.equals("M")) {
                     ContentLocationType contentLocation = latestDs.getContentLocation();
@@ -612,14 +621,14 @@ public class Import {
                     } else {
                         byte[] binaryContent = latestDs.getBinaryContent();
                         if (binaryContent != null) {
-                            createManagedDataStream(repo, obj, id, latestDs, binaryContent, dob,updateExisting);
+                            createManagedDataStream(repo, obj, id, latestDs, binaryContent, dob, updateExisting);
                         }
 
                     }
                 } else if ((controlgroup.equals("E") || (controlgroup.equals("R")))) {
                     ContentLocationType contentLocation = latestDs.getContentLocation();
                     String ref = contentLocation.getREF();
-                    createRelationDataStream(repo, obj, id, ref,latestDs.getMIMETYPE());
+                    createRelationDataStream(repo, obj, id, ref, latestDs.getMIMETYPE());
                 }
             }
         }
@@ -627,6 +636,7 @@ public class Import {
         counter++;
         log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
+
     private static void createRelationDataStream(Repository repo, RepositoryObject obj, String id, String url, String mimeType) throws RepositoryException {
         obj.createRedirectedStream(id, url, mimeType);
     }
@@ -657,7 +667,7 @@ public class Import {
     }
 
     private static void createManagedDataStream(Repository repo, RepositoryObject obj, String id,
-                                         DatastreamVersionType versionType, byte[] binaryContent, DigitalObject dob, boolean updateExisting) throws RepositoryException {
+                                                DatastreamVersionType versionType, byte[] binaryContent, DigitalObject dob, boolean updateExisting) throws RepositoryException {
         boolean relsExt = id.equals(FedoraUtils.RELS_EXT_STREAM);
         String mimeType = relsExt ? "text/xml" : versionType.getMIMETYPE();
 
@@ -686,17 +696,12 @@ public class Import {
         List<Element> any = xmlContent.getAny();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(bos);
-        XMLUtils.print(any.get(0),ps);
+        XMLUtils.print(any.get(0), ps);
         StringWriter writer = new StringWriter();
-        XMLUtils.print(any.get(0),writer);
+        XMLUtils.print(any.get(0), writer);
         return bos.toByteArray();
 
     }
-
-
-
-
-
 
 
     /**
@@ -746,7 +751,7 @@ public class Import {
             }
             if (isRootObject) {
                 TitlePidTuple npt = new TitlePidTuple(title, dobj.getPID());
-                if(roots!= null){
+                if (roots != null) {
                     roots.add(npt);
                     log.info("Found object for indexing - " + npt);
                 }
@@ -776,7 +781,7 @@ class RDFTuple {
     String object;
     boolean literal;
 
-    public RDFTuple(String subject,String namespace, String predicate, String object, boolean literal) {
+    public RDFTuple(String subject, String namespace, String predicate, String object, boolean literal) {
         super();
         this.subject = subject;
         this.namespace = namespace;
@@ -815,9 +820,9 @@ class RDFTuple {
     @Override
     public String toString() {
         return "RDFTuple{" +
-                "subject=" + subject  +
-                ", namespace=" + namespace  +
-                ", predicate=" + predicate  +
+                "subject=" + subject +
+                ", namespace=" + namespace +
+                ", predicate=" + predicate +
                 ", object=" + object +
                 ", literal=" + literal +
                 '}';
