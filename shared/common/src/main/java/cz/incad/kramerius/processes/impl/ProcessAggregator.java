@@ -16,12 +16,16 @@
  */
 package cz.incad.kramerius.processes.impl;
 
-import java.io.IOException;
-import java.net.URLEncoder;
+import java.io.StringReader;
+import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
+import cz.incad.kramerius.utils.params.ParamsLexer;
+import cz.incad.kramerius.utils.params.ParamsParser;
 
 /**
  * Special process for aggregation
@@ -32,14 +36,18 @@ public class ProcessAggregator {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessAggregator.class.getName());
     
     public static void main(String[] args) throws Exception {
+        String uuid = System.getProperty(ProcessStarter.UUID_KEY);
+
         String def = args[0];
         String[] processDefsParams = Arrays.copyOfRange(args, 1, args.length);  
        
-        for (int i = 0; i < processDefsParams.length; i++) {
-            LOGGER.info("starting process ("+def+" with params "+Arrays.asList(processDefsParams[i]));
-            String encodedParams =  URLEncoder.encode(processDefsParams[i], "UTF-8");
-            
-            ProcessUtils.startProcess(def, encodedParams);
+        if (processDefsParams.length > 0) {
+            String parameter = URLDecoder.decode(processDefsParams[0], "UTF-8");
+            ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(parameter)));
+            List<Object> paramsList = parser.params();
+            LOGGER.info("starting process ("+def+" with params "+paramsList);
+            List<String> paramsStringList = paramsList.stream().map(Object::toString).collect(Collectors.toList());
+            ProcessUtils.startProcess(def, paramsStringList.toArray(new String[paramsStringList.size()]));
         }
         
         //TODO: I18N
