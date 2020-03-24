@@ -4,6 +4,8 @@ import static org.easymock.EasyMock.*;
 
 import static cz.incad.kramerius.ITTestsSetup.*;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
@@ -82,7 +84,7 @@ public class DeleteServiceImplTest  {
 
         inst.resourceIndex = injector.getInstance(IResourceIndex.class);
         inst.fedoraAccess = fa;
-        inst.predicates =  KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates");
+        inst.predicates =  Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates"), Functions.toStringFunction());
 
         Fedora4Utils.doWithProcessingIndexCommit(inst.fedoraAccess.getInternalAPI(), (repo)->{
             try {
@@ -134,7 +136,7 @@ public class DeleteServiceImplTest  {
 
         inst.resourceIndex = injector.getInstance(IResourceIndex.class);
         inst.fedoraAccess = fa;
-        inst.predicates =  KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates");
+        inst.predicates =  Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates"), Functions.toStringFunction());
 
         Document document = XMLUtils.parseDocument(repository.getObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46").getStream(FedoraUtils.RELS_EXT_STREAM).getContent(), true);
         Assert.assertNotNull(XMLUtils.findElement(document.getDocumentElement(), (element) -> {

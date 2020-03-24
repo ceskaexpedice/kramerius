@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.impl.IterateNonParametrized.SolrRepoItemsSupport;
@@ -17,7 +19,7 @@ public class ParametrizedIterateRepoMovingWall {
 
     @Process
     public static void process(@ParameterName("userValue") String uVal, @ParameterName("mode") String mode) throws XPathExpressionException, IOException, RightCriteriumException {
-        List<String> topLevelModels = KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels");
+        List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
         RepositoryItemsSupport repoItems = new SolrRepoItemsSupport("PID");
         for (String m : topLevelModels) {
             List<String> pids = repoItems.findPidsByModel(m);

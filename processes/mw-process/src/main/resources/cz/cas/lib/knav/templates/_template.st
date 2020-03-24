@@ -10,7 +10,7 @@ contextScript(defaultValue) ::=<<
             var vals = 'userValue='+\$('#userValue').val()
                         +';mode='+\$('input[name=mode]:checked').val()
                         +';pids='+reduce(function(base, item, status) {
-                             base = base+item.pid.replaceAll(":","\\\\:")+ (status.last ? "": ",");
+                             base = base+encodeURI(item.pid.replaceAll(":","\\\\:"))+ (status.last ? "": ",");
                             return base;
             }, "",pidstructs());;
 

@@ -1,23 +1,17 @@
 package cz.incad.kramerius.indexer;
 
-import antlr.RecognitionException;
-import antlr.TokenStreamException;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
-import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
+import cz.incad.kramerius.indexer.date.BiblioModsDateParser;
+import cz.incad.kramerius.indexer.date.DateQuintet;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.indexer.coordinates.ParsingCoordinates;
-import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
-import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-//import org.apache.pdfbox.util.PDFTextStripper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -52,7 +46,6 @@ public class ExtendedFields {
     private ArrayList<String> pid_paths;
     private ArrayList<String> model_paths;
     HashMap<String, String> models_cache;
-    HashMap<String, String> dates_cache;
     HashMap<String, String> root_title_cache;
     Date datum;
     String datum_str;
@@ -63,9 +56,10 @@ public class ExtendedFields {
     XPathFactory factory = XPathFactory.newInstance();
     XPath xpath = factory.newXPath();
     XPathExpression expr;
-    private final String prefix = "//mods:mods/";
     DateFormat df;
     DateFormat solrDateFormat;
+    PDDocument pdDoc = null;
+    String pdfPid = "";
 
     FedoraAccess fa;
     FedoraOperations fo;
@@ -73,25 +67,24 @@ public class ExtendedFields {
     // geo coordinates range
     private List<String> coordinates;
 
+    private BiblioModsDateParser dateParser;
 
     public ExtendedFields(FedoraOperations fo) throws IOException {
         this.fo = fo;
         KConfiguration config = KConfiguration.getInstance();
         this.fa = this.fo.fa;
         models_cache = new HashMap<String, String>();
-        dates_cache = new HashMap<String, String>();
         root_title_cache = new HashMap<String, String>();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         df = new SimpleDateFormat(config.getProperty("mods.date.format", "dd.MM.yyyy"));
         df.setLenient(false);
         solrDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");
+        dateParser = new BiblioModsDateParser();
     }
 
     public void clearCache() {
         models_cache.clear();
-        dates_cache.clear();
         root_title_cache.clear();
-
     }
 
     public void setFields(String pid) throws Exception {
@@ -108,8 +101,6 @@ public class ExtendedFields {
         // coordinates
         this.coordinates = ParsingCoordinates.processBibloModsCoordinates(biblioMods, this.factory);
     }
-    PDDocument pdDoc = null;
-    String pdfPid = "";
 
     public void setPDFDocument(String pid) throws Exception {
         if (!pdfPid.equals(pid)) {
@@ -171,8 +162,6 @@ public class ExtendedFields {
             return "";
         }
     }
-
-
 
     private String getModelPath(String pid_path) throws IOException {
         String[] pids = pid_path.split("/");
@@ -285,102 +274,29 @@ public class ExtendedFields {
         }
     }
 
-
-
     private void setDate(Document biblioMods) throws Exception {
         datum_str = "";
         rok = "";
         datum_begin = "";
         datum_end = "";
         datum = null;
-        for (int j = 0; j < pid_paths.size(); j++) {
-            String[] pid_path = pid_paths.get(j).split("/");
+        for (String pidPath : pid_paths) {
+            String[] pid_path = pidPath.split("/");
             for (int i = pid_path.length - 1; i > -1; i--) {
                 String pid = pid_path[i];
-                if (dates_cache.containsKey(pid)) {
-                    datum_str = dates_cache.get(pid);
-                    parseDatum(datum_str);
-                    return;
-                }
-                xPathStr = prefix + "mods:part/mods:date/text()";
-
-                expr = xpath.compile(xPathStr);
-                Node node = (Node) expr.evaluate(biblioMods, XPathConstants.NODE);
-                if (node != null) {
-                    datum_str = node.getNodeValue();
-                    parseDatum(datum_str);
-                    dates_cache.put(pid, datum_str);
-                    return;
-                } else {
-                    xPathStr = prefix + "mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()";
-                    expr = xpath.compile(xPathStr);
-                    node = (Node) expr.evaluate(biblioMods, XPathConstants.NODE);
-                    if (node != null) {
-                        datum_str = node.getNodeValue();
-                        parseDatum(datum_str);
-                        dates_cache.put(pid, datum_str);
-                        return;
-                    }else{
-                        xPathStr = prefix + "mods:originInfo/mods:dateIssued/text()";
-                        expr = xpath.compile(xPathStr);
-                        node = (Node) expr.evaluate(biblioMods, XPathConstants.NODE);
-                        if (node != null) {
-                            datum_str = node.getNodeValue();
-                            parseDatum(datum_str);
-                            dates_cache.put(pid, datum_str);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-
-    }
-
-    private void parseDatum(String datumStr) {
-        DateFormat outformatter = new SimpleDateFormat("yyyy");
-        try {
-            Date dateValue = df.parse(datumStr);
-            rok = outformatter.format(dateValue);
-            datum = dateValue;
-        } catch (Exception e) {
-            if (datumStr.matches("\\d\\d\\d\\d")) { //rok
-                rok = datumStr;
-                datum_begin = rok;
-                datum_end = rok;
-            } else if (datumStr.matches("\\d\\d--")) {  //Datum muze byt typu 18--
-                datum_begin = datumStr.substring(0, 2) + "00";
-                datum_end = datumStr.substring(0, 2) + "99";
-            } else if (datumStr.matches("\\d\\d-\\d\\d\\.\\d\\d\\d\\d")) {  //Datum muze byt typu 11-12.1946
-                rok = datumStr.split("\\.")[1].trim();
-            } else if (datumStr.matches("\\d\\d\\.-\\d\\d\\.\\d\\d\\.\\d\\d\\d\\d")) {  //Datum muze byt typu 19.-20.03.1890
                 
-                String end = datumStr.split("-")[1].trim();
-                try{
-                    Date dateValue = df.parse(end);
-                    rok = outformatter.format(dateValue);
-                    datum = dateValue;
-                }catch (Exception ex) {
-                    logger.log(Level.FINE, "Cant parse date "+datumStr);
+                DateQuintet dateQuintet = dateParser.checkInCache(pid);
+                if (dateQuintet == null) {
+                    dateQuintet = dateParser.extractYearsFromBiblioMods(biblioMods, pid);
                 }
-            } else if (datumStr.matches("\\d---")) {  //Datum muze byt typu 187-
-                datum_begin = datumStr.substring(0, 3) + "0";
-                datum_end = datumStr.substring(0, 3) + "9";
-            } else if (datumStr.matches("\\d\\d\\d\\d[\\s]*-[\\s]*\\d\\d\\d\\d")) {  //Datum muze byt typu 1906 - 1945
-                String begin = datumStr.split("-")[0].trim();
-                String end = datumStr.split("-")[1].trim();
-                datum_begin = begin;
-                datum_end = end;
-            }else{
-                try {
-                    DatesParser p = new DatesParser(new DateLexer(new StringReader(datumStr)));
-                    Date parsed = p.dates();
-                    rok = outformatter.format(parsed);
-                    datum = parsed;
-                } catch (RecognitionException ex) {
-                    logger.log(Level.FINE, "Cant parse date "+datumStr);
-                } catch (TokenStreamException ex) {
-                    logger.log(Level.FINE, "Cant parse date "+datumStr);
+
+                if (dateQuintet != null) {
+                    datum = dateQuintet.getDate();
+                    rok = dateQuintet.getYear();
+                    datum_str = dateQuintet.getDateStr();
+                    datum_begin = dateQuintet.getYearBegin();
+                    datum_end = dateQuintet.getYearEnd();
+                    return;
                 }
             }
         }

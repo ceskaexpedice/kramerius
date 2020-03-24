@@ -4,7 +4,6 @@ import com.google.inject.*;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.it.ITSupport;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
@@ -77,8 +76,6 @@ public class ITTestsSetup {
         container = new CoreContainer("src/test/resources/cz/incad/kramerius/resourceindex/IT");
         container.load();
         solrServer = new EmbeddedSolrServer( container, "processing" );
-        //ITSupport.Commands.CONTROL.command();
-
     }
 
     public static void tearDownAfterClass() throws Exception {

@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -22,6 +23,7 @@ import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
@@ -151,17 +153,21 @@ public class GenerateThumbnail {
                 KrameriusImageSupport.writeImageToStream(scaled, "jpeg", fos);
 
                 Repository repo = fedoraAccess.getInternalAPI();
-                if (fedoraAccess.isFullthumbnailAvailable(pid)) {
-                    LOGGER.info("Purge previous IMG_PREVIEW datastream ... for pid "+pid);
+                Lock writeLock = AkubraDOManager.getWriteLock(pid);
+                try {
+                    if (fedoraAccess.isFullthumbnailAvailable(pid)) {
+                        LOGGER.info("Purge previous IMG_PREVIEW datastream ... for pid " + pid);
 
-                    if (repo.getObject(pid).streamExists(FedoraUtils.IMG_PREVIEW_STREAM)) {
+                        if (repo.getObject(pid).streamExists(FedoraUtils.IMG_PREVIEW_STREAM)) {
+                            repo.getObject(pid).deleteStream(FedoraUtils.IMG_PREVIEW_STREAM);
+                        }
                         repo.getObject(pid).deleteStream(FedoraUtils.IMG_PREVIEW_STREAM);
                     }
-                    repo.getObject(pid).deleteStream(FedoraUtils.IMG_PREVIEW_STREAM);
+                    LOGGER.info("Adding new IMG_PREVIEW datastream ... for pid " + pid);
+                    repo.getObject(pid).createManagedStream(FedoraUtils.IMG_PREVIEW_STREAM, "image/jpeg", new FileInputStream(tmpFile));
+                }finally{
+                    writeLock.unlock();
                 }
-                LOGGER.info("Adding new IMG_PREVIEW datastream ... for pid "+pid);
-                repo.getObject(pid).createManagedStream(FedoraUtils.IMG_PREVIEW_STREAM, "image/jpeg", new FileInputStream(tmpFile));
-
             } finally {
                 fos.close();
                 tmpFile.delete();

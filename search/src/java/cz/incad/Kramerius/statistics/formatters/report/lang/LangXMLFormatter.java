@@ -79,7 +79,6 @@ public class LangXMLFormatter implements StatisticsReportFormatter {
 
     @Override
     public void beforeProcess(HttpServletResponse response) throws IOException {
-        this.os = response.getOutputStream();
         this.os.write("<records>\n".getBytes(DEFAULT_ENCODING));
     }
 
@@ -88,5 +87,13 @@ public class LangXMLFormatter implements StatisticsReportFormatter {
     public void afterProcess(HttpServletResponse response) throws IOException {
         this.os.write("\n</records>".getBytes(DEFAULT_ENCODING));
         this.os = null;
+    }
+
+    @Override
+    public void addInfo(HttpServletResponse response, String info) throws IOException {
+        this.os = response.getOutputStream();
+        String text = "Report dle jazyků, ";
+        String comment = "<!-- " + text + info + " -->";
+        this.os.write(comment.getBytes(DEFAULT_ENCODING));
     }
 }

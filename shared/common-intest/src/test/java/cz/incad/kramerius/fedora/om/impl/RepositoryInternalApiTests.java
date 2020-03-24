@@ -37,8 +37,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static cz.incad.kramerius.fedora.om.impl.Fedora4Repository.*;
-import static cz.incad.kramerius.fedora.utils.Fedora4Utils.*;
 
 public class RepositoryInternalApiTests extends ITTestsSetup {
 

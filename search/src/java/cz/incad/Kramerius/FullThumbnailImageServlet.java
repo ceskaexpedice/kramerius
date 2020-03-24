@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.lp.GenerateThumbnail;

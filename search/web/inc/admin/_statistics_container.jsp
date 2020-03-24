@@ -38,6 +38,13 @@
     function _visibility() {
         return $("#report_visibility").val();
     }
+    
+    function _ip_address() {
+        return $("#report_ip_addresses").val();
+    }
+    function _ip_address_unique() {
+        return $("#report_unique_ip_addresses").attr('checked');
+    }
 
 </script>
 
@@ -66,6 +73,7 @@
                 <td><view:msg>statistics.report.dates.dateto</view:msg>:</td>
                 <td><view:msg>common.action</view:msg>:</td>
                 <td><view:msg>k3replication.defaultrights.fields</view:msg>:</td>
+                <td><view:msg>statistics.report.ip.forbidden</view:msg>:</td>
             </tr>
             
             <tr>
@@ -79,7 +87,7 @@
                        </c:forEach>
                    </select>
                 </td>
-
+                
                  <td>
                    <select id="report_visibility">
                        <option value="all"><view:msg>common.all</view:msg></option>
@@ -87,6 +95,16 @@
                        <option value="private"><view:msg>k3replication.defaultrights.private</view:msg></option>
                    </select>
                 </td>
+                
+                <td><input id="report_ip_addresses" type="text"></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><input type="checkbox" id="report_unique_ip_addresses"><view:msg>statistics.report.ip.unique</view:msg></input></td>
             </tr>
         </tbody>
     </table>
@@ -119,11 +137,10 @@
         <td></td>
 
         <td style="text-align: right;"> 
-        
-            <a href="javascript:statistics.showModelReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),$('#report_type option:selected').val());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg></a>
-            <a href="javascript:statistics.modelCSV(_action(),_visibility(),$('#report_type option:selected').val(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
-            <a href="javascript:statistics.modelXML(_action(),_visibility(),$('#report_type option:selected').val(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.XML</view:msg></a>
-            </td>
+            <a href="javascript:statistics.showModelReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),$('#report_type option:selected').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg></a>
+            <a href="javascript:statistics.modelCSV(_action(),_visibility(),$('#report_type option:selected').val(),$('#report_date_from').val(),$('#report_date_to').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
+            <a href="javascript:statistics.modelXML(_action(),_visibility(),$('#report_type option:selected').val(),$('#report_date_from').val(),$('#report_date_to').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>common.format.XML</view:msg></a>
+          </td>
         </tr>
 
         <tr><td colspan="3"> <hr/></td></tr>    
@@ -132,10 +149,10 @@
         <tr>
             <td colspan="2"></td>
             <td style="text-align: right;">
-                <a href="javascript:statistics.showAuthorReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg></a>
-                <a href="javascript:statistics.authorCSV(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
-                <a href="javascript:statistics.authorXML(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.XML</view:msg></a>
-            </td>
+                <a href="javascript:statistics.showAuthorReport(_action(),_visibility(), $('#report_date_from').val(),$('#report_date_to').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg></a>
+                <a href="javascript:statistics.authorCSV(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
+                <a href="javascript:statistics.authorXML(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>common.format.XML</view:msg></a>
+          </td>
         </tr>
 
         <tr><td colspan="3"> <hr/></td></tr>    
@@ -144,9 +161,9 @@
         <tr>
             <td colspan="2"></td>
             <td style="text-align: right;">
-                <a href="javascript:statistics.showLangReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg></a>
-                <a href="javascript:statistics.langCSV(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
-                <a href="javascript:statistics.langXML(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val());" class="buttons"><view:msg>common.format.XML</view:msg></a>
+                <a href="javascript:statistics.showLangReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg></a>
+                <a href="javascript:statistics.langCSV(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
+                <a href="javascript:statistics.langXML(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>common.format.XML</view:msg></a>
             </td>
         </tr>
 
@@ -156,10 +173,13 @@
             <td style="text-align: right;">
             <script type="text/javascript">
               function _current_annual() {
-                 window.open('stats?format=CSV&report=annual&visibility=all&annualyear=${statistics.currentYear}', '_blank');
+                  var ip = $("#report_ip_addresses").val();
+                  window.open("stats?format=CSV&report=annual&action=" + _action() + "&visibility=" + _visibility() + "&annualyear=${statistics.currentYear}&ipaddresses="+ ip +"&uniqueipaddresses=" + _ip_address_unique(), "_blank");
               }
+              
               function _previous_annual() {
-                 window.open('stats?format=CSV&report=annual&visibility=all&annualyear=${statistics.previousYear}', '_blank');
+                  var ip = $("#report_ip_addresses").val();
+                  window.open("stats?format=CSV&report=annual&action=" + _action() + "&visibility=" + _visibility() + "&annualyear=${statistics.previousYear}&ipaddresses="+ ip +"&uniqueipaddresses=" + _ip_address_unique(), "_blank");
               }
              </script>
 
@@ -180,7 +200,7 @@
                  window.open('stats?format=CSV', '_blank');
               }
               function _XML() {
-                 window.open('stats?format=XML', '_blank');
+                 window.open('stats?format=XML&visibility=all', "_blank");
               }
              </script>
             

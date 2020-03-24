@@ -46,11 +46,13 @@ import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.IPAddressFilter;
 import cz.incad.kramerius.statistics.filters.ModelFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
 import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import cz.incad.kramerius.utils.database.Offset;
+import javax.swing.JOptionPane;
 
 /**
  * @author pavels
@@ -74,16 +76,26 @@ public class ModelStatisticReport implements StatisticReport {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
             VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
+            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
             
-            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
+            final StringTemplate statRecord;
+            
+            if (isUniqueSelected == false) {
+                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectModelReport");
+            }
+            else {
+               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectModelReportUnique"); 
+            }
             statRecord.setAttribute("model", modelFilter.getModel());
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
             statRecord.setAttribute("paging", true);
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
             statRecord.setAttribute("visibility", visFilter.asMap());
-            
+
 
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
@@ -136,7 +148,7 @@ public class ModelStatisticReport implements StatisticReport {
         try {
             ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            IPAddressFilter ipAddr = filters.getFilter(IPAddressFilter.class);
+            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
             
             
             final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("prepareModelView");
@@ -146,12 +158,10 @@ public class ModelStatisticReport implements StatisticReport {
             
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            if (ipAddr.hasValue()) {
-                statRecord.setAttribute("ipaddr", ipAddr.getValue());
-            }
+            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
             
             String sql = statRecord.toString();
-            
+
             String viewName =  "statistics_grouped_by_sessionandpid_"+modelFilter.getModel();
             boolean tableExists = DatabaseUtils.viewExists(connectionProvider.get(),viewName.toUpperCase());
             if (!tableExists) {
@@ -174,8 +184,20 @@ public class ModelStatisticReport implements StatisticReport {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
             //IPAddressFilter ipAddrFilter = filters.getFilter(IPAddressFilter.class);
-
-            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModelReport");
+            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
+            
+            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
+            final StringTemplate statRecord;
+            
+            if (isUniqueSelected == false) {
+                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectModelReport");
+            }
+            else {
+               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectModelReportUnique"); 
+            }
+            
             statRecord.setAttribute("model", modelFilter.getModel());
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
             statRecord.setAttribute("paging", false);
@@ -183,7 +205,6 @@ public class ModelStatisticReport implements StatisticReport {
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
             statRecord.setAttribute("visibility", visFilter.asMap());
-
             
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);

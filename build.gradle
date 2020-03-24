@@ -59,7 +59,7 @@ repositories {
 
 allprojects {
     group='cz.incad.kramerius'
-    version='7.0.0-beta1'
+    version='7.0.0-RC1'
 }
 
 
@@ -182,6 +182,10 @@ allprojects {
 
         maven {
             url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
+        }
+
+        maven {
+            url "https://jitpack.io"
         }
 
     }

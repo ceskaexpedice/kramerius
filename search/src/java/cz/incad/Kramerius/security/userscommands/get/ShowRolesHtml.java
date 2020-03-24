@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import cz.incad.Kramerius.security.strenderers.RoleWrapper;
 import cz.incad.Kramerius.security.userscommands.ServletUsersCommand;

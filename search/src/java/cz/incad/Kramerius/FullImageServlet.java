@@ -18,8 +18,6 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
 
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;

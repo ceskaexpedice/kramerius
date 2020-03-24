@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -28,7 +30,7 @@ public class MostDesirableViewObject {
     public List<String> getPids() {
 
         List<String> pids = new ArrayList<String>();
-        List<String> list = KConfiguration.getInstance().getConfiguration().getList("most.desirable.models", 
+        List<String> list = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("most.desirable.models",
                 Arrays.asList(
                     "monograph",
                     "periodical",
@@ -43,7 +45,7 @@ public class MostDesirableViewObject {
                     "article",
                     "supplement",
                     "page")
-        );
+        ), Functions.toStringFunction());
 
         for (String model : list) {
             List<String> found = this.mostDesirable.getMostDesirable(NUMBER_OF_DESIRABLE_ITEMS, 0, model);

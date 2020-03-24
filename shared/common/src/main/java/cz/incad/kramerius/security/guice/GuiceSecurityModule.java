@@ -17,7 +17,6 @@
 package cz.incad.kramerius.security.guice;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 
 import cz.incad.kramerius.security.RightCriteriumContextFactory;

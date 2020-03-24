@@ -4,12 +4,14 @@ import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import org.antlr.stringtemplate.StringTemplate;
@@ -183,10 +185,15 @@ public class CollectionUtils {
                 + "</oai_dc:dc>";
 
         Repository repo = fedoraAccess.getInternalAPI();
-        if (repo.getObject(pid).streamExists(FedoraUtils.DC_STREAM)) {
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            if (repo.getObject(pid).streamExists(FedoraUtils.DC_STREAM)) {
                 repo.getObject(pid).deleteStream(FedoraUtils.DC_STREAM);
+            }
+            repo.getObject(pid).createStream(FedoraUtils.DC_STREAM, "text/xml", new ByteArrayInputStream(dcContent.getBytes(Charset.forName("UTF-8"))));
+        }finally{
+            writeLock.unlock();
         }
-        repo.getObject(pid).createStream(FedoraUtils.DC_STREAM, "text/xml", new ByteArrayInputStream(dcContent.getBytes(Charset.forName("UTF-8"))));
     }
 
 
@@ -194,8 +201,13 @@ public class CollectionUtils {
         //String url = k4url + "?action=TEXT&content=" + URLEncoder.encode(ds, "UTF8");
         if (fedoraAccess.isStreamAvailable(pid, streamName)) {
             Repository repo = fedoraAccess.getInternalAPI();
-            repo.getObject(pid).deleteStream(streamName);
-            repo.getObject(pid).createStream(streamName, mimeType, new ByteArrayInputStream(data));
+            Lock writeLock = AkubraDOManager.getWriteLock(pid);
+            try {
+                repo.getObject(pid).deleteStream(streamName);
+                repo.getObject(pid).createStream(streamName, mimeType, new ByteArrayInputStream(data));
+            }finally{
+                writeLock.unlock();
+            }
         } else {
             Repository repo = fedoraAccess.getInternalAPI();
             repo.getObject(pid).createStream(streamName, mimeType, new ByteArrayInputStream(data));

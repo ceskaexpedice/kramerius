@@ -69,7 +69,6 @@ public class AuthorXMLFormatter implements StatisticsReportFormatter{
 
     @Override
     public void beforeProcess(HttpServletResponse response) throws IOException {
-        this.os = response.getOutputStream();
         this.os.write("<records>\n".getBytes(DEFAULT_ENCODING));
     }
 
@@ -84,4 +83,13 @@ public class AuthorXMLFormatter implements StatisticsReportFormatter{
     public String getReportId() {
         return AuthorReport.REPORT_ID;
     }
+
+    @Override
+    public void addInfo(HttpServletResponse response, String info) throws IOException {
+        this.os = response.getOutputStream();
+        String text = "Report dle autorů, ";
+        String comment = "<!-- " + text + info + " -->";
+        this.os.write(comment.getBytes(DEFAULT_ENCODING));
+    }
+    
 }

@@ -188,33 +188,59 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             Foxml page = new Foxml();
             page.setPid(pid(generateUUID()));
             page.setTitle(pageTitle);
-            // create MODS for page
-            ModsDefinition pageMods = modsObjectFactory.createModsDefinition();
-            PartDefinition pagePart = modsObjectFactory.createPartDefinition();
-            pagePart.setType(type);
-            // add part for page Number
-            DetailDefinition titleDetail = modsObjectFactory.createDetailDefinition();
-            titleDetail.setType("pageNumber");
-            XsString titleString = modsObjectFactory.createXsString();
-            titleString.setValue(pageTitle);
-            JAXBElement<XsString> titleElement = modsObjectFactory.createNumber(titleString);
-            titleDetail.getNumberOrCaptionOrTitle().add(titleElement);
-            pagePart.getDetailOrExtentOrDate().add(titleDetail);
-            // add part for page Index
-            DetailDefinition orderDetail = modsObjectFactory.createDetailDefinition();
-            orderDetail.setType("pageIndex");
-            XsString orderString = modsObjectFactory.createXsString();
-            orderString.setValue(order!= null?order.toString():"");
-            JAXBElement<XsString> orderElement = modsObjectFactory.createNumber(orderString);
-            orderDetail.getNumberOrCaptionOrTitle().add(orderElement);
-            pagePart.getDetailOrExtentOrDate().add(orderDetail);
-            // add mods to page foxml
-            pageMods.getModsGroup().add(pagePart);
-            page.setMods(pageMods);
-            // create DC for page
-            OaiDcType pageDc = createDC(page.getPid(),page.getTitle());
-            setDCModelAndPolicy(pageDc, MODEL_PAGE, policyID);
-            page.setDc(pageDc);
+
+            String modsId = pageDiv.getID().replaceFirst("DIV_P", "MODSMD");
+
+
+            ModsDefinition pageMods = modsMap.get(modsId);
+            if (pageMods == null) {
+                log.info("CREATING NEW MODS for page "+ page.getTitle());
+
+                // create MODS for page
+                pageMods = modsObjectFactory.createModsDefinition();
+                PartDefinition pagePart = modsObjectFactory.createPartDefinition();
+                pagePart.setType(type);
+                // add part for page Number
+                DetailDefinition titleDetail = modsObjectFactory.createDetailDefinition();
+                titleDetail.setType("pageNumber");
+                XsString titleString = modsObjectFactory.createXsString();
+                titleString.setValue(pageTitle);
+                JAXBElement<XsString> titleElement = modsObjectFactory.createNumber(titleString);
+                titleDetail.getNumberOrCaptionOrTitle().add(titleElement);
+                pagePart.getDetailOrExtentOrDate().add(titleDetail);
+                // add part for page Index
+                DetailDefinition orderDetail = modsObjectFactory.createDetailDefinition();
+                orderDetail.setType("pageIndex");
+                XsString orderString = modsObjectFactory.createXsString();
+                orderString.setValue(order != null ? order.toString() : "");
+                JAXBElement<XsString> orderElement = modsObjectFactory.createNumber(orderString);
+                orderDetail.getNumberOrCaptionOrTitle().add(orderElement);
+                pagePart.getDetailOrExtentOrDate().add(orderDetail);
+                // add mods to page foxml
+                pageMods.getModsGroup().add(pagePart);
+                page.setMods(pageMods);
+                // create DC for page
+                OaiDcType pageDc = createDC(page.getPid(), page.getTitle());
+                setDCModelAndPolicy(pageDc, MODEL_PAGE, policyID);
+                page.setDc(pageDc);
+            } else{  // use MODS and DC from METS dmdSec
+                log.info("USING EXISTING MODS for page "+ page.getTitle());
+                String uuid = getUUIDfromMods(pageMods);
+                if (uuid == null) {
+                    uuid = generateUUID();
+                }
+                String pid = pid(uuid);
+                page.setPid(pid);
+                page.setMods(pageMods);
+                String dcId = modsId.replaceFirst("MODS", "DC");
+                OaiDcType dc = dcMap.get(dcId);
+                if (dc == null){
+                    log.warn("DublinCore part missing for MODS "+modsId);
+                    dc = createDC(pid, page.getTitle());
+                }
+                setDCModelAndPolicy(dc, MODEL_PAGE, policyID);
+                page.setDc(dc);
+            }
 
             page.setRe(new RelsExt(page.getPid(), MODEL_PAGE));
             page.getRe().addRelation(RelsExt.POLICY, policyID, true);
@@ -270,6 +296,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
     private boolean singleVolumeMonograph = false;
     private Foxml processDiv(Foxml parent, DivType div) {
         String divType = div.getTYPE();
+        if ("PAGE".equalsIgnoreCase(divType)) return null;//divs for PAGES are processed from physical map and structlinks
         MdSecType modsIdObj = (MdSecType) firstItem(div.getDMDID());
         //if ("PICTURE".equalsIgnoreCase(divType)) return null;//divs for PICTURE are not supported in K4
         if ("MONOGRAPH".equalsIgnoreCase(divType)&&modsIdObj==null){//special hack to ignore extra div for single volume monograph

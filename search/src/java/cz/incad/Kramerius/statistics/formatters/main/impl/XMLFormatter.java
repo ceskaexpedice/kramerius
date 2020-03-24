@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletResponse;
 
 import cz.incad.Kramerius.statistics.formatters.main.StatisticsExportMainLogFormatter;
+import static cz.incad.Kramerius.statistics.formatters.report.StatisticsReportFormatter.DEFAULT_ENCODING;
 import cz.incad.Kramerius.statistics.formatters.utils.StringUtils;
 
 /**
@@ -49,7 +50,6 @@ public class XMLFormatter implements StatisticsExportMainLogFormatter {
     
     @Override
     public void beforeProcess(HttpServletResponse response) throws IOException {
-        this.os = response.getOutputStream();
         this.shouldRenderEndTag = false;
         StringBuilder builder = new StringBuilder("<records>\n");
         this.os.write(builder.toString().getBytes("UTF-8"));
@@ -138,5 +138,12 @@ public class XMLFormatter implements StatisticsExportMainLogFormatter {
     @Override
     public String getMimeType() {
         return XML_MIME_TYPE;
+    }
+
+    @Override
+    public void addInfo(HttpServletResponse response, String info) throws IOException {
+        this.os = response.getOutputStream();
+        String comment = "<!-- " + "XML export" + " -->";
+        this.os.write(comment.getBytes(DEFAULT_ENCODING));
     }
 }

@@ -16,8 +16,6 @@
  */
 package cz.incad.kramerius.security.guice;
 
-import static org.easymock.EasyMock.replay;
-
 import org.easymock.EasyMock;
 
 import com.google.inject.AbstractModule;
