@@ -44,9 +44,9 @@ public class AudioStreamForwardUtils {
     
     
     public static ResponseBuilder GET(AudioStreamId id, HttpServletRequest request,
-                                      ResponseBuilder builder, SolrAccess solrAccess, User user, RightsResolver actionAllowed, RepositoryUrlManager urlManager) throws IOException {
+                                      ResponseBuilder builder, SolrAccess solrAccess, User user, RightsResolver rightsResolver, RepositoryUrlManager urlManager) throws IOException {
         LOGGER.info(id.toString());
-        if (canBeRead(id.getPid(), solrAccess, user, actionAllowed)) {
+        if (canBeRead(id.getPid(), solrAccess, user, rightsResolver)) {
             try {
                 URL url = urlManager.getAudiostreamRepositoryUrl(id);
                 if (url == null) {
@@ -68,9 +68,9 @@ public class AudioStreamForwardUtils {
     }
     
     public static void GET(AudioStreamId id, HttpServletRequest request,
-                           HttpServletResponse response, SolrAccess solrAccess, User user, RightsResolver actionAllowed, RepositoryUrlManager urlManager) throws IOException, ServletException {
+                           HttpServletResponse response, SolrAccess solrAccess, User user, RightsResolver rightsResolver, RepositoryUrlManager urlManager) throws IOException, ServletException {
         LOGGER.info(id.toString());
-        if (canBeRead(id.getPid(), solrAccess, user, actionAllowed)) {
+        if (canBeRead(id.getPid(), solrAccess, user, rightsResolver)) {
             try {
                 URL url = urlManager.getAudiostreamRepositoryUrl(id);
                 if (url == null) {
@@ -90,9 +90,9 @@ public class AudioStreamForwardUtils {
     }
 
     public static void HEAD(AudioStreamId id, HttpServletRequest request,
-                            HttpServletResponse response, SolrAccess solrAccess, User user, RightsResolver actionAllowed, RepositoryUrlManager urlManager) throws IOException, ServletException {
+                            HttpServletResponse response, SolrAccess solrAccess, User user, RightsResolver rightsResolver, RepositoryUrlManager urlManager) throws IOException, ServletException {
         LOGGER.info(id.toString());
-        if (canBeRead(id.getPid(),solrAccess, user, actionAllowed)) {
+        if (canBeRead(id.getPid(),solrAccess, user, rightsResolver)) {
             try {
                 URL url = urlManager.getAudiostreamRepositoryUrl(id);
                 if (url == null) {
@@ -112,9 +112,9 @@ public class AudioStreamForwardUtils {
     }
 
     public static ResponseBuilder HEAD(AudioStreamId id, HttpServletRequest request,
-                                       ResponseBuilder builder, SolrAccess solrAccess, User user, RightsResolver actionAllowed, RepositoryUrlManager urlManager) throws IOException {
+                                       ResponseBuilder builder, SolrAccess solrAccess, User user, RightsResolver rightsResolver, RepositoryUrlManager urlManager) throws IOException {
         LOGGER.info(id.toString());
-        if (canBeRead(id.getPid(),solrAccess, user, actionAllowed)) {
+        if (canBeRead(id.getPid(),solrAccess, user, rightsResolver)) {
             try {
                 URL url = urlManager.getAudiostreamRepositoryUrl(id);
                 if (url == null) {

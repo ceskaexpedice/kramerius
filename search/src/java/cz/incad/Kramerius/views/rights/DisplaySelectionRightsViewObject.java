@@ -48,7 +48,7 @@ public class DisplaySelectionRightsViewObject extends AbstractRightsView {
     RightsManager rightsManager;
 
     @Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver;
     
     @Inject
     Provider<User> userProvider;

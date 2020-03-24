@@ -56,7 +56,7 @@ public class AudioProxyServlet extends GuiceServlet {
     private static final Logger LOGGER = Logger.getLogger(AudioProxyServlet.class.getName());
 
 	@Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver;
     @Inject
     SolrAccess solrAccess;
     @Inject
@@ -91,7 +91,7 @@ public class AudioProxyServlet extends GuiceServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        AudioStreamForwardUtils.GET(AudioStreamId.fromPathInfo(request.getPathInfo()), request, response, this.solrAccess, this.userProvider.get(),this.actionAllowed, this.urlManager);
+        AudioStreamForwardUtils.GET(AudioStreamId.fromPathInfo(request.getPathInfo()), request, response, this.solrAccess, this.userProvider.get(),this.rightsResolver, this.urlManager);
     }
 
     /**
@@ -105,7 +105,7 @@ public class AudioProxyServlet extends GuiceServlet {
      */
     @Override
     protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        AudioStreamForwardUtils.HEAD(AudioStreamId.fromPathInfo(request.getPathInfo()), request, response,this.solrAccess, this.userProvider.get(),this.actionAllowed, this.urlManager);
+        AudioStreamForwardUtils.HEAD(AudioStreamId.fromPathInfo(request.getPathInfo()), request, response,this.solrAccess, this.userProvider.get(),this.rightsResolver, this.urlManager);
     }
 
     /**

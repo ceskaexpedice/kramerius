@@ -138,7 +138,7 @@ public class LRResource {
     Provider<User> userProvider;
     
     @Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver;
     
     @Inject
     Application application;
@@ -205,7 +205,7 @@ public class LRResource {
         }
 
         SecuredActions actionFromDef = securedAction(def, definition);
-        boolean permitted = permit(actionAllowed, actionFromDef, user);
+        boolean permitted = permit(rightsResolver, actionFromDef, user);
         if (permitted) {
             try {
                 
@@ -268,7 +268,7 @@ public class LRResource {
         }
 
         SecuredActions actionFromDef = securedAction(def, definition);
-        boolean permitted = permit(actionAllowed, actionFromDef, user);
+        boolean permitted = permit(rightsResolver, actionFromDef, user);
 
         if (permitted) {
             try {
@@ -329,7 +329,7 @@ public class LRResource {
         }
 
         SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
-        boolean permitted = permit(actionAllowed, actionFromDef, user);
+        boolean permitted = permit(rightsResolver, actionFromDef, user);
         if (permitted) {
             if (stop != null) {
                 this.definitionManager.load();
@@ -381,7 +381,7 @@ public class LRResource {
         }
 
         SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
-        boolean permitted = permit(actionAllowed, actionFromDef, user);
+        boolean permitted = permit(rightsResolver, actionFromDef, user);
 
         
         //TODO: security
@@ -431,7 +431,7 @@ public class LRResource {
         }
 
         SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
-        boolean permitted = permit(actionAllowed, actionFromDef, user);
+        boolean permitted = permit(rightsResolver, actionFromDef, user);
         if (permitted) {
             try {
                 JSONObject jsonObj = new JSONObject();
@@ -481,7 +481,7 @@ public class LRResource {
         }
 
         SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
-        boolean permitted = permit(actionAllowed, actionFromDef, user);
+        boolean permitted = permit(rightsResolver, actionFromDef, user);
         if (permitted) {
             LRProcess lrProc = this.lrProcessManager.getLongRunningProcess(uuid);
             if (lrProc != null) {
@@ -552,7 +552,7 @@ public class LRResource {
             throw new ActionNotAllowed("action is not allowed");
         }
 
-        boolean permitted = permit(actionAllowed,  user);
+        boolean permitted = permit(rightsResolver,  user);
 
         if (permitted) {
 

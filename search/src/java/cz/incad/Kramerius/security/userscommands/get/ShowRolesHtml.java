@@ -40,7 +40,7 @@ public class ShowRolesHtml extends AbstractRoleCommand {
     java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ShowRolesHtml.class.getName());
 
     @Inject
-    RightsResolver actionAllowed;
+    RightsResolver rightsResolver1;
     
     @Inject
     LoggedUsersSingleton loggedUsersSingleton;
