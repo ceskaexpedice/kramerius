@@ -23,6 +23,14 @@ public interface ProcessManager {
     public List<ProcessInBatch> getProcessesInBatches(Filter filter, int offset, int limit);
 
     /**
+     * Returns all processes in batch identified by first-process-id
+     *
+     * @param firstProcessId
+     * @return
+     */
+    public List<ProcessInBatch> getProcessesInBatchByFirstProcessId(int firstProcessId);
+
+    /**
      * @param processId
      * @return
      */

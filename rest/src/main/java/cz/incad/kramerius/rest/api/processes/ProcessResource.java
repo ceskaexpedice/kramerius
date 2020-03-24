@@ -2,10 +2,7 @@ package cz.incad.kramerius.rest.api.processes;
 
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessDefinition;
-import cz.incad.kramerius.processes.LRProcessManager;
+import cz.incad.kramerius.processes.*;
 import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.exceptions.*;
@@ -71,7 +68,7 @@ public class ProcessResource {
     private static final String ROLE_READ_PROCESSES = "kramerius_admin";
     private static final String ROLE_READ_PROCESS_OWNERS = "kramerius_admin";
     private static final String ROLE_DELETE_PROCESSES = "kramerius_admin";
-
+    private static final String ROLE_CANCEL_OR_KILL_PROCESSES = "kramerius_admin";
 
     @Inject
     LRProcessManager lrProcessManager; //here only for scheduling
@@ -336,6 +333,61 @@ public class ProcessResource {
             result.put("batch_token", batch.token);
             result.put("processes_deleted", deleted);
             return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
+
+    @DELETE
+    @Path("/batches/by_first_process_id/{process_id}/execution")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response killBatch(@PathParam("process_id") String processId) {
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_CANCEL_OR_KILL_PROCESSES;
+            if (!user.getRoles().contains(role)) {
+                throw new ActionNotAllowed("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            }
+            //id
+            Integer processIdInt = null;
+            if (StringUtils.isAnyString(processId)) {
+                try {
+                    processIdInt = Integer.valueOf(processId);
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("process_id must be integer, '%s' is not", processId);
+                }
+            }
+            //get batch data from db
+            Batch batch = this.processManager.getBatchByFirstProcessId(processIdInt);
+            if (batch == null) {
+                throw new BadRequestException("batch with first-process-id %d doesn't exist", processIdInt);
+            }
+
+            //kill all processes in batch if possible
+            String batchState = toBatchStateName(batch.stateCode);
+            if (isKillableState(batchState)) {
+                List<ProcessInBatch> processes = processManager.getProcessesInBatchByFirstProcessId(processIdInt);
+                for (ProcessInBatch process : processes) {
+                    String uuid = process.processUuid;
+                    LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
+                    if (lrProcess != null && !States.notRunningState(lrProcess.getProcessState())) {
+                        //System.out.println(lrProcess.getProcessState());
+                        try {
+                            lrProcess.stopMe();
+                            lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
+                        } catch (Throwable e) { //because AbstractLRProcessImpl.stopMe() throws java.lang.IllegalStateException: cannot stop this process! No PID associated
+                            e.printStackTrace();
+                        }
+                    } else {
+                        System.out.println(lrProcess.getProcessState());
+                    }
+                }
+            }
+            return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -908,6 +960,11 @@ public class ProcessResource {
 
     private boolean isDeletableState(String batchState) {
         String[] deletableStates = new String[]{"FINISHED", "FAILED", "KILLED"};
+        return batchState != null && Arrays.asList(deletableStates).contains(batchState);
+    }
+
+    private boolean isKillableState(String batchState) {
+        String[] deletableStates = new String[]{"PLANNED", "RUNNING"};
         return batchState != null && Arrays.asList(deletableStates).contains(batchState);
     }
 

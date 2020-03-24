@@ -161,6 +161,76 @@ public class ProcessManagerImplDb implements ProcessManager {
         }
     }
 
+    @Override
+    public List<ProcessInBatch> getProcessesInBatchByFirstProcessId(int firstProcessId) {
+        Connection connection = connectionProvider.get();
+        if (connection == null) {
+            throw new NotReadyException("connection not ready");
+        }
+        try {
+            String filteredBatchQuery = String.format("SELECT * FROM process_batch AS batch WHERE first_process_id=%d", firstProcessId);
+            //System.out.println(filteredBatchQuery);
+            String joinQuery =
+                    "SELECT " +
+                            "batch.batch_token AS batch_token," +
+                            "batch.first_process_id AS batch_id," +
+                            "batch.batch_state AS batch_state," +
+                            "batch.process_count AS batch_size," +
+                            "batch.planned AS batch_planned," +
+                            "batch.started AS batch_started," +
+                            "batch.finished AS batch_finished," +
+                            "batch.owner_id AS batch_owner_id," +
+                            "batch.owner_name AS batch_owner_name," +
+
+                            "processes.process_id AS process_id," +
+                            "processes.uuid AS process_uuid," +
+                            "processes.defid AS process_defid," +
+                            "processes.name AS process_name," +
+                            "processes.status AS process_state," +
+                            "processes.planned AS process_planned," +
+                            "processes.started AS process_started," +
+                            "processes.finished AS process_finished" +
+
+                            " FROM" +
+                            " (" + filteredBatchQuery + ") batch" +
+                            " JOIN" +
+                            " processes" +
+                            " ON" +
+                            " batch.batch_token=processes.token" +
+                            " ORDER BY " +
+                            " batch_id DESC, process_id ASC";
+            //System.out.println(joinQuery);
+
+            return new JDBCQueryTemplate<ProcessInBatch>(connection) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<ProcessInBatch> returnsList) throws SQLException {
+                    ProcessInBatch processInBatch = new ProcessInBatch();
+                    processInBatch.batchToken = rs.getString("batch_token");
+                    processInBatch.batchId = rs.getString("batch_id");
+                    processInBatch.batchStateCode = rs.getInt("batch_state");
+                    processInBatch.batchPlanned = toLocalDateTime(rs.getTimestamp("batch_planned"));
+                    processInBatch.batchStarted = toLocalDateTime(rs.getTimestamp("batch_started"));
+                    processInBatch.batchFinished = toLocalDateTime(rs.getTimestamp("batch_finished"));
+                    processInBatch.batchOwnerId = rs.getString("batch_owner_id");
+                    processInBatch.batchOwnerName = rs.getString("batch_owner_name");
+                    processInBatch.batchSize = rs.getInt("batch_size");
+
+                    processInBatch.processId = rs.getString("process_id");
+                    processInBatch.processUuid = rs.getString("process_uuid");
+                    processInBatch.processDefid = rs.getString("process_defid");
+                    processInBatch.processName = rs.getString("process_name");
+                    processInBatch.processStateCode = rs.getInt("process_state");
+                    processInBatch.processPlanned = toLocalDateTime(rs.getTimestamp("process_planned"));
+                    processInBatch.processStarted = toLocalDateTime(rs.getTimestamp("process_started"));
+                    processInBatch.processFinished = toLocalDateTime(rs.getTimestamp("process_finished"));
+                    returnsList.add(processInBatch);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(joinQuery);
+        } finally {
+            DatabaseUtils.tryClose(connection);
+        }
+    }
 
     @Override
     public List<ProcessOwner> getProcessesOwners() {
