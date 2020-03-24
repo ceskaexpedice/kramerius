@@ -16,8 +16,6 @@
  */
 package cz.incad.kramerius.security.guice;
 
-import static org.easymock.EasyMock.replay;
-
 import org.easymock.EasyMock;
 
 import com.google.inject.AbstractModule;
@@ -25,8 +23,6 @@ import com.google.inject.name.Names;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.SecuredActions;
 
 public class MockRightCriteriumContextGuiceMudule extends AbstractModule {
 

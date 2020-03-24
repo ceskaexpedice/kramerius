@@ -1,56 +1,36 @@
 package cz.incad.Kramerius;
 
-import static cz.incad.utils.IKeys.UUID_PARAMETER;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.Kramerius.statistics.formatters.utils.StringUtils;
-import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.imaging.DeepZoomCacheService;
-import cz.incad.kramerius.imaging.ImageStreams;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightCriteriumContextFactory;
-import cz.incad.kramerius.security.RightsManager;
-import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.imgs.ImageMimeType;
-import cz.incad.kramerius.utils.solr.SolrUtils;
 
 public class ActionAllowedServlet extends GuiceServlet {
 
@@ -61,7 +41,7 @@ public class ActionAllowedServlet extends GuiceServlet {
     @Inject
     SolrAccess solrAccess;
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
     @Inject
     RightCriteriumContextFactory ctxFactory;
     @Inject
@@ -121,7 +101,7 @@ public class ActionAllowedServlet extends GuiceServlet {
     private boolean isActionAllowed(User user, String action, String pid) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         for (ObjectPidsPath p : paths) {
-            boolean b = actionAllowed.isActionAllowed(user, action, pid, null, p);
+            boolean b = rightsResolver.isActionAllowed(user, action, pid, null, p);
             if (b) {
                 return true;
             }

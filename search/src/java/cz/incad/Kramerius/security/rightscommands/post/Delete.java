@@ -27,19 +27,11 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.NotImplementedException;
-
-import com.google.inject.Inject;
-
-import cz.incad.Kramerius.security.RightsServlet;
-import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.security.impl.RightImpl;
 
 public class Delete extends ServletRightsCommand {
 
@@ -91,7 +83,7 @@ public class Delete extends ServletRightsCommand {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
+            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
                 hasRight = true;
                 break;
             } else {

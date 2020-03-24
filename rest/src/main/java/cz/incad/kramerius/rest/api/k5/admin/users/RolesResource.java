@@ -52,7 +52,7 @@ import cz.incad.kramerius.rest.api.exceptions.DeleteException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.FormalNamesMapping;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -81,7 +81,7 @@ public class RolesResource {
     Provider<User> userProvider;
     
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
 
 	
 
@@ -215,7 +215,7 @@ public class RolesResource {
 	
     boolean permit(User user) {
     	if (user != null)
-    		return  this.actionAllowed.isActionAllowed(user,SecuredActions.USERSADMIN.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH);
+    		return  this.rightsResolver.isActionAllowed(user,SecuredActions.USERSADMIN.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH);
     	else 
     		return false;
     }

@@ -42,7 +42,7 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
@@ -69,7 +69,7 @@ public class DisplayObjectsView extends AbstractRightsView {
     RightsManager rightsManager;
 
     @Inject
-    IsActionAllowed isActionAllowed;
+    RightsResolver rightsResolver;
     
     @Inject
     Provider<User> userProvider;
@@ -108,7 +108,7 @@ public class DisplayObjectsView extends AbstractRightsView {
                 boolean hasRight = false;
                 ObjectPidsPath[] paths = solrAccess.getPath(pid.toString());
                 for (ObjectPidsPath path : paths) {
-                    if (this.isActionAllowed.isActionAllowed(this.userProvider.get(),SecuredActions.ADMINISTRATE.getFormalName(),pid.toString(), null, path)) {
+                    if (this.rightsResolver.isActionAllowed(this.userProvider.get(),SecuredActions.ADMINISTRATE.getFormalName(),pid.toString(), null, path)) {
                         hasRight = true;
                         break;
                     }

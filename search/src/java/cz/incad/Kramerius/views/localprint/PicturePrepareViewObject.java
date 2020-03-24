@@ -22,10 +22,9 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -45,7 +44,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
     Provider<User> userProvider;
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
     
     @Inject
     SolrAccess solrAccess;
@@ -152,7 +151,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
     private boolean canBeRead(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth)) {
+            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth)) {
                 return true;
             }
         }

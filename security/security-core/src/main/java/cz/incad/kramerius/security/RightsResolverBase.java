@@ -19,7 +19,7 @@ package cz.incad.kramerius.security;
 /**
  * Base rights resolver.   
  */
-public interface IsActionAllowedBase {
+public interface RightsResolverBase {
 
     /**
      * Returns true if given user is permitted perform given action

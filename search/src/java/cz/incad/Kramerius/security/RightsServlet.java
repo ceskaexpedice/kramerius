@@ -44,23 +44,15 @@ import cz.incad.Kramerius.security.rightscommands.post.Delete;
 import cz.incad.Kramerius.security.rightscommands.post.DeleteCriteriumParams;
 import cz.incad.Kramerius.security.rightscommands.post.Edit;
 import cz.incad.Kramerius.security.rightscommands.post.RenameCriteriumParams;
-import cz.incad.Kramerius.security.userscommands.get.EditRoleHtml;
-import cz.incad.Kramerius.security.userscommands.get.ShowRolesHtml;
 import cz.incad.Kramerius.security.utils.UserFieldParser;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightCriteriumParams;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
-import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
-import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
-import cz.incad.kramerius.security.impl.RightImpl;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -95,7 +87,7 @@ public class RightsServlet extends GuiceServlet {
     transient UserManager userManager;
 
     @Inject
-    transient IsActionAllowed actionAllowed;
+    transient RightsResolver actionAllowed;
     
     
     @Inject

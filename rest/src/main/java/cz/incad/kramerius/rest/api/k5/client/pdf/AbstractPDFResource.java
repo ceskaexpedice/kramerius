@@ -45,7 +45,7 @@ import cz.incad.kramerius.pdf.SimplePDFService;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.User;
@@ -112,7 +112,7 @@ public class AbstractPDFResource {
     
     
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
     
     @Inject
     Provider<User> userProvider;
@@ -291,7 +291,7 @@ public class AbstractPDFResource {
     private boolean canBeRenderedAsPDF(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth)) {
+            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth)) {
                 return true;
             }
         }

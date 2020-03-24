@@ -21,7 +21,7 @@ import cz.incad.kramerius.ObjectPidsPath;
 /**
  * Rights resolver.   
  */
-public interface IsActionAllowed extends IsActionAllowedBase {
+public interface RightsResolver extends RightsResolverBase {
 
 	/**
 	 * Returns true if current logged user is permitted to do action defined by first parameter (actionName) for object defined by second and third parameter (uuid and pathOfUuuid)

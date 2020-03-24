@@ -38,7 +38,7 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.virtualcollections.CollectionException;
@@ -50,7 +50,7 @@ public class ClientRightsResource {
     public static final Logger LOGGER = Logger.getLogger(ClientRightsResource.class.getName());
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     SolrAccess solrAccess;
@@ -107,7 +107,7 @@ public class ClientRightsResource {
             object.put(token, new JSONArray());
             for (ObjectPidsPath ph : paths) {
                 ObjectPidsPath nph = ph.injectRepository().injectCollections(this.colGet);
-                boolean[] flags = this.actionAllowed.isActionAllowedForAllPath(token, pid, stream, nph);
+                boolean[] flags = this.rightsResolver.isActionAllowedForAllPath(token, pid, stream, nph);
                 allowedFor(object.getJSONArray(token), token, nph, flags);
             }
         }
@@ -121,7 +121,7 @@ public class ClientRightsResource {
             String token = tokenizer.nextToken();
             boolean flag = false;
             for (ObjectPidsPath ph : paths) {
-                flag = this.actionAllowed.isActionAllowed(token, pid, stream, ph);
+                flag = this.rightsResolver.isActionAllowed(token, pid, stream, ph);
                 if (flag)
                     break;
             }

@@ -38,7 +38,7 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
@@ -63,7 +63,7 @@ public class StatisticsResource {
     StatisticsAccessLog statisticsAccessLog;
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     Provider<User> userProvider;
@@ -134,7 +134,7 @@ public class StatisticsResource {
 
     boolean permit(User user) {
         if (user != null)
-            return this.actionAllowed.isActionAllowed(user,
+            return this.rightsResolver.isActionAllowed(user,
                     SecuredActions.SHOW_STATISTICS.getFormalName(),
                     SpecialObjects.REPOSITORY.getPid(), null,
                     ObjectPidsPath.REPOSITORY_PATH);

@@ -29,7 +29,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.service.TextsService;
@@ -49,10 +49,10 @@ public class WellcomeViewObject {
     Provider<Locale> provider;
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
     
     public String getIntro() throws IOException {
-        boolean operationPermited = actionAllowed.isActionAllowed(SecuredActions.EDIT_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
+        boolean operationPermited = rightsResolver.isActionAllowed(SecuredActions.EDIT_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
         return operationPermited ? getTextIntro() : getTextIntro();
     }
     

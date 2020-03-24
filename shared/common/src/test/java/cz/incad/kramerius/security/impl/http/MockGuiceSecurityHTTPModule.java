@@ -23,7 +23,7 @@ import org.easymock.EasyMock;
 import com.google.inject.AbstractModule;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
@@ -33,11 +33,11 @@ public class MockGuiceSecurityHTTPModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        IsActionAllowed isAllowed = EasyMock.createMock(IsActionAllowed.class);
+        RightsResolver isAllowed = EasyMock.createMock(RightsResolver.class);
         EasyMock.expect(isAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), FedoraUtils.IMG_FULL_STREAM, SpecialObjects.REPOSITORY.getPid(), new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))).andReturn(true);
         replay(isAllowed);
 
-        bind(IsActionAllowed.class).toInstance(isAllowed);
+        bind(RightsResolver.class).toInstance(isAllowed);
         bind(User.class).toProvider(MockUserProvider.class);
     }
 }

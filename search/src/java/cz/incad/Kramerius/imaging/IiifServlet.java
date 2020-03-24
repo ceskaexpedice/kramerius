@@ -8,7 +8,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.item.utils.IIIFUtils;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.RESTHelper;
@@ -20,7 +20,6 @@ import org.json.JSONObject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -40,7 +39,7 @@ public class IiifServlet extends AbstractImageServlet {
     private SolrAccess solrAccess;
 
     @Inject
-    private IsActionAllowed actionAllowed;
+    private RightsResolver rightsResolver;
 
     @Inject
     private Provider<User> userProvider;
@@ -67,7 +66,7 @@ public class IiifServlet extends AbstractImageServlet {
             ObjectPidsPath[] paths = solrAccess.getPath(pid);
             boolean permited = false;
             for (ObjectPidsPath pth : paths) {
-                permited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth);
+                permited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth);
                 if (permited) break;
             }
 

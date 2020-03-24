@@ -7,8 +7,6 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +19,6 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import net.sf.json.JSONObject;
-
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -34,18 +30,16 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.ImageStreams;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightCriteriumContextFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
 import cz.incad.kramerius.utils.ALTOUtils;
@@ -56,7 +50,6 @@ import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
-import cz.incad.kramerius.utils.solr.SolrUtils;
 import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
@@ -87,7 +80,7 @@ public class ViewInfoServlet extends GuiceServlet {
     DeepZoomCacheService deepZoomCacheService;
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
 
     
     @Inject
@@ -325,7 +318,7 @@ public class ViewInfoServlet extends GuiceServlet {
     public MappedPath findPathWithFirstAccess(HttpServletRequest req, String pid, ObjectPidsPath[] paths,SecuredActions act) throws CollectionException {
         for (ObjectPidsPath objectPath : paths) {
             ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet);
-            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM ,path);
+            boolean[] allowedActionForPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM ,path);
             if (atLeastOneTrue(allowedActionForPath)) {
                 return new MappedPath(path, allowedActionForPath);
             }
@@ -337,7 +330,7 @@ public class ViewInfoServlet extends GuiceServlet {
         List<MappedPath> mappedPaths = new ArrayList<ViewInfoServlet.MappedPath>();
         for (ObjectPidsPath objectPath : paths) {
             ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet);
-            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM,path);
+            boolean[] allowedActionForPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM,path);
             mappedPaths.add(new MappedPath(path, allowedActionForPath));
         }
                 
@@ -350,7 +343,7 @@ public class ViewInfoServlet extends GuiceServlet {
         
         for (ObjectPidsPath objectPath : paths) {
             ObjectPidsPath path = objectPath.injectRepository();
-            boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), uuid,path);
+            boolean[] allowedActionForPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), uuid,path);
             for (boolean b : allowedActionForPath) {
                 if (b) break;
             }
@@ -363,7 +356,7 @@ public class ViewInfoServlet extends GuiceServlet {
         pathWithRepository.add(0, SpecialObjects.REPOSITORY.getUuid());
         Collections.reverse(pathWithRepository);
 
-        boolean[] allowedActionForPath = actionAllowed.isActionAllowedForAllPath(act.getFormalName(), uuid,paths);
+        boolean[] allowedActionForPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), uuid,paths);
         
         for (int j = 0; j < allowedActionForPath.length; j++) {
             if (!secMapping.containsKey(act.getFormalName())) {

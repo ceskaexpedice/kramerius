@@ -37,7 +37,7 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.PasswordDigest;
@@ -51,7 +51,7 @@ public class ClientUserResource {
     UserProfileManager userProfileManager;
 
     @Inject
-    IsActionAllowed isActionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     Provider<User> userProvider;
