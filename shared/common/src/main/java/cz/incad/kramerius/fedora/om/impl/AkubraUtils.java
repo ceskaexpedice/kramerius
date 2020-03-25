@@ -13,6 +13,7 @@ import org.w3c.dom.Element;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.TransformerException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -85,6 +86,8 @@ public class AkubraUtils {
             {
                 throw new IOException("Unsupported datastream reference type: " + stream.getContentLocation().getTYPE() + "(" + stream.getContentLocation().getREF() + ")");
             }
+        } else if (stream.getBinaryContent() != null) {
+            return new ByteArrayInputStream(stream.getBinaryContent());
         } else {
             throw new IOException("Unsupported datastream content type: " + stream.getID());
         }
