@@ -87,7 +87,7 @@ public abstract class Repository {
     public abstract void deleteobject(String pid) throws RepositoryException;
 
     /**
-     * Return processsing index feedder
+     * Return processing index feeder
      * @return
      * @throws RepositoryException
      */
