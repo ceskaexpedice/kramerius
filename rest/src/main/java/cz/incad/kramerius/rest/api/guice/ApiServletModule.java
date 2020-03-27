@@ -89,7 +89,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.client.v60.ItemResource.class);
 
         // API Admin 1.0 Resources
-        bind(cz.incad.kramerius.rest.apiNew.admin.v10.ProcessResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.admin.v10.processes.ProcessResource.class);
 
         bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
                 .asEagerSingleton();

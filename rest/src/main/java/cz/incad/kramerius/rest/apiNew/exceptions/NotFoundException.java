@@ -1,20 +1,19 @@
 package cz.incad.kramerius.rest.apiNew.exceptions;
 
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 public class NotFoundException extends ApiException {
 
     public NotFoundException() {
-        super(Response.status(Response.Status.NOT_FOUND).build());
+        super(Response.Status.NOT_FOUND);
     }
 
-    public NotFoundException(String pid) {
-        super(Response.status(Response.Status.NOT_FOUND)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(buildErrorJson(String.format("object with pid %s not found in repository", pid)))
-                .build());
+    public NotFoundException(String message) {
+        super(Response.Status.NOT_FOUND, message);
     }
 
+    public NotFoundException(String messageTemplate, Object... messageArgs) {
+        super(Response.Status.NOT_FOUND, messageTemplate, messageArgs);
+    }
 
 }

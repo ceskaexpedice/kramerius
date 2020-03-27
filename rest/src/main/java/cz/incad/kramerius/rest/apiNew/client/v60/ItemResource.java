@@ -37,7 +37,7 @@ public class ItemResource {
         try {
             boolean objectExists = this.repositoryAccess.isObjectAvailable(pid);
             if (!objectExists) {
-                throw new NotFoundException(pid);
+                throw new NotFoundException("object with pid %s not found in repository", pid);
             }
         } catch (IOException e) {
             throw new InternalErrorException(e.getMessage());

@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 public class ProxyAuthenticationRequiredException extends AbstractRestJSONException {
 
     public ProxyAuthenticationRequiredException(String message) {
-        super(message, HttpServletResponse.SC_BAD_REQUEST);
+        super(message, HttpServletResponse.SC_PROXY_AUTHENTICATION_REQUIRED);
     }
 
     public ProxyAuthenticationRequiredException(String message, Exception ex) {

@@ -1,4 +1,4 @@
-package cz.incad.kramerius.rest.api.processes;
+package cz.incad.kramerius.rest.apiNew.admin.v10.processes;
 
 import cz.incad.kramerius.processes.LRProcess;
 
@@ -31,9 +31,8 @@ public class ProcessLogsHelper {
     /**
      * @param type type of log, either OUT for output log , or ERR for error log
      * @return size of the log file in bytes
-     * @throws IOException
      */
-    public long getLogsFileSize(LogType type) throws IOException {
+    public long getLogsFileSize(LogType type) {
         RandomAccessFile errorProcessRAFile = null;
         try {
             errorProcessRAFile = getProcessRAFile(type);
@@ -42,7 +41,11 @@ public class ProcessLogsHelper {
             LOGGER.log(Level.FINE, ex.getMessage(), ex);
             return 0;
         } finally {
-            if (errorProcessRAFile != null) errorProcessRAFile.close();
+            try {
+                if (errorProcessRAFile != null) errorProcessRAFile.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

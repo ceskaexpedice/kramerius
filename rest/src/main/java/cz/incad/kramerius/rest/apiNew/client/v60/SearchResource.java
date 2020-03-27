@@ -18,12 +18,11 @@ package cz.incad.kramerius.rest.apiNew.client.v60;
 
 import com.google.inject.Inject;
 import cz.incad.kramerius.SolrAccess;
-//TODO use cz.incad.kramerius.rest.apiNew.exceptions.ApiException
-import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
-import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
+import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
+import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -53,6 +52,7 @@ import java.util.logging.Logger;
 
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 
+//TODO: pouklizet, probrat endpointy (terms?), prejmenovate endpoint metody
 
 @Path("/client/v6.0/search")
 public class SearchResource {
@@ -113,20 +113,20 @@ public class SearchResource {
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
-                throw new GenericApplicationException(e.getMessage());
+                throw new InternalErrorException(e.getMessage());
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new GenericApplicationException(e.getMessage());
+            throw new InternalErrorException(e.getMessage());
         } catch (TransformerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new GenericApplicationException(e.getMessage());
+            throw new InternalErrorException(e.getMessage());
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new GenericApplicationException(e.getMessage());
+            throw new InternalErrorException(e.getMessage());
         } catch (SAXException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new GenericApplicationException(e.getMessage());
+            throw new InternalErrorException(e.getMessage());
         }
     }
 
@@ -208,14 +208,14 @@ public class SearchResource {
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
-                throw new GenericApplicationException(e.getMessage());
+                throw new InternalErrorException(e.getMessage());
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new GenericApplicationException(e.getMessage());
+            throw new InternalErrorException(e.getMessage());
         } catch (JSONException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new GenericApplicationException(e.getMessage());
+            throw new InternalErrorException(e.getMessage());
         }
     }
 
@@ -498,7 +498,7 @@ public class SearchResource {
             return Response.ok().entity(rawString).build();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage());
-            throw new GenericApplicationException(e.getMessage());
+            throw new InternalErrorException(e.getMessage());
         }
 
     }
@@ -528,7 +528,7 @@ public class SearchResource {
             return Response.ok().entity(rawString).build();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage());
-            throw new GenericApplicationException(e.getMessage());
+            throw new InternalErrorException(e.getMessage());
         }
     }
 

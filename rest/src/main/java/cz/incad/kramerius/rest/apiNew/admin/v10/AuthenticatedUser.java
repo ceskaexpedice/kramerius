@@ -1,4 +1,4 @@
-package cz.incad.kramerius.rest.api.processes;
+package cz.incad.kramerius.rest.apiNew.admin.v10;
 
 import java.util.List;
 
