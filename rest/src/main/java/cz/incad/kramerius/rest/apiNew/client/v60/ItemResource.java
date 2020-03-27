@@ -24,6 +24,23 @@ import java.util.logging.Logger;
 @Path("/client/v6.0/item")
 public class ItemResource {
 
+    //TODO: uklid
+    //(ne-admin) client je neutentizovany, jenom cte data a mela by pred nim byt do urcite miry skryta implementece, takze:
+
+    // {pid}/foxml                  -> zrusit tady, presunotu do admin api
+    // {pid}/streams                -> zrusit, odhaluje implementaci
+    // {pid}/full                   -> nahradit za {pid}/image/full
+    // {pid}/thumb                  -> nahradit za {pid}/image/thumb
+    // {pid}/preview                -> nahradit za {pid}/image/preview, nebo uplne zrusit (nepouziva se bud thumb, nebo preview, nikdy nevim ktery)
+    // {pid}/streams/BIBLIO_MODS    -> nahradit za {pid}/metadata/mods
+    // {pid}/streams/DC             -> nahradit za {pid}/metadata/dublin_core
+    // {pid}/streams/RELS_EXT       -> nahradit za {pid}/structure, nebo vyhledove zahodi, pokud se ukaze, ze neni potreba
+
+    // {pid}
+    // {pid}/parents
+    // {pid}/siblings
+    // {pid}/children
+
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess repositoryAccess;
