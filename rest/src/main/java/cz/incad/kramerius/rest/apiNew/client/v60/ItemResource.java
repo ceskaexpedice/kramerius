@@ -1,12 +1,12 @@
-package cz.incad.kramerius.rest.api.client.v60.client;
+package cz.incad.kramerius.rest.apiNew.client.v60;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.rest.api.client.v60.client.exceptions.ApiException;
-import cz.incad.kramerius.rest.api.client.v60.client.exceptions.InternalErrorException;
-import cz.incad.kramerius.rest.api.client.v60.client.exceptions.NotFoundException;
+import cz.incad.kramerius.rest.apiNew.exceptions.ApiException;
+import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.utils.ApplicationURL;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 /**
  * @see cz.incad.kramerius.rest.api.k5.client.item.ItemResource
  */
-@Path("/v6.0/item")
+@Path("/client/v6.0/item")
 public class ItemResource {
 
     @Inject
@@ -109,6 +109,8 @@ public class ItemResource {
                            @PathParam("dsid") String dsid) {
         //TODO: implement or remove
         //tohle asi pujde pryc, na teto urovni abstrakce mame konkretni metody pro konkretni streamy
+        //ale tim padem by tu mely byt metody getMods, getOcrTxt, getOcrXml apod.
+        //system streamu (a verzovani) bude pro client api skryty (detail imlementace)
         throw new InternalErrorException("not implemented yet");
     }
 

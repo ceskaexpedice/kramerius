@@ -1,28 +1,24 @@
 /*
  * Copyright (C) 2012 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package cz.incad.kramerius.rest.api.guice;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.inject.multibindings.Multibinder;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
-
 import cz.incad.kramerius.rest.api.k5.admin.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
 import cz.incad.kramerius.rest.api.k5.admin.users.RolesResource;
@@ -32,28 +28,11 @@ import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.feedback.FeedbackResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
-import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrAuthorDecorate;
-import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrMimeDecorate;
-import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrPolicyDecorate;
-import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootModelDecorate;
-import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootPidDecorate;
-import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrTitleDecorate;
-import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
-import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
-import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.*;
 import cz.incad.kramerius.rest.api.k5.client.impl.SolrMemoizationImpl;
 import cz.incad.kramerius.rest.api.k5.client.info.InfoResource;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.CollectionsDecorator;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.DonatorDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.HandleDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootModelDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrRootPidDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.ItemSolrTitleDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.ReplicatedFromDecorator;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrContextDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrDataNode;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.SolrRightsFlag;
+import cz.incad.kramerius.rest.api.k5.client.item.decorators.*;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.*;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.PDFDecorate;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.ZoomDecorate;
@@ -61,19 +40,20 @@ import cz.incad.kramerius.rest.api.k5.client.pdf.AsyncPDFResource;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
-import cz.incad.kramerius.rest.api.k5.client.search.SearchResourceNew;
 import cz.incad.kramerius.rest.api.k5.client.user.ClientUserResource;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
-import cz.incad.kramerius.rest.api.processes.ProcessResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyReader;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyWriter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * REST API module
- * 
+ *
  * @author pavels
  */
 public class ApiServletModule extends JerseyServletModule {
@@ -82,12 +62,12 @@ public class ApiServletModule extends JerseyServletModule {
 
     @Override
     protected void configureServlets() {
-        // API 4.6 Resources
+        // API Remote 4.6 Resources
         bind(ReplicationsResource.class);
         bind(CDKReplicationsResource.class);
         bind(LRResource.class);
 
-        // API 5.0 Resources
+        // API Client 5.0 Resources
         bind(ClientUserResource.class);
         bind(ItemResource.class);
         bind(FeederResource.class);
@@ -104,10 +84,12 @@ public class ApiServletModule extends JerseyServletModule {
         bind(VirtualCollectionsResource.class);
         bind(StatisticsResource.class);
 
-        // API 6.0 Resources
-        bind(ProcessResource.class);
-        bind(SearchResourceNew.class);
-        bind(cz.incad.kramerius.rest.api.client.v60.client.ItemResource.class);
+        // API Client 6.0 Resources
+        bind(cz.incad.kramerius.rest.apiNew.client.v60.SearchResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.client.v60.ItemResource.class);
+
+        // API Admin 1.0 Resources
+        bind(cz.incad.kramerius.rest.apiNew.admin.v10.ProcessResource.class);
 
         bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
                 .asEagerSingleton();
@@ -115,7 +97,7 @@ public class ApiServletModule extends JerseyServletModule {
         // simple reader & writrr
         bind(SimpleJSONMessageBodyReader.class);
         bind(SimpleJSONMessageBodyWriter.class);
-        
+
         // decorators
         decorators();
 

@@ -14,10 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.k5.client.search;
+package cz.incad.kramerius.rest.apiNew.client.v60;
 
 import com.google.inject.Inject;
 import cz.incad.kramerius.SolrAccess;
+//TODO use cz.incad.kramerius.rest.apiNew.exceptions.ApiException
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
@@ -53,10 +54,10 @@ import java.util.logging.Logger;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 
 
-@Path("/v6.0/search")
-public class SearchResourceNew {
+@Path("/client/v6.0/search")
+public class SearchResource {
 
-    private static Logger LOGGER = Logger.getLogger(SearchResourceNew.class.getName());
+    private static Logger LOGGER = Logger.getLogger(SearchResource.class.getName());
 
     @Inject
     @Named("new-index")
@@ -98,7 +99,7 @@ public class SearchResourceNew {
             IOUtils.copyStreams(istream, bos);
             String rawString = new String(bos.toByteArray(), "UTF-8");
 
-            String uri = UriBuilder.fromResource(SearchResourceNew.class).path("")
+            String uri = UriBuilder.fromResource(SearchResource.class).path("")
                     .build().toString();
             Document domObject = changeXMLResult(rawString, uri);
 
@@ -196,7 +197,7 @@ public class SearchResourceNew {
             IOUtils.copyStreams(istream, bos);
             String rawString = new String(bos.toByteArray(), "UTF-8");
 
-            String uri = UriBuilder.fromResource(SearchResourceNew.class).path("")
+            String uri = UriBuilder.fromResource(SearchResource.class).path("")
                     .build().toString();
             JSONObject jsonObject = changeJSONResult(rawString, uri, this.jsonDecoratorAggregates.getDecorators());
 
@@ -487,7 +488,7 @@ public class SearchResourceNew {
             IOUtils.copyStreams(istream, bos);
 
             String rawString = new String(bos.toByteArray(), "UTF-8");
-            String uri = UriBuilder.fromResource(SearchResourceNew.class)
+            String uri = UriBuilder.fromResource(SearchResource.class)
                     .path("terms").build().toString();
             // Document domObject = changeXMLResult(rawString, uri);
             //

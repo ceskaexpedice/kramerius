@@ -1,4 +1,4 @@
-package cz.incad.kramerius.rest.api.client.v60.client.exceptions;
+package cz.incad.kramerius.rest.apiNew.exceptions;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;

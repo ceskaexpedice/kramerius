@@ -1,11 +1,16 @@
-package cz.incad.kramerius.rest.api.processes;
+package cz.incad.kramerius.rest.apiNew.admin.v10;
 
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.*;
 import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
+//TODO use cz.incad.kramerius.rest.apiNew.exceptions.ApiException
 import cz.incad.kramerius.rest.api.exceptions.*;
+import cz.incad.kramerius.rest.api.processes.AuthenticatedUser;
+import cz.incad.kramerius.rest.api.processes.ClientAuthHeaders;
+import cz.incad.kramerius.rest.api.processes.LRResource;
+import cz.incad.kramerius.rest.api.processes.ProcessLogsHelper;
 import cz.incad.kramerius.rest.api.processes.exceptions.NoProcessFound;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
@@ -41,7 +46,7 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.logging.Logger;
 
-@Path("/v6.0/admin/processes")
+@Path("/admin/v1.0/processes")
 public class ProcessResource {
 
     public static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
