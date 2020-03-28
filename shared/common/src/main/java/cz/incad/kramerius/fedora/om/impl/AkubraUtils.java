@@ -24,9 +24,11 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
 public class AkubraUtils {
+    public static final Logger LOGGER = Logger.getLogger(AkubraUtils.class.getName());
 
     private AkubraUtils() {
     }
@@ -82,11 +84,11 @@ public class AkubraUtils {
                 } else {
                     return readFromURL(stream.getContentLocation().getREF());
                 }
-            }
-            {
+            } else {
                 throw new IOException("Unsupported datastream reference type: " + stream.getContentLocation().getTYPE() + "(" + stream.getContentLocation().getREF() + ")");
             }
         } else if (stream.getBinaryContent() != null) {
+            LOGGER.warning("Reading binaryContent from the managed stream.");
             return new ByteArrayInputStream(stream.getBinaryContent());
         } else {
             throw new IOException("Unsupported datastream content type: " + stream.getID());

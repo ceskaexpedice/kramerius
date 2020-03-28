@@ -5,6 +5,9 @@ GET http://localhost:8080/search/api/v5.0/item/uuid:4308eb80-b03b-11dd-a0f6-000d
 
 ###
 
-GET http://localhost:8888/search/api/v5.0/item/uuid:78509df7-d467-11e9-b795-001b63bd97ba/foxml
+GET http://localhost:8880/search/api/v5.0/item/uuid:78509df7-d467-11e9-b795-001b63bd97ba/foxml
+
+###
+GET http://localhost:8080/search/api/v5.0/item/uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6/streams/TEXT_OCR
 
 ###
