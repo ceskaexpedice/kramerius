@@ -2,6 +2,7 @@ package cz.incad.kramerius.utils;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -9,6 +10,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class RelsExtHelperTest {
