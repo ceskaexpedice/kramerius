@@ -257,7 +257,7 @@
             <xsl:if test="$MODEL = 'page'">
                 <field name="details">
                     <xsl:if test="mods:part">
-                        <xsl:for-each select="mods:part/mods:detail[@type = 'pageNumber']/mods:number">
+                        <xsl:for-each select="mods:part/mods:detail[@type = 'pageNumber']/mods:number|mods:part/mods:detail[@type = 'page number']/mods:number">
                         <xsl:value-of select="." />&#160;
                         </xsl:for-each><xsl:value-of select="'##'" />
                         <xsl:value-of select="mods:part/@type" />
