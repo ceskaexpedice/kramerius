@@ -1018,9 +1018,11 @@ public class FedoraAccessImpl implements FedoraAccess {
                 Element dsLocation = XMLUtils.findElement(datastreamProfile.getDocumentElement(), "dsLocation", FedoraNamespaces.FEDORA_MANAGEMENT_NAMESPACE_URI);
                 if (dsLocation != null) {
                     // no user, no pass
+                    LOGGER.log(Level.FINE, String.format("Getting referenced stream from pid %s, %s ", pid, datastreamName));
                     URLConnection directConnection = openConnection(dsLocation.getTextContent().trim(), "", "");
                     if (directConnection instanceof HttpURLConnection) {
                         con = (HttpURLConnection) directConnection;
+                        con.setInstanceFollowRedirects(true);
                     } 
                 }
             }
