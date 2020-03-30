@@ -90,11 +90,12 @@ public class ApiServletModule extends JerseyServletModule {
 
         // API Admin 1.0 Resources
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.processes.ProcessResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.admin.v10.collections.CollectionsResource.class);
 
         bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
                 .asEagerSingleton();
 
-        // simple reader & writrr
+        // simple reader & writer
         bind(SimpleJSONMessageBodyReader.class);
         bind(SimpleJSONMessageBodyWriter.class);
 

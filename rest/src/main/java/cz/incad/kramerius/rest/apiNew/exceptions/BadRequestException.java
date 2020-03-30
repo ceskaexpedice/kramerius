@@ -5,15 +5,15 @@ import javax.ws.rs.core.Response;
 public class BadRequestException extends ApiException {
 
     public BadRequestException() {
-        super(Response.Status.FORBIDDEN);
+        super(Response.Status.BAD_REQUEST);
     }
 
     public BadRequestException(String message) {
-        super(Response.Status.FORBIDDEN, message);
+        super(Response.Status.BAD_REQUEST, message);
     }
 
     public BadRequestException(String messageTemplate, Object... messageArgs) {
-        super(Response.Status.FORBIDDEN, messageTemplate, messageArgs);
+        super(Response.Status.BAD_REQUEST, messageTemplate, messageArgs);
     }
 
 }

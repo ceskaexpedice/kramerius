@@ -5,36 +5,25 @@ import cz.incad.kramerius.processes.*;
 import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
+import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
-import cz.incad.kramerius.rest.apiNew.admin.v10.ClientAuthHeaders;
 import cz.incad.kramerius.rest.apiNew.exceptions.*;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
-import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -43,7 +32,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 @Path("/admin/v1.0/processes")
-public class ProcessResource {
+public class ProcessResource extends AdminApiResource {
 
     public static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
 
@@ -53,16 +42,6 @@ public class ProcessResource {
     private static final Integer GET_LOGS_DEFAULT_OFFSET = 0;
     private static final Integer GET_LOGS_DEFAULT_LIMIT = 10;
 
-    //TODO: proverit
-    @Deprecated
-    private static final String AUTH_TOKEN_HEADER_KEY = "auth-token";
-    @Deprecated
-    private static final String TOKEN_ATTRIBUTE_KEY = "token";
-
-    private static final String HEADER_PROCESS_AUTH_TOKEN = "process-auth-token";
-
-    //TODO: move url into configuration
-    private static final String AUTH_URL = "https://api.kramerius.cloud/api/v1/auth/validate_token";
 
     //TODO: prejmenovat role podle spravy uctu
     private static final String ROLE_SCHEDULE_PROCESSES = "kramerius_admin";
@@ -86,11 +65,8 @@ public class ProcessResource {
     @Inject
     RightsResolver rightsResolver;
 
-    @Inject
-    Provider<User> userProvider;
-
-    @Inject
-    Provider<HttpServletRequest> requestProvider;
+    /*@Inject
+    Provider<HttpServletRequest> requestProvider;*/
 
     /**
      * Returns list of users who have scheduled some process
@@ -466,96 +442,6 @@ public class ProcessResource {
         }
     }
 
-    private AuthenticatedUser getAuthenticatedUser() throws ProxyAuthenticationRequiredException {
-        ClientAuthHeaders authHeaders = ClientAuthHeaders.extract(requestProvider);
-        //System.out.println(authHeaders);
-        try {
-            URL url = new URL(AUTH_URL);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("GET");
-            con.setInstanceFollowRedirects(false);
-            con.setConnectTimeout(1000);
-            con.setReadTimeout(1000);
-            con.setRequestProperty(ClientAuthHeaders.AUTH_HEADER_CLIENT, authHeaders.getClient());
-            con.setRequestProperty(ClientAuthHeaders.AUTH_HEADER_UID, authHeaders.getUid());
-            con.setRequestProperty(ClientAuthHeaders.AUTH_HEADER_ACCESS_TOKEN, authHeaders.getAccessToken());
-            int status = con.getResponseCode();
-
-            //error with not 200
-            if (status != 200) {
-                String message = "response status " + status;
-                String body = inputstreamToString(con.getErrorStream());
-                System.err.println(body);
-                if (!body.isEmpty()) {
-                    JSONObject bodyJson = new JSONObject(body);
-                    if (bodyJson.has("errors")) {
-                        JSONArray errors = bodyJson.getJSONArray("errors");
-                        if (errors.length() > 0) {
-                            message = errors.getString(0);
-                        }
-                    }
-                }
-                throw new InternalErrorException("error communicationg with authentification service: %s", message);
-            }
-            String body = inputstreamToString(con.getInputStream());
-            JSONObject bodyJson = new JSONObject(body);
-
-            //error with 200 but not success
-            if (!bodyJson.getBoolean("success")) {
-                String message = "";
-                if (bodyJson.has("errors")) {
-                    JSONArray errors = bodyJson.getJSONArray("errors");
-                    if (errors.length() > 0) {
-                        message = errors.getString(0);
-                    }
-                }
-                throw new InternalErrorException("error communicationg with authentification service: %s", message);
-            }
-
-            //success
-            JSONObject data = bodyJson.getJSONObject("data");
-            String id = data.getString("uid");
-            String name = data.getString("name");
-            List<String> roles = Collections.emptyList();
-            if (data.has("roles") && data.get("roles") != null && !data.isNull("roles")) {
-                roles = commaSeparatedItemsToList(data.getString("roles"));
-            }
-            return new AuthenticatedUser(id, name, roles);
-        } catch (IOException e) {
-            throw new InternalErrorException("error communicationg with authentification service", e);
-        }
-    }
-
-    private String inputstreamToString(InputStream in) throws IOException {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(in));
-            String inputLine;
-            StringBuffer content = new StringBuffer();
-            while ((inputLine = reader.readLine()) != null) {
-                content.append(inputLine);
-            }
-            reader.close();
-            return content.toString();
-        } finally {
-            if (reader != null) {
-                reader.close();
-            }
-        }
-    }
-
-    private List<String> commaSeparatedItemsToList(String commaSeparated) {
-        List<String> result = new ArrayList<>();
-        if (commaSeparated == null || commaSeparated.trim().isEmpty()) {
-            return result;
-        }
-        String[] items = commaSeparated.split(",");
-        for (String item : items) {
-            result.add(item.trim());
-        }
-        return result;
-    }
-
     /**
      * Schedules new process
      *
@@ -566,7 +452,7 @@ public class ProcessResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response scheduleProcess(JSONObject processDefinition) {
-        String processAuthToken = requestProvider.get().getHeader(HEADER_PROCESS_AUTH_TOKEN);
+        String processAuthToken = getProcessAuthToken();
         if (processDefinition == null) {
             throw new BadRequestException("missing process definition");
         }
@@ -685,7 +571,7 @@ public class ProcessResource {
         Properties properties = definition.isInputTemplateDefined()
                 ? new Properties() //'plain' process
                 : extractPropertiesForParametrizedProcess(); //'parametrized' process
-        Integer processId = newProcess.planMe(properties, IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
+        Integer processId = newProcess.planMe(properties, getRemoteAddress());
         if (processId == null) {
             throw new InternalErrorException("error scheduling new process");
         }
@@ -738,21 +624,6 @@ public class ProcessResource {
         return jsonObject;
     }
 
-    @Deprecated
-    private String authToken() {
-        return requestProvider.get().getHeader(AUTH_TOKEN_HEADER_KEY);
-    }
-
-    @Deprecated
-    private String groupToken() {
-        return requestProvider.get().getHeader(TOKEN_ATTRIBUTE_KEY);
-    }
-
-    private String findLoggedUserKey() {
-        //TODO: otestovat, nebo zmenit
-        userProvider.get(); //TODO: neni uplne zrejme, proc tohle vodlat. Co se deje v AbstractLoggedUserProvider a LoggedUsersSingletonImpl vypada zmatecne
-        return (String) requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
-    }
 
     private LocalDateTime parseLocalDateTime(String string) {
         if (string == null) {

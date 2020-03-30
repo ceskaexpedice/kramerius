@@ -82,8 +82,7 @@ public class ItemResource {
         try {
             checkObjectExists(pid);
             URI uri = new URI(String.format("%s/v5.0/item/%s/full", getApiBaseUrl(), pid));
-            Response.temporaryRedirect(uri).build();
-            return Response.seeOther(uri).build();
+            return Response.temporaryRedirect(uri).build();
         } catch (URISyntaxException e) {
             e.printStackTrace();
             throw new InternalErrorException(e.getMessage());
@@ -97,8 +96,7 @@ public class ItemResource {
         try {
             checkObjectExists(pid);
             URI uri = new URI(String.format("%s/v5.0/item/%s/thumb", getApiBaseUrl(), pid));
-            Response.temporaryRedirect(uri).build();
-            return Response.seeOther(uri).build();
+            return Response.temporaryRedirect(uri).build();
         } catch (URISyntaxException e) {
             e.printStackTrace();
             throw new InternalErrorException(e.getMessage());
@@ -112,8 +110,7 @@ public class ItemResource {
         try {
             checkObjectExists(pid);
             URI uri = new URI(String.format("%s/v5.0/item/%s/preview", getApiBaseUrl(), pid));
-            Response.temporaryRedirect(uri).build();
-            return Response.seeOther(uri).build();
+            return Response.temporaryRedirect(uri).build();
         } catch (URISyntaxException e) {
             e.printStackTrace();
             throw new InternalErrorException(e.getMessage());
@@ -124,11 +121,18 @@ public class ItemResource {
     @Path("{pid}/streams/{dsid}")
     public Response stream(@PathParam("pid") String pid,
                            @PathParam("dsid") String dsid) {
-        //TODO: implement or remove
+        //TODO: poradna implementace, namisto redirectu na api/v5.0
         //tohle asi pujde pryc, na teto urovni abstrakce mame konkretni metody pro konkretni streamy
         //ale tim padem by tu mely byt metody getMods, getOcrTxt, getOcrXml apod.
         //system streamu (a verzovani) bude pro client api skryty (detail imlementace)
-        throw new InternalErrorException("not implemented yet");
+        try {
+            checkObjectExists(pid);
+            URI uri = new URI(String.format("%s/v5.0/item/%s/streams/%s", getApiBaseUrl(), pid, dsid));
+            return Response.temporaryRedirect(uri).build();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     @GET
