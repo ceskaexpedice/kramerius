@@ -1,16 +1,20 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.collections;
 
+import cz.incad.kramerius.rest.apiNew.Dom4jUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.UUID;
 
 @Path("/admin/v1.0/collections")
@@ -21,7 +25,6 @@ public class CollectionsResource extends AdminApiResource {
     private static final String ROLE_READ_COLLECTION = "kramerius_admin";
     private static final String ROLE_EDIT_COLLECTION = "kramerius_admin";
     private static final String ROLE_DELETE_COLLECTION = "kramerius_admin";
-
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -58,9 +61,20 @@ public class CollectionsResource extends AdminApiResource {
         if (!user.getRoles().contains(role)) {
             throw new ForbiddenException("user '%s' is not allowed to read collections (missing role '%s')", user.getName(), role); //403
         }
-        System.out.println("pid: " + pid);
-        //TODO: implement
-        throw new InternalErrorException("not implemented yet");
+        checkObjectExists(pid);
+        try {
+            Collection collection = new Collection();
+            Document mods = Dom4jUtils.parseXmlFromW3cDoc(repositoryAccess.getBiblioMods(pid));
+            collection.pid = pid;
+            collection.name = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods:mods/mods:titleInfo/mods:title");
+            collection.description = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods:mods/mods:abstract");
+            collection.content = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods:mods/mods:note");
+            //TODO: created, modified from foxml properties
+            return Response.ok(collection.toJson()).build();
+        } catch (IOException | DocumentException e) {
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     @PUT

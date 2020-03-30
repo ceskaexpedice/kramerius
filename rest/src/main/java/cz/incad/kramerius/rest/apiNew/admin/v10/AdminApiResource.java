@@ -1,6 +1,10 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10;
 
+import com.google.inject.name.Named;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.rest.apiNew.exceptions.ApiException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ProxyAuthenticationRequiredException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
@@ -39,6 +43,10 @@ public abstract class AdminApiResource {
 
     @Inject
     Provider<User> userProvider;
+
+    @Inject
+    @Named("securedFedoraAccess")
+    protected FedoraAccess repositoryAccess;
 
     public final AuthenticatedUser getAuthenticatedUser() throws ProxyAuthenticationRequiredException {
         ClientAuthHeaders authHeaders = ClientAuthHeaders.extract(requestProvider);
@@ -157,4 +165,14 @@ public abstract class AdminApiResource {
         return IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration());
     }
 
+    public final void checkObjectExists(String pid) throws ApiException {
+        try {
+            boolean objectExists = this.repositoryAccess.isObjectAvailable(pid);
+            if (!objectExists) {
+                throw new NotFoundException("object with pid %s not found in repository", pid);
+            }
+        } catch (IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
 }

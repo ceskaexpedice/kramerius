@@ -26,6 +26,9 @@ public final class Collection {
                 '}';
     }
 
+    public Collection() {
+    }
+
     public Collection(JSONObject definition) throws JSONException {
         if (definition.has("pid")) {
             this.pid = definition.getString("pid");

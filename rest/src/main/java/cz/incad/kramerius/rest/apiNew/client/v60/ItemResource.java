@@ -2,18 +2,13 @@ package cz.incad.kramerius.rest.apiNew.client.v60;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.name.Named;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.rest.apiNew.exceptions.ApiException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.utils.ApplicationURL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Logger;
@@ -22,7 +17,7 @@ import java.util.logging.Logger;
  * @see cz.incad.kramerius.rest.api.k5.client.item.ItemResource
  */
 @Path("/client/v6.0/item")
-public class ItemResource {
+public class ItemResource extends ClientApiResource {
 
     //TODO: uklid
     //(ne-admin) client je neutentizovany, jenom cte data a mela by pred nim byt do urcite miry skryta implementece, takze:
@@ -41,25 +36,10 @@ public class ItemResource {
     // {pid}/siblings
     // {pid}/children
 
-    @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess repositoryAccess;
+    public static final Logger LOGGER = Logger.getLogger(ItemResource.class.getName());
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
-
-    public static final Logger LOGGER = Logger.getLogger(ItemResource.class.getName());
-
-    private void checkObjectExists(String pid) throws ApiException {
-        try {
-            boolean objectExists = this.repositoryAccess.isObjectAvailable(pid);
-            if (!objectExists) {
-                throw new NotFoundException("object with pid %s not found in repository", pid);
-            }
-        } catch (IOException e) {
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
 
     @GET
     @Path("{pid}/foxml")
