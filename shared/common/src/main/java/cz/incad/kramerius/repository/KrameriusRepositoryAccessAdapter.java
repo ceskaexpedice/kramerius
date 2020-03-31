@@ -84,6 +84,10 @@ public class KrameriusRepositoryAccessAdapter {
         return Utils.inputstreamToDocument(is, nsAware);
     }
 
+    /*public void setMods(String pid, Document modsDoc) throws IOException {
+        //TODO: implement, ale ne tady
+    }*/
+
     public boolean isOcrTextAvailable(String pid) throws IOException {
         return repository.isStreamAvailable(pid, KnownDatastreams.TEXT_OCR_STREAM);
     }
