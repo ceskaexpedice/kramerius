@@ -1,18 +1,22 @@
 package cz.incad.kramerius.rest.apiNew;
 
-import com.google.inject.name.Named;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.repository.KrameriusRepositoryAccessAdapter;
-import cz.incad.kramerius.resourceindex.IResourceIndex;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.repository.AkubraKrameriusRepositoryApi;
 import cz.incad.kramerius.rest.apiNew.exceptions.ApiException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 
 import javax.inject.Inject;
-import java.io.IOException;
 
 public abstract class ApiResource {
 
+    /*@Inject
+    public AkubraRepositoryApi repositoryApi;*/
+
+    @Inject
+    public AkubraKrameriusRepositoryApi krameriusRepositoryApi;
+
+    /*
     @Inject
     @Named("securedFedoraAccess")
     private FedoraAccess repository;
@@ -36,6 +40,18 @@ public abstract class ApiResource {
                 throw new NotFoundException("object with pid %s not found in repository", pid);
             }
         } catch (IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
+    }*/
+
+    protected final void checkObjectExists(String pid) throws ApiException {
+        try {
+            //boolean exists = repositoryApi.objectExists(pid);
+            boolean exists = krameriusRepositoryApi.getLowLevelApi().objectExists(pid);
+            if (!exists) {
+                throw new NotFoundException("object with pid %s not found in repository", pid);
+            }
+        } catch (RepositoryException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }

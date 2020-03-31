@@ -11,7 +11,9 @@ import java.util.List;
 
 /**
  * This class is an adapter for Kramerius-specific operations over general repository (formally Fedora, newly Akubra) and Resource Index.
+ * deprecated, use KrameriusRepositoryApi instead
  */
+@Deprecated
 public class KrameriusRepositoryAccessAdapter {
 
     private final FedoraAccess repository;

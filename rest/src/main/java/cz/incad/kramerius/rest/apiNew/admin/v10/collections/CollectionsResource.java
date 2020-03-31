@@ -1,5 +1,6 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.collections;
 
+import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.rest.apiNew.Dom4jUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
@@ -60,15 +61,20 @@ public class CollectionsResource extends AdminApiResource {
     @Path("{pid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCollection(@PathParam("pid") String pid) {
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUser();
-        String role = ROLE_READ_COLLECTION;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to read collections (missing role '%s')", user.getName(), role); //403
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_READ_COLLECTION;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to read collections (missing role '%s')", user.getName(), role); //403
+            }
+            checkObjectExists(pid);
+            Collection collection = fetchCollectionFromRepository(pid);
+            return Response.ok(collection.toJson()).build();
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw e;
         }
-        checkObjectExists(pid);
-        Collection collection = fetchCollectionFromRepository(pid);
-        return Response.ok(collection.toJson()).build();
     }
 
 
@@ -126,7 +132,10 @@ public class CollectionsResource extends AdminApiResource {
 
             //timestamps from Foxml properties
             try {
-                Document foxml = getRepositoryAccess().getObjectFoxml(pid, false);
+                //TODO: jen docasne, stejne pouziju getObjectProperty()
+                //Document foxml = repositoryApi.getObjectFoxml(pid);
+                Document foxml = krameriusRepositoryApi.getLowLevelApi().getObjectFoxml(pid);
+                //Document foxml = getRepositoryAccess().getObjectFoxml(pid, false);
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
                 String created = extractProperty(foxml, "info:fedora/fedora-system:def/model#createdDate");
                 if (created != null) {
@@ -138,16 +147,21 @@ public class CollectionsResource extends AdminApiResource {
                 }
             } catch (DateTimeParseException e) {
                 e.printStackTrace();
+            } catch (RepositoryException e) {
+                e.printStackTrace();
             }
 
             //data from MODS
-            Document mods = getRepositoryAccess().getMods(pid, false);
+            //Document mods = getRepositoryAccess().getMods(pid, false);
+            Document mods = krameriusRepositoryApi.getMods(pid, false);
+            System.out.println("mods: ");
+            System.out.println(mods == null? "null" : mods.asXML());
             collection.name = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo/title");
             collection.description = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract");
             collection.content = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note");
 
             return collection;
-        } catch (IOException e) {
+        } catch (IOException | RepositoryException e) {
             e.printStackTrace();
             throw new InternalErrorException(e.getMessage());
         }
@@ -162,7 +176,8 @@ public class CollectionsResource extends AdminApiResource {
     }
 
     private String extractProperty(Document foxmlDoc, String name) {
-        Node node = Dom4jUtils.buildXpath("/digitalObject/objectProperties/property[@NAME='" + name + "']/@VALUE").selectSingleNode(foxmlDoc);
+        Node node = Dom4jUtils.buildXpath("/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='" + name + "']/@VALUE").selectSingleNode(foxmlDoc);
+        //Node node = Dom4jUtils.buildXpath("/digitalObject/objectProperties/property[@NAME='" + name + "']/@VALUE").selectSingleNode(foxmlDoc);
         return node == null ? null : Dom4jUtils.toStringOrNull(node);
     }
 }
