@@ -518,7 +518,7 @@
 
         <id>parametrizeddnntset</id>
         <description>Set the DNNT flag </description>
-        <mainClass>cz.incad.kramerius.DNNTFlag</mainClass>
+        <mainClass>cz.incad.kramerius.ParametrizedSetDNNTFlag</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <parameters>true</parameters>
