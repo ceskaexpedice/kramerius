@@ -24,7 +24,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 
 /**
- * This is the helper. It is dedicated ofr creating supporting index which should replace 
+ * This is the helper. It is dedicated for creating supporting index which should replace
  * resource index in the future. 
  * @author pstastny
  *
