@@ -1,4 +1,4 @@
-package cz.incad.kramerius.rest.apiNew;
+package cz.incad.kramerius.utils;
 
 import org.dom4j.*;
 import org.dom4j.io.SAXReader;

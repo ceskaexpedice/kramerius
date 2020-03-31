@@ -9,8 +9,10 @@ import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.om.impl.AkubraRepository;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.dom4j.Document;
+import org.dom4j.Node;
 import org.ehcache.CacheManager;
 
 import javax.xml.bind.JAXBContext;
@@ -54,18 +56,14 @@ public class AkubraRepositoryApi implements RepositoryApi {
 
     @Override
     public String getObjectProperty(String pid, String propertyName) throws IOException, RepositoryException {
-        //TODO: implement
-        throw new RuntimeException("not yet implemented");
+        Document objectFoxml = getObjectFoxml(pid);
+        return objectFoxml == null ? null : extractProperty(objectFoxml, propertyName);
     }
 
     @Override
-    public Document getObjectFoxml(String pid) throws RepositoryException {
-        try {
-            RepositoryObject object = akubraRepository.getObject(pid);
-            return Utils.inputstreamToDocument(object.getFoxml(), true);
-        } catch (IOException e) {
-            throw new RepositoryException(e);
-        }
+    public Document getObjectFoxml(String pid) throws RepositoryException, IOException {
+        RepositoryObject object = akubraRepository.getObject(pid);
+        return Utils.inputstreamToDocument(object.getFoxml(), true);
     }
 
     @Override
@@ -88,5 +86,10 @@ public class AkubraRepositoryApi implements RepositoryApi {
     @Override
     public void deleteObject(String pid) throws RepositoryException {
         akubraRepository.deleteobject(pid);
+    }
+
+    private String extractProperty(Document foxmlDoc, String name) {
+        Node node = Dom4jUtils.buildXpath("/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='" + name + "']/@VALUE").selectSingleNode(foxmlDoc);
+        return node == null ? null : Dom4jUtils.toStringOrNull(node);
     }
 }

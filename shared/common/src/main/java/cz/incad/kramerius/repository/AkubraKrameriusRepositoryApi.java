@@ -6,6 +6,8 @@ import org.dom4j.Document;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class AkubraKrameriusRepositoryApi implements KrameriusRepositoryApi {
 
@@ -19,14 +21,28 @@ public class AkubraKrameriusRepositoryApi implements KrameriusRepositoryApi {
 
     @Override
     public LocalDateTime getTimestampCreated(String pid) throws IOException, RepositoryException {
-        //TODO: implement
-        throw new RuntimeException("not yet implemented");
+        String propertyValue = repositoryApi.getObjectProperty(pid, "info:fedora/fedora-system:def/model#createdDate");
+        if (propertyValue != null) {
+            try {
+                return LocalDateTime.parse(propertyValue, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+            } catch (DateTimeParseException e) {
+                System.out.println(String.format("cannot parse createdeDate %s from object %s", propertyValue, pid));
+            }
+        }
+        return null;
     }
 
     @Override
     public LocalDateTime getTimestampLastModified(String pid) throws IOException, RepositoryException {
-        //TODO: implement
-        throw new RuntimeException("not yet implemented");
+        String propertyValue = repositoryApi.getObjectProperty(pid, "info:fedora/fedora-system:def/view#lastModifiedDate");
+        if (propertyValue != null) {
+            try {
+                return LocalDateTime.parse(propertyValue, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+            } catch (DateTimeParseException e) {
+                System.out.println(String.format("cannot parse lastModifiedDate %s from object %s", propertyValue, pid));
+            }
+        }
+        return null;
     }
 
     @Override

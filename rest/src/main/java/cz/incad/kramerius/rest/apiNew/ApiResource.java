@@ -10,9 +10,6 @@ import javax.inject.Inject;
 
 public abstract class ApiResource {
 
-    /*@Inject
-    public AkubraRepositoryApi repositoryApi;*/
-
     @Inject
     public AkubraKrameriusRepositoryApi krameriusRepositoryApi;
 
@@ -46,7 +43,6 @@ public abstract class ApiResource {
 
     protected final void checkObjectExists(String pid) throws ApiException {
         try {
-            //boolean exists = repositoryApi.objectExists(pid);
             boolean exists = krameriusRepositoryApi.getLowLevelApi().objectExists(pid);
             if (!exists) {
                 throw new NotFoundException("object with pid %s not found in repository", pid);

@@ -1,14 +1,13 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.collections;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.rest.apiNew.Dom4jUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.utils.Dom4jUtils;
 import org.dom4j.Document;
-import org.dom4j.Node;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,9 +15,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
 @Path("/admin/v1.0/collections")
@@ -131,31 +127,11 @@ public class CollectionsResource extends AdminApiResource {
             collection.pid = pid;
 
             //timestamps from Foxml properties
-            try {
-                //TODO: jen docasne, stejne pouziju getObjectProperty()
-                //Document foxml = repositoryApi.getObjectFoxml(pid);
-                Document foxml = krameriusRepositoryApi.getLowLevelApi().getObjectFoxml(pid);
-                //Document foxml = getRepositoryAccess().getObjectFoxml(pid, false);
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                String created = extractProperty(foxml, "info:fedora/fedora-system:def/model#createdDate");
-                if (created != null) {
-                    collection.created = LocalDateTime.parse(created, formatter);
-                }
-                String modified = extractProperty(foxml, "info:fedora/fedora-system:def/view#lastModifiedDate");
-                if (modified != null) {
-                    collection.modified = LocalDateTime.parse(modified, formatter);
-                }
-            } catch (DateTimeParseException e) {
-                e.printStackTrace();
-            } catch (RepositoryException e) {
-                e.printStackTrace();
-            }
+            collection.created = krameriusRepositoryApi.getTimestampCreated(pid);
+            collection.modified = krameriusRepositoryApi.getTimestampLastModified(pid);
 
             //data from MODS
-            //Document mods = getRepositoryAccess().getMods(pid, false);
             Document mods = krameriusRepositoryApi.getMods(pid, false);
-            System.out.println("mods: ");
-            System.out.println(mods == null? "null" : mods.asXML());
             collection.name = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo/title");
             collection.description = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract");
             collection.content = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note");
@@ -175,9 +151,4 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    private String extractProperty(Document foxmlDoc, String name) {
-        Node node = Dom4jUtils.buildXpath("/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='" + name + "']/@VALUE").selectSingleNode(foxmlDoc);
-        //Node node = Dom4jUtils.buildXpath("/digitalObject/objectProperties/property[@NAME='" + name + "']/@VALUE").selectSingleNode(foxmlDoc);
-        return node == null ? null : Dom4jUtils.toStringOrNull(node);
-    }
 }
