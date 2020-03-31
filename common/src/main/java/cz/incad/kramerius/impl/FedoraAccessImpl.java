@@ -43,12 +43,13 @@ import javax.xml.xpath.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import static cz.incad.kramerius.utils.FedoraUtils.*;
+import static cz.incad.kramerius.utils.RESTHelper.connectAndHandleRedirect;
 import static cz.incad.kramerius.utils.RESTHelper.openConnection;
 
 /**
@@ -393,25 +394,46 @@ public class FedoraAccessImpl implements FedoraAccess {
 
     @Override
     public InputStream getSmallThumbnail(String pid) throws IOException {
-        HttpURLConnection con = null;
+        String url = null;
         try {
             pid = makeSureObjectPid(pid);
-            con = referencedDataStream(pid, IMG_THUMB_STREAM);
-            if (con == null) {
-                con = (HttpURLConnection) openConnection(getThumbnailFromFedora(configuration, makeSureObjectPid(pid)), configuration.getFedoraUser(), configuration.getFedoraPass());
+
+
+            url = referencedDataStream(pid, IMG_THUMB_STREAM);
+            if (url == null) {
+                url =  getThumbnailFromFedora(configuration, makeSureObjectPid(pid));
             }
-            InputStream thumbInputStream = con.getInputStream();
-            return thumbInputStream;
+
+            AtomicReference<InputStream> ac = new AtomicReference<>();
+            RESTHelper.connectAndHandleRedirect(url, configuration.getFedoraUser(), configuration.getFedoraPass(), (con)->{
+                try {
+                    if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        InputStream thumbInputStream = con.getInputStream();
+                        ac.set(thumbInputStream);
+                    } else {
+                        // returns concrete exception
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        IOUtils.copyStreams(con.getErrorStream(), bos);
+                        throw new FedoraIOException(con.getResponseCode(), new String(bos.toByteArray()));
+                    }
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+            return ac.get();
+
+
         } catch (FileNotFoundException e) {
-            if (con != null) {
-                throw new FileNotFoundException("Bad " + pid + ": datastream url (" + con.getURL() +") not found");
+            if (url != null) {
+                throw new FileNotFoundException("Bad " + pid + ": datastream url (" + url +") not found");
             } else {
                 throw e;
             }
-
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
+        } catch(IllegalStateException fe) {
+            throw wrappedException(fe, FedoraIOException.class);
         }
     }
 
@@ -458,23 +480,36 @@ public class FedoraAccessImpl implements FedoraAccess {
                 }
             }
 
-            HttpURLConnection con = referencedDataStream(pid, IMG_FULL_STREAM);
-            if (con == null) {
-                con = (HttpURLConnection) openConnection(getFedoraStreamPath(configuration, makeSureObjectPid(pid), IMG_FULL_STREAM), configuration.getFedoraUser(), configuration.getFedoraPass());
+
+            String url = referencedDataStream(pid, IMG_FULL_STREAM);
+            if (url == null) {
+                url =  configuration.getFedoraHost() + "/get/" + pid + "/" + IMG_FULL_STREAM;
             }
-            con.connect();
-            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                InputStream thumbInputStream = con.getInputStream();
-                return thumbInputStream;
-            } else {
-                // copy error stream and forward status code
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                IOUtils.copyStreams(con.getErrorStream(), bos);
-                throw new FedoraIOException(con.getResponseCode(), new String(bos.toByteArray()));
-            }
+
+            AtomicReference<InputStream> ac = new AtomicReference<>();
+            RESTHelper.connectAndHandleRedirect(url, configuration.getFedoraUser(), configuration.getFedoraPass(), (con)->{
+                try {
+                    if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        InputStream thumbInputStream = con.getInputStream();
+                        ac.set(thumbInputStream);
+                    } else {
+                        // returns concrete exception
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        IOUtils.copyStreams(con.getErrorStream(), bos);
+                        throw new FedoraIOException(con.getResponseCode(), new String(bos.toByteArray()));
+                    }
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+            return ac.get();
+
+
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
+        } catch(IllegalStateException e) {
+            throw wrappedException(e, FedoraIOException.class);
         }
     }
 
@@ -957,21 +992,39 @@ public class FedoraAccessImpl implements FedoraAccess {
     public void observeStreamHeaders(String pid, String datastreamName, StreamHeadersObserver streamObserver) throws IOException {
         try {
             pid = makeSureObjectPid(pid);
-            HttpURLConnection con = referencedDataStream(pid, datastreamName);
-            if (con == null) {
-                String streamLocation =  configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
-                con = (HttpURLConnection) openConnection(streamLocation, configuration.getFedoraUser(), configuration.getFedoraPass());
+            String url = referencedDataStream(pid, datastreamName);
+            if (url == null) {
+                url =  configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
             }
-            con.connect();
-            int statusCode = con.getResponseCode();
-            Map<String, List<String>> headerFields = con.getHeaderFields();
-            streamObserver.observeHeaderFields(statusCode, headerFields);
+
+
+            RESTHelper.connectAndHandleRedirect(url, configuration.getFedoraUser(), configuration.getFedoraPass(), (con)->{
+                try {
+                    int statusCode = con.getResponseCode();
+                    Map<String, List<String>> headerFields = con.getHeaderFields();
+                    streamObserver.observeHeaderFields(statusCode, headerFields);
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+
         } catch (LexerException e) {
             throw new IOException(e);
+        } catch (IllegalStateException e) {
+            throw wrappedException(e, IOException.class);
         }
     }
     
-    
+    public static <T extends Throwable> T wrappedException(IllegalStateException arg, Class<T> clz)  {
+        Throwable cause = arg.getCause();
+        if (cause != null && cause.getClass().equals(clz)) {
+            return  (T)cause;
+        } else {
+            throw arg;
+        }
+    }
+
+
     
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
@@ -986,28 +1039,36 @@ public class FedoraAccessImpl implements FedoraAccess {
                 }
             }
             
-            HttpURLConnection con = referencedDataStream(pid, datastreamName);
-            if (con == null) {
-                String streamLocation =  configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
-                con = (HttpURLConnection) openConnection(streamLocation, configuration.getFedoraUser(), configuration.getFedoraPass());
+            String url = referencedDataStream(pid, datastreamName);
+            if (url == null) {
+                url =  configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
             }
-            
-            con.connect();
-            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                InputStream thumbInputStream = con.getInputStream();
-                return thumbInputStream;
-            } else {
-                // returns concrete exception
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                IOUtils.copyStreams(con.getErrorStream(), bos);
-                throw new FedoraIOException(con.getResponseCode(), new String(bos.toByteArray()));
-            }
+
+            AtomicReference<InputStream> ac = new AtomicReference<>();
+            RESTHelper.connectAndHandleRedirect(url, configuration.getFedoraUser(), configuration.getFedoraPass(), (con)->{
+                try {
+                    if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        InputStream thumbInputStream = con.getInputStream();
+                        ac.set(thumbInputStream);
+                    } else {
+                        // returns concrete exception
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        IOUtils.copyStreams(con.getErrorStream(), bos);
+                        throw new FedoraIOException(con.getResponseCode(), new String(bos.toByteArray()));
+                    }
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+            return ac.get();
         } catch (LexerException e) {
             throw new IOException(e);
+        } catch(IllegalStateException e) {
+            throw wrappedException(e, FedoraIOException.class);
         }
     }
 
-    private HttpURLConnection referencedDataStream(String pid,
+    private String referencedDataStream(String pid,
             String datastreamName) throws IOException, MalformedURLException {
         HttpURLConnection con = null;
         Document datastreamProfile = this.getStreamProfile(pid, datastreamName);
@@ -1019,15 +1080,11 @@ public class FedoraAccessImpl implements FedoraAccess {
                 if (dsLocation != null) {
                     // no user, no pass
                     LOGGER.log(Level.FINE, String.format("Getting referenced stream from pid %s, %s ", pid, datastreamName));
-                    URLConnection directConnection = openConnection(dsLocation.getTextContent().trim(), "", "");
-                    if (directConnection instanceof HttpURLConnection) {
-                        con = (HttpURLConnection) directConnection;
-                        con.setInstanceFollowRedirects(true);
-                    } 
+                    return dsLocation.getTextContent().trim();
                 }
             }
         }
-        return con;
+        return null;
     }
 
     @Override
