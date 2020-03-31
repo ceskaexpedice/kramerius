@@ -2,6 +2,8 @@ package cz.incad.kramerius.rest.apiNew.admin.v10;
 
 import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.repository.KrameriusRepositoryAccessAdapter;
+import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.rest.apiNew.exceptions.ApiException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
@@ -46,7 +48,20 @@ public abstract class AdminApiResource {
 
     @Inject
     @Named("securedFedoraAccess")
-    protected FedoraAccess repositoryAccess;
+    private FedoraAccess repository;
+
+    @Inject
+    IResourceIndex resourceIndex;
+
+    private KrameriusRepositoryAccessAdapter repositoryAccessAdapter;
+
+    //TODO: handle dependency injection properly instead of this method
+    public KrameriusRepositoryAccessAdapter getRepositoryAccess() {
+        if (repositoryAccessAdapter == null) {
+            repositoryAccessAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
+        }
+        return repositoryAccessAdapter;
+    }
 
     public final AuthenticatedUser getAuthenticatedUser() throws ProxyAuthenticationRequiredException {
         ClientAuthHeaders authHeaders = ClientAuthHeaders.extract(requestProvider);
@@ -155,7 +170,7 @@ public abstract class AdminApiResource {
     @Deprecated
     public String findLoggedUserKey() {
         //TODO: otestovat, nebo zmenit
-        userProvider.get(); //TODO: neni uplne zrejme, proc tohle vodlat. Co se deje v AbstractLoggedUserProvider a LoggedUsersSingletonImpl vypada zmatecne
+        userProvider.get(); //TODO: neni uplne zrejme, proc tohle volat. Co se deje v AbstractLoggedUserProvider a LoggedUsersSingletonImpl vypada zmatecne
         return (String) requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
     }
 
@@ -167,7 +182,7 @@ public abstract class AdminApiResource {
 
     public final void checkObjectExists(String pid) throws ApiException {
         try {
-            boolean objectExists = this.repositoryAccess.isObjectAvailable(pid);
+            boolean objectExists = getRepositoryAccess().isObjectAvailable(pid);
             if (!objectExists) {
                 throw new NotFoundException("object with pid %s not found in repository", pid);
             }

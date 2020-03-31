@@ -126,6 +126,13 @@ dependencies {
 //    compile ('com.github.ThoughtWire:hazelcast-locks:1.0.1'){
 //        exclude group:'com.hazelcast', module:'hazelcast'
 //    }
+
+    //dom4j
+    implementation 'jaxen:jaxen:1.2.0'
+    implementation 'org.dom4j:dom4j:2.1.1'
+
+    //https://github.com/google/gson
+    implementation 'com.google.code.gson:gson:2.8.6'
    
 }
 

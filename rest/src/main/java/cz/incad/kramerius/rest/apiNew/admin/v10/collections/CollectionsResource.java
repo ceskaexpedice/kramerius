@@ -7,7 +7,7 @@ import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
+import org.dom4j.Node;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,6 +15,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
 @Path("/admin/v1.0/collections")
@@ -64,14 +67,32 @@ public class CollectionsResource extends AdminApiResource {
         checkObjectExists(pid);
         try {
             Collection collection = new Collection();
-            Document mods = Dom4jUtils.parseXmlFromW3cDoc(repositoryAccess.getBiblioMods(pid));
             collection.pid = pid;
-            collection.name = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods:mods/mods:titleInfo/mods:title");
-            collection.description = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods:mods/mods:abstract");
-            collection.content = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods:mods/mods:note");
-            //TODO: created, modified from foxml properties
+
+            //timestamps from Foxml properties
+            try {
+                Document foxml = getRepositoryAccess().getObjectFoxml(pid, false);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                String created = extractProperty(foxml, "info:fedora/fedora-system:def/model#createdDate");
+                if (created != null) {
+                    collection.created = LocalDateTime.parse(created, formatter);
+                }
+                String modified = extractProperty(foxml, "info:fedora/fedora-system:def/view#lastModifiedDate");
+                if (modified != null) {
+                    collection.modified = LocalDateTime.parse(modified, formatter);
+                }
+            } catch (DateTimeParseException e) {
+                e.printStackTrace();
+            }
+
+            //data from MODS
+            Document mods = getRepositoryAccess().getMods(pid, false);
+            collection.name = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo/title");
+            collection.description = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract");
+            collection.content = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note");
+
             return Response.ok(collection.toJson()).build();
-        } catch (IOException | DocumentException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             throw new InternalErrorException(e.getMessage());
         }
@@ -117,4 +138,8 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
+    private String extractProperty(Document foxmlDoc, String name) {
+        Node node = Dom4jUtils.buildXpath("/digitalObject/objectProperties/property[@NAME='" + name + "']/@VALUE").selectSingleNode(foxmlDoc);
+        return node == null ? null : Dom4jUtils.toStringOrNull(node);
+    }
 }

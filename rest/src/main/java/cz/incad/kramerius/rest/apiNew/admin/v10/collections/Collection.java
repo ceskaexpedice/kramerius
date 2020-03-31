@@ -53,9 +53,12 @@ public final class Collection {
         json.put("name", name);
         json.put("description", description);
         json.put("content", content);
-        //TODO
-        //json.put("", );
-        //json.put("", );
+        if (created != null) {
+            json.put("created", created.toString());
+        }
+        if (modified != null) {
+            json.put("modified", modified.toString());
+        }
         return json;
     }
 }
