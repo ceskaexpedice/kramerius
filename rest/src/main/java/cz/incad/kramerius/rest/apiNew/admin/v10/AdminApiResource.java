@@ -1,12 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10;
 
-import com.google.inject.name.Named;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.repository.KrameriusRepositoryAccessAdapter;
-import cz.incad.kramerius.resourceindex.IResourceIndex;
-import cz.incad.kramerius.rest.apiNew.exceptions.ApiException;
+import cz.incad.kramerius.rest.apiNew.ApiResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ProxyAuthenticationRequiredException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
@@ -28,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class AdminApiResource {
+public abstract class AdminApiResource extends ApiResource {
 
     //TODO: move url into configuration
     private static final String AUTH_URL = "https://api.kramerius.cloud/api/v1/auth/validate_token";
@@ -45,23 +40,6 @@ public abstract class AdminApiResource {
 
     @Inject
     Provider<User> userProvider;
-
-    @Inject
-    @Named("securedFedoraAccess")
-    private FedoraAccess repository;
-
-    @Inject
-    IResourceIndex resourceIndex;
-
-    private KrameriusRepositoryAccessAdapter repositoryAccessAdapter;
-
-    //TODO: handle dependency injection properly instead of this method
-    public KrameriusRepositoryAccessAdapter getRepositoryAccess() {
-        if (repositoryAccessAdapter == null) {
-            repositoryAccessAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
-        }
-        return repositoryAccessAdapter;
-    }
 
     public final AuthenticatedUser getAuthenticatedUser() throws ProxyAuthenticationRequiredException {
         ClientAuthHeaders authHeaders = ClientAuthHeaders.extract(requestProvider);
@@ -174,20 +152,8 @@ public abstract class AdminApiResource {
         return (String) requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
     }
 
-
     //TODO: proverit
     public String getRemoteAddress() {
         return IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration());
-    }
-
-    public final void checkObjectExists(String pid) throws ApiException {
-        try {
-            boolean objectExists = getRepositoryAccess().isObjectAvailable(pid);
-            if (!objectExists) {
-                throw new NotFoundException("object with pid %s not found in repository", pid);
-            }
-        } catch (IOException e) {
-            throw new InternalErrorException(e.getMessage());
-        }
     }
 }
