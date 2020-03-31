@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -125,12 +126,34 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
 
 
             Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+
             String rootTitle  = titleElement("str", "root_title", solrDoc);
+            String rootPid  = titleElement("str", "root_pid", solrDoc);
             String dctitle = titleElement("str", "dc.title", solrDoc);
+            //String dctitle = titleElement("str", "dc.title", solrDoc);
+            List<String> authors = new ArrayList<>();
+            if (rootPid != null) {
+                Document rootSolrDoc = this.solrAccess.getSolrDataDocument(rootPid);
+                Element array = XMLUtils.findElement(rootSolrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        String nodeName = element.getNodeName();
+                        String attr = element.getAttribute("name");
+                        if (nodeName.equals("arr") && StringUtils.isAnyString(attr) && attr.equals("dc.creator"))
+                            return true;
+                        return false;
+                    }
+                });
+                if (array != null) {
+                    authors = XMLUtils.getElements(array).stream().map(it -> it.getTextContent()).filter(it -> it != null).map(String::trim).collect(Collectors.toList());
+                }
+            }
+
+
 
             // REPORT DNNT
             if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
-                reportDNNT(pid,rootTitle,dctitle, paths, mpaths, userProvider.get());
+                reportDNNT(pid,rootTitle,dctitle,authors, paths, mpaths, userProvider.get());
             }
 
 
@@ -182,6 +205,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         }
     }
 
+
     private String titleElement(String type, String attrVal, Document solrDoc) {
         Element titleElm = XMLUtils.findElement(solrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
             @Override
@@ -195,7 +219,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         return titleElm != null ? titleElm.getTextContent() : null;
     }
 
-    private void reportDNNT(String pid, String rootTitle, String dcTitle, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths, User user) throws IOException {
+    private void reportDNNT(String pid, String rootTitle, String dcTitle, List<String> dcAuthors, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths, User user) throws IOException {
         RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
         if (rightsReturnObject == null)  return;
         if (CriteriaDNNTUtils.checkContainsCriteriumReadDNNT(rightsReturnObject)) {
@@ -204,6 +228,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                     IPAddressUtils.getRemoteAddress(requestProvider.get(), KConfiguration.getInstance().getConfiguration()),
                     user!= null ? user.getLoginname() : null,
                     user != null ? user.getEmail(): null,
+                    dcAuthors,
                     paths,
                     mpaths
             );

@@ -42,6 +42,7 @@ public class CriteriaDNNTUtils {
                                      String remoteAddr,
                                      String username,
                                      String email,
+                                     List<String> dcAuthors,
                                      ObjectPidsPath[] paths,
                                      ObjectModelsPath[] mpaths) throws IOException {
 
@@ -60,6 +61,13 @@ public class CriteriaDNNTUtils {
 
         jObject.put("date",timestamp);
 
+        if (!dcAuthors.isEmpty()) {
+            JSONArray authorsArray = new JSONArray();
+            for (int i=0,ll=dcAuthors.size();i<ll;i++) {
+                authorsArray.put(dcAuthors.get(i));
+            }
+            jObject.put("authors",authorsArray);
+        }
 
         JSONArray pidsArray = new JSONArray();
         for (int i = 0; i < paths.length; i++) {
@@ -72,7 +80,6 @@ public class CriteriaDNNTUtils {
             modelsArray.put(pathToString(mpaths[i].getPathFromRootToLeaf()));
         }
         jObject.put("models_path",modelsArray);
-
         if (paths.length > 0) {
             String[] pathFromRootToLeaf = paths[0].getPathFromRootToLeaf();
             if (pathFromRootToLeaf.length > 0) {
