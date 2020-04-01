@@ -11,6 +11,7 @@ import org.dom4j.Document;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -26,31 +27,34 @@ public class CollectionsResource extends AdminApiResource {
     private static final String ROLE_EDIT_COLLECTION = "kramerius_admin";
     private static final String ROLE_DELETE_COLLECTION = "kramerius_admin";
 
-    private final FoxmlBuilder foxmlBuilder = new FoxmlBuilder();
+    @Inject
+    private FoxmlBuilder foxmlBuilder;
+    //private final FoxmlBuilder foxmlBuilder = new FoxmlBuilder();
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createCollection(JSONObject collectionDefinition) {
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUser();
-        String role = ROLE_CREATE_COLLECTION;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to create collections (missing role '%s')", user.getName(), role); //403
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_CREATE_COLLECTION;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to create collections (missing role '%s')", user.getName(), role); //403
+            }
+            Collection collection = extractCollectionFromJson(collectionDefinition);
+            if (collection.name == null || collection.name.isEmpty()) {
+                throw new BadRequestException("name can't be empty");
+            }
+            collection.pid = "uuid:" + UUID.randomUUID().toString();
+            Document foxml = foxmlBuilder.buildFoxml(collection, null);
+            krameriusRepositoryApi.getLowLevelApi().ingestObject(foxml);
+            //TODO: schedule indexing (search index) of the collection (only that object, no items yet)
+            return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();
+        } catch (IOException | RepositoryException e) {
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
         }
-        Collection collection = extractCollectionFromJson(collectionDefinition);
-        if (collection.name == null || collection.name.isEmpty()) {
-            throw new BadRequestException("name can't be empty");
-        }
-        System.out.println(collection);
-        String newPid = "uuid:" + UUID.randomUUID().toString();
-        collection.pid = newPid;
-        //TODO: vyrobit foxml
-        //TODO: ingest
-        //TODO: schedule indexing
-        //return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();
-        //TODO: implement
-        throw new InternalErrorException("not implemented yet");
     }
 
     @GET
@@ -95,8 +99,7 @@ public class CollectionsResource extends AdminApiResource {
             }
             if (!current.equalsInTexts(updated)) {
                 krameriusRepositoryApi.updateMods(pid, foxmlBuilder.buildMods(updated));
-                //TODO: update dublin core
-                //TODO: schedule indexation
+                //TODO: schedule indexing (search index) of the collection and all foster descendants
             }
             return Response.ok().build();
         } catch (IOException | RepositoryException e) {

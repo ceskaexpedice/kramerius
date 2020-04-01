@@ -50,6 +50,10 @@ public interface KrameriusRepositoryApi {
      */
     public RepositoryApi getLowLevelApi();
 
+
+    //TODO
+    //public String getLabel(String pid) throws IOException, RepositoryException;
+
     /**
      * @param pid Persistent identifier of the object
      * @return Timestamp of object's creation in repository.
