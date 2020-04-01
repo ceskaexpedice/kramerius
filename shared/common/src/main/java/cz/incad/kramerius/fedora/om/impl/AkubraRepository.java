@@ -114,7 +114,9 @@ public class AkubraRepository extends Repository {
         List<PropertyType> propertyTypeList = objectPropertiesType.getProperty();
         propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#state", "Active"));
         propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#ownerId", "fedoraAdmin"));
-        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#createdDate", AkubraUtils.currentTimeString()));
+        String currentTime = AkubraUtils.currentTimeString();
+        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#createdDate", currentTime));
+        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/view#lastModifiedDate", currentTime));
         retval.setObjectProperties(objectPropertiesType);
         return retval;
     }

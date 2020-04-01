@@ -286,7 +286,8 @@ public class AkubraDOManager {
             Iterator<DatastreamType> iterator = datastreamList.iterator();
             while (iterator.hasNext()) {
                 DatastreamType datastream = iterator.next();
-                ensureDsVersionCreatedDate(datastream);
+                //disabled because of https://github.com/ceskaexpedice/kramerius/issues/746
+                //ensureDsVersionCreatedDate(datastream);
                 if (streamId != null && streamId.equals(datastream.getID())) {
                     convertManagedStream(object.getPID(), datastream);
                     break;
