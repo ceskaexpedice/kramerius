@@ -18,7 +18,7 @@ public class FoxmlBuilder {
         Element modsCollection = document.addElement(new QName("modsCollection", NS_MODS));
         Element mods = addModsElement(modsCollection, "mods");
         mods.addAttribute("version", "3.4");
-        Element tileInfo = addModsElement(mods, "tileInfo");
+        Element tileInfo = addModsElement(mods, "titleInfo");
         Element title = addModsElement(tileInfo, "title");
         title.addText(collection.name);
         if (collection.description != null) {

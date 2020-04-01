@@ -12,6 +12,7 @@ import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.dom4j.Document;
+import org.dom4j.Element;
 import org.dom4j.Node;
 import org.ehcache.CacheManager;
 
@@ -20,6 +21,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class AkubraRepositoryApi implements RepositoryApi {
 
@@ -40,13 +43,9 @@ public class AkubraRepositoryApi implements RepositoryApi {
     }
 
     @Override
-    public void ingestObject(Document foxmlDoc) throws RepositoryException {
-        try {
-            DigitalObject digitalObject = (DigitalObject) digitalObjectUnmarshaller.unmarshal(new StringReader(foxmlDoc.asXML()));
-            akubraRepository.ingestObject(digitalObject);
-        } catch (JAXBException e) {
-            throw new RepositoryException(e);
-        }
+    public void ingestObject(Document foxmlDoc) throws RepositoryException, IOException {
+        DigitalObject digitalObject = foxmlDocToDigitalObject(foxmlDoc);
+        akubraRepository.ingestObject(digitalObject);
     }
 
     @Override
@@ -84,12 +83,60 @@ public class AkubraRepositoryApi implements RepositoryApi {
     }
 
     @Override
+    public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException {
+        Document foxml = getObjectFoxml(pid);
+        appendNewInlineXmlDatastreamVersion(foxml, dsId, streamDoc, formatUri);
+        DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
+        akubraRepository.deleteobject(pid);
+        akubraRepository.ingestObject(updatedDigitalObject);
+    }
+
+    private void appendNewInlineXmlDatastreamVersion(Document foxml, String dsId, Document streamDoc, String formatUri) {
+        Element datastreamEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", dsId)).selectSingleNode(foxml);
+        if (datastreamEl != null) {
+            int latestDsIdVersion = extractLatestDsIdVersion(datastreamEl);
+            int newDsIdVesion = latestDsIdVersion + 1;
+            Element dsVersionEl = datastreamEl.addElement("datastreamVersion", NAMESPACE_FOXML);
+            dsVersionEl.addAttribute("ID", dsId + "." + newDsIdVesion);
+            dsVersionEl.addAttribute("CREATED", LocalDateTime.now().format(DATASTREAM_CREATED_FORMATTER));
+            dsVersionEl.addAttribute("MIMETYPE", "application/xml");
+            if (formatUri != null) {
+                dsVersionEl.addAttribute("FORMAT_URI", formatUri);
+            }
+            Element xmlContentEl = dsVersionEl.addElement("xmlContent", NAMESPACE_FOXML);
+            xmlContentEl.add(streamDoc.getRootElement().detach());
+        }
+    }
+
+    private int extractLatestDsIdVersion(Element datastreamEl) {
+        List<Node> dsVersionEls = Dom4jUtils.buildXpath("foxml:datastreamVersion").selectNodes(datastreamEl);
+        int maxVersion = -1;
+        for (Node node : dsVersionEls) {
+            Element versionEl = (Element) node;
+            String ID = Dom4jUtils.stringOrNullFromAttributeByName(versionEl, "ID");
+            int versionNumber = Integer.valueOf(ID.split("\\.")[1]);
+            if (versionNumber > maxVersion) {
+                maxVersion = versionNumber;
+            }
+        }
+        return maxVersion;
+    }
+
+    @Override
     public void deleteObject(String pid) throws RepositoryException {
         akubraRepository.deleteobject(pid);
     }
 
+    private DigitalObject foxmlDocToDigitalObject(Document foxml) throws IOException {
+        try {
+            return (DigitalObject) digitalObjectUnmarshaller.unmarshal(new StringReader(foxml.asXML()));
+        } catch (JAXBException e) {
+            throw new IOException(e);
+        }
+    }
+
     private String extractProperty(Document foxmlDoc, String name) {
-        Node node = Dom4jUtils.buildXpath("/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='" + name + "']/@VALUE").selectSingleNode(foxmlDoc);
+        Node node = Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='%s']/@VALUE", name)).selectSingleNode(foxmlDoc);
         return node == null ? null : Dom4jUtils.toStringOrNull(node);
     }
 }

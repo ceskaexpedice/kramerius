@@ -79,31 +79,30 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateCollection(@PathParam("pid") String pid, JSONObject collectionDefinition) {
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUser();
-        String role = ROLE_EDIT_COLLECTION;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user.getName(), role); //403
-        }
-        checkObjectExists(pid);
-        Collection current = fetchCollectionFromRepository(pid);
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_EDIT_COLLECTION;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user.getName(), role); //403
+            }
+            checkObjectExists(pid);
+            Collection current = fetchCollectionFromRepository(pid);
 
-        Collection updated = current.withUpdatedTexts(extractCollectionFromJson(collectionDefinition));
-        if (updated.name == null || updated.name.isEmpty()) {
-            throw new BadRequestException("name can't be empty");
+            Collection updated = current.withUpdatedTexts(extractCollectionFromJson(collectionDefinition));
+            if (updated.name == null || updated.name.isEmpty()) {
+                throw new BadRequestException("name can't be empty");
+            }
+            if (!current.equalsInTexts(updated)) {
+                krameriusRepositoryApi.updateMods(pid, foxmlBuilder.buildMods(updated));
+                //TODO: update dublin core
+                //TODO: schedule indexation
+            }
+            return Response.ok().build();
+        } catch (IOException | RepositoryException e) {
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
         }
-        if (!current.equalsInTexts(updated)) {
-            //try {
-            Document newMods = foxmlBuilder.buildMods(updated);
-            //TODO: save mods as new version of the datastream
-            //getRepositoryAccess().setMods(pid, newMods);
-            //TODO: schedule indexation
-            /*} catch (IOException e) {
-                e.printStackTrace();
-                throw new InternalErrorException(e.getMessage());
-            }*/
-        }
-        return Response.ok().build();
     }
 
     @DELETE

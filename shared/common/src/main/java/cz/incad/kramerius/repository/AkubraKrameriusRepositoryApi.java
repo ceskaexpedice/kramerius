@@ -6,7 +6,6 @@ import org.dom4j.Document;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public class AkubraKrameriusRepositoryApi implements KrameriusRepositoryApi {
@@ -24,7 +23,7 @@ public class AkubraKrameriusRepositoryApi implements KrameriusRepositoryApi {
         String propertyValue = repositoryApi.getObjectProperty(pid, "info:fedora/fedora-system:def/model#createdDate");
         if (propertyValue != null) {
             try {
-                return LocalDateTime.parse(propertyValue, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+                return LocalDateTime.parse(propertyValue, RepositoryApi.OBJECT_TIMESTAMP_PROPERTY_FORMATTER);
             } catch (DateTimeParseException e) {
                 System.out.println(String.format("cannot parse createdeDate %s from object %s", propertyValue, pid));
             }
@@ -37,7 +36,7 @@ public class AkubraKrameriusRepositoryApi implements KrameriusRepositoryApi {
         String propertyValue = repositoryApi.getObjectProperty(pid, "info:fedora/fedora-system:def/view#lastModifiedDate");
         if (propertyValue != null) {
             try {
-                return LocalDateTime.parse(propertyValue, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+                return LocalDateTime.parse(propertyValue, RepositoryApi.OBJECT_TIMESTAMP_PROPERTY_FORMATTER);
             } catch (DateTimeParseException e) {
                 System.out.println(String.format("cannot parse lastModifiedDate %s from object %s", propertyValue, pid));
             }
@@ -87,5 +86,20 @@ public class AkubraKrameriusRepositoryApi implements KrameriusRepositoryApi {
         return doc;
     }
 
+    @Override
+    public void updateRelsExt(String pid, Document relsExtDoc) throws IOException, RepositoryException {
+        //TODO: make sure, that resource-index for the object is rebuild (i.e. reindexation in solr index Processing)
+        repositoryApi.updateInlineXmlDatastream(pid, KnownDatastreams.RELS_EXT, relsExtDoc, KnownXmlFormatUris.RELS_EXT);
+    }
+
+    @Override
+    public void updateMods(String pid, Document modsDoc) throws IOException, RepositoryException {
+        repositoryApi.updateInlineXmlDatastream(pid, KnownDatastreams.BIBLIO_MODS, modsDoc, KnownXmlFormatUris.BIBLIO_MODS);
+    }
+
+    @Override
+    public void updateDublinCore(String pid, Document dcDoc) throws IOException, RepositoryException {
+        repositoryApi.updateInlineXmlDatastream(pid, KnownDatastreams.BIBLIO_DC, dcDoc, KnownXmlFormatUris.BIBLIO_DC);
+    }
 
 }

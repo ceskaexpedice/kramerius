@@ -14,6 +14,12 @@ import java.time.LocalDateTime;
  */
 public interface KrameriusRepositoryApi {
 
+    public static class KnownXmlFormatUris {
+        public static final String RELS_EXT = "info:fedora/fedora-system:FedoraRELSExt-1.0";
+        public static final String BIBLIO_MODS = "http://www.loc.gov/mods/v3";
+        public static final String BIBLIO_DC = "http://www.openarchives.org/OAI/2.0/oai_dc/";
+    }
+
     public static class KnownDatastreams {
         public static final String RELS_EXT = "RELS-EXT";
 
@@ -110,5 +116,35 @@ public interface KrameriusRepositoryApi {
      * @throws RepositoryException
      */
     public Document getDublinCore(String pid, boolean namespaceAware) throws IOException, RepositoryException;
+
+    /**
+     * Appends new version of inline xml datastream RELS-EXT
+     *
+     * @param pid        Persistent identifier of the object
+     * @param relsExtDoc New version of RELS-EXT
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public void updateRelsExt(String pid, Document relsExtDoc) throws IOException, RepositoryException;
+
+    /**
+     * Appends new version of inline xml datastream BIBLIO_MODS
+     *
+     * @param pid     Persistent identifier of the object
+     * @param modsDoc New version of MODS
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public void updateMods(String pid, Document modsDoc) throws IOException, RepositoryException;
+
+    /**
+     * Appends new version of inline xml datastream DC
+     *
+     * @param pid   Persistent identifier of the object
+     * @param dcDoc New version of Dublin Core
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public void updateDublinCore(String pid, Document dcDoc) throws IOException, RepositoryException;
 
 }
