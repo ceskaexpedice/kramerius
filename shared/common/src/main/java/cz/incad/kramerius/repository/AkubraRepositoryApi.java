@@ -11,9 +11,7 @@ import cz.incad.kramerius.fedora.om.impl.AkubraRepository;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.Node;
+import org.dom4j.*;
 import org.ehcache.CacheManager;
 
 import javax.xml.bind.JAXBContext;
@@ -27,6 +25,7 @@ import java.util.List;
 
 public class AkubraRepositoryApi implements RepositoryApi {
 
+    private static final Namespace NS_FOXML = new Namespace("foxml", "info:fedora/fedora-system:def/foxml#");
     private final AkubraRepository akubraRepository;
     private final Unmarshaller digitalObjectUnmarshaller;
 
@@ -125,8 +124,15 @@ public class AkubraRepositoryApi implements RepositoryApi {
     }
 
     private void updateLastModifiedTimestamp(Document foxml) {
-        //TODO:implement
-        //Node node = Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='%s']/@VALUE", name)).selectSingleNode(foxmlDoc);
+        Attribute valueAttr = (Attribute) Dom4jUtils.buildXpath("/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/view#lastModifiedDate']/@VALUE").selectSingleNode(foxml);
+        if (valueAttr != null) {
+            valueAttr.setValue(LocalDateTime.now().format(TIMESTAMP_FORMATTER));
+        } else {
+            Element objectProperties = (Element) Dom4jUtils.buildXpath("/foxml:digitalObject/foxml:objectProperties").selectSingleNode(foxml);
+            Element propertyLastModified = objectProperties.addElement(new QName("property", NS_FOXML));
+            propertyLastModified.addAttribute("NAME", "info:fedora/fedora-system:def/view#lastModifiedDate");
+            propertyLastModified.addAttribute("VALUE", LocalDateTime.now().format(RepositoryApi.TIMESTAMP_FORMATTER));
+        }
     }
 
     private void appendNewInlineXmlDatastreamVersion(Document foxml, String dsId, Document streamDoc, String formatUri) {
