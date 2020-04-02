@@ -23,7 +23,7 @@ public class AkubraKrameriusRepositoryApi implements KrameriusRepositoryApi {
         String propertyValue = repositoryApi.getObjectProperty(pid, "info:fedora/fedora-system:def/model#createdDate");
         if (propertyValue != null) {
             try {
-                return LocalDateTime.parse(propertyValue, RepositoryApi.OBJECT_TIMESTAMP_PROPERTY_FORMATTER);
+                return LocalDateTime.parse(propertyValue, RepositoryApi.TIMESTAMP_FORMATTER);
             } catch (DateTimeParseException e) {
                 System.out.println(String.format("cannot parse createdeDate %s from object %s", propertyValue, pid));
             }
@@ -36,7 +36,7 @@ public class AkubraKrameriusRepositoryApi implements KrameriusRepositoryApi {
         String propertyValue = repositoryApi.getObjectProperty(pid, "info:fedora/fedora-system:def/view#lastModifiedDate");
         if (propertyValue != null) {
             try {
-                return LocalDateTime.parse(propertyValue, RepositoryApi.OBJECT_TIMESTAMP_PROPERTY_FORMATTER);
+                return LocalDateTime.parse(propertyValue, RepositoryApi.TIMESTAMP_FORMATTER);
             } catch (DateTimeParseException e) {
                 System.out.println(String.format("cannot parse lastModifiedDate %s from object %s", propertyValue, pid));
             }

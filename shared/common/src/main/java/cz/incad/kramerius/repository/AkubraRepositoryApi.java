@@ -86,9 +86,6 @@ public class AkubraRepositoryApi implements RepositoryApi {
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException {
         Document foxml = getObjectFoxml(pid);
         appendNewInlineXmlDatastreamVersion(foxml, dsId, streamDoc, formatUri);
-        //TODO: check this is fixed: https://github.com/ceskaexpedice/kramerius/issues/746
-        //System.out.println("updated: ");
-        //System.out.println(foxml);
         DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
         //TODO: update property lastModified for datastream and object
         akubraRepository.deleteobject(pid);
@@ -102,7 +99,7 @@ public class AkubraRepositoryApi implements RepositoryApi {
             int newDsIdVesion = latestDsIdVersion + 1;
             Element dsVersionEl = datastreamEl.addElement("datastreamVersion", NAMESPACE_FOXML);
             dsVersionEl.addAttribute("ID", dsId + "." + newDsIdVesion);
-            dsVersionEl.addAttribute("CREATED", LocalDateTime.now().format(DATASTREAM_CREATED_FORMATTER));
+            dsVersionEl.addAttribute("CREATED", LocalDateTime.now().format(TIMESTAMP_FORMATTER));
             dsVersionEl.addAttribute("MIMETYPE", "application/xml");
             if (formatUri != null) {
                 dsVersionEl.addAttribute("FORMAT_URI", formatUri);

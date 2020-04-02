@@ -18,10 +18,7 @@ import java.time.format.DateTimeFormatter;
 public interface RepositoryApi {
 
     public static final String NAMESPACE_FOXML = "info:fedora/fedora-system:def/foxml#";
-    //TODO: zmenit po oprave https://github.com/ceskaexpedice/kramerius/issues/746
-    @Deprecated
-    public static final DateTimeFormatter DATASTREAM_CREATED_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-    public static final DateTimeFormatter OBJECT_TIMESTAMP_PROPERTY_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    public static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     //TODO: methods for fetching other types of datastreams (redirect, external referenced, probably not managed)
     //TODO: methods for updating datastreams (new versions)

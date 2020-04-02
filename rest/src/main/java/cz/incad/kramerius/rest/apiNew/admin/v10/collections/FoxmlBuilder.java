@@ -37,11 +37,11 @@ public class FoxmlBuilder {
         LocalDateTime now = LocalDateTime.now();
         Element propertyCreated = addFoxmlElement(objectProperties, "property");
         propertyCreated.addAttribute("NAME", "info:fedora/fedora-system:def/model#createdDate");
-        propertyCreated.addAttribute("VALUE", now.format(RepositoryApi.OBJECT_TIMESTAMP_PROPERTY_FORMATTER));
+        propertyCreated.addAttribute("VALUE", now.format(RepositoryApi.TIMESTAMP_FORMATTER));
         //last modified
         Element propertyLastModified = addFoxmlElement(objectProperties, "property");
         propertyLastModified.addAttribute("NAME", "info:fedora/fedora-system:def/view#lastModifiedDate");
-        propertyLastModified.addAttribute("VALUE", now.format(RepositoryApi.OBJECT_TIMESTAMP_PROPERTY_FORMATTER));
+        propertyLastModified.addAttribute("VALUE", now.format(RepositoryApi.TIMESTAMP_FORMATTER));
         //MODS
         Element dsModsEl = addFoxmlElement(digitalObject, "datastream");
         dsModsEl.addAttribute("ID", KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
@@ -52,7 +52,7 @@ public class FoxmlBuilder {
         dsModsVersionEl.addAttribute("ID", KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS + ".0");
         dsModsVersionEl.addAttribute("MIMETYPE", "application/xml");
         dsModsVersionEl.addAttribute("FORMAT_URI", KrameriusRepositoryApi.KnownXmlFormatUris.BIBLIO_MODS);
-        dsModsVersionEl.addAttribute("CREATED", now.format(RepositoryApi.DATASTREAM_CREATED_FORMATTER));
+        dsModsVersionEl.addAttribute("CREATED", now.format(RepositoryApi.TIMESTAMP_FORMATTER));
         Element modsXmlContent = addFoxmlElement(dsModsVersionEl, "xmlContent");
         modsXmlContent.add(buildMods(collection).getRootElement().detach());
         //RELS-EXT
@@ -65,7 +65,7 @@ public class FoxmlBuilder {
         dsRelsExtVersionEl.addAttribute("ID", KrameriusRepositoryApi.KnownDatastreams.RELS_EXT + ".0");
         dsRelsExtVersionEl.addAttribute("MIMETYPE", "application/xml");
         dsRelsExtVersionEl.addAttribute("FORMAT_URI", KrameriusRepositoryApi.KnownXmlFormatUris.RELS_EXT);
-        dsRelsExtVersionEl.addAttribute("CREATED", now.format(RepositoryApi.DATASTREAM_CREATED_FORMATTER));
+        dsRelsExtVersionEl.addAttribute("CREATED", now.format(RepositoryApi.TIMESTAMP_FORMATTER));
         Element relsExtXmlContent = addFoxmlElement(dsRelsExtVersionEl, "xmlContent");
         relsExtXmlContent.add(buildRelsExt(collection, pidsOfItemsInCollection).getRootElement().detach());
         return document;
