@@ -1,11 +1,13 @@
 package cz.incad.kramerius.repository;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * Interface for accessing data in repository (Akubra, formerly Fedora).
@@ -44,10 +46,13 @@ public interface RepositoryApi {
 
     public Document getLatestVersionOfInlineXmlDatastream(String pid, String dsId) throws RepositoryException, IOException;
 
+    public List<String> getObjectPidsByModel(String model) throws RepositoryException, IOException, SolrServerException;
+
     //UPDATE
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException;
 
     //DELETE
     public void deleteObject(String pid) throws RepositoryException, IOException;
+
 
 }

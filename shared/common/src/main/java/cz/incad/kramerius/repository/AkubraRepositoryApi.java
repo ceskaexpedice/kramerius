@@ -11,6 +11,7 @@ import cz.incad.kramerius.fedora.om.impl.AkubraRepository;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.*;
 import org.ehcache.CacheManager;
 
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AkubraRepositoryApi implements RepositoryApi {
@@ -112,6 +114,22 @@ public class AkubraRepositoryApi implements RepositoryApi {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public List<String> getObjectPidsByModel(String model) throws RepositoryException, IOException, SolrServerException {
+        List<String> pids = new ArrayList<>();
+        //TODO: offset, limit
+        //TODO sort by date desc
+        String query = String.format("type:description AND model:%s", "model\\:" + model); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze  uprime zbytecne
+        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
+            Object fieldValue = doc.getFieldValue("source");
+            if (fieldValue != null) {
+                String valueStr = fieldValue.toString();
+                pids.add(valueStr);
+            }
+        });
+        return pids;
     }
 
     @Override

@@ -7,7 +7,9 @@ import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.Dom4jUtils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,6 +18,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Path("/admin/v1.0/collections")
@@ -23,13 +26,13 @@ public class CollectionsResource extends AdminApiResource {
 
     //TODO: prejmenovat role podle spravy uctu
     private static final String ROLE_CREATE_COLLECTION = "kramerius_admin";
+    private static final String ROLE_LIST_COLLECTIONS = "kramerius_admin";
     private static final String ROLE_READ_COLLECTION = "kramerius_admin";
     private static final String ROLE_EDIT_COLLECTION = "kramerius_admin";
     private static final String ROLE_DELETE_COLLECTION = "kramerius_admin";
 
     @Inject
     private FoxmlBuilder foxmlBuilder;
-    //private final FoxmlBuilder foxmlBuilder = new FoxmlBuilder();
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -69,11 +72,38 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to read collections (missing role '%s')", user.getName(), role); //403
             }
             checkObjectExists(pid);
-            Collection collection = fetchCollectionFromRepository(pid);
+            Collection collection = fetchCollectionFromRepository(pid, true);
             return Response.ok(collection.toJson()).build();
-        } catch (Throwable e) {
+        } catch (IOException | RepositoryException e) {
             e.printStackTrace();
-            throw e;
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCollections() {
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_LIST_COLLECTIONS;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to list collections (missing role '%s')", user.getName(), role); //403
+            }
+            List<String> pids = krameriusRepositoryApi.getLowLevelApi().getObjectPidsByModel("collection");
+            JSONArray array = new JSONArray();
+            for (String pid : pids) {
+                Collection collection = fetchCollectionFromRepository(pid, false);
+                array.put(collection.toJson());
+            }
+            JSONObject result = new JSONObject();
+            result.put("total_size", pids.size());
+            result.put("collections", array);
+            return Response.ok(result.toString()).build();
+        } catch (IOException | RepositoryException | SolrServerException e) {
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
         }
     }
 
@@ -91,7 +121,7 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user.getName(), role); //403
             }
             checkObjectExists(pid);
-            Collection current = fetchCollectionFromRepository(pid);
+            Collection current = fetchCollectionFromRepository(pid, true);
 
             Collection updated = current.withUpdatedTexts(extractCollectionFromJson(collectionDefinition));
             if (updated.name == null || updated.name.isEmpty()) {
@@ -129,26 +159,22 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    private Collection fetchCollectionFromRepository(String pid) {
-        try {
-            Collection collection = new Collection();
-            collection.pid = pid;
+    private Collection fetchCollectionFromRepository(String pid, boolean withContent) throws IOException, RepositoryException {
+        Collection collection = new Collection();
+        collection.pid = pid;
 
-            //timestamps from Foxml properties
-            collection.created = krameriusRepositoryApi.getLowLevelApi().getPropertyCreated(pid);
-            collection.modified = krameriusRepositoryApi.getLowLevelApi().getPropertyLastModified(pid);
+        //timestamps from Foxml properties
+        collection.created = krameriusRepositoryApi.getLowLevelApi().getPropertyCreated(pid);
+        collection.modified = krameriusRepositoryApi.getLowLevelApi().getPropertyLastModified(pid);
 
-            //data from MODS
-            Document mods = krameriusRepositoryApi.getMods(pid, false);
-            collection.name = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo/title");
-            collection.description = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract");
+        //data from MODS
+        Document mods = krameriusRepositoryApi.getMods(pid, false);
+        collection.name = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo/title");
+        collection.description = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract");
+        if (withContent) {
             collection.content = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note");
-
-            return collection;
-        } catch (IOException | RepositoryException e) {
-            e.printStackTrace();
-            throw new InternalErrorException(e.getMessage());
         }
+        return collection;
     }
 
     private Collection extractCollectionFromJson(JSONObject collectionDefinition) {
