@@ -13,7 +13,7 @@ public final class Collection {
     public String content;
     public LocalDateTime created;
     public LocalDateTime modified;
-    //TODO: priznak, jestli je "vlastni" nebo tak nejak, tj. jestli muze byt zobrazena na nejvyssi urovni, i kdyz je treba podsbirkou
+    //TODO: priznak, jestli je vlastni/nezavisla nebo tak nejak, tj. jestli muze byt zobrazena na nejvyssi urovni, i kdyz je treba sama podsbirkou
 
     @Override
     public String toString() {

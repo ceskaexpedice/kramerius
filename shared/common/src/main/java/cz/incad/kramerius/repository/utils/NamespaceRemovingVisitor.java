@@ -1,4 +1,4 @@
-package cz.incad.kramerius.repository;
+package cz.incad.kramerius.repository.utils;
 
 import org.dom4j.*;
 

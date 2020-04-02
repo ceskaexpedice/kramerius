@@ -1,15 +1,16 @@
 package cz.incad.kramerius.repository;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.repository.utils.NamespaceRemovingVisitor;
 import org.dom4j.Document;
 
 import javax.inject.Inject;
 import java.io.IOException;
 
-public class AkubraKrameriusRepositoryApi implements KrameriusRepositoryApi {
+public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
     @Inject
-    private AkubraRepositoryApi repositoryApi;
+    private RepositoryApiImpl repositoryApi;
 
     @Override
     public RepositoryApi getLowLevelApi() {

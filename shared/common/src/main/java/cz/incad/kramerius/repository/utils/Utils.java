@@ -1,4 +1,4 @@
-package cz.incad.kramerius.repository;
+package cz.incad.kramerius.repository.utils;
 
 import com.google.common.io.CharStreams;
 import com.google.gson.JsonArray;

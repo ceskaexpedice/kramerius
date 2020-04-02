@@ -1,6 +1,7 @@
 package cz.incad.kramerius.repository;
 
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import org.dom4j.Document;

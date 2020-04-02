@@ -8,6 +8,7 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.om.impl.AkubraRepository;
+import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -25,14 +26,14 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AkubraRepositoryApi implements RepositoryApi {
+public class RepositoryApiImpl implements RepositoryApi {
 
     private static final Namespace NS_FOXML = new Namespace("foxml", "info:fedora/fedora-system:def/foxml#");
     private final AkubraRepository akubraRepository;
     private final Unmarshaller digitalObjectUnmarshaller;
 
     @Inject
-    public AkubraRepositoryApi(KConfiguration configuration, ProcessingIndexFeeder processingIndexFeeder, @Named("akubraCacheManager") CacheManager cacheManager) throws RepositoryException {
+    public RepositoryApiImpl(KConfiguration configuration, ProcessingIndexFeeder processingIndexFeeder, @Named("akubraCacheManager") CacheManager cacheManager) throws RepositoryException {
         try {
             AkubraDOManager akubraDOManager = new AkubraDOManager(configuration, cacheManager);
             this.akubraRepository = (AkubraRepository) AkubraRepository.build(processingIndexFeeder, akubraDOManager);

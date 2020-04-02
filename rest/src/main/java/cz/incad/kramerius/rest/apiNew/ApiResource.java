@@ -1,7 +1,7 @@
 package cz.incad.kramerius.rest.apiNew;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.repository.AkubraKrameriusRepositoryApi;
+import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.rest.apiNew.exceptions.ApiException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
@@ -11,7 +11,8 @@ import javax.inject.Inject;
 public abstract class ApiResource {
 
     @Inject
-    public AkubraKrameriusRepositoryApi krameriusRepositoryApi;
+    //TODO should be interface, but then guice would need bind(KrameriusRepository.class).to(KrameriusRepositoryApiImpl) somewhere
+    public KrameriusRepositoryApiImpl krameriusRepositoryApi;
 
     /*
     @Inject
