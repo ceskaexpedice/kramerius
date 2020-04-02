@@ -4,13 +4,14 @@ import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.PropertyType;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import cz.incad.kramerius.utils.SafeSimpleDateFormat;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Element;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
@@ -21,9 +22,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.text.ParseException;
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
@@ -108,9 +110,12 @@ public class AkubraUtils {
     }
 
     public static XMLGregorianCalendar getCurrentXMLGregorianCalendar() {
-        Calendar now = Calendar.getInstance();
-        return XMLGregorianCalendarImpl.createDateTime(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.HOUR_OF_DAY), now
-                .get(Calendar.MINUTE), now.get(Calendar.SECOND));
+        try {
+            return DatatypeFactory.newInstance().newXMLGregorianCalendar(dateFormat.format(new Date()));
+        } catch (DatatypeConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     public static String endpoint() {
