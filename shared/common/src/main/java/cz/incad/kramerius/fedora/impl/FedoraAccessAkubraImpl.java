@@ -381,7 +381,7 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
     public InputStream getFoxml(String pid, boolean archive) throws IOException {
         try {
             if (archive){
-                DigitalObject obj = manager.readObjectFromStorage(pid);
+                DigitalObject obj = manager.readObjectCloneFromStorage(pid);
                 manager.resolveArchivedDatastreams(obj);
                 return this.manager.marshallObject(obj);
             }else {

@@ -175,13 +175,33 @@ public class AkubraDOManager {
     }
 
 
+    /**
+     * Loads and unmarshalls DigitalObject from Akubra storage, using cache if possible
+     * @param pid
+     * @return
+     * @throws IOException
+     */
     public DigitalObject readObjectFromStorage(String pid) throws IOException {
-        DigitalObject retval = objectCache.get(pid);
+        return readObjectFromStorageOrCache(pid, true);
+    }
+
+    /**
+     * Loads and unmarshalls fresh copy of DigitalObject from Akubra storage, bypassing the cache
+     * Intended for use in FedoraAccess.getFoxml, which resolves internal managed datastreams to base64 binary content
+     * @param pid
+     * @return
+     * @throws IOException
+     */
+    public DigitalObject readObjectCloneFromStorage(String pid) throws IOException {
+        return readObjectFromStorageOrCache(pid, false);
+    }
+
+    private DigitalObject readObjectFromStorageOrCache(String pid, boolean useCache) throws IOException {
+        DigitalObject retval = useCache ? objectCache.get(pid) : null;
         if (retval == null) {
             Object obj = null;
             Lock lock = getReadLock(pid);
             try (InputStream inputStream = this.storage.retrieveObject(pid);){
-
                 synchronized (unmarshaller) {
                     obj = unmarshaller.unmarshal(inputStream);
                 }
@@ -193,7 +213,9 @@ public class AkubraDOManager {
                 lock.unlock();
             }
             retval = (DigitalObject) obj;
-            objectCache.put(pid, retval);
+            if (useCache) {
+                objectCache.put(pid, retval);
+            }
         }
         return retval;
     }
