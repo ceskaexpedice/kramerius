@@ -70,7 +70,7 @@ public abstract class AdminApiResource extends ApiResource {
                         }
                     }
                 }
-                throw new InternalErrorException("error communicationg with authentification service: %s", message);
+                throw new InternalErrorException("error communicating with authentification service: %s", message);
             }
             String body = inputstreamToString(con.getInputStream());
             JSONObject bodyJson = new JSONObject(body);
@@ -84,7 +84,7 @@ public abstract class AdminApiResource extends ApiResource {
                         message = errors.getString(0);
                     }
                 }
-                throw new InternalErrorException("error communicationg with authentification service: %s", message);
+                throw new InternalErrorException("error communicating with authentification service: %s", message);
             }
 
             //success
@@ -97,7 +97,7 @@ public abstract class AdminApiResource extends ApiResource {
             }
             return new AuthenticatedUser(id, name, roles);
         } catch (IOException e) {
-            throw new InternalErrorException("error communicationg with authentification service", e);
+            throw new InternalErrorException("error communicating with authentification service: %s ", e.getMessage());
         }
     }
 
