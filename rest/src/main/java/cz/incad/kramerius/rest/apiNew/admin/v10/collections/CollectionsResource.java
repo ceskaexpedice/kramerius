@@ -36,8 +36,8 @@ public class CollectionsResource extends AdminApiResource {
     private FoxmlBuilder foxmlBuilder;
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response createCollection(JSONObject collectionDefinition) {
         try {
             //authentication
@@ -73,9 +73,9 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to read collections (missing role '%s')", user.getName(), role); //403
             }
             checkObjectExists(pid);
-            Collection collection = fetchCollectionFromRepository(pid, true);
+            Collection collection = fetchCollectionFromRepository(pid, true, true);
             return Response.ok(collection.toJson()).build();
-        } catch (IOException | RepositoryException e) {
+        } catch (IOException | RepositoryException | SolrServerException e) {
             e.printStackTrace();
             throw new InternalErrorException(e.getMessage());
         }
@@ -93,14 +93,14 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to list collections (missing role '%s')", user.getName(), role); //403
             }
             List<String> pids = krameriusRepositoryApi.getLowLevelApi().getObjectPidsByModel("collection");
-            JSONArray array = new JSONArray();
+            JSONArray collections = new JSONArray();
             for (String pid : pids) {
-                Collection collection = fetchCollectionFromRepository(pid, false);
-                array.put(collection.toJson());
+                Collection collection = fetchCollectionFromRepository(pid, false, false);
+                collections.put(collection.toJson());
             }
             JSONObject result = new JSONObject();
             result.put("total_size", pids.size());
-            result.put("collections", array);
+            result.put("collections", collections);
             return Response.ok(result.toString()).build();
         } catch (IOException | RepositoryException | SolrServerException e) {
             e.printStackTrace();
@@ -111,8 +111,8 @@ public class CollectionsResource extends AdminApiResource {
 
     @PUT
     @Path("{pid}")
-    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response updateCollection(@PathParam("pid") String pid, JSONObject collectionDefinition) {
         try {
             //authentication
@@ -122,7 +122,7 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user.getName(), role); //403
             }
             checkObjectExists(pid);
-            Collection current = fetchCollectionFromRepository(pid, true);
+            Collection current = fetchCollectionFromRepository(pid, true, false);
 
             Collection updated = current.withUpdatedTexts(extractCollectionFromJson(collectionDefinition));
             if (updated.name == null || updated.name.isEmpty()) {
@@ -133,15 +133,39 @@ public class CollectionsResource extends AdminApiResource {
                 //TODO: schedule indexing (search index) of the collection and all foster descendants
             }
             return Response.ok().build();
-        } catch (IOException | RepositoryException e) {
+        } catch (IOException | RepositoryException | SolrServerException e) {
             e.printStackTrace();
             throw new InternalErrorException(e.getMessage());
         }
     }
 
+    @PUT
+    @Path("{pid}/items")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response setItemsInCollection(@PathParam("pid") String pid, JSONArray pidsOfItems) {
+        //TODO: implement
+        throw new RuntimeException("not implemented yet");
+    }
+
+    @POST
+    @Path("{pid}/items")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addItemToCollection(@PathParam("pid") String collectionPid, String itemPid) {
+        //TODO: implement
+        throw new RuntimeException("not implemented yet");
+    }
+
+    @DELETE
+    @Path("{collectionPid}/items/{itemPid}")
+    public Response deleteCollection(@PathParam("collectionPid") String collectionPid, @PathParam("itemPid") String itemPid) {
+        //TODO: implement
+        throw new RuntimeException("not implemented yet");
+    }
+
     @DELETE
     @Path("{pid}")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response deleteCollection(@PathParam("pid") String pid) {
         try {
             //authentication
@@ -160,7 +184,7 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    private Collection fetchCollectionFromRepository(String pid, boolean withContent) throws IOException, RepositoryException {
+    private Collection fetchCollectionFromRepository(String pid, boolean withContent, boolean withItems) throws IOException, RepositoryException, SolrServerException {
         Collection collection = new Collection();
         collection.pid = pid;
 
@@ -177,6 +201,9 @@ public class CollectionsResource extends AdminApiResource {
             if (contentHtmlEscaped != null) {
                 collection.content = StringEscapeUtils.unescapeHtml(contentHtmlEscaped);
             }
+        }
+        if (withItems) {
+            collection.items = krameriusRepositoryApi.getPidsOfItemsInCollection(pid);
         }
         return collection;
     }

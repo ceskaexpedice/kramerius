@@ -1,9 +1,11 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.collections;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 public final class Collection {
@@ -14,6 +16,7 @@ public final class Collection {
     public LocalDateTime created;
     public LocalDateTime modified;
     //TODO: priznak, jestli je vlastni/nezavisla nebo tak nejak, tj. jestli muze byt zobrazena na nejvyssi urovni, i kdyz je treba sama podsbirkou
+    public List<String> items;
 
     @Override
     public String toString() {
@@ -52,9 +55,6 @@ public final class Collection {
         if (definition.has("content")) {
             this.content = definition.getString("content").trim();
         }
-        //TODO
-        //this.created = definition.getString("");
-        //this.created = definition.getString("");
     }
 
     Collection withUpdatedTexts(Collection updateSource) {
@@ -76,6 +76,13 @@ public final class Collection {
         }
         if (modified != null) {
             json.put("modified", modified.toString());
+        }
+        if (items != null) {
+            JSONArray itemsJson = new JSONArray();
+            for (String item : items) {
+                itemsJson.put(item);
+            }
+            json.put("items", items);
         }
         return json;
     }
