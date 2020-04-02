@@ -4,6 +4,7 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import org.dom4j.Document;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -23,20 +24,30 @@ public interface RepositoryApi {
     //TODO: methods for fetching other types of datastreams (redirect, external referenced, probably not managed)
     //TODO: methods for updating datastreams (new versions)
 
+    //CREATE
     public void ingestObject(Document foxmlDoc) throws RepositoryException, IOException;
 
+    //READ
     public boolean objectExists(String pid) throws RepositoryException;
 
-    public String getObjectProperty(String pid, String propertyName) throws IOException, RepositoryException;
+    public String getProperty(String pid, String propertyName) throws IOException, RepositoryException;
 
-    public Document getObjectFoxml(String pid) throws RepositoryException, IOException;
+    public String getPropertyLabel(String pid) throws IOException, RepositoryException;
+
+    public LocalDateTime getPropertyCreated(String pid) throws IOException, RepositoryException;
+
+    public LocalDateTime getPropertyLastModified(String pid) throws IOException, RepositoryException;
+
+    public Document getFoxml(String pid) throws RepositoryException, IOException;
 
     public boolean datastreamExists(String pid, String dsId) throws RepositoryException, IOException;
 
     public Document getLatestVersionOfInlineXmlDatastream(String pid, String dsId) throws RepositoryException, IOException;
 
+    //UPDATE
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException;
 
+    //DELETE
     public void deleteObject(String pid) throws RepositoryException;
 
 }

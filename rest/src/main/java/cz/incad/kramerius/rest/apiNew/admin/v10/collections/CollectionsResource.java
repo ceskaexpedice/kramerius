@@ -129,8 +129,8 @@ public class CollectionsResource extends AdminApiResource {
             collection.pid = pid;
 
             //timestamps from Foxml properties
-            collection.created = krameriusRepositoryApi.getTimestampCreated(pid);
-            collection.modified = krameriusRepositoryApi.getTimestampLastModified(pid);
+            collection.created = krameriusRepositoryApi.getLowLevelApi().getPropertyCreated(pid);
+            collection.modified = krameriusRepositoryApi.getLowLevelApi().getPropertyLastModified(pid);
 
             //data from MODS
             Document mods = krameriusRepositoryApi.getMods(pid, false);

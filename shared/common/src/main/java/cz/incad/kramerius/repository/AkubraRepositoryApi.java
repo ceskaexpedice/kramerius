@@ -22,6 +22,7 @@ import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.StringReader;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class AkubraRepositoryApi implements RepositoryApi {
@@ -54,13 +55,44 @@ public class AkubraRepositoryApi implements RepositoryApi {
     }
 
     @Override
-    public String getObjectProperty(String pid, String propertyName) throws IOException, RepositoryException {
-        Document objectFoxml = getObjectFoxml(pid);
+    public String getProperty(String pid, String propertyName) throws IOException, RepositoryException {
+        Document objectFoxml = getFoxml(pid);
         return objectFoxml == null ? null : extractProperty(objectFoxml, propertyName);
     }
 
     @Override
-    public Document getObjectFoxml(String pid) throws RepositoryException, IOException {
+    public String getPropertyLabel(String pid) throws IOException, RepositoryException {
+        return getProperty(pid, "info:fedora/fedora-system:def/model#label");
+    }
+
+    @Override
+    public LocalDateTime getPropertyCreated(String pid) throws IOException, RepositoryException {
+        String propertyValue = getProperty(pid, "info:fedora/fedora-system:def/model#createdDate");
+        if (propertyValue != null) {
+            try {
+                return LocalDateTime.parse(propertyValue, RepositoryApi.TIMESTAMP_FORMATTER);
+            } catch (DateTimeParseException e) {
+                System.out.println(String.format("cannot parse createdeDate %s from object %s", propertyValue, pid));
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public LocalDateTime getPropertyLastModified(String pid) throws IOException, RepositoryException {
+        String propertyValue = getProperty(pid, "info:fedora/fedora-system:def/view#lastModifiedDate");
+        if (propertyValue != null) {
+            try {
+                return LocalDateTime.parse(propertyValue, RepositoryApi.TIMESTAMP_FORMATTER);
+            } catch (DateTimeParseException e) {
+                System.out.println(String.format("cannot parse lastModifiedDate %s from object %s", propertyValue, pid));
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Document getFoxml(String pid) throws RepositoryException, IOException {
         RepositoryObject object = akubraRepository.getObject(pid);
         return Utils.inputstreamToDocument(object.getFoxml(), true);
     }
@@ -84,12 +116,17 @@ public class AkubraRepositoryApi implements RepositoryApi {
 
     @Override
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException {
-        Document foxml = getObjectFoxml(pid);
+        Document foxml = getFoxml(pid);
         appendNewInlineXmlDatastreamVersion(foxml, dsId, streamDoc, formatUri);
+        updateLastModifiedTimestamp(foxml);
         DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
-        //TODO: update property lastModified for datastream and object
         akubraRepository.deleteobject(pid);
         akubraRepository.ingestObject(updatedDigitalObject);
+    }
+
+    private void updateLastModifiedTimestamp(Document foxml) {
+        //TODO:implement
+        //Node node = Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='%s']/@VALUE", name)).selectSingleNode(foxmlDoc);
     }
 
     private void appendNewInlineXmlDatastreamVersion(Document foxml, String dsId, Document streamDoc, String formatUri) {

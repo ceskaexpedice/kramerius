@@ -5,8 +5,6 @@ import org.dom4j.Document;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 
 public class AkubraKrameriusRepositoryApi implements KrameriusRepositoryApi {
 
@@ -16,32 +14,6 @@ public class AkubraKrameriusRepositoryApi implements KrameriusRepositoryApi {
     @Override
     public RepositoryApi getLowLevelApi() {
         return repositoryApi;
-    }
-
-    @Override
-    public LocalDateTime getTimestampCreated(String pid) throws IOException, RepositoryException {
-        String propertyValue = repositoryApi.getObjectProperty(pid, "info:fedora/fedora-system:def/model#createdDate");
-        if (propertyValue != null) {
-            try {
-                return LocalDateTime.parse(propertyValue, RepositoryApi.TIMESTAMP_FORMATTER);
-            } catch (DateTimeParseException e) {
-                System.out.println(String.format("cannot parse createdeDate %s from object %s", propertyValue, pid));
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public LocalDateTime getTimestampLastModified(String pid) throws IOException, RepositoryException {
-        String propertyValue = repositoryApi.getObjectProperty(pid, "info:fedora/fedora-system:def/view#lastModifiedDate");
-        if (propertyValue != null) {
-            try {
-                return LocalDateTime.parse(propertyValue, RepositoryApi.TIMESTAMP_FORMATTER);
-            } catch (DateTimeParseException e) {
-                System.out.println(String.format("cannot parse lastModifiedDate %s from object %s", propertyValue, pid));
-            }
-        }
-        return null;
     }
 
     @Override

@@ -4,7 +4,6 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import org.dom4j.Document;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 /**
  * Interface for accessing data in repository (Akubra) as used by Kramerius. Methods are Kramerius - specific.
@@ -43,32 +42,12 @@ public interface KrameriusRepositoryApi {
     }
 
     //TODO: methods for getting ocr, images, audio
-    //TODO: methods for updating datastream data
+    //TODO: methods for updating datastream data (done for inline xml datastreams)
 
     /**
      * @return Low level repository API. Through that can be accessed any kind of datastream or property, regardless if it is used by Kramerius or not
      */
     public RepositoryApi getLowLevelApi();
-
-
-    //TODO
-    //public String getLabel(String pid) throws IOException, RepositoryException;
-
-    /**
-     * @param pid Persistent identifier of the object
-     * @return Timestamp of object's creation in repository.
-     * @throws IOException
-     * @throws RepositoryException
-     */
-    public LocalDateTime getTimestampCreated(String pid) throws IOException, RepositoryException;
-
-    /**
-     * @param pid Persistent identifier of the object
-     * @return Timestamp of object's modification in repository.
-     * @throws IOException
-     * @throws RepositoryException
-     */
-    public LocalDateTime getTimestampLastModified(String pid) throws IOException, RepositoryException;
 
     /**
      * @param pid Persistent identifier of the object
