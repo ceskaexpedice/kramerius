@@ -30,7 +30,8 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
 public class AkubraUtils {
-    public static final Logger LOGGER = Logger.getLogger(AkubraUtils.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AkubraUtils.class.getName());
+    private static final SafeSimpleDateFormat DATE_FORMAT = new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S'Z'");
 
     private AkubraUtils() {
     }
@@ -111,7 +112,7 @@ public class AkubraUtils {
 
     public static XMLGregorianCalendar getCurrentXMLGregorianCalendar() {
         try {
-            return DatatypeFactory.newInstance().newXMLGregorianCalendar(dateFormat.format(new Date()));
+            return DatatypeFactory.newInstance().newXMLGregorianCalendar(DATE_FORMAT.format(new Date()));
         } catch (DatatypeConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
@@ -123,14 +124,11 @@ public class AkubraUtils {
         return apiPoint + (apiPoint.endsWith("/") ? "" : "/") + "item/";
     }
 
-
-    private static final SafeSimpleDateFormat dateFormat = new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S'Z'");
-
     public static Date getLastModified(DigitalObject object) throws IOException {
         for (PropertyType propertyType : object.getObjectProperties().getProperty()) {
             if ("info:fedora/fedora-system:def/view#lastModifiedDate".equals(propertyType.getNAME())) {
                 try {
-                    return dateFormat.parse(propertyType.getVALUE());
+                    return DATE_FORMAT.parse(propertyType.getVALUE());
                 } catch (ParseException e) {
                     throw new IOException("Cannot parse LastModofiedDate: " + object.getPID() + ": " + propertyType.getVALUE());
                 }
@@ -140,7 +138,7 @@ public class AkubraUtils {
     }
 
     public static String currentTimeString() {
-        return dateFormat.format(new Date());
+        return DATE_FORMAT.format(new Date());
     }
 
     public static PropertyType createProperty(String name, String value) {
