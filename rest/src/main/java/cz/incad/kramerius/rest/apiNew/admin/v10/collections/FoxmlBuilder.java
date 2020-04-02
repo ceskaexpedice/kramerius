@@ -33,6 +33,10 @@ public class FoxmlBuilder {
         Element propertyLabel = addFoxmlElement(objectProperties, "property");
         propertyLabel.addAttribute("NAME", "info:fedora/fedora-system:def/model#label");
         propertyLabel.addAttribute("VALUE", collection.name);
+        //state
+        Element propertyState = addFoxmlElement(objectProperties, "property");
+        propertyState.addAttribute("NAME", "info:fedora/fedora-system:def/model#state");
+        propertyState.addAttribute("VALUE", "Active");
         //created
         LocalDateTime now = LocalDateTime.now();
         Element propertyCreated = addFoxmlElement(objectProperties, "property");
