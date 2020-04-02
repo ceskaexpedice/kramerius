@@ -1,9 +1,11 @@
 package cz.incad.kramerius.repository;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Interface for accessing data in repository (Akubra) as used by Kramerius. Methods are Kramerius - specific.
@@ -40,6 +42,11 @@ public interface KrameriusRepositoryApi {
 
         public static final String MIGRATION = "MIGRATION";
     }
+
+    public static class KnownRelations {
+        public static final String CONTAINS = "contains"; //collections contain monographs, periodicals, anything, even other collections
+    }
+
 
     //TODO: methods for getting ocr, images, audio
     //TODO: methods for updating datastream data (done for inline xml datastreams)
@@ -99,6 +106,24 @@ public interface KrameriusRepositoryApi {
      * @throws RepositoryException
      */
     public Document getDublinCore(String pid, boolean namespaceAware) throws IOException, RepositoryException;
+
+    /**
+     * @param collectionPid
+     * @return Pids of items that are (directly) contained in collection
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws SolrServerException
+     */
+    public List<String> getPidsOfItemsInCollection(String collectionPid) throws RepositoryException, IOException, SolrServerException;
+
+    /**
+     * @param itemPid
+     * @return Pids of collections that (directly) contain the item
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws SolrServerException
+     */
+    public List<String> getPidsOfCollectionsContainingItem(String itemPid) throws RepositoryException, IOException, SolrServerException;
 
     /**
      * Appends new version of inline xml datastream RELS-EXT

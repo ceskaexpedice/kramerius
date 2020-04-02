@@ -134,6 +134,34 @@ public class RepositoryApiImpl implements RepositoryApi {
     }
 
     @Override
+    public List<String> getTripletTargets(String source, String relation) throws RepositoryException, IOException, SolrServerException {
+        List<String> pids = new ArrayList<>();
+        String query = String.format("source:%s AND relation:%s", source, relation);
+        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
+            Object fieldValue = doc.getFieldValue("targetPid");
+            if (fieldValue != null) {
+                String valueStr = fieldValue.toString();
+                pids.add(valueStr);
+            }
+        });
+        return pids;
+    }
+
+    @Override
+    public List<String> getTripletSources(String relation, String target) throws RepositoryException, IOException, SolrServerException {
+        List<String> pids = new ArrayList<>();
+        String query = String.format("relation:%s AND targetPid:%s", relation, target);
+        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
+            Object fieldValue = doc.getFieldValue("source");
+            if (fieldValue != null) {
+                String valueStr = fieldValue.toString();
+                pids.add(valueStr);
+            }
+        });
+        return pids;
+    }
+
+    @Override
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException {
         Document foxml = getFoxml(pid);
         appendNewInlineXmlDatastreamVersion(foxml, dsId, streamDoc, formatUri);

@@ -48,6 +48,10 @@ public interface RepositoryApi {
 
     public List<String> getObjectPidsByModel(String model) throws RepositoryException, IOException, SolrServerException;
 
+    public List<String> getTripletTargets(String source, String relation) throws RepositoryException, IOException, SolrServerException;
+
+    public List<String> getTripletSources(String relation, String target) throws RepositoryException, IOException, SolrServerException;
+
     //UPDATE
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException;
 

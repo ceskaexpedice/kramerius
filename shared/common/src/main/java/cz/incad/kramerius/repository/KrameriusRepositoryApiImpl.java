@@ -2,10 +2,12 @@ package cz.incad.kramerius.repository;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.utils.NamespaceRemovingVisitor;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.List;
 
 public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
@@ -60,8 +62,18 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
     }
 
     @Override
+    public List<String> getPidsOfItemsInCollection(String collectionPid) throws RepositoryException, IOException, SolrServerException {
+        return repositoryApi.getTripletTargets(collectionPid, KnownRelations.CONTAINS);
+    }
+
+    @Override
+    public List<String> getPidsOfCollectionsContainingItem(String itemPid) throws RepositoryException, IOException, SolrServerException {
+        return repositoryApi.getTripletSources(KnownRelations.CONTAINS, itemPid);
+    }
+
+    @Override
     public void updateRelsExt(String pid, Document relsExtDoc) throws IOException, RepositoryException {
-        //TODO: make sure, that resource-index for the object is rebuild (i.e. reindexation in solr index Processing)
+        //TODO: make sure, that resource-index for the object is rebuilt (i.e. reindexation in solr index Processing)
         repositoryApi.updateInlineXmlDatastream(pid, KnownDatastreams.RELS_EXT, relsExtDoc, KnownXmlFormatUris.RELS_EXT);
     }
 
