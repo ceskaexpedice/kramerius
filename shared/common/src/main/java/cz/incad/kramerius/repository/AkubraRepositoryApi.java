@@ -189,7 +189,6 @@ public class AkubraRepositoryApi implements RepositoryApi {
     @Override
     public void deleteObject(String pid) throws RepositoryException, IOException {
         akubraRepository.deleteobject(pid);
-        //TODO: make sure, that removed from processing index
     }
 
     private DigitalObject foxmlDocToDigitalObject(Document foxml) throws IOException {

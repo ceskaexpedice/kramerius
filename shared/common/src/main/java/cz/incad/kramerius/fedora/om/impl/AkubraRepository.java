@@ -186,6 +186,8 @@ public class AkubraRepository extends Repository {
                 this.feeder.deleteByPid(pid);
                 // delete relations which point to this pid
                 this.feeder.deleteByTargetPid(pid);
+                //commit to avoid inconsistency between Akubra and Processing index
+                this.feeder.commit();
             } catch (SolrServerException e) {
                 throw new RepositoryException("Cannot delete data from processing index for  " + pid + " please start processing index update");
             }
