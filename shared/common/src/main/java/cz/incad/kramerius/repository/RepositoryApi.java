@@ -48,6 +48,6 @@ public interface RepositoryApi {
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException;
 
     //DELETE
-    public void deleteObject(String pid) throws RepositoryException;
+    public void deleteObject(String pid) throws RepositoryException, IOException;
 
 }

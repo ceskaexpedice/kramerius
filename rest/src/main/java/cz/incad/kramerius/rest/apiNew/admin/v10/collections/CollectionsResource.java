@@ -112,15 +112,21 @@ public class CollectionsResource extends AdminApiResource {
     @Path("{pid}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response deleteCollection(@PathParam("pid") String pid) {
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUser();
-        String role = ROLE_DELETE_COLLECTION;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to delete collections (missing role '%s')", user.getName(), role); //403
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_DELETE_COLLECTION;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to delete collections (missing role '%s')", user.getName(), role); //403
+            }
+            krameriusRepositoryApi.getLowLevelApi().deleteObject(pid);
+            return Response.ok().build();
+            //TODO: schedule reindexing (search index) of the collection and all foster descendants (i.e. list of pids (collection, direct children) and collection will be removed since no longer in repository)
+            //but we must get list of children before deleting object
+        } catch (IOException | RepositoryException e) {
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
         }
-        System.out.println("pid: " + pid);
-        //TODO: implement
-        throw new InternalErrorException("not implemented yet");
     }
 
     private Collection fetchCollectionFromRepository(String pid) {
