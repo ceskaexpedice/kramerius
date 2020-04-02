@@ -7,6 +7,7 @@ import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.Dom4jUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 import org.json.JSONArray;
@@ -172,7 +173,10 @@ public class CollectionsResource extends AdminApiResource {
         collection.name = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo/title");
         collection.description = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract");
         if (withContent) {
-            collection.content = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note");
+            String contentHtmlEscaped = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note");
+            if (contentHtmlEscaped != null) {
+                collection.content = StringEscapeUtils.unescapeHtml(contentHtmlEscaped);
+            }
         }
         return collection;
     }

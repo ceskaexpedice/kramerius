@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v10.collections;
 
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.dom4j.*;
 
 import java.time.LocalDateTime;
@@ -88,9 +89,8 @@ public class FoxmlBuilder {
             abstractEl.addText(collection.description);
         }
         if (collection.content != null) {
-            //TODO: escaping (muze tam byt html)
             Element note = addModsElement(mods, "note");
-            note.addText(collection.content);
+            note.addText(StringEscapeUtils.escapeHtml(collection.content));
         }
         return document;
     }
