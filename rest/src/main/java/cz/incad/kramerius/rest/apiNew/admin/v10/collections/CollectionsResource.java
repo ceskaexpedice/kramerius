@@ -85,8 +85,7 @@ public class CollectionsResource extends AdminApiResource {
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCollections() {
-        //TODO: add optional query param withItem and filter by collections that contain (directly) the item
+    public Response getCollections(@QueryParam("withItem") String itemPid) {
         try {
             //authentication
             AuthenticatedUser user = getAuthenticatedUser();
@@ -94,7 +93,13 @@ public class CollectionsResource extends AdminApiResource {
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to list collections (missing role '%s')", user.getName(), role); //403
             }
-            List<String> pids = krameriusRepositoryApi.getLowLevelApi().getObjectPidsByModel("collection");
+            List<String> pids = null;
+            if (itemPid != null) {
+                checkObjectExists(itemPid);
+                pids = krameriusRepositoryApi.getPidsOfCollectionsContainingItem(itemPid);
+            } else {
+                pids = krameriusRepositoryApi.getLowLevelApi().getObjectPidsByModel("collection");
+            }
             JSONArray collections = new JSONArray();
             for (String pid : pids) {
                 Collection collection = fetchCollectionFromRepository(pid, false, false);
