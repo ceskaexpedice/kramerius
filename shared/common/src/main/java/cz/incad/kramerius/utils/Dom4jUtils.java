@@ -19,10 +19,16 @@ public class Dom4jUtils {
     private static Map<String, String> NAMESPACE_URIS = new HashMap<>();
 
     static {
+        NAMESPACE_URIS.put("xsi", "http://www.w3.org/2001/XMLSchema-instance");
         NAMESPACE_URIS.put("foxml", "info:fedora/fedora-system:def/foxml#");
-        NAMESPACE_URIS.put("mods", "http://www.loc.gov/mods/v3");
+        //RELS-EXT
         NAMESPACE_URIS.put("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         NAMESPACE_URIS.put("model", "info:fedora/fedora-system:def/model#");
+        NAMESPACE_URIS.put("rel", "http://www.nsdl.org/ontologies/relationships#");
+        NAMESPACE_URIS.put("oai", "http://www.openarchives.org/OAI/2.0/");
+        //BIBLIO_MODS
+        NAMESPACE_URIS.put("mods", "http://www.loc.gov/mods/v3");
+        //DC
         NAMESPACE_URIS.put("oai_dc", "http://www.openarchives.org/OAI/2.0/oai_dc/");
         NAMESPACE_URIS.put("dc", "http://purl.org/dc/elements/1.1/");
         //NAMESPACE_URIS.put("", "");

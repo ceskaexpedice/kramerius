@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v10.collections;
 
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
+import cz.incad.kramerius.utils.Dom4jUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.dom4j.*;
 
@@ -12,12 +13,14 @@ public class FoxmlBuilder {
 
     private static final Namespace NS_XSI = new Namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
     private static final Namespace NS_FOXML = new Namespace("foxml", "info:fedora/fedora-system:def/foxml#");
-    private static final Namespace NS_FEDORA_MODEL = new Namespace("fedora-model", "info:fedora/fedora-system:def/model#");
+    //RELS-EXT
     private static final Namespace NS_RDF = new Namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-    private static final Namespace NS_MODS = new Namespace("mods", "http://www.loc.gov/mods/v3");
-    private static final Namespace NS_OAI = new Namespace("oai", "http://www.openarchives.org/OAI/2.0/");
+    private static final Namespace NS_MODEL = new Namespace("model", "info:fedora/fedora-system:def/model#");
     private static final Namespace NS_REL = new Namespace("rel", "http://www.nsdl.org/ontologies/relationships#");
-
+    private static final Namespace NS_OAI = new Namespace("oai", "http://www.openarchives.org/OAI/2.0/");
+    //BIBLIO_MODS
+    private static final Namespace NS_MODS = new Namespace("mods", "http://www.loc.gov/mods/v3");
+    //DC
     private static final Namespace NS_OAI_DC = new Namespace("oai_dc", "http://www.openarchives.org/OAI/2.0/oai_dc/");
     private static final Namespace NS_DC = new Namespace("dc", "http://purl.org/dc/elements/1.1/");
 
@@ -100,7 +103,7 @@ public class FoxmlBuilder {
         Element rdf = document.addElement(new QName("RDF", NS_RDF));
         Element description = rdf.addElement(new QName("Description", NS_RDF));
         description.addAttribute(new QName("about", NS_RDF), "info:fedora/" + collection.pid);
-        Element hasModel = description.addElement(new QName("hasModel", NS_FEDORA_MODEL));
+        Element hasModel = description.addElement(new QName("hasModel", NS_MODEL));
         hasModel.addAttribute(new QName("resource", NS_RDF), "info:fedora/model:collection");
         Element itemId = description.addElement(new QName("itemID", NS_OAI));
         itemId.addText(collection.pid);
@@ -125,5 +128,14 @@ public class FoxmlBuilder {
 
     private Element addElement(Element parent, Namespace namespace, String name) {
         return parent.addElement(new QName(name, namespace));
+    }
+
+    public void appendRelationToRelsExt(Document relsExt, String relationName, String newItemPid) {
+        Element description = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt.getRootElement());
+        Element contains = (Element) Dom4jUtils.buildXpath(String.format("rel:%s[@rdf:resource='info:fedora/%s']", relationName, newItemPid)).selectSingleNode(description);
+        if (contains == null) {
+            Element element = description.addElement(new QName(relationName, NS_REL));
+            element.addAttribute(new QName("resource", NS_RDF), "info:fedora/" + newItemPid);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.collections;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
@@ -85,6 +86,7 @@ public class CollectionsResource extends AdminApiResource {
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCollections() {
+        //TODO: add optional query param withItem and filter by collections that contain (directly) the item
         try {
             //authentication
             AuthenticatedUser user = getAuthenticatedUser();
@@ -151,15 +153,31 @@ public class CollectionsResource extends AdminApiResource {
     @POST
     @Path("{pid}/items")
     @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response addItemToCollection(@PathParam("pid") String collectionPid, String itemPid) {
-        //TODO: implement
-        throw new RuntimeException("not implemented yet");
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_EDIT_COLLECTION;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user.getName(), role); //403
+            }
+            checkObjectExists(collectionPid);
+            checkObjectExists(itemPid);
+            Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
+            foxmlBuilder.appendRelationToRelsExt(relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+            krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
+            //TODO: schedule indexing collection (only this object) in search index
+            //TODO: schedule indexing item (whole tree) in search index
+            return Response.status(Response.Status.CREATED).build();
+        } catch (IOException | RepositoryException e) {
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     @DELETE
     @Path("{collectionPid}/items/{itemPid}")
-    public Response deleteCollection(@PathParam("collectionPid") String collectionPid, @PathParam("itemPid") String itemPid) {
+    public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, @PathParam("itemPid") String itemPid) {
         //TODO: implement
         throw new RuntimeException("not implemented yet");
     }

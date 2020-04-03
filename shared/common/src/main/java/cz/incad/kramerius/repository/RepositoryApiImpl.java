@@ -136,7 +136,7 @@ public class RepositoryApiImpl implements RepositoryApi {
     @Override
     public List<String> getTripletTargets(String source, String relation) throws RepositoryException, IOException, SolrServerException {
         List<String> pids = new ArrayList<>();
-        String query = String.format("source:%s AND relation:%s", source, relation);
+        String query = String.format("source:%s AND relation:%s", source.replace(":", "\\:"), relation);
         akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
             Object fieldValue = doc.getFieldValue("targetPid");
             if (fieldValue != null) {
@@ -150,7 +150,7 @@ public class RepositoryApiImpl implements RepositoryApi {
     @Override
     public List<String> getTripletSources(String relation, String target) throws RepositoryException, IOException, SolrServerException {
         List<String> pids = new ArrayList<>();
-        String query = String.format("relation:%s AND targetPid:%s", relation, target);
+        String query = String.format("relation:%s AND targetPid:%s", relation, target.replace(":", "\\:"));
         akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
             Object fieldValue = doc.getFieldValue("source");
             if (fieldValue != null) {
