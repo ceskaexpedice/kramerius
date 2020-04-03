@@ -178,8 +178,25 @@ public class CollectionsResource extends AdminApiResource {
     @DELETE
     @Path("{collectionPid}/items/{itemPid}")
     public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, @PathParam("itemPid") String itemPid) {
-        //TODO: implement
-        throw new RuntimeException("not implemented yet");
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_EDIT_COLLECTION;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user.getName(), role); //403
+            }
+            checkObjectExists(collectionPid);
+            checkObjectExists(itemPid);
+            Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
+            foxmlBuilder.removeRelationFromRelsExt(relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+            krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
+            //TODO: schedule indexing collection (only this object) in search index
+            //TODO: schedule indexing item (whole tree) in search index
+            return Response.status(Response.Status.OK).build();
+        } catch (IOException | RepositoryException e) {
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     @DELETE

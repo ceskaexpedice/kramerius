@@ -118,6 +118,7 @@ public class ProcessingIndexFeeder {
         int rows = 100;
         long numFound = Integer.MAX_VALUE;
         solrQuery.setStart(offset).setRows(rows);
+        solrQuery.setSort("date", SolrQuery.ORDER.desc);
         QueryResponse response = this.solrClient.query(solrQuery);
         while(offset < numFound) {
             response.getResults().forEach((doc)->{

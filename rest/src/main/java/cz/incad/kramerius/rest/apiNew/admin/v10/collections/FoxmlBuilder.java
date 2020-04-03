@@ -138,4 +138,11 @@ public class FoxmlBuilder {
             element.addAttribute(new QName("resource", NS_RDF), "info:fedora/" + newItemPid);
         }
     }
+
+    public void removeRelationFromRelsExt(Document relsExt, String relationName, String itemPid) {
+        Element contains = (Element) Dom4jUtils.buildXpath(String.format("/rdf:RDF/rdf:Description/rel:%s[@rdf:resource='info:fedora/%s']", relationName, itemPid)).selectSingleNode(relsExt.getRootElement());
+        if (contains != null) {
+            contains.detach();
+        }
+    }
 }
