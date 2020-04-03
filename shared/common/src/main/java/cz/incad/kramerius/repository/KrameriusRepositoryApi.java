@@ -44,7 +44,18 @@ public interface KrameriusRepositoryApi {
     }
 
     public static class KnownRelations {
-        public static final String CONTAINS = "contains"; //collections contain monographs, periodicals, anything, even other collections
+        //own relations (define object tree)
+        public static final String HAS_PAGE = "hasPage";
+        public static final String HAS_UNIT = "hasUnit"; //monograph -> monographUnit
+        public static final String HAS_VOLUME = "hasVolume"; //periodical -> periodicalVolume
+        public static final String HAS_ITEM = "hasItem"; //periodical -> (periodicalItem, supplement)
+        public static final String HAS_SOUND_UNIT = "hasSoundUnit"; //soundRecording -> soundUnit
+        public static final String HAS_TRACK = "hasTrack"; //(soundRecording, soundUnit) -> track
+        public static final String CONTAINS_TRACK = "containsTrack"; //old version of HAS_TRACK
+        public static final String HAS_INT_COMP_PART = "hasIntCompPart"; //periodicalItem  -> (internalPart, article)
+        //foster relations
+        public static final String IS_ON_PAGE = "isOnPage"; //(article, internalPart) -> page
+        public static final String CONTAINS = "contains"; //collection -> (monograph, periodical, ... anything, even other collection)
     }
 
 
