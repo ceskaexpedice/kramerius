@@ -49,7 +49,7 @@ public class RepositoryApiImpl implements RepositoryApi {
     public void ingestObject(Document foxmlDoc) throws RepositoryException, IOException {
         DigitalObject digitalObject = foxmlDocToDigitalObject(foxmlDoc);
         akubraRepository.ingestObject(digitalObject);
-        //TODO: make sure, that indexed in processing index
+        akubraRepository.commitTransaction();
     }
 
     @Override
@@ -169,7 +169,7 @@ public class RepositoryApiImpl implements RepositoryApi {
         DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
         akubraRepository.deleteobject(pid);
         akubraRepository.ingestObject(updatedDigitalObject);
-        //TODO: make sure, that re-indexed in processing index
+        akubraRepository.commitTransaction();
     }
 
     private void updateLastModifiedTimestamp(Document foxml) {
@@ -218,6 +218,7 @@ public class RepositoryApiImpl implements RepositoryApi {
     @Override
     public void deleteObject(String pid) throws RepositoryException, IOException {
         akubraRepository.deleteobject(pid);
+        akubraRepository.commitTransaction();
     }
 
     private DigitalObject foxmlDocToDigitalObject(Document foxml) throws IOException {

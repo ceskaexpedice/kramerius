@@ -136,10 +136,11 @@ public class CollectionsResource extends AdminApiResource {
                 throw new BadRequestException("name can't be empty");
             }
             if (!current.equalsInDataModifiableByClient(updated)) {
+                //fetch items in collection first (otherwise eventual consistency of processing index would cause no items in new version of rels-ext)
+                List<String> itemsInCollection = krameriusRepositoryApi.getPidsOfItemsInCollection(pid);
                 //rebuild and update mods
                 krameriusRepositoryApi.updateMods(pid, foxmlBuilder.buildMods(updated));
                 //rebuild and update rels-ext (because of "standalone")
-                List<String> itemsInCollection = krameriusRepositoryApi.getPidsOfItemsInCollection(pid);
                 krameriusRepositoryApi.updateRelsExt(pid, foxmlBuilder.buildRelsExt(updated, itemsInCollection));
                 //TODO: schedule indexing (search index) of the collection and all foster descendants
             }

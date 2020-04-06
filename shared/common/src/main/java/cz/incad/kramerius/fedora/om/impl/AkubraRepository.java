@@ -68,7 +68,12 @@ public class AkubraRepository extends Repository {
      */
     @Override
     public void commitTransaction() throws RepositoryException {
-        throw new RepositoryException("Transactions not supported in Akubra");
+        try {
+            //to avoid temporary inconsistency between Akubra and Processing index
+            this.feeder.commit();
+        } catch (IOException | SolrServerException e) {
+            throw new RepositoryException(e);
+        }
     }
 
     /* (non-Javadoc)
@@ -186,8 +191,6 @@ public class AkubraRepository extends Repository {
                 this.feeder.deleteByPid(pid);
                 // delete relations which point to this pid
                 this.feeder.deleteByTargetPid(pid);
-                //commit to avoid inconsistency between Akubra and Processing index
-                this.feeder.commit();
             } catch (SolrServerException e) {
                 throw new RepositoryException("Cannot delete data from processing index for  " + pid + " please start processing index update");
             }
