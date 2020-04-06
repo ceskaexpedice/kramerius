@@ -31,6 +31,8 @@ public class ItemResource extends ClientApiResource {
     // {pid}/streams/DC             -> nahradit za {pid}/metadata/dublin_core
     // {pid}/streams/RELS_EXT       -> nahradit za {pid}/structure, nebo vyhledove zahodi, pokud se ukaze, ze neni potreba
 
+    //pripadne jen plochou strukturu ( {pid}/mods, {pid}/thumb {pid}/full, {pid}/children ...)
+
     // {pid}
     // {pid}/parents
     // {pid}/siblings
@@ -98,6 +100,24 @@ public class ItemResource extends ClientApiResource {
     }
 
     @GET
+    @Path("{pid}/mods")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDatastreamMods(@PathParam("pid") String pid) {
+        //TODO: poradna implementace, namisto redirectu na api/v5.0
+        //tohle asi pujde pryc, na teto urovni abstrakce mame konkretni metody pro konkretni streamy
+        //ale tim padem by tu mely byt metody getMods, getOcrTxt, getOcrXml apod.
+        //system streamu (a verzovani) bude pro client api skryty (detail imlementace)
+        try {
+            checkObjectExists(pid);
+            URI uri = new URI(String.format("%s/v5.0/item/%s/streams/%s", getApiBaseUrl(), pid, "BIBLIO_MODS"));
+            return Response.temporaryRedirect(uri).build();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
     @Path("{pid}/streams/{dsid}")
     public Response stream(@PathParam("pid") String pid,
                            @PathParam("dsid") String dsid) {
@@ -144,7 +164,14 @@ public class ItemResource extends ClientApiResource {
     @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response getObjectsChildren(@PathParam("pid") String pid) {
         //TODO: remove or implement (implementation will use repository, not search index)
-        throw new InternalErrorException("not implemented yet");
+        try {
+            checkObjectExists(pid);
+            URI uri = new URI(String.format("%s/v5.0/item/%s/children", getApiBaseUrl(), pid));
+            return Response.temporaryRedirect(uri).build();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     @GET
@@ -152,7 +179,14 @@ public class ItemResource extends ClientApiResource {
     @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response basic(@PathParam("pid") String pid) {
         //TODO: implement or remove
-        throw new InternalErrorException("not implemented yet");
+        try {
+            checkObjectExists(pid);
+            URI uri = new URI(String.format("%s/v5.0/item/%s", getApiBaseUrl(), pid));
+            return Response.temporaryRedirect(uri).build();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     private String getApiBaseUrl() {
