@@ -16,7 +16,7 @@ public class FoxmlBuilder {
     //RELS-EXT
     private static final Namespace NS_RDF = new Namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
     private static final Namespace NS_MODEL = new Namespace("model", "info:fedora/fedora-system:def/model#");
-    private static final Namespace NS_REL = new Namespace("rel", "http://www.nsdl.org/ontologies/relationships#");
+    private static final Namespace NS_REL = new Namespace("rel", "http://www.nsdl.org/ontologies/relationships#");//hasPage, tiles-url, policy
     private static final Namespace NS_OAI = new Namespace("oai", "http://www.openarchives.org/OAI/2.0/");
     //BIBLIO_MODS
     private static final Namespace NS_MODS = new Namespace("mods", "http://www.loc.gov/mods/v3");
@@ -109,6 +109,9 @@ public class FoxmlBuilder {
         itemId.addText(collection.pid);
         Element policy = description.addElement(new QName("policy", NS_REL));
         policy.addText("policy:public");
+        Element standalone = description.addElement(new QName("standalone", NS_REL));
+        boolean standaloneBool = collection.standalone != null ? collection.standalone : false;
+        standalone.addText(Boolean.toString(standaloneBool));
         if (pidsOfItemsInCollection != null) {
             for (String itemPid : pidsOfItemsInCollection) {
                 Element contains = description.addElement(new QName("contains", NS_REL));

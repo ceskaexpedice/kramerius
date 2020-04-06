@@ -131,12 +131,16 @@ public class CollectionsResource extends AdminApiResource {
             checkObjectExists(pid);
             Collection current = fetchCollectionFromRepository(pid, true, false);
 
-            Collection updated = current.withUpdatedTexts(extractCollectionFromJson(collectionDefinition));
+            Collection updated = current.withUpdatedDataModifiableByClient(extractCollectionFromJson(collectionDefinition));
             if (updated.name == null || updated.name.isEmpty()) {
                 throw new BadRequestException("name can't be empty");
             }
-            if (!current.equalsInTexts(updated)) {
+            if (!current.equalsInDataModifiableByClient(updated)) {
+                //rebuild and update mods
                 krameriusRepositoryApi.updateMods(pid, foxmlBuilder.buildMods(updated));
+                //rebuild and update rels-ext (because of "standalone")
+                List<String> itemsInCollection = krameriusRepositoryApi.getPidsOfItemsInCollection(pid);
+                krameriusRepositoryApi.updateRelsExt(pid, foxmlBuilder.buildRelsExt(updated, itemsInCollection));
                 //TODO: schedule indexing (search index) of the collection and all foster descendants
             }
             return Response.ok().build();
@@ -227,11 +231,9 @@ public class CollectionsResource extends AdminApiResource {
     private Collection fetchCollectionFromRepository(String pid, boolean withContent, boolean withItems) throws IOException, RepositoryException, SolrServerException {
         Collection collection = new Collection();
         collection.pid = pid;
-
         //timestamps from Foxml properties
         collection.created = krameriusRepositoryApi.getLowLevelApi().getPropertyCreated(pid);
         collection.modified = krameriusRepositoryApi.getLowLevelApi().getPropertyLastModified(pid);
-
         //data from MODS
         Document mods = krameriusRepositoryApi.getMods(pid, false);
         collection.name = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo/title");
@@ -242,6 +244,10 @@ public class CollectionsResource extends AdminApiResource {
                 collection.content = StringEscapeUtils.unescapeHtml(contentHtmlEscaped);
             }
         }
+        //data from RELS-EXT
+        Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);
+        collection.standalone = Boolean.valueOf(Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//standalone"));
+        //data from Processing index
         if (withItems) {
             collection.items = krameriusRepositoryApi.getPidsOfItemsInCollection(pid);
         }

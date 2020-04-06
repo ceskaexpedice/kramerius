@@ -15,7 +15,8 @@ public final class Collection {
     public String content;
     public LocalDateTime created;
     public LocalDateTime modified;
-    //TODO: priznak, jestli je vlastni/nezavisla nebo tak nejak, tj. jestli muze byt zobrazena na nejvyssi urovni, i kdyz je treba sama podsbirkou
+    public Boolean standalone;
+
     public List<String> items;
 
     @Override
@@ -27,6 +28,7 @@ public final class Collection {
                 ", content='" + content + '\'' +
                 ", created=" + created +
                 ", modified=" + modified +
+                ", standalone=" + standalone +
                 '}';
     }
 
@@ -40,6 +42,8 @@ public final class Collection {
         this.content = original.content;
         this.created = original.created;
         this.modified = original.modified;
+        this.standalone = original.standalone;
+        this.items = original.items;
     }
 
     public Collection(JSONObject definition) throws JSONException {
@@ -55,13 +59,17 @@ public final class Collection {
         if (definition.has("content")) {
             this.content = definition.getString("content").trim();
         }
+        if (definition.has("standalone")) {
+            this.standalone = definition.getBoolean("standalone");
+        }
     }
 
-    Collection withUpdatedTexts(Collection updateSource) {
+    Collection withUpdatedDataModifiableByClient(Collection updateSource) {
         Collection updated = new Collection(this);
         updated.name = updateSource.name;
         updated.description = updateSource.description;
         updated.content = updateSource.content;
+        updated.standalone = updateSource.standalone;
         return updated;
     }
 
@@ -77,6 +85,7 @@ public final class Collection {
         if (modified != null) {
             json.put("modified", modified.toString());
         }
+        json.put("standalone", standalone == null ? false : standalone.toString());
         if (items != null) {
             JSONArray itemsJson = new JSONArray();
             for (String item : items) {
@@ -87,13 +96,15 @@ public final class Collection {
         return json;
     }
 
-    public boolean equalsInTexts(Object o) {
+    public boolean equalsInDataModifiableByClient(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Collection that = (Collection) o;
         return Objects.equals(name, that.name) &&
                 Objects.equals(description, that.description) &&
-                Objects.equals(content, that.content);
+                Objects.equals(content, that.content) &&
+                Objects.equals(standalone, that.standalone);
     }
+
 
 }
