@@ -21,12 +21,12 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
     @Override
     public boolean isRelsExtAvailable(String pid) throws IOException, RepositoryException {
-        return repositoryApi.datastreamExists(pid, KnownDatastreams.RELS_EXT);
+        return repositoryApi.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString());
     }
 
     @Override
     public Document getRelsExt(String pid, boolean namespaceAware) throws IOException, RepositoryException {
-        Document doc = repositoryApi.getLatestVersionOfInlineXmlDatastream(pid, KnownDatastreams.RELS_EXT);
+        Document doc = repositoryApi.getLatestVersionOfInlineXmlDatastream(pid, KnownDatastreams.RELS_EXT.toString());
         if (doc != null && !namespaceAware) {
             doc.accept(new NamespaceRemovingVisitor(true, true));
         }
@@ -35,12 +35,12 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
     @Override
     public boolean isModsAvailable(String pid) throws IOException, RepositoryException {
-        return repositoryApi.datastreamExists(pid, KnownDatastreams.BIBLIO_MODS);
+        return repositoryApi.datastreamExists(pid, KnownDatastreams.BIBLIO_MODS.toString());
     }
 
     @Override
     public Document getMods(String pid, boolean namespaceAware) throws IOException, RepositoryException {
-        Document doc = repositoryApi.getLatestVersionOfInlineXmlDatastream(pid, KnownDatastreams.BIBLIO_MODS);
+        Document doc = repositoryApi.getLatestVersionOfInlineXmlDatastream(pid, KnownDatastreams.BIBLIO_MODS.toString());
         if (doc != null && !namespaceAware) {
             doc.accept(new NamespaceRemovingVisitor(true, true));
         }
@@ -49,12 +49,12 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
     @Override
     public boolean isDublinCoreAvailable(String pid) throws IOException, RepositoryException {
-        return repositoryApi.datastreamExists(pid, KnownDatastreams.BIBLIO_DC);
+        return repositoryApi.datastreamExists(pid, KnownDatastreams.BIBLIO_DC.toString());
     }
 
     @Override
     public Document getDublinCore(String pid, boolean namespaceAware) throws IOException, RepositoryException {
-        Document doc = repositoryApi.getLatestVersionOfInlineXmlDatastream(pid, KnownDatastreams.BIBLIO_DC);
+        Document doc = repositoryApi.getLatestVersionOfInlineXmlDatastream(pid, KnownDatastreams.BIBLIO_DC.toString());
         if (doc != null && !namespaceAware) {
             doc.accept(new NamespaceRemovingVisitor(true, true));
         }
@@ -63,28 +63,27 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
     @Override
     public List<String> getPidsOfItemsInCollection(String collectionPid) throws RepositoryException, IOException, SolrServerException {
-        return repositoryApi.getTripletTargets(collectionPid, KnownRelations.CONTAINS);
+        return repositoryApi.getTripletTargets(collectionPid, KnownRelations.CONTAINS.toString());
     }
 
     @Override
     public List<String> getPidsOfCollectionsContainingItem(String itemPid) throws RepositoryException, IOException, SolrServerException {
-        return repositoryApi.getTripletSources(KnownRelations.CONTAINS, itemPid);
+        return repositoryApi.getTripletSources(KnownRelations.CONTAINS.toString(), itemPid);
     }
 
     @Override
     public void updateRelsExt(String pid, Document relsExtDoc) throws IOException, RepositoryException {
-        //TODO: make sure, that resource-index for the object is rebuilt (i.e. reindexation in solr index Processing)
-        repositoryApi.updateInlineXmlDatastream(pid, KnownDatastreams.RELS_EXT, relsExtDoc, KnownXmlFormatUris.RELS_EXT);
+        repositoryApi.updateInlineXmlDatastream(pid, KnownDatastreams.RELS_EXT.toString(), relsExtDoc, KnownXmlFormatUris.RELS_EXT);
     }
 
     @Override
     public void updateMods(String pid, Document modsDoc) throws IOException, RepositoryException {
-        repositoryApi.updateInlineXmlDatastream(pid, KnownDatastreams.BIBLIO_MODS, modsDoc, KnownXmlFormatUris.BIBLIO_MODS);
+        repositoryApi.updateInlineXmlDatastream(pid, KnownDatastreams.BIBLIO_MODS.toString(), modsDoc, KnownXmlFormatUris.BIBLIO_MODS);
     }
 
     @Override
     public void updateDublinCore(String pid, Document dcDoc) throws IOException, RepositoryException {
-        repositoryApi.updateInlineXmlDatastream(pid, KnownDatastreams.BIBLIO_DC, dcDoc, KnownXmlFormatUris.BIBLIO_DC);
+        repositoryApi.updateInlineXmlDatastream(pid, KnownDatastreams.BIBLIO_DC.toString(), dcDoc, KnownXmlFormatUris.BIBLIO_DC);
     }
 
 }

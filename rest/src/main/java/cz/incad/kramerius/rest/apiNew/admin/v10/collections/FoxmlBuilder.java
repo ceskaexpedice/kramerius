@@ -52,7 +52,7 @@ public class FoxmlBuilder {
         propertyLastModified.addAttribute("VALUE", now.format(RepositoryApi.TIMESTAMP_FORMATTER));
         //MODS
         Element dsModsEl = addFoxmlElement(digitalObject, "datastream");
-        dsModsEl.addAttribute("ID", KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
+        dsModsEl.addAttribute("ID", KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS.toString());
         dsModsEl.addAttribute("STATE", "A");
         dsModsEl.addAttribute("CONTROL_GROUP", "X");
         dsModsEl.addAttribute("VERSIONABLE", "true");
@@ -65,7 +65,7 @@ public class FoxmlBuilder {
         modsXmlContent.add(buildMods(collection).getRootElement().detach());
         //RELS-EXT
         Element dsRelsExtEl = addFoxmlElement(digitalObject, "datastream");
-        dsRelsExtEl.addAttribute("ID", KrameriusRepositoryApi.KnownDatastreams.RELS_EXT);
+        dsRelsExtEl.addAttribute("ID", KrameriusRepositoryApi.KnownDatastreams.RELS_EXT.toString());
         dsRelsExtEl.addAttribute("STATE", "A");
         dsRelsExtEl.addAttribute("CONTROL_GROUP", "X");
         dsRelsExtEl.addAttribute("VERSIONABLE", "true");
@@ -133,19 +133,19 @@ public class FoxmlBuilder {
         return parent.addElement(new QName(name, namespace));
     }
 
-    public void appendRelationToRelsExt(Document relsExt, String relationName, String newItemPid) {
+    public void appendRelationToRelsExt(Document relsExt, KrameriusRepositoryApi.KnownRelations relation, String newItemPid) {
         Element description = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt.getRootElement());
-        Element contains = (Element) Dom4jUtils.buildXpath(String.format("rel:%s[@rdf:resource='info:fedora/%s']", relationName, newItemPid)).selectSingleNode(description);
-        if (contains == null) {
-            Element element = description.addElement(new QName(relationName, NS_REL));
+        Element relationEl = (Element) Dom4jUtils.buildXpath(String.format("rel:%s[@rdf:resource='info:fedora/%s']", relation.toString(), newItemPid)).selectSingleNode(description);
+        if (relationEl == null) {
+            Element element = description.addElement(new QName(relation.toString(), NS_REL));
             element.addAttribute(new QName("resource", NS_RDF), "info:fedora/" + newItemPid);
         }
     }
 
-    public void removeRelationFromRelsExt(Document relsExt, String relationName, String itemPid) {
-        Element contains = (Element) Dom4jUtils.buildXpath(String.format("/rdf:RDF/rdf:Description/rel:%s[@rdf:resource='info:fedora/%s']", relationName, itemPid)).selectSingleNode(relsExt.getRootElement());
-        if (contains != null) {
-            contains.detach();
+    public void removeRelationFromRelsExt(Document relsExt, KrameriusRepositoryApi.KnownRelations relation, String itemPid) {
+        Element relationEl = (Element) Dom4jUtils.buildXpath(String.format("/rdf:RDF/rdf:Description/rel:%s[@rdf:resource='info:fedora/%s']", relation.toString(), itemPid)).selectSingleNode(relsExt.getRootElement());
+        if (relationEl != null) {
+            relationEl.detach();
         }
     }
 }

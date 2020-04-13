@@ -21,43 +21,62 @@ public interface KrameriusRepositoryApi {
         public static final String BIBLIO_DC = "http://www.openarchives.org/OAI/2.0/oai_dc/";
     }
 
-    public static class KnownDatastreams {
-        public static final String RELS_EXT = "RELS-EXT";
+    enum KnownDatastreams {
+        RELS_EXT("RELS-EXT"),
 
-        public static final String BIBLIO_MODS = "BIBLIO_MODS";
-        public static final String BIBLIO_DC = "DC";
+        BIBLIO_MODS("BIBLIO_MODS"),
+        BIBLIO_DC("DC"),
 
-        public static final String OCR_ALTO = "ALTO";
-        public static final String OCR_TEXT = "TEXT_OCR";
+        OCR_ALTO("ALTO"),
+        OCR_TEXT("TEXT_OCR"),
 
-        public static final String IMG_FULL = "IMG_FULL";
-        public static final String IMG_THUMB = "IMG_THUMB";
-        public static final String IMG_PREVIEW = "IMG_PREVIEW";
+        IMG_FULL("IMG_FULL"),
+        IMG_THUMB("IMG_THUMB"),
+        IMG_PREVIEW("IMG_PREVIEW"),
 
-        public static final String AUDIO_MP3 = "MP3";
-        public static final String AUDIO_OGG = "OGG";
-        public static final String AUDIO_WAV = "WAV";
+        AUDIO_MP3("MP3"),
+        AUDIO_OGG("OGG"),
+        AUDIO_WAV("WAV"),
 
-        public static final String POLICY = "POLICY";
+        POLICY("POLICY"),
 
-        public static final String MIGRATION = "MIGRATION";
+        MIGRATION("MIGRATION");
+
+        private final String value;
+
+        KnownDatastreams(String value) {
+            this.value = value;
+        }
+
+        public String toString() {
+            return value;
+        }
     }
 
-    public static class KnownRelations {
+    enum KnownRelations {
         //own relations (define object tree)
-        public static final String HAS_PAGE = "hasPage";
-        public static final String HAS_UNIT = "hasUnit"; //monograph -> monographUnit
-        public static final String HAS_VOLUME = "hasVolume"; //periodical -> periodicalVolume
-        public static final String HAS_ITEM = "hasItem"; //periodical -> (periodicalItem, supplement)
-        public static final String HAS_SOUND_UNIT = "hasSoundUnit"; //soundRecording -> soundUnit
-        public static final String HAS_TRACK = "hasTrack"; //(soundRecording, soundUnit) -> track
-        public static final String CONTAINS_TRACK = "containsTrack"; //old version of HAS_TRACK
-        public static final String HAS_INT_COMP_PART = "hasIntCompPart"; //periodicalItem  -> (internalPart, article)
+        HAS_PAGE("hasPage"),
+        HAS_UNIT("hasUnit"), //monograph -> monographUnit
+        HAS_VOLUME("hasVolume"), //periodical -> periodicalVolume
+        HAS_ITEM("hasItem"), //periodical -> (periodicalItem, supplement)
+        HAS_SOUND_UNIT("hasSoundUnit"), //soundRecording -> soundUnit
+        HAS_TRACK("hasTrack"), //(soundRecording, soundUnit) -> track
+        CONTAINS_TRACK("containsTrack"), //old version of HAS_TRACK
+        HAS_INT_COMP_PART("hasIntCompPart"), //periodicalItem  -> (internalPart, article)
         //foster relations
-        public static final String IS_ON_PAGE = "isOnPage"; //(article, internalPart) -> page
-        public static final String CONTAINS = "contains"; //collection -> (monograph, periodical, ... anything, even other collection)
-    }
+        IS_ON_PAGE("isOnPage"), //(article, internalPart) -> page
+        CONTAINS("contains"); //collection -> (monograph, periodical, ... anything, even other collection)
 
+        private final String value;
+
+        KnownRelations(String value) {
+            this.value = value;
+        }
+
+        public String toString() {
+            return value;
+        }
+    }
 
     //TODO: methods for getting ocr, images, audio
     //TODO: methods for updating datastream data (done for inline xml datastreams)
