@@ -34,7 +34,7 @@ public class SortingRightsUtilsTest {
     @Test
     public void testSortByPid() {
 
-        List<Right> rights = new ArrayList<Right>(); {
+        List<Right> rights = new ArrayList<>(); {
             rights.add(new RightImpl(1, null,"uuid:repository","read",new RoleImpl(-1, "su", -1)));
             rights.add(new RightImpl(2, null,"uuid:monograph","read",new RoleImpl(-1, "su", -1)));
             rights.add(new RightImpl(3, null,"uuid:internalpart","read",new RoleImpl(-1, "su", -1)));

@@ -20,6 +20,8 @@
 }
 
 
+
+
 buildScan {
     licenseAgreementUrl = 'https://gradle.com/terms-of-service'
     licenseAgree = 'yes'
@@ -59,7 +61,7 @@ repositories {
 
 allprojects {
     group='cz.incad.kramerius'
-    version='7.0.0-RC1'
+    version='7.0.1-RC1'
 }
 
 
@@ -176,9 +178,10 @@ allprojects {
             url "http://repo.jfrog.org/artifactory/libs-releases/"
         }
 
+        /*
         maven {
             url "https://maven.atlassian.com/content/groups/public"
-        }
+        }*/
 
         maven {
             url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
@@ -245,6 +248,16 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
     exclude "**.tar"
     //from 'build/distributions/kramerius-javadoc.zip'
 }
+
+task distZipWOEditors(type: Zip, dependsOn: 'zipInstallDir') {
+    description "Create  distributions zip without editors"
+    baseName "kramerius"
+    group "Distribution"
+    from { 'search/build/libs' }
+    from { 'security-core/build/libs' }
+    from { 'build/installation' }
+}
+
 /**
  * Patch distribution task
  */

@@ -17,12 +17,12 @@
 package cz.incad.kramerius.rest.api.k5.client.item.decorators;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.virtualcollections.CollectionUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +38,6 @@ import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.rest.api.k5.client.utils.RELSEXTDecoratorUtils;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
@@ -57,28 +56,6 @@ public class CollectionsDecorator extends AbstractItemDecorator {
         return COLLECTIONS_DECORATOR_KEY;
     }
 
-    public static List<Element> findCollections(Document doc) {
-        List<Element> retval = new ArrayList<Element>();
-        Element rdfElm = XMLUtils.findElement(doc.getDocumentElement(), "RDF", FedoraNamespaces.RDF_NAMESPACE_URI);
-        if (rdfElm != null) {
-            Element description = XMLUtils.findElement(rdfElm, "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
-            if (description != null) {
-                List<Element> elements = XMLUtils.getElements(description, new XMLUtils.ElementsFilter() {
-
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        return (element.getLocalName().equals("isMemberOfCollection")
-                                && element.getNamespaceURI().equals(FedoraNamespaces.RDF_NAMESPACE_URI));
-                    }
-                });
-                for (Element el : elements) {
-                    retval.add(el);
-                }
-            }
-        }
-        return retval;
-    }
-
     @Override
     public void decorate(JSONObject jsonObject, Map<String, Object> runtimeContext) {
 
@@ -87,7 +64,7 @@ public class CollectionsDecorator extends AbstractItemDecorator {
                 String pid = jsonObject.getString("pid");
                 if (!PIDSupport.isComposedPID(pid)) {
                     Document relsExtDoc = RELSEXTDecoratorUtils.getRELSEXTPidDocument(pid, context, this.fedoraAccess);
-                    List<Element> collections = findCollections(relsExtDoc);
+                    List<Element> collections = CollectionUtils.findCollectionsElements(relsExtDoc);
                     if (!collections.isEmpty()) {
                         JSONArray collectionsJSON = new JSONArray();
                         for (Element colElm : collections) {

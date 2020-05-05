@@ -19,6 +19,10 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.SecurityException;
+import net.sf.json.JSONObject;
+
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -35,12 +39,14 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.ImageStreams;
+
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightCriteriumContextFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.User;
+
 import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
 import cz.incad.kramerius.utils.ALTOUtils;
 import cz.incad.kramerius.utils.ALTOUtils.AltoDisected;
@@ -181,7 +187,7 @@ public class ViewInfoServlet extends GuiceServlet {
                             actions.remove(act.getFormalName());
                         }
                         for (SecuredActions act : acts) {
-                            List<MappedPath> pathElems = new ArrayList<MappedPath>();
+                            List<MappedPath> pathElems = new ArrayList<>();
                             pathElems.add(new MappedPath(new ObjectPidsPath().injectRepository().injectCollections(this.collectionGet), new boolean[] {true}));
                             globalActions.put(act.getFormalName(), pathElems);
                         }
@@ -318,56 +324,36 @@ public class ViewInfoServlet extends GuiceServlet {
     public MappedPath findPathWithFirstAccess(HttpServletRequest req, String pid, ObjectPidsPath[] paths,SecuredActions act) throws CollectionException {
         for (ObjectPidsPath objectPath : paths) {
             ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet);
-            boolean[] allowedActionForPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM ,path);
-            if (atLeastOneTrue(allowedActionForPath)) {
-                return new MappedPath(path, allowedActionForPath);
+            RightsReturnObject[] actionAllowedForAllPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path);
+            boolean[] bools = new boolean[actionAllowedForAllPath.length];
+            for (int i = 0; i < bools.length; i++) {
+                bools[i] = actionAllowedForAllPath[i].flag();
+            }
+            if (atLeastOneTrue(bools)) {
+                return new MappedPath(path, bools);
             }
         }
         return null;
     }
-    
+
     public List<MappedPath> fillActionsToJSON(HttpServletRequest req, String pid, ObjectPidsPath[] paths, SecuredActions act) throws CollectionException {
         List<MappedPath> mappedPaths = new ArrayList<ViewInfoServlet.MappedPath>();
         for (ObjectPidsPath objectPath : paths) {
             ObjectPidsPath path = objectPath.injectRepository().injectCollections(this.collectionGet);
-            boolean[] allowedActionForPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM,path);
-            mappedPaths.add(new MappedPath(path, allowedActionForPath));
-        }
-                
-        return mappedPaths;
-    }
-    
-    
-/*    
-    public boolean[] fillActionsToJSON(HttpServletRequest req, String uuid, ObjectPidsPath[] paths, HashMap<String, HashMap<String, String>> secMapping,SecuredActions act) {
-        
-        for (ObjectPidsPath objectPath : paths) {
-            ObjectPidsPath path = objectPath.injectRepository();
-            boolean[] allowedActionForPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), uuid,path);
-            for (boolean b : allowedActionForPath) {
-                if (b) break;
+            RightsReturnObject[] actionAllowedForAllPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path);
+            boolean[] bools = new boolean[actionAllowedForAllPath.length];
+            for (int i = 0; i < bools.length; i++) {
+                bools[i] = actionAllowedForAllPath[i].flag();
             }
-            
-            
-        }
-                
-        
-        ArrayList<String> pathWithRepository = new ArrayList<String>(Arrays.asList(paths));
-        pathWithRepository.add(0, SpecialObjects.REPOSITORY.getUuid());
-        Collections.reverse(pathWithRepository);
 
-        boolean[] allowedActionForPath = rightsResolver.isActionAllowedForAllPath(act.getFormalName(), uuid,paths);
-        
-        for (int j = 0; j < allowedActionForPath.length; j++) {
-            if (!secMapping.containsKey(act.getFormalName())) {
-                secMapping.put(act.getFormalName(), new HashMap<String, String>());
-            }
-            HashMap<String, String> pathMap = secMapping.get(act.getFormalName());
-            pathMap.put(pathWithRepository.get(j), ""+allowedActionForPath[j]);
+            mappedPaths.add(new MappedPath(path, bools));
         }
-        return allowedActionForPath;
+       return mappedPaths;
     }
-  */  
+
+
+
+    
 
 
     private boolean resolutionFilePresent(String uuid) throws IOException, ParserConfigurationException, SAXException {
@@ -396,25 +382,7 @@ public class ViewInfoServlet extends GuiceServlet {
     }
 
     
-    public static void main(String[] args) {
-        StringTemplate template = new StringTemplate(
-            "$data.keys:{action| $data.(action).keys:{ key| $key$ :  $data.(action).(key)$ };separator=\",\"$ }$") ;
-        
-        HashMap map = new HashMap();
 
-        HashMap<String, String> data = new HashMap<String, String>(); {
-            data.put("drobnustky","true");
-            data.put("stranka","true");
-            data.put("repository","true");
-        };
-        map.put("edit",data);
-        
-        template.setAttribute("data", map);
-        System.out.println(template.toString());
-        
-    }
-    
-    
     
     
 }

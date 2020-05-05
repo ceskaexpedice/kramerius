@@ -80,12 +80,18 @@ public class RightCriteriumWrapperFactoryImpl implements RightCriteriumWrapperFa
 
 
     @Override
-    public List<RightCriteriumWrapper> createAllCriteriumWrappers(SecuredActions... actions) {
+    public List<RightCriteriumWrapper> createAllCriteriumWrappers(SecuredActions action) {
         List<RightCriteriumWrapper> wrappers = new ArrayList<RightCriteriumWrapper>();
         for (RightCriteriumLoader loader : this.loaders) {
             List<RightCriterium> criteriums = loader.getCriteriums();
             for (RightCriterium rCrit : criteriums) {
-                wrappers.add(new RightCriteriumWrapperImpl(rCrit,-1, loader.getCriteriumType()));
+                SecuredActions[] secActions = rCrit.getApplicableActions();
+                for (int i = 0; i < secActions.length; i++) {
+                    if (secActions[i].equals(action)) {
+                        wrappers.add(new RightCriteriumWrapperImpl(rCrit,-1, loader.getCriteriumType()));
+                    }
+                 }
+
             }
         }
         return wrappers;

@@ -4,7 +4,9 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.indexer.date.BiblioModsDateParser;
 import cz.incad.kramerius.indexer.date.DateQuintet;
+import cz.incad.kramerius.indexer.dnnt.DnntSingleton;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.indexer.coordinates.ParsingCoordinates;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -68,6 +70,8 @@ public class ExtendedFields {
     private List<String> coordinates;
 
     private BiblioModsDateParser dateParser;
+    // dnnt flag
+    private String dnnt;
 
     public ExtendedFields(FedoraOperations fo) throws IOException {
         this.fo = fo;
@@ -100,7 +104,11 @@ public class ExtendedFields {
         setDate(biblioMods);
         // coordinates
         this.coordinates = ParsingCoordinates.processBibloModsCoordinates(biblioMods, this.factory);
+        // dnnt
+        String rootPid = pid_paths.get(0).split("/")[0];
+        this.dnnt = DnntSingleton.getInstance().dnnt(rootPid, fo.fa);
     }
+
 
     public void setPDFDocument(String pid) throws Exception {
         if (!pdfPid.equals(pid)) {
@@ -115,6 +123,7 @@ public class ExtendedFields {
                 File pdfImg = File.createTempFile(pid,null);
                 pdfImg.deleteOnExit();
                 FileUtils.copyInputStreamToFile(is, pdfImg);
+
 
                 if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdf.loadNonSeq", false)){
                     pdDoc = PDDocument.load(pdfImg, KConfiguration.getInstance().getConfiguration().getString("convert.pdfPassword"));
@@ -162,6 +171,8 @@ public class ExtendedFields {
             return "";
         }
     }
+
+
 
     private String getModelPath(String pid_path) throws IOException {
         String[] pids = pid_path.split("/");
@@ -247,6 +258,10 @@ public class ExtendedFields {
             sb.append("<field name=\"datum_end\">").append(datum_end).append("</field>");
         }
 
+        if (this.dnnt != null && StringUtils.isAnyString(this.dnnt)) {
+            sb.append("<field name=\"dnnt\">").append(dnnt).append("</field>");
+        }
+
 
         if (this.coordinates != null) {
             coordinates.stream().forEach((loc)->{
@@ -273,6 +288,8 @@ public class ExtendedFields {
             }
         }
     }
+
+
 
     private void setDate(Document biblioMods) throws Exception {
         datum_str = "";

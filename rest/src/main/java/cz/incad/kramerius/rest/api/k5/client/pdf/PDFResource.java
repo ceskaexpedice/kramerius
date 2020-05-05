@@ -41,6 +41,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.utils.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -265,36 +266,40 @@ public class PDFResource extends AbstractPDFResource  {
                     AbstractPDFResource.FirstPage fp = pageType != null ? AbstractPDFResource.FirstPage
                             .valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
 
-                    String[] pids = pidsParam.split(",");
-                    
-                    // max number test
-                    ConfigurationUtils.checkNumber(pids);
-                    
-                    Rectangle formatRect = formatRect(format);
-                    final File generatedPDF = super.selection(pids, formatRect, fp);
-                    final InputStream fis = new FileInputStream(generatedPDF);
-                    StreamingOutput stream = new StreamingOutput() {
-                        public void write(OutputStream output)
-                                throws IOException, WebApplicationException {
-                            try {
-                                IOUtils.copyStreams(fis, output);
-                            } catch (Exception e) {
-                                throw new WebApplicationException(e);
-                            } finally {
-                                if (generatedPDF != null)
-                                    generatedPDF.delete();
-                            }
-                        }
-                    };
+                    if (StringUtils.isAnyString(pidsParam)) {
+                        String[] pids = pidsParam.split(",");
+                        // max number test
+                        ConfigurationUtils.checkNumber(pids);
 
-                    SimpleDateFormat sdate = new SimpleDateFormat(
-                            "yyyyMMdd_mmhhss");
-                    return Response
-                            .ok()
-                            .header("Content-disposition",
-                                    "attachment; filename="
-                                            + sdate.format(new Date()) + ".pdf")
-                            .entity(stream).type("application/pdf").build();
+                        Rectangle formatRect = formatRect(format);
+                        final File generatedPDF = super.selection(pids, formatRect, fp);
+                        final InputStream fis = new FileInputStream(generatedPDF);
+                        StreamingOutput stream = new StreamingOutput() {
+                            public void write(OutputStream output)
+                                    throws IOException, WebApplicationException {
+                                try {
+                                    IOUtils.copyStreams(fis, output);
+                                } catch (Exception e) {
+                                    throw new WebApplicationException(e);
+                                } finally {
+                                    if (generatedPDF != null)
+                                        generatedPDF.delete();
+                                }
+                            }
+                        };
+
+                        SimpleDateFormat sdate = new SimpleDateFormat(
+                                "yyyyMMdd_mmhhss");
+                        return Response
+                                .ok()
+                                .header("Content-disposition",
+                                        "attachment; filename="
+                                                + sdate.format(new Date()) + ".pdf")
+                                .entity(stream).type("application/pdf").build();
+
+                    } else {
+                        return Response.status(Response.Status.BAD_REQUEST).build();
+                    }
 
                 } catch (MalformedURLException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);

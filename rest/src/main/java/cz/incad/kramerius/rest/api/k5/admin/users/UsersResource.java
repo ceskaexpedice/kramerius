@@ -377,7 +377,7 @@ public class UsersResource {
             return this.rightsResolver.isActionAllowed(user,
                     SecuredActions.USERSADMIN.getFormalName(),
                     SpecialObjects.REPOSITORY.getPid(), null,
-                    ObjectPidsPath.REPOSITORY_PATH);
+                    ObjectPidsPath.REPOSITORY_PATH).flag();
         else
             return false;
     }

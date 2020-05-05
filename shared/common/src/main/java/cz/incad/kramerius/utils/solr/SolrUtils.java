@@ -130,7 +130,7 @@ public class SolrUtils   {
         XPathExpression dateExpr = fact.newXPath().compile("//str[@name='datum_str']");
         return dateExpr;
     }
-    
+
     /**
      * Disects pid paths from given parsed solr document
      * @return pid paths
@@ -138,20 +138,30 @@ public class SolrUtils   {
      */
     public static List<String> disectPidPaths( Document parseDocument) throws XPathExpressionException {
         synchronized(parseDocument) {
-            List<String> list = new ArrayList<String>();
-            NodeList paths = (org.w3c.dom.NodeList) pidPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
-            if (paths != null) {
-                for (int i = 0,ll=paths.getLength(); i < ll; i++) {
-                    Node n = paths.item(i);
-                    String text = n.getTextContent();
-                    list.add(text.trim());
-                }
-                return list;
-            }
-            return new ArrayList<String>();
+            return paths(parseDocument);
         }
     }
-    
+
+    public static List<String> disectPidPaths( Element element) throws XPathExpressionException {
+        synchronized(element) {
+            return paths(element);
+        }
+    }
+
+    private static List<String> paths(Node domn) throws XPathExpressionException {
+        List<String> list = new ArrayList<>();
+        NodeList paths = (NodeList) pidPathExpr().evaluate(domn, XPathConstants.NODESET);
+        if (paths != null) {
+            for (int i = 0,ll=paths.getLength(); i < ll; i++) {
+                Node n = paths.item(i);
+                String text = n.getTextContent();
+                list.add(text.trim());
+            }
+            return list;
+        }
+        return new ArrayList<>();
+    }
+
     /**
      * Disect pid from given solr document
      * @param parseDocument Parsed solr document
@@ -167,6 +177,23 @@ public class SolrUtils   {
             }
             return null;
         }
+    }
+
+    public static String disectDNNT(Element topElem)  {
+        synchronized(topElem.getOwnerDocument()) {
+            Element foundElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
+
+                @Override
+                public boolean acceptElement(Element element) {
+                    return (element.getNodeName().equals("bool") && element.getAttribute("name") != null && element.getAttribute("name").equals("dnnt"));
+                }
+
+            });
+            if (foundElement != null) {
+                return foundElement.getTextContent().trim();
+            } else return null;
+        }
+
     }
 
     public static String disectPid(Element topElem) throws XPathExpressionException {
@@ -206,7 +233,16 @@ public class SolrUtils   {
             return new ArrayList<String>();
         }
     }
-    
+
+
+    public static String strValue(Document parsedDocument, String xpath) throws XPathExpressionException {
+        synchronized(parsedDocument) {
+            XPathExpression compiled = fact.newXPath().compile(xpath);
+            String value = (String) compiled.evaluate(parsedDocument, XPathConstants.STRING);
+            return value;
+        }
+    }
+
     /**
      * Disect fedora model from given solr document
      * @param parseDocument Parsed solr document
@@ -223,7 +259,9 @@ public class SolrUtils   {
             return null;
         }
     }
-    
+
+
+
     /**
      * Disect parent PID from given solr document
      * @param parseDocument Parsed solr document
@@ -240,7 +278,7 @@ public class SolrUtils   {
             return null;
         }
     }
-    
+
     /**
      * Disect date from given solr document
      * @param parseDocument Parsed solr document
@@ -257,8 +295,6 @@ public class SolrUtils   {
             return null;
         }
     }
-
-
     public static Document getSolrDataInternalOffset(String query, String offset) throws IOException, ParserConfigurationException, SAXException {
         String solrHost = KConfiguration.getInstance().getSolrHost();
         String uri = solrHost +"/select?" +query+"&start="+offset+"&wt=xml";

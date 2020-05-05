@@ -46,14 +46,9 @@ public class Create extends ServletRightsCommand {
             //Right right = RightsServlet.createRightFromPost(req, rightsManager, userManager, criteriumWrapperFactory);
             Map values = new HashMap();
             Enumeration parameterNames = req.getParameterNames();
-            
-            while(parameterNames.hasMoreElements()) {
-                String key = (String) parameterNames.nextElement();
-                String value = req.getParameter(key);
-                SimpleJSONObjects simpleJSONObjects = new SimpleJSONObjects();
-                simpleJSONObjects.createMap(key, values, value);
-            }
-            
+
+            Delete.parametersToJson(req, values, parameterNames);
+
             List affectedObjects = (List) values.get("affectedObjects");
             for (int i = 0; i < affectedObjects.size(); i++) {
                 String pid = affectedObjects.get(i).toString();
@@ -77,7 +72,7 @@ public class Create extends ServletRightsCommand {
         
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
-            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
+            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i]).flag()) {
                 hasRight = true;
                 break;
             } else {
@@ -86,7 +81,7 @@ public class Create extends ServletRightsCommand {
         } 
         // root object
         if (paths.length  == 0) {
-            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, new ObjectPidsPath(pid))) {
+            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, new ObjectPidsPath(pid)).flag()) {
                 hasRight = true;
             } else {
                 throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));

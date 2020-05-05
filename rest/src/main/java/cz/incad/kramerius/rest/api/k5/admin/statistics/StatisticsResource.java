@@ -137,7 +137,7 @@ public class StatisticsResource {
             return this.rightsResolver.isActionAllowed(user,
                     SecuredActions.SHOW_STATISTICS.getFormalName(),
                     SpecialObjects.REPOSITORY.getPid(), null,
-                    ObjectPidsPath.REPOSITORY_PATH);
+                    ObjectPidsPath.REPOSITORY_PATH).flag();
         else
             return false;
     }

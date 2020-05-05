@@ -14,6 +14,7 @@ import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -33,6 +34,8 @@ import cz.incad.kramerius.resourceindex.ResourceIndexService;
 
 import cz.incad.kramerius.virtualcollections.Collection.Description;
 import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class CollectionUtils {
     
@@ -40,8 +43,30 @@ public class CollectionUtils {
     private static final int MAX_WAIT_ITERATION = 20;
     
     public static final Logger LOGGER = Logger.getLogger(Collection.class.getName());
-    
-    
+
+    public static List<Element> findCollectionsElements(Document relsExt) {
+        List<Element> retval = new ArrayList<>();
+        Element rdfElm = XMLUtils.findElement(relsExt.getDocumentElement(), "RDF", FedoraNamespaces.RDF_NAMESPACE_URI);
+        if (rdfElm != null) {
+            Element description = XMLUtils.findElement(rdfElm, "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
+            if (description != null) {
+                List<Element> elements = XMLUtils.getElements(description, new XMLUtils.ElementsFilter() {
+
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        return (element.getLocalName().equals("isMemberOfCollection")
+                                && element.getNamespaceURI().equals(FedoraNamespaces.RDF_NAMESPACE_URI));
+                    }
+                });
+                for (Element el : elements) {
+                    retval.add(el);
+                }
+            }
+        }
+        return retval;
+    }
+
+
     public static class CollectionManagerWait extends  CollectionWait {
         
         public static final Logger LOGGER = Logger.getLogger(CollectionManagerWait.class.getName());

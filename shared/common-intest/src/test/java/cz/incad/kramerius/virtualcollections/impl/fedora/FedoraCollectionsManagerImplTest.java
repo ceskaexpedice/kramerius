@@ -24,6 +24,7 @@ import java.util.Map;
 import static cz.incad.kramerius.ITTestsSetup.*;
 import static org.easymock.EasyMock.isA;
 
+@Ignore
 public class FedoraCollectionsManagerImplTest {
 
     @BeforeClass

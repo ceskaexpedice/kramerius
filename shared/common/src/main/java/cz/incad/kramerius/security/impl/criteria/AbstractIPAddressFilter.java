@@ -20,44 +20,11 @@ import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import cz.incad.kramerius.security.RightCriterium;
+import cz.incad.kramerius.security.RightCriteriumContext;
 
 public abstract class AbstractIPAddressFilter extends AbstractCriterium implements RightCriterium {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AbstractIPAddressFilter.class.getName());
-    
-    protected boolean matchIPAddresses(Object[] objs) {
-        String remoteAddr = this.getEvaluateContext().getRemoteAddr();
-        return matchIPAddresses(objs, remoteAddr);
-    }
-
-
-    protected boolean matchIPAddresses(Object[] objs, String remoteAddr) {
-        for (Object pattern : objs) {
-            boolean negativePattern = false;
-            String patternStr = pattern.toString();
-            if (patternStr.startsWith("!")) {
-                patternStr = patternStr.substring(1);
-                negativePattern = true;
-            }
-            
-            boolean matched = remoteAddr.matches(patternStr);
-            if ((matched) && (!negativePattern)) { 
-                LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' - ACCEPTING");
-                return true;
-            } else if ((!matched) && (negativePattern)) {
-                LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' - (negative pattern) ACCEPTING");
-                return true;
-            }
-
-            // only debug
-            if ((!matched) && (!negativePattern)) {
-                LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' - NOT ACCEPTING");
-            } else if ((matched) && (negativePattern)) {
-                LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' -(negative pattern) NOT ACCEPTING");
-            }
-        }
-        return false;
-    }
 
 
     @Override

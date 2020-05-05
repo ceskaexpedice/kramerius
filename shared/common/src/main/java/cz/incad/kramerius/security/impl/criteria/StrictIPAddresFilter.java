@@ -16,14 +16,14 @@
  */
 package cz.incad.kramerius.security.impl.criteria;
 
-import java.util.logging.Level;
+import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtils.*;
 
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtils;
 
 /**
  * Omezujici filter -> Pokud je z daneho rozsahu - pusti dal. Pokud neni - zakaze
@@ -36,8 +36,8 @@ public class StrictIPAddresFilter extends AbstractIPAddressFilter implements Rig
     
 
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
-        EvaluatingResult result = matchIPAddresses(getObjects()) ?  EvaluatingResult.TRUE : EvaluatingResult.FALSE;
+    public EvaluatingResultState evalute() throws RightCriteriumException {
+        EvaluatingResultState result = matchIPAddresses(getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.FALSE;
         LOGGER.fine("\t strict filter - "+result);
         return result;
     }

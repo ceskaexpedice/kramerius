@@ -512,7 +512,6 @@
         <securedaction>reindex</securedaction>
     </process>
 
-    <!-- processing index check  itereate over processing index and check if object exists in fedora  -->
     <process>
         <id>processing_check</id>
         <description>Check processing index</description>
@@ -545,8 +544,72 @@
             <input class="org.kramerius.replications.input.DataMigrationInputTemplate"></input>
             <output class="org.kramerius.replications.output.DataMigrationOutputTemplate"></output>
         </templates>
+
+    </process>
+
+    <process>
+        <id>dnntexport</id>
+        <description>Create dnnt csv export </description>
+        <mainClass>cz.incad.kramerius.DNNTExport</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>false</parameters>
+        <securedaction>dnnt_admin</securedaction>
     </process>
 
 
 
+
+ <process>
+        <id>dnntset</id>
+        <description>Set the DNNT flag </description>
+        <mainClass>cz.incad.kramerius.DNNTFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>true</parameters>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+    <!-- parametrized dnntset -->
+    <process>
+
+        <id>parametrizeddnntset</id>
+        <description>Set the DNNT flag </description>
+        <mainClass>cz.incad.kramerius.ParametrizedSetDNNTFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>true</parameters>
+        <securedaction>dnnt_admin</securedaction>
+
+        <templates>
+            <input class="cz.incad.kramerius.template.DNNTSetCSVInputTemplate"></input>
+        </templates>
+
+    </process>
+
+    <process>
+        <id>dnntunset</id>
+        <description>Unset the DNNT flag</description>
+        <mainClass>cz.incad.kramerius.DNNTFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>false</parameters>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+    <!-- parametrized dnntunset -->
+    <process>
+        <id>parametrizeddnntunset</id>
+        <description>Unset the DNNT flag </description>
+        <mainClass>cz.incad.kramerius.ParametrizedUnsetDNNTFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>true</parameters>
+        <securedaction>dnnt_admin</securedaction>
+
+        <templates>
+            <input class="cz.incad.kramerius.template.DNNTUnsetCSVInputTemplate"></input>
+        </templates>
+
+    </process>
 </processes>

@@ -52,12 +52,12 @@ public class WellcomeViewObject {
     RightsResolver rightsResolver;
     
     public String getIntro() throws IOException {
-        boolean operationPermited = rightsResolver.isActionAllowed(SecuredActions.EDIT_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
+        boolean operationPermited = rightsResolver.isActionAllowed(SecuredActions.EDIT_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag();
         return operationPermited ? getTextIntro() : getTextIntro();
     }
     
     public String getEditIntro() throws IOException {
-    	StringTemplate template = stGroup().getInstanceOf("editor");
+        StringTemplate template = stGroup().getInstanceOf("editor");
         template.setAttribute("text", getTextIntro());
         template.setAttribute("lang", provider.get().getLanguage());
         return template.toString();

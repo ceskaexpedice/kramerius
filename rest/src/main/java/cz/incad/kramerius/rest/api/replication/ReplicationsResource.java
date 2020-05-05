@@ -155,14 +155,15 @@ public class ReplicationsResource {
     boolean checkPermission(String pid) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.rightsResolver.isActionAllowed(SecuredActions.EXPORT_K4_REPLICATIONS.getFormalName(), pid, null, pth)) return true;
+            if (this.rightsResolver.isActionAllowed(SecuredActions.EXPORT_K4_REPLICATIONS.getFormalName(), pid, null, pth).flag()) return true;
         }
         if (paths.length == 0) {
             ObjectPidsPath path = new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid());
-            if (this.rightsResolver.isActionAllowed(SecuredActions.EXPORT_K4_REPLICATIONS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, path)) return true;
+            if (this.rightsResolver.isActionAllowed(SecuredActions.EXPORT_K4_REPLICATIONS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, path).flag()) return true;
         }
         return false;
     }
+
 
     
     /**

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.security.*;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -34,20 +35,6 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumParams;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
-import cz.incad.kramerius.security.RightsManager;
-import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.database.InitSecurityDatabase;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
 import cz.incad.kramerius.security.utils.RightsDBUtils;
@@ -111,26 +98,26 @@ public class DatabaseRightsManager implements RightsManager {
    
     
     @Override
-	public Right[] findRights(final String[] ids, final String[] pids, final String[] actions, final String[] rnames) {
-    	Map<String, List<String>> map = new HashMap<String, List<String>>();
-    	if (ids.length > 0) {
-        	map.put("id", Arrays.asList(ids));
-    	}
-    	if (pids.length > 0) {
-        	map.put("uuid", Arrays.asList(pids));
-    	}
-    	if (actions.length > 0) {
-        	map.put("action", Arrays.asList(actions));
-    	}
-    	if (rnames.length > 0) {
-        	map.put("gname", Arrays.asList(rnames));
-    	}
+    public Right[] findRights(final String[] ids, final String[] pids, final String[] actions, final String[] rnames) {
+        Map<String, List<String>> map = new HashMap<String, List<String>>();
+        if (ids.length > 0) {
+            map.put("id", Arrays.asList(ids));
+        }
+        if (pids.length > 0) {
+            map.put("uuid", Arrays.asList(pids));
+        }
+        if (actions.length > 0) {
+            map.put("action", Arrays.asList(actions));
+        }
+        if (rnames.length > 0) {
+            map.put("gname", Arrays.asList(rnames));
+        }
 
-    	StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllRights");
-    	template.setAttribute("params", map);
-    	
-    	String sql = template.toString();
-    	List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllRights");
+        template.setAttribute("params", map);
+
+        String sql = template.toString();
+        List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
             @Override
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
                 int userId = rs.getInt("user_id");
@@ -147,12 +134,12 @@ public class DatabaseRightsManager implements RightsManager {
         }.executeQuery(sql);
         
         return ((rights != null) && (!rights.isEmpty())) ? (Right[]) rights.toArray(new Right[rights.size()]) : new Right[0];
-	}
+    }
 
 
 
 
-	@InitSecurityDatabase
+    @InitSecurityDatabase
     public Right[] findRightsForGroup(final String[] pids, final String action, final Role group) {
         for (int i = 0; i < pids.length; i++) {
             if (!pids[i].startsWith("uuid:")) {
@@ -243,7 +230,7 @@ public class DatabaseRightsManager implements RightsManager {
 
     @Override
     @InitSecurityDatabase
-    public EvaluatingResult resolve(RightCriteriumContext ctx, String uuid, ObjectPidsPath path, String action, User user) throws RightCriteriumException {
+    public RightsReturnObject resolve(RightCriteriumContext ctx, String uuid, ObjectPidsPath path, String action, User user) throws RightCriteriumException {
         ObjectPidsPath processPath=path.injectRepository();
         if (!SpecialObjects.isSpecialObject(uuid)) {
             try {
@@ -260,35 +247,37 @@ public class DatabaseRightsManager implements RightsManager {
         findRights = SortingRightsUtils.sortRights(findRights, processPath);
         for (Right right : findRights) {
             ctx.setAssociatedPid(right.getPid());
-            EvaluatingResult result = right.evaluate(ctx);
+            EvaluatingResultState result = right.evaluate(ctx, this);
             ctx.setAssociatedPid(null);
-            if (result != EvaluatingResult.NOT_APPLICABLE)
-                return result;
+            if (result != EvaluatingResultState.NOT_APPLICABLE)
+                return new RightsReturnObject(right, result);
         }
         // nenasel zadne pravo nebo vsechny vracely NOT_APPLICABLE
-        return EvaluatingResult.FALSE;
+        return new RightsReturnObject(null,EvaluatingResultState.FALSE);
     }
 
     @InitSecurityDatabase
-    public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException {
+    public RightsReturnObject[] resolveAllPath(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException {
         Right[] findRights = findRights(path.getPathFromLeafToRoot(), action, user);
         findRights = SortingRightsUtils.sortRights(findRights, path);
-        EvaluatingResult[] results = new EvaluatingResult[path.getLength()];
+        RightsReturnObject[] results = new RightsReturnObject[path.getLength()];
         for (int i = 0; i < results.length; i++) {
             String curPid = path.getNodeFromLeafToRoot(i);
             ObjectPidsPath restPath = path.cutTail(i);
             
-            EvaluatingResult result = EvaluatingResult.FALSE;
+            //EvaluatingResultState result = EvaluatingResultState.FALSE;
+            RightsReturnObject result = new RightsReturnObject(null,EvaluatingResultState.FALSE);
             for (Right right : findRights) {
                 
                 boolean thisPid = right.getPid().equals(curPid);
                 boolean inTheRestOfPath = restPath.contains(right.getPid());
                 if (thisPid || inTheRestOfPath) {
                     ctx.setAssociatedPid(right.getPid());
-                    EvaluatingResult iresult = right.evaluate(ctx);
+                    EvaluatingResultState iresult = right.evaluate(ctx, this);
                     ctx.setAssociatedPid(null);
-                    if (iresult != EvaluatingResult.NOT_APPLICABLE) {
-                        result = iresult;
+                    if (iresult != EvaluatingResultState.NOT_APPLICABLE) {
+                        //result = iresult;
+                        result = new RightsReturnObject(right, iresult);
                         break;
                     }
                 }

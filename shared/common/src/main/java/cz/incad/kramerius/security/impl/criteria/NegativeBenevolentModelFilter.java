@@ -16,7 +16,7 @@
  */
 package cz.incad.kramerius.security.impl.criteria;
 
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
@@ -32,9 +32,9 @@ public class NegativeBenevolentModelFilter  extends AbstractCriterium implements
      * @see cz.incad.kramerius.security.RightCriterium#evalute()
      */
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
-        EvaluatingResult result = BenevolentModelFilter.evaluateInternal(getObjects(), getEvaluateContext());
-        return result.equals(EvaluatingResult.TRUE) ? EvaluatingResult.NOT_APPLICABLE : EvaluatingResult.TRUE;
+    public EvaluatingResultState evalute() throws RightCriteriumException {
+        EvaluatingResultState result = BenevolentModelFilter.evaluateInternal(getObjects(), getEvaluateContext());
+        return result.equals(EvaluatingResultState.TRUE) ? EvaluatingResultState.NOT_APPLICABLE : EvaluatingResultState.TRUE;
     }
 
     /* (non-Javadoc)

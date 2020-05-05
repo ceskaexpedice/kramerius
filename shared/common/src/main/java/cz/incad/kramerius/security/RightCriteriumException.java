@@ -16,26 +16,25 @@
  */
 package cz.incad.kramerius.security;
 
+/**
+ * The exception indicates problem with right criterium
+ */
 public class RightCriteriumException extends Exception {
 
     public RightCriteriumException() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public RightCriteriumException(String message, Throwable cause) {
         super(message, cause);
-        // TODO Auto-generated constructor stub
     }
 
     public RightCriteriumException(String message) {
         super(message);
-        // TODO Auto-generated constructor stub
     }
 
     public RightCriteriumException(Throwable cause) {
         super(cause);
-        // TODO Auto-generated constructor stub
     }
     
 }

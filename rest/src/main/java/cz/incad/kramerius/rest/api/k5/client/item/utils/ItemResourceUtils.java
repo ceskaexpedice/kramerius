@@ -33,6 +33,7 @@ public class ItemResourceUtils {
 
  
     public static List<String> solrChildrenPids(String parentPid, List<String> fList, SolrAccess sa, SolrMemoization memo) throws IOException {
+        // TODO: Change it
         List<Document> docs = new  ArrayList<Document>();
         List<Map<String, String>> ll = new ArrayList<Map<String, String>>();
         int rows = 10000;

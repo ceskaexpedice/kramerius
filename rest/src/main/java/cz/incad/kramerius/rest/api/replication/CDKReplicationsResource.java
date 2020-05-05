@@ -146,7 +146,7 @@ public class CDKReplicationsResource {
                 SpecialObjects.REPOSITORY.getPid());
         if (this.rightsResolver.isActionAllowed(
                 SecuredActions.EXPORT_CDK_REPLICATIONS.getFormalName(),
-                SpecialObjects.REPOSITORY.getPid(), null, path))
+                SpecialObjects.REPOSITORY.getPid(), null, path).flag())
             return true;
         return false;
     }
