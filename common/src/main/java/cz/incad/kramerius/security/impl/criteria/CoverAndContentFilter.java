@@ -19,19 +19,25 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * CoverAndContentFilter
  *
- * Page types FrontCover and TableOfContents are copyright free (uncommercial and library usage)
+ *  Page types FrontCover, TableOfContents, FrontJacket, TitlePage and jacket
+ *  are copyright free (uncommercial and library usage)
  *
  * @author Martin Rumanek
  */
 public class CoverAndContentFilter extends AbstractCriterium implements RightCriterium {
 
     Logger LOGGER = java.util.logging.Logger.getLogger(CoverAndContentFilter.class.getName());
+    private static XPathExpression modsTypeExpr = null;
+    private static final List<String> allowedPageTypes = Arrays.asList(
+            "FrontCover", "TableOfContents", "FrontJacket", "TitlePage", "jacket"
+    );
 
     @Override
     public EvaluatingResult evalute() throws RightCriteriumException {
@@ -63,18 +69,25 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
         }
     }
 
-    private EvaluatingResult checkTypeElement(Document relsExt) throws IOException {
+    private EvaluatingResult checkTypeElement(Document mods) throws IOException {
         try {
-            XPathFactory xPathFactory = XPathFactory.newInstance();
-            XPath xpath = xPathFactory.newXPath();
-            xpath.setNamespaceContext(new FedoraNamespaceContext());
-            XPathExpression expr = xpath.compile("/mods:modsCollection/mods:mods/mods:part/@type");
-            String type = expr.evaluate(relsExt);
-            if (Arrays.asList("FrontCover", "TableOfContents", "FrontJacket", "jacket").contains(type)) {
+            if (modsTypeExpr == null) initModsTypeExpr();
+            String type = modsTypeExpr.evaluate(mods);
+            if (allowedPageTypes.contains(type)) {
                 return EvaluatingResult.TRUE;
             } else {
                 return EvaluatingResult.NOT_APPLICABLE;
             }
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
+        }
+    }
+
+    private void initModsTypeExpr() throws IOException {
+        try {
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            xpath.setNamespaceContext(new FedoraNamespaceContext());
+            modsTypeExpr = xpath.compile("/mods:modsCollection/mods:mods/mods:part/@type");
         } catch (XPathExpressionException e) {
             throw new IOException(e);
         }
