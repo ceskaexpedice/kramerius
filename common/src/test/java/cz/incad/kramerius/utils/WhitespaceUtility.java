@@ -19,6 +19,16 @@ public class WhitespaceUtility {
         }
         return builder.toString();
     }
+
+    public static String remove(String input ) {
+        StringBuilder builder = new StringBuilder();
+        input.chars().forEach((ch) -> {
+            if (!Character.isWhitespace(ch)) {
+                builder.append(ch);
+            }
+        });
+        return builder.toString();
+    }
     public static void compare(String input1, String input2) {
         int min = Math.min(input1.length(), input2.length());
         for (int i = 0; i < min; i++) {
