@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -42,6 +43,8 @@ public class CriteriaDNNTUtils {
                                      String remoteAddr,
                                      String username,
                                      String email,
+
+                                     Map<String,String> sessionAttributes,
                                      List<String> dcAuthors,
                                      ObjectPidsPath[] paths,
                                      ObjectModelsPath[] mpaths) throws IOException {
@@ -60,6 +63,9 @@ public class CriteriaDNNTUtils {
         jObject.put("dcTitle",dcTitle);
 
         jObject.put("date",timestamp);
+
+        sessionAttributes.keySet().stream().forEach(key->{ jObject.put(key, sessionAttributes.get(key)); });
+
 
         if (!dcAuthors.isEmpty()) {
             JSONArray authorsArray = new JSONArray();

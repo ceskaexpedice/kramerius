@@ -2,18 +2,17 @@
 
     package cz.incad.kramerius.auth.thirdparty.shibb.rules;
     
-    // Generated from ANTLR tool
-
-
-
+    import java.util.*;
+    import cz.incad.kramerius.auth.thirdparty.shibb.rules.*;
+    import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.*;
 
 public interface ShibRuleParserTokenTypes {
 	int EOF = 1;
 	int NULL_TREE_LOOKAHEAD = 3;
 	int MATCH_KWD = 4;
 	int L_BRACKET = 5;
-	int COMMA = 6;
-	int REGEXP_LITERAL = 7;
+	int REGEXP_LITERAL = 6;
+	int COMMA = 7;
 	int R_BRACKET = 8;
 	int CURLYL_BRACKET = 9;
 	int CURLYR_BRACKET = 10;
@@ -28,6 +27,5 @@ public interface ShibRuleParserTokenTypes {
 	int SL_COMMENT = 19;
 	int ML_COMMENT = 20;
 	int REXP_OR_COMMENT = 21;
-	int NEWLINE = 22;
-	int WS = 23;
+	int WS = 22;
 }

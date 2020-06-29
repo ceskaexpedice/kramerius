@@ -38,6 +38,7 @@ public abstract class ShibAuthenticatedUsers extends AbstractAuthenticatedUsers<
     }
 
     public ShibbolethUserWrapper createUserWrapper(HttpServletRequest req, String userName) throws Exception {
+        LOGGER.fine(String.format("---------- Shibboleth user %s -----------------", userName));
         ShibbolethUserWrapper wrap = new ShibbolethUserWrapper(userName);
         ClientShibbolethContext ctx = new ClientShibbolethContext(req, wrap);
 
@@ -47,10 +48,8 @@ public abstract class ShibAuthenticatedUsers extends AbstractAuthenticatedUsers<
         ShibRuleParser shibRuleParser = new ShibRuleParser(shibRuleLexer);
 
         ShibRules shibRules = shibRuleParser.shibRules();
-        LOGGER.fine("shib rules parsed and trying to evaluate");
-
         shibRules.evaluate(ctx);
-        LOGGER.fine("shib rules evaluated");
+        LOGGER.fine(String.format("---------- Shibboleth user evaluated -----------------"));
         return wrap;
     }
 
@@ -72,6 +71,9 @@ public abstract class ShibAuthenticatedUsers extends AbstractAuthenticatedUsers<
             uname = request.getRemoteUser();
         } else {
             uname = request.getHeader("REMOTE_USER");
+            if (uname == null) {
+                uname = request.getHeader("remote_user");
+            }
         }
         if (uname != null) {
             return SHIBBOLETH_USER_PREFIX+"_"+uname;

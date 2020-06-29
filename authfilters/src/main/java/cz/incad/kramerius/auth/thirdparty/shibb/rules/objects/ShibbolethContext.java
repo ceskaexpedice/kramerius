@@ -10,7 +10,9 @@ public interface ShibbolethContext {
     public void associateFirstName(String firstName);
     
     public void associateLastName(String lastName);
-    
+
+    public void associateSessionAttribute(String key, String value);
+
     public void associateRole(String rname);
     
     public boolean isRoleAssociated(String rname);

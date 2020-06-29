@@ -2,7 +2,9 @@ package cz.incad.kramerius.auth.thirdparty.impl;
 
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -96,6 +98,12 @@ public abstract class AbstractAuthenticatedUsers<T extends UsersWrapper> impleme
     
         req.getSession().setAttribute(UserUtils.FIRST_NAME_KEY, wrapper.getProperty(UserUtils.FIRST_NAME_KEY));
         req.getSession().setAttribute(UserUtils.LAST_NAME_KEY, wrapper.getProperty(UserUtils.LAST_NAME_KEY));
+
+        wrapper.getPropertyKeys().stream().filter(it -> !it.equals(UserUtils.FIRST_NAME_KEY) &&  !it.equals(UserUtils.LAST_NAME_KEY)).forEach(it-> {
+            String property = wrapper.getProperty(it);
+
+            req.getSession().setAttribute(UserUtils.THIRD_PARTY_SESSION_PARAMS +it, wrapper.getProperty(it));
+        });
 
         return password;
     }

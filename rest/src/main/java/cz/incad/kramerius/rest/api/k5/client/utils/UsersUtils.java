@@ -18,6 +18,8 @@ package cz.incad.kramerius.rest.api.k5.client.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,6 +48,11 @@ public class UsersUtils {
             }
             jsonObj.put("roles", jsonArr);
         }
+
+        JSONObject jsonSessionAttributes = new JSONObject();
+        user.getSessionAttributes().keySet().stream().forEach(key-> jsonSessionAttributes.put(key, user.getSessionAttributes().get(key)));
+        jsonObj.put("session", jsonSessionAttributes);
+
         return jsonObj;
     }
 

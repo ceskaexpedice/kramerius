@@ -223,11 +223,13 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
         if (rightsReturnObject == null)  return;
         if (CriteriaDNNTUtils.checkContainsCriteriumReadDNNT(rightsReturnObject)) {
+
             CriteriaDNNTUtils.logDnntAccess(pid,
                     null,rootTitle,dcTitle,
                     IPAddressUtils.getRemoteAddress(requestProvider.get(), KConfiguration.getInstance().getConfiguration()),
                     user!= null ? user.getLoginname() : null,
                     user != null ? user.getEmail(): null,
+                    user.getSessionAttributes(),
                     dcAuthors,
                     paths,
                     mpaths
