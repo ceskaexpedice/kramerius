@@ -128,7 +128,6 @@ form(postfixdiv, importDirectory,importRootDirectory,  startIndexer, updateExist
     $endif$
     <br>
 
-    <div style="display:none">
      $if(updateExisting)$
         <input type="checkbox" style="display:none" id="updateExisting" name="updateExisting" value="updateExisting" checked />
     $else$
@@ -139,7 +138,7 @@ form(postfixdiv, importDirectory,importRootDirectory,  startIndexer, updateExist
 
     <input type="checkbox" id="replaceMODs" name="replaceMODs" value="replaceMODs">$bundle.("import.replaceMODs")$</input>
 
-    </div>
+
 </fieldset>
 
 

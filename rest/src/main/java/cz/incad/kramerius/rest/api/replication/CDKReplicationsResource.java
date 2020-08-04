@@ -1,15 +1,15 @@
 package cz.incad.kramerius.rest.api.replication;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
@@ -21,6 +21,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -95,7 +96,11 @@ public class CDKReplicationsResource {
     @Named("fedora")
     CollectionsManager colManager;
 
-
+    /**
+     * Return virtual collections from resource
+     * @return
+     * @throws IOException
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getVirtualCollections() throws IOException {
@@ -115,14 +120,22 @@ public class CDKReplicationsResource {
             throw new ActionNotAllowed("action is not allowed");
     }
 
-
+    /**
+     * Prepare list of items to be replicated
+     * @param date Date from
+     * @param offset Offset
+     * @param rows  Number of rows
+     * @return List of items to be replicated
+     * @throws ReplicateException
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @Path("prepare")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response prepare(@QueryParam("date") String date,
             @QueryParam("offset") @DefaultValue("0") String offset,
             @QueryParam("rows") @DefaultValue("100") String rows)
-            throws ReplicateException, UnsupportedEncodingException {
+            throws ReplicateException {
         try {
             if (checkPermission()) {
                 if (date == null) {
@@ -141,7 +154,7 @@ public class CDKReplicationsResource {
         }
     }
 
-    boolean checkPermission() throws IOException {
+    boolean checkPermission() {
         ObjectPidsPath path = new ObjectPidsPath(
                 SpecialObjects.REPOSITORY.getPid());
         if (this.isActionAllowed.isActionAllowed(
@@ -156,6 +169,13 @@ public class CDKReplicationsResource {
                 + date + "%20TO%20NOW}&start=" + offset + "&rows=" + rows;
     }
 
+    /**
+     * Return one solr xml record
+     * @param pid PID
+     * @return returns solr xml record
+     * @throws ReplicateException
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @Path("{pid}/solrxml")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
@@ -174,6 +194,14 @@ public class CDKReplicationsResource {
         }
     }
 
+    /**
+     * Returns one solr xml record for page (used only in PDF)
+     * @param pid Pid of PDF
+     * @param page Requested page
+     * @return
+     * @throws ReplicateException
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @Path("{pid}/{page}/solrxml")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
@@ -192,7 +220,14 @@ public class CDKReplicationsResource {
         }
     }
 
-
+    /**
+     * Returns foxml for given pid as XML
+     * @param pid PID
+     * @param collection Collection representing source
+     * @return
+     * @throws ReplicateException
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @Path("{pid}/foxml")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
@@ -234,6 +269,14 @@ public class CDKReplicationsResource {
         }
     }
 
+    /**
+     * Returns foxml for given pid as JSON format
+     * @param pid PID
+     * @param collection collection represents source
+     * @return
+     * @throws ReplicateException
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @Path("{pid}/foxml")
     @Produces(MediaType.APPLICATION_JSON)
@@ -265,5 +308,98 @@ public class CDKReplicationsResource {
             throw new ReplicateException(e);
         }
     }
+
+
+    // Batch support
+    // Consider to move it to different endpoint
+
+    /**
+     * Returns whole batch of foxml files
+     * @param pids Comma separated string of pids
+     * @param collection Collection represents source
+     * @return
+     * @throws ReplicateException
+     */
+    @GET
+    @Path("batch/foxmls")
+    @Produces("application/zip")
+    public Response batchedFOXL(@QueryParam("pids") String stringPids, @QueryParam("collection") String collection)  throws ReplicateException {
+        try {
+            if (checkPermission()) {
+                String[] pids = stringPids.split(",");
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                try(ZipOutputStream zipOutputStream = new ZipOutputStream(bos)) {
+                    Arrays.stream(pids).forEach(pid-> {
+                        try {
+                            zipOutputStream.putNextEntry(new ZipEntry(pid));
+                            byte[] bytes = new byte[0];
+                            if (collection != null) {
+                                bytes = replicationService.getExportedFOXML(pid,
+                                        FormatType.CDK, collection);
+                            } else {
+                                bytes = replicationService.getExportedFOXML(pid,
+                                        FormatType.CDK);
+                            }
+                            zipOutputStream.write(bytes, 0, bytes.length);
+                            zipOutputStream.closeEntry();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        } catch (ReplicateException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                } catch (IOException e) {
+                    throw new ReplicateException(e);
+                }
+                return Response.ok().entity(bos.toByteArray()).build();
+            } else
+                throw new ActionNotAllowed("action is not allowed");
+        } catch (JSONException e) {
+            throw new ReplicateException(e);
+        } catch (RuntimeException e)  {
+            if (e.getCause() != null) throw new ReplicateException(e.getCause());
+            else throw new RuntimeException(e);
+        }
+    }
+
+
+    @GET
+    @Path("batch/solrxmls")
+    @Produces("application/zip")
+    public Response batchedSOLRXML(@QueryParam("pids") String stringPids) throws ReplicateException {
+        try {
+            if (checkPermission()) {
+                String[] pids = stringPids.split(",");
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                try(ZipOutputStream zipOutputStream = new ZipOutputStream(bos)) {
+                    Arrays.stream(pids).forEach(pid-> {
+                        try {
+
+                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                            zipOutputStream.putNextEntry(new ZipEntry(pid));
+                            Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+                            XMLUtils.print(solrDoc, stream);
+
+                            byte[] bytes = stream.toByteArray();
+                            zipOutputStream.write(bytes, 0, bytes.length);
+                            zipOutputStream.closeEntry();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        } catch (TransformerException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                } catch (IOException e) {
+                    throw new ReplicateException(e);
+                }
+                return Response.ok().entity(bos.toByteArray()).build();
+            } else
+                throw new ActionNotAllowed("action is not allowed");
+        } catch (RuntimeException e) {
+            if (e.getCause() != null) throw new ReplicateException(e.getCause());
+             else throw new ReplicateException(e);
+        }
+    }
+
 
 }
