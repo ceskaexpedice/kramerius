@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 public class CollectionUtilsTest extends TestCase {
     
     public void testCollectionToJSON() {
-        Collection col = new Collection("vc:xxxx","label",false);
+        Collection col = new Collection("vc:xxxx","label", "",false);
         col.addDescription(new Collection.Description("cs", "TEXT_cs", "cesky text"));
         col.addDescription(new Collection.Description("en", "TEXT_en", "english text"));
         JSONObject virtualCollectionTOJSON = CollectionUtils.virtualCollectionTOJSON(col);

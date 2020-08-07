@@ -1,6 +1,7 @@
 package cz.incad.kramerius.fedora.impl;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -11,12 +12,12 @@ import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.fedora.AbstractFedoraAccess;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.utils.CDKUtils;
+import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -24,28 +25,29 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
-import cz.incad.kramerius.virtualcollections.impl.CDKResourcesFilter;
-import org.apache.commons.io.FileSystemUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.kramerius.Import;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
 
@@ -56,26 +58,81 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     private FedoraAccess akubra;
     private SolrAccess solrAccess;
     private CollectionsManager collectionsManager;
+    private Client client;
+
 
 
     @Inject
-    public FedoraAccessProxyAkubraImpl(KConfiguration configuration, @Nullable StatisticsAccessLog accessLog, @Named("akubraFedoraAccess")FedoraAccess acc, SolrAccess solrAccess,  @Named("fedora")CollectionsManager collectionsManager) throws IOException {
+    public FedoraAccessProxyAkubraImpl(KConfiguration configuration, @Nullable StatisticsAccessLog accessLog, @Named("akubraFedoraAccess")FedoraAccess acc, SolrAccess solrAccess,  @Named("fedora")CollectionsManager collectionsManager, Provider<HttpServletRequest> provider) throws IOException {
         super(configuration, accessLog);
         this.akubra = acc;
         this.solrAccess = solrAccess;
         this.collectionsManager = collectionsManager;
+        this.client = Client.create();
     }
 
 
-    public static WebResource client(String url, String userName, String pswd) {
-        Client c = Client.create();
-        WebResource r = c.resource(url);
+
+
+    protected List<String> window(String pid) {
+        try {
+            Document solrDataDocument = this.solrAccess.getSolrDataDocument(pid);
+
+            String parentPid = SolrUtils.disectParentPid(solrDataDocument);
+            List<String> list = ItemResourceUtils.solrChildrenPids(parentPid, new ArrayList<>(), this.solrAccess);
+
+            int size = KConfiguration.getInstance().getConfiguration().getInt("cdk.collections.sources.window", 5);
+
+            int index = list.indexOf(pid);
+            if (index >= 0)  {
+                int minIndex = Math.max(index-size, 0);
+                size += size-(index-minIndex);
+
+                int maxIndex = Math.min(index+size, list.size());
+                return list.subList(minIndex, maxIndex);
+            } else {
+                List<String> retList = new ArrayList<>(list.subList(0,Math.min(list.size(), size)));
+                retList.add(pid);
+                return retList;
+            }
+
+        } catch (UniformInterfaceException ex2) {
+            throw new RuntimeException(ex2);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (XPathExpressionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    protected InputStream batchFoxml(String url, String userName, String pswd) {
+        LOGGER.info(String.format("Requesting %s", url));
+        WebResource r = client.resource(url);
         r.addFilter(new BasicAuthenticationClientFilter(userName, pswd));
-        return r;
+        try {
+            return r.accept("application/zip").get(InputStream.class);
+        } catch (UniformInterfaceException ex2) {
+            if (ex2.getResponse().getStatus() == 404) {
+                LOGGER.log(Level.WARNING, "Call to {0} failed with message {1}. Skyping documents.",
+                        new Object[]{url, ex2.getResponse().toString()});
+                return null;
+            } else {
+                LOGGER.log(Level.WARNING, "Call to {0} failed. Retrying...", url);
+                return r.accept("application/zip").get(InputStream.class);
+            }
+        } catch (Exception ex) {
+            LOGGER.log(Level.WARNING, "Call to {0} failed. Retrying...", url);
+            return r.accept("application/zip").get(InputStream.class);
+        }
     }
+
 
     protected InputStream foxml( String url, String userName, String pswd) {
-        WebResource r = client(url, userName, pswd);
+        LOGGER.info(String.format("Requesting %s", url));
+        WebResource r = client.resource(url);
+        r.addFilter(new BasicAuthenticationClientFilter(userName, pswd));
+
         try {
             return r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
         } catch (UniformInterfaceException ex2) {
@@ -115,33 +172,80 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         synchronized (INGEST_LOCK) {
             Repository internalAPI = this.akubra.getInternalAPI();
             if(!internalAPI.objectExists(pid)) {
-                //download form raw
-                Document solrDataDocument = this.solrAccess.getSolrDataDocument(pid);
-                List<String> sources = CDKUtils.findSources(solrDataDocument.getDocumentElement());
-                if (!sources.isEmpty()) {
-                    onDemandIngest(pid, internalAPI, sources);
-                }
+                List<String> window = window( pid).stream().filter((p) -> {
+                    try {
+                        return !internalAPI.objectExists(p);
+                    } catch (RepositoryException e) {
+                        LOGGER.warning(e.getMessage());
+                        return false;
+                    }
+                }).collect(Collectors.toList());
+                LOGGER.info("Requesting window "+window);
+                onDemandIngest(window, internalAPI);
             }
         }
     }
 
-    private  void onDemandIngest(String pid, Repository internalAPI, List<String> sources) throws CollectionException, LexerException, IOException, RepositoryException, JAXBException, TransformerException {
-        // we takes only first item
-        Collection collection = this.collectionsManager.getCollection(sources.get(0));
 
-        String url = collection.getUrl()  +(collection.getUrl().endsWith("/") ? "" : "/")+ "api/v4.6/cdk/" + pid + "/foxml?collection=" + collection.getPid();
-        PIDParser parser = new PIDParser(collection.getPid());
-        parser.objectPid();
-        String objectId = parser.getObjectId();
+    private  void onDemandIngest(List<String> window, Repository internalAPI) throws CollectionException, LexerException, IOException, RepositoryException, JAXBException, TransformerException {
+        List<List<String>> sources = window.stream().map((pid) -> {
+            try {
+                return this.solrAccess.getSolrDataDocument(pid).getDocumentElement();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).map(CDKUtils::findSources).collect(Collectors.toList());
 
-        String username = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".username");
-        String password = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".pswd");
-        if (StringUtils.isAnyString(username) && StringUtils.isAnyString(password)) {
-            InputStream foxml = foxml(url, username, password);
-            Import.ingest(internalAPI, foxml, pid, null, null, true);
-        } else throw new IOException("cannot read data from "+url+".  Missing property "+"cdk.collections.sources." + objectId + ".username or "+"cdk.collections.sources." + objectId + ".pswd");
+        Map<String,List<String>> map = new HashMap<>();
+        for (int i = 0,ll=window.size(); i < ll; i++) {
+            String pid = window.get(i);
+            List<String> associatedSurces = sources.get(i);
+            if (!associatedSurces.isEmpty()) {
+                String firstSource = associatedSurces.get(0);
+                if (!map.containsKey(firstSource)) {
+                    map.put(firstSource, new ArrayList<>());
+                }
+                map.get(firstSource).add(pid);
+            }
+        }
 
+        for (String vc : map.keySet()) {
+            Collection collection = this.collectionsManager.getCollection(vc);
+
+            PIDParser parser = new PIDParser(collection.getPid());
+            parser.objectPid();
+            String objectId = parser.getObjectId();
+
+            String username = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".username");
+            String password = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".pswd");
+
+            boolean batch = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + objectId + ".batch", false);
+
+            if (StringUtils.isAnyString(username) && StringUtils.isAnyString(password)) {
+                if (batch) {
+                    String reduced = map.get(vc).stream().reduce("", (i, v) -> i.equals("") ? v : i+","+v);
+                    String url = collection.getUrl()  +(collection.getUrl().endsWith("/") ? "" : "/")+ "api/v4.6/cdk/batch/foxmls?collection=" + collection.getPid()+"&pids="+reduced;
+
+                    InputStream input = batchFoxml(url, username, password);
+                    ZipInputStream zipInputStream = new ZipInputStream(input);
+                    ZipEntry entry = null;
+                    while((entry = zipInputStream.getNextEntry())!= null) {
+                        String name = entry.getName();
+                        Import.ingest(internalAPI, zipInputStream, name, null, null, true);
+                    }
+                } else {
+                    for (String pid :  map.get(vc)) {
+                        long start = System.currentTimeMillis();
+                        String url = collection.getUrl()  +(collection.getUrl().endsWith("/") ? "" : "/")+ "api/v4.6/cdk/" + pid + "/foxml?collection=" + collection.getPid();
+                        InputStream foxml = foxml(url, username, password);
+                        Import.ingest(internalAPI, foxml, pid, null, null, true);
+                        LOGGER.info(String.format("Whole ingest of %s took %d ms",pid, (System.currentTimeMillis() - start)));
+                    }
+                }
+            } else throw new IOException("cannot read data from "+ collection.getUrl()+".  Missing property "+"cdk.collections.sources." + objectId + ".username or "+"cdk.collections.sources." + objectId + ".pswd");
+        }
     }
+
 
     @Override
     public Document getBiblioMods(String pid) throws IOException {

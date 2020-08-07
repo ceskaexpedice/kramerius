@@ -29,9 +29,14 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -262,6 +267,8 @@ public class SolrUtils   {
     public static Document getSolrDataInternalOffset(String query, String offset) throws IOException, ParserConfigurationException, SAXException {
         String solrHost = KConfiguration.getInstance().getSolrHost();
         String uri = solrHost +"/select?" +query+"&start="+offset+"&wt=xml";
+
+
         InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
         Document parseDocument = XMLUtils.parseDocument(inputStream);
         return parseDocument;

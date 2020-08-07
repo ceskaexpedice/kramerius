@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -179,6 +180,32 @@ public class SOLRUtils {
                 }
             }
             return ret;
+        }
+    }
+
+    /**
+     * Finds correct rels ext position
+     * @param parentPid
+     * @param docelm
+     * @return
+     */
+    public static String relsExtIndex(String parentPid, Element docelm) {
+        List<Integer> docindexes =  narray(docelm, "rels_ext_index", Integer.class);
+
+        if (docindexes.isEmpty()) return "0";
+        List<String> parentPids = narray(docelm, "parent_pid", String.class);
+        int index = 0;
+        for (int i = 0, length = parentPids.size(); i < length; i++) {
+            if (parentPids.get(i).endsWith(parentPid)) {
+                index =  i;
+                break;
+            }
+        }
+        if (docindexes.size() > index) {
+            return ""+docindexes.get(index);
+        } else {
+            ItemResourceUtils.LOGGER.warning("bad solr document for parent_pid:"+parentPid);
+            return "0";
         }
     }
 }

@@ -1,6 +1,7 @@
 package cz.incad.kramerius.virtualcollections.impl.fedora;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.text.Collator;
 import java.util.*;
@@ -174,7 +175,7 @@ public class FedoraCollectionsManagerImpl implements CollectionsManager {
     }
 
     protected void enhanceNumberOfDocs(Collection col) throws IOException, XPathExpressionException {
-        Document response = this.sa.request("fq=level:0&q=collection:(\""+col.getPid()+"\")&rows=0");
+        Document response = this.sa.request("fq=level:0&q="+ URLEncoder.encode("collection:(\""+col.getPid()+"\")","UTF-8")+"&rows=0");
         Element resElement = XMLUtils.findElement(response.getDocumentElement(), "result");
         if (resElement != null){
             String attribute = resElement.getAttribute("numFound");

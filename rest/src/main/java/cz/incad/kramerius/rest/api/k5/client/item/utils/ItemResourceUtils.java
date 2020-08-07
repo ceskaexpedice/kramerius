@@ -31,9 +31,13 @@ public class ItemResourceUtils {
 
     public static final Logger LOGGER = Logger.getLogger(ItemResourceUtils.class.getName());
 
- 
+
+    public static List<String> solrChildrenPids(String parentPid, List<String> fList, SolrAccess sa) throws IOException {
+        return solrChildrenPids(parentPid, fList, sa, null);
+    }
+
     public static List<String> solrChildrenPids(String parentPid, List<String> fList, SolrAccess sa, SolrMemoization memo) throws IOException {
-        List<Document> docs = new  ArrayList<Document>();
+        List<Document> docs = new  ArrayList<>();
         List<Map<String, String>> ll = new ArrayList<Map<String, String>>();
         int rows = 10000;
         int size = 1; // 1 for the first iteration
@@ -72,8 +76,8 @@ public class ItemResourceUtils {
                 if (docpid.equals(parentPid)) continue;
                 Map<String, String> m = new HashMap<String, String>();
                 m.put("pid", docpid);
-                m.put("index", ItemResourceUtils.relsExtIndex(parentPid, docelm));
-                memo.rememberIndexedDoc(docpid, docelm);
+                m.put("index", SOLRUtils.relsExtIndex(parentPid, docelm));
+                if (memo != null)  memo.rememberIndexedDoc(docpid, docelm);
     
                 ll.add(m);
             }
@@ -97,32 +101,6 @@ public class ItemResourceUtils {
             values.add(m.get("pid"));
         }
         return values;
-    }
-
-    /**
-     * Finds correct rels ext position
-     * @param parentPid 
-     * @param docelm
-     * @return
-     */
-    public static String relsExtIndex(String parentPid, Element docelm) {
-        List<Integer> docindexes =  SOLRUtils.narray(docelm, "rels_ext_index", Integer.class);
-        
-        if (docindexes.isEmpty()) return "0";
-        List<String> parentPids = SOLRUtils.narray(docelm, "parent_pid", String.class);
-        int index = 0;
-        for (int i = 0, length = parentPids.size(); i < length; i++) {
-            if (parentPids.get(i).endsWith(parentPid)) {
-                index =  i;
-                break;
-            }
-        }
-        if (docindexes.size() > index) {
-            return ""+docindexes.get(index);
-        } else {
-            LOGGER.warning("bad solr document for parent_pid:"+parentPid);
-            return "0";
-        }
     }
 
     public static  JSONArray decoratedJSONChildren(String pid, SolrAccess solrAccess, SolrMemoization solrMemoization,JSONDecoratorsAggregate decoratorsAggregate) throws IOException, JSONException {

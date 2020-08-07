@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * InfoResource
@@ -31,6 +33,8 @@ import java.util.Properties;
 
 @Path("/v5.0/info")
 public class InfoResource {
+
+    public static Logger LOGGER = Logger.getLogger(InfoResource.class.getName());
 
     private static final String DEFAULT_INTRO_CONSTANT = "default_intro";
 
@@ -70,7 +74,7 @@ public class InfoResource {
                 version = buildProperties.getProperty("version");
                 hash = buildProperties.getProperty("hash");
             } catch (IOException e) {
-                e.printStackTrace();
+               LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
 
             JSONObject jsonObject = new JSONObject();
