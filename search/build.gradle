@@ -1,3 +1,4 @@
+
 apply plugin: 'war'
 
 description "Admin web application"
@@ -20,8 +21,8 @@ sourceSets {
             srcDir 'src/test'
     }
     resources {
-            srcDir 'src/test'
-        }
+        srcDir 'src/test'
+    }
     }
 }
 
@@ -44,6 +45,9 @@ dependencies {
     compile project(':processes:import-mets')
     compile project(':processes:solr-migration')
     compile project(':processes:data-migration')
+
+    compile project(':processes:dnntflag')
+
 
     compile 'javax.servlet:jstl:1.1.2'   
     compile 'taglibs:standard:1.1.2'   
@@ -89,7 +93,7 @@ task infofile(dependsOn: gitcall)  {
     }
 }
 
-processResources.dependsOn infofile
+//processResources.dependsOn infofile
 
 war {
     baseName='search'

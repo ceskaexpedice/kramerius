@@ -21,9 +21,11 @@ include 'processes:solr-migration'
 include	'processes:static-export'
 include 'processes:data-migration'
 include 'processes:migration'
+include 'processes:dnntflag'
 
 include 'security:security-core'
 include 'security:authfilters'
+
 
 
 // filter property -DremoveProjs=projectA,projectB,..

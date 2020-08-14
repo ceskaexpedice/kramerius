@@ -100,6 +100,7 @@ public enum SecuredActions {
     /** sorting  */
     SORT("sort"),
 
+
     /** page info */
     SHOW_ALTERNATIVE_INFO_TEXT("show_alternative_info_text"),
 
@@ -118,8 +119,11 @@ public enum SecuredActions {
     SHOW_CLIENT_PDF_MENU("show_client_pdf_menu"),
     
     /** pdf resource */
-    PDF_RESOURCE("pdf_resource");
-    
+    PDF_RESOURCE("pdf_resource"),
+
+    /** DNNT administrate */
+    DNNT_ADMIN("dnnt_admin");
+
     private String formalName;
   
     private SecuredActions(String formalName) {

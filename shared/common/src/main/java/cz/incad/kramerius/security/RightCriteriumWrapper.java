@@ -71,4 +71,7 @@ public interface RightCriteriumWrapper {
     public boolean isJustCreated();
 
     public CriteriumType getCriteriumType();
+
+
+
 }

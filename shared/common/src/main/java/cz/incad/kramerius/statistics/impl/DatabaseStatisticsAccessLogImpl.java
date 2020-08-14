@@ -40,6 +40,13 @@ import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 
+import cz.incad.kramerius.ObjectModelsPath;
+import cz.incad.kramerius.security.RightsReturnObject;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
+import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -67,7 +74,10 @@ import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
+import org.w3c.dom.Element;
+
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 
 /**
@@ -115,14 +125,49 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
     @Override
     public void reportAccess(final String pid, final String streamName) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectModelsPath[] mpaths = this.solrAccess.getPathOfModels(pid);
 
         Connection connection = null;
         try {
             connection = connectionProvider.get();
             if (connection == null)
                 throw new NotReadyException("connection not ready");
-            
-            List<JDBCCommand> commands = new ArrayList<JDBCCommand>(); 
+
+
+            Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+
+            String rootTitle  = titleElement("str", "root_title", solrDoc);
+            String rootPid  = titleElement("str", "root_pid", solrDoc);
+            String dctitle = titleElement("str", "dc.title", solrDoc);
+            //String dctitle = titleElement("str", "dc.title", solrDoc);
+            List<String> authors = new ArrayList<>();
+            if (rootPid != null) {
+                Document rootSolrDoc = this.solrAccess.getSolrDataDocument(rootPid);
+                Element array = XMLUtils.findElement(rootSolrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        String nodeName = element.getNodeName();
+                        String attr = element.getAttribute("name");
+                        if (nodeName.equals("arr") && StringUtils.isAnyString(attr) && attr.equals("dc.creator"))
+                            return true;
+                        return false;
+                    }
+                });
+                if (array != null) {
+                    authors = XMLUtils.getElements(array).stream().map(it -> it.getTextContent()).filter(it -> it != null).map(String::trim).collect(Collectors.toList());
+                }
+            }
+
+
+
+            // REPORT DNNT
+            if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
+                reportDNNT(pid,rootTitle,dctitle,authors, paths, mpaths, userProvider.get());
+            }
+
+
+
+            List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
             commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get()));
 
             for (int i = 0, ll = paths.length; i < ll; i++) {
@@ -186,8 +231,37 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         }
     }
 
-    
-    
+
+    private String titleElement(String type, String attrVal, Document solrDoc) {
+        Element titleElm = XMLUtils.findElement(solrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                String nodeName = element.getNodeName();
+                String attr = element.getAttribute("name");
+                if (nodeName.equals(type) && StringUtils.isAnyString(attr) && attr.equals(attrVal)) return true;
+                return false;
+            }
+        });
+        return titleElm != null ? titleElm.getTextContent() : null;
+    }
+
+    private void reportDNNT(String pid, String rootTitle, String dcTitle, List<String> dcAuthors, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths, User user) throws IOException {
+        RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
+        if (rightsReturnObject == null)  return;
+        if (CriteriaDNNTUtils.checkContainsCriteriumReadDNNT(rightsReturnObject)) {
+            CriteriaDNNTUtils.logDnntAccess(pid,
+                    null,rootTitle,dcTitle,
+                    IPAddressUtils.getRemoteAddress(requestProvider.get(), KConfiguration.getInstance().getConfiguration()),
+                    user!= null ? user.getLoginname() : null,
+                    user != null ? user.getEmail(): null,
+                    dcAuthors,
+                    paths,
+                    mpaths
+            );
+        }
+    }
+
+
     @Override
     public void reportAccess(String pid, String streamName, String actionName) throws IOException {
         ReportedAction action = ReportedAction.valueOf(actionName);

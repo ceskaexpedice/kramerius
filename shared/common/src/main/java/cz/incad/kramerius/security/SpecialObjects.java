@@ -23,7 +23,7 @@ import cz.incad.kramerius.utils.pid.PIDParser;
  */
 public enum SpecialObjects {
     
-	/** Represents whole repository */
+    /** Represents whole repository */
     REPOSITORY("1");
 
     

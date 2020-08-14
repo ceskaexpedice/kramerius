@@ -84,7 +84,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 ObjectPidsPath[] paths = solrAccess.getPath(pid);
                 boolean premited = false;
                 for (ObjectPidsPath pth : paths) {
-                    premited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth);
+                    premited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth).flag();
                     if (premited) break;
                 }
                 
@@ -125,16 +125,16 @@ public class DeepZoomServlet extends AbstractImageServlet {
     }
 
     private void renderDZI(String pid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
-    	// report access
+        // report access
 
         try {
-        	this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
-		} catch (Exception e) {
-			LOGGER.severe("cannot write statistic records");
-			LOGGER.log(Level.SEVERE, e.getMessage(),e);
-		}
+            this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+        } catch (Exception e) {
+            LOGGER.severe("cannot write statistic records");
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+        }
 
-    	setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
+        setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
         if (relsExtUrl != null) {
@@ -157,10 +157,10 @@ public class DeepZoomServlet extends AbstractImageServlet {
 
     private void renderIIPDZIDescriptor(String uuid, HttpServletResponse resp, String url) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
         String urlForStream = getURLForStream(uuid, url);
-    	if (useFromReplicated()) {
-    		Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
-    		urlForStream = ZoomChangeFromReplicated.deepZoomAddress(relsEXT, uuid);
-    	}
+        if (useFromReplicated()) {
+            Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+            urlForStream = ZoomChangeFromReplicated.deepZoomAddress(relsEXT, uuid);
+        }
         if (urlForStream != null) {
             StringTemplate dziUrl = stGroup().getInstanceOf("ndzi");
             if (urlForStream.endsWith("/")) urlForStream = urlForStream.substring(0, urlForStream.length()-1);
@@ -210,10 +210,10 @@ public class DeepZoomServlet extends AbstractImageServlet {
 
     private void renderIIPTile(String uuid, String slevel, String stile, HttpServletResponse resp, String url) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
         String dataStreamUrl = getURLForStream(uuid, url);
-    	if (useFromReplicated()) {
-    		Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
-    		dataStreamUrl = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
-    	}
+        if (useFromReplicated()) {
+            Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+            dataStreamUrl = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
+        }
         if (dataStreamUrl != null) {
             StringTemplate tileUrl = stGroup().getInstanceOf("ntile");
             //setStringTemplateModel(uuid, dataStreamPath, tileUrl, fedoraAccess);
@@ -327,9 +327,9 @@ public class DeepZoomServlet extends AbstractImageServlet {
     }
     
     
-	private boolean useFromReplicated() {
-		boolean useFromReplicated = KConfiguration.getInstance().getConfiguration().getBoolean("zoom.useFromReplicated",false);
-		return useFromReplicated;
-	}
+    private boolean useFromReplicated() {
+        boolean useFromReplicated = KConfiguration.getInstance().getConfiguration().getBoolean("zoom.useFromReplicated",false);
+        return useFromReplicated;
+    }
 
 }

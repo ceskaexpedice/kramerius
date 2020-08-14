@@ -101,7 +101,7 @@ public class InfoResource {
                 }
 
                 ObjectPidsPath path = new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid());
-                if (rightsResolver.isActionAllowed(SecuredActions.SHOW_ALTERNATIVE_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, path)
+                if (rightsResolver.isActionAllowed(SecuredActions.SHOW_ALTERNATIVE_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, path).flag()
                         && textService.isAvailable(RIGHT_MSG_ALTERNATIVE,provider.get())) {
                     rightsMsg = textService.getText(RIGHT_MSG_ALTERNATIVE, provider.get());
                 }

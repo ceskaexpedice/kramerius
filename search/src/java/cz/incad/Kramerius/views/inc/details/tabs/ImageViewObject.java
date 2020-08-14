@@ -73,7 +73,7 @@ public class ImageViewObject {
         Locale locale = this.localeProvider.get();
         String pid = requestProvider.get().getParameter(PID);
         if(pid != null
-                && rightsResolver.isActionAllowed(SecuredActions.SHOW_ALTERNATIVE_INFO_TEXT.getFormalName(), pid, null, solrAccess.getPath(pid)[0])
+                && rightsResolver.isActionAllowed(SecuredActions.SHOW_ALTERNATIVE_INFO_TEXT.getFormalName(), pid, null, solrAccess.getPath(pid)[0]).flag()
                 && textsService.isAvailable(RIGHT_MSG_ALTERNATIVE,locale)){
             return replaceUuidInMessage(textsService.getText(RIGHT_MSG_ALTERNATIVE, locale), pid);
         } else if (textsService.isAvailable(RIGHT_MSG, locale)) {

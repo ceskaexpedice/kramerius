@@ -29,9 +29,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.virtualcollections.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -39,10 +42,8 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.virtualcollections.Collection;
-import cz.incad.kramerius.virtualcollections.CollectionException;
-import cz.incad.kramerius.virtualcollections.CollectionPidUtils;
-import cz.incad.kramerius.virtualcollections.CollectionsManager;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Represents objects path
@@ -87,8 +88,7 @@ public class ObjectPidsPath extends AbstractObjectPath {
             return this;
     }
     
-    // support collections
-    
+
     public ObjectPidsPath injectCollections(CollectionsManager col) throws CollectionException {
 
         try {
@@ -146,13 +146,12 @@ public class ObjectPidsPath extends AbstractObjectPath {
         }
     }
 
-    /** THIS should be replaced by other technique */
     /**
      * Consider if this is good way;
      * @param pid
      * @return
      */
-
+    // TODO: Replace it
     protected JSONObject getItemJSON(String pid) {
         try {
             String apipoint = KConfiguration.getInstance().getConfiguration().getString("api.point");
@@ -166,7 +165,6 @@ public class ObjectPidsPath extends AbstractObjectPath {
         }
         return null;
     }
-    
     
     
     @Override

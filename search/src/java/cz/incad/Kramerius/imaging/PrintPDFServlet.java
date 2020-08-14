@@ -235,7 +235,7 @@ public class PrintPDFServlet extends GuiceServlet {
     private boolean canBeRead(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth)) {
+            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth).flag()) {
                 return true;
             }
         }
@@ -245,7 +245,7 @@ public class PrintPDFServlet extends GuiceServlet {
     private boolean canBeRenderedAsPDF(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth)) {
+            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth).flag()) {
                 return true;
             }
         }

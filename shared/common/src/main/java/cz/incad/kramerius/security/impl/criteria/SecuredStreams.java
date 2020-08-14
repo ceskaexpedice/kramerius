@@ -16,7 +16,7 @@
  */
 package cz.incad.kramerius.security.impl.criteria;
 
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
@@ -25,8 +25,8 @@ import cz.incad.kramerius.security.SecuredActions;
 public class SecuredStreams extends AbstractCriterium implements RightCriterium {
 
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
-        return EvaluatingResult.TRUE;
+    public EvaluatingResultState evalute() throws RightCriteriumException {
+        return EvaluatingResultState.TRUE;
     }
 
     @Override

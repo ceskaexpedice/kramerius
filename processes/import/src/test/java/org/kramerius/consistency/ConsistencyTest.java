@@ -42,6 +42,7 @@ import junit.framework.Assert;
 import org.easymock.EasyMock;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheManagerBuilder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kramerius.consistency.Consistency.NotConsistentRelation;
 import org.kramerius.fedora.impl.ImportDataPrepare;
@@ -62,6 +63,7 @@ import cz.incad.kramerius.utils.pid.LexerException;
 /**
  * @author pavels
  */
+@Ignore
 public class ConsistencyTest {
 
     @Test

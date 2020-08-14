@@ -135,6 +135,7 @@ public class ApiServletModule extends JerseyServletModule {
         decs.addBinding().to(ReplicatedFromDecorator.class);
         decs.addBinding().to(SolrRightsFlag.class);
         decs.addBinding().to(DonatorDecorate.class);
+        decs.addBinding().to(DNNTDecorator.class);
 
         // item, display
         decs.addBinding().to(ZoomDecorate.class);

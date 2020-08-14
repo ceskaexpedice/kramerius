@@ -44,6 +44,7 @@ import org.ehcache.config.builders.CacheManagerBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -64,6 +65,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
+@Ignore
 public class JSONDecoratorsAggregateTest {
 
     @Test
