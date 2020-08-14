@@ -27,6 +27,7 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.utils.solr.SolrUtilsNewIndex;
 import cz.incad.kramerius.virtualcollections.CollectionPidUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -124,6 +125,11 @@ public class SolrAccessImplNewIndex implements SolrAccess {
         } catch (XPathExpressionException e) {
             throw new IOException(e);
         }
+    }
+
+    @Override
+    public ObjectPidsPath[] getPath(String datastreamName, Element solrDocParentElement) throws IOException {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
