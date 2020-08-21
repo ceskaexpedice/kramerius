@@ -85,7 +85,7 @@ public final class Collection {
         if (modified != null) {
             json.put("modified", modified.toString());
         }
-        json.put("standalone", standalone == null ? false : standalone.toString());
+        json.put("standalone", standalone == null ? false : standalone);
         if (items != null) {
             JSONArray itemsJson = new JSONArray();
             for (String item : items) {

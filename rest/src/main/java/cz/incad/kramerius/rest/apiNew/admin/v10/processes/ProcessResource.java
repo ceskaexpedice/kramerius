@@ -435,7 +435,7 @@ public class ProcessResource extends AdminApiResource {
             if (user == null) {
                 throw new UnauthorizedException("user==null"); //401
             }
-            boolean allowed = rightsResolver.isActionAllowed(user, SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
+            boolean allowed = rightsResolver.isActionAllowed(user, SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag();
             if (!allowed) {
                 throw new ForbiddenException("user '%s' is not allowed to manage processes", user.getLoginname()); //403
             }
