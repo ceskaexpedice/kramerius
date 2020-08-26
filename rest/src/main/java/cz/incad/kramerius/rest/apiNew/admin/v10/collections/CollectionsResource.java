@@ -174,7 +174,7 @@ public class CollectionsResource extends AdminApiResource {
             checkObjectExists(collectionPid);
             checkObjectExists(itemPid);
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
-            foxmlBuilder.appendRelationToRelsExt(relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+            foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
             //TODO: schedule indexing collection (only this object) in search index
             //TODO: schedule indexing item (whole tree) in search index
@@ -198,7 +198,7 @@ public class CollectionsResource extends AdminApiResource {
             checkObjectExists(collectionPid);
             checkObjectExists(itemPid);
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
-            foxmlBuilder.removeRelationFromRelsExt(relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+            foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
             //TODO: schedule indexing collection (only this object) in search index
             //TODO: schedule indexing item (whole tree) in search index

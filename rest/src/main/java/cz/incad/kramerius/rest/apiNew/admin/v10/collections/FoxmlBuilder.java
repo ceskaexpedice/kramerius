@@ -8,8 +8,11 @@ import org.dom4j.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class FoxmlBuilder {
+
+    private static Logger LOGGER = Logger.getLogger(FoxmlBuilder.class.getName());
 
     private static final Namespace NS_XSI = new Namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
     private static final Namespace NS_FOXML = new Namespace("foxml", "info:fedora/fedora-system:def/foxml#");
@@ -133,19 +136,25 @@ public class FoxmlBuilder {
         return parent.addElement(new QName(name, namespace));
     }
 
-    public void appendRelationToRelsExt(Document relsExt, KrameriusRepositoryApi.KnownRelations relation, String newItemPid) {
+    public void appendRelationToRelsExt(String ownerPid, Document relsExt, KrameriusRepositoryApi.KnownRelations relation, String newItemPid) {
         Element description = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt.getRootElement());
         Element relationEl = (Element) Dom4jUtils.buildXpath(String.format("rel:%s[@rdf:resource='info:fedora/%s']", relation.toString(), newItemPid)).selectSingleNode(description);
         if (relationEl == null) {
             Element element = description.addElement(new QName(relation.toString(), NS_REL));
             element.addAttribute(new QName("resource", NS_RDF), "info:fedora/" + newItemPid);
+        } else {
+            LOGGER.warning(String.format("Relation %s:%s already found in rels-ext of %s, ignoring", relation, newItemPid, ownerPid));
         }
     }
 
-    public void removeRelationFromRelsExt(Document relsExt, KrameriusRepositoryApi.KnownRelations relation, String itemPid) {
-        Element relationEl = (Element) Dom4jUtils.buildXpath(String.format("/rdf:RDF/rdf:Description/rel:%s[@rdf:resource='info:fedora/%s']", relation.toString(), itemPid)).selectSingleNode(relsExt.getRootElement());
+    public void removeRelationFromRelsExt(String ownerPid, Document relsExt, KrameriusRepositoryApi.KnownRelations relation, String itemPid) {
+        String relationXpath = String.format("/rdf:RDF/rdf:Description/rel:%s[@rdf:resource='info:fedora/%s']", relation.toString(), itemPid);
+        System.out.println("relationXpath: " + relationXpath);
+        Element relationEl = (Element) Dom4jUtils.buildXpath(relationXpath).selectSingleNode(relsExt.getRootElement());
         if (relationEl != null) {
             relationEl.detach();
+        } else {
+            LOGGER.warning(String.format("Relation %s:%s not found in rels-ext of %s, ignoring", relation, itemPid, ownerPid));
         }
     }
 }

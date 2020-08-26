@@ -182,24 +182,30 @@ public class AkubraRepository extends Repository {
     }
 
     @Override
-    public void deleteobject(String pid) throws RepositoryException {
+    public void deleteobject(String pid, boolean includingRelationsWithItAsTarget) throws RepositoryException {
         try {
             this.manager.deleteObject(pid);
-
             try {
-                // delete description and relations
-                this.feeder.deleteByPid(pid);
-                // delete relations which point to this pid
-                this.feeder.deleteByTargetPid(pid);
+                // delete relations with this object as a source
+                this.feeder.deleteByRelationsForPid(pid);
+                // possibly delete relations with this object as a target
+                if (includingRelationsWithItAsTarget) {
+                    this.feeder.deleteByTargetPid(pid);
+                }
+                // delete this object's description
+                this.feeder.deleteDescriptionByPid(pid);
             } catch (SolrServerException e) {
                 throw new RepositoryException("Cannot delete data from processing index for  " + pid + " please start processing index update");
             }
-
         } catch (Exception e) {
             throw new RepositoryException(e);
         }
     }
 
+    @Override
+    public void deleteobject(String pid) throws RepositoryException {
+        deleteobject(pid, true);
+    }
 
     @Override
     public ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException {
