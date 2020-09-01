@@ -1,12 +1,14 @@
 package cz.incad.kramerius.rest.apiNew;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.rest.apiNew.exceptions.ApiException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 
 import javax.inject.Inject;
+import java.io.IOException;
 
 public abstract class ApiResource {
 
@@ -51,5 +53,21 @@ public abstract class ApiResource {
         } catch (RepositoryException e) {
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    protected final void checkDsExists(String pid, String dsId) throws ApiException {
+        try {
+            boolean exists = krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, dsId);
+            if (!exists) {
+                throw new NotFoundException("datastream %s of object with pid %s not found in repository", dsId, pid);
+            }
+        } catch (RepositoryException | IOException e) {
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    protected final void checkDsExists(String pid, KrameriusRepositoryApi.KnownDatastreams ds) throws ApiException {
+        checkDsExists(pid, ds.toString());
     }
 }
