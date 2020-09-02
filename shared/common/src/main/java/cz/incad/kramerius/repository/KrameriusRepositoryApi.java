@@ -138,6 +138,39 @@ public interface KrameriusRepositoryApi {
     public Document getDublinCore(String pid, boolean namespaceAware) throws IOException, RepositoryException;
 
     /**
+     * @param pid Persistent identifier of the object
+     * @return if datastream OCR_TEXT is available for the object
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public boolean isOcrTextAvailable(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return latest version of object's datastream OCR_TEXT, TODO:preformulovat: provided it is stored as inline XML (control-group X), null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public String getOcrText(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return if datastream OCR_ALTO is available for the object
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public boolean isOcrAltoAvailable(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid            Persistent identifier of the object
+     * @param namespaceAware if false, namespaces will be removed from the resulting xml
+     * @return latest version of object's datastream OCR_ALTO, TODO:preformulovat: provided it is stored as inline XML (control-group X), null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public Document getOcrAlto(String pid, boolean namespaceAware) throws IOException, RepositoryException;
+
+    /**
      * @param collectionPid
      * @return Pids of items that are (directly) contained in collection
      * @throws RepositoryException

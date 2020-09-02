@@ -88,10 +88,23 @@ public class ItemResource extends AdminApiResource {
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
                             .entity(krameriusRepositoryApi.getRelsExt(pid, true).asXML())
                             .build();
-                //TODO: OCR, IMAGES, ...
+                case "TEXT_OCR":
+                    //TODO: test http://localhost:8080/search/api/admin/v1.0/item/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/streams/TEXT_OCR
+                    return Response.ok()
+                            .type(MediaType.TEXT_PLAIN + ";charset=utf-8")
+                            .entity(krameriusRepositoryApi.getOcrText(pid))
+                            .build();
+                case "ALTO":
+                    return Response.ok()
+                            .type(MediaType.APPLICATION_XML + ";charset=utf-8")
+                            .entity(krameriusRepositoryApi.getOcrAlto(pid, true).asXML())
+                            .build();
+                //TODO: IMG_FULL, IMG_THUMB, IMG_PREVIEW
+                //TODO: MP3, OGG, WAV
+                //TODO: POLICY
+                //TODO: MIGRATION
                 default:
                     return Response.status(Response.Status.BAD_REQUEST).build();
-
             }
         } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());

@@ -62,6 +62,31 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
     }
 
     @Override
+    public boolean isOcrTextAvailable(String pid) throws IOException, RepositoryException {
+        return repositoryApi.datastreamExists(pid, KnownDatastreams.OCR_TEXT.toString());
+    }
+
+    @Override
+    public String getOcrText(String pid) throws IOException, RepositoryException {
+        //TODO: implement
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    @Override
+    public boolean isOcrAltoAvailable(String pid) throws IOException, RepositoryException {
+        return repositoryApi.datastreamExists(pid, KnownDatastreams.OCR_ALTO.toString());
+    }
+
+    @Override
+    public Document getOcrAlto(String pid, boolean namespaceAware) throws IOException, RepositoryException {
+        Document doc = repositoryApi.getLatestVersionOfInlineXmlDatastream(pid, KnownDatastreams.OCR_ALTO.toString());
+        if (doc != null && !namespaceAware) {
+            doc.accept(new NamespaceRemovingVisitor(true, true));
+        }
+        return doc;
+    }
+
+    @Override
     public List<String> getPidsOfItemsInCollection(String collectionPid) throws RepositoryException, IOException, SolrServerException {
         return repositoryApi.getTripletTargets(collectionPid, KnownRelations.CONTAINS.toString());
     }
