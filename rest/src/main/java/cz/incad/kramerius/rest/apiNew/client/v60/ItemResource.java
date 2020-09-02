@@ -7,6 +7,7 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.ApplicationURL;
 import org.dom4j.Document;
+import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -27,12 +28,12 @@ public class ItemResource extends ClientApiResource {
     //(ne-admin) client je neutentizovany, jenom cte data a mela by pred nim byt do urcite miry skryta implementece, takze:
 
     // {pid}/foxml                  -> zrusit tady, presunotu do admin api
-    // {pid}/streams                -> zrusit, odhaluje implementaci
+    // {pid}/streams                -> nahradit za {pid}/info/data
     // {pid}/full                   -> nahradit za {pid}/image/full
     // {pid}/thumb                  -> nahradit za {pid}/image/thumb
     // {pid}/preview                -> nahradit za {pid}/image/preview, nebo uplne zrusit (nepouziva se bud thumb, nebo preview, nikdy nevim ktery)
     // {pid}/streams/BIBLIO_MODS    -> nahradit za {pid}/metadata/mods - DONE
-    // {pid}/streams/DC             -> nahradit za {pid}/metadata/dublin_core- DONE
+    // {pid}/streams/DC             -> nahradit za {pid}/metadata/dc - DONE
     // {pid}/streams/RELS_EXT       -> nahradit za {pid}/structure, nebo vyhledove zahodi, pokud se ukaze, ze neni potreba
     // {pid}/streams/OCR_TEXT       -> nahradit za {pid}/ocr/text
     // {pid}/streams/OCR_ALTO       -> nahradit za {pid}/ocr/alto
@@ -63,9 +64,78 @@ public class ItemResource extends ClientApiResource {
     }
 
     @GET
+    @Path("{pid}/info")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getInfo(@PathParam("pid") String pid) {
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        try {
+            checkObjectExists(pid);
+            JSONObject json = new JSONObject();
+            json.put("data-available", extractAvailableDataInfo(pid));
+            json.put("structure", extractStructureInfo(pid));
+            return Response.ok(json).build();
+        } catch (RepositoryException | IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{pid}/info/data")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getInfoData(@PathParam("pid") String pid) {
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        try {
+            checkObjectExists(pid);
+            return Response.ok(extractAvailableDataInfo(pid)).build();
+        } catch (RepositoryException | IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{pid}/info/structure")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getInfoStructure(@PathParam("pid") String pid) {
+        checkObjectExists(pid);
+        return Response.ok(extractStructureInfo(pid)).build();
+    }
+
+    private JSONObject extractAvailableDataInfo(String pid) throws IOException, RepositoryException {
+        JSONObject dataAvailable = new JSONObject();
+        JSONObject metadata = new JSONObject();
+        metadata.put("mods", krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS.toString()));
+        metadata.put("dc", krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC.toString()));
+        dataAvailable.put("metadata", metadata);
+        JSONObject ocr = new JSONObject();
+        ocr.put("text", krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT.toString()));
+        ocr.put("alto", krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO.toString()));
+        dataAvailable.put("ocr", ocr);
+        //TODO: images
+        dataAvailable.put("image", new JSONObject());
+        //TODO: audio
+        dataAvailable.put("audio", new JSONObject());
+        return dataAvailable;
+    }
+
+    private JSONObject extractStructureInfo(String pid) {
+        JSONObject structure = new JSONObject();
+        //TODO: implement
+        return structure;
+    }
+
+    @HEAD
+    @Path("{pid}/metadata/mods")
+    public Response isMetadataModsAvailable(@PathParam("pid") String pid) {
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        checkObjectExists(pid);
+        checkDsExists(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
+        return Response.ok().build();
+    }
+
+    @GET
     @Path("{pid}/metadata/mods")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
-    public Response getDatastreamMods(@PathParam("pid") String pid) {
+    public Response getMetadataMods(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
             checkObjectExists(pid);
@@ -79,10 +149,19 @@ public class ItemResource extends ClientApiResource {
         }
     }
 
+    @HEAD
+    @Path("{pid}/metadata/dc")
+    public Response isMetadataDublinCoreAvailable(@PathParam("pid") String pid) {
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        checkObjectExists(pid);
+        checkDsExists(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
+        return Response.ok().build();
+    }
+
     @GET
-    @Path("{pid}/metadata/dublin_core")
+    @Path("{pid}/metadata/dc")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
-    public Response getDatastreamDublinCore(@PathParam("pid") String pid) {
+    public Response getMetadataDublinCore(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
             checkObjectExists(pid);
@@ -94,10 +173,19 @@ public class ItemResource extends ClientApiResource {
         }
     }
 
+    @HEAD
+    @Path("{pid}/ocr/text")
+    public Response isOcrTextAvailable(@PathParam("pid") String pid) {
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        checkObjectExists(pid);
+        checkDsExists(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT);
+        return Response.ok().build();
+    }
+
     @GET
     @Path("{pid}/ocr/text")
     @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
-    public Response getDatastreamOcrText(@PathParam("pid") String pid) {
+    public Response getOcrText(@PathParam("pid") String pid) {
         //TODO: pořádně otestovat:
         //managed from URL:
         //http://localhost:8080/search/api/admin/v1.0/item/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/foxml
@@ -118,6 +206,15 @@ public class ItemResource extends ClientApiResource {
         } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    @HEAD
+    @Path("{pid}/ocr/alto")
+    public Response isOcrAltoAvailable(@PathParam("pid") String pid) {
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        checkObjectExists(pid);
+        checkDsExists(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO);
+        return Response.ok().build();
     }
 
     @GET
