@@ -4,9 +4,13 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
+import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.java.Pair;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +20,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -27,8 +32,8 @@ public class ItemResource extends ClientApiResource {
     //TODO: uklid
     //(ne-admin) client je neutentizovany, jenom cte data a mela by pred nim byt do urcite miry skryta implementece, takze:
 
-    // {pid}/foxml                  -> zrusit tady, presunotu do admin api
-    // {pid}/streams                -> nahradit za {pid}/info/data
+    // {pid}/foxml                  -> zrusit tady, presunotu do admin api - DONE
+    // {pid}/streams                -> nahradit za {pid}/info/data  - DONE
     // {pid}/full                   -> nahradit za {pid}/image/full
     // {pid}/thumb                  -> nahradit za {pid}/image/thumb
     // {pid}/preview                -> nahradit za {pid}/image/preview, nebo uplne zrusit (nepouziva se bud thumb, nebo preview, nikdy nevim ktery)
@@ -43,13 +48,16 @@ public class ItemResource extends ClientApiResource {
 
 
     //pripadne jen plochou strukturu ( {pid}/mods, {pid}/thumb {pid}/full, {pid}/children ...)
-
-    // {pid}
-    // {pid}/parents
-    // {pid}/siblings
-    // {pid}/children
-    // anebo dohromady v
-    // {pid}/structure
+    //Výsledek:
+    // HEAD     {pid}
+    // GET      {pid}/info
+    // GET      {pid}/info/data
+    // GET      {pid}/info/structure
+    // GET/HEAD {pid}/metadata/mods
+    // GET/HEAD {pid}/metadata/dc
+    // GET/HEAD {pid}/ocr/text
+    // GET/HEAD {pid}/ocr/alto
+    // TODO: obrazova, zvukova data
 
     public static final Logger LOGGER = Logger.getLogger(ItemResource.class.getName());
 
@@ -74,7 +82,7 @@ public class ItemResource extends ClientApiResource {
             json.put("data-available", extractAvailableDataInfo(pid));
             json.put("structure", extractStructureInfo(pid));
             return Response.ok(json).build();
-        } catch (RepositoryException | IOException e) {
+        } catch (RepositoryException | SolrServerException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -95,9 +103,19 @@ public class ItemResource extends ClientApiResource {
     @GET
     @Path("{pid}/info/structure")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    /**
+     * Vrací jen přímou strukturu získanou okamžitě z resource-indexu. Tedy rodiče (vlastního, nevlastní), děti (vlastní, nevlastní).
+     * Ale už ne věci, které by se musely dopočítávat přes několik dotazů (root v stromech rodičů, sourozenci),
+     * tyto věci jsou dostupné z vyhledávacího indexu, kde se integrují v rámci procesu indexace.
+     */
     public Response getInfoStructure(@PathParam("pid") String pid) {
-        checkObjectExists(pid);
-        return Response.ok(extractStructureInfo(pid)).build();
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        try {
+            checkObjectExists(pid);
+            return Response.ok(extractStructureInfo(pid)).build();
+        } catch (RepositoryException | SolrServerException | IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     private JSONObject extractAvailableDataInfo(String pid) throws IOException, RepositoryException {
@@ -117,10 +135,40 @@ public class ItemResource extends ClientApiResource {
         return dataAvailable;
     }
 
-    private JSONObject extractStructureInfo(String pid) {
+    private JSONObject extractStructureInfo(String pid) throws RepositoryException, SolrServerException, IOException {
         JSONObject structure = new JSONObject();
-        //TODO: implement
+        //parents
+        JSONObject parents = new JSONObject();
+        Pair<RepositoryApi.Triplet, List<RepositoryApi.Triplet>> parentsTpls = krameriusRepositoryApi.getParents(pid);
+        parents.put("own", pidAndRelationToJson(parentsTpls.getFirst().sourcePid, parentsTpls.getFirst().relation));
+        JSONArray fosterParents = new JSONArray();
+        for (RepositoryApi.Triplet fosterParentTpl : parentsTpls.getSecond()) {
+            fosterParents.put(pidAndRelationToJson(fosterParentTpl.sourcePid, fosterParentTpl.relation));
+        }
+        parents.put("foster", fosterParents);
+        structure.put("parents", parents);
+        //children
+        JSONObject children = new JSONObject();
+        Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> childrenTpls = krameriusRepositoryApi.getChildren(pid);
+        JSONArray ownChildren = new JSONArray();
+        for (RepositoryApi.Triplet ownChildTpl : childrenTpls.getFirst()) {
+            ownChildren.put(pidAndRelationToJson(ownChildTpl.targetPid, ownChildTpl.relation));
+        }
+        children.put("own", ownChildren);
+        JSONArray fosterChildren = new JSONArray();
+        for (RepositoryApi.Triplet fosterChildTpl : childrenTpls.getSecond()) {
+            fosterChildren.put(pidAndRelationToJson(fosterChildTpl.targetPid, fosterChildTpl.relation));
+        }
+        children.put("foster", fosterChildren);
+        structure.put("children", children);
         return structure;
+    }
+
+    private JSONObject pidAndRelationToJson(String pid, String relation) {
+        JSONObject json = new JSONObject();
+        json.put("pid", pid);
+        json.put("relation", relation);
+        return json;
     }
 
     @HEAD
@@ -273,41 +321,6 @@ public class ItemResource extends ClientApiResource {
             e.printStackTrace();
             throw new InternalErrorException(e.getMessage());
         }
-    }
-
-
-    @GET
-    @Path("{pid}/streams/{dsid}")
-    public Response stream(@PathParam("pid") String pid,
-                           @PathParam("dsid") String dsid) {
-        //TODO: poradna implementace, namisto redirectu na api/v5.0
-        //tohle asi pujde pryc, na teto urovni abstrakce mame konkretni metody pro konkretni streamy
-        //ale tim padem by tu mely byt metody getMods, getOcrTxt, getOcrXml apod.
-        //system streamu (a verzovani) bude pro client api skryty (detail imlementace)
-        try {
-            checkObjectExists(pid);
-            URI uri = new URI(String.format("%s/v5.0/item/%s/streams/%s", getApiBaseUrl(), pid, dsid));
-            return Response.temporaryRedirect(uri).build();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
-
-    @GET
-    @Path("{pid}/streams")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response streams(@PathParam("pid") String pid) {
-        //TODO: implement or remove
-        throw new InternalErrorException("not implemented yet");
-    }
-
-    @GET
-    @Path("{pid}/parents")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getObjectsParents(@PathParam("pid") String pid) {
-        //TODO: remove or implement (implementation will use repository, not search index)
-        throw new InternalErrorException("not implemented yet");
     }
 
     @GET

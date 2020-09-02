@@ -1,10 +1,12 @@
 package cz.incad.kramerius.repository;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -76,6 +78,25 @@ public interface KrameriusRepositoryApi {
         public String toString() {
             return value;
         }
+    }
+
+    List<KnownRelations> OWN_RELATIONS = Arrays.asList(new KnownRelations[]{
+            KnownRelations.HAS_PAGE, KnownRelations.HAS_UNIT, KnownRelations.HAS_VOLUME, KnownRelations.HAS_ITEM,
+            KnownRelations.HAS_SOUND_UNIT, KnownRelations.HAS_TRACK, KnownRelations.CONTAINS_TRACK, KnownRelations.HAS_INT_COMP_PART});
+    List<KnownRelations> FOSTER_RELATIONS = Arrays.asList(new KnownRelations[]{KnownRelations.HAS_PAGE, KnownRelations.HAS_UNIT});
+
+    static boolean isOwnRelation(String relation) {
+        for (KnownRelations knownRelation : OWN_RELATIONS) {
+            if (relation.equals(knownRelation.toString())) {
+                return true;
+            }
+        }
+        for (KnownRelations knownRelation : FOSTER_RELATIONS) {
+            if (relation.equals(knownRelation.toString())) {
+                return false;
+            }
+        }
+        throw new IllegalArgumentException("unknown relation " + relation);
     }
 
     //TODO: methods for getting ocr, images, audio
@@ -169,6 +190,24 @@ public interface KrameriusRepositoryApi {
      * @throws RepositoryException
      */
     public Document getOcrAlto(String pid, boolean namespaceAware) throws IOException, RepositoryException;
+
+    /**
+     * @param objectPid
+     * @return Pair of values: 1. Triplet of relation from own parent, 2. Triplets of relations from foster parents
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws SolrServerException
+     */
+    public Pair<RepositoryApi.Triplet, List<RepositoryApi.Triplet>> getParents(String objectPid) throws RepositoryException, IOException, SolrServerException;
+
+    /**
+     * @param objectPid
+     * @return Pair of values: 1. Triplets of relations to own children, 2. Triplets of relations to foster children
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws SolrServerException
+     */
+    public Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> getChildren(String objectPid) throws RepositoryException, IOException, SolrServerException;
 
     /**
      * @param collectionPid

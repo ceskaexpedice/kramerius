@@ -134,9 +134,9 @@ public class RepositoryApiImpl implements RepositoryApi {
     }
 
     @Override
-    public List<String> getTripletTargets(String source, String relation) throws RepositoryException, IOException, SolrServerException {
+    public List<String> getTripletTargets(String sourcePid, String relation) throws RepositoryException, IOException, SolrServerException {
         List<String> pids = new ArrayList<>();
-        String query = String.format("source:%s AND relation:%s", source.replace(":", "\\:"), relation);
+        String query = String.format("source:%s AND relation:%s", sourcePid.replace(":", "\\:"), relation);
         akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
             Object fieldValue = doc.getFieldValue("targetPid");
             if (fieldValue != null) {
@@ -148,9 +148,23 @@ public class RepositoryApiImpl implements RepositoryApi {
     }
 
     @Override
-    public List<String> getTripletSources(String relation, String target) throws RepositoryException, IOException, SolrServerException {
+    public List<Triplet> getTripletTargets(String sourcePid) throws RepositoryException, IOException, SolrServerException {
+        List<Triplet> triplets = new ArrayList<>();
+        String query = String.format("source:%s", sourcePid.replace(":", "\\:"));
+        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
+            Object targetPid = doc.getFieldValue("targetPid");
+            Object relation = doc.getFieldValue("relation");
+            if (targetPid != null && relation != null) {
+                triplets.add(new Triplet(sourcePid, relation.toString(), targetPid.toString()));
+            }
+        });
+        return triplets;
+    }
+
+    @Override
+    public List<String> getTripletSources(String relation, String targetPid) throws RepositoryException, IOException, SolrServerException {
         List<String> pids = new ArrayList<>();
-        String query = String.format("relation:%s AND targetPid:%s", relation, target.replace(":", "\\:"));
+        String query = String.format("relation:%s AND targetPid:%s", relation, targetPid.replace(":", "\\:"));
         akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
             Object fieldValue = doc.getFieldValue("source");
             if (fieldValue != null) {
@@ -159,6 +173,20 @@ public class RepositoryApiImpl implements RepositoryApi {
             }
         });
         return pids;
+    }
+
+    @Override
+    public List<Triplet> getTripletSources(String targetPid) throws RepositoryException, IOException, SolrServerException {
+        List<Triplet> triplets = new ArrayList<>();
+        String query = String.format("targetPid:%s", targetPid.replace(":", "\\:"));
+        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
+            Object sourcePid = doc.getFieldValue("source");
+            Object relation = doc.getFieldValue("relation");
+            if (sourcePid != null && relation != null) {
+                triplets.add(new Triplet(sourcePid.toString(), relation.toString(), targetPid));
+            }
+        });
+        return triplets;
     }
 
     @Override

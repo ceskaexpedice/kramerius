@@ -2,11 +2,13 @@ package cz.incad.kramerius.repository;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.utils.NamespaceRemovingVisitor;
+import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
@@ -84,6 +86,40 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
             doc.accept(new NamespaceRemovingVisitor(true, true));
         }
         return doc;
+    }
+
+    @Override
+    public Pair<RepositoryApi.Triplet, List<RepositoryApi.Triplet>> getParents(String objectPid) throws RepositoryException, IOException, SolrServerException {
+        List<RepositoryApi.Triplet> pseudoparentTriplets = repositoryApi.getTripletSources(objectPid);
+        RepositoryApi.Triplet ownParentTriplet = null;
+        List<RepositoryApi.Triplet> fosterParentTriplets = new ArrayList<>();
+        for (RepositoryApi.Triplet triplet : pseudoparentTriplets) {
+            if (KrameriusRepositoryApi.isOwnRelation(triplet.relation)) {
+                if (ownParentTriplet != null) {
+                    throw new RepositoryException(String.format("found multiple own parent relations: %s and %s", ownParentTriplet, triplet));
+                } else {
+                    ownParentTriplet = triplet;
+                }
+            } else {
+                fosterParentTriplets.add(triplet);
+            }
+        }
+        return new Pair(ownParentTriplet, fosterParentTriplets);
+    }
+
+    @Override
+    public Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> getChildren(String objectPid) throws RepositoryException, IOException, SolrServerException {
+        List<RepositoryApi.Triplet> pseudochildrenTriplets = repositoryApi.getTripletTargets(objectPid);
+        List<RepositoryApi.Triplet> ownChildrenTriplets = new ArrayList<>();
+        List<RepositoryApi.Triplet> fosterChildrenTriplets = new ArrayList<>();
+        for (RepositoryApi.Triplet triplet : pseudochildrenTriplets) {
+            if (KrameriusRepositoryApi.isOwnRelation(triplet.relation)) {
+                ownChildrenTriplets.add(triplet);
+            } else {
+                fosterChildrenTriplets.add(triplet);
+            }
+        }
+        return new Pair(ownChildrenTriplets, fosterChildrenTriplets);
     }
 
     @Override

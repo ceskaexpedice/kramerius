@@ -1,6 +1,7 @@
 package cz.incad.kramerius.repository;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 
@@ -48,9 +49,13 @@ public interface RepositoryApi {
 
     public List<String> getObjectPidsByModel(String model) throws RepositoryException, IOException, SolrServerException;
 
-    public List<String> getTripletTargets(String source, String relation) throws RepositoryException, IOException, SolrServerException;
+    public List<String> getTripletTargets(String sourcePid, String relation) throws RepositoryException, IOException, SolrServerException;
 
-    public List<String> getTripletSources(String relation, String target) throws RepositoryException, IOException, SolrServerException;
+    public List<Triplet> getTripletTargets(String sourcePid) throws RepositoryException, IOException, SolrServerException;
+
+    public List<String> getTripletSources(String relation, String targetPid) throws RepositoryException, IOException, SolrServerException;
+
+    public List<Triplet> getTripletSources(String targetPid) throws RepositoryException, IOException, SolrServerException;
 
     //UPDATE
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException;
@@ -58,5 +63,22 @@ public interface RepositoryApi {
     //DELETE
     public void deleteObject(String pid) throws RepositoryException, IOException;
 
+    class Triplet {
+        public final String sourcePid;
+        public final String relation;
+        public final String targetPid;
+
+        public Triplet(String sourcePid, String relation, String targetPid) {
+            this.sourcePid = sourcePid;
+            this.relation = relation;
+            this.targetPid = targetPid;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s -%s-> %s", sourcePid, relation, targetPid);
+        }
+    }
 
 }
+
