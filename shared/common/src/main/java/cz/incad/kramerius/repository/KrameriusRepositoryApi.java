@@ -82,8 +82,11 @@ public interface KrameriusRepositoryApi {
 
     List<KnownRelations> OWN_RELATIONS = Arrays.asList(new KnownRelations[]{
             KnownRelations.HAS_PAGE, KnownRelations.HAS_UNIT, KnownRelations.HAS_VOLUME, KnownRelations.HAS_ITEM,
-            KnownRelations.HAS_SOUND_UNIT, KnownRelations.HAS_TRACK, KnownRelations.CONTAINS_TRACK, KnownRelations.HAS_INT_COMP_PART});
-    List<KnownRelations> FOSTER_RELATIONS = Arrays.asList(new KnownRelations[]{KnownRelations.HAS_PAGE, KnownRelations.HAS_UNIT});
+            KnownRelations.HAS_SOUND_UNIT, KnownRelations.HAS_TRACK, KnownRelations.CONTAINS_TRACK, KnownRelations.HAS_INT_COMP_PART
+    });
+    List<KnownRelations> FOSTER_RELATIONS = Arrays.asList(new KnownRelations[]{
+            KnownRelations.IS_ON_PAGE, KnownRelations.CONTAINS
+    });
 
     static boolean isOwnRelation(String relation) {
         for (KnownRelations knownRelation : OWN_RELATIONS) {
@@ -96,7 +99,7 @@ public interface KrameriusRepositoryApi {
                 return false;
             }
         }
-        throw new IllegalArgumentException("unknown relation " + relation);
+        throw new IllegalArgumentException(String.format("unknown relation '%s'", relation));
     }
 
     //TODO: methods for getting ocr, images, audio
