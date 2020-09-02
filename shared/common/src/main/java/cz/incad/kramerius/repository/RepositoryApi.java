@@ -1,7 +1,6 @@
 package cz.incad.kramerius.repository;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 
@@ -64,19 +63,19 @@ public interface RepositoryApi {
     public void deleteObject(String pid) throws RepositoryException, IOException;
 
     class Triplet {
-        public final String sourcePid;
+        public final String source;
         public final String relation;
-        public final String targetPid;
+        public final String target;
 
-        public Triplet(String sourcePid, String relation, String targetPid) {
-            this.sourcePid = sourcePid;
+        public Triplet(String source, String relation, String target) {
+            this.source = source;
             this.relation = relation;
-            this.targetPid = targetPid;
+            this.target = target;
         }
 
         @Override
         public String toString() {
-            return String.format("%s -%s-> %s", sourcePid, relation, targetPid);
+            return String.format("%s -%s-> %s", source, relation, target);
         }
     }
 

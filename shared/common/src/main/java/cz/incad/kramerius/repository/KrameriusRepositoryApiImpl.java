@@ -143,10 +143,12 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
         List<RepositoryApi.Triplet> ownChildrenTriplets = new ArrayList<>();
         List<RepositoryApi.Triplet> fosterChildrenTriplets = new ArrayList<>();
         for (RepositoryApi.Triplet triplet : pseudochildrenTriplets) {
-            if (KrameriusRepositoryApi.isOwnRelation(triplet.relation)) {
-                ownChildrenTriplets.add(triplet);
-            } else {
-                fosterChildrenTriplets.add(triplet);
+            if (triplet.target.startsWith("uuid:")) { //ignore hasDonator and other indexed relations, that are not binding two objects in repository
+                if (KrameriusRepositoryApi.isOwnRelation(triplet.relation)) {
+                    ownChildrenTriplets.add(triplet);
+                } else {
+                    fosterChildrenTriplets.add(triplet);
+                }
             }
         }
         return new Pair(ownChildrenTriplets, fosterChildrenTriplets);

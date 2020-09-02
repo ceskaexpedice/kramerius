@@ -244,7 +244,7 @@ public interface KrameriusRepositoryApi {
 
     /**
      * @param objectPid
-     * @return Pair of values: 1. Triplet of relation from own parent, 2. Triplets of relations from foster parents
+     * @return Pair of values: 1. Triplet of relation from own parent (or null if the object is top-level, i.e. has no parent), 2. Triplets of relations from foster parents
      * @throws RepositoryException
      * @throws IOException
      * @throws SolrServerException

@@ -150,10 +150,12 @@ public class ItemResource extends ClientApiResource {
         //parents
         JSONObject parents = new JSONObject();
         Pair<RepositoryApi.Triplet, List<RepositoryApi.Triplet>> parentsTpls = krameriusRepositoryApi.getParents(pid);
-        parents.put("own", pidAndRelationToJson(parentsTpls.getFirst().sourcePid, parentsTpls.getFirst().relation));
+        if (parentsTpls.getFirst() != null) {
+            parents.put("own", pidAndRelationToJson(parentsTpls.getFirst().source, parentsTpls.getFirst().relation));
+        }
         JSONArray fosterParents = new JSONArray();
         for (RepositoryApi.Triplet fosterParentTpl : parentsTpls.getSecond()) {
-            fosterParents.put(pidAndRelationToJson(fosterParentTpl.sourcePid, fosterParentTpl.relation));
+            fosterParents.put(pidAndRelationToJson(fosterParentTpl.source, fosterParentTpl.relation));
         }
         parents.put("foster", fosterParents);
         structure.put("parents", parents);
@@ -162,12 +164,12 @@ public class ItemResource extends ClientApiResource {
         Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> childrenTpls = krameriusRepositoryApi.getChildren(pid);
         JSONArray ownChildren = new JSONArray();
         for (RepositoryApi.Triplet ownChildTpl : childrenTpls.getFirst()) {
-            ownChildren.put(pidAndRelationToJson(ownChildTpl.targetPid, ownChildTpl.relation));
+            ownChildren.put(pidAndRelationToJson(ownChildTpl.target, ownChildTpl.relation));
         }
         children.put("own", ownChildren);
         JSONArray fosterChildren = new JSONArray();
         for (RepositoryApi.Triplet fosterChildTpl : childrenTpls.getSecond()) {
-            fosterChildren.put(pidAndRelationToJson(fosterChildTpl.targetPid, fosterChildTpl.relation));
+            fosterChildren.put(pidAndRelationToJson(fosterChildTpl.target, fosterChildTpl.relation));
         }
         children.put("foster", fosterChildren);
         structure.put("children", children);
