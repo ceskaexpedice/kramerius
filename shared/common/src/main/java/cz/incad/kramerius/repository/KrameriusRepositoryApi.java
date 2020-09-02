@@ -192,6 +192,54 @@ public interface KrameriusRepositoryApi {
     public Document getOcrAlto(String pid, boolean namespaceAware) throws IOException, RepositoryException;
 
     /**
+     * @param pid Persistent identifier of the object
+     * @return if datastream IMG_FULL is available for the object
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public boolean isImgFullAvailable(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return if datastream IMG_THUMB is available for the object
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public boolean isImgThumbAvailable(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return if datastream IMG_PREVIEW is available for the object
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public boolean isImgPreviewAvailable(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return if datastream MP3 is available for the object
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public boolean isAudioMp3Available(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return if datastream OGG is available for the object
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public boolean isAudioOggAvailable(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return if datastream WAV is available for the object
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public boolean isAudioWavAvailable(String pid) throws IOException, RepositoryException;
+
+    /**
      * @param objectPid
      * @return Pair of values: 1. Triplet of relation from own parent, 2. Triplets of relations from foster parents
      * @throws RepositoryException

@@ -89,6 +89,36 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
     }
 
     @Override
+    public boolean isImgFullAvailable(String pid) throws IOException, RepositoryException {
+        return repositoryApi.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString());
+    }
+
+    @Override
+    public boolean isImgThumbAvailable(String pid) throws IOException, RepositoryException {
+        return repositoryApi.datastreamExists(pid, KnownDatastreams.IMG_THUMB.toString());
+    }
+
+    @Override
+    public boolean isImgPreviewAvailable(String pid) throws IOException, RepositoryException {
+        return repositoryApi.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW.toString());
+    }
+
+    @Override
+    public boolean isAudioMp3Available(String pid) throws IOException, RepositoryException {
+        return repositoryApi.datastreamExists(pid, KnownDatastreams.AUDIO_MP3.toString());
+    }
+
+    @Override
+    public boolean isAudioOggAvailable(String pid) throws IOException, RepositoryException {
+        return repositoryApi.datastreamExists(pid, KnownDatastreams.AUDIO_OGG.toString());
+    }
+
+    @Override
+    public boolean isAudioWavAvailable(String pid) throws IOException, RepositoryException {
+        return repositoryApi.datastreamExists(pid, KnownDatastreams.AUDIO_WAV.toString());
+    }
+
+    @Override
     public Pair<RepositoryApi.Triplet, List<RepositoryApi.Triplet>> getParents(String objectPid) throws RepositoryException, IOException, SolrServerException {
         List<RepositoryApi.Triplet> pseudoparentTriplets = repositoryApi.getTripletSources(objectPid);
         RepositoryApi.Triplet ownParentTriplet = null;

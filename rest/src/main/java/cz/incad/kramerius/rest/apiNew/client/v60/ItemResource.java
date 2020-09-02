@@ -32,14 +32,14 @@ public class ItemResource extends ClientApiResource {
     //TODO: uklid
     //(ne-admin) client je neutentizovany, jenom cte data a mela by pred nim byt do urcite miry skryta implementece, takze:
 
-    // {pid}/foxml                  -> zrusit tady, presunotu do admin api - DONE
+    // {pid}/foxml                  -> zrusit tady, presunout do admin api - DONE
     // {pid}/streams                -> nahradit za {pid}/info/data  - DONE
     // {pid}/full                   -> nahradit za {pid}/image/full
     // {pid}/thumb                  -> nahradit za {pid}/image/thumb
     // {pid}/preview                -> nahradit za {pid}/image/preview, nebo uplne zrusit (nepouziva se bud thumb, nebo preview, nikdy nevim ktery)
     // {pid}/streams/BIBLIO_MODS    -> nahradit za {pid}/metadata/mods - DONE
     // {pid}/streams/DC             -> nahradit za {pid}/metadata/dc - DONE
-    // {pid}/streams/RELS_EXT       -> nahradit za {pid}/structure, nebo vyhledove zahodi, pokud se ukaze, ze neni potreba
+    // {pid}/streams/RELS_EXT       -> nahradit za {pid}/info/structure - DONE
     // {pid}/streams/OCR_TEXT       -> nahradit za {pid}/ocr/text
     // {pid}/streams/OCR_ALTO       -> nahradit za {pid}/ocr/alto
     // {pid}/streams/MP3            -> nahradit za {pid}/audio/mp3
@@ -120,18 +120,28 @@ public class ItemResource extends ClientApiResource {
 
     private JSONObject extractAvailableDataInfo(String pid) throws IOException, RepositoryException {
         JSONObject dataAvailable = new JSONObject();
+        //metadata
         JSONObject metadata = new JSONObject();
-        metadata.put("mods", krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS.toString()));
-        metadata.put("dc", krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC.toString()));
+        metadata.put("mods", krameriusRepositoryApi.isModsAvailable(pid));
+        metadata.put("dc", krameriusRepositoryApi.isDublinCoreAvailable(pid));
         dataAvailable.put("metadata", metadata);
         JSONObject ocr = new JSONObject();
-        ocr.put("text", krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT.toString()));
-        ocr.put("alto", krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO.toString()));
+        //ocr
+        ocr.put("text", krameriusRepositoryApi.isOcrTextAvailable(pid));
+        ocr.put("alto", krameriusRepositoryApi.isOcrAltoAvailable(pid));
         dataAvailable.put("ocr", ocr);
-        //TODO: images
-        dataAvailable.put("image", new JSONObject());
-        //TODO: audio
-        dataAvailable.put("audio", new JSONObject());
+        //images
+        JSONObject image = new JSONObject();
+        image.put("full", krameriusRepositoryApi.isImgFullAvailable(pid));
+        image.put("thumb", krameriusRepositoryApi.isImgThumbAvailable(pid));
+        image.put("preview", krameriusRepositoryApi.isImgPreviewAvailable(pid));
+        dataAvailable.put("image", image);
+        //audio
+        JSONObject audio = new JSONObject();
+        audio.put("mp3", krameriusRepositoryApi.isAudioMp3Available(pid));
+        audio.put("ogg", krameriusRepositoryApi.isAudioOggAvailable(pid));
+        audio.put("wav", krameriusRepositoryApi.isAudioWavAvailable(pid));
+        dataAvailable.put("audio", audio);
         return dataAvailable;
     }
 
@@ -316,44 +326,6 @@ public class ItemResource extends ClientApiResource {
         try {
             checkObjectExists(pid);
             URI uri = new URI(String.format("%s/v5.0/item/%s/preview", getApiBaseUrl(), pid));
-            return Response.temporaryRedirect(uri).build();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
-
-    @GET
-    @Path("{pid}/siblings")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getObjectSiblings(@PathParam("pid") String pid) {
-        //TODO: remove or implement (implementation will use repository, not search index)
-        throw new InternalErrorException("not implemented yet");
-    }
-
-    @GET
-    @Path("{pid}/children")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getObjectsChildren(@PathParam("pid") String pid) {
-        //TODO: remove or implement (implementation will use repository, not search index)
-        try {
-            checkObjectExists(pid);
-            URI uri = new URI(String.format("%s/v5.0/item/%s/children", getApiBaseUrl(), pid));
-            return Response.temporaryRedirect(uri).build();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
-
-    @GET
-    @Path("{pid}")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response basic(@PathParam("pid") String pid) {
-        //TODO: implement or remove
-        try {
-            checkObjectExists(pid);
-            URI uri = new URI(String.format("%s/v5.0/item/%s", getApiBaseUrl(), pid));
             return Response.temporaryRedirect(uri).build();
         } catch (URISyntaxException e) {
             e.printStackTrace();
