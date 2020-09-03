@@ -53,7 +53,7 @@ public class ItemResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
         }
-        checkDsExists(pid, dsid);
+        checkObjectAndDatastreamExist(pid, dsid);
         return Response.ok().build();
     }
 
@@ -70,8 +70,7 @@ public class ItemResource extends AdminApiResource {
                     throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
                 }
             }
-            checkObjectExists(pid);
-            checkDsExists(pid, dsid);
+            checkObjectAndDatastreamExist(pid, dsid);
             switch (dsid) {
                 case "BIBLIO_MODS":
                     return Response.ok()

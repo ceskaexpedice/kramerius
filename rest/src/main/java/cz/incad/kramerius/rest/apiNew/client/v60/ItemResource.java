@@ -187,8 +187,7 @@ public class ItemResource extends ClientApiResource {
     @Path("{pid}/metadata/mods")
     public Response isMetadataModsAvailable(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
-        checkObjectExists(pid);
-        checkDsExists(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
+        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
         return Response.ok().build();
     }
 
@@ -198,8 +197,7 @@ public class ItemResource extends ClientApiResource {
     public Response getMetadataMods(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectExists(pid);
-            checkDsExists(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
             Document mods = krameriusRepositoryApi.getMods(pid, true);
             return Response.ok()
                     .entity(mods.asXML())
@@ -213,8 +211,7 @@ public class ItemResource extends ClientApiResource {
     @Path("{pid}/metadata/dc")
     public Response isMetadataDublinCoreAvailable(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
-        checkObjectExists(pid);
-        checkDsExists(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
+        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
         return Response.ok().build();
     }
 
@@ -224,8 +221,7 @@ public class ItemResource extends ClientApiResource {
     public Response getMetadataDublinCore(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectExists(pid);
-            checkDsExists(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
             Document dc = krameriusRepositoryApi.getDublinCore(pid, true);
             return Response.ok().entity(dc.asXML()).build();
         } catch (RepositoryException | IOException e) {
@@ -237,8 +233,7 @@ public class ItemResource extends ClientApiResource {
     @Path("{pid}/ocr/text")
     public Response isOcrTextAvailable(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
-        checkObjectExists(pid);
-        checkDsExists(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT);
+        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT);
         return Response.ok().build();
     }
 
@@ -259,8 +254,7 @@ public class ItemResource extends ClientApiResource {
 
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectExists(pid);
-            checkDsExists(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT);
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT);
             String ocrText = krameriusRepositoryApi.getOcrText(pid);
             return Response.ok().entity(ocrText).build();
         } catch (RepositoryException | IOException e) {
@@ -272,8 +266,7 @@ public class ItemResource extends ClientApiResource {
     @Path("{pid}/ocr/alto")
     public Response isOcrAltoAvailable(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
-        checkObjectExists(pid);
-        checkDsExists(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO);
+        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO);
         return Response.ok().build();
     }
 
@@ -284,8 +277,7 @@ public class ItemResource extends ClientApiResource {
         //TODO: pořádně otestovat datastreamy s různými controlgroups (M,E,R) a s odkazy typu URL, path
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectExists(pid);
-            checkDsExists(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO);
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO);
             Document ocrAlto = krameriusRepositoryApi.getOcrAlto(pid, true);
             return Response.ok().entity(ocrAlto.asXML()).build();
         } catch (RepositoryException | IOException e) {

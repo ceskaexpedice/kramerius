@@ -48,18 +48,19 @@ public abstract class ApiResource {
         try {
             boolean exists = krameriusRepositoryApi.getLowLevelApi().objectExists(pid);
             if (!exists) {
-                throw new NotFoundException("object with pid %s not found in repository", pid);
+                throw new NotFoundException("object %s not found in repository", pid);
             }
         } catch (RepositoryException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }
 
-    protected final void checkDsExists(String pid, String dsId) throws ApiException {
+    protected final void checkObjectAndDatastreamExist(String pid, String dsId) throws ApiException {
+        checkObjectExists(pid);
         try {
             boolean exists = krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, dsId);
             if (!exists) {
-                throw new NotFoundException("datastream %s of object with pid %s not found in repository", dsId, pid);
+                throw new NotFoundException("datastream %s of object %s not found in repository", dsId, pid);
             }
         } catch (RepositoryException | IOException e) {
             e.printStackTrace();
@@ -67,7 +68,7 @@ public abstract class ApiResource {
         }
     }
 
-    protected final void checkDsExists(String pid, KrameriusRepositoryApi.KnownDatastreams ds) throws ApiException {
-        checkDsExists(pid, ds.toString());
+    protected final void checkObjectAndDatastreamExist(String pid, KrameriusRepositoryApi.KnownDatastreams ds) throws ApiException {
+        checkObjectAndDatastreamExist(pid, ds.toString());
     }
 }
