@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
@@ -115,6 +116,13 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
     @Override
     public boolean isAudioWavAvailable(String pid) throws IOException, RepositoryException {
         return repositoryApi.datastreamExists(pid, KnownDatastreams.AUDIO_WAV.toString());
+    }
+
+    @Override
+    public String getModel(String objectPid) throws RepositoryException, IOException, SolrServerException {
+        Map<String, String> description = repositoryApi.getDescription(objectPid);
+        String model = description.get("model");
+        return model == null ? null : model.substring("model:".length());
     }
 
     @Override

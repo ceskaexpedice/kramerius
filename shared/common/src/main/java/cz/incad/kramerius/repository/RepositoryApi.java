@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface for accessing data in repository (Akubra, formerly Fedora).
@@ -49,6 +50,8 @@ public interface RepositoryApi {
     public String getLatestVersionOfManagedTextDatastream(String pid, String dsId) throws RepositoryException, IOException;
 
     public List<String> getObjectPidsByModel(String model) throws RepositoryException, IOException, SolrServerException;
+
+    public Map<String, String> getDescription(String objectPid) throws RepositoryException, IOException, SolrServerException;
 
     public List<String> getTripletTargets(String sourcePid, String relation) throws RepositoryException, IOException, SolrServerException;
 

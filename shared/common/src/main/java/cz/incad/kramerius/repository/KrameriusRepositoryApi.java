@@ -243,6 +243,16 @@ public interface KrameriusRepositoryApi {
     public boolean isAudioWavAvailable(String pid) throws IOException, RepositoryException;
 
     /**
+     *
+     * @param objectPid
+     * @return Model of the object
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws SolrServerException
+     */
+    public String getModel(String objectPid) throws RepositoryException, IOException, SolrServerException;
+
+    /**
      * @param objectPid
      * @return Pair of values: 1. Triplet of relation from own parent (or null if the object is top-level, i.e. has no parent), 2. Triplets of relations from foster parents
      * @throws RepositoryException

@@ -24,7 +24,9 @@ import java.io.StringReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RepositoryApiImpl implements RepositoryApi {
 
@@ -142,6 +144,18 @@ public class RepositoryApiImpl implements RepositoryApi {
             }
         });
         return pids;
+    }
+
+    @Override
+    public Map<String, String> getDescription(String objectPid) throws RepositoryException, IOException, SolrServerException {
+        Map<String, String> description = new HashMap<>();
+        String query = String.format("type:description AND source:%s", objectPid.replace(":", "\\:"));
+        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> { //iterating, but there should only be one hit
+            for (String name : doc.getFieldNames()) {
+                description.put(name, doc.getFieldValue(name).toString());
+            }
+        });
+        return description;
     }
 
     @Override
@@ -272,4 +286,5 @@ public class RepositoryApiImpl implements RepositoryApi {
         Node node = Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='%s']/@VALUE", name)).selectSingleNode(foxmlDoc);
         return node == null ? null : Dom4jUtils.toStringOrNull(node);
     }
+
 }

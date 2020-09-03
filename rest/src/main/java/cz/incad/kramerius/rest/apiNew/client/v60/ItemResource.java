@@ -173,6 +173,10 @@ public class ItemResource extends ClientApiResource {
         }
         children.put("foster", fosterChildren);
         structure.put("children", children);
+        //model
+        String model = krameriusRepositoryApi.getModel(pid);
+        structure.put("model", model);
+
         return structure;
     }
 
