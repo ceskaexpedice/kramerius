@@ -40,8 +40,8 @@ public class ItemResource extends ClientApiResource {
     // {pid}/streams/BIBLIO_MODS    -> nahradit za {pid}/metadata/mods - DONE
     // {pid}/streams/DC             -> nahradit za {pid}/metadata/dc - DONE
     // {pid}/streams/RELS_EXT       -> nahradit za {pid}/info/structure - DONE
-    // {pid}/streams/OCR_TEXT       -> nahradit za {pid}/ocr/text
-    // {pid}/streams/OCR_ALTO       -> nahradit za {pid}/ocr/alto
+    // {pid}/streams/OCR_TEXT       -> nahradit za {pid}/ocr/text  - DONE
+    // {pid}/streams/OCR_ALTO       -> nahradit za {pid}/ocr/alto - DONE
     // {pid}/streams/MP3            -> nahradit za {pid}/audio/mp3
     // {pid}/streams/OGG            -> nahradit za {pid}/audio/ogg
     // {pid}/streams/WAV            -> nahradit za {pid}/audio/wav

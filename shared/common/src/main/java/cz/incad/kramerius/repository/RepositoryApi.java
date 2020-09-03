@@ -13,7 +13,7 @@ import java.util.List;
  * Interface for accessing data in repository (Akubra, formerly Fedora).
  * Only subset of Fedora's API (API-A, API-M) is implemented, as needed.
  * This is independent from domain-specific logic built on the repository (i.e. Kramerius),
- * as it should be with regard to separation of abstracion levels.
+ * as it should be with regard to separation of abstraction levels.
  *
  * @link https://wiki.lyrasis.org/display/FEDORA38/REST+API
  * @see cz.incad.kramerius.repository.KrameriusRepositoryApi
@@ -45,6 +45,8 @@ public interface RepositoryApi {
     public boolean datastreamExists(String pid, String dsId) throws RepositoryException, IOException;
 
     public Document getLatestVersionOfInlineXmlDatastream(String pid, String dsId) throws RepositoryException, IOException;
+
+    public String getLatestVersionOfManagedTextDatastream(String pid, String dsId) throws RepositoryException, IOException;
 
     public List<String> getObjectPidsByModel(String model) throws RepositoryException, IOException, SolrServerException;
 

@@ -70,8 +70,7 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
     @Override
     public String getOcrText(String pid) throws IOException, RepositoryException {
-        //TODO: implement
-        throw new UnsupportedOperationException("not implemented yet");
+        return repositoryApi.getLatestVersionOfManagedTextDatastream(pid, KnownDatastreams.OCR_TEXT.toString());
     }
 
     @Override

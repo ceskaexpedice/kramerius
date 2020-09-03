@@ -118,6 +118,17 @@ public class RepositoryApiImpl implements RepositoryApi {
     }
 
     @Override
+    public String getLatestVersionOfManagedTextDatastream(String pid, String dsId) throws RepositoryException, IOException {
+        RepositoryObject object = akubraRepository.getObject(pid);
+        if (object.streamExists(dsId)) {
+            RepositoryDatastream stream = object.getStream(dsId);
+            return Utils.inputstreamToString(stream.getContent());
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public List<String> getObjectPidsByModel(String model) throws RepositoryException, IOException, SolrServerException {
         List<String> pids = new ArrayList<>();
         //TODO: offset, limit
