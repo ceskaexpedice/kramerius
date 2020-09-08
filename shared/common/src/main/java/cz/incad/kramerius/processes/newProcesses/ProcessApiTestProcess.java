@@ -1,4 +1,4 @@
-package cz.incad.kramerius.processes.mock;
+package cz.incad.kramerius.processes.newProcesses;
 
 import com.hazelcast.internal.json.Json;
 import com.hazelcast.internal.json.JsonValue;

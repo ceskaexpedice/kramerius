@@ -24,7 +24,7 @@
         <!-- popis -->
         <description>Proces pro testovani spravy procesu</description>
         <!-- spoustena trida -->
-        <mainClass>cz.incad.kramerius.processes.mock.ProcessApiTestProcess</mainClass>
+        <mainClass>cz.incad.kramerius.processes.newProcesses.ProcessApiTestProcess</mainClass>
         <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
         <!-- chybovy vystup -->

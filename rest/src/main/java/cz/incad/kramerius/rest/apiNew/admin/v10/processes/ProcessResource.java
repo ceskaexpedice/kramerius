@@ -2,7 +2,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v10.processes;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.*;
-import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
+import cz.incad.kramerius.processes.newProcesses.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
