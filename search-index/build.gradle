@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+    //https://imperceptiblethoughts.com/shadow/getting-started/
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    //https://docs.gradle.org/current/userguide/application_plugin.html
+    id 'application'
+}
+
+group 'cz.kramerius'
+description "New indexer"
+version '1.15'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+dependencies {
+    //compile project(':security:security-core')
+    //compile project(':shared:common')
+
+    //  testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:5.5.1"
+
+    //implementation 'net.sourceforge.saxon:saxon:9.1.0.8'
+    implementation 'jaxen:jaxen:1.2.0'
+    implementation 'org.dom4j:dom4j:2.1.1'
+
+    // https://mvnrepository.com/artifact/commons-codec/commons-codec
+    implementation 'commons-codec:commons-codec:1.12'
+
+    implementation 'org.apache.solr:solr-solrj:7.7.2'
+
+    implementation 'joda-time:joda-time:2.10.3'
+
+    implementation 'com.google.guava:guava:27.1-jre'
+
+    //json-lib nahrazeno, posledni release z 2010 a pro javu 5, dost mozna nebude fungovat (nebo pomalu) na novejsi jave
+    //http://json-lib.sourceforge.net/usage.html
+    //implementation 'net.sf.json-lib:json-lib:2.4:jdk15'
+    //na zaklade banchmarku a zivosti projektu volim GSON
+    //https://medium.com/stanwood/save-my-ass-benchmark-of-json-deserializers-on-android-28341c1e82df
+    //https://blog.overops.com/the-ultimate-json-library-json-simple-vs-gson-vs-jackson-vs-json/
+    //https://programmer.help/blogs/performance-comparison-of-several-common-json-libraries-in-java.html
+
+    //https://github.com/google/gson
+    implementation 'com.google.code.gson:gson:2.8.6'
+}
+
+//gradle run
+application {
+    //mainClassName = 'cz.kramerius.Main'
+    mainClassName = 'cz.kramerius.searchIndex.Main'
+}
+
+//build shadow-jar: gradle shadowJar, jar se pak objevi v build/libs/indexer-VERZE-all.jar
+shadowJar {
+    exclude 'src/main/resources'
+}
