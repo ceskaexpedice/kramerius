@@ -22,6 +22,7 @@ include	'processes:static-export'
 include 'processes:data-migration'
 include 'processes:migration'
 include 'processes:dnntflag'
+include	'search-index'
 
 include 'security:security-core'
 include 'security:authfilters'

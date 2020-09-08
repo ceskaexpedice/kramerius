@@ -1,12 +1,14 @@
 plugins {
     id 'java'
+    //tohle vyzaduje alespon gradle 5, pouzivame 4.10 (vydany v zari 2018)
     //https://imperceptiblethoughts.com/shadow/getting-started/
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    //id 'com.github.johnrengelman.shadow' version '5.2.0'
+
     //https://docs.gradle.org/current/userguide/application_plugin.html
     id 'application'
 }
 
-group 'cz.kramerius'
+group 'cz.incad.kramerius'
 description "New indexer"
 version '1.15'
 
@@ -25,7 +27,7 @@ test {
 
 dependencies {
     //compile project(':security:security-core')
-    //compile project(':shared:common')
+    compile project(':shared:common')
 
     //  testCompile group: 'junit', name: 'junit', version: '4.12'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
@@ -58,11 +60,45 @@ dependencies {
 
 //gradle run
 application {
-    //mainClassName = 'cz.kramerius.Main'
     mainClassName = 'cz.kramerius.searchIndex.Main'
 }
 
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'cz.kramerius.searchIndex.Main'
+        )
+    }
+    /*from {
+        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+    }*/
+}
+
+//for manifest in fat jar (without shadow plugin)
+task fatJar(type: Jar) {
+    manifest.from jar.manifest
+//    classifier = 'all'
+    from {
+        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    with jar
+}
+
+artifacts {
+    archives fatJar
+}
+
+
+//pro shadow plugin (vyzaduje gradle 5+)
 //build shadow-jar: gradle shadowJar, jar se pak objevi v build/libs/indexer-VERZE-all.jar
+/*
 shadowJar {
     exclude 'src/main/resources'
-}
+}*/
+
+//spusteni (z korenoveho adresare projektu)
+//./gradlew search-index:run
