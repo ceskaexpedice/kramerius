@@ -1,0 +1,63 @@
+<testSuite testType="rels-ext" model="page">
+
+    <test name="policy:public">
+        <desc></desc>
+        <in>
+            <policy>policy:public</policy>
+        </in>
+        <out>
+            <field name="n.accessibility">public</field>
+            <field name="n.has_tiles">false</field>
+        </out>
+    </test>
+
+    <test name="policy:private">
+        <desc></desc>
+        <in>
+            <policy>policy:private</policy>
+        </in>
+        <out>
+            <field name="n.accessibility">private</field>
+            <field name="n.has_tiles">false</field>
+        </out>
+    </test>
+
+    <test name="policy:unexpected-value">
+        <desc></desc>
+        <in>
+            <hasModel resource="info:fedora/model:page"/>
+            <policy>policy:unexpected-value</policy>
+
+        </in>
+        <out>
+            <field name="n.accessibility">unexpected-value</field>
+            <field name="n.has_tiles">false</field>
+        </out>
+    </test>
+
+    <test name="with tiles">
+        <desc>Page with tiles</desc>
+        <in>
+            <hasModel resource="info:fedora/model:page"/>
+            <policy>policy:private</policy>
+            <tiles-url>https://imageserver.difmoe.eu/deutsche_nachrichten/1924/00133/zoomify</tiles-url>
+        </in>
+        <out>
+            <field name="n.accessibility">private</field>
+            <field name="n.has_tiles">true</field>
+        </out>
+    </test>
+
+    <test name="without tiles">
+        <desc>Page without tiles</desc>
+        <in>
+            <hasModel resource="info:fedora/model:page"/>
+            <policy>policy:private</policy>
+        </in>
+        <out>
+            <field name="n.accessibility">private</field>
+            <field name="n.has_tiles">false</field>
+        </out>
+    </test>
+
+</testSuite>

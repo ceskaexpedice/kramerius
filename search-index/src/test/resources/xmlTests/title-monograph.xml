@@ -1,0 +1,632 @@
+<testSuite testType="mods" model="monograph">
+
+    <test name="title, subTitle, partNumber, partName">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>title</title>
+                <subTitle>subtitle</subTitle>
+                <partNumber>partNumber</partNumber>
+                <partName>partName</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">partName</field>
+
+            <field name="n.title.search">title: subtitle. partNumber. partName</field>
+            <field name="n.title.sort">TITLE: SUBTITLE. PARTNUMBER. PARTNAME</field>
+            <field name="n.titles.search">title: subtitle. partNumber. partName</field>
+        </out>
+    </test>
+
+    <test name="title, subTitle, partNumber">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>title</title>
+                <subTitle>subtitle</subTitle>
+                <partNumber>partNumber</partNumber>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">title: subtitle. partNumber</field>
+            <field name="n.title.sort">TITLE: SUBTITLE. PARTNUMBER</field>
+            <field name="n.titles.search">title: subtitle. partNumber</field>
+        </out>
+    </test>
+
+    <test name="title, subTitle, partName">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>title</title>
+                <subTitle>subtitle</subTitle>
+                <partName>partName</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">partName</field>
+
+            <field name="n.title.search">title: subtitle. partName</field>
+            <field name="n.title.sort">TITLE: SUBTITLE. PARTNAME</field>
+            <field name="n.titles.search">title: subtitle. partName</field>
+        </out>
+    </test>
+
+    <test name="title, partNumber, partName">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>title</title>
+                <partNumber>partNumber</partNumber>
+                <partName>partName</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">partName</field>
+
+            <field name="n.title.search">title. partNumber. partName</field>
+            <field name="n.title.sort">TITLE. PARTNUMBER. PARTNAME</field>
+            <field name="n.titles.search">title. partNumber. partName</field>
+        </out>
+    </test>
+
+    <test name="subTitle, partNumber, partName">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <subTitle>subtitle</subTitle>
+                <partNumber>partNumber</partNumber>
+                <partName>partName</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">partName</field>
+
+            <field name="n.title.search">subtitle. partNumber. partName</field>
+            <field name="n.title.sort">SUBTITLE. PARTNUMBER. PARTNAME</field>
+            <field name="n.titles.search">subtitle. partNumber. partName</field>
+        </out>
+    </test>
+
+    <test name="title, subTitle">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>Když slunéčko svítí</title>
+                <subTitle>verše</subTitle>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Když slunéčko svítí: verše</field>
+            <field name="n.title.sort">KDYZ| SLUNE|C|KO SVI|TI|: VERS|E</field>
+            <field name="n.titles.search">Když slunéčko svítí: verše</field>
+        </out>
+    </test>
+
+    <test name="title, partNumber">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>Tři mušketýři</title>
+                <partNumber>Díl II</partNumber>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Tři mušketýři. Díl II</field>
+            <field name="n.title.sort">TR|I MUS|KETY|R|I. DI|L II</field>
+            <field name="n.titles.search">Tři mušketýři. Díl II</field>
+        </out>
+    </test>
+
+    <test name="title, partName">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>title</title>
+                <partName>partName</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">partName</field>
+
+            <field name="n.title.search">title. partName</field>
+            <field name="n.title.sort">TITLE. PARTNAME</field>
+            <field name="n.titles.search">title. partName</field>
+        </out>
+    </test>
+
+    <test name="subTitle, partNumber">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <subTitle>subtitle</subTitle>
+                <partNumber>partNumber</partNumber>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">subtitle. partNumber</field>
+            <field name="n.title.sort">SUBTITLE. PARTNUMBER</field>
+            <field name="n.titles.search">subtitle. partNumber</field>
+        </out>
+    </test>
+
+    <test name="subTitle, partName">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <subTitle>subtitle</subTitle>
+                <partName>partName</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">partName</field>
+
+            <field name="n.title.search">subtitle. partName</field>
+            <field name="n.title.sort">SUBTITLE. PARTNAME</field>
+            <field name="n.titles.search">subtitle. partName</field>
+        </out>
+    </test>
+
+    <test name="partNumber, partName">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <partNumber>PartNumber</partNumber>
+                <partName>PartName</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">PartName</field>
+
+            <field name="n.title.search">PartNumber. PartName</field>
+            <field name="n.title.sort">PARTNUMBER. PARTNAME</field>
+            <field name="n.titles.search">PartNumber. PartName</field>
+        </out>
+    </test>
+
+    <test name="title only">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>Babička</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Babička</field>
+            <field name="n.title.sort">BABIC|KA</field>
+            <field name="n.titles.search">Babička</field>
+        </out>
+    </test>
+
+    <test name="subTitle only">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <subTitle>život štěněte</subTitle>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">život štěněte</field>
+            <field name="n.title.sort">Z|IVOT S|TE|NE|TE</field>
+            <field name="n.titles.search">život štěněte</field>
+        </out>
+    </test>
+
+    <test name="partNumber only">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <partNumber>23</partNumber>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">23</field>
+            <field name="n.title.sort">23</field>
+            <field name="n.titles.search">23</field>
+        </out>
+    </test>
+
+    <test name="partName only">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <partName>Chvála bláznovství</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">Chvála bláznovství</field>
+
+            <field name="n.title.search">Chvála bláznovství</field>
+            <field name="n.title.sort">H|VA|LA BLA|ZNOVSTVI|</field>
+            <field name="n.titles.search">Chvála bláznovství</field>
+        </out>
+    </test>
+
+
+    <!--TODO: jeste zjistit, jak je to s timhle:
+    <nonSort xml:space="preserve">A  </nonSort>-->
+
+    <test name="title nonsort I">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <nonSort>The </nonSort>
+                <title>Babička</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">The Babička</field>
+            <field name="n.title.sort">BABIC|KA</field>
+            <field name="n.titles.search">The Babička</field>
+        </out>
+    </test>
+
+    <test name="title nonsort II">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <nonSort>L'</nonSort>
+                <title>Když slunéčko svítí</title>
+                <subTitle>verše</subTitle>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">L'Když slunéčko svítí: verše</field>
+            <field name="n.title.sort">KDYZ| SLUNE|C|KO SVI|TI|: VERS|E</field>
+            <field name="n.titles.search">L'Když slunéčko svítí: verše</field>
+        </out>
+    </test>
+
+    <test name="title nonsort III">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <nonSort>Los </nonSort>
+                <title>Tři mušketýři</title>
+                <partNumber>Díl II</partNumber>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Los Tři mušketýři. Díl II</field>
+            <field name="n.title.sort">TR|I MUS|KETY|R|I. DI|L II</field>
+            <field name="n.titles.search">Los Tři mušketýři. Díl II</field>
+        </out>
+    </test>
+
+    <test name="title nonsort IV">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <nonSort>NonSort </nonSort>
+                <title>Title</title>
+                <subTitle>Subtitle</subTitle>
+                <partNumber>PartNumber</partNumber>
+                <partName>PartName</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">PartName</field>
+
+            <field name="n.title.search">NonSort Title: Subtitle. PartNumber. PartName</field>
+            <field name="n.title.sort">TITLE: SUBTITLE. PARTNUMBER. PARTNAME</field>
+            <field name="n.titles.search">NonSort Title: Subtitle. PartNumber. PartName</field>
+        </out>
+    </test>
+
+    <test name="title nonsort V">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <nonSort>NonSort </nonSort>
+                <title>Title</title>
+                <subTitle>Subtitle</subTitle>
+                <partName>PartName</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">PartName</field>
+
+            <field name="n.title.search">NonSort Title: Subtitle. PartName</field>
+            <field name="n.title.sort">TITLE: SUBTITLE. PARTNAME</field>
+            <field name="n.titles.search">NonSort Title: Subtitle. PartName</field>
+        </out>
+    </test>
+
+    <test name="title nonsort VI">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <nonSort>NonSort </nonSort>
+                <title>Title</title>
+                <subTitle>Subtitle</subTitle>
+                <partNumber>PartNumber</partNumber>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">NonSort Title: Subtitle. PartNumber</field>
+            <field name="n.title.sort">TITLE: SUBTITLE. PARTNUMBER</field>
+            <field name="n.titles.search">NonSort Title: Subtitle. PartNumber</field>
+        </out>
+    </test>
+
+    <test name="title nonsort VII">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <nonSort>NonSort </nonSort>
+                <title>Title</title>
+                <partName>PartName</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">PartName</field>
+
+            <field name="n.title.search">NonSort Title. PartName</field>
+            <field name="n.title.sort">TITLE. PARTNAME</field>
+            <field name="n.titles.search">NonSort Title. PartName</field>
+        </out>
+    </test>
+
+    <test name="multiple titles I">
+        <desc>Více názvů, první je použit jako hlavní.</desc>
+        <in>
+            <titleInfo>
+                <title>title1</title>
+                <subTitle>subtitle1</subTitle>
+                <partNumber>partNumber1</partNumber>
+                <partName>partName1</partName>
+            </titleInfo>
+
+            <titleInfo>
+                <title>title2</title>
+                <subTitle>subtitle2</subTitle>
+                <partNumber>partNumber2</partNumber>
+                <partName>partName2</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">partName1</field>
+
+            <field name="n.title.search">title1: subtitle1. partNumber1. partName1</field>
+            <field name="n.title.sort">TITLE1: SUBTITLE1. PARTNUMBER1. PARTNAME1</field>
+            <field name="n.titles.search">title1: subtitle1. partNumber1. partName1</field>
+            <field name="n.titles.search">title2: subtitle2. partNumber2. partName2</field>
+        </out>
+    </test>
+
+    <test name="multiple titles II">
+        <desc>Více názvů, první je použit jako hlavní.</desc>
+        <in>
+            <titleInfo>
+                <title>title1</title>
+            </titleInfo>
+            <titleInfo>
+                <title>title2</title>
+            </titleInfo>
+            <titleInfo>
+                <title>title3</title>
+            </titleInfo>
+            <titleInfo>
+                <title>title4</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">title1</field>
+            <field name="n.title.sort">TITLE1</field>
+            <field name="n.titles.search">title1</field>
+            <field name="n.titles.search">title2</field>
+            <field name="n.titles.search">title3</field>
+            <field name="n.titles.search">title4</field>
+        </out>
+    </test>
+
+    <test name="multiple titles III - pořadí">
+        <desc>Více názvů, první je použit jako hlavní.</desc>
+        <in>
+            <titleInfo>
+                <title>titleZ</title>
+            </titleInfo>
+            <titleInfo>
+                <title>titleA</title>
+            </titleInfo>
+            <titleInfo>
+                <title>titleP</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">titleZ</field>
+            <field name="n.title.sort">TITLEZ</field>
+            <field name="n.titles.search">titleZ</field>
+            <field name="n.titles.search">titleA</field>
+            <field name="n.titles.search">titleP</field>
+        </out>
+    </test>
+
+    <test name="title_search: not(@type) has priority over @type=alternative|abbreviated|translated">
+        <desc></desc>
+        <in>
+            <titleInfo type="alternative">
+                <title>Alternative</title>
+            </titleInfo>
+            <titleInfo type="abbreviated">
+                <title>Abbreviated</title>
+            </titleInfo>
+            <titleInfo type="translated">
+                <title>Translated</title>
+            </titleInfo>
+            <titleInfo>
+                <title>NoType</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">NoType</field>
+            <field name="n.title.sort">NOTYPE</field>
+            <field name="n.titles.search">Alternative</field>
+            <field name="n.titles.search">Abbreviated</field>
+            <field name="n.titles.search">Translated</field>
+            <field name="n.titles.search">NoType</field>
+        </out>
+    </test>
+
+    <test name="title_search: @type=uniform has priority over not(@type)">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>NoType</title>
+            </titleInfo>
+            <titleInfo type="uniform">
+                <title>Uniform</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Uniform</field>
+            <field name="n.title.sort">UNIFORM</field>
+            <field name="n.titles.search">NoType</field>
+            <field name="n.titles.search">Uniform</field>
+        </out>
+    </test>
+
+    <test name="title_search: @type=alternative used if no other option">
+        <desc></desc>
+        <in>
+            <titleInfo type="alternative">
+                <title>Alternative</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Alternative</field>
+            <field name="n.title.sort">ALTERNATIVE</field>
+            <field name="n.titles.search">Alternative</field>
+        </out>
+    </test>
+
+    <test name="title_search: @type=abbreviated used if no other option">
+        <desc></desc>
+        <in>
+            <titleInfo type="abbreviated">
+                <title>Abbreviated</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Abbreviated</field>
+            <field name="n.title.sort">ABBREVIATED</field>
+            <field name="n.titles.search">Abbreviated</field>
+        </out>
+    </test>
+
+    <test name="title_search: @type=abbreviated used if no other option">
+        <desc></desc>
+        <in>
+            <titleInfo type="translated">
+                <title>Translated</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Translated</field>
+            <field name="n.title.sort">TRANSLATED</field>
+            <field name="n.titles.search">Translated</field>
+        </out>
+    </test>
+
+    <test name="empty titleInfo not(@type) má přednost před @type='alternative'">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>Drobnůstky</title>
+                <subTitle/>
+            </titleInfo>
+            <titleInfo type="alternative">
+                <title>alternative</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Drobnůstky</field>
+            <field name="n.title.sort">DROBNU|STKY</field>
+            <field name="n.titles.search">Drobnůstky</field>
+            <field name="n.titles.search">alternative</field>
+        </out>
+    </test>
+
+    <test name="empty titleInfo 1">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title></title>
+                <subTitle/>
+            </titleInfo>
+            <titleInfo type="alternative">
+                <title/>
+            </titleInfo>
+        </in>
+        <out>
+        </out>
+    </test>
+
+    <test name="empty titleInfo 2">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title></title>
+                <subTitle/>
+            </titleInfo>
+            <titleInfo type="alternative">
+                <title/>
+            </titleInfo>
+            <titleInfo type="uniform">
+                <title/>
+            </titleInfo>
+        </in>
+        <out>
+        </out>
+    </test>
+
+    <test name="empty titleInfo 3">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title></title>
+                <subTitle/>
+            </titleInfo>
+            <titleInfo/>
+            <titleInfo type="uniform">
+                <title/>
+            </titleInfo>
+        </in>
+        <out>
+        </out>
+    </test>
+
+    <test name="subtitle obsahuje znak konec řádku">
+        <desc></desc>
+        <in>
+            <titleInfo ID="MODS_ARTICLE">
+                <title>Dárek v zimním večeru</title>
+                <subTitle>Shakespearova Pohádka zimního večera
+                    v paržském rozhlase
+                </subTitle>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Dárek v zimním večeru: Shakespearova Pohádka zimního večera v paržském rozhlase</field>
+            <field name="n.title.sort">DA|REK V ZIMNI|M VEC|ERU: SHAKESPEAROVA POHA|DKA ZIMNI|HO VEC|ERA V PARZ|SKE|M ROZHLASE</field>
+            <field name="n.titles.search">Dárek v zimním večeru: Shakespearova Pohádka zimního večera v paržském rozhlase</field>
+        </out>
+    </test>
+
+    <test name="title obsahuje několik mezer po sobě">
+        <desc></desc>
+        <in>
+            <titleInfo ID="MODS_ARTICLE">
+                <title>Dárek v zimním večeru</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Dárek v zimním večeru</field>
+            <field name="n.title.sort">DA|REK V ZIMNI|M VEC|ERU</field>
+            <field name="n.titles.search">Dárek v zimním večeru</field>
+        </out>
+    </test>
+
+</testSuite>
+

@@ -1,0 +1,370 @@
+<testSuite testType="mods" model="periodicalvolume">
+
+    <!--Podle DMF by rok/rozsah-let měl být v originInfo/dateIssued
+    https://www.ndk.cz/standardy-digitalizace/dmf_periodika_1-7-1_opravena_verze_rijen2018-->
+
+    <test name="rozsah roků v originInfo/dateIssued/[@point='start'] a [@point='end']">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:548aeaa0-2196-11e6-8803-005056827e51/streams/BIBLIO_MODS</desc>
+        <in>
+            <originInfo>
+                <!--<dateIssued>2004-^^^^</dateIssued>
+                <dateIssued point="start">2004</dateIssued>
+                <dateIssued point="end">9999</dateIssued>-->
+                <dateIssued point="start">2004</dateIssued>
+                <dateIssued point="end">2005</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">2005-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">2004-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">2004 - 2005</field>
+            <field name="n.date_range_end.year">2005</field>
+            <field name="n.date_range_start.year">2004</field>
+
+            <field name="n.part.name">2004 - 2005</field>
+        </out>
+    </test>
+
+    <test name="rozsah roků v originInfo/dateIssued/[@point='start'] a [@point='end'] (stejný rok)">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:548aeaa0-2196-11e6-8803-005056827e51/streams/BIBLIO_MODS</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="start">2004</dateIssued>
+                <dateIssued point="end">2004</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">2004-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">2004-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">2004</field>
+            <field name="n.date_instant.year">2004</field>
+
+            <field name="n.part.name">2004</field>
+        </out>
+    </test>
+
+    <test name="jen originInfo/dateIssued/[@point='start']">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued point="start">2004</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.min">2004-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">2004 - ?</field>
+            <field name="n.date_range_start.year">2004</field>
+
+            <field name="n.part.name">2004 - ?</field>
+        </out>
+    </test>
+
+    <test name="jen originInfo/dateIssued/[@point='end']">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued point="end">2004</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">2004-12-31T23:59:59.999Z</field>
+            <field name="n.date.str">? - 2004</field>
+            <field name="n.date_range_end.year">2004</field>
+
+            <field name="n.part.name">? - 2004</field>
+        </out>
+    </test>
+
+    <test name="rok v originInfo/dateIssued/[not(@point)]">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:548aeaa0-2196-11e6-8803-005056827e51/streams/BIBLIO_MODS</desc>
+        <in>
+            <originInfo>
+                <dateIssued>2004</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">2004-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">2004-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">2004</field>
+            <field name="n.date_instant.year">2004</field>
+
+            <field name="n.part.name">2004</field>
+        </out>
+    </test>
+
+    <test name="rozsah roků v originInfo/dateIssued/[not(@point)]">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:548aeaa0-2196-11e6-8803-005056827e51/streams/BIBLIO_MODS</desc>
+        <in>
+            <originInfo>
+                <dateIssued>2004-2008</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">2008-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">2004-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">2004-2008</field>
+            <field name="n.date_range_end.year">2008</field>
+            <field name="n.date_range_start.year">2004</field>
+
+            <field name="n.part.name">2004 - 2008</field>
+        </out>
+    </test>
+
+    <test name="rozsah roků v originInfo/dateIssued, neshoda mezi [@point='start'] a [@point='end'] a [not(@point)]">
+        <desc>Hodnoty v [@point='start'] a [@point='end'] mají větší váhu, než hodnota v [not(@point)], až na n.date.str, tohle se dá považovat za chybu v
+            datech
+        </desc>
+        <in>
+            <originInfo>
+                <dateIssued>1995-1999</dateIssued>
+                <dateIssued point="start">2001</dateIssued>
+                <dateIssued point="end">2004</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">2004-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">2001-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1995-1999</field>
+            <field name="n.date_range_end.year">2004</field>
+            <field name="n.date_range_start.year">2001</field>
+
+            <field name="n.part.name">2001 - 2004</field>
+        </out>
+    </test>
+
+    <test name="rok v originInfo/dateIssued">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:533b4aa0-8c14-11e9-b724-005056827e52/streams/BIBLIO_MODS</desc>
+        <in>
+            <originInfo>
+                <!--<place>
+                    <placeTerm>Rýmařov</placeTerm>
+                </place>
+                <publisher>Landes-Unterrealschule</publisher>-->
+                <dateIssued>1909</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1909-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1909-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1909</field>
+            <field name="n.date_instant.year">1909</field>
+
+            <field name="n.part.name">1909</field>
+        </out>
+    </test>
+
+    <test name="rok v originInfo/dateIssued i part[@type=='volume']/date (originInfo má větší váhu)">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:d1fe6e0b-e962-488a-8e2b-517315f12754/streams/BIBLIO_MODS</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1948</dateIssued>
+                <!--<publisher>Československá strana socialistická</publisher>
+                <place>
+                    <placeTerm authority="marccountry" type="code">xr</placeTerm>
+                </place>
+                <issuance>continuing</issuance>-->
+            </originInfo>
+            <part type="volume">
+                <detail type="volume">
+                    <number>4</number>
+                </detail>
+                <date>1949</date>
+            </part>
+        </in>
+        <out>
+            <field name="n.date.max">1948-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1948-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1948</field>
+            <field name="n.date_instant.year">1948</field>
+
+            <field name="n.part.name">1948</field>
+            <field name="n.part.number.int">4</field>
+            <field name="n.part.number.str">4</field>
+        </out>
+    </test>
+
+    <test name="rozsah roků v originInfo/dateIssued i part/date (originInfo má větší váhu)">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:7ad306b0-a6e2-11e8-a2d0-005056827e52/streams/BIBLIO_MODS</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1946-1947</dateIssued>
+            </originInfo>
+            <part>
+                <date>2006-2007</date>
+            </part>
+        </in>
+        <out>
+            <field name="n.date.max">1947-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1946-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1946-1947</field>
+            <field name="n.date_range_end.year">1947</field>
+            <field name="n.date_range_start.year">1946</field>
+
+            <field name="n.part.name">1946 - 1947</field>
+        </out>
+    </test>
+
+    <test name="rok v originInfo/dateIssued i part/date i titleInfo/partNumber (originInfo má největší váhu)">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:3574d160-fc8c-11e9-8577-5ef3fc9bb22f/streams/BIBLIO_MODS</desc>
+        <in>
+            <titleInfo>
+                <partNumber>2001</partNumber>
+            </titleInfo>
+            <originInfo>
+                <dateIssued>2002</dateIssued>
+            </originInfo>
+            <part>
+                <date>2003</date>
+            </part>
+        </in>
+        <out>
+            <field name="n.date.max">2002-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">2002-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">2002</field>
+            <field name="n.date_instant.year">2002</field>
+
+            <field name="n.part.name">2002</field>
+            <field name="n.part.number.int">2001</field>
+            <field name="n.part.number.str">2001</field>
+
+            <field name="n.title.search">2001</field>
+            <field name="n.title.sort">2001</field>
+            <field name="n.titles.search">2001</field>
+        </out>
+    </test>
+
+    <test name="rok v originInfo/dateIssued i part[@type=='volume']/date i titleInfo/partNumber (originInfo má největší váhu)">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:7341fc60-c144-11e6-92d3-005056827e51/streams/BIBLIO_MODS</desc>
+        <in>
+            <titleInfo>
+                <partNumber>1947</partNumber>
+            </titleInfo>
+            <originInfo>
+                <dateIssued>1948</dateIssued>
+            </originInfo>
+            <part>
+                <date>1949</date>
+            </part>
+        </in>
+        <out>
+            <field name="n.date.max">1948-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1948-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1948</field>
+            <field name="n.date_instant.year">1948</field>
+
+            <field name="n.part.name">1948</field>
+            <field name="n.part.number.int">1947</field>
+            <field name="n.part.number.str">1947</field>
+
+            <field name="n.title.search">1947</field>
+            <field name="n.title.sort">1947</field>
+            <field name="n.titles.search">1947</field>
+        </out>
+    </test>
+
+
+    <test name="rok v part/date">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:0b0c7850-cbf9-11e5-a590-005056827e51/streams/BIBLIO_MODS</desc>
+        <in>
+            <part>
+                <date>1871</date>
+            </part>
+        </in>
+        <out>
+            <field name="n.date.max">1871-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1871-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1871</field>
+            <field name="n.date_instant.year">1871</field>
+
+            <field name="n.part.name">1871</field>
+        </out>
+    </test>
+
+    <test name="originInfo nalezen, ale neobsahuje rok a cislo; rok v part/date, cislo v part/detail[@type='volume']/number">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:3ad7f270-484f-11dd-b012-000d606f5dc6/streams/BIBLIO_MODS</desc>
+        <in>
+            <originInfo>
+                <issuance>continuing</issuance>
+            </originInfo>
+            <part>
+                <detail type="volume">
+                    <number>49</number>
+                </detail>
+                <date>1941</date>
+                <text>nekvalitní a poškozená předloha; č. 137, 163, 189***,
+                    237 příloha nekonzistence číslování stran; č. 383 ranní vydání
+                    nekonzistence číslování stran; č. 451*** polední vydání nekonzistence
+                    číslování stran; č. 485** ranní vydání nekonzistence číslování
+                    stran; č. 488** polední vydání nekonzistence číslování stran;
+                    č. 636*** ranní vydání nekonzistence číslování stran; č. 638*,
+                    651 příloha nekonzistence číslování stran;
+                </text>
+            </part>
+        </in>
+        <out>
+            <field name="n.date.max">1941-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1941-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1941</field>
+            <field name="n.date_instant.year">1941</field>
+
+            <field name="n.part.name">1941</field>
+            <field name="n.part.number.int">49</field>
+            <field name="n.part.number.str">49</field>
+        </out>
+    </test>
+
+    <test name="volume number in and part/number">
+        <desc></desc>
+        <in>
+            <part type="volume">
+                <detail>
+                    <number>4</number>
+                </detail>
+                <date>1925</date>
+            </part>
+        </in>
+        <out>
+            <field name="n.date.max">1925-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1925-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1925</field>
+            <field name="n.date_instant.year">1925</field>
+
+            <field name="n.part.name">1925</field>
+            <field name="n.part.number.int">4</field>
+            <field name="n.part.number.str">4</field>
+        </out>
+    </test>
+
+    <test name="volume number in titleInfo/partNumber and part/number, titleInfo ma prednost">
+        <desc>https://www.difmoe.eu/d/periodical/uuid:bbc85afa-8e75-439e-bfe4-362d84919b73</desc>
+        <in>
+            <titleInfo>
+                <partNumber>3</partNumber>
+            </titleInfo>
+            <originInfo>
+                <dateIssued>1925</dateIssued>
+            </originInfo>
+            <part type="volume">
+                <detail>
+                    <number>4</number>
+                </detail>
+                <date>1926</date>
+            </part>
+        </in>
+        <out>
+            <field name="n.date.max">1925-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1925-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1925</field>
+            <field name="n.date_instant.year">1925</field>
+
+            <field name="n.part.name">1925</field>
+            <field name="n.part.number.int">3</field>
+            <field name="n.part.number.str">3</field>
+
+            <field name="n.title.search">3</field>
+            <field name="n.title.sort">3</field>
+            <field name="n.titles.search">3</field>
+        </out>
+    </test>
+
+</testSuite>

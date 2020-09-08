@@ -1,0 +1,287 @@
+<testSuite testType="mods" model="monograph">
+
+
+    <test name="Ignor. date">
+        <desc>Ignoruje se namePart[@type='date']</desc>
+        <in>
+            <name>
+                <namePart>Čapek, Karel</namePart>
+                <namePart type="date">1890-1938</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Čapek, Karel</field>
+            <field name="n.authors.facet">Čapek, Karel</field>
+        </out>
+    </test>
+
+
+    <test name="Na name parametrech nezáleží I">
+        <desc>Parametry u name nejsou povinné - bez type, usage</desc>
+        <in>
+            <name>
+                <namePart>Čapek, Karel</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Čapek, Karel</field>
+            <field name="n.authors.facet">Čapek, Karel</field>
+        </out>
+    </test>
+
+    <test name="Na name parametrech nezáleží II">
+        <desc>Parametry u name nejsou povinné - s type, usage</desc>
+        <in>
+            <name type="personal" usage="primary">
+                <namePart>Čapek, Karel</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Čapek, Karel</field>
+            <field name="n.authors.facet">Čapek, Karel</field>
+        </out>
+    </test>
+
+
+    <test name="family + given">
+        <desc></desc>
+        <in>
+            <name>
+                <namePart type="family">Čapek</namePart>
+                <namePart type="given">Karel</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Čapek, Karel</field>
+            <field name="n.authors.facet">Čapek, Karel</field>
+        </out>
+    </test>
+
+    <test name="family + give + date">
+        <desc></desc>
+        <in>
+            <name>
+                <namePart type="family">Čapek</namePart>
+                <namePart type="given">Karel</namePart>
+                <namePart type="date">1890-1938</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Čapek, Karel</field>
+            <field name="n.authors.facet">Čapek, Karel</field>
+        </out>
+    </test>
+
+    <test name="family + given opak.">
+        <desc></desc>
+        <in>
+            <name>
+                <namePart type="family">Neruda</namePart>
+                <namePart type="given">Jan</namePart>
+            </name>
+            <name>
+                <namePart type="family">Jirásek</namePart>
+                <namePart type="given">Alois</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Neruda, Jan</field>
+            <field name="n.authors">Jirásek, Alois</field>
+            <field name="n.authors.facet">Neruda, Jan</field>
+            <field name="n.authors.facet">Jirásek, Alois</field>
+        </out>
+    </test>
+
+    <test name="family + given mix.">
+        <desc></desc>
+        <in>
+            <name>
+                <namePart type="family">Neruda</namePart>
+                <namePart type="given">Jan</namePart>
+            </name>
+            <name>
+                <namePart>Jirásek, Alois</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Neruda, Jan</field>
+            <field name="n.authors">Jirásek, Alois</field>
+            <field name="n.authors.facet">Neruda, Jan</field>
+            <field name="n.authors.facet">Jirásek, Alois</field>
+        </out>
+    </test>
+
+    <test name="family + given + bez type">
+        <desc>Pokud je v name namePart s type=family/given a zároveň bez type, pak se element bez type ignoruje</desc>
+        <in>
+            <name>
+                <namePart>Čapek, Karel</namePart>
+                <namePart type="family">Čapek</namePart>
+                <namePart type="given">Karel</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Čapek, Karel</field>
+            <field name="n.authors.facet">Čapek, Karel</field>
+        </out>
+    </test>
+
+    <test name="Pouze family">
+        <desc></desc>
+        <in>
+            <name>
+                <namePart type="family">Čapek</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Čapek</field>
+            <field name="n.authors.facet">Čapek</field>
+        </out>
+    </test>
+
+    <test name="Více family">
+        <desc>Pokud je více family v jednom name, tak brát pouze první</desc>
+        <in>
+            <name>
+                <namePart type="family">Čapek</namePart>
+                <namePart type="family">Jirásek</namePart>
+                <namePart type="given">Karel</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Čapek, Karel</field>
+            <field name="n.authors.facet">Čapek, Karel</field>
+        </out>
+    </test>
+
+    <test name="Pouze given">
+        <desc></desc>
+        <in>
+            <name>
+                <namePart type="given">Karel</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Karel</field>
+            <field name="n.authors.facet">Karel</field>
+        </out>
+    </test>
+
+    <test name="Více given - špatný zápis">
+        <desc>Pokud je více given v jednom name, tak brát pouze první</desc>
+        <in>
+            <name>
+                <namePart type="family">Komenský</namePart>
+                <namePart type="given">Jan</namePart>
+                <namePart type="given">Amos</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Komenský, Jan</field>
+            <field name="n.authors.facet">Komenský, Jan</field>
+        </out>
+    </test>
+
+    <test name="Více given - správný zápis">
+        <desc>Pokud je více given v jednom name, tak brát pouze první</desc>
+        <in>
+            <name>
+                <namePart type="family">Komenský</namePart>
+                <namePart type="given">Jan Amos</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Komenský, Jan Amos</field>
+            <field name="n.authors.facet">Komenský, Jan Amos</field>
+        </out>
+    </test>
+
+
+    <test name="Více autorů">
+        <desc></desc>
+        <!--
+        Jeden hlavni autor a pak opakovatelne pole se vsemi autory.
+        Protoze do karty (typicky vysledek vyhledavani) se berou data jen ze solr,
+        takze je dulezite vybrat hlavniho autora, nelze spolehat na usporadani poli v solru (konvertor stejne prehodi kvuli razeni pro testy)
+        Podobne jako je to u title.search (ne multiValued) a titles.search (multivalued)
+        Update:
+        Muzeme mit vice hlavnich autoru "Werich, Voskovec" takze to stejne musi byt pole.
+        Zatim tedy hlavni autory nerozlisujeme a klient si to vezm z n.authors
+        -->
+        <in>
+            <name>
+                <namePart>Neruda, Jan</namePart>
+            </name>
+            <name>
+                <namePart>Jirásek, Alois</namePart>
+            </name>
+            <name>
+                <namePart>Kafka, Franz</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Neruda, Jan</field>
+            <field name="n.authors">Jirásek, Alois</field>
+            <field name="n.authors">Kafka, Franz</field>
+            <field name="n.authors.facet">Neruda, Jan</field>
+            <field name="n.authors.facet">Jirásek, Alois</field>
+            <field name="n.authors.facet">Kafka, Franz</field>
+        </out>
+    </test>
+
+    <test name="Více autorů - pořadí">
+        <desc>Pořadí autorů se zachovává.</desc>
+        <in>
+            <name>
+                <namePart>Zola, Émile</namePart>
+            </name>
+            <name>
+                <namePart>Arbes, Jakub</namePart>
+            </name>
+            <name>
+                <namePart>Mácha, Karel Hynek</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Zola, Émile</field>
+            <field name="n.authors">Arbes, Jakub</field>
+            <field name="n.authors">Mácha, Karel Hynek</field>
+            <field name="n.authors.facet">Zola, Émile</field>
+            <field name="n.authors.facet">Arbes, Jakub</field>
+            <field name="n.authors.facet">Mácha, Karel Hynek</field>
+        </out>
+    </test>
+
+    <test name="Více autorů v jednom name">
+        <desc>Pokud je více autorů v jednom name, tak brát pouze prvního</desc>
+        <in>
+            <name>
+                <namePart>Čapek, Karel</namePart>
+                <namePart>Arbes, Jakub</namePart>
+                <namePart>Jirásek, Alois</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Čapek, Karel</field>
+            <field name="n.authors.facet">Čapek, Karel</field>
+        </out>
+    </test>
+
+
+    <test name="termsOfAddress">
+        <desc></desc>
+        <in>
+            <name>
+                <namePart type="family">Pavel</namePart>
+                <namePart type="given">Jan</namePart>
+                <namePart type="termsOfAddress">II.</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="n.authors">Pavel, Jan, II.</field>
+            <field name="n.authors.facet">Pavel, Jan, II.</field>
+        </out>
+    </test>
+
+
+</testSuite>

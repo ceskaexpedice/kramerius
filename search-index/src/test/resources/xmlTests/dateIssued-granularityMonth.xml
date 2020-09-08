@@ -1,0 +1,213 @@
+<testSuite testType="mods" model="monograph">
+
+    <!--
+    Implemented and tested here are all formats from https://github.com/ceskaexpedice/kramerius/issues/707
+    that contain "MM" and not "MM.DD"
+    -->
+
+    <test name="7.1947">
+        <desc>Měsíc, rok (MM.RRRR)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>7.1947</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1947-07-31T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-01T00:00:00.001Z</field>
+            <field name="n.date.str">7.1947</field>
+            <field name="n.date_instant.month">7</field>
+            <field name="n.date_instant.year">1947</field>
+
+            <!--
+            <field name="datum_str">7.1947</field>
+            -->
+        </out>
+    </test>
+
+    <test name="07.1947">
+        <desc>Měsíc (prefixován nulou), rok</desc>
+        <in>
+            <originInfo>
+                <dateIssued>07.1947</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1947-07-31T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-01T00:00:00.001Z</field>
+            <field name="n.date.str">07.1947</field>
+            <field name="n.date_instant.month">7</field>
+            <field name="n.date_instant.year">1947</field>
+
+            <!--
+            <field name="datum_str">07.1947</field>
+            -->
+        </out>
+    </test>
+
+    <test name="7. 1947">
+        <desc>Měsíc, rok (odděleny mezerou)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>7. 1947</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1947-07-31T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-01T00:00:00.001Z</field>
+            <field name="n.date.str">7. 1947</field>
+            <field name="n.date_instant.month">7</field>
+            <field name="n.date_instant.year">1947</field>
+
+            <!--
+            <field name="datum_str">7. 1947</field>
+            -->
+        </out>
+    </test>
+
+    <!--MM.RRRR-MM.RRRR-->
+
+    <test name="7.1947-2.1952">
+        <desc>Rozsah měsíců a let (MM.RRRR-MM.RRRR)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>7.1947-2.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-02-29T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-01T00:00:00.001Z</field>
+            <field name="n.date.str">7.1947-2.1952</field>
+            <field name="n.date_range_end.month">2</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
+
+            <!--
+            <field name="datum_str">7.1947-2.1952</field>
+            -->
+        </out>
+    </test>
+
+    <test name="7. 1947 - 02.1952">
+        <desc>Rozsah měsíců a let (MM.RRRR-MM.RRRR) 2</desc>
+        <in>
+            <originInfo>
+                <dateIssued>7. 1947 - 02.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-02-29T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-01T00:00:00.001Z</field>
+            <field name="n.date.str">7. 1947 - 02.1952</field>
+            <field name="n.date_range_end.month">2</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
+
+            <!--
+            <field name="datum_str">7. 1947 - 02.1952</field>
+            -->
+        </out>
+    </test>
+
+    <test name="7.1947-2.1952">
+        <desc>Rozsah měsíců a let (MM.RRRR-MM.RRRR, start+end)</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="start">7.1947</dateIssued>
+                <dateIssued point="end">2.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-02-29T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-01T00:00:00.001Z</field>
+            <field name="n.date.str">7.1947 - 2.1952</field>
+            <field name="n.date_range_end.month">2</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum_str">2.1952</field>
+            -->
+        </out>
+    </test>
+
+    <test name="7. 1947 - 02.1952">
+        <desc>Rozsah měsíců a let (MM.RRRR-MM.RRRR, start+end) 2</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="start">7. 1947</dateIssued>
+                <dateIssued point="end">02.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-02-29T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-01T00:00:00.001Z</field>
+            <field name="n.date.str">7. 1947 - 02.1952</field>
+            <field name="n.date_range_end.month">2</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum_str">02.1952</field>
+            -->
+        </out>
+    </test>
+
+    <!--MM.-MM.RRRR-->
+
+    <test name="7.-11.1952">
+        <desc>Rozsah měsíců v roce (MM.-MM.RRRR)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>7.-11.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-11-30T23:59:59.999Z</field>
+            <field name="n.date.min">1952-07-01T00:00:00.001Z</field>
+            <field name="n.date.str">7.-11.1952</field>
+            <field name="n.date_range_end.month">11</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1952</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum">1951-01-06T23:00:00.000Z</field>
+            <field name="datum_str">7.-11.1952</field>
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="rok">1951</field>
+            -->
+        </out>
+    </test>
+
+    <test name="7. - 11.1952">
+        <desc>Rozsah měsíců v roce (MM.-MM.RRRR) 2</desc>
+        <in>
+            <originInfo>
+                <dateIssued>7. - 11.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-11-30T23:59:59.999Z</field>
+            <field name="n.date.min">1952-07-01T00:00:00.001Z</field>
+            <field name="n.date.str">7. - 11.1952</field>
+            <field name="n.date_range_end.month">11</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1952</field>
+
+            <!--
+            <field name="datum_str">7. - 11.1952</field>
+            -->
+        </out>
+    </test>
+
+
+</testSuite>

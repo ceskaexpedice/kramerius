@@ -1,0 +1,59 @@
+<!--TODO: zklidit tohle, pridat mezi priklady a doplnit testy:-->
+<!--http://www.digitalniknihovna.cz/mzk/view/uuid:a93e6fd0-275d-11e3-b62e-005056825209?page=uuid:d62bcb80-2778-11e3-bd38-5ef3fc9ae867-->
+
+<testSuite testType="mods" model="supplement">
+
+    <test name="both partNumber and partName">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <partName>Úřední list Brněnských novin</partName>
+                <partNumber>1</partNumber>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">Úřední list Brněnských novin</field>
+            <field name="n.part.number.int">1</field>
+            <field name="n.part.number.str">1</field>
+
+            <field name="n.title.search">1. Úřední list Brněnských novin</field>
+            <field name="n.title.sort">1. U|R|EDNI| LIST BRNE|NSKY|H| NOVIN</field>
+            <field name="n.titles.search">1. Úřední list Brněnských novin</field>
+        </out>
+    </test>
+
+    <test name="partNumber not partName">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <partNumber>1</partNumber>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.number.int">1</field>
+            <field name="n.part.number.str">1</field>
+
+            <field name="n.title.search">1</field>
+            <field name="n.title.sort">1</field>
+            <field name="n.titles.search">1</field>
+        </out>
+    </test>
+
+    <test name="partName not partNumber">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <partName>Úřední list Brněnských novin</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">Úřední list Brněnských novin</field>
+
+            <field name="n.title.search">Úřední list Brněnských novin</field>
+            <field name="n.title.sort">U|R|EDNI| LIST BRNE|NSKY|H| NOVIN</field>
+            <field name="n.titles.search">Úřední list Brněnských novin</field>
+        </out>
+    </test>
+
+
+</testSuite>

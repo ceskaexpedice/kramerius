@@ -1,0 +1,73 @@
+<testSuite testType="mods" model="periodicalvolume">
+
+    <test name="typical situation">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <partNumber>2</partNumber>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.number.int">2</field>
+            <field name="n.part.number.str">2</field>
+
+            <field name="n.title.search">2</field>
+            <field name="n.title.sort">2</field>
+            <field name="n.titles.search">2</field>
+        </out>
+    </test>
+
+    <test name="with titleInfo/partName">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <partNumber>2</partNumber>
+                <partName>druhý ročník</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">druhý ročník</field>
+            <field name="n.part.number.int">2</field>
+            <field name="n.part.number.str">2</field>
+
+            <field name="n.title.search">2. druhý ročník</field>
+            <field name="n.title.sort">2. DRUHY| ROC|NI|K</field>
+            <field name="n.titles.search">2. druhý ročník</field>
+        </out>
+    </test>
+
+    <test name="with titleInfo/partName and dates in originInfo">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <partNumber>2</partNumber>
+                <partName>druhý ročník</partName>
+            </titleInfo>
+            <originInfo>
+                <dateIssued point="start">2004</dateIssued>
+                <dateIssued point="end">2005</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">2005-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">2004-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">2004 - 2005</field>
+            <field name="n.date_range_end.year">2005</field>
+            <field name="n.date_range_start.year">2004</field>
+
+            <field name="n.part.name">druhý ročník</field>
+            <field name="n.part.name">2004 - 2005</field>
+            <field name="n.part.number.int">2</field>
+            <field name="n.part.number.str">2</field>
+
+            <field name="n.title.search">2. druhý ročník</field>
+            <field name="n.title.sort">2. DRUHY| ROC|NI|K</field>
+            <field name="n.titles.search">2. druhý ročník</field>
+        </out>
+    </test>
+
+</testSuite>
+
+
+
+

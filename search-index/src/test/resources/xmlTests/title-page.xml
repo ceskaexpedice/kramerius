@@ -1,0 +1,100 @@
+<testSuite testType="mods" model="page">
+
+    <test name="pageNumber not pageIndex">
+        <desc></desc>
+        <in>
+            <part type="NormalPage">
+                <detail type="pageNumber">
+                    <number>1</number>
+                </detail>
+                <detail type="pageIndex">
+                    <number>0</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="n.page.type">NormalPage</field>
+            <field name="n.title.search">1</field>
+            <field name="n.title.sort">1</field>
+            <field name="n.titles.search">1</field>
+        </out>
+    </test>
+
+    <test name="pageNumber and pageIndex in separate part elements">
+        <desc></desc>
+        <in>
+            <part type="NormalPage">
+                <detail type="pageNumber">
+                    <number>1</number>
+                </detail>
+            </part>
+            <part>
+                <detail type="pageIndex">
+                    <number>0</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="n.page.type">NormalPage</field>
+            <field name="n.title.search">1</field>
+            <field name="n.title.sort">1</field>
+            <field name="n.titles.search">1</field>
+        </out>
+    </test>
+
+    <test name="'page number' instead of pageNumber">
+        <desc></desc>
+        <in>
+            <part type="NormalPage">
+                <detail type="page number">
+                    <number>1</number>
+                </detail>
+            </part>
+            <part>
+                <detail type="pageIndex">
+                    <number>0</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="n.page.type">NormalPage</field>
+            <field name="n.title.search">1</field>
+            <field name="n.title.sort">1</field>
+            <field name="n.titles.search">1</field>
+        </out>
+    </test>
+
+    <test name="titleInfo overrides pageNumber">
+        <desc></desc>
+        <in>
+            <typeOfResource>text</typeOfResource>
+            <titleInfo>
+                <title>first</title>
+            </titleInfo>
+            <titleInfo type="alternative">
+                <title>prvni</title>
+            </titleInfo>
+            <part type="NormalPage">
+                <detail type="pageNumber">
+                    <number>1</number>
+                </detail>
+                <detail type="pageIndex">
+                    <number>0</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="n.page.type">NormalPage</field>
+            <field name="n.title.search">first</field>
+            <field name="n.title.sort">FIRST</field>
+            <field name="n.titles.search">first</field>
+            <field name="n.titles.search">prvni</field>
+            <field name="n.titles.search">1</field>
+        </out>
+    </test>
+
+</testSuite>
+
+
+
+

@@ -1,0 +1,192 @@
+<testSuite testType="mods" model="map">
+
+    <test name="Mezinárodní zápis">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:3572124e-d1bd-4f4e-8dfb-b16045e8aa80?page=uuid:66249fc7-10d3-11e8-a2cd-001b63bd97ba</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(E 12°02'00"--E 19°11'00"/N 51°03'00"--N 48°31'00")</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--<field name="n.coords.bbox">ENVELOPE(12.03333,19.18333,51.05,48.51667)</field>-->
+            <field name="n.coords.bbox">ENVELOPE(12.033333,19.183333,51.050000,48.516667)</field>
+            <!--<field name="n.coords.bbox.center">49.783334999999994,15.60833</field>-->
+            <field name="n.coords.bbox.center">49.783333,15.608333</field>
+            <!--<field name="n.coords.bbox.corner_ne">51.05,19.18333</field>-->
+            <field name="n.coords.bbox.corner_ne">51.050000,19.183333</field>
+            <!--<field name="n.coords.bbox.corner_sw">48.51667,12.03333</field>-->
+            <field name="n.coords.bbox.corner_sw">48.516667,12.033333</field>
+        </out>
+    </test>
+
+    <test name="Český zápis">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:ba4934d1-0a1e-4a01-a89d-c948477ca833?page=uuid:d22baf06-7fb6-4488-bc6f-995b644fd085</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(16°33´47" v.d.--16°39´07" v.d./49°14´06" s.š.--49°10´18" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--<field name="n.coords.bbox">ENVELOPE(16.56306,16.65194,49.235,49.171670000000006)</field>-->
+            <field name="n.coords.bbox">ENVELOPE(16.563056,16.651944,49.235000,49.171667)</field>
+            <!--<field name="n.coords.bbox.center">49.203335,16.6075</field> -->
+            <field name="n.coords.bbox.center">49.203333,16.607500</field>
+            <!--<field name="n.coords.bbox.corner_ne">49.235,16.65194</field>-->
+            <field name="n.coords.bbox.corner_ne">49.235000,16.651944</field>
+            <!--<field name="n.coords.bbox.corner_sw">49.171670000000006,16.56306</field>-->
+            <field name="n.coords.bbox.corner_sw">49.171667,16.563056</field>
+        </out>
+    </test>
+
+    <test name="Západní délka, český zápis">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/uuid/uuid:a4601c20-5f6f-4549-8cbe-182ac42eb547</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(011°13´40" z.d.--005°05´51" z.d./055°32´05" s.š.--051°09´06" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--<field name="n.coords.bbox">ENVELOPE(-11.227780000000001,-5.0975,55.53472,51.151669999999996)</field>-->
+            <field name="n.coords.bbox">ENVELOPE(-11.227778,-5.097500,55.534722,51.151667)</field>
+            <!--<field name="n.coords.bbox.center">53.343194999999994,-8.16264</field>-->
+            <field name="n.coords.bbox.center">53.343194,-8.162639</field>
+            <!--<field name="n.coords.bbox.corner_ne">55.53472,-5.0975</field>-->
+            <field name="n.coords.bbox.corner_ne">55.534722,-5.097500</field>
+            <!--<field name="n.coords.bbox.corner_sw">51.151669999999996,-11.227780000000001</field>-->
+            <field name="n.coords.bbox.corner_sw">51.151667,-11.227778</field>
+        </out>
+    </test>
+
+    <test name="Západní délka, český zápis 2">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/uuid/uuid:9dedfbcc-86bf-4463-b283-14fe23838820</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(058°41´00" z.d.--017°09´38" z.d./075°40´27" s.š.--059°37´23" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--<field name="n.coords.bbox">ENVELOPE(-58.68333,-17.16056,75.67416999999999,59.62306)</field>-->
+            <field name="n.coords.bbox">ENVELOPE(-58.683333,-17.160556,75.674167,59.623056)</field>
+            <!--<field name="n.coords.bbox.center">67.64861499999999,-37.921945</field>-->
+            <field name="n.coords.bbox.center">67.648611,-37.921944</field>
+            <!--<field name="n.coords.bbox.corner_ne">75.67416999999999,-17.16056</field>-->
+            <field name="n.coords.bbox.corner_ne">75.674167,-17.160556</field>
+            <!--<field name="n.coords.bbox.corner_sw">59.62306,-58.68333</field>-->
+            <field name="n.coords.bbox.corner_sw">59.623056,-58.683333</field>
+        </out>
+    </test>
+
+    <test name="Přes nultý poledník poledník, český zápis">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/uuid/uuid:6885e54d-dba6-4fd3-a16a-1936012056c7</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(010°53´54" z.d.--001°54´41" v.d./059°57´18" s.š.--050°04´41" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--<field name="n.coords.bbox">ENVELOPE(-10.898330000000001,1.91139,59.955000000000005,50.07806)</field>-->
+            <field name="n.coords.bbox">ENVELOPE(-10.898333,1.911389,59.955000,50.078056)</field>
+            <!--<field name="n.coords.bbox.center">55.01653,-4.49347</field>-->
+            <field name="n.coords.bbox.center">55.016528,-4.493472</field>
+            <!--<field name="n.coords.bbox.corner_ne">59.955000000000005,1.91139</field>-->
+            <field name="n.coords.bbox.corner_ne">59.955000,1.911389</field>
+            <!--<field name="n.coords.bbox.corner_sw">50.07806,-10.898330000000001</field>-->
+            <field name="n.coords.bbox.corner_sw">50.078056,-10.898333</field>
+        </out>
+    </test>
+
+    <test name="Jižní šířka, mezinárodní zápis">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/uuid/uuid:6a85a770-f6f3-11e8-8d10-5ef3fc9ae867</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(E 108°00'00"--E 126°00'00"/S 24°00'00"--S 36°00'00")</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--<field name="n.coords.bbox">ENVELOPE(108.0,126.0,-24.0,-36.0)</field>-->
+            <field name="n.coords.bbox">ENVELOPE(108.000000,126.000000,-24.000000,-36.000000)</field>
+            <!--<field name="n.coords.bbox.center">-30.0,117.0</field>-->
+            <field name="n.coords.bbox.center">-30.000000,117.000000</field>
+            <!--<field name="n.coords.bbox.corner_ne">-24.0,126.0</field>-->
+            <field name="n.coords.bbox.corner_ne">-24.000000,126.000000</field>
+            <!--<field name="n.coords.bbox.corner_sw">-36.0,108.0</field>-->
+            <field name="n.coords.bbox.corner_sw">-36.000000,108.000000</field>
+        </out>
+    </test>
+
+    <test name="Přes rovník, český zápis">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/uuid/uuid:ace01035-528e-4448-8d15-6895a9a5e6aa</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(102°39´22" v.d.--178°48´48" v.d./002°32´52" s.š.--047°41´41" j.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--<field name="n.coords.bbox">ENVELOPE(102.65611000000001,178.81333,2.54777,-47.69472)</field>-->
+            <field name="n.coords.bbox">ENVELOPE(102.656111,178.813333,2.547778,-47.694722)</field>
+            <!--<field name="n.coords.bbox.center">-22.573475,140.73472</field>-->
+            <field name="n.coords.bbox.center">-22.573472,140.734722</field>
+            <!--<field name="n.coords.bbox.corner_ne">2.54777,178.81333</field>-->
+            <field name="n.coords.bbox.corner_ne">2.547778,178.813333</field>
+            <!--<field name="n.coords.bbox.corner_sw">-47.69472,102.65611000000001</field>-->
+            <field name="n.coords.bbox.corner_sw">-47.694722,102.656111</field>
+        </out>
+    </test>
+
+    <test name="Pro minuty apostrof namísto znaku accute">
+        <desc></desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(102°39'22" v.d.--178°48'48" v.d./002°32'52" s.š.--047°41'41" j.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--<field name="n.coords.bbox">ENVELOPE(102.65611000000001,178.81333,2.54777,-47.69472)</field>-->
+            <field name="n.coords.bbox">ENVELOPE(102.656111,178.813333,2.547778,-47.694722)</field>
+            <!--<field name="n.coords.bbox.center">-22.573475,140.73472</field>-->
+            <field name="n.coords.bbox.center">-22.573472,140.734722</field>
+            <!--<field name="n.coords.bbox.corner_ne">2.54777,178.81333</field>-->
+            <field name="n.coords.bbox.corner_ne">2.547778,178.813333</field>
+            <!--<field name="n.coords.bbox.corner_sw">-47.69472,102.65611000000001</field>-->
+            <field name="n.coords.bbox.corner_sw">-47.694722,102.656111</field>
+        </out>
+    </test>
+
+    <test name="Pro minuty apostrof namísto znaku accute; apostrof a uvozovky xml escapovány">
+        <desc></desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(102°39&apos;22&quot; v.d.--178°48&apos;48&quot; v.d./002°32&apos;52&quot; s.š.--047°41&apos;41&quot; j.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--<field name="n.coords.bbox">ENVELOPE(102.65611000000001,178.81333,2.54777,-47.69472)</field>-->
+            <field name="n.coords.bbox">ENVELOPE(102.656111,178.813333,2.547778,-47.694722)</field>
+            <!--<field name="n.coords.bbox.center">-22.573475,140.73472</field>-->
+            <field name="n.coords.bbox.center">-22.573472,140.734722</field>
+            <!--<field name="n.coords.bbox.corner_ne">2.54777,178.81333</field>-->
+            <field name="n.coords.bbox.corner_ne">2.547778,178.813333</field>
+            <!--<field name="n.coords.bbox.corner_sw">-47.69472,102.65611000000001</field>-->
+            <field name="n.coords.bbox.corner_sw">-47.694722,102.656111</field>
+        </out>
+    </test>
+
+</testSuite>

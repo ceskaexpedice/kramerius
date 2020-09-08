@@ -1,0 +1,59 @@
+<testSuite testType="mods" model="monograph">
+
+    <test name="ch">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>Chachaři</title>
+                <subTitle/>
+            </titleInfo>
+            <titleInfo type="alternative">
+                <title>chechtáky</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Chachaři</field>
+            <field name="n.title.sort">H|AH|AR|I</field>
+            <field name="n.titles.search">Chachaři</field>
+            <field name="n.titles.search">chechtáky</field>
+        </out>
+    </test>
+
+    <test name="ch">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>[České Velenice]</title>
+                <partName>4454/1</partName>
+            </titleInfo>
+            <titleInfo type="alternative">
+                <title>4454/1</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.part.name">4454/1</field>
+
+            <field name="n.title.search">[České Velenice]. 4454/1</field>
+            <field name="n.title.sort">C|ESKE| VELENICE]. 4454/1</field>
+            <field name="n.titles.search">[České Velenice]. 4454/1</field>
+            <field name="n.titles.search">4454/1</field>
+        </out>
+    </test>
+
+
+    <test name="česká diakritika">
+        <desc>Příliš žluťoučký kůň úpěl ďábelské ódy</desc>
+        <in>
+            <titleInfo>
+                <title>Příliš žluťoučký kůň úpěl ďábelské ódy</title>
+                <subTitle/>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Příliš žluťoučký kůň úpěl ďábelské ódy</field>
+            <field name="n.title.sort">PR|I|LIS| Z|LUT|OUC|KY| KU|N| U|PE|L D|A|BELSKE| O|DY</field>
+            <field name="n.titles.search">Příliš žluťoučký kůň úpěl ďábelské ódy</field>
+        </out>
+    </test>
+
+</testSuite>

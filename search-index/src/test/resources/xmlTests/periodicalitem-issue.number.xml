@@ -1,0 +1,173 @@
+<testSuite testType="mods" model="periodicalitem">
+
+    <test name="issue number je v titleInfo i v part, titleInfo ma vetsi vahu">
+        <desc>uuid:34c79cc8-58b4-4776-b254-adb609270e6b</desc>
+        <in>
+            <titleInfo>
+                <title>Deutsche Nachrichten</title>
+                <partNumber>23</partNumber>
+            </titleInfo>
+            <originInfo>
+                <dateIssued>6. 6. 1925</dateIssued>
+            </originInfo>
+            <part type="issue">
+                <detail>
+                    <number>24</number>
+                </detail>
+                <date>6. 6. 1925</date>
+            </part>
+        </in>
+        <out>
+            <field name="n.date.max">1925-06-06T23:59:59.999Z</field>
+            <field name="n.date.min">1925-06-06T00:00:00.001Z</field>
+            <field name="n.date.str">6. 6. 1925</field>
+            <field name="n.date_instant.day">6</field>
+            <field name="n.date_instant.month">6</field>
+            <field name="n.date_instant.year">1925</field>
+
+            <field name="n.part.number.int">23</field>
+            <field name="n.part.number.str">23</field>
+
+            <field name="n.title.search">Deutsche Nachrichten. 23</field>
+            <field name="n.title.sort">DEUTSH|E NAH|RIH|TEN. 23</field>
+            <field name="n.titles.search">Deutsche Nachrichten. 23</field>
+        </out>
+    </test>
+
+    <test name="issue number je v titleInfo">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>Deutsche Nachrichten</title>
+                <partNumber>23</partNumber>
+            </titleInfo>
+            <originInfo>
+                <dateIssued>6. 6. 1925</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1925-06-06T23:59:59.999Z</field>
+            <field name="n.date.min">1925-06-06T00:00:00.001Z</field>
+            <field name="n.date.str">6. 6. 1925</field>
+            <field name="n.date_instant.day">6</field>
+            <field name="n.date_instant.month">6</field>
+            <field name="n.date_instant.year">1925</field>
+
+            <field name="n.part.number.int">23</field>
+            <field name="n.part.number.str">23</field>
+
+            <field name="n.title.search">Deutsche Nachrichten. 23</field>
+            <field name="n.title.sort">DEUTSH|E NAH|RIH|TEN. 23</field>
+            <field name="n.titles.search">Deutsche Nachrichten. 23</field>
+        </out>
+    </test>
+
+    <test name="issue number je v titleInfo a neni cislo">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>Deutsche Nachrichten</title>
+                <partNumber>23-24</partNumber>
+            </titleInfo>
+            <originInfo>
+                <dateIssued>6. 6. 1925</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1925-06-06T23:59:59.999Z</field>
+            <field name="n.date.min">1925-06-06T00:00:00.001Z</field>
+            <field name="n.date.str">6. 6. 1925</field>
+            <field name="n.date_instant.day">6</field>
+            <field name="n.date_instant.month">6</field>
+            <field name="n.date_instant.year">1925</field>
+
+            <field name="n.part.number.str">23-24</field>
+
+            <field name="n.title.search">Deutsche Nachrichten. 23-24</field>
+            <field name="n.title.sort">DEUTSH|E NAH|RIH|TEN. 23-24</field>
+            <field name="n.titles.search">Deutsche Nachrichten. 23-24</field>
+        </out>
+    </test>
+
+    <test name="issue number je v part">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>6. 6. 1925</dateIssued>
+            </originInfo>
+            <part type="issue">
+                <detail>
+                    <number>24</number>
+                </detail>
+                <date>6. 6. 1925</date>
+            </part>
+        </in>
+        <out>
+            <field name="n.date.max">1925-06-06T23:59:59.999Z</field>
+            <field name="n.date.min">1925-06-06T00:00:00.001Z</field>
+            <field name="n.date.str">6. 6. 1925</field>
+            <field name="n.date_instant.day">6</field>
+            <field name="n.date_instant.month">6</field>
+            <field name="n.date_instant.year">1925</field>
+
+            <field name="n.part.number.int">24</field>
+            <field name="n.part.number.str">24</field>
+        </out>
+    </test>
+
+    <test name="issue number je v part a neni cislo">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>6. 6. 1925</dateIssued>
+            </originInfo>
+            <part type="issue">
+                <detail>
+                    <number>24-25</number>
+                </detail>
+                <date>6. 6. 1925</date>
+            </part>
+        </in>
+        <out>
+            <field name="n.date.max">1925-06-06T23:59:59.999Z</field>
+            <field name="n.date.min">1925-06-06T00:00:00.001Z</field>
+            <field name="n.date.str">6. 6. 1925</field>
+            <field name="n.date_instant.day">6</field>
+            <field name="n.date_instant.month">6</field>
+            <field name="n.date_instant.year">1925</field>
+
+            <field name="n.part.number.str">24-25</field>
+        </out>
+    </test>
+
+    <test name="partName">
+        <desc>uuid:7a9f3afc-4e8d-4fbe-874e-76de161fb91d</desc>
+        <in>
+            <titleInfo>
+                <title>Filosofický časopis</title>
+                <partNumber>Mimořádné číslo 3</partNumber>
+                <partName>Sedmkrát z logiky a metodologie vědy</partName>
+            </titleInfo>
+            <originInfo>
+                <dateIssued>2015</dateIssued>
+            </originInfo>
+            <part type="issue"/>
+
+        </in>
+        <out>
+            <field name="n.date.max">2015-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">2015-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">2015</field>
+            <field name="n.date_instant.year">2015</field>
+
+            <field name="n.part.name">Sedmkrát z logiky a metodologie vědy</field>
+            <field name="n.part.number.str">Mimořádné číslo 3</field>
+
+            <field name="n.title.search">Filosofický časopis. Mimořádné číslo 3. Sedmkrát z logiky a metodologie vědy</field>
+            <field name="n.title.sort">FILOSOFICKY| C|ASOPIS. MIMOR|A|DNE| C|I|SLO 3. SEDMKRA|T Z LOGIKY A METODOLOGIE VE|DY</field>
+            <field name="n.titles.search">Filosofický časopis. Mimořádné číslo 3. Sedmkrát z logiky a metodologie vědy</field>
+        </out>
+    </test>
+
+
+</testSuite>

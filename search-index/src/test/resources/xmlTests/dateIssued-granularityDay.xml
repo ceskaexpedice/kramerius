@@ -1,0 +1,345 @@
+<testSuite testType="mods" model="monograph">
+
+    <!--
+    Implemented and tested here are all formats from https://github.com/ceskaexpedice/kramerius/issues/707
+    that contain "DD"
+    -->
+
+    <test name="3.7.1947">
+        <desc>Den, měsíc, rok</desc>
+        <in>
+            <originInfo>
+                <dateIssued>3.7.1947</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1947-07-03T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-03T00:00:00.001Z</field>
+            <field name="n.date.str">3.7.1947</field>
+            <field name="n.date_instant.day">3</field>
+            <field name="n.date_instant.month">7</field>
+            <field name="n.date_instant.year">1947</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum">1947-07-02T22:00:00.000Z</field>
+            <field name="datum_str">3.7.1947</field>
+            <field name="rok">1947</field>
+            -->
+        </out>
+    </test>
+
+    <test name="03.07.1947">
+        <desc>Den a měsíc prefixovány nulou</desc>
+        <in>
+            <originInfo>
+                <dateIssued>03.07.1947</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1947-07-03T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-03T00:00:00.001Z</field>
+            <field name="n.date.str">03.07.1947</field>
+            <field name="n.date_instant.day">3</field>
+            <field name="n.date_instant.month">7</field>
+            <field name="n.date_instant.year">1947</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum">1947-07-02T22:00:00.000Z</field>
+            <field name="datum_str">03.07.1947</field>
+            <field name="rok">1947</field>
+            -->
+        </out>
+    </test>
+
+    <test name="3. 7. 1947">
+        <desc>Mezery za dnem a měsícem</desc>
+        <in>
+            <originInfo>
+                <dateIssued>3. 7. 1947</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1947-07-03T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-03T00:00:00.001Z</field>
+            <field name="n.date.str">3. 7. 1947</field>
+            <field name="n.date_instant.day">3</field>
+            <field name="n.date_instant.month">7</field>
+            <field name="n.date_instant.year">1947</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum">1947-07-02T22:00:00.000Z</field>
+            <field name="datum_str">3. 7. 1947</field>
+            <field name="rok">1947</field>
+            -->
+        </out>
+    </test>
+
+
+    <!--DD.MM.RRRR-DD.MM.RRRR-->
+
+    <test name="3.7.1947-12.2.1952">
+        <desc>Rozsah celých datumů</desc>
+        <in>
+            <originInfo>
+                <dateIssued>3.7.1947-12.2.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-03T00:00:00.001Z</field>
+            <field name="n.date.str">3.7.1947-12.2.1952</field>
+            <field name="n.date_range_end.day">12</field>
+            <field name="n.date_range_end.month">2</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.day">3</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum">1947-07-02T22:00:00.000Z</field>
+            <field name="datum_str">3.7.1947-12.2.1952</field>
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="rok">1947</field>
+            -->
+        </out>
+    </test>
+
+    <test name="03. 7. 1947 - 12.02.1952">
+        <desc>Rozsah celých datumů 2</desc>
+        <in>
+            <originInfo>
+                <dateIssued>03. 7. 1947 - 12.02.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-03T00:00:00.001Z</field>
+            <field name="n.date.str">03. 7. 1947 - 12.02.1952</field>
+            <field name="n.date_range_end.day">12</field>
+            <field name="n.date_range_end.month">2</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.day">3</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum">1947-07-02T22:00:00.000Z</field>
+            <field name="datum_str">03. 7. 1947 - 12.02.1952</field>
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="rok">1947</field>
+            -->
+        </out>
+    </test>
+
+    <test name="3.7.1947-12.2.1952">
+        <desc>Rozsah celých datumů (start, end)</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="start">3.7.1947</dateIssued>
+                <dateIssued point="end">12.2.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-03T00:00:00.001Z</field>
+            <field name="n.date.str">3.7.1947 - 12.2.1952</field>
+            <field name="n.date_range_end.day">12</field>
+            <field name="n.date_range_end.month">2</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.day">3</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum">1952-02-11T23:00:00.000Z</field>
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum_str">12.2.1952</field>
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="rok">1952</field>
+            -->
+        </out>
+    </test>
+
+  <!--  <test name="03. 7. 1947 - 12.02.1952">
+        <desc>Rozsah celých datumů (start, end) 2</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="start">03. 7. 1947</dateIssued>
+                <dateIssued point="end">12.02.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-02-12T23:59:59.999Z</field>
+
+
+            <field name="n.date.min">1947-07-03T00:00:00.001Z</field>
+            <field name="date_certainty">day/month/year/decade/century/millenium</field>
+
+            <field name="date_min_exact">day</field>
+            <field name="date_max_exact">month</field>
+
+            <field name="n.date_range_end.day">12</field>
+            <field name="n.date_range_end.month">2</field>
+
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.day">3</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
+            <field name="n.date.str">03. 7. 1947? - 12.02.1952</field>
+
+
+            <field name="n.date.max">1952-02-31T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-12T00:00:00.001Z</field>
+            <field name="n.date_range_end.month">2</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
+            <field name="n.date.str">7. 1947 - 02.1952</field>
+
+            <field name="n.date.max">1952-02-31T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-12T00:00:00.001Z</field>
+            <field name="date_min_exact">year</field>
+            <field name="date_max_exact">year</field>
+            <field name="n.date.str">1947 - 1952</field>
+
+            <field name="n.date.max">1999-02-31T23:59:59.999Z</field>
+            <field name="n.date.min">1947-07-12T00:00:00.001Z</field>
+
+            <field name="date_min_exact">year</field>
+            <field name="date_max_exact">-</field>
+            <field name="n.date.str">19uu</field>
+
+            &lt;!&ndash;TODO: lidovky, nocni, ranni vydani (cas)&ndash;&gt;
+
+            date_min a _max se pouziva na,
+            1. razeni:
+            date_sort_max
+            date_sort_min
+            2.filtrovani:
+
+
+            issue-type: bude ranni, nocni apod, nove pole a pouzite k sekundarnimu razeni
+
+            &lt;!&ndash;
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum">1952-02-11T23:00:00.000Z</field>
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum_str">12.02.1952</field>
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="rok">1952</field>
+            &ndash;&gt;
+        </out>
+    </test>-->
+
+    <!--DD.MM-DD.MM.RRRR-->
+    <test name="3.7.-12.2.1952">
+        <desc>Rozsah datumů (DD.MM-DD.MM.RRRR)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>3.7.-12.2.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="n.date.min">1952-07-03T00:00:00.001Z</field>
+            <field name="n.date.str">3.7.-12.2.1952</field>
+            <field name="n.date_range_end.day">12</field>
+            <field name="n.date_range_end.month">2</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.day">3</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1952</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum">0013-07-02T23:00:00.000Z</field>
+            <field name="datum_str">3.7.-12.2.1952</field>
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="rok">0013</field>
+            -->
+        </out>
+    </test>
+
+    <test name="03. 7. - 12.02.1952">
+        <desc>Rozsah datumů (DD.MM-DD.MM.RRRR) 2</desc>
+        <in>
+            <originInfo>
+                <dateIssued>03. 7. - 12.02.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="n.date.min">1952-07-03T00:00:00.001Z</field>
+            <field name="n.date.str">03. 7. - 12.02.1952</field>
+            <field name="n.date_range_end.day">12</field>
+            <field name="n.date_range_end.month">2</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.day">3</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1952</field>
+
+            <!--
+            <field name="datum_str">03. 7. - 12.02.1952</field>
+            -->
+        </out>
+    </test>
+
+    <!--DD.-DD.MM.RRRR-->
+    <test name="3.-12.2.1952">
+        <desc>Rozsah datumů (DD.-DD.MM.RRRR)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>3.-12.2.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="n.date.min">1952-02-03T00:00:00.001Z</field>
+            <field name="n.date.str">3.-12.2.1952</field>
+            <field name="n.date_range_end.day">12</field>
+            <field name="n.date_range_end.month">2</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.day">3</field>
+            <field name="n.date_range_start.month">2</field>
+            <field name="n.date_range_start.year">1952</field>
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum">0001-12-02T23:00:00.000Z</field>
+            <field name="datum_str">3.-12.2.1952</field>
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="rok">0001</field>
+            -->
+        </out>
+    </test>
+
+    <test name="03. - 12.02.1952">
+        <desc>Rozsah datumů (DD.-DD.MM.RRRR) 2</desc>
+        <in>
+            <originInfo>
+                <dateIssued>03. - 12.02.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="n.date.min">1952-02-03T00:00:00.001Z</field>
+            <field name="n.date.str">03. - 12.02.1952</field>
+            <field name="n.date_range_end.day">12</field>
+            <field name="n.date_range_end.month">2</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.day">3</field>
+            <field name="n.date_range_start.month">2</field>
+            <field name="n.date_range_start.year">1952</field>
+
+            <!--
+            <field name="datum_str">03. - 12.02.1952</field>
+            -->
+        </out>
+    </test>
+
+</testSuite>

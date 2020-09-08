@@ -1,0 +1,292 @@
+<testSuite testType="mods" model="monograph">
+
+
+    <test name="Keyword I">
+        <desc></desc>
+        <in>
+            <subject>
+                <topic>Ekonomie</topic>
+            </subject>
+        </in>
+        <out>
+            <field name="n.keywords.facet">Ekonomie</field>
+            <field name="n.keywords.search">Ekonomie</field>
+        </out>
+    </test>
+
+    <test name="Keyword II">
+        <desc>topic je v rámci subject opakovatelné</desc>
+        <in>
+            <subject>
+                <topic>Ekonomie</topic>
+                <topic>Mikroekonomie</topic>
+                <topic>Makroekonomie</topic>
+            </subject>
+        </in>
+        <out>
+            <field name="n.keywords.facet">Ekonomie</field>
+            <field name="n.keywords.facet">Mikroekonomie</field>
+            <field name="n.keywords.facet">Makroekonomie</field>
+            <field name="n.keywords.search">Ekonomie</field>
+            <field name="n.keywords.search">Mikroekonomie</field>
+            <field name="n.keywords.search">Makroekonomie</field>
+        </out>
+    </test>
+
+    <test name="Keyword III">
+        <desc>topic mohou být v různých subject</desc>
+        <in>
+            <subject>
+                <topic>Ekonomie</topic>
+                <topic>Mikroekonomie</topic>
+            </subject>
+            <subject>
+                <topic>Makroekonomie</topic>
+            </subject>
+        </in>
+        <out>
+            <field name="n.keywords.facet">Ekonomie</field>
+            <field name="n.keywords.facet">Mikroekonomie</field>
+            <field name="n.keywords.facet">Makroekonomie</field>
+            <field name="n.keywords.search">Ekonomie</field>
+            <field name="n.keywords.search">Mikroekonomie</field>
+            <field name="n.keywords.search">Makroekonomie</field>
+        </out>
+    </test>
+
+    <test name="Keyword III">
+        <desc>Do n.keywords.facet se ukládají hodnoty s velkým prvním písmenem</desc>
+        <in>
+            <subject>
+                <topic>ekonomie</topic>
+                <topic>žula</topic>
+                <topic>übermensch</topic>
+            </subject>
+        </in>
+        <out>
+            <field name="n.keywords.facet">Ekonomie</field>
+            <field name="n.keywords.facet">Žula</field>
+            <field name="n.keywords.facet">Übermensch</field>
+            <field name="n.keywords.search">ekonomie</field>
+            <field name="n.keywords.search">žula</field>
+            <field name="n.keywords.search">übermensch</field>
+        </out>
+    </test>
+
+
+    <test name="Geographic I">
+        <desc></desc>
+        <in>
+            <subject>
+                <geographic>Brno</geographic>
+            </subject>
+        </in>
+        <out>
+            <field name="n.geographic_names.facet">Brno</field>
+            <field name="n.geographic_names.search">Brno</field>
+        </out>
+    </test>
+
+    <test name="Geographic II">
+        <desc>geographic je v rámci subject opakovatelné</desc>
+        <in>
+            <subject>
+                <geographic>Praha</geographic>
+                <geographic>Brno</geographic>
+                <geographic>Ostrava</geographic>
+            </subject>
+        </in>
+        <out>
+            <field name="n.geographic_names.facet">Praha</field>
+            <field name="n.geographic_names.facet">Brno</field>
+            <field name="n.geographic_names.facet">Ostrava</field>
+            <field name="n.geographic_names.search">Praha</field>
+            <field name="n.geographic_names.search">Brno</field>
+            <field name="n.geographic_names.search">Ostrava</field>
+        </out>
+    </test>
+
+    <test name="Geographic III">
+        <desc>geographic mohou být v různých subject</desc>
+        <in>
+            <subject>
+                <geographic>Praha</geographic>
+                <geographic>Brno</geographic>
+            </subject>
+            <subject>
+                <geographic>Ostrava</geographic>
+            </subject>
+        </in>
+        <out>
+            <field name="n.geographic_names.facet">Praha</field>
+            <field name="n.geographic_names.facet">Brno</field>
+            <field name="n.geographic_names.facet">Ostrava</field>
+            <field name="n.geographic_names.search">Praha</field>
+            <field name="n.geographic_names.search">Brno</field>
+            <field name="n.geographic_names.search">Ostrava</field>
+        </out>
+    </test>
+
+
+    <test name="Keyword + Geographic I">
+        <desc>topic a geographic mohou být v různých subject</desc>
+        <in>
+            <subject>
+                <topic>Ekonomie</topic>
+            </subject>
+            <subject>
+                <geographic>Praha</geographic>
+            </subject>
+        </in>
+        <out>
+            <field name="n.geographic_names.facet">Praha</field>
+            <field name="n.geographic_names.search">Praha</field>
+            <field name="n.keywords.facet">Ekonomie</field>
+            <field name="n.keywords.search">Ekonomie</field>
+        </out>
+    </test>
+
+    <test name="Keyword + Geographic II">
+        <desc>topic a geographic mohou být ve stejném subject</desc>
+        <in>
+            <subject>
+                <topic>Ekonomie</topic>
+                <geographic>Praha</geographic>
+            </subject>
+        </in>
+        <out>
+            <field name="n.geographic_names.facet">Praha</field>
+            <field name="n.geographic_names.search">Praha</field>
+            <field name="n.keywords.facet">Ekonomie</field>
+            <field name="n.keywords.search">Ekonomie</field>
+        </out>
+    </test>
+
+    <test name="Keyword + Geographic III">
+        <desc>kombinace zanoření topic a geographic ve více subject</desc>
+        <in>
+            <subject>
+                <topic>Ekonomie</topic>
+            </subject>
+            <subject>
+                <geographic>Praha</geographic>
+            </subject>
+            <subject>
+                <topic>Makroekonomie</topic>
+                <geographic>Brno</geographic>
+                <topic>Mikroekonomie</topic>
+                <geographic>Ostrava</geographic>
+            </subject>
+        </in>
+        <out>
+            <field name="n.geographic_names.facet">Praha</field>
+            <field name="n.geographic_names.facet">Brno</field>
+            <field name="n.geographic_names.facet">Ostrava</field>
+            <field name="n.geographic_names.search">Praha</field>
+            <field name="n.geographic_names.search">Brno</field>
+            <field name="n.geographic_names.search">Ostrava</field>
+            <field name="n.keywords.facet">Ekonomie</field>
+            <field name="n.keywords.facet">Makroekonomie</field>
+            <field name="n.keywords.facet">Mikroekonomie</field>
+            <field name="n.keywords.search">Ekonomie</field>
+            <field name="n.keywords.search">Makroekonomie</field>
+            <field name="n.keywords.search">Mikroekonomie</field>
+        </out>
+    </test>
+
+
+    <test name="physicalLocation + shelfLocator I">
+        <desc>pouze physicalLocation</desc>
+        <in>
+            <location>
+                <physicalLocation>BOA001</physicalLocation>
+            </location>
+        </in>
+        <out>
+            <field name="n.physical_locations.facet">BOA001</field>
+        </out>
+    </test>
+
+    <test name="physicalLocation + shelfLocator II">
+        <desc>pouze shelfLocator</desc>
+        <in>
+            <location>
+                <shelfLocator>ABC-0001.xyz</shelfLocator>
+            </location>
+        </in>
+        <out>
+            <field name="n.shelf_locators">ABC-0001.xyz</field>
+        </out>
+    </test>
+
+    <test name="physicalLocation + shelfLocator III">
+        <desc>více physicalLocation a 1 shelfLocator</desc>
+        <in>
+            <location>
+                <physicalLocation>BOA001</physicalLocation>
+                <physicalLocation>ABA001</physicalLocation>
+                <shelfLocator>ABC-0001.xyz</shelfLocator>
+            </location>
+        </in>
+        <out>
+            <field name="n.physical_locations.facet">BOA001</field>
+            <field name="n.physical_locations.facet">ABA001</field>
+            <field name="n.shelf_locators">ABC-0001.xyz</field>
+        </out>
+    </test>
+
+    <test name="physicalLocation + shelfLocator IV">
+        <desc>více physicalLocation a shelfLocator v různých location</desc>
+        <in>
+            <location>
+                <physicalLocation authority="siglaADR">BOA001</physicalLocation>
+                <shelfLocator>ABC-0002.xyz</shelfLocator>
+            </location>
+            <location>
+                <physicalLocation authority="siglaADR">ABA001</physicalLocation>
+                <shelfLocator>ABC-0001.xyz</shelfLocator>
+            </location>
+        </in>
+        <out>
+            <field name="n.physical_locations.facet">BOA001</field>
+            <field name="n.physical_locations.facet">ABA001</field>
+            <field name="n.shelf_locators">ABC-0002.xyz</field>
+            <field name="n.shelf_locators">ABC-0001.xyz</field>
+        </out>
+    </test>
+
+
+    <test name="publisher I">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <publisher>Grada</publisher>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.publishers.facet">Grada</field>
+            <field name="n.publishers.search">Grada</field>
+        </out>
+    </test>
+
+    <test name="publisher II">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <publisher>Grada</publisher>
+            </originInfo>
+            <originInfo>
+                <publisher>Albatros</publisher>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.publishers.facet">Grada</field>
+            <field name="n.publishers.facet">Albatros</field>
+            <field name="n.publishers.search">Grada</field>
+            <field name="n.publishers.search">Albatros</field>
+        </out>
+    </test>
+
+
+</testSuite>
+

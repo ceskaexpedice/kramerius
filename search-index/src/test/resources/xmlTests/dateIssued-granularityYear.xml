@@ -1,0 +1,596 @@
+<testSuite testType="mods" model="monograph">
+
+    <test name="1947">
+        <desc>Datum jako jeden rok</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1947-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1947</field>
+            <field name="n.date_instant.year">1947</field>
+
+            <!--
+            <field name="datum_begin">1947</field>
+            <field name="datum_end">1947</field>
+            <field name="datum_str">1947</field>
+            <field name="rok">1947</field>
+            -->
+        </out>
+    </test>
+
+    <test name="194u">
+        <desc>Datum jako desetiletí</desc>
+        <in>
+            <originInfo>
+                <dateIssued>194u</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1949-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1940-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">194u</field>
+
+            <!--
+            <field name="datum_str">194u</field>
+            -->
+        </out>
+    </test>
+
+    <test name="194-">
+        <desc>Datum jako desetiletí</desc>
+        <in>
+            <originInfo>
+                <!--tohle neni jednoznacne interpretovatelne, muze to znamenat rozsah "194 - ?", nebo rok "194?"-->
+                <dateIssued>194-</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <!--pro odvozeni date_max a date_min neni regexp pro detekci polouzavrenych intervalu, proto je to interpretovano jako desetileti-->
+            <field name="n.date.max">1949-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1940-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">194-</field>
+
+            <!--
+            <field name="datum_str">194-</field>
+            -->
+        </out>
+    </test>
+
+    <test name="194x">
+        <desc>Datum jako desetiletí</desc>
+        <in>
+            <originInfo>
+                <dateIssued>194x</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1949-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1940-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">194x</field>
+
+            <!--
+            <field name="datum_str">194x</field>
+            -->
+        </out>
+    </test>
+
+    <test name="18uu">
+        <desc>Datum jako století</desc>
+        <in>
+            <originInfo>
+                <dateIssued>18uu</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1899-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1800-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">18uu</field>
+
+            <!--
+            <field name="datum_str">18uu</field>
+            -->
+        </out>
+    </test>
+
+    <test name="18--">
+        <desc>Datum jako století</desc>
+        <in>
+            <originInfo>
+                <dateIssued>18--</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1899-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1800-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">18--</field>
+
+            <!--
+            <field name="datum_begin">1800</field>
+            <field name="datum_end">1899</field>
+            <field name="datum_str">18&#45;&#45;</field>
+            -->
+        </out>
+    </test>
+
+    <test name="18xx">
+        <desc>Datum jako století</desc>
+        <in>
+            <originInfo>
+                <dateIssued>18xx</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1899-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1800-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">18xx</field>
+
+            <!--
+            <field name="datum_str">18xx</field>
+            -->
+        </out>
+    </test>
+
+    <test name="1947-1952">
+        <desc>Datum jako rozsah let</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947-1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1947-1952</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.year">1947</field>
+
+            <!--
+            <field name="datum_begin">1947</field>
+            <field name="datum_end">1952</field>
+            <field name="datum_str">1947-1952</field>
+            -->
+        </out>
+    </test>
+
+    <test name="1947 - 1952">
+        <desc>Datum jako rozsah let s mezerami kolem pomlčky</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947 - 1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1947 - 1952</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.year">1947</field>
+
+            <!--
+            <field name="datum_begin">1947</field>
+            <field name="datum_end">1952</field>
+            <field name="datum_str">1947 - 1952</field>
+            -->
+        </out>
+    </test>
+
+    <test name="qualifier='questionable'">
+        <desc>the qualifier='questionable' information is ignored</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="start" qualifier="questionable" encoding="marc">1947</dateIssued>
+                <dateIssued point="end" qualifier="questionable" encoding="marc">1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1947 - 1952</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.year">1947</field>
+        </out>
+    </test>
+
+    <test name="1947-1952">
+        <desc>Datum jako rozsah let (start, end)</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="start">1947</dateIssued>
+                <dateIssued point="end">1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1947 - 1952</field>
+            <field name="n.date_range_end.year">1952</field>
+            <field name="n.date_range_start.year">1947</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum_begin">1952</field>
+            <field name="datum_end">1952</field>
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum_str">1952</field>
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="rok">1952</field>
+            -->
+        </out>
+    </test>
+
+    <test name="18uu - 195-">
+        <desc>Datum jako rozsah let (start, end)</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="start">18uu</dateIssued>
+                <dateIssued point="end">195-</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1959-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1800-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">18?? - 195?</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum_str">195-</field>
+            -->
+        </out>
+    </test>
+
+    <test name="18uu - 195x">
+        <desc>Datum jako rozsah let (start, end)</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="start">18uu</dateIssued>
+                <dateIssued point="end">195x</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1959-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1800-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">18?? - 195?</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum_str">195x</field>
+            -->
+        </out>
+    </test>
+
+    <test name="18uu - 195u">
+        <desc>Datum jako rozsah let (jen 'u' a 'x' , '-' pro nejistotu se zde ignoruje)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>18uu-195u</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1959-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1800-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">18uu-195u</field>
+
+            <!--
+            <field name="datum_str">18uu-195u</field>
+            -->
+        </out>
+    </test>
+
+    <test name="18uu - 195-">
+        <desc>Datum jako rozsah let (jen 'u' a 'x' , '-' pro nejistotu se zde ignoruje)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>18uu-195-</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.str">18uu-195-</field>
+
+            <!--
+            <field name="datum_str">18uu-195-</field>
+            -->
+        </out>
+    </test>
+
+    <test name="18uu - 195x">
+        <desc>Datum jako rozsah let (jen 'u' a 'x' , '-' pro nejistotu se zde ignoruje)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>18uu-195x</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1959-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1800-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">18uu-195x</field>
+
+            <!--
+            <field name="datum_str">18uu-195x</field>
+            -->
+        </out>
+    </test>
+
+    <test name="1947-">
+        <desc>Datum jako rozsah let (jen point=start)</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="start">1947</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1947 - ?</field>
+            <field name="n.date_range_start.year">1947</field>
+
+            <!--
+            <field name="datum_begin">1947</field>
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum_end">1947</field>
+            <field name="datum_str">1947</field>
+            <field name="rok">1947</field>
+            -->
+        </out>
+    </test>
+
+    <test name="194u - ">
+        <desc>Datum jako nepřesný rozsah let (jen point=start)</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="start">194u</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.min">1940-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">194? - ?</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum_str">194u</field>
+            -->
+        </out>
+    </test>
+
+    <test name="-1952">
+        <desc>Datum jako rozsah let (jen point=end)</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="end">1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="n.date.str">? - 1952</field>
+            <field name="n.date_range_end.year">1952</field>
+
+            <!--
+            &lt;!&ndash;spatne&ndash;&gt;
+            <field name="datum_begin">1952</field>
+            <field name="datum_end">1952</field>
+            <field name="datum_str">1952</field>
+            <field name="rok">1952</field>
+            -->
+        </out>
+    </test>
+
+    <test name="?-19xx">
+        <desc>Datum jako nepřesný rozsah let (jen point=end)</desc>
+        <in>
+            <originInfo>
+                <dateIssued point="end">19xx</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1999-12-31T23:59:59.999Z</field>
+            <field name="n.date.str">? - 19??</field>
+
+            <!--
+            <field name="datum_str">19xx</field>
+            -->
+        </out>
+    </test>
+
+    <test name="prázdné datum">
+        <desc></desc>
+        <in>
+            <originInfo>
+            </originInfo>
+        </in>
+        <out>
+        </out>
+    </test>
+
+    <test name="[1968]">
+        <desc>Rok ohraniceny hranatymi zavorkami, nejistotou zde ignorujeme.</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1968]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1968-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1968-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">[1968]</field>
+            <field name="n.date_instant.year">1968</field>
+        </out>
+    </test>
+
+    <test name="1968]">
+        <desc>Rok ohraniceny hranatou zavorkou zprava, nejistotou zde ignorujeme.</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1968]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1968-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1968-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1968]</field>
+            <field name="n.date_instant.year">1968</field>
+        </out>
+    </test>
+
+    <test name="[1968">
+        <desc>Rok ohraniceny hranatou zavorkou zleva, nejistotou zde ignorujeme.</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1968</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1968-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1968-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">[1968</field>
+            <field name="n.date_instant.year">1968</field>
+        </out>
+    </test>
+
+    <test name="p1968">
+        <desc>Rok s prefixem pYEAR, nejistotou zde ignorujeme.</desc>
+        <in>
+            <originInfo>
+                <dateIssued>p1968</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1968-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1968-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">p1968</field>
+            <field name="n.date_instant.year">1968</field>
+        </out>
+    </test>
+
+    <test name="c1968">
+        <desc>Rok s prefixem cYEAR, nejistotou zde ignorujeme.</desc>
+        <in>
+            <originInfo>
+                <dateIssued>c1968</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1968-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1968-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">c1968</field>
+            <field name="n.date_instant.year">1968</field>
+        </out>
+    </test>
+
+    <test name="p1968 and 1969">
+        <desc>Dva roky (jednou s prefixem cYEAR jednou bez prefixu) v kolizi, pouzije se prvni</desc>
+        <in>
+            <originInfo>
+                <dateIssued>p1968</dateIssued>
+                <dateIssued>1969</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1968-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1968-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">p1968</field>
+            <field name="n.date_instant.year">1968</field>
+        </out>
+    </test>
+
+    <test name="1723?]">
+        <desc>http://www.digitalniknihovna.cz/mzk/uuid/uuid:8b7e94e2-c14c-45c3-8872-b89173eb5669</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1723?]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1723-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1723-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1723?]</field>
+            <field name="n.date_instant.year">1723</field>
+        </out>
+    </test>
+
+    <test name="1723?] and 1723 (encoding=marc)">
+        <desc>http://www.digitalniknihovna.cz/mzk/uuid/uuid:8b7e94e2-c14c-45c3-8872-b89173eb5669</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1723?]</dateIssued>
+                <dateIssued encoding="marc">1723</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1723-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1723-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">1723?]</field>
+            <field name="n.date_instant.year">1723</field>
+        </out>
+    </test>
+
+    <test name="[1910?]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1910?]</dateIssued>
+                <dateIssued encoding="marc">1910</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1910-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1910-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">[1910?]</field>
+            <field name="n.date_instant.year">1910</field>
+        </out>
+    </test>
+
+    <test name="[1910?] and 1910 (encoding=marc)">
+        <desc>http://www.digitalniknihovna.cz/mzk/uuid/uuid:1adfd504-2eb9-43be-83a4-155ef702c5fd</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1910?]</dateIssued>
+                <dateIssued encoding="marc">1910</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="n.date.max">1910-12-31T23:59:59.999Z</field>
+            <field name="n.date.min">1910-01-01T00:00:00.001Z</field>
+            <field name="n.date.str">[1910?]</field>
+            <field name="n.date_instant.year">1910</field>
+        </out>
+    </test>
+
+    <test name="empty 1">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued></dateIssued>
+            </originInfo>
+        </in>
+        <out>
+        </out>
+    </test>
+
+    <test name="empty 2">
+        <desc></desc>
+        <in>
+            <originInfo>
+            </originInfo>
+        </in>
+        <out>
+        </out>
+    </test>
+
+    <test name="empty 3">
+        <desc></desc>
+        <in>
+        </in>
+        <out>
+        </out>
+    </test>
+
+
+    <!--TODO: http://dk.kramerius.org/kfbz/music/uuid:1d2ce3ff-2db2-4397-b839-87b28db749c2-->
+
+    <!--TODO:
+    192? znamena 1920-1929, ale 1921? neznamena silenou budoucnost, ale nejistotu v roku, neco jako [1921]-->
+
+
+</testSuite>

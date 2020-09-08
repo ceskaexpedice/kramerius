@@ -1,0 +1,65 @@
+<testSuite testType="mods" model="periodical">
+
+    <test name="Tagesbote - multiple titles">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>Tagesbote</title>
+            </titleInfo>
+            <titleInfo>
+                <title>Neuigkeiten</title>
+                <partName>1851-1867</partName>
+            </titleInfo>
+            <titleInfo>
+                <title>Tagesbote aus Mähren und Schlesien</title>
+                <partName>1867-1921</partName>
+            </titleInfo>
+            <titleInfo>
+                <title>Tagesbote</title>
+                <partName>1921-1939</partName>
+            </titleInfo>
+            <titleInfo>
+                <title>Volksdeutsche Zeitung</title>
+                <partName>1939-1940</partName>
+            </titleInfo>
+            <titleInfo>
+                <title>Brünner Tagblatt</title>
+                <subTitle>Deutsche Tageszeitung in Böhmen und Mähren</subTitle>
+                <partName>1940-1945</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <!--TODO: tohle neni idealni, pouzije se jen prvni partName; taky otazka, jestli tohle povazujeme za korektni zapis-->
+            <field name="n.part.name">1851-1867</field>
+
+            <field name="n.title.search">Tagesbote</field>
+            <field name="n.title.sort">TAGESBOTE</field>
+            <field name="n.titles.search">Tagesbote</field>
+            <field name="n.titles.search">Neuigkeiten. 1851-1867</field>
+            <field name="n.titles.search">Tagesbote aus Mähren und Schlesien. 1867-1921</field>
+            <field name="n.titles.search">Tagesbote. 1921-1939</field>
+            <field name="n.titles.search">Volksdeutsche Zeitung. 1939-1940</field>
+            <field name="n.titles.search">Brünner Tagblatt: Deutsche Tageszeitung in Böhmen und Mähren. 1940-1945</field>
+        </out>
+    </test>
+
+    <test name="Der Wanderer im Riesengebirge - nonsort">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>Wanderer im Riesengebirge</title>
+                <nonSort>Der </nonSort>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.title.search">Der Wanderer im Riesengebirge</field>
+            <field name="n.title.sort">WANDERER IM RIESENGEBIRGE</field>
+            <field name="n.titles.search">Der Wanderer im Riesengebirge</field>
+        </out>
+    </test>
+
+</testSuite>
+
+
+
+
