@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 public class ProcessApiTestProcess {
 
     public static final Logger LOGGER = Logger.getLogger(ProcessApiTestProcess.class.getName());
-    public static final String ID = "process-api-test";
+    public static final String ID = "new_process-api-test";
     public static final String PARAM_DURATION = "duration";
     public static final String PARAM_PROCESSES_IN_BATCH = "processesInBatch";
     public static final String PARAM_FINAL_STATE = "finalState";
@@ -65,7 +65,7 @@ public class ProcessApiTestProcess {
             scheduleNextProcessInBatch(authToken, durationInSeconds, processesInBatch - 1, finalState);
         }
 
-        LOGGER.info("total duration: " + formatTime(System.currentTimeMillis() - start));
+        LOGGER.info("total duration: " + Utils.formatTime(System.currentTimeMillis() - start));
 
         //final state
         if (finalState == FinalState.RANDOM) {
@@ -129,12 +129,6 @@ public class ProcessApiTestProcess {
         }
     }
 
-    public static String formatTime(long millis) {
-        long hours = millis / (60 * 60 * 1000);
-        long minutes = millis / (60 * 1000) - hours * 60;
-        long seconds = (millis / 1000) % 60;
-        return String.format("%d:%02d:%02d", hours, minutes, seconds);
-    }
 
     public enum FinalState {
         FINISHED, FAILED, WARNING, RANDOM

@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v10.processes;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.*;
+import cz.incad.kramerius.processes.newProcesses.IndexerProcess;
 import cz.incad.kramerius.processes.newProcesses.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
@@ -14,6 +15,7 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -144,7 +146,7 @@ public class ProcessResource extends AdminApiResource {
      * @param offsetStr
      * @param limitStr
      * @return
-     * @see cz.incad.Kramerius.views.ProcessLogsViewObject
+     * //@see cz.incad.Kramerius.views.ProcessLogsViewObject
      */
     @GET
     @Path("by_process_uuid/{process_uuid}/logs/out")
@@ -162,7 +164,7 @@ public class ProcessResource extends AdminApiResource {
      * @param offsetStr
      * @param limitStr
      * @return
-     * @see cz.incad.Kramerius.views.ProcessLogsViewObject
+     * //@see cz.incad.Kramerius.views.ProcessLogsViewObject
      */
     @GET
     @Path("by_process_uuid/{process_uuid}/logs/err")
@@ -539,6 +541,42 @@ public class ProcessResource extends AdminApiResource {
                 array.add(duration.toString());
                 array.add(processesInBatch.toString());
                 array.add(finalState.name());
+                return array;
+            }
+            case IndexerProcess.ID: {
+                //type
+                String typeKey = IndexerProcess.PARAM_TYPE;
+                String typeValue = null;
+                if (params.has(typeKey)) {
+                    typeValue = params.getString(typeKey);
+                    try {
+                        IndexationType.valueOf(typeValue);
+                    } catch (IllegalArgumentException e) {
+                        throw new BadRequestException("invalid value of %s: '%d'", typeKey, typeValue);
+                    }
+                } else {
+                    throw new BadRequestException("missing mandatory parameter %s: ", IndexerProcess.PARAM_TYPE);
+                }
+                //pid
+                String pidKey = IndexerProcess.PARAM_PID;
+                String pidValue;
+                if (params.has(pidKey)) {
+                    pidValue = params.getString(pidKey);
+                    if (!pidValue.toLowerCase().startsWith("uuid:")) {
+                        throw new BadRequestException("invalid value of %s: '%d'", pidKey, pidValue);
+                    } else {
+                        try {
+                            UUID.fromString(pidValue.substring("uuid:".length()));
+                        } catch (IllegalArgumentException e) {
+                            throw new BadRequestException("invalid value of %s: '%d'", pidKey, pidValue);
+                        }
+                    }
+                } else {
+                    throw new BadRequestException("missing mandatory parameter %s: ", IndexerProcess.PARAM_PID);
+                }
+                List<String> array = new ArrayList<>();
+                array.add(typeValue);
+                array.add(pidValue);
                 return array;
             }
             default: {

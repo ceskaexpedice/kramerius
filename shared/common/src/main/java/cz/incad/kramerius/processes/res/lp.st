@@ -20,11 +20,28 @@
 
     <process>
         <!-- identifikator  -->
-        <id>process-api-test</id>
+        <id>new_process-api-test</id>
         <!-- popis -->
         <description>Proces pro testovani spravy procesu</description>
         <!-- spoustena trida -->
         <mainClass>cz.incad.kramerius.processes.newProcesses.ProcessApiTestProcess</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- chybovy vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
+        <!--<parameters>duration processesInBatch finalState</parameters>-->
+        <checkErrorStream>false</checkErrorStream>
+    </process>
+
+    <process>
+        <!-- identifikator  -->
+        <id>new_indexer</id>
+        <!-- popis -->
+        <description>Proces realizující indexaci do nového vyhledávacího indexu</description>
+        <!-- spoustena trida -->
+        <mainClass>cz.incad.kramerius.processes.newProcesses.IndexerProcess</mainClass>
         <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
         <!-- chybovy vystup -->
