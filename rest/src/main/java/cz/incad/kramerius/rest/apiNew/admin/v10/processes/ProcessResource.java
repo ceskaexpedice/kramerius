@@ -2,8 +2,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v10.processes;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.*;
-import cz.incad.kramerius.processes.newProcesses.IndexerProcess;
-import cz.incad.kramerius.processes.newProcesses.ProcessApiTestProcess;
+import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
@@ -15,6 +14,7 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.kramerius.searchIndex.KrameriusIndexerProcess;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -543,9 +543,9 @@ public class ProcessResource extends AdminApiResource {
                 array.add(finalState.name());
                 return array;
             }
-            case IndexerProcess.ID: {
+            case KrameriusIndexerProcess.ID: {
                 //type
-                String typeKey = IndexerProcess.PARAM_TYPE;
+                String typeKey = KrameriusIndexerProcess.PARAM_TYPE;
                 String typeValue = null;
                 if (params.has(typeKey)) {
                     typeValue = params.getString(typeKey);
@@ -555,10 +555,10 @@ public class ProcessResource extends AdminApiResource {
                         throw new BadRequestException("invalid value of %s: '%d'", typeKey, typeValue);
                     }
                 } else {
-                    throw new BadRequestException("missing mandatory parameter %s: ", IndexerProcess.PARAM_TYPE);
+                    throw new BadRequestException("missing mandatory parameter %s: ", KrameriusIndexerProcess.PARAM_TYPE);
                 }
                 //pid
-                String pidKey = IndexerProcess.PARAM_PID;
+                String pidKey = KrameriusIndexerProcess.PARAM_PID;
                 String pidValue;
                 if (params.has(pidKey)) {
                     pidValue = params.getString(pidKey);
@@ -572,7 +572,7 @@ public class ProcessResource extends AdminApiResource {
                         }
                     }
                 } else {
-                    throw new BadRequestException("missing mandatory parameter %s: ", IndexerProcess.PARAM_PID);
+                    throw new BadRequestException("missing mandatory parameter %s: ", KrameriusIndexerProcess.PARAM_PID);
                 }
                 List<String> array = new ArrayList<>();
                 array.add(typeValue);

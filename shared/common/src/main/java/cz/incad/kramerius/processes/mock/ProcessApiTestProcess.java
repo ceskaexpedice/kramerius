@@ -1,4 +1,4 @@
-package cz.incad.kramerius.processes.newProcesses;
+package cz.incad.kramerius.processes.mock;
 
 import com.hazelcast.internal.json.Json;
 import com.hazelcast.internal.json.JsonValue;
@@ -9,6 +9,7 @@ import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
+import cz.incad.kramerius.processes.utils.Utils;
 import net.sf.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;

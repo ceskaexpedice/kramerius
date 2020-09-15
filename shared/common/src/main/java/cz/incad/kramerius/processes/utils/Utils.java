@@ -1,4 +1,4 @@
-package cz.incad.kramerius.processes.newProcesses;
+package cz.incad.kramerius.processes.utils;
 
 public class Utils {
 

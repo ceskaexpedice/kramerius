@@ -22,9 +22,9 @@
         <!-- identifikator  -->
         <id>new_process-api-test</id>
         <!-- popis -->
-        <description>Proces pro testovani spravy procesu</description>
+        <description>Proces pro testování nové správy procesů</description>
         <!-- spoustena trida -->
-        <mainClass>cz.incad.kramerius.processes.newProcesses.ProcessApiTestProcess</mainClass>
+        <mainClass>cz.incad.kramerius.processes.mock.ProcessApiTestProcess</mainClass>
         <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
         <!-- chybovy vystup -->
@@ -39,9 +39,9 @@
         <!-- identifikator  -->
         <id>new_indexer</id>
         <!-- popis -->
-        <description>Proces realizující indexaci do nového vyhledávacího indexu</description>
+        <description>(re)indexace - v novém vyhledávacím indexu</description>
         <!-- spoustena trida -->
-        <mainClass>cz.incad.kramerius.processes.newProcesses.IndexerProcess</mainClass>
+        <mainClass>cz.kramerius.searchIndex.KrameriusIndexerProcess</mainClass>
         <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
         <!-- chybovy vystup -->
