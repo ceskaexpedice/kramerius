@@ -7,6 +7,7 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
@@ -51,13 +52,17 @@ public class ItemResource extends ClientApiResource {
     //Výsledek:
     // HEAD     {pid}
     // GET      {pid}/info
-    // GET      {pid}/info/data
     // GET      {pid}/info/structure
+    // GET      {pid}/info/data
+    // GET      {pid}/info/image
     // GET/HEAD {pid}/metadata/mods
     // GET/HEAD {pid}/metadata/dc
     // GET/HEAD {pid}/ocr/text
     // GET/HEAD {pid}/ocr/alto
     // TODO: obrazova, zvukova data
+    // GET      {pid}/image/full
+    // GET      {pid}/image/thumb
+    // GET      {pid}/image/preview
 
     public static final Logger LOGGER = Logger.getLogger(ItemResource.class.getName());
 
@@ -81,6 +86,7 @@ public class ItemResource extends ClientApiResource {
             JSONObject json = new JSONObject();
             json.put("data-available", extractAvailableDataInfo(pid));
             json.put("structure", extractStructureInfo(pid));
+            json.put("image-source", extractImageSourceInfo(pid));
             return Response.ok(json).build();
         } catch (RepositoryException | SolrServerException | IOException e) {
             throw new InternalErrorException(e.getMessage());
@@ -114,6 +120,23 @@ public class ItemResource extends ClientApiResource {
             checkObjectExists(pid);
             return Response.ok(extractStructureInfo(pid)).build();
         } catch (RepositoryException | SolrServerException | IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{pid}/info/image")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    /***
+     * Vrací informaci o tom, jaký zdroj pro obrazová data má objekt (typicky stránka) k dispozici,
+     * buď tiles (dlaždice přes zoomify/iiif), nebo none, nebo mimetype (image/jpeg, application/pdf, ...) datastreamu IMG_FULL
+     */
+    public Response getInfoImage(@PathParam("pid") String pid) {
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        try {
+            checkObjectExists(pid);
+            return Response.ok(extractImageSourceInfo(pid)).build();
+        } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -178,6 +201,29 @@ public class ItemResource extends ClientApiResource {
         structure.put("model", model);
 
         return structure;
+    }
+
+    private Object extractImageSourceInfo(String pid) throws IOException, RepositoryException {
+        JSONObject json = new JSONObject();
+        Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);
+        String tilesUrl = Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//tiles-url");
+        System.out.println(relsExt.asXML());
+        System.out.println("tiles url: " + tilesUrl);
+        if (tilesUrl != null) {
+            json.put("type", "tiles");
+            json.put("url", tilesUrl);
+        } else if (!krameriusRepositoryApi.isImgFullAvailable(pid)) {
+            json.put("type", "none");
+        } else {
+            String imgFullMimetype = krameriusRepositoryApi.getImgFullMimetype(pid);
+            if (imgFullMimetype == null) {
+                json.put("type", "none");
+            } else {
+                //jpeg, pdf, etc.
+                json.put("type", imgFullMimetype);
+            }
+        }
+        return json;
     }
 
     private JSONObject pidAndRelationToJson(String pid, String relation) {

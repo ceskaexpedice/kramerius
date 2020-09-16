@@ -109,6 +109,18 @@ public class RepositoryApiImpl implements RepositoryApi {
     }
 
     @Override
+    public String getDatastreamMimetype(String pid, String dsId) throws RepositoryException, IOException {
+        RepositoryObject object = akubraRepository.getObject(pid);
+        if (object != null) {
+            RepositoryDatastream stream = object.getStream(dsId);
+            if (stream != null) {
+                return stream.getMimeType();
+            }
+        }
+        return null;
+    }
+
+    @Override
     public Document getLatestVersionOfInlineXmlDatastream(String pid, String dsId) throws RepositoryException, IOException {
         RepositoryObject object = akubraRepository.getObject(pid);
         if (object.streamExists(dsId)) {

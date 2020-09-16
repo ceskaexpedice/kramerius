@@ -94,6 +94,11 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
     }
 
     @Override
+    public String getImgFullMimetype(String pid) throws IOException, RepositoryException {
+        return repositoryApi.getDatastreamMimetype(pid, KnownDatastreams.IMG_FULL.toString());
+    }
+
+    @Override
     public boolean isImgThumbAvailable(String pid) throws IOException, RepositoryException {
         return repositoryApi.datastreamExists(pid, KnownDatastreams.IMG_THUMB.toString());
     }

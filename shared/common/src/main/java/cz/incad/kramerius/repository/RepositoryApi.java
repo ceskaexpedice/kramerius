@@ -45,6 +45,8 @@ public interface RepositoryApi {
 
     public boolean datastreamExists(String pid, String dsId) throws RepositoryException, IOException;
 
+    public String getDatastreamMimetype(String pid, String dsId) throws RepositoryException, IOException;
+
     public Document getLatestVersionOfInlineXmlDatastream(String pid, String dsId) throws RepositoryException, IOException;
 
     public String getLatestVersionOfManagedTextDatastream(String pid, String dsId) throws RepositoryException, IOException;

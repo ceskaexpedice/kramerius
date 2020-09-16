@@ -102,7 +102,7 @@ public interface KrameriusRepositoryApi {
         throw new IllegalArgumentException(String.format("unknown relation '%s'", relation));
     }
 
-    //TODO: methods for getting ocr, images, audio
+    //TODO: methods for getting images, audio
     //TODO: methods for updating datastream data (done for inline xml datastreams)
 
     /**
@@ -204,6 +204,14 @@ public interface KrameriusRepositoryApi {
 
     /**
      * @param pid Persistent identifier of the object
+     * @return
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public String getImgFullMimetype(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
      * @return if datastream IMG_THUMB is available for the object
      * @throws IOException
      * @throws RepositoryException
@@ -243,7 +251,6 @@ public interface KrameriusRepositoryApi {
     public boolean isAudioWavAvailable(String pid) throws IOException, RepositoryException;
 
     /**
-     *
      * @param objectPid
      * @return Model of the object
      * @throws RepositoryException
