@@ -642,6 +642,8 @@
 
         <!--whether there is tiles-url in rels-ext-->
         <field name="n.has_tiles" type="boolean" indexed="true" stored="true"/>
+        <!--MIME type of IMG_FULL datastream-->
+        <field name="n.ds.img_full.mime" type="string" indexed="true" stored="true"/>
 
         <!--kratky popis sbirky-->
         <field name="n.collection.desc" type="string" indexed="true" stored="true"/>

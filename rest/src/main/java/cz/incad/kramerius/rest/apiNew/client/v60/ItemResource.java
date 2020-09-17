@@ -207,11 +207,8 @@ public class ItemResource extends ClientApiResource {
         JSONObject json = new JSONObject();
         Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);
         String tilesUrl = Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//tiles-url");
-        System.out.println(relsExt.asXML());
-        System.out.println("tiles url: " + tilesUrl);
         if (tilesUrl != null) {
             json.put("type", "tiles");
-            json.put("url", tilesUrl);
         } else if (!krameriusRepositoryApi.isImgFullAvailable(pid)) {
             json.put("type", "none");
         } else {

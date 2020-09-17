@@ -132,7 +132,9 @@ public class IndexerProcess {
                 //String ocrText = repositoryConnector.isOcrTextAvailable(pid) ? repositoryConnector.getOcrText(pid) : null;
                 String ocrText = repositoryConnector.getOcrText(pid);
                 //System.out.println("ocr: " + ocrText);
-                SolrInput solrInput = foxml2SolrInputConverter.convert(foxmlDoc, ocrText, repositoryNode, nodeManager);
+                //IMG_FULL mimetype
+                String imgFullMime = repositoryConnector.getImgFullMimetype(pid);
+                SolrInput solrInput = foxml2SolrInputConverter.convert(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime);
                 String solrInputStr = solrInput.getDocument().asXML();
                 solrIndexer.indexFromXmlString(solrInputStr, false);
                 counters.incrementIndexed();

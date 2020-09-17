@@ -1,8 +1,10 @@
 package cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi;
 
+import cz.kramerius.searchIndex.repositoryAccess.Utils;
 import cz.kramerius.searchIndex.repositoryAccessImpl.RepositoryAccessImplAbstract;
 import org.w3c.dom.Document;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -57,7 +59,7 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         //TODO: auth
-        //GET http://localhost:8080/search/api/admin/v1.0/item/uuid:a8263737-eb03-4107-9723-7200d00036f5/streams/dsId
+        //GET http://localhost:8080/search/api/admin/v1.0/item/uuid:a8263737-eb03-4107-9723-7200d00036f5/streams/BIBLIO_MODS
         URL url = new URL(coreBaseUrl + "/api/admin/v1.0/item/" + pid + "/streams/" + datastreamName);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         //con.setRequestMethod("GET");
@@ -95,6 +97,32 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
         int code = con.getResponseCode();
         //System.out.println("response code: " + code);
         return code == 200;
+    }
+
+    @Override
+    public String getDatastreamMimeType(String pid, String datastreamName) throws IOException {
+        //TODO: auth
+        //GET http://localhost:8080/search/api/admin/v1.0/item/uuid:a8263737-eb03-4107-9723-7200d00036f5/streams/streams/IMG_FULL/mime
+        URL url = new URL(coreBaseUrl + "/api/admin/v1.0/item/" + pid + "/streams/" + datastreamName + "/mime");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        //con.setRequestMethod("GET");
+        con.setConnectTimeout(3000);
+        con.setReadTimeout(5000);
+        if (logHttpRequests) {
+            System.out.println("GET " + url.toString());
+        }
+        int code = con.getResponseCode();
+        //System.out.println("response code: " + code);
+        if (code == 200) {
+            InputStream is = null;
+            is = con.getInputStream();
+            return Utils.inputstreamToString(is);
+        } else if (code == 404) {
+            //not found
+            return null;
+        } else {
+            throw new IOException(String.format("datastream %s of object %s not found or error reading it", datastreamName, pid));
+        }
     }
 
 }

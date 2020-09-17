@@ -401,7 +401,8 @@ public class Main {
             String ocrText = repositoryAdapter.getOcrText(pid);
             //System.out.println("ocr text: " + ocrText);
             RepositoryNode repositoryNode = nodeManager.getKrameriusNode(pid);
-            SolrInput solrInput = convertor.convert(foxmlDoc, ocrText, repositoryNode, nodeManager);
+            String imgFullMime = repositoryAdapter.getImgFullMimetype(pid);
+            SolrInput solrInput = convertor.convert(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime);
             String solrInputStr = solrInput.getDocument().asXML();
             //System.out.println(solrInputStr);
             System.out.println("indexing " + pid);

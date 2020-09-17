@@ -30,7 +30,7 @@ public class ItemResource extends AdminApiResource {
                 AuthenticatedUser user = getAuthenticatedUser();
                 String role = ROLE_READ_FOXML;
                 if (!user.getRoles().contains(role)) {
-                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+                    throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
                 }
             }
             checkObjectExists(pid);
@@ -50,11 +50,54 @@ public class ItemResource extends AdminApiResource {
             AuthenticatedUser user = getAuthenticatedUser();
             String role = ROLE_READ_FOXML;
             if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
             }
         }
         checkObjectAndDatastreamExist(pid, dsid);
         return Response.ok().build();
+    }
+
+    /**
+     * Returns mimetype of given datastream, if the object and datastream exist
+     *
+     * @param pid
+     * @param dsid
+     * @return
+     */
+    @GET
+    @Path("{pid}/streams/{dsid}/mime")
+    public Response getDatastreamMime(@PathParam("pid") String pid, @PathParam("dsid") String dsid) {
+        try {
+            boolean disableAuth = true; //TODO: reenable for production
+            //authentication
+            if (!disableAuth) {
+                AuthenticatedUser user = getAuthenticatedUser();
+                String role = ROLE_READ_FOXML;
+                if (!user.getRoles().contains(role)) {
+                    throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+                }
+            }
+            checkObjectAndDatastreamExist(pid, dsid);
+            switch (dsid) {
+                case "IMG_FULL": {
+                    String mime = krameriusRepositoryApi.getImgFullMimetype(pid);
+                    System.out.println("mime: " + mime);
+                    if (mime == null) {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    } else {
+                        return Response.ok()
+                                .type(MediaType.TEXT_PLAIN + ";charset=utf-8")
+                                .entity(mime)
+                                .build();
+                    }
+                }
+                //TODO: other streams where it makes sense
+                default:
+                    return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+        } catch (RepositoryException | IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     @GET
@@ -67,7 +110,7 @@ public class ItemResource extends AdminApiResource {
                 AuthenticatedUser user = getAuthenticatedUser();
                 String role = ROLE_READ_FOXML;
                 if (!user.getRoles().contains(role)) {
-                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+                    throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getName(), role); //403
                 }
             }
             checkObjectAndDatastreamExist(pid, dsid);

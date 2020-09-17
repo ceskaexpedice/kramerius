@@ -105,6 +105,11 @@ public class KrameriusRepositoryAccessAdapter {
         return result == null ? null : result.trim();
     }
 
+    //IMAGE
+    public String getImgFullMimetype(String pid) throws IOException {
+        return repository.getDatastreamMimeType(pid, KnownDatastreams.IMG_FULL_STREAM);
+    }
+
     public static class KnownDatastreams {
         public static final String RELS_EXT_STREAM = "RELS-EXT";
         public static final String IMG_THUMB_STREAM = "IMG_THUMB";

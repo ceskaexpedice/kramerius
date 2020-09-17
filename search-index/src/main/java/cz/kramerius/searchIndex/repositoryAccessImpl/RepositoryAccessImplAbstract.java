@@ -267,4 +267,9 @@ public abstract class RepositoryAccessImplAbstract implements FedoraAccess {
     public String getFirstItemPid(Document relsExt) throws IOException {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public String getDatastreamMimeType(String pid, String datastreamName) throws IOException {
+        throw new UnsupportedOperationException();
+    }
 }
