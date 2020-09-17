@@ -41,16 +41,6 @@ public class KrameriusIndexerProcess {
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
         ProcessStarter.updateName(String.format("Indexace (typ %s, objekt %s)", type, pid));
 
-        //cekani n sekund
-        try {
-            int durationInSeconds = new Random().nextInt(10);
-            LOGGER.info(String.format("going to sleep for %d seconds now", durationInSeconds));
-            Thread.sleep(durationInSeconds * 1000);
-            LOGGER.info(String.format("waking up"));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         LOGGER.info("Let's index");
         //TODO: from config
         String krameriusBackendBaseUrl =  "http://localhost:8080/search";
