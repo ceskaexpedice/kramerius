@@ -18,6 +18,7 @@ public class ItemResource extends AdminApiResource {
 
     //TODO: prejmenovat role podle spravy uctu
     private static final String ROLE_READ_FOXML = "kramerius_admin";
+    private static final String ROLE_DELETE_OBJECTS = "kramerius_admin";
 
     @GET
     @Path("{pid}/foxml")
@@ -36,6 +37,25 @@ public class ItemResource extends AdminApiResource {
             checkObjectExists(pid);
             Document foxml = krameriusRepositoryApi.getLowLevelApi().getFoxml(pid);
             return Response.ok().entity(foxml.asXML()).build();
+        } catch (RepositoryException | IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @DELETE
+    @Path("{pid}")
+    public Response deleteObject(@PathParam("pid") String pid) {
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUser();
+            String role = ROLE_DELETE_OBJECTS;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+            }
+            checkObjectExists(pid);
+            krameriusRepositoryApi.getLowLevelApi().deleteObject(pid);
+            //TODO: schedule indexation of the affected objects
+            return Response.ok().build();
         } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
