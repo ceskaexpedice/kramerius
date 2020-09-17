@@ -1,0 +1,52 @@
+Obtaining foxml examples:
+=======================
+https://kramerius.mzk.cz/search/api/v5.0/item/uuid:530719f5-ee95-4449-8ce7-12b0f4cadb22/foxml
+
+
+Solr installation & configuration:
+==================================
+We'll be using Solr 8, latest version i 8.2.0 (as of 15. 8. 2019).
+Solr 8 requires Java 8 and newer.
+
+Resources:
+------------------
+https://lucene.apache.org/solr/downloads.html
+
+Installation
+------------
+1. download and unpack file `solr-7.x.zip` into directory from now on called SOLR_HOME
+2. start Solr server with `$SOLR_HOME/bin/solr start`
+3. check that Solr server is running correctly with `$SOLR_HOME/bin/solr status`
+4. copy directory `solr_core/solr7x/search` into directory $SOLR_HOME/server/solr/search
+5. create preconfigured search solr-core with `$SOLR_HOME/bin/solr create -c search -d $SOLR_HOME/server/solr/search -n solrconfig.xml`
+6. stop Solr server with `$SOLR_HOME/bin/solr stop`
+7. enable security configuration by copying file security.json to `$SOLR_HOME/server/solr/security.json`
+8. use `krameriusIndexer.jar` to generate credentials for new login and pasword and change configuration file `$SOLR_HOME/server/solr/security.json` accordingly, for example:
+for example: `java -jar krameriusIndexer.jar build_solr_basic-auth-plugin_credentials login password`
+9. update `$SOLR_HOME/server/solr/security.json` with new credentials
+10. start Solr server with `$SOLR_HOME/bin/solr start`
+
+TODO: zrusit autentizaci, ale zdokumentovat, ze solr musi byt zavreny zvenku
+
+Tips
+----
+deleting core:
+bin/solr delete -c kramerius-new -deleteConfig true
+
+increasing open file limit and max process limit:
+pico /etc/security/limits.conf
+kramerius             soft    nofile          65000
+kramerius             hard    nofile          65000
+kramerius             soft    nproc           65000
+kramerius             hard    nproc           65000
+
+increasing entropy
+aptitude install rng-tools
+pico /etc/default/rng-tools
+Add at bottom of file: HRNGDEVICE=/dev/urandom
+/etc/init.d/rng-tools restart
+
+
+Changes in Solr (6,7 -> 8)
+--------------------------
+ - Setting defaultSearchField in schema not supported since Solr 7
