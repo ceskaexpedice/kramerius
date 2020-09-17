@@ -126,15 +126,17 @@ public class XmlTestBuilder {
                     null, null, null,
                     null, languages, authors
             );
-            SolrInput solrInput = converter.convert(foxmlDoc, null, node, null);
+            SolrInput solrInput = converter.convert(foxmlDoc, null, node, null, null);
             SolrInput cleared = withoutFields(solrInput,
                     "n.model",
                     "n.root.pid",
                     "n.root.title",
+                    "n.root.title.sort",
                     "n.root.model",
                     "n.own_pid_path",
                     "n.own_model_path",
                     "n.has_tiles",
+                    "n.ds.img_full.mime",
 
                     "fedora.model",
                     "root_pid",
@@ -166,7 +168,7 @@ public class XmlTestBuilder {
                     null, null, null,
                     null, null, null
             );
-            SolrInput solrInput = converter.convert(foxmlDoc, null, node, null);
+            SolrInput solrInput = converter.convert(foxmlDoc, null, node, null, null);
             SolrInput cleared = withoutFields(solrInput,
                     "n.model",
                     /*"n.root.pid",

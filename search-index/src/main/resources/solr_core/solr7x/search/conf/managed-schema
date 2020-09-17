@@ -510,8 +510,7 @@
         <field name="n.root.pid" type="string" indexed="true" stored="true"/>
         <field name="n.root.model" type="string" indexed="true" stored="true"/>
         <field name="n.root.title" type="string" indexed="true" stored="true"/>
-
-        <!--TODO: root_title_sort (podobne jako title_sort)-->
+        <field name="n.root.title.sort" type="string" indexed="true" stored="true"/>
 
         <!--own parent-->
         <field name="n.own_parent.pid" type="string" indexed="true" stored="true" multiValued="false"/>

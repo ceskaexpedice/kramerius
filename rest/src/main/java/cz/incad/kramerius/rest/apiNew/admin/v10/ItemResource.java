@@ -81,7 +81,6 @@ public class ItemResource extends AdminApiResource {
             switch (dsid) {
                 case "IMG_FULL": {
                     String mime = krameriusRepositoryApi.getImgFullMimetype(pid);
-                    System.out.println("mime: " + mime);
                     if (mime == null) {
                         return Response.status(Response.Status.NOT_FOUND).build();
                     } else {

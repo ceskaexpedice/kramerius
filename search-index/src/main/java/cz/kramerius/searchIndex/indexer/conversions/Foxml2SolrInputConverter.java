@@ -97,6 +97,7 @@ public class Foxml2SolrInputConverter {
             addSolrField(solrInput, "n.root.model", repositoryNode.getRootModel());
             if (repositoryNode.getRootTitle() != null) {
                 addSolrField(solrInput, "n.root.title", repositoryNode.getRootTitle().value);
+                addSolrField(solrInput, "n.root.title.sort",prepareForSorting(repositoryNode.getRootTitle().value) );
             }
 
             addSolrField(solrInput, "n.own_parent.pid", repositoryNode.getOwnParentPid());
