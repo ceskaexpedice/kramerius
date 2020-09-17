@@ -36,6 +36,12 @@ public class CollectionsResource extends AdminApiResource {
     @Inject
     private FoxmlBuilder foxmlBuilder;
 
+    /**
+     * Creates new collection and assigns a pid to it.
+     *
+     * @param collectionDefinition collection object (JSON) with attributes name:string, description:string, content:string, standalone: boolean
+     * @return collection object in JSON with pid assign
+     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -62,6 +68,12 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
+    /**
+     * Returs a collection identified by pid.
+     *
+     * @param pid
+     * @return
+     */
     @GET
     @Path("{pid}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -82,6 +94,12 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
+    /**
+     * Returns all collections or collections that directly contain given item.
+     *
+     * @param itemPid pid of an item that all returned collections directly contain
+     * @return
+     */
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
@@ -115,7 +133,13 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-
+    /**
+     * Updates collections metadata, but not items that collection directly contains.
+     *
+     * @param pid
+     * @param collectionDefinition collection object (JSON) with attributes name:string, description:string, content:string, standalone: boolean
+     * @return
+     */
     @PUT
     @Path("{pid}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -151,6 +175,13 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
+    /**
+     * Sets items that the collection directly contains. I.e. removes all existing items and adds all items from method's data.
+     *
+     * @param pid
+     * @param pidsOfItems array of pids to be added to the collection
+     * @return
+     */
     @PUT
     @Path("{pid}/items")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -160,10 +191,18 @@ public class CollectionsResource extends AdminApiResource {
         throw new RuntimeException("not implemented yet");
     }
 
+    /**
+     * Adds single item to collection.
+     *
+     * @param collectionPid
+     * @param itemPid
+     * @return
+     */
     @POST
     @Path("{pid}/items")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response addItemToCollection(@PathParam("pid") String collectionPid, String itemPid) {
+        //TODO: maybe JSONArray insted of single String, to be able to add multiple items at once.
         try {
             //authentication
             AuthenticatedUser user = getAuthenticatedUser();
@@ -173,6 +212,7 @@ public class CollectionsResource extends AdminApiResource {
             }
             checkObjectExists(collectionPid);
             checkObjectExists(itemPid);
+            //TODO: co, kdyz tam objekt uz je?
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
             foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
@@ -185,6 +225,13 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
+    /**
+     * Removes single item from collection.
+     *
+     * @param collectionPid
+     * @param itemPid
+     * @return
+     */
     @DELETE
     @Path("{collectionPid}/items/{itemPid}")
     public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, @PathParam("itemPid") String itemPid) {
@@ -209,6 +256,12 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
+    /**
+     * Removes collection.
+     *
+     * @param pid
+     * @return
+     */
     @DELETE
     @Path("{pid}")
     public Response deleteCollection(@PathParam("pid") String pid) {

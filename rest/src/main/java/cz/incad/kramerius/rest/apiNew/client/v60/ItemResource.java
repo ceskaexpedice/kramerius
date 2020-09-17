@@ -35,9 +35,9 @@ public class ItemResource extends ClientApiResource {
 
     // {pid}/foxml                  -> zrusit tady, presunout do admin api - DONE
     // {pid}/streams                -> nahradit za {pid}/info/data  - DONE
-    // {pid}/full                   -> nahradit za {pid}/image/full
-    // {pid}/thumb                  -> nahradit za {pid}/image/thumb
-    // {pid}/preview                -> nahradit za {pid}/image/preview, nebo uplne zrusit (nepouziva se bud thumb, nebo preview, nikdy nevim ktery)
+    // {pid}/full                   -> nahradit za {pid}/image/full - DONE
+    // {pid}/thumb                  -> nahradit za {pid}/image/thumb - DONE
+    // {pid}/preview                -> nahradit za {pid}/image/preview - DONE
     // {pid}/streams/BIBLIO_MODS    -> nahradit za {pid}/metadata/mods - DONE
     // {pid}/streams/DC             -> nahradit za {pid}/metadata/dc - DONE
     // {pid}/streams/RELS_EXT       -> nahradit za {pid}/info/structure - DONE
