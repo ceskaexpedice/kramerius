@@ -116,7 +116,7 @@ public class CollectionsResource extends AdminApiResource {
                 checkObjectExists(itemPid);
                 pids = krameriusRepositoryApi.getPidsOfCollectionsContainingItem(itemPid);
             } else {
-                pids = krameriusRepositoryApi.getLowLevelApi().getObjectPidsByModel("collection");
+                pids = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel("collection");
             }
             JSONArray collections = new JSONArray();
             for (String pid : pids) {

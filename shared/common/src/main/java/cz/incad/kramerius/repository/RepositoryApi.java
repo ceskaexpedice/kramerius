@@ -51,7 +51,9 @@ public interface RepositoryApi {
 
     public String getLatestVersionOfManagedTextDatastream(String pid, String dsId) throws RepositoryException, IOException;
 
-    public List<String> getObjectPidsByModel(String model) throws RepositoryException, IOException, SolrServerException;
+    public List<String> getPidsOfAllObjects() throws RepositoryException, IOException, SolrServerException;
+
+    public List<String> getPidsOfObjectsByModel(String model) throws RepositoryException, IOException, SolrServerException;
 
     public Map<String, String> getDescription(String objectPid) throws RepositoryException, IOException, SolrServerException;
 
@@ -68,6 +70,7 @@ public interface RepositoryApi {
 
     //DELETE
     public void deleteObject(String pid) throws RepositoryException, IOException;
+
 
     class Triplet {
         public final String source;

@@ -3,12 +3,16 @@ package cz.incad.kramerius.rest.apiNew.admin.v10;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.dom4j.Document;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 @Path("/admin/v1.0/items")
@@ -20,6 +24,41 @@ public class ItemsResource extends AdminApiResource {
     private static final String ROLE_READ_ITEMS = "kramerius_admin";
     private static final String ROLE_READ_FOXML = "kramerius_admin";
     private static final String ROLE_DELETE_OBJECTS = "kramerius_admin";
+
+
+    /**
+     * Returns array of pids of all the items in repository. Or items that have given model, if query param model is present
+     *
+     * @param model
+     * @return
+     */
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getItems(@QueryParam("model") String model) {
+        //TODO: offset, limit
+        try {
+            boolean disableAuth = true; //TODO: reenable for production
+            //authentication
+            if (!disableAuth) {
+                AuthenticatedUser user = getAuthenticatedUser();
+                String role = ROLE_READ_ITEMS;
+                if (!user.getRoles().contains(role)) {
+                    throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+                }
+            }
+            List<String> pids = model == null ?
+                    krameriusRepositoryApi.getLowLevelApi().getPidsOfAllObjects() :
+                    krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel(model);
+            JSONObject json = new JSONObject();
+            if (model != null) {
+                json.put("model", model);
+            }
+            json.put("items", new JSONArray(pids));
+            return Response.ok(json).build();
+        } catch (RepositoryException | IOException | SolrServerException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
 
     @GET
     @Path("{pid}/foxml")

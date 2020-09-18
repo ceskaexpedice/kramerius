@@ -143,7 +143,23 @@ public class RepositoryApiImpl implements RepositoryApi {
     }
 
     @Override
-    public List<String> getObjectPidsByModel(String model) throws RepositoryException, IOException, SolrServerException {
+    public List<String> getPidsOfAllObjects() throws RepositoryException, IOException, SolrServerException {
+        List<String> pids = new ArrayList<>();
+        //TODO: offset, limit
+        //TODO sort by date desc
+        String query = "type:description";
+        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
+            Object fieldValue = doc.getFieldValue("source");
+            if (fieldValue != null) {
+                String valueStr = fieldValue.toString();
+                pids.add(valueStr);
+            }
+        });
+        return pids;
+    }
+
+    @Override
+    public List<String> getPidsOfObjectsByModel(String model) throws RepositoryException, IOException, SolrServerException {
         List<String> pids = new ArrayList<>();
         //TODO: offset, limit
         //TODO sort by date desc
