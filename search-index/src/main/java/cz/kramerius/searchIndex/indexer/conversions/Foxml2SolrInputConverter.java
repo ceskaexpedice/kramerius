@@ -260,34 +260,32 @@ public class Foxml2SolrInputConverter {
         //specific for model:pages
         //see https://github.com/ceskaexpedice/kramerius-web-client/issues/250
         if ("page".equals(model)) {
-            //TODO: muze byt vice elementu part?
-            Element partEl = (Element) Dom4jUtils.buildXpath("mods/part").selectSingleNode(modsRootEl);
-            if (partEl != null) {
-                String type = Dom4jUtils.stringOrNullFromAttributeByName(partEl, "type");
-                if (type != null) {
-                    //System.out.println("page type: " + type);
-                    addSolrField(solrInput, "n.page.type", type);
-                } else {
-                    System.err.println("WARNING: no page type for " + pid);
+            //page type
+            List<Node> partWithTypeEls = Dom4jUtils.buildXpath("mods/part[@type]").selectNodes(modsRootEl);
+            System.out.println("partWithTypeEls:" + partWithTypeEls.size());
+            if (partWithTypeEls.isEmpty()) {
+                System.err.println("WARNING: no page type for " + pid);
+            } else {
+                if (partWithTypeEls.size() > 1) {
+                    System.err.println("WARNING: multiple page types for " + pid + ", using first one");
                 }
-                //TODO: mozne reseni:
-                //cislovani se bude indexovat, ale klient pouzije pouze, pokud: vsichni sourozenci maji v indexu cislo (zde strany) a zadne cislo neni vickrat,
-                //tim padem bude mozne menit usporadani jen zmenou v zaznamu (MODS) nekolika stranek. Na druhou stranu v tomhle priade bude potrebovat preindexovat vsechny sourozence, jinak hrozi duplikace stejneho cisla
-                /*
-                String index = toStringOrNull(Dom4jUtils.buildXpath("detail[@type='pageIndex']/number").selectSingleNode(partEl));
-                if (index != null) {
-                    try {
-                        Integer indexInt = Integer.valueOf(index);
-                        addSolrFiled(solrInput, "page.number", indexInt.toString());
-                    } catch (NumberFormatException e) {
-                        //TODO: taky casta situace, ze tam nejsou integery
-                        System.err.println("WARNING: page number not integer for " + pid);
-                    }
-                } else {
-                    //TODO: co ted, nejak pocitat? Bud se spolehat na existenci pageIndex, nebo pocitat, zadne kompromisy
-                    System.err.println("WARNING: no page number for " + pid);
-                }
-               */
+                String type = Dom4jUtils.stringOrNullFromAttributeByName((Element) partWithTypeEls.get(0), "type");
+                System.out.println("type: " + type);
+                addSolrField(solrInput, "n.page.type", type);
+            }
+            //page number (string)
+            String number = Dom4jUtils.stringOrNullFromFirstElementByXpath(modsRootEl, "mods/part/detail[@type='pageNumber']/number|mods/part/detail[@type='page number']/number");
+            if (number == null) {
+                System.err.println("WARNING: no page number for " + pid);
+            } else {
+                addSolrField(solrInput, "n.page.number", number);
+            }
+            //page index (integer)
+            Integer index = Dom4jUtils.integerOrNullFromFirstElementByXpath(modsRootEl, "mods/part/detail[@type='pageIndex']/number");
+            if (index == null) {
+                System.err.println("WARNING: no page index for " + pid);
+            } else {
+                addSolrField(solrInput, "n.page.index", index.toString());
             }
         }
 

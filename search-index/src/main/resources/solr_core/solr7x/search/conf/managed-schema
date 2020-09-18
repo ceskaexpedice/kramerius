@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
+<!--
+see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyTPeQsC2A
+-->
 <schema name="kramerius" version="1.4">
     <types>
         <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
@@ -596,10 +599,9 @@
         <field name="n.issue.type.code" type="string" indexed="true" stored="true" multiValued="false"/>
 
         <!--page-->
-        <!--TODO: zkontrolovat konzistenci s
-        https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyTPeQsC2A/edit#gid=0-->
-        <field name="n.page.number" type="int" indexed="true" stored="true"/>
-        <field name="n.page.type" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="n.page.type" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="n.page.number" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="n.page.index" type="int" indexed="true" stored="true" multiValued="false" docValues="false"/>
 
         <!--identifiers-->
         <field name="n.id_urnnbn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>

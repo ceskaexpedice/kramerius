@@ -13,7 +13,10 @@
             </part>
         </in>
         <out>
+            <field name="n.page.index">0</field>
+            <field name="n.page.number">1</field>
             <field name="n.page.type">NormalPage</field>
+
             <field name="n.title.search">1</field>
             <field name="n.title.sort">1</field>
             <field name="n.titles.search">1</field>
@@ -35,7 +38,10 @@
             </part>
         </in>
         <out>
+            <field name="n.page.index">0</field>
+            <field name="n.page.number">1</field>
             <field name="n.page.type">NormalPage</field>
+
             <field name="n.title.search">1</field>
             <field name="n.title.sort">1</field>
             <field name="n.titles.search">1</field>
@@ -57,7 +63,10 @@
             </part>
         </in>
         <out>
+            <field name="n.page.index">0</field>
+            <field name="n.page.number">1</field>
             <field name="n.page.type">NormalPage</field>
+
             <field name="n.title.search">1</field>
             <field name="n.title.sort">1</field>
             <field name="n.titles.search">1</field>
@@ -84,7 +93,10 @@
             </part>
         </in>
         <out>
+            <field name="n.page.index">0</field>
+            <field name="n.page.number">1</field>
             <field name="n.page.type">NormalPage</field>
+
             <field name="n.title.search">first</field>
             <field name="n.title.sort">FIRST</field>
             <field name="n.titles.search">first</field>
@@ -92,6 +104,36 @@
             <field name="n.titles.search">1</field>
         </out>
     </test>
+
+    <test name="page number not numeric value">
+        <desc></desc>
+        <in>
+            <part type="normalPage">
+                <detail type="pageNumber">
+                    <number>[1a]</number>
+                </detail>
+            </part>
+            <part>
+                <detail type="pageIndex">
+                    <number>1</number>
+                </detail>
+            </part>
+            <titleInfo>
+                <title>Srb-Debrnov, Josef</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="n.page.index">1</field>
+            <field name="n.page.number">[1a]</field>
+            <field name="n.page.type">normalPage</field>
+
+            <field name="n.title.search">Srb-Debrnov, Josef</field>
+            <field name="n.title.sort">SRB-DEBRNOV, JOSEF</field>
+            <field name="n.titles.search">Srb-Debrnov, Josef</field>
+            <field name="n.titles.search">[1a]</field>
+        </out>
+    </test>
+
 
 </testSuite>
 

@@ -80,6 +80,18 @@ public class Dom4jUtils {
         return null;
     }
 
+    public static Integer integerOrNullFromFirstElementByXpath(Element root, String xpathExpr) {
+        String str = stringOrNullFromFirstElementByXpath(root, xpathExpr);
+        if (str != null) {
+            try {
+                return Integer.valueOf(str);
+            } catch (NumberFormatException e) {
+                System.out.printf(str + " is not a number");
+            }
+        }
+        return null;
+    }
+
     public static String stringOrNullFromAttributeByXpath(Element root, String xpathExpr) {
         XPath xPath = buildXpath(xpathExpr);
         List<Node> result = xPath.selectNodes(root);
@@ -110,6 +122,7 @@ public class Dom4jUtils {
     public static String stringOrNullFromAttributeByName(Element element, String attributeName) {
         Attribute attribute = element.attribute(attributeName);
         if (attribute != null) {
+            System.out.println(attribute.toString());
             String value = attribute.getValue();
             if (value != null) {
                 String trimmed = value.trim();
