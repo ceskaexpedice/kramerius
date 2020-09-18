@@ -21,8 +21,8 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
 
     @Override
     public boolean isObjectAvailable(String pid) throws IOException {
-        //HEAD http://localhost:8080/search/api//api/client/v6.0/item/uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6
-        URL url = new URL(coreBaseUrl + "/api/client/v6.0/item/" + pid);
+        //HEAD http://localhost:8080/search/api/client/v6.0/items/uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6
+        URL url = new URL(coreBaseUrl + "/api/client/v6.0/items/" + pid);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("HEAD");
         con.setConnectTimeout(3000);
@@ -38,8 +38,8 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
     @Override
     public InputStream getFoxml(String pid) throws IOException {
         //TODO: auth
-        //GET http://localhost:8080/search/api/admin/v1.0/item/uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6/foxml
-        URL url = new URL(coreBaseUrl + "/api/admin/v1.0/item/" + pid + "/foxml");
+        //GET http://localhost:8080/search/api/admin/v1.0/items/uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6/foxml
+        URL url = new URL(coreBaseUrl + "/api/admin/v1.0/items/" + pid + "/foxml");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         //con.setRequestMethod("GET");
         con.setConnectTimeout(3000);
@@ -59,8 +59,8 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         //TODO: auth
-        //GET http://localhost:8080/search/api/admin/v1.0/item/uuid:a8263737-eb03-4107-9723-7200d00036f5/streams/BIBLIO_MODS
-        URL url = new URL(coreBaseUrl + "/api/admin/v1.0/item/" + pid + "/streams/" + datastreamName);
+        //GET http://localhost:8080/search/api/admin/v1.0/items/uuid:a8263737-eb03-4107-9723-7200d00036f5/streams/BIBLIO_MODS
+        URL url = new URL(coreBaseUrl + "/api/admin/v1.0/items/" + pid + "/streams/" + datastreamName);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         //con.setRequestMethod("GET");
         con.setConnectTimeout(3000);
@@ -85,8 +85,8 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
     @Override
     public boolean isStreamAvailable(String pid, String datastreamName) throws IOException {
         //TODO: auth
-        //HEAD http://localhost:8080/search/api/admin/v1.0/item/uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6/streams/BIBLIO_MODS
-        URL url = new URL(coreBaseUrl + "/api/admin/v1.0/item/" + pid + "/streams/" + datastreamName);
+        //HEAD http://localhost:8080/search/api/admin/v1.0/items/uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6/streams/BIBLIO_MODS
+        URL url = new URL(coreBaseUrl + "/api/admin/v1.0/items/" + pid + "/streams/" + datastreamName);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         //con.setRequestMethod("HEAD");
         con.setConnectTimeout(3000);
@@ -102,8 +102,8 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
     @Override
     public String getDatastreamMimeType(String pid, String datastreamName) throws IOException {
         //TODO: auth
-        //GET http://localhost:8080/search/api/admin/v1.0/item/uuid:a8263737-eb03-4107-9723-7200d00036f5/streams/streams/IMG_FULL/mime
-        URL url = new URL(coreBaseUrl + "/api/admin/v1.0/item/" + pid + "/streams/" + datastreamName + "/mime");
+        //GET http://localhost:8080/search/api/admin/v1.0/items/uuid:a8263737-eb03-4107-9723-7200d00036f5/streams/streams/IMG_FULL/mime
+        URL url = new URL(coreBaseUrl + "/api/admin/v1.0/items/" + pid + "/streams/" + datastreamName + "/mime");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         //con.setRequestMethod("GET");
         con.setConnectTimeout(3000);

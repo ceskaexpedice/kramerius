@@ -93,8 +93,8 @@ public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstra
     private JsonObject fetchStructure(String pid) throws ResourceIndexException {
         InputStream inputStream = null;
         try {
-            //GET http://localhost:8080/search/api/client/v6.0/item/uuid:db886a43-93cd-48a1-86db-a96c5b15b2b2/info/structure
-            URL url = new URL(coreBaseUrl + "/api/client/v6.0/item/" + pid + "/info/structure");
+            //GET http://localhost:8080/search/api/client/v6.0/items/uuid:db886a43-93cd-48a1-86db-a96c5b15b2b2/info/structure
+            URL url = new URL(coreBaseUrl + "/api/client/v6.0/items/" + pid + "/info/structure");
             //System.out.println(url);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");

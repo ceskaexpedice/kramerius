@@ -11,12 +11,13 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-@Path("/admin/v1.0/item")
-public class ItemResource extends AdminApiResource {
+@Path("/admin/v1.0/items")
+public class ItemsResource extends AdminApiResource {
 
-    public static Logger LOGGER = Logger.getLogger(ItemResource.class.getName());
+    public static Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());
 
     //TODO: prejmenovat role podle spravy uctu
+    private static final String ROLE_READ_ITEMS = "kramerius_admin";
     private static final String ROLE_READ_FOXML = "kramerius_admin";
     private static final String ROLE_DELETE_OBJECTS = "kramerius_admin";
 
@@ -150,7 +151,7 @@ public class ItemResource extends AdminApiResource {
                             .entity(krameriusRepositoryApi.getRelsExt(pid, true).asXML())
                             .build();
                 case "TEXT_OCR":
-                    //TODO: test http://localhost:8080/search/api/admin/v1.0/item/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/streams/TEXT_OCR
+                    //TODO: test http://localhost:8080/search/api/admin/v1.0/items/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/streams/TEXT_OCR
                     return Response.ok()
                             .type(MediaType.TEXT_PLAIN + ";charset=utf-8")
                             .entity(krameriusRepositoryApi.getOcrText(pid))

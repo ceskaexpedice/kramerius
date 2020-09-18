@@ -27,8 +27,8 @@ import java.util.logging.Logger;
 /**
  * @see cz.incad.kramerius.rest.api.k5.client.item.ItemResource
  */
-@Path("/client/v6.0/item")
-public class ItemResource extends ClientApiResource {
+@Path("/client/v6.0/items")
+public class ItemsResource extends ClientApiResource {
 
     //TODO: uklid
     //(ne-admin) client je neutentizovany, jenom cte data a mela by pred nim byt do urcite miry skryta implementece, takze:
@@ -64,7 +64,7 @@ public class ItemResource extends ClientApiResource {
     // GET      {pid}/image/thumb
     // GET      {pid}/image/preview
 
-    public static final Logger LOGGER = Logger.getLogger(ItemResource.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -290,12 +290,12 @@ public class ItemResource extends ClientApiResource {
     public Response getOcrText(@PathParam("pid") String pid) {
         //TODO: pořádně otestovat:
         //managed from URL:
-        //http://localhost:8080/search/api/admin/v1.0/item/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/foxml
-        //http://localhost:8080/search/api/client/v6.0/item/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/ocr/text
+        //http://localhost:8080/search/api/admin/v1.0/items/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/foxml
+        //http://localhost:8080/search/api/client/v6.0/items/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/ocr/text
 
         //managed form file://
-        //http://localhost:8080/search/api/admin/v1.0/item/uuid:fc09d4ee-9937-4d46-8f09-d710e72b6425/foxml
-        //http://localhost:8080/search/api/client/v6.0/item/uuid:fc09d4ee-9937-4d46-8f09-d710e72b6425/ocr/text
+        //http://localhost:8080/search/api/admin/v1.0/items/uuid:fc09d4ee-9937-4d46-8f09-d710e72b6425/foxml
+        //http://localhost:8080/search/api/client/v6.0/items/uuid:fc09d4ee-9937-4d46-8f09-d710e72b6425/ocr/text
 
         //redirect, externally referenced
 
