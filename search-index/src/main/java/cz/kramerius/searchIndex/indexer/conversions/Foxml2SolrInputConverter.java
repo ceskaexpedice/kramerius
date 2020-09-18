@@ -97,7 +97,7 @@ public class Foxml2SolrInputConverter {
             addSolrField(solrInput, "n.root.model", repositoryNode.getRootModel());
             if (repositoryNode.getRootTitle() != null) {
                 addSolrField(solrInput, "n.root.title", repositoryNode.getRootTitle().value);
-                addSolrField(solrInput, "n.root.title.sort",prepareForSorting(repositoryNode.getRootTitle().value) );
+                addSolrField(solrInput, "n.root.title.sort", prepareForSorting(repositoryNode.getRootTitle().value));
             }
 
             addSolrField(solrInput, "n.own_parent.pid", repositoryNode.getOwnParentPid());
@@ -229,6 +229,14 @@ public class Foxml2SolrInputConverter {
             String publisher = toStringOrNull(publisherEl);
             solrInput.addField("n.publishers.search", publisher);
             solrInput.addField("n.publishers.facet", withFirstLetterInUpperCase(publisher));
+        }
+
+        //publication places
+        List<Node> publicationPlaceEls = Dom4jUtils.buildXpath("mods/originInfo/place/placeTerm[@type='text']").selectNodes(modsRootEl);
+        for (Node publicationPlaceEl : publicationPlaceEls) {
+            String publisher = toStringOrNull(publicationPlaceEl);
+            solrInput.addField("n.publication_places.search", publisher);
+            solrInput.addField("n.publication_places.facet", withFirstLetterInUpperCase(publisher));
         }
 
         //geolocation

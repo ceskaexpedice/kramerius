@@ -169,6 +169,11 @@ public class Foxml2SolrInputConverterTest {
     }
 
     @TestFactory
+    public Collection<DynamicTest> publication() throws DocumentException {
+        return testBuilder.buildTests("src/test/resources/xmlTests/publication.xml");
+    }
+
+    @TestFactory
     public Collection<DynamicTest> modsMisc() throws DocumentException {
         return testBuilder.buildTests("src/test/resources/xmlTests/mods_misc.xml");
     }

@@ -492,6 +492,10 @@
         <field name="n.publishers.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="n.publishers.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
+        <!--publication place-->
+        <field name="n.publication_places.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="n.publication_places.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
         <!--vsichni autori (vcetne hlavnich, ti se nerozlisuji)-->
         <field name="n.authors" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="n.authors.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
