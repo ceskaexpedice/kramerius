@@ -12,7 +12,7 @@ public class Main {
     public static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) throws Exception {
-        if (args.length >= 0) {
+        if (args.length > 0) {
             Command.valueOf(args[0].toUpperCase()).doCommand(args);
         } else {
             Arrays.stream(Command.values()).forEach(cmd->{
