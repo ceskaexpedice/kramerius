@@ -11,8 +11,7 @@ import java.io.IOException;
 public class UTFSortTool {
     
     public String translate(String s) throws IOException{
-        UTFSort utf_sort = new UTFSort();
-        utf_sort.init();
-        return utf_sort.translate(s);
+        UTFSort utfSort = new UTFSort();
+        return utfSort.translate(s);
     }
 }
