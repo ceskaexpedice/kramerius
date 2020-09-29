@@ -47,6 +47,7 @@ import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyReader;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyWriter;
+import cz.incad.kramerius.rest.apiNew.admin.v10.ItemsResource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,6 +92,7 @@ public class ApiServletModule extends JerseyServletModule {
         // API Admin 1.0 Resources
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.processes.ProcessResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.collections.CollectionsResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.admin.v10.ConfigResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.ItemsResource.class);
 
         bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
