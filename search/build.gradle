@@ -98,7 +98,8 @@ task infofile(dependsOn: gitcall)  {
 war {
     baseName='search'
     archiveName ='search.war'
-    from 'web' 
+    from 'web'
+    dependsOn 'infofile'
 }
 
 

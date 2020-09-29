@@ -22,6 +22,9 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+/**
+ * @see cz.incad.kramerius.rest.api.k5.client.info.InfoResource
+ */
 @Path("/admin/v1.0/config")
 public class ConfigResource extends AdminApiResource {
 
@@ -44,7 +47,7 @@ public class ConfigResource extends AdminApiResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getItems(@QueryParam("langCode") String langCode) {
+    public Response getItems(@QueryParam("language") String langCode) {
         try {
             boolean disableAuth = true; //TODO: reenable for production
             //authentication
@@ -65,6 +68,7 @@ public class ConfigResource extends AdminApiResource {
                 for (String code : LOCALES.keySet()) {
                     rightMsg.put(code, getRightMsg(LOCALES.get(code)));
                 }
+                json.put("rightMsg", rightMsg);
             }
             return Response.ok(json).build();
         } catch (IOException e) {
@@ -79,7 +83,6 @@ public class ConfigResource extends AdminApiResource {
     }
 
     private String getVersion() throws IOException {
-        //FIXME: nefunguje, pada na neexistenci souboru build.properties
         Properties buildProperties = new Properties();
         InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("build.properties");
         buildProperties.load(revisions);
@@ -87,8 +90,7 @@ public class ConfigResource extends AdminApiResource {
     }
 
     private String getRightMsg(Locale locale) throws IOException {
-        //TODO: replace with storing in database (table CONFIG with columns KEY and VALUE).
-        //TODO: opravit, nefunguje
+        //TODO: replace with database (table CONFIG with columns KEY and VALUE)
         String key = "rightMsg";
         if (textService.isAvailable(key, locale)) {
             return textService.getText(key, locale);
@@ -96,7 +98,6 @@ public class ConfigResource extends AdminApiResource {
             return resourceBundleService.getResourceBundle("labels", locale).getString(key);
         }
     }
-
 
     //TODO: metoda pro nastavení pdfMaxRange
 
