@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -27,7 +28,10 @@ public class ItemsResource extends AdminApiResource {
 
 
     /**
-     * Returns array of pids of all the items in repository. Or items that have given model, if query param model is present
+     * Returns array of pids that have given model.
+     * All top-level objects without model specification cannot be returned here, because this information (being top-level) is not available from resource index.
+     * Instead it is derived during indexation process and stored in search index.
+     * Accessing this information from search index would violate architecture and possibly cause circular dependency.
      *
      * @param model
      * @return
@@ -46,13 +50,12 @@ public class ItemsResource extends AdminApiResource {
                     throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
                 }
             }
-            List<String> pids = model == null ?
-                    krameriusRepositoryApi.getLowLevelApi().getPidsOfAllObjects() :
-                    krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel(model);
-            JSONObject json = new JSONObject();
-            if (model != null) {
-                json.put("model", model);
+            if (model == null || model.isEmpty()) {
+                throw new BadRequestException("missing mandatory query param 'model'");
             }
+            List<String> pids = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel(model);
+            JSONObject json = new JSONObject();
+            json.put("model", model);
             json.put("items", new JSONArray(pids));
             return Response.ok(json).build();
         } catch (RepositoryException | IOException | SolrServerException e) {
