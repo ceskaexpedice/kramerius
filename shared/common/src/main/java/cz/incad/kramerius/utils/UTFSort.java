@@ -4,68 +4,70 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.logging.Logger;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
+ * Used to replace punctuation marks, special characters, and accented characters
+ * so that the resulting text can be easily sorted in Solr.
  *
  * @author alberto
+ * @author Aleksei Ermak
  */
 public class UTFSort {
 
-    public static final Logger LOGGER = Logger.getLogger(UTFSort.class.getName());
+    Map<Integer, String> replacementMap = new HashMap<>();
 
-    Map<String, String> maps = new HashMap<String, String>();
-    
-    public UTFSort() {
-        
-    }
-    
-    public void init() throws IOException{
-        loadMapFile();
-    }
-
-    private void loadMapFile() throws IOException {
-        
+    /**
+     * Loads special characters and their replacements from file, parses them and store to use later.
+     */
+    public UTFSort() throws IOException {
         InputStream is = UTFSort.class.getResourceAsStream("unicode_map.st");
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String strLine;
-        int sp;
-        String l,t;
-        
-        while ((strLine = br.readLine()) != null) {
-            sp = strLine.indexOf(" ");
-            l = strLine.substring(0, sp);
-            t = strLine.substring(sp+1);
-            String r = "";
-            for(String s:t.split(" ")){
-                if(s.equals("0000")){
-                    r += "";
-                }else{
-                    r += (char)Integer.parseInt(s, 16);
-                }
-                
-            }
-            maps.put(l, r);
-            
+        List<String> allLines = new BufferedReader(new InputStreamReader(is)).lines().collect(Collectors.toList());
+        for (String line : allLines) {
+            int firstSpaceIdx = line.indexOf(" ");
+            String keyString = line.substring(0, firstSpaceIdx);
+            int keyInt = Integer.decode("#"+keyString);
+            String[] replacementSymbols = line.substring(firstSpaceIdx + 1).split(" ");
+            String replacement = Arrays.stream(replacementSymbols)
+                    .filter(sym -> !sym.equals("0000"))
+                    .map(this::decode)
+                    .collect(Collectors.joining());
+            replacementMap.put(keyInt, replacement);
         }
         is.close();
     }
-    
-    public String translate(String old){
-        String newStr = old;
-        Iterator it = maps.keySet().iterator();
-        String key;
-        String c;
-        while(it.hasNext()){
-            key = (String) it.next();
-            c = (char)Integer.parseInt(key, 16) + "";
-            newStr = newStr.replace(c, maps.get(key));
-        }
-        return newStr.replace("CH", "H|");
-    }
-    
 
+    /**
+     * Replaces special characters in incoming string.
+     * @param originalStr original raw string
+     * @return            string without any punctuation marks, special or accented characters
+     */
+    public String translate(String originalStr) {
+        StringBuffer sb = new StringBuffer();
+        originalStr.codePoints().forEach((code)->{
+            String replacementStr=replacementMap.get(code);
+            if (replacementStr == null){
+                sb.appendCodePoint(code);
+            }else{
+                sb.append(replacementStr);
+            }
+        });
+        String translatedStr = sb.toString();
+        return translatedStr.replace("CH", "H|");
+    }
+
+    private String decode(String encodedSymbol) {
+        return String.valueOf((char) Integer.parseInt(encodedSymbol, 16));
+    }
+
+    public void printMap() {
+        replacementMap.forEach((symbol, replacement) -> System.out.println(symbol + " -> " + replacement));
+    }
+
+    public static void main(String[] args) throws IOException {
+        UTFSort u = new UTFSort();
+        u.printMap();
+        System.out.println(u.translate("která mají řadicí platnost (tj. č,ř,š,ž,Č,Š,Ř,Ž)"));
+    }
 }
