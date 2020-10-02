@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  */
 public class UTFSort {
 
-    Map<String, String> replacementMap = new TreeMap<>();
+    Map<Integer, String> replacementMap = new HashMap<>();
 
     /**
      * Loads special characters and their replacements from file, parses them and store to use later.
@@ -26,13 +26,14 @@ public class UTFSort {
         List<String> allLines = new BufferedReader(new InputStreamReader(is)).lines().collect(Collectors.toList());
         for (String line : allLines) {
             int firstSpaceIdx = line.indexOf(" ");
-            String symbol = decode(line.substring(0, firstSpaceIdx));
+            String keyString = line.substring(0, firstSpaceIdx);
+            int keyInt = Integer.decode("#"+keyString);
             String[] replacementSymbols = line.substring(firstSpaceIdx + 1).split(" ");
             String replacement = Arrays.stream(replacementSymbols)
                     .filter(sym -> !sym.equals("0000"))
                     .map(this::decode)
                     .collect(Collectors.joining());
-            replacementMap.put(symbol, replacement);
+            replacementMap.put(keyInt, replacement);
         }
         is.close();
     }
@@ -43,12 +44,16 @@ public class UTFSort {
      * @return            string without any punctuation marks, special or accented characters
      */
     public String translate(String originalStr) {
-        String translatedStr = originalStr;
-        for (Map.Entry<String, String> entry : replacementMap.entrySet()) {
-            String symbol = entry.getKey();
-            String replacement = entry.getValue();
-            translatedStr = translatedStr.replace(symbol, replacement);
-        }
+        StringBuffer sb = new StringBuffer();
+        originalStr.codePoints().forEach((code)->{
+            String replacementStr=replacementMap.get(code);
+            if (replacementStr == null){
+                sb.appendCodePoint(code);
+            }else{
+                sb.append(replacementStr);
+            }
+        });
+        String translatedStr = sb.toString();
         return translatedStr.replace("CH", "H|");
     }
 
