@@ -10,7 +10,13 @@ public class SortingNormalizerTest {
     private final SortingNormalizer sortingNormalizer = new SortingNormalizer();
 
     @Test
-    public void czechAlphabet() {
+    public void latinAlphabet() {
+        assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", sortingNormalizer.normalize("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+        assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", sortingNormalizer.normalize("abcdefghijklmnopqrstuvwxyz"));
+    }
+
+    @Test
+    public void czechAlphabetComplete() {
         assertEquals("AA|BCC|DD|EE|E|FGHH|II|JKLMNN|OO|PQRR|SS|TT|UU|U|VWXYY|ZZ|", sortingNormalizer.normalize("AÁBCČDĎEÉĚFGHChIÍJKLMNŇOÓPQRŘSŠTŤUÚŮVWXYÝZŽ"));
         assertEquals("AA|BCC|DD|EE|E|FGHH|II|JKLMNN|OO|PQRR|SS|TT|UU|U|VWXYY|ZZ|", sortingNormalizer.normalize("aábcčdďeéěfghchiíjklmnňoópqrřsštťuúůvwxyýzž"));
     }
@@ -28,6 +34,6 @@ public class SortingNormalizerTest {
 
     @Test
     public void leadingNonletters() {
-        assertEquals("1]", sortingNormalizer.normalize("[1]"));
+        assertEquals("1", sortingNormalizer.normalize("[1]"));
     }
 }
