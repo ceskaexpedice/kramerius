@@ -124,8 +124,17 @@ public class SortingNormalizer {
         t.put('ľ', "L|");
         t.put('ô', "O|");
         t.put('ŕ', "R|");
-        //TODO: German
-        //TODO: cover Russian, Spanish/French in tests, even though not covered with transformations
+        //german lower case
+        t.put('ä', "A|");
+        t.put('ö', "O|");
+        t.put('ß', "S|");
+        t.put('ü', "U|");
+        //german uper case
+        t.put('Ä', "A|");
+        t.put('Ö', "O|");
+        t.put('ẞ', "S|");
+        t.put('Ü', "U|");
+
         return t;
     }
 

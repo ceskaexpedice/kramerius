@@ -9,8 +9,9 @@ public class SortingNormalizerTest {
 
     private final SortingNormalizer sortingNormalizer = new SortingNormalizer();
 
+
     @Test
-    public void leadingNonletters() {
+    public void squareBrackets() {
         assertEquals("1", sortingNormalizer.normalize("[1]"));
     }
 
@@ -46,5 +47,22 @@ public class SortingNormalizerTest {
     @Test
     public void slovakLettersDz() {
         assertEquals("D|URINDOVO D||UDO MED|I HRA|D|AMI D||EMU", sortingNormalizer.normalize("Dzurindovo džudo medzi hrádzami džemu"));
+    }
+
+    @Test
+    public void germanAlphabetComplete() {
+        assertEquals("AA|BCDEFGHIJKLMNOO|PQRSS|TUU|VWXYZ", sortingNormalizer.normalize("AÄBCDEFGHIJKLMNOÖPQRSẞTUÜVWXYZ"));
+        assertEquals("AA|BCDEFGHIJKLMNOO|PQRSS|TUU|VWXYZ", sortingNormalizer.normalize("aäbcdefghijklmnoöpqrsßtuüvwxyz"));
+    }
+
+    @Test
+    public void russianAlphabetComplete() {
+        assertEquals("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ", sortingNormalizer.normalize("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"));
+        assertEquals("абвгдеёжзийклмнопрстуфхцчшщъыьэюя", sortingNormalizer.normalize("абвгдеёжзийклмнопрстуфхцчшщъыьэюя"));
+    }
+
+    @Test
+    public void frenchDiacriticsOrtographics() {
+        assertEquals("ÀàÂâÆæÇçE|E|ÈèÊêËëÎîÏïO|O|ŒœÙùÛûU|U|Ÿÿ", sortingNormalizer.normalize("ÀàÂâÆæÇçÉéÈèÊêËëÎîÏïÔôŒœÙùÛûÜüŸÿ"));
     }
 }
