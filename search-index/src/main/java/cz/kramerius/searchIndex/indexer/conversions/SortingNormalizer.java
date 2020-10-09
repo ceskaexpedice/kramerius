@@ -112,7 +112,18 @@ public class SortingNormalizer {
         t.put('Ů', "U|");
         t.put('Ý', "Y|");
         t.put('Ž', "Z|");
-        //TODO: Slowak
+        //slovak upper case
+        t.put('Ä', "A|");
+        t.put('Ĺ', "L|");
+        t.put('Ľ', "L|");
+        t.put('Ô', "O|");
+        t.put('Ŕ', "R|");
+        //slovak lower case
+        t.put('ä', "A|");
+        t.put('ĺ', "L|");
+        t.put('ľ', "L|");
+        t.put('ô', "O|");
+        t.put('ŕ', "R|");
         //TODO: German
         //TODO: cover Russian, Spanish/French in tests, even though not covered with transformations
         return t;
@@ -135,7 +146,11 @@ public class SortingNormalizer {
                 }
             }
             String normalized = builder.toString();
+            //CH (Czech, Slovak)
             normalized = normalized.replaceAll("CH", "H|");
+            //DZ, DŽ (Slovak)
+            //pozor, tohle rozbije slova jako nadzvukový (cs), odzemok (sk)
+            normalized = normalized.replaceAll("DZ", "D|");
             return normalized;
         }
     }

@@ -10,6 +10,11 @@ public class SortingNormalizerTest {
     private final SortingNormalizer sortingNormalizer = new SortingNormalizer();
 
     @Test
+    public void leadingNonletters() {
+        assertEquals("1", sortingNormalizer.normalize("[1]"));
+    }
+
+    @Test
     public void latinAlphabet() {
         assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", sortingNormalizer.normalize("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
         assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", sortingNormalizer.normalize("abcdefghijklmnopqrstuvwxyz"));
@@ -33,7 +38,13 @@ public class SortingNormalizerTest {
     }
 
     @Test
-    public void leadingNonletters() {
-        assertEquals("1", sortingNormalizer.normalize("[1]"));
+    public void slovakAlphabetComplete() {
+        assertEquals("AA|A|BCC|DD|D|D||EE|FGHH|II|JKLL|L|MNN|OO|O|PQRR|SS|TT|UU|VWXYY|ZZ|", sortingNormalizer.normalize("AÁÄBCČDĎDZDŽEÉFGHCHIÍJKLĹĽMNŇOÓÔPQRŔSŠTŤUÚVWXYÝZŽ"));
+        assertEquals("AA|A|BCC|DD|D|D||EE|FGHH|II|JKLL|L|MNN|OO|O|PQRR|SS|TT|UU|VWXYY|ZZ|", sortingNormalizer.normalize("aáäbcčdďdzdžeéfghchiíjklĺľmnňoóôpqrŕsštťuúvwxyýzž"));
+    }
+
+    @Test
+    public void slovakLettersDz() {
+        assertEquals("D|URINDOVO D||UDO MED|I HRA|D|AMI D||EMU", sortingNormalizer.normalize("Dzurindovo džudo medzi hrádzami džemu"));
     }
 }
