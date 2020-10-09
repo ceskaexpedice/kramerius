@@ -22,6 +22,7 @@ import java.util.Set;
 public class Foxml2SolrInputConverter {
 
     private final Set<String> genreStopWords = initGenreStopWords();
+    private final SortingNormalizer sortingNormalizer = new SortingNormalizer();
 
     private Set<String> initGenreStopWords() {
         //see https://www.ndk.cz/standardy-digitalizace/metadata
@@ -97,7 +98,7 @@ public class Foxml2SolrInputConverter {
             addSolrField(solrInput, "n.root.model", repositoryNode.getRootModel());
             if (repositoryNode.getRootTitle() != null) {
                 addSolrField(solrInput, "n.root.title", repositoryNode.getRootTitle().value);
-                addSolrField(solrInput, "n.root.title.sort", prepareForSorting(repositoryNode.getRootTitle().value));
+                addSolrField(solrInput, "n.root.title.sort", sortingNormalizer.normalize(repositoryNode.getRootTitle().value));
             }
 
             addSolrField(solrInput, "n.own_parent.pid", repositoryNode.getOwnParentPid());
@@ -178,7 +179,7 @@ public class Foxml2SolrInputConverter {
         Title primaryTitle = titlesExtractor.extractPrimaryTitle(modsRootEl, model);
         if (primaryTitle != null) {
             solrInput.addField("n.title.search", primaryTitle.nonsort != null ? primaryTitle.nonsort + primaryTitle.value : primaryTitle.value);
-            solrInput.addField("n.title.sort", prepareForSorting(primaryTitle.value));
+            solrInput.addField("n.title.sort", sortingNormalizer.normalize(primaryTitle.value));
         }
         List<Title> allTitles = titlesExtractor.extractAllTitles(modsRootEl, model);
         for (Title title : allTitles) {
@@ -486,30 +487,6 @@ public class Foxml2SolrInputConverter {
         }
 
         return solrInput;
-    }
-
-    private String prepareForSorting(String value) {
-        String result = value.toUpperCase()
-                .replaceAll("Á", "A|")
-                .replaceAll("Č", "C|")
-                .replaceAll("Ď", "D|")
-                .replaceAll("É", "E|")
-                .replaceAll("Ě", "E|")
-                .replaceAll("CH", "H|")
-                .replaceAll("Í", "I|")
-                .replaceAll("Ň", "N|")
-                .replaceAll("Ó", "O|")
-                .replaceAll("Ř", "R|")
-                .replaceAll("Š", "S|")
-                .replaceAll("Ť", "T|")
-                .replaceAll("Ú", "U|")
-                .replaceAll("Ů", "U|")
-                .replaceAll("Ý", "Y|")
-                .replaceAll("Ž", "Z|");
-        if (result.startsWith("[")) {
-            result = result.substring(1);
-        }
-        return result;
     }
 
     private String formatDate(Date date) {
