@@ -160,6 +160,8 @@ public class SortingNormalizer {
             //DZ, DŽ (Slovak)
             //pozor, tohle rozbije slova jako nadzvukový (cs), odzemok (sk)
             normalized = normalized.replaceAll("DZ", "D|");
+            //final trim
+            normalized = normalized.trim();
             return normalized;
         }
     }

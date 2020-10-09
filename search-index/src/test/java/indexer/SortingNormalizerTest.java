@@ -11,8 +11,32 @@ public class SortingNormalizerTest {
 
 
     @Test
-    public void squareBrackets() {
+    public void leadingAndTrailingWhiteSpaces() {
+        assertEquals("LEADING SPACE", sortingNormalizer.normalize(" leading space"));
+        assertEquals("LEADING TAB", sortingNormalizer.normalize("   leading tab"));
+        assertEquals("LEADING MULTIPLE", sortingNormalizer.normalize("            leading multiple"));
+        assertEquals("TRAILING SPACE", sortingNormalizer.normalize("trailing space "));
+        assertEquals("TRAILING TAB", sortingNormalizer.normalize("trailing tab   "));
+        assertEquals("TRAILING MULTIPLE", sortingNormalizer.normalize("trailing multiple            "));
+    }
+
+    @Test
+    public void leadingNonletters() {
         assertEquals("1", sortingNormalizer.normalize("[1]"));
+        assertEquals("A POZDRAVUJ U NA|S DOMA", sortingNormalizer.normalize("... a pozdravuj u nás doma"));
+        assertEquals("A NEZAPOMEN| NA MODLITBU", sortingNormalizer.normalize("\"-- a nezapomeň na modlitbu!\""));
+        assertEquals("A JES|TE| KAFI|C|KO", sortingNormalizer.normalize("--a ještě kafíčko"));
+        assertEquals("A VY|STUPY DO U|DOLI|", sortingNormalizer.normalize("-a výstupy do údolí"));
+        assertEquals("ABNORMALIZACE = FAKE NORMALIZATION", sortingNormalizer.normalize("(Ab)normalizace = (Fake) normalization"));
+        assertEquals("ANSIH|TEN VON DER INNEREN STADT", sortingNormalizer.normalize("[ Ansichten von der inneren Stadt]"));
+        assertEquals("T GESIGHT VAN DE KNEUTER DYK SIENDE NA DE KLOOSTER KERK VUE DU KNEUTER DYK REGARDANT VERS LEGLISE DU CLOITRE", sortingNormalizer.normalize("'T Gesight van de Kneuter Dyk Siende na de Klooster Kerk Vue du Kneuter Dyk Regardant Vers l'Eglise du Cloitre"));
+        assertEquals("JUVOSS V ROSTOVE| NAD DONEM RUSKO", sortingNormalizer.normalize("\" Juvoss\" v Rostově nad Donem (Rusko)"));
+        assertEquals("JIRKA POSTRAH| RODINY IV JIRKA NEZBEDA", sortingNormalizer.normalize("(Jirka, postrach rodiny IV). Jirka nezbeda"));
+        assertEquals("MULTIKULTU|RNA PERSPEKTI|VA EDUKA|CIE", sortingNormalizer.normalize("(Multi)kultúrna perspektíva edukácie"));
+        assertEquals("NET FRAMEWORK PROGRAMOVA|NI| APLIKACI|", sortingNormalizer.normalize(".NET Framework programování aplikací"));
+        assertEquals("TEH|NOLOGIE PRO PR|I|PRAVU A ENERGETICKE| VYUZ|ITI| BIOMASY", sortingNormalizer.normalize("\"Technologie pro přípravu a energetické využití biomasy\""));
+        assertEquals("1 BR|EZEN 1881", sortingNormalizer.normalize("1. březen 1881"));
+        //assertEquals("", sortingNormalizer.normalize(""));
     }
 
     @Test
@@ -57,6 +81,7 @@ public class SortingNormalizerTest {
 
     @Test
     public void russianAlphabetComplete() {
+        //cyrilic, hebrew, chinese, etc. will be kept as is, i.e. for example no toUpperCase()
         assertEquals("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ", sortingNormalizer.normalize("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"));
         assertEquals("абвгдеёжзийклмнопрстуфхцчшщъыьэюя", sortingNormalizer.normalize("абвгдеёжзийклмнопрстуфхцчшщъыьэюя"));
     }
