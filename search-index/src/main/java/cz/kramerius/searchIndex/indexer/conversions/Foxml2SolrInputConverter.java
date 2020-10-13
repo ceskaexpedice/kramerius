@@ -334,27 +334,6 @@ public class Foxml2SolrInputConverter {
 
         //specific for model:periodicalvolume
         if ("periodicalvolume".equals(model)) {
-            //n.part.name
-            DateExtractor dateExtractor = new DateExtractor();
-            Element originInfoEl = (Element) Dom4jUtils.buildXpath("mods/originInfo").selectSingleNode(modsRootEl);
-            if (originInfoEl != null) {
-                DateInfo fromOriginInfo = dateExtractor.extractFromOriginInfo(originInfoEl);
-                if (!fromOriginInfo.isEmpty()) {
-                    appendPeriodicalVolumeYear(solrInput, fromOriginInfo);
-                } else {
-                    String partDate = toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsRootEl));
-                    if (partDate != null) {
-                        DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
-                        appendPeriodicalVolumeYear(solrInput, fromPartDate);
-                    }
-                }
-            } else {
-                String partDate = toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsRootEl));
-                if (partDate != null) {
-                    DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
-                    appendPeriodicalVolumeYear(solrInput, fromPartDate);
-                }
-            }
             //n.part.number.*
             String numberFromTitleInfo = toStringOrNull(Dom4jUtils.buildXpath("mods/titleInfo/partNumber").selectSingleNode(modsRootEl));
             if (numberFromTitleInfo != null) {
@@ -581,26 +560,8 @@ public class Foxml2SolrInputConverter {
         }
     }
 
-
     private String replaceUncertainCharsWithQuestionMark(String valueStart) {
         return valueStart.replaceAll("[ux\\-]", "?").trim();
-    }
-
-
-    private void appendPeriodicalVolumeYear(SolrInput solrInput, DateInfo dateInfo) {
-        if (dateInfo.rangeStartYear != null && dateInfo.rangeEndYear != null) {
-            if (dateInfo.rangeStartYear.equals(dateInfo.rangeEndYear)) { //1918
-                addSolrField(solrInput, "n.part.name", dateInfo.rangeStartYear.toString());
-            } else { //1918-1938
-                addSolrField(solrInput, "n.part.name", dateInfo.rangeStartYear + " - " + dateInfo.rangeEndYear);
-            }
-        } else if (dateInfo.rangeStartYear != null) { // 1918-?
-            addSolrField(solrInput, "n.part.name", dateInfo.rangeStartYear + " - ?");
-        } else if (dateInfo.rangeEndYear != null) { // ?-1938
-            addSolrField(solrInput, "n.part.name", "? - " + dateInfo.rangeEndYear);
-        } else {
-            //nothing
-        }
     }
 
     private void addSolrField(SolrInput solrInput, String name, Object value) {
