@@ -184,8 +184,8 @@
             <field name="n.date_range_end.year">1948</field>
             <field name="n.date_range_start.year">1948</field>
 
-            <field name="n.part.name">1948</field>
-            <field name="n.part.number.int">4</field>
+            <field name="n.part.name">1948</field> <!--TODO: tohle pryc, viz https://app.gethido.com/p/posu5sqvet/tasks/8-->
+            <field name="n.part.number.sort">4</field>
             <field name="n.part.number.str">4</field>
         </out>
     </test>
@@ -233,7 +233,7 @@
             <field name="n.date_range_start.year">2002</field>
 
             <field name="n.part.name">2002</field>
-            <field name="n.part.number.int">2001</field>
+            <field name="n.part.number.sort">2001</field>
             <field name="n.part.number.str">2001</field>
 
             <field name="n.title.search">2001</field>
@@ -264,7 +264,7 @@
             <field name="n.date_range_start.year">1948</field>
 
             <field name="n.part.name">1948</field>
-            <field name="n.part.number.int">1947</field>
+            <field name="n.part.number.sort">1947</field>
             <field name="n.part.number.str">1947</field>
 
             <field name="n.title.search">1947</field>
@@ -289,7 +289,7 @@
             <field name="n.date_range_end.year">1871</field>
             <field name="n.date_range_start.year">1871</field>
 
-            <field name="n.part.name">1871</field>
+            <field name="n.part.name">1871</field><!--TODO: tohle pryc, viz https://app.gethido.com/p/posu5sqvet/tasks/8-->
         </out>
     </test>
 
@@ -323,7 +323,7 @@
             <field name="n.date_range_start.year">1941</field>
 
             <field name="n.part.name">1941</field>
-            <field name="n.part.number.int">49</field>
+            <field name="n.part.number.sort">49</field>
             <field name="n.part.number.str">49</field>
         </out>
     </test>
@@ -347,7 +347,7 @@
             <field name="n.date_range_start.year">1925</field>
 
             <field name="n.part.name">1925</field>
-            <field name="n.part.number.int">4</field>
+            <field name="n.part.number.sort">4</field>
             <field name="n.part.number.str">4</field>
         </out>
     </test>
@@ -377,7 +377,7 @@
             <field name="n.date_range_start.year">1925</field>
 
             <field name="n.part.name">1925</field>
-            <field name="n.part.number.int">3</field>
+            <field name="n.part.number.sort">3</field>
             <field name="n.part.number.str">3</field>
 
             <field name="n.title.search">3</field>

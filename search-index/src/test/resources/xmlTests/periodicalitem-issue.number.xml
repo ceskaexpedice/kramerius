@@ -31,7 +31,7 @@
             <field name="n.date_range_start.month">6</field>
             <field name="n.date_range_start.year">1925</field>
 
-            <field name="n.part.number.int">23</field>
+            <field name="n.part.number.sort">23</field>
             <field name="n.part.number.str">23</field>
 
             <field name="n.title.search">Deutsche Nachrichten. 23</field>
@@ -65,7 +65,7 @@
             <field name="n.date_range_start.month">6</field>
             <field name="n.date_range_start.year">1925</field>
 
-            <field name="n.part.number.int">23</field>
+            <field name="n.part.number.sort">23</field>
             <field name="n.part.number.str">23</field>
 
             <field name="n.title.search">Deutsche Nachrichten. 23</field>
@@ -99,6 +99,7 @@
             <field name="n.date_range_start.month">6</field>
             <field name="n.date_range_start.year">1925</field>
 
+            <field name="n.part.number.sort">23</field>
             <field name="n.part.number.str">23-24</field>
 
             <field name="n.title.search">Deutsche Nachrichten. 23-24</field>
@@ -134,7 +135,7 @@
             <field name="n.date_range_start.month">6</field>
             <field name="n.date_range_start.year">1925</field>
 
-            <field name="n.part.number.int">24</field>
+            <field name="n.part.number.sort">24</field>
             <field name="n.part.number.str">24</field>
         </out>
     </test>
@@ -166,6 +167,7 @@
             <field name="n.date_range_start.month">6</field>
             <field name="n.date_range_start.year">1925</field>
 
+            <field name="n.part.number.sort">24</field>
             <field name="n.part.number.str">24-25</field>
         </out>
     </test>

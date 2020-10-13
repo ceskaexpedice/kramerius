@@ -9,7 +9,7 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.number.int">2</field>
+            <field name="n.part.number.sort">2</field>
             <field name="n.part.number.str">2</field>
 
             <field name="n.title.search">Deutschböhmen als Wirtschaftsgrossmacht. 2</field>
@@ -30,7 +30,7 @@
         </in>
         <out>
             <field name="n.part.name">Bianchi-Giovini - bžunda</field>
-            <field name="n.part.number.int">4</field>
+            <field name="n.part.number.sort">4</field>
             <field name="n.part.number.str">4</field>
 
             <field name="n.title.search">Ottův slovník naučný: illustrovaná encyklopaedie obecných vědomostí. 4. Bianchi-Giovini - bžunda</field>
@@ -48,6 +48,7 @@
             </titleInfo>
         </in>
         <out>
+            <field name="n.part.number.sort">2</field>
             <field name="n.part.number.str">2x</field>
 
             <field name="n.title.search">Deutschböhmen als Wirtschaftsgrossmacht. 2x</field>

@@ -13,7 +13,7 @@
         </in>
         <out>
             <field name="n.part.name">Úřední list Brněnských novin</field>
-            <field name="n.part.number.int">1</field>
+            <field name="n.part.number.sort">1</field>
             <field name="n.part.number.str">1</field>
 
             <field name="n.title.search">1. Úřední list Brněnských novin</field>
@@ -30,7 +30,7 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.number.int">1</field>
+            <field name="n.part.number.sort">1</field>
             <field name="n.part.number.str">1</field>
 
             <field name="n.title.search">1</field>

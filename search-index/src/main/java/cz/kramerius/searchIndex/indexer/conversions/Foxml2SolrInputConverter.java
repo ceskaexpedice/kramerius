@@ -311,8 +311,7 @@ public class Foxml2SolrInputConverter {
             if (numberFromTitleInfo != null) {
                 addSolrField(solrInput, "n.part.number.str", numberFromTitleInfo);
                 try {
-                    Integer.valueOf(numberFromTitleInfo);
-                    addSolrField(solrInput, "n.part.number.int", numberFromTitleInfo);
+                    addSolrField(solrInput, "n.part.number.sort", extractLeadingNumber(numberFromTitleInfo));
                 } catch (NumberFormatException e) {
                     //nothing
                 }
@@ -325,8 +324,7 @@ public class Foxml2SolrInputConverter {
                 if (numberFromPart != null) {
                     addSolrField(solrInput, "n.part.number.str", numberFromPart);
                     try {
-                        Integer.valueOf(numberFromPart);
-                        addSolrField(solrInput, "n.part.number.int", numberFromPart);
+                        addSolrField(solrInput, "n.part.number.sort", extractLeadingNumber(numberFromPart));
                     } catch (NumberFormatException e) {
                         //nothing
                     }
@@ -362,8 +360,7 @@ public class Foxml2SolrInputConverter {
             if (numberFromTitleInfo != null) {
                 addSolrField(solrInput, "n.part.number.str", numberFromTitleInfo);
                 try {
-                    Integer.valueOf(numberFromTitleInfo);
-                    addSolrField(solrInput, "n.part.number.int", numberFromTitleInfo);
+                    addSolrField(solrInput, "n.part.number.sort", extractLeadingNumber(numberFromTitleInfo));
                 } catch (NumberFormatException e) {
                     //nothing
                 }
@@ -376,8 +373,7 @@ public class Foxml2SolrInputConverter {
                 if (numberFromPart != null) {
                     addSolrField(solrInput, "n.part.number.str", numberFromPart);
                     try {
-                        Integer.valueOf(numberFromPart);
-                        addSolrField(solrInput, "n.part.number.int", numberFromPart);
+                        addSolrField(solrInput, "n.part.number.sort", extractLeadingNumber(numberFromPart));
                     } catch (NumberFormatException e) {
                         //nothing
                     }
@@ -392,8 +388,7 @@ public class Foxml2SolrInputConverter {
             if (numberFromTitleInfo != null) {
                 addSolrField(solrInput, "n.part.number.str", numberFromTitleInfo);
                 try {
-                    Integer.valueOf(numberFromTitleInfo);
-                    addSolrField(solrInput, "n.part.number.int", numberFromTitleInfo);
+                    addSolrField(solrInput, "n.part.number.sort", extractLeadingNumber(numberFromTitleInfo));
                 } catch (NumberFormatException e) {
                     //nothing
                 }
@@ -406,8 +401,7 @@ public class Foxml2SolrInputConverter {
             if (numberFromTitleInfo != null) {
                 addSolrField(solrInput, "n.part.number.str", numberFromTitleInfo);
                 try {
-                    Integer.valueOf(numberFromTitleInfo);
-                    addSolrField(solrInput, "n.part.number.int", numberFromTitleInfo);
+                    addSolrField(solrInput, "n.part.number.sort", extractLeadingNumber(numberFromTitleInfo));
                 } catch (NumberFormatException e) {
                     //nothing
                 }
@@ -491,6 +485,22 @@ public class Foxml2SolrInputConverter {
         }
 
         return solrInput;
+    }
+
+    private Integer extractLeadingNumber(String stringPossiblyStartingWithNumber) {
+        if (stringPossiblyStartingWithNumber != null && !stringPossiblyStartingWithNumber.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < stringPossiblyStartingWithNumber.length(); i++) {
+                char c = stringPossiblyStartingWithNumber.charAt(i);
+                if (Character.isDigit(c)) {
+                    builder.append(c);
+                } else {
+                    break;
+                }
+            }
+            return Integer.valueOf(builder.toString());
+        }
+        return null;
     }
 
     private void appendDateFields(SolrInput solrInput, DateInfo dateInfo) {
@@ -593,8 +603,10 @@ public class Foxml2SolrInputConverter {
         }
     }
 
-    private void addSolrField(SolrInput solrInput, String name, String value) {
-        solrInput.addField(name, value);
+    private void addSolrField(SolrInput solrInput, String name, Object value) {
+        if (value != null) {
+            solrInput.addField(name, value.toString());
+        }
     }
 
     private void addSolrField(SolrInput solrInput, String name, boolean value) {

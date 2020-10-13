@@ -10,12 +10,10 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
 
         <fieldtype name="binary" class="solr.BinaryField"/>
-        <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-        <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true"
-                   positionIncrementGap="0"/>
-        <fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-        <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" omitNorms="true"
-                   positionIncrementGap="0"/>
+        <fieldType name="int" class="solr.TrieIntField" sortMissingLast="true" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="float" class="solr.TrieFloatField" sortMissingLast="true" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="long" class="solr.TrieLongField" sortMissingLast="true" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="double" class="solr.TrieDoubleField" sortMissingLast="true" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
 
         <fieldType name="tint" class="solr.TrieIntField" docValues="true" precisionStep="8" positionIncrementGap="0"/>
         <fieldType name="tfloat" class="solr.TrieFloatField" docValues="true" precisionStep="8"
@@ -584,9 +582,9 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--used in monograph-unit, volume, issue, supplement-->
         <!--pro model:volume muze obsahovat treba: "1923","1923-1924"-->
         <!--pro model:issue muze obsahovat treba: "16.04.1948", "06.2013", "1947"-->
-        <!--pro model:monographunit muze obsahovat treba: TODO-->
+        <!--pro model:monographunit muze obsahovat treba: "2", "2x"-->
         <field name="n.part.number.str" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="n.part.number.int" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="n.part.number.sort" type="int" indexed="true" stored="true" multiValued="false"/>
 
         <!--monograph unit specific-->
 
