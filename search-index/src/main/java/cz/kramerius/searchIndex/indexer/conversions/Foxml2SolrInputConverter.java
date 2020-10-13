@@ -5,6 +5,7 @@ import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.searchIndex.indexer.utils.NamespaceRemovingVisitor;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
+import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Dom4jUtils;
 import cz.kramerius.shared.Title;
 import org.dom4j.*;
@@ -336,20 +337,20 @@ public class Foxml2SolrInputConverter {
             DateExtractor dateExtractor = new DateExtractor();
             Element originInfoEl = (Element) Dom4jUtils.buildXpath("mods/originInfo").selectSingleNode(modsRootEl);
             if (originInfoEl != null) {
-                DateExtractor.DateInfo fromOriginInfo = dateExtractor.extractFromOriginInfo(originInfoEl);
+                DateInfo fromOriginInfo = dateExtractor.extractFromOriginInfo(originInfoEl);
                 if (!fromOriginInfo.isEmpty()) {
                     appendPeriodicalVolumeYear(solrInput, fromOriginInfo);
                 } else {
                     String partDate = toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsRootEl));
                     if (partDate != null) {
-                        DateExtractor.DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
+                        DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
                         appendPeriodicalVolumeYear(solrInput, fromPartDate);
                     }
                 }
             } else {
                 String partDate = toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsRootEl));
                 if (partDate != null) {
-                    DateExtractor.DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
+                    DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
                     appendPeriodicalVolumeYear(solrInput, fromPartDate);
                 }
             }
@@ -497,23 +498,23 @@ public class Foxml2SolrInputConverter {
     }
 
     private void processDates(Element modsEl, SolrInput solrInput) {
-        DateExtractor.DateInfo dateInfo = extractDateInfoFromMultipleSources(modsEl);
+        DateInfo dateInfo = extractDateInfoFromMultipleSources(modsEl);
         if (dateInfo != null && !dateInfo.isEmpty()) {
             appendDateFields(solrInput, dateInfo);
         }
     }
 
-    private DateExtractor.DateInfo extractDateInfoFromMultipleSources(Element modsEl) {
+    private DateInfo extractDateInfoFromMultipleSources(Element modsEl) {
         DateExtractor dateExtractor = new DateExtractor();
         Element originInfoEl = (Element) Dom4jUtils.buildXpath("mods/originInfo").selectSingleNode(modsEl);
         if (originInfoEl != null) {
-            DateExtractor.DateInfo fromOriginInfo = dateExtractor.extractFromOriginInfo(originInfoEl);
+            DateInfo fromOriginInfo = dateExtractor.extractFromOriginInfo(originInfoEl);
             if (!fromOriginInfo.isEmpty()) {
                 return fromOriginInfo;
             } else {
                 String partDate = toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsEl));
                 if (partDate != null) {
-                    DateExtractor.DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
+                    DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
                     if (!fromPartDate.isEmpty()) {
                         return fromPartDate;
                     }
@@ -522,7 +523,7 @@ public class Foxml2SolrInputConverter {
         } else {
             String partDate = toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsEl));
             if (partDate != null) {
-                DateExtractor.DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
+                DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
                 if (!fromPartDate.isEmpty()) {
                     return fromPartDate;
                 }
@@ -531,7 +532,7 @@ public class Foxml2SolrInputConverter {
         return null;
     }
 
-    private void appendDateFields(SolrInput solrInput, DateExtractor.DateInfo dateInfo) {
+    private void appendDateFields(SolrInput solrInput, DateInfo dateInfo) {
         //min-max dates
         if (dateInfo.dateMin != null) {
             addSolrField(solrInput, "n.date.min", formatDate(dateInfo.dateMin));
@@ -608,7 +609,7 @@ public class Foxml2SolrInputConverter {
     }
 
 
-    private void appendPeriodicalVolumeYear(SolrInput solrInput, DateExtractor.DateInfo dateInfo) {
+    private void appendPeriodicalVolumeYear(SolrInput solrInput, DateInfo dateInfo) {
         if (dateInfo.rangeStartYear != null && dateInfo.rangeEndYear != null) {
             if (dateInfo.rangeStartYear.equals(dateInfo.rangeEndYear)) { //1918
                 addSolrField(solrInput, "n.part.name", dateInfo.rangeStartYear.toString());
