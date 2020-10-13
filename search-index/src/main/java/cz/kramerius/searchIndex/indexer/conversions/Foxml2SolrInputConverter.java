@@ -497,37 +497,38 @@ public class Foxml2SolrInputConverter {
     }
 
     private void processDates(Element modsEl, SolrInput solrInput) {
-        /*DateParser dateParser = new DateParser(modsEl);
-        if (dateParser.getDatum() != null) {
-            addSolrField(solrInput, "datum", formatDate(dateParser.getDatum()));
+        DateExtractor.DateInfo dateInfo = extractDateInfoFromMultipleSources(modsEl);
+        if (dateInfo != null && !dateInfo.isEmpty()) {
+            appendDateFields(solrInput, dateInfo);
         }
-        addSolrField(solrInput, "datum_str", dateParser.getDatum_str());
-        addSolrField(solrInput, "datum_begin", dateParser.getDatum_begin());
-        addSolrField(solrInput, "datum_end", dateParser.getDatum_end());
-        addSolrField(solrInput, "rok", dateParser.getRok());*/
+    }
 
-        //TODO: datum_page - k cemu to je, jak se konstruuje?
-
+    private DateExtractor.DateInfo extractDateInfoFromMultipleSources(Element modsEl) {
         DateExtractor dateExtractor = new DateExtractor();
         Element originInfoEl = (Element) Dom4jUtils.buildXpath("mods/originInfo").selectSingleNode(modsEl);
         if (originInfoEl != null) {
             DateExtractor.DateInfo fromOriginInfo = dateExtractor.extractFromOriginInfo(originInfoEl);
             if (!fromOriginInfo.isEmpty()) {
-                appendDateFields(solrInput, fromOriginInfo);
+                return fromOriginInfo;
             } else {
                 String partDate = toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsEl));
                 if (partDate != null) {
                     DateExtractor.DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
-                    appendDateFields(solrInput, fromPartDate);
+                    if (!fromPartDate.isEmpty()) {
+                        return fromPartDate;
+                    }
                 }
             }
         } else {
             String partDate = toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsEl));
             if (partDate != null) {
                 DateExtractor.DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
-                appendDateFields(solrInput, fromPartDate);
+                if (!fromPartDate.isEmpty()) {
+                    return fromPartDate;
+                }
             }
         }
+        return null;
     }
 
     private void appendDateFields(SolrInput solrInput, DateExtractor.DateInfo dateInfo) {
