@@ -2,9 +2,11 @@ package cz.kramerius.searchIndex.repositoryAccess.nodes;
 
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AuthorsExtractor;
+import cz.kramerius.searchIndex.indexer.conversions.extraction.DateExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.LanguagesExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.TitlesExtractor;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
+import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Pair;
 import cz.kramerius.shared.Title;
 import org.dom4j.Document;
@@ -78,7 +80,11 @@ public class RepositoryNodeManager {
             //System.out.println("own children: " + (ownChildren == null? null : ownChildren.size()));
 
             Document modsDoc = krameriusRepositoryAccessAdapter.getMods(pid, false);
-            Title myTitle = extractTitleFromMods(model, modsDoc);
+            Title title = extractTitleFromMods(model, modsDoc);
+
+            //data from parents
+            DateInfo myDateInfo = extractDateInfoFromMods(model, modsDoc);
+            DateInfo dateInfo = mergeDateInfos(ownParent, myDateInfo);
             List<String> myLanguages = extractLanguagesFromMods(model, modsDoc);
             List<String> languages = mergeLanguages(ownParent, fosterParents, myLanguages);
             List<String> myAuthors = extractAuthorsFromMods(model, modsDoc);
@@ -108,7 +114,7 @@ public class RepositoryNodeManager {
 
             String rootPid = ownParent == null ? pid : ownParent.getRootPid();
             String rootModel = ownParent == null ? model : ownParent.getRootModel();
-            Title rootTitle = ownParent == null ? myTitle : ownParent.getRootTitle();
+            Title rootTitle = ownParent == null ? title : ownParent.getRootTitle();
 
             String ownParentPid = ownParent == null ? null : ownParent.getPid();
             String ownParentModel = ownParent == null ? null : ownParent.getModel();
@@ -116,19 +122,28 @@ public class RepositoryNodeManager {
             Integer positionInOwnParent = extractPositionInParent(pid, ownParent);
 
             return new RepositoryNode(
-                    pid, model, myTitle,
+                    pid, model, title,
                     pidPath, modelPath,
                     rootPid, rootModel, rootTitle,
                     ownParentPid, ownParentModel, ownParentTitle, positionInOwnParent,
                     fosterParentsPids, fosterParentsOfTypeCollectionPids, anyAncestorsOfTypeCollectionPids,
                     ownChildren, fosterChildren,
-                    languages, authors
+                    languages, authors, dateInfo
             );
-
         } catch (IOException | ResourceIndexException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private DateInfo mergeDateInfos(RepositoryNode ownParent, DateInfo myDateInfo) {
+        //no actual merging, just using this object's dateInfo or if empty, then parent's
+        if (myDateInfo != null && !myDateInfo.isEmpty()) {
+            return myDateInfo;
+        } else if (ownParent != null && ownParent.getDateInfo() != null && !ownParent.getDateInfo().isEmpty()) {
+            return new DateInfo(ownParent.getDateInfo());
+        }
+        return null;
     }
 
     private List<String> mergeLanguages(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<String> myLanguages) {
@@ -205,6 +220,12 @@ public class RepositoryNodeManager {
         AuthorsExtractor extractor = new AuthorsExtractor();
         List<String> languages = extractor.extractAuthors(modsDoc.getRootElement(), model);
         return languages;
+    }
+
+    private DateInfo extractDateInfoFromMods(String model, Document modsDoc) {
+        DateExtractor dateExtractor = new DateExtractor();
+        DateInfo dateInfo = dateExtractor.extractDateInfoFromMultipleSources(modsDoc.getRootElement());
+        return dateInfo;
     }
 
 

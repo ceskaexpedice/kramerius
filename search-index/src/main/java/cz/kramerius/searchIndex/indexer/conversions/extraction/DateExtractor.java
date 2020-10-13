@@ -7,6 +7,34 @@ import org.dom4j.Element;
 
 public class DateExtractor {
 
+    public DateInfo extractDateInfoFromMultipleSources(Element modsEl) {
+        DateExtractor dateExtractor = new DateExtractor();
+        Element originInfoEl = (Element) Dom4jUtils.buildXpath("mods/originInfo").selectSingleNode(modsEl);
+        if (originInfoEl != null) {
+            DateInfo fromOriginInfo = dateExtractor.extractFromOriginInfo(originInfoEl);
+            if (!fromOriginInfo.isEmpty()) {
+                return fromOriginInfo;
+            } else {
+                String partDate = ExtractorUtils.toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsEl));
+                if (partDate != null) {
+                    DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
+                    if (!fromPartDate.isEmpty()) {
+                        return fromPartDate;
+                    }
+                }
+            }
+        } else {
+            String partDate = ExtractorUtils.toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsEl));
+            if (partDate != null) {
+                DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
+                if (!fromPartDate.isEmpty()) {
+                    return fromPartDate;
+                }
+            }
+        }
+        return null;
+    }
+
     public DateInfo extractFromOriginInfo(Element originInfoEl) {
         DateInfo result = new DateInfo();
         //<dateIssued point="start">2004</dateIssued>

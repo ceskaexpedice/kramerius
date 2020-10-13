@@ -27,6 +27,26 @@ public class DateInfo {
     public Integer instantMonth;
     public Integer instantDay;
 
+    public DateInfo() {
+    }
+
+    public DateInfo(DateInfo from) {
+        this.value = from.value;
+        this.valueStart = from.valueStart;
+        this.valueEnd = from.valueEnd;
+        this.dateMin = from.dateMin;
+        this.dateMax = from.dateMax;
+        this.rangeStartYear = from.rangeStartYear;
+        this.rangeStartMonth = from.rangeStartMonth;
+        this.rangeStartDay = from.rangeStartDay;
+        this.rangeEndYear = from.rangeEndYear;
+        this.rangeEndMonth = from.rangeEndMonth;
+        this.rangeEndDay = from.rangeEndDay;
+        this.instantYear = from.instantYear;
+        this.instantMonth = from.instantMonth;
+        this.instantDay = from.instantDay;
+    }
+
     @Override
     public String toString() {
         return "DateInfo{" +

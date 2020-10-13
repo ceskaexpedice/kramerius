@@ -251,7 +251,10 @@ public class Foxml2SolrInputConverter {
         //https://github.com/ceskaexpedice/kramerius/blob/b7b173c3d664d4982483131ff6a547f49d96f47e/indexer/src/cz/incad/kramerius/indexer/ExtendedFields.java
 
 
-        processDates(modsRootEl, solrInput);
+        //dates
+        if (repositoryNode.getDateInfo() != null && !repositoryNode.getDateInfo().isEmpty()) {
+            appendDateFields(solrInput, repositoryNode.getDateInfo());
+        }
 
         //n.part.name
         String partName = toStringOrNull(Dom4jUtils.buildXpath("mods/titleInfo/partName").selectSingleNode(modsRootEl));
@@ -490,48 +493,6 @@ public class Foxml2SolrInputConverter {
         return solrInput;
     }
 
-    private String formatDate(Date date) {
-        return MyDateTimeUtils.formatForSolr(date);
-        /*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        //sdf.setTimeZone(TimeZone.getTimeZone("CET"));
-        return sdf.format(date) + "Z";*/
-    }
-
-    private void processDates(Element modsEl, SolrInput solrInput) {
-        DateInfo dateInfo = extractDateInfoFromMultipleSources(modsEl);
-        if (dateInfo != null && !dateInfo.isEmpty()) {
-            appendDateFields(solrInput, dateInfo);
-        }
-    }
-
-    private DateInfo extractDateInfoFromMultipleSources(Element modsEl) {
-        DateExtractor dateExtractor = new DateExtractor();
-        Element originInfoEl = (Element) Dom4jUtils.buildXpath("mods/originInfo").selectSingleNode(modsEl);
-        if (originInfoEl != null) {
-            DateInfo fromOriginInfo = dateExtractor.extractFromOriginInfo(originInfoEl);
-            if (!fromOriginInfo.isEmpty()) {
-                return fromOriginInfo;
-            } else {
-                String partDate = toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsEl));
-                if (partDate != null) {
-                    DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
-                    if (!fromPartDate.isEmpty()) {
-                        return fromPartDate;
-                    }
-                }
-            }
-        } else {
-            String partDate = toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsEl));
-            if (partDate != null) {
-                DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
-                if (!fromPartDate.isEmpty()) {
-                    return fromPartDate;
-                }
-            }
-        }
-        return null;
-    }
-
     private void appendDateFields(SolrInput solrInput, DateInfo dateInfo) {
         //min-max dates
         if (dateInfo.dateMin != null) {
@@ -584,6 +545,13 @@ public class Foxml2SolrInputConverter {
         } else if (dateInfo.valueStart != null || dateInfo.valueEnd != null) { //pouze dateIssued/@point (start a/nebo end)
             appendRangeDateStr(solrInput, dateInfo.valueStart, dateInfo.valueEnd);
         }
+    }
+
+    private String formatDate(Date date) {
+        return MyDateTimeUtils.formatForSolr(date);
+        /*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        //sdf.setTimeZone(TimeZone.getTimeZone("CET"));
+        return sdf.format(date) + "Z";*/
     }
 
     private void appendRangeDateStr(SolrInput solrInput, String start, String end) {

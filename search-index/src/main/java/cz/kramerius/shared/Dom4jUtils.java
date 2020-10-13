@@ -122,7 +122,6 @@ public class Dom4jUtils {
     public static String stringOrNullFromAttributeByName(Element element, String attributeName) {
         Attribute attribute = element.attribute(attributeName);
         if (attribute != null) {
-            System.out.println(attribute.toString());
             String value = attribute.getValue();
             if (value != null) {
                 String trimmed = value.trim();

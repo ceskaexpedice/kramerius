@@ -3,8 +3,10 @@ package indexer;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.Foxml2SolrInputConverter;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AuthorsExtractor;
+import cz.kramerius.searchIndex.indexer.conversions.extraction.DateExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.LanguagesExtractor;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
+import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Dom4jUtils;
 import org.dom4j.*;
 import org.junit.jupiter.api.DynamicTest;
@@ -120,11 +122,15 @@ public class XmlTestBuilder {
 
             List<String> languages = new LanguagesExtractor().extractLanguages(test.getInDoc().getRootElement(), null);
             List<String> authors = new AuthorsExtractor().extractAuthors(test.getInDoc().getRootElement(), null);
-            RepositoryNode node = new RepositoryNode(null, test.getDocType(), null, null, null,
-                    null, null, null, null,
+            DateInfo dateInfo = new DateExtractor().extractDateInfoFromMultipleSources(test.getInDoc().getRootElement());
+            RepositoryNode node = new RepositoryNode(
+                    null, test.getDocType(), null,
+                    null, null,
+                    null, null, null,
                     null, null, null, null,
                     null, null, null,
-                    null, languages, authors
+                    null, null,
+                    languages, authors, dateInfo
             );
             SolrInput solrInput = converter.convert(foxmlDoc, null, node, null, null);
             SolrInput cleared = withoutFields(solrInput,
@@ -162,10 +168,13 @@ public class XmlTestBuilder {
             Document foxmlDoc = new FoxmlBuilder()
                     .withRelsExt(test.getInDoc().asXML())
                     .build();
-            RepositoryNode node = new RepositoryNode(null, test.getDocType(), null, null, null,
-                    null, null, null, null,
+            RepositoryNode node = new RepositoryNode(
+                    null, test.getDocType(), null,
+                    null, null,
+                    null, null, null,
                     null, null, null, null,
                     null, null, null,
+                    null, null,
                     null, null, null
             );
             SolrInput solrInput = converter.convert(foxmlDoc, null, node, null, null);

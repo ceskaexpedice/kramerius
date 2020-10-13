@@ -1,5 +1,6 @@
 package cz.kramerius.searchIndex.repositoryAccess.nodes;
 
+import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Title;
 
 import java.util.Collections;
@@ -13,6 +14,7 @@ public class RepositoryNode {
     private final String pid;
     private final String model;
     private final Title title;
+
     //paths
     private final String pidPath;
     private final String modelPath;
@@ -25,6 +27,7 @@ public class RepositoryNode {
     private final String ownParentModel;
     private final Title ownParentTitle;
     private final Integer positionInOwnParent;
+
     //foster parents
     private final List<String> pidsOfFosterParents;
     private final List<String> pidsOfFosterParentsOfTypeCollection;
@@ -32,9 +35,11 @@ public class RepositoryNode {
     //children
     private final List<String> pidsOfOwnChildren;
     private final List<String> pidsOfFosterChildren;
+
     //data from predecessors in the tree and possibly from foster parents' predecessors in their trees
     private final List<String> languages;
     private final List<String> authors;
+    private final DateInfo dateInfo;
 
     public RepositoryNode(String pid, String model, Title title,
                           String pidPath, String modelPath,
@@ -42,7 +47,7 @@ public class RepositoryNode {
                           String ownParentPid, String ownParentModel, Title ownParentTitle, Integer positionInOwnParent,
                           List<String> pidsOfFosterParents, List<String> pidsOfFosterParentsOfTypeCollection, List<String> pidsOfAnyAncestorsOfTypeCollection,
                           List<String> pidsOfOwnChildren, List<String> pidsOfFosterChildren,
-                          List<String> languages, List<String> authors) {
+                          List<String> languages, List<String> authors, DateInfo dateInfo) {
         this.pid = pid;
         this.model = model;
         this.title = title;
@@ -62,6 +67,8 @@ public class RepositoryNode {
         this.pidsOfFosterChildren = pidsOfFosterChildren;
         this.languages = languages == null ? Collections.emptyList() : languages;
         this.authors = authors == null ? Collections.emptyList() : authors;
+        this.dateInfo = dateInfo;
+
     }
 
     public String getPid() {
@@ -159,4 +166,9 @@ public class RepositoryNode {
     public List<String> getAuthors() {
         return authors;
     }
+
+    public DateInfo getDateInfo() {
+        return dateInfo;
+    }
+
 }
