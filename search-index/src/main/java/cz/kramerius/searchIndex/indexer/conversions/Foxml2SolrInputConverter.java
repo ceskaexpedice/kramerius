@@ -141,28 +141,28 @@ public class Foxml2SolrInputConverter {
             }
 
             //pid/model path
-            /*addSolrFiled(solrInput, "n.pid_path", krameriusNode.toPidPath());
-            addSolrFiled(solrInput, "n.model_path", krameriusNode.toModelPath());*/
+            /*addSolrField(solrInput, "n.pid_path", krameriusNode.toPidPath());
+            addSolrField(solrInput, "n.model_path", krameriusNode.toModelPath());*/
             //own, foster children
             /*if (krameriusNode.getPidsOfOwnChildren() != null) {
                 for (String ownChild : krameriusNode.getPidsOfOwnChildren()) {
-                    addSolrFiled(solrInput, "n.own_children_pids", ownChild);
+                    addSolrField(solrInput, "n.own_children_pids", ownChild);
                 }
             }*/
             /*if (krameriusNode.getPidsOfFosterChildren() != null) {
                 for (String fosterChild : krameriusNode.getPidsOfFosterChildren()) {
-                    addSolrFiled(solrInput, "n.foster_children_pids", fosterChild);
+                    addSolrField(solrInput, "n.foster_children_pids", fosterChild);
                 }
             }*/
             //TODO: deprecated, jen pro testovani a dokud se neprizpusobi staty klient, do produkce zrusit
             //TODO: vsechny tri maji byt pole s own_parent path prvni a ostatni pathy nasledujici
-            //addSolrFiled(solrInput, "parent_pid", repositoryNode.getParentPid());
+            //addSolrField(solrInput, "parent_pid", repositoryNode.getParentPid());
             addSolrField(solrInput, "pid_path", repositoryNode.getPidPath());
             addSolrField(solrInput, "model_path", repositoryNode.getModelPath());
             if (repositoryNode.getPidsOfFosterParents() != null) {
                 for (String fosterParent : repositoryNode.getPidsOfFosterParents()) {
                     RepositoryNode fosterParentNode = nodeManager.getKrameriusNode(fosterParent);
-                    //addSolrFiled(solrInput, "parent_pid", fosterParent);
+                    //addSolrField(solrInput, "parent_pid", fosterParent);
                     addSolrField(solrInput, "pid_path", fosterParentNode.getPidPath() + "/" + pid);
                     addSolrField(solrInput, "model_path", fosterParentNode.getModelPath() + "/" + model);
                 }
@@ -263,7 +263,7 @@ public class Foxml2SolrInputConverter {
         if ("page".equals(model)) {
             //page type
             List<Node> partWithTypeEls = Dom4jUtils.buildXpath("mods/part[@type]").selectNodes(modsRootEl);
-            System.out.println("partWithTypeEls:" + partWithTypeEls.size());
+            //System.out.println("partWithTypeEls:" + partWithTypeEls.size());
             if (partWithTypeEls.isEmpty()) {
                 System.err.println("WARNING: no page type for " + pid);
             } else {
@@ -271,7 +271,7 @@ public class Foxml2SolrInputConverter {
                     System.err.println("WARNING: multiple page types for " + pid + ", using first one");
                 }
                 String type = Dom4jUtils.stringOrNullFromAttributeByName((Element) partWithTypeEls.get(0), "type");
-                System.out.println("type: " + type);
+                //System.out.println("type: " + type);
                 addSolrField(solrInput, "n.page.type", type);
             }
             //page number (string)
@@ -499,12 +499,12 @@ public class Foxml2SolrInputConverter {
     private void processDates(Element modsEl, SolrInput solrInput) {
         /*DateParser dateParser = new DateParser(modsEl);
         if (dateParser.getDatum() != null) {
-            addSolrFiled(solrInput, "datum", formatDate(dateParser.getDatum()));
+            addSolrField(solrInput, "datum", formatDate(dateParser.getDatum()));
         }
-        addSolrFiled(solrInput, "datum_str", dateParser.getDatum_str());
-        addSolrFiled(solrInput, "datum_begin", dateParser.getDatum_begin());
-        addSolrFiled(solrInput, "datum_end", dateParser.getDatum_end());
-        addSolrFiled(solrInput, "rok", dateParser.getRok());*/
+        addSolrField(solrInput, "datum_str", dateParser.getDatum_str());
+        addSolrField(solrInput, "datum_begin", dateParser.getDatum_begin());
+        addSolrField(solrInput, "datum_end", dateParser.getDatum_end());
+        addSolrField(solrInput, "rok", dateParser.getRok());*/
 
         //TODO: datum_page - k cemu to je, jak se konstruuje?
 
@@ -540,13 +540,19 @@ public class Foxml2SolrInputConverter {
         }
         if (dateInfo.isInstant()) { //instant
             if (dateInfo.instantYear != null) {
-                addSolrField(solrInput, "n.date_instant.year", dateInfo.instantYear.toString());
+                //addSolrField(solrInput, "n.date_instant.year", dateInfo.instantYear.toString());
+                addSolrField(solrInput, "n.date_range_start.year", dateInfo.instantYear.toString());
+                addSolrField(solrInput, "n.date_range_end.year", dateInfo.instantYear.toString());
             }
             if (dateInfo.instantMonth != null) {
-                addSolrField(solrInput, "n.date_instant.month", dateInfo.instantMonth.toString());
+                //addSolrField(solrInput, "n.date_instant.month", dateInfo.instantMonth.toString());
+                addSolrField(solrInput, "n.date_range_start.month", dateInfo.instantMonth.toString());
+                addSolrField(solrInput, "n.date_range_end.month", dateInfo.instantMonth.toString());
             }
             if (dateInfo.instantDay != null) {
-                addSolrField(solrInput, "n.date_instant.day", dateInfo.instantDay.toString());
+                //addSolrField(solrInput, "n.date_instant.day", dateInfo.instantDay.toString());
+                addSolrField(solrInput, "n.date_range_start.day", dateInfo.instantDay.toString());
+                addSolrField(solrInput, "n.date_range_end.day", dateInfo.instantDay.toString());
             }
         } else { //range
             //range start

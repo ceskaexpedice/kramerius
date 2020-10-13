@@ -16,8 +16,12 @@
             <field name="n.date.max">1947-07-31T23:59:59.999Z</field>
             <field name="n.date.min">1947-07-01T00:00:00.001Z</field>
             <field name="n.date.str">7.1947</field>
-            <field name="n.date_instant.month">7</field>
-            <field name="n.date_instant.year">1947</field>
+            <!--<field name="n.date_instant.month">7</field>
+            <field name="n.date_instant.year">1947</field>-->
+            <field name="n.date_range_end.month">7</field>
+            <field name="n.date_range_end.year">1947</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
 
             <!--
             <field name="datum_str">7.1947</field>
@@ -36,8 +40,12 @@
             <field name="n.date.max">1947-07-31T23:59:59.999Z</field>
             <field name="n.date.min">1947-07-01T00:00:00.001Z</field>
             <field name="n.date.str">07.1947</field>
-            <field name="n.date_instant.month">7</field>
-            <field name="n.date_instant.year">1947</field>
+            <!--<field name="n.date_instant.month">7</field>
+            <field name="n.date_instant.year">1947</field>-->
+            <field name="n.date_range_end.month">7</field>
+            <field name="n.date_range_end.year">1947</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
 
             <!--
             <field name="datum_str">07.1947</field>
@@ -56,8 +64,12 @@
             <field name="n.date.max">1947-07-31T23:59:59.999Z</field>
             <field name="n.date.min">1947-07-01T00:00:00.001Z</field>
             <field name="n.date.str">7. 1947</field>
-            <field name="n.date_instant.month">7</field>
-            <field name="n.date_instant.year">1947</field>
+            <!--<field name="n.date_instant.month">7</field>
+            <field name="n.date_instant.year">1947</field>-->
+            <field name="n.date_range_end.month">7</field>
+            <field name="n.date_range_end.year">1947</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
 
             <!--
             <field name="datum_str">7. 1947</field>

@@ -16,9 +16,15 @@
             <field name="n.date.max">1947-07-03T23:59:59.999Z</field>
             <field name="n.date.min">1947-07-03T00:00:00.001Z</field>
             <field name="n.date.str">3.7.1947</field>
-            <field name="n.date_instant.day">3</field>
+            <!--<field name="n.date_instant.day">3</field>
             <field name="n.date_instant.month">7</field>
-            <field name="n.date_instant.year">1947</field>
+            <field name="n.date_instant.year">1947</field>-->
+            <field name="n.date_range_end.day">3</field>
+            <field name="n.date_range_end.month">7</field>
+            <field name="n.date_range_end.year">1947</field>
+            <field name="n.date_range_start.day">3</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
 
             <!--
             &lt;!&ndash;spatne&ndash;&gt;
@@ -40,9 +46,15 @@
             <field name="n.date.max">1947-07-03T23:59:59.999Z</field>
             <field name="n.date.min">1947-07-03T00:00:00.001Z</field>
             <field name="n.date.str">03.07.1947</field>
-            <field name="n.date_instant.day">3</field>
+            <!--<field name="n.date_instant.day">3</field>
             <field name="n.date_instant.month">7</field>
-            <field name="n.date_instant.year">1947</field>
+            <field name="n.date_instant.year">1947</field>-->
+            <field name="n.date_range_end.day">3</field>
+            <field name="n.date_range_end.month">7</field>
+            <field name="n.date_range_end.year">1947</field>
+            <field name="n.date_range_start.day">3</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
 
             <!--
             &lt;!&ndash;spatne&ndash;&gt;
@@ -64,9 +76,15 @@
             <field name="n.date.max">1947-07-03T23:59:59.999Z</field>
             <field name="n.date.min">1947-07-03T00:00:00.001Z</field>
             <field name="n.date.str">3. 7. 1947</field>
-            <field name="n.date_instant.day">3</field>
+            <!--<field name="n.date_instant.day">3</field>
             <field name="n.date_instant.month">7</field>
-            <field name="n.date_instant.year">1947</field>
+            <field name="n.date_instant.year">1947</field>-->
+            <field name="n.date_range_end.day">3</field>
+            <field name="n.date_range_end.month">7</field>
+            <field name="n.date_range_end.year">1947</field>
+            <field name="n.date_range_start.day">3</field>
+            <field name="n.date_range_start.month">7</field>
+            <field name="n.date_range_start.year">1947</field>
 
             <!--
             &lt;!&ndash;spatne&ndash;&gt;

@@ -11,7 +11,9 @@
             <field name="n.date.max">1947-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1947-01-01T00:00:00.001Z</field>
             <field name="n.date.str">1947</field>
-            <field name="n.date_instant.year">1947</field>
+            <!--<field name="n.date_instant.year">1947</field>-->
+            <field name="n.date_range_end.year">1947</field>
+            <field name="n.date_range_start.year">1947</field>
 
             <!--
             <field name="datum_begin">1947</field>
@@ -404,7 +406,7 @@
     </test>
 
     <test name="[1968]">
-        <desc>Rok ohraniceny hranatymi zavorkami, nejistotou zde ignorujeme.</desc>
+        <desc>Rok ohraniceny hranatymi zavorkami, nejistotu zde ignorujeme.</desc>
         <in>
             <originInfo>
                 <dateIssued>[1968]</dateIssued>
@@ -414,12 +416,14 @@
             <field name="n.date.max">1968-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1968-01-01T00:00:00.001Z</field>
             <field name="n.date.str">[1968]</field>
-            <field name="n.date_instant.year">1968</field>
+            <!--<field name="n.date_instant.year">1968</field>-->
+            <field name="n.date_range_end.year">1968</field>
+            <field name="n.date_range_start.year">1968</field>
         </out>
     </test>
 
     <test name="1968]">
-        <desc>Rok ohraniceny hranatou zavorkou zprava, nejistotou zde ignorujeme.</desc>
+        <desc>Rok ohraniceny hranatou zavorkou zprava, nejistotu zde ignorujeme.</desc>
         <in>
             <originInfo>
                 <dateIssued>1968]</dateIssued>
@@ -429,12 +433,14 @@
             <field name="n.date.max">1968-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1968-01-01T00:00:00.001Z</field>
             <field name="n.date.str">1968]</field>
-            <field name="n.date_instant.year">1968</field>
+            <!--<field name="n.date_instant.year">1968</field>-->
+            <field name="n.date_range_end.year">1968</field>
+            <field name="n.date_range_start.year">1968</field>
         </out>
     </test>
 
     <test name="[1968">
-        <desc>Rok ohraniceny hranatou zavorkou zleva, nejistotou zde ignorujeme.</desc>
+        <desc>Rok ohraniceny hranatou zavorkou zleva, nejistotu zde ignorujeme.</desc>
         <in>
             <originInfo>
                 <dateIssued>[1968</dateIssued>
@@ -444,12 +450,14 @@
             <field name="n.date.max">1968-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1968-01-01T00:00:00.001Z</field>
             <field name="n.date.str">[1968</field>
-            <field name="n.date_instant.year">1968</field>
+            <!--<field name="n.date_instant.year">1968</field>-->
+            <field name="n.date_range_end.year">1968</field>
+            <field name="n.date_range_start.year">1968</field>
         </out>
     </test>
 
     <test name="p1968">
-        <desc>Rok s prefixem pYEAR, nejistotou zde ignorujeme.</desc>
+        <desc>Rok s prefixem pYEAR, nejistotu zde ignorujeme.</desc>
         <in>
             <originInfo>
                 <dateIssued>p1968</dateIssued>
@@ -459,12 +467,14 @@
             <field name="n.date.max">1968-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1968-01-01T00:00:00.001Z</field>
             <field name="n.date.str">p1968</field>
-            <field name="n.date_instant.year">1968</field>
+            <!--<field name="n.date_instant.year">1968</field>-->
+            <field name="n.date_range_end.year">1968</field>
+            <field name="n.date_range_start.year">1968</field>
         </out>
     </test>
 
     <test name="c1968">
-        <desc>Rok s prefixem cYEAR, nejistotou zde ignorujeme.</desc>
+        <desc>Rok s prefixem cYEAR, nejistotu zde ignorujeme.</desc>
         <in>
             <originInfo>
                 <dateIssued>c1968</dateIssued>
@@ -474,7 +484,9 @@
             <field name="n.date.max">1968-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1968-01-01T00:00:00.001Z</field>
             <field name="n.date.str">c1968</field>
-            <field name="n.date_instant.year">1968</field>
+            <!--<field name="n.date_instant.year">1968</field>-->
+            <field name="n.date_range_end.year">1968</field>
+            <field name="n.date_range_start.year">1968</field>
         </out>
     </test>
 
@@ -490,7 +502,9 @@
             <field name="n.date.max">1968-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1968-01-01T00:00:00.001Z</field>
             <field name="n.date.str">p1968</field>
-            <field name="n.date_instant.year">1968</field>
+            <!--<field name="n.date_instant.year">1968</field>-->
+            <field name="n.date_range_end.year">1968</field>
+            <field name="n.date_range_start.year">1968</field>
         </out>
     </test>
 
@@ -505,7 +519,9 @@
             <field name="n.date.max">1723-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1723-01-01T00:00:00.001Z</field>
             <field name="n.date.str">1723?]</field>
-            <field name="n.date_instant.year">1723</field>
+            <!--<field name="n.date_instant.year">1723</field>-->
+            <field name="n.date_range_end.year">1723</field>
+            <field name="n.date_range_start.year">1723</field>
         </out>
     </test>
 
@@ -521,7 +537,9 @@
             <field name="n.date.max">1723-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1723-01-01T00:00:00.001Z</field>
             <field name="n.date.str">1723?]</field>
-            <field name="n.date_instant.year">1723</field>
+            <!--<field name="n.date_instant.year">1723</field>-->
+            <field name="n.date_range_end.year">1723</field>
+            <field name="n.date_range_start.year">1723</field>
         </out>
     </test>
 
@@ -537,7 +555,9 @@
             <field name="n.date.max">1910-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1910-01-01T00:00:00.001Z</field>
             <field name="n.date.str">[1910?]</field>
-            <field name="n.date_instant.year">1910</field>
+            <!--<field name="n.date_instant.year">1910</field>-->
+            <field name="n.date_range_end.year">1910</field>
+            <field name="n.date_range_start.year">1910</field>
         </out>
     </test>
 
@@ -553,7 +573,9 @@
             <field name="n.date.max">1910-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1910-01-01T00:00:00.001Z</field>
             <field name="n.date.str">[1910?]</field>
-            <field name="n.date_instant.year">1910</field>
+            <!--<field name="n.date_instant.year">1910</field>-->
+            <field name="n.date_range_end.year">1910</field>
+            <field name="n.date_range_start.year">1910</field>
         </out>
     </test>
 

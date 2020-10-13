@@ -37,8 +37,9 @@
             <field name="n.date.max">2004-12-31T23:59:59.999Z</field>
             <field name="n.date.min">2004-01-01T00:00:00.001Z</field>
             <field name="n.date.str">2004</field>
-            <field name="n.date_instant.year">2004</field>
-
+            <!--<field name="n.date_instant.year">2004</field>-->
+            <field name="n.date_range_end.year">2004</field>
+            <field name="n.date_range_start.year">2004</field>
             <field name="n.part.name">2004</field>
         </out>
     </test>
@@ -86,7 +87,9 @@
             <field name="n.date.max">2004-12-31T23:59:59.999Z</field>
             <field name="n.date.min">2004-01-01T00:00:00.001Z</field>
             <field name="n.date.str">2004</field>
-            <field name="n.date_instant.year">2004</field>
+            <!--<field name="n.date_instant.year">2004</field>-->
+            <field name="n.date_range_end.year">2004</field>
+            <field name="n.date_range_start.year">2004</field>
 
             <field name="n.part.name">2004</field>
         </out>
@@ -147,7 +150,9 @@
             <field name="n.date.max">1909-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1909-01-01T00:00:00.001Z</field>
             <field name="n.date.str">1909</field>
-            <field name="n.date_instant.year">1909</field>
+            <!--<field name="n.date_instant.year">1909</field>-->
+            <field name="n.date_range_end.year">1909</field>
+            <field name="n.date_range_start.year">1909</field>
 
             <field name="n.part.name">1909</field>
         </out>
@@ -175,7 +180,9 @@
             <field name="n.date.max">1948-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1948-01-01T00:00:00.001Z</field>
             <field name="n.date.str">1948</field>
-            <field name="n.date_instant.year">1948</field>
+            <!--<field name="n.date_instant.year">1948</field>-->
+            <field name="n.date_range_end.year">1948</field>
+            <field name="n.date_range_start.year">1948</field>
 
             <field name="n.part.name">1948</field>
             <field name="n.part.number.int">4</field>
@@ -221,7 +228,9 @@
             <field name="n.date.max">2002-12-31T23:59:59.999Z</field>
             <field name="n.date.min">2002-01-01T00:00:00.001Z</field>
             <field name="n.date.str">2002</field>
-            <field name="n.date_instant.year">2002</field>
+            <!--<field name="n.date_instant.year">2002</field>-->
+            <field name="n.date_range_end.year">2002</field>
+            <field name="n.date_range_start.year">2002</field>
 
             <field name="n.part.name">2002</field>
             <field name="n.part.number.int">2001</field>
@@ -250,7 +259,9 @@
             <field name="n.date.max">1948-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1948-01-01T00:00:00.001Z</field>
             <field name="n.date.str">1948</field>
-            <field name="n.date_instant.year">1948</field>
+            <!--<field name="n.date_instant.year">1948</field>-->
+            <field name="n.date_range_end.year">1948</field>
+            <field name="n.date_range_start.year">1948</field>
 
             <field name="n.part.name">1948</field>
             <field name="n.part.number.int">1947</field>
@@ -274,7 +285,9 @@
             <field name="n.date.max">1871-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1871-01-01T00:00:00.001Z</field>
             <field name="n.date.str">1871</field>
-            <field name="n.date_instant.year">1871</field>
+            <!--<field name="n.date_instant.year">1871</field>-->
+            <field name="n.date_range_end.year">1871</field>
+            <field name="n.date_range_start.year">1871</field>
 
             <field name="n.part.name">1871</field>
         </out>
@@ -305,7 +318,9 @@
             <field name="n.date.max">1941-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1941-01-01T00:00:00.001Z</field>
             <field name="n.date.str">1941</field>
-            <field name="n.date_instant.year">1941</field>
+            <!--<field name="n.date_instant.year">1941</field>-->
+            <field name="n.date_range_end.year">1941</field>
+            <field name="n.date_range_start.year">1941</field>
 
             <field name="n.part.name">1941</field>
             <field name="n.part.number.int">49</field>
@@ -327,7 +342,9 @@
             <field name="n.date.max">1925-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1925-01-01T00:00:00.001Z</field>
             <field name="n.date.str">1925</field>
-            <field name="n.date_instant.year">1925</field>
+            <!--<field name="n.date_instant.year">1925</field>-->
+            <field name="n.date_range_end.year">1925</field>
+            <field name="n.date_range_start.year">1925</field>
 
             <field name="n.part.name">1925</field>
             <field name="n.part.number.int">4</field>
@@ -355,7 +372,9 @@
             <field name="n.date.max">1925-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1925-01-01T00:00:00.001Z</field>
             <field name="n.date.str">1925</field>
-            <field name="n.date_instant.year">1925</field>
+            <!--<field name="n.date_instant.year">1925</field>-->
+            <field name="n.date_range_end.year">1925</field>
+            <field name="n.date_range_start.year">1925</field>
 
             <field name="n.part.name">1925</field>
             <field name="n.part.number.int">3</field>

@@ -17,7 +17,7 @@
             <field name="n.part.number.str">1</field>
 
             <field name="n.title.search">1. Úřední list Brněnských novin</field>
-            <field name="n.title.sort">1. U|R|EDNI| LIST BRNE|NSKY|H| NOVIN</field>
+            <field name="n.title.sort">1 U|R|EDNI| LIST BRNE|NSKY|H| NOVIN</field>
             <field name="n.titles.search">1. Úřední list Brněnských novin</field>
         </out>
     </test>

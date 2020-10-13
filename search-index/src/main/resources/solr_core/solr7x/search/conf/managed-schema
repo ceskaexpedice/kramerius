@@ -557,9 +557,12 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <field name="n.date.max" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="false"/>
 
         <!--presne hodnoty datumu, pokud je datum zapsano jako jedna hodota (ac treba zapis "6. 2012" take znamena rozsah, zde jde o zapis, je to tedy instant)-->
+        <!--zruseno, namisto toho bude uvedeno oboji n.date_range_start.* i n.date_range_end.*-->
+        <!--
         <field name="n.date_instant.year" type="int" indexed="true" stored="true" multiValued="false"/>
         <field name="n.date_instant.month" type="int" indexed="true" stored="true" multiValued="false"/>
         <field name="n.date_instant.day" type="int" indexed="true" stored="true" multiValued="false"/>
+        -->
 
         <!--presne hodnoty pocatecniho datumu, napr. pro "9uu" nebude vyplneno date_range_start_year a pro 17.x.1926 nebude date_range_start_month ani date_range_start_day-->
         <field name="n.date_range_start.year" type="int" indexed="true" stored="true" multiValued="false"/>

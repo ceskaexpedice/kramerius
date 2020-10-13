@@ -13,7 +13,7 @@
             <field name="n.part.number.str">2</field>
 
             <field name="n.title.search">Deutschböhmen als Wirtschaftsgrossmacht. 2</field>
-            <field name="n.title.sort">DEUTSH|BÖHMEN ALS WIRTSH|AFTSGROSSMAH|T. 2</field>
+            <field name="n.title.sort">DEUTSH|BO|HMEN ALS WIRTSH|AFTSGROSSMAH|T 2</field>
             <field name="n.titles.search">Deutschböhmen als Wirtschaftsgrossmacht. 2</field>
         </out>
     </test>
@@ -34,7 +34,7 @@
             <field name="n.part.number.str">4</field>
 
             <field name="n.title.search">Ottův slovník naučný: illustrovaná encyklopaedie obecných vědomostí. 4. Bianchi-Giovini - bžunda</field>
-            <field name="n.title.sort">OTTU|V SLOVNI|K NAUC|NY|: ILLUSTROVANA| ENCYKLOPAEDIE OBECNY|H| VE|DOMOSTI|. 4. BIANH|I-GIOVINI - BZ|UNDA</field>
+            <field name="n.title.sort">OTTU|V SLOVNI|K NAUC|NY| ILLUSTROVANA| ENCYKLOPAEDIE OBECNY|H| VE|DOMOSTI| 4 BIANH|IGIOVINI  BZ|UNDA</field>
             <field name="n.titles.search">Ottův slovník naučný: illustrovaná encyklopaedie obecných vědomostí. 4. Bianchi-Giovini - bžunda</field>
         </out>
     </test>
@@ -51,7 +51,7 @@
             <field name="n.part.number.str">2x</field>
 
             <field name="n.title.search">Deutschböhmen als Wirtschaftsgrossmacht. 2x</field>
-            <field name="n.title.sort">DEUTSH|BÖHMEN ALS WIRTSH|AFTSGROSSMAH|T. 2X</field>
+            <field name="n.title.sort">DEUTSH|BO|HMEN ALS WIRTSH|AFTSGROSSMAH|T 2X</field>
             <field name="n.titles.search">Deutschböhmen als Wirtschaftsgrossmacht. 2x</field>
         </out>
     </test>

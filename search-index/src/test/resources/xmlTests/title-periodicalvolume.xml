@@ -31,7 +31,7 @@
             <field name="n.part.number.str">2</field>
 
             <field name="n.title.search">2. druhý ročník</field>
-            <field name="n.title.sort">2. DRUHY| ROC|NI|K</field>
+            <field name="n.title.sort">2 DRUHY| ROC|NI|K</field>
             <field name="n.titles.search">2. druhý ročník</field>
         </out>
     </test>
@@ -61,7 +61,7 @@
             <field name="n.part.number.str">2</field>
 
             <field name="n.title.search">2. druhý ročník</field>
-            <field name="n.title.sort">2. DRUHY| ROC|NI|K</field>
+            <field name="n.title.sort">2 DRUHY| ROC|NI|K</field>
             <field name="n.titles.search">2. druhý ročník</field>
         </out>
     </test>

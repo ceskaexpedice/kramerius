@@ -11,7 +11,9 @@
             <field name="n.date.max">1947-12-31T23:59:59.999Z</field>
             <field name="n.date.min">1947-01-01T00:00:00.001Z</field>
             <field name="n.date.str">1947</field>
-            <field name="n.date_instant.year">1947</field>
+            <!--<field name="n.date_instant.year">1947</field>-->
+            <field name="n.date_range_end.year">1947</field>
+            <field name="n.date_range_start.year">1947</field>
         </out>
     </test>
 
@@ -26,8 +28,12 @@
             <field name="n.date.max">2013-06-30T23:59:59.999Z</field>
             <field name="n.date.min">2013-06-01T00:00:00.001Z</field>
             <field name="n.date.str">06.2013</field>
-            <field name="n.date_instant.month">6</field>
-            <field name="n.date_instant.year">2013</field>
+            <!--<field name="n.date_instant.month">6</field>
+            <field name="n.date_instant.year">2013</field>-->
+            <field name="n.date_range_end.month">6</field>
+            <field name="n.date_range_end.year">2013</field>
+            <field name="n.date_range_start.month">6</field>
+            <field name="n.date_range_start.year">2013</field>
         </out>
     </test>
 
@@ -42,9 +48,15 @@
             <field name="n.date.max">1948-04-16T23:59:59.999Z</field>
             <field name="n.date.min">1948-04-16T00:00:00.001Z</field>
             <field name="n.date.str">16.04.1948</field>
-            <field name="n.date_instant.day">16</field>
+            <!--<field name="n.date_instant.day">16</field>
             <field name="n.date_instant.month">4</field>
-            <field name="n.date_instant.year">1948</field>
+            <field name="n.date_instant.year">1948</field>-->
+            <field name="n.date_range_end.day">16</field>
+            <field name="n.date_range_end.month">4</field>
+            <field name="n.date_range_end.year">1948</field>
+            <field name="n.date_range_start.day">16</field>
+            <field name="n.date_range_start.month">4</field>
+            <field name="n.date_range_start.year">1948</field>
         </out>
     </test>
 
