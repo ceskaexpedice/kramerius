@@ -146,7 +146,8 @@ public class SortingNormalizer {
             for (int i = 0; i < value.length(); i++) {
                 Character c = Character.valueOf(value.charAt(i));
                 if (charactersToBeIgnored.contains(c)) {
-                    //nothing, ignore the character
+                    //replace with space
+                    builder.append(' ');
                 } else if (charactersTransformations.keySet().contains(c)) {
                     builder.append(charactersTransformations.get(c));
                 } else {
@@ -160,6 +161,8 @@ public class SortingNormalizer {
             //DZ, DŽ (Slovak)
             //pozor, tohle rozbije slova jako nadzvukový (cs), odzemok (sk)
             normalized = normalized.replaceAll("DZ", "D|");
+            //replace multiple white spaces with single space
+            normalized = normalized.replaceAll("\\s+"," ");
             //final trim
             normalized = normalized.trim();
             return normalized;

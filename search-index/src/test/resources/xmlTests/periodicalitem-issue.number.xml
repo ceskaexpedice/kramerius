@@ -103,7 +103,7 @@
             <field name="n.part.number.str">23-24</field>
 
             <field name="n.title.search">Deutsche Nachrichten. 23-24</field>
-            <field name="n.title.sort">DEUTSH|E NAH|RIH|TEN 2324</field>
+            <field name="n.title.sort">DEUTSH|E NAH|RIH|TEN 23 24</field>
             <field name="n.titles.search">Deutsche Nachrichten. 23-24</field>
         </out>
     </test>
