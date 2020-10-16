@@ -4,6 +4,7 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,7 +13,9 @@ import org.dom4j.Document;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -153,6 +156,28 @@ public class ItemsResource extends AdminApiResource {
                                 .build();
                     }
                 }
+                case "IMG_THUMB": {
+                    String mime = krameriusRepositoryApi.getImgThumbMimetype(pid);
+                    if (mime == null) {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    } else {
+                        return Response.ok()
+                                .type(MediaType.TEXT_PLAIN + ";charset=utf-8")
+                                .entity(mime)
+                                .build();
+                    }
+                }
+                case "IMG_PREVIEW": {
+                    String mime = krameriusRepositoryApi.getImgPreviewMimetype(pid);
+                    if (mime == null) {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    } else {
+                        return Response.ok()
+                                .type(MediaType.TEXT_PLAIN + ";charset=utf-8")
+                                .entity(mime)
+                                .build();
+                    }
+                }
                 //TODO: other streams where it makes sense
                 default:
                     return Response.status(Response.Status.BAD_REQUEST).build();
@@ -203,7 +228,33 @@ public class ItemsResource extends AdminApiResource {
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
                             .entity(krameriusRepositoryApi.getOcrAlto(pid, true).asXML())
                             .build();
-                //TODO: IMG_FULL, IMG_THUMB, IMG_PREVIEW
+                case "IMG_FULL": {
+                    String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
+                    InputStream is = krameriusRepositoryApi.getImgFull(pid);
+                    StreamingOutput stream = output -> {
+                        IOUtils.copy(is, output);
+                        IOUtils.closeQuietly(is);
+                    };
+                    return Response.ok().entity(stream).type(mimeType).build();
+                }
+                case "IMG_THUMB": {
+                    String mimeType = krameriusRepositoryApi.getImgThumbMimetype(pid);
+                    InputStream is = krameriusRepositoryApi.getImgThumb(pid);
+                    StreamingOutput stream = output -> {
+                        IOUtils.copy(is, output);
+                        IOUtils.closeQuietly(is);
+                    };
+                    return Response.ok().entity(stream).type(mimeType).build();
+                }
+                case "IMG_PREVIEW": {
+                    String mimeType = krameriusRepositoryApi.getImgPreviewMimetype(pid);
+                    InputStream is = krameriusRepositoryApi.getImgPreview(pid);
+                    StreamingOutput stream = output -> {
+                        IOUtils.copy(is, output);
+                        IOUtils.closeQuietly(is);
+                    };
+                    return Response.ok().entity(stream).type(mimeType).build();
+                }
                 //TODO: MP3, OGG, WAV
                 //TODO: POLICY
                 //TODO: MIGRATION

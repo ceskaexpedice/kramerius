@@ -68,10 +68,22 @@ public class Dom4jUtils {
         return xPath;
     }
 
+    public static Element firstElementByXpath(Element root, String xpathExpr) {
+        XPath xPath = buildXpath(xpathExpr);
+        List<Node> result = xPath.selectNodes(root);
+        if (result.size() > 0) {
+            Node firstNode = result.get(0);
+            if (firstNode instanceof Element) {
+                return (Element) firstNode;
+            }
+        }
+        return null;
+    }
+
     public static String stringOrNullFromFirstElementByXpath(Element root, String xpathExpr) {
         XPath xPath = buildXpath(xpathExpr);
         List<Node> result = xPath.selectNodes(root);
-        if (result.size() == 1) {
+        if (result.size() > 0) {
             Node firstNode = result.get(0);
             if (firstNode instanceof Element) {
                 String value = ((Element) firstNode).getStringValue();

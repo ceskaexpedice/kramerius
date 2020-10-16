@@ -6,12 +6,14 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
+import org.dom4j.Element;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -22,9 +24,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -63,10 +62,11 @@ public class ItemsResource extends ClientApiResource {
     // GET/HEAD {pid}/metadata/dc
     // GET/HEAD {pid}/ocr/text
     // GET/HEAD {pid}/ocr/alto
-    // TODO: obrazova, zvukova data
-    // GET      {pid}/image/full
-    // GET      {pid}/image/thumb
-    // GET      {pid}/image/preview
+    // GET      {pid}/image/full (POZOR: neni konzistentni s info/image)
+    // GET      {pid}/image/thumb (POZOR: neni konzistentni s info/image)
+    // GET      {pid}/image/preview (POZOR: neni konzistentni s info/image)
+    // TODO: zvukova data
+
 
     public static final Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());
 
@@ -110,14 +110,14 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    @GET
-    @Path("{pid}/info/structure")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     /**
      * Vrací jen přímou strukturu získanou okamžitě z resource-indexu. Tedy rodiče (vlastního, nevlastní), děti (vlastní, nevlastní).
      * Ale už ne věci, které by se musely dopočítávat přes několik dotazů (root v stromech rodičů, sourozenci),
      * tyto věci jsou dostupné z vyhledávacího indexu, kde se integrují v rámci procesu indexace.
      */
+    @GET
+    @Path("{pid}/info/structure")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoStructure(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
@@ -128,13 +128,13 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    @GET
-    @Path("{pid}/info/image")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     /***
      * Vrací informaci o tom, jaký zdroj pro obrazová data má objekt (typicky stránka) k dispozici,
      * buď tiles (dlaždice přes zoomify/iiif), nebo none, nebo mimetype (image/jpeg, application/pdf, ...) datastreamu IMG_FULL
      */
+    @GET
+    @Path("{pid}/info/image")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoImage(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
@@ -336,61 +336,134 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    /*
-     @see cz.incad.Kramerius.imaging.ImageStreamsServlet
+    /***
+     * Vrací preview buď tohoto objektu, nebo prvního potomka, který má IMG_FULL
+     * @see cz.incad.Kramerius.imaging.ImageStreamsServlet
      */
     @GET
     @Path("{pid}/image/full")
     public Response getImgFull(@PathParam("pid") String pid, @QueryParam("asFile") String asFile) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_FULL);
-            String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
-            InputStream is = krameriusRepositoryApi.getImgFull(pid);
-            StreamingOutput stream = output -> {
-                IOUtils.copy(is, output);
-                IOUtils.closeQuietly(is);
-            };
-            return Response.ok().entity(stream).type(mimeType).build();
+            checkObjectExists(pid);
+            Pair<InputStream, String> imgFull = getFirstAvailableImgFull(pid);
+            if (imgFull == null) {
+                throw new NotFoundException("no image/full available for object %s (and it's descendants)", pid);
+            } else {
+                StreamingOutput stream = output -> {
+                    IOUtils.copy(imgFull.getFirst(), output);
+                    IOUtils.closeQuietly(imgFull.getFirst());
+                };
+                return Response.ok().entity(stream).type(imgFull.getSecond()).build();
+            }
         } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }
 
+    /***
+     * Vrací thumbnail buď tohoto objektu, nebo prvního potomka, který má IMG_THUMB
+     */
     @GET
     @Path("{pid}/image/thumb")
     public Response getImgThumb(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_THUMB);
-            String mimeType = krameriusRepositoryApi.getImgThumbMimetype(pid);
-            InputStream is = krameriusRepositoryApi.getImgThumb(pid);
-            StreamingOutput stream = output -> {
-                IOUtils.copy(is, output);
-                IOUtils.closeQuietly(is);
-            };
-            return Response.ok().entity(stream).type(mimeType).build();
+            checkObjectExists(pid);
+            Pair<InputStream, String> imgThumb = getFirstAvailableImgThumb(pid);
+            if (imgThumb == null) {
+                throw new NotFoundException("no image/thumb available for object %s (and it's descendants)", pid);
+            } else {
+                StreamingOutput stream = output -> {
+                    IOUtils.copy(imgThumb.getFirst(), output);
+                    IOUtils.closeQuietly(imgThumb.getFirst());
+                };
+                return Response.ok().entity(stream).type(imgThumb.getSecond()).build();
+            }
         } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }
 
+    /***
+     * Vrací preview buď tohoto objektu, nebo prvního potomka, který má IMG_PREVIEW
+     */
     @GET
     @Path("{pid}/image/preview")
     public Response getImgPreview(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_PREVIEW);
-            String mimeType = krameriusRepositoryApi.getImgPreviewMimetype(pid);
-            InputStream is = krameriusRepositoryApi.getImgPreview(pid);
-            StreamingOutput stream = output -> {
-                IOUtils.copy(is, output);
-                IOUtils.closeQuietly(is);
-            };
-            return Response.ok().entity(stream).type(mimeType).build();
+            checkObjectExists(pid);
+            Pair<InputStream, String> imgPreview = getFirstAvailableImgPreview(pid);
+            if (imgPreview == null) {
+                throw new NotFoundException("no image/preview available for object %s (and it's descendants)", pid);
+            } else {
+                StreamingOutput stream = output -> {
+                    IOUtils.copy(imgPreview.getFirst(), output);
+                    IOUtils.closeQuietly(imgPreview.getFirst());
+                };
+                return Response.ok().entity(stream).type(imgPreview.getSecond()).build();
+            }
         } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    Pair<InputStream, String> getFirstAvailableImgFull(String pid) throws IOException, RepositoryException {
+        InputStream is = krameriusRepositoryApi.getImgFull(pid);
+        if (is != null) {
+            String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
+            return new Pair<>(is, mimeType);
+        } else {
+            String pidOfFirstChild = getPidOfFirstChild(pid);
+            if (pidOfFirstChild != null) {
+                return getFirstAvailableImgFull(pidOfFirstChild);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    Pair<InputStream, String> getFirstAvailableImgThumb(String pid) throws IOException, RepositoryException {
+        InputStream is = krameriusRepositoryApi.getImgThumb(pid);
+        if (is != null) {
+            String mimeType = krameriusRepositoryApi.getImgThumbMimetype(pid);
+            return new Pair<>(is, mimeType);
+        } else {
+            String pidOfFirstChild = getPidOfFirstChild(pid);
+            if (pidOfFirstChild != null) {
+                return getFirstAvailableImgThumb(pidOfFirstChild);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    Pair<InputStream, String> getFirstAvailableImgPreview(String pid) throws IOException, RepositoryException {
+        InputStream is = krameriusRepositoryApi.getImgPreview(pid);
+        if (is != null) {
+            String mimeType = krameriusRepositoryApi.getImgPreviewMimetype(pid);
+            return new Pair<>(is, mimeType);
+        } else {
+            String pidOfFirstChild = getPidOfFirstChild(pid);
+            if (pidOfFirstChild != null) {
+                return getFirstAvailableImgPreview(pidOfFirstChild);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    private String getPidOfFirstChild(String pid) throws IOException, RepositoryException {
+        Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);
+        String xpathExpr = "//hasPage|//hasUnit|//hasVolume|//hasItem|//hasSoundUnit|//hasTrack|//containsTrack|//hasIntCompPart|//isOnPage|//contains";
+        Element element = Dom4jUtils.firstElementByXpath(relsExt.getRootElement(), xpathExpr);
+        if (element != null) {
+            String resource = Dom4jUtils.stringOrNullFromAttributeByName(element, "resource");
+            if (resource != null) {
+                return resource.substring("info:fedora/".length());
+            }
+        }
+        return null;
     }
 
     private String getApiBaseUrl() {
