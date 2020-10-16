@@ -5,6 +5,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -46,6 +47,8 @@ public interface RepositoryApi {
     public boolean datastreamExists(String pid, String dsId) throws RepositoryException, IOException;
 
     public String getDatastreamMimetype(String pid, String dsId) throws RepositoryException, IOException;
+
+    public InputStream getLatestVersionOfDatastream(String pid, String dsId) throws RepositoryException, IOException;
 
     public Document getLatestVersionOfInlineXmlDatastream(String pid, String dsId) throws RepositoryException, IOException;
 

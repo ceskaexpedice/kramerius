@@ -8,6 +8,7 @@ import org.dom4j.Document;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -99,13 +100,38 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
     }
 
     @Override
+    public InputStream getImgFull(String pid) throws IOException, RepositoryException {
+        return repositoryApi.getLatestVersionOfDatastream(pid, KnownDatastreams.IMG_FULL.toString());
+    }
+
+    @Override
     public boolean isImgThumbAvailable(String pid) throws IOException, RepositoryException {
         return repositoryApi.datastreamExists(pid, KnownDatastreams.IMG_THUMB.toString());
     }
 
     @Override
+    public String getImgThumbMimetype(String pid) throws IOException, RepositoryException {
+        return repositoryApi.getDatastreamMimetype(pid, KnownDatastreams.IMG_THUMB.toString());
+    }
+
+    @Override
+    public InputStream getImgThumb(String pid) throws IOException, RepositoryException {
+        return repositoryApi.getLatestVersionOfDatastream(pid, KnownDatastreams.IMG_THUMB.toString());
+    }
+
+    @Override
     public boolean isImgPreviewAvailable(String pid) throws IOException, RepositoryException {
         return repositoryApi.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW.toString());
+    }
+
+    @Override
+    public String getImgPreviewMimetype(String pid) throws IOException, RepositoryException {
+        return repositoryApi.getDatastreamMimetype(pid, KnownDatastreams.IMG_PREVIEW.toString());
+    }
+
+    @Override
+    public InputStream getImgPreview(String pid) throws IOException, RepositoryException {
+        return repositoryApi.getLatestVersionOfDatastream(pid, KnownDatastreams.IMG_PREVIEW.toString());
     }
 
     @Override

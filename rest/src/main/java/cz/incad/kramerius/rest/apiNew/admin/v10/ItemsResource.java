@@ -39,7 +39,7 @@ public class ItemsResource extends AdminApiResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getItems(@QueryParam("model") String model) {
-        //TODO: offset, limit
+        //TODO: offset, limit, nejspis nebude potreba, see https://app.gethido.com/p/posu5sqvet/tasks/24
         try {
             boolean disableAuth = true; //TODO: reenable for production
             //authentication

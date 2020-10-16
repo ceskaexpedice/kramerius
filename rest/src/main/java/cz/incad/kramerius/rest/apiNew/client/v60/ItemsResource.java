@@ -9,6 +9,7 @@ import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.java.Pair;
+import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 import org.json.JSONArray;
@@ -18,7 +19,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -332,16 +336,23 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    /*
+     @see cz.incad.Kramerius.imaging.ImageStreamsServlet
+     */
     @GET
     @Path("{pid}/image/full")
     public Response getImgFull(@PathParam("pid") String pid, @QueryParam("asFile") String asFile) {
-        //TODO: poradna implementace, namisto redirectu na api/v5.0
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectExists(pid);
-            URI uri = new URI(String.format("%s/v5.0/item/%s/full", getApiBaseUrl(), pid));
-            return Response.temporaryRedirect(uri).build();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_FULL);
+            String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
+            InputStream is = krameriusRepositoryApi.getImgFull(pid);
+            StreamingOutput stream = output -> {
+                IOUtils.copy(is, output);
+                IOUtils.closeQuietly(is);
+            };
+            return Response.ok().entity(stream).type(mimeType).build();
+        } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -349,13 +360,17 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/image/thumb")
     public Response getImgThumb(@PathParam("pid") String pid) {
-        //TODO: poradna implementace, namisto redirectu na api/v5.0
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectExists(pid);
-            URI uri = new URI(String.format("%s/v5.0/item/%s/thumb", getApiBaseUrl(), pid));
-            return Response.temporaryRedirect(uri).build();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_THUMB);
+            String mimeType = krameriusRepositoryApi.getImgThumbMimetype(pid);
+            InputStream is = krameriusRepositoryApi.getImgThumb(pid);
+            StreamingOutput stream = output -> {
+                IOUtils.copy(is, output);
+                IOUtils.closeQuietly(is);
+            };
+            return Response.ok().entity(stream).type(mimeType).build();
+        } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -363,13 +378,17 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/image/preview")
     public Response getImgPreview(@PathParam("pid") String pid) {
-        //TODO: poradna implementace, namisto redirectu na api/v5.0
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectExists(pid);
-            URI uri = new URI(String.format("%s/v5.0/item/%s/preview", getApiBaseUrl(), pid));
-            return Response.temporaryRedirect(uri).build();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_PREVIEW);
+            String mimeType = krameriusRepositoryApi.getImgPreviewMimetype(pid);
+            InputStream is = krameriusRepositoryApi.getImgPreview(pid);
+            StreamingOutput stream = output -> {
+                IOUtils.copy(is, output);
+                IOUtils.closeQuietly(is);
+            };
+            return Response.ok().entity(stream).type(mimeType).build();
+        } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }

@@ -6,6 +6,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -102,7 +103,7 @@ public interface KrameriusRepositoryApi {
         throw new IllegalArgumentException(String.format("unknown relation '%s'", relation));
     }
 
-    //TODO: methods for getting images, audio
+    //TODO: methods for getting audio streams
     //TODO: methods for updating datastream data (done for inline xml datastreams)
 
     /**
@@ -121,7 +122,7 @@ public interface KrameriusRepositoryApi {
     /**
      * @param pid            Persistent identifier of the object
      * @param namespaceAware if false, namespaces will be removed from the resulting xml
-     * @return latest version of object's datastream RELS-EXT, provided it is stored as inline XML (control-group X), null otherwise
+     * @return latest version of object's datastream RELS-EXT provided it is stored as inline XML (control-group X), null otherwise
      * @throws IOException
      * @throws RepositoryException
      */
@@ -138,7 +139,7 @@ public interface KrameriusRepositoryApi {
     /**
      * @param pid            Persistent identifier of the object
      * @param namespaceAware if false, namespaces will be removed from the resulting xml
-     * @return latest version of object's datastream BIBLIO_MODS, provided it is stored as inline XML (control-group X), null otherwise
+     * @return latest version of object's datastream BIBLIO_MODS provided it is stored as inline XML (control-group X), null otherwise
      * @throws IOException
      * @throws RepositoryException
      */
@@ -155,7 +156,7 @@ public interface KrameriusRepositoryApi {
     /**
      * @param pid            Persistent identifier of the object
      * @param namespaceAware if false, namespaces will be removed from the resulting xml
-     * @return latest version of object's datastream DC, provided it is stored as inline XML (control-group X), null otherwise
+     * @return latest version of object's datastream DC provided it is stored as inline XML (control-group X), null otherwise
      * @throws IOException
      * @throws RepositoryException
      */
@@ -171,7 +172,7 @@ public interface KrameriusRepositoryApi {
 
     /**
      * @param pid Persistent identifier of the object
-     * @return latest version of object's datastream OCR_TEXT, TODO:preformulovat: provided it is stored as inline XML (control-group X), null otherwise
+     * @return latest version of object's datastream OCR_TEXT provided it is stored as inline XML (control-group X), null otherwise
      * @throws IOException
      * @throws RepositoryException
      */
@@ -188,7 +189,7 @@ public interface KrameriusRepositoryApi {
     /**
      * @param pid            Persistent identifier of the object
      * @param namespaceAware if false, namespaces will be removed from the resulting xml
-     * @return latest version of object's datastream OCR_ALTO, TODO:preformulovat: provided it is stored as inline XML (control-group X), null otherwise
+     * @return latest version of object's datastream OCR_ALTO provided it is stored as inline XML (control-group X), null otherwise
      * @throws IOException
      * @throws RepositoryException
      */
@@ -204,11 +205,19 @@ public interface KrameriusRepositoryApi {
 
     /**
      * @param pid Persistent identifier of the object
-     * @return
+     * @return mime-type of datastream IMG_FULL if such datastream exists, null otherwise
      * @throws IOException
      * @throws RepositoryException
      */
     public String getImgFullMimetype(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return InputStream stream containing image data from IMG_FULL if such datastream exists, null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public InputStream getImgFull(String pid) throws IOException, RepositoryException;
 
     /**
      * @param pid Persistent identifier of the object
@@ -220,11 +229,43 @@ public interface KrameriusRepositoryApi {
 
     /**
      * @param pid Persistent identifier of the object
+     * @return mime-type of datastream IMG_THUMB if such datastream exists, null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public String getImgThumbMimetype(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return InputStream stream containing image data from IMG_THUMB if such datastream exists, null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public InputStream getImgThumb(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
      * @return if datastream IMG_PREVIEW is available for the object
      * @throws IOException
      * @throws RepositoryException
      */
     public boolean isImgPreviewAvailable(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return mime-type of datastream IMG_PREVIEW if such datastream exists, null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public String getImgPreviewMimetype(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return InputStream stream containing image data from IMG_PREVIEW if such datastream exists, null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public InputStream getImgPreview(String pid) throws IOException, RepositoryException;
 
     /**
      * @param pid Persistent identifier of the object

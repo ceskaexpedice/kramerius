@@ -2,12 +2,14 @@ package cz.incad.kramerius.repository;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.om.impl.AkubraRepository;
+import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
 import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.Dom4jUtils;
@@ -20,6 +22,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -121,25 +124,26 @@ public class RepositoryApiImpl implements RepositoryApi {
     }
 
     @Override
-    public Document getLatestVersionOfInlineXmlDatastream(String pid, String dsId) throws RepositoryException, IOException {
+    public InputStream getLatestVersionOfDatastream(String pid, String dsId) throws RepositoryException, IOException {
         RepositoryObject object = akubraRepository.getObject(pid);
         if (object.streamExists(dsId)) {
             RepositoryDatastream stream = object.getStream(dsId);
-            return Utils.inputstreamToDocument(stream.getContent(), true);
+            return stream.getContent();
         } else {
             return null;
         }
     }
 
     @Override
+    public Document getLatestVersionOfInlineXmlDatastream(String pid, String dsId) throws RepositoryException, IOException {
+        InputStream is = getLatestVersionOfDatastream(pid, dsId);
+        return is == null ? null : Utils.inputstreamToDocument(is, true);
+    }
+
+    @Override
     public String getLatestVersionOfManagedTextDatastream(String pid, String dsId) throws RepositoryException, IOException {
-        RepositoryObject object = akubraRepository.getObject(pid);
-        if (object.streamExists(dsId)) {
-            RepositoryDatastream stream = object.getStream(dsId);
-            return Utils.inputstreamToString(stream.getContent());
-        } else {
-            return null;
-        }
+        InputStream is = getLatestVersionOfDatastream(pid, dsId);
+        return is == null ? null : Utils.inputstreamToString(is);
     }
 
     @Override
