@@ -1,6 +1,8 @@
-package cz.incad.kramerius.rest.apiNew.admin.v10;
+package cz.incad.kramerius.rest.apiNew.client.v60;
 
 import com.google.inject.Inject;
+import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
+import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.service.ResourceBundleService;
@@ -16,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Properties;
@@ -25,19 +26,15 @@ import java.util.logging.Logger;
 /**
  * @see cz.incad.kramerius.rest.api.k5.client.info.InfoResource
  */
-@Path("/admin/v1.0/config")
-public class ConfigResource extends AdminApiResource {
+@Path("/client/v6.0/info")
+public class InfoResource extends ClientApiResource {
 
-    public static Logger LOGGER = Logger.getLogger(ConfigResource.class.getName());
+    public static Logger LOGGER = Logger.getLogger(InfoResource.class.getName());
 
     private static HashMap<String, Locale> LOCALES = new HashMap<String, Locale>() {{
         put("en", Locale.ENGLISH);
         put("cs", new Locale("cs", "cz"));
     }};
-
-    //TODO: prejmenovat role podle spravy uctu
-    private static final String ROLE_READ_INFO = "kramerius_admin";
-    private static final String ROLE_WRITE_CONFIG = "kramerius_admin";
 
     @Inject
     private TextsService textService;
@@ -45,19 +42,10 @@ public class ConfigResource extends AdminApiResource {
     @Inject
     private ResourceBundleService resourceBundleService;
 
-    /*@GET
+    @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getItems(@QueryParam("language") String langCode) {
         try {
-            boolean disableAuth = true; //TODO: reenable for production
-            //authentication
-            if (!disableAuth) {
-                AuthenticatedUser user = getAuthenticatedUser();
-                String role = ROLE_READ_INFO;
-                if (!user.getRoles().contains(role)) {
-                    throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
-                }
-            }
             JSONObject json = new JSONObject();
             json.put("pdfMaxRange", getPdfMaxRange());
             json.put("version", getVersion());
@@ -97,8 +85,5 @@ public class ConfigResource extends AdminApiResource {
         } else {
             return resourceBundleService.getResourceBundle("labels", locale).getString(key);
         }
-    }*/
-
-    //TODO: metoda pro nastavení pdfMaxRange
-    //TODO: metoda pro nastaveni rightMsg (podle jazyka)
+    }
 }
