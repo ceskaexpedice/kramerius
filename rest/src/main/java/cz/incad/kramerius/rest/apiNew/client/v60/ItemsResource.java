@@ -38,7 +38,7 @@ public class ItemsResource extends ClientApiResource {
 
     // {pid}/foxml                  -> zrusit tady, presunout do admin api - DONE
     // {pid}/streams                -> nahradit za {pid}/info/data  - DONE
-    // {pid}/full                   -> nahradit za {pid}/image/full - DONE
+    // {pid}/full                   -> nahradit za {pid}/image - DONE
     // {pid}/thumb                  -> nahradit za {pid}/image/thumb - DONE
     // {pid}/preview                -> nahradit za {pid}/image/preview - DONE
     // {pid}/streams/BIBLIO_MODS    -> nahradit za {pid}/metadata/mods - DONE
@@ -62,9 +62,9 @@ public class ItemsResource extends ClientApiResource {
     // GET/HEAD {pid}/metadata/dc
     // GET/HEAD {pid}/ocr/text
     // GET/HEAD {pid}/ocr/alto
-    // GET      {pid}/image/full (POZOR: neni konzistentni s info/image)
-    // GET      {pid}/image/thumb (POZOR: neni konzistentni s info/image)
-    // GET      {pid}/image/preview (POZOR: neni konzistentni s info/image)
+    // GET      {pid}/image             - obsah IMG_FULL konkrétního objektu
+    // GET      {pid}/image/thumb       - IMG_THUMB objektu nebo potomka
+    // GET      {pid}/image/preview     - IMG_PREVIEW objektu nebo potomka
     // TODO: zvukova data
 
 
@@ -88,9 +88,9 @@ public class ItemsResource extends ClientApiResource {
         try {
             checkObjectExists(pid);
             JSONObject json = new JSONObject();
-            json.put("data-available", extractAvailableDataInfo(pid));
+            json.put("data", extractAvailableDataInfo(pid));
             json.put("structure", extractStructureInfo(pid));
-            json.put("image-source", extractImageSourceInfo(pid));
+            json.put("image", extractImageSourceInfo(pid));
             return Response.ok(json).build();
         } catch (RepositoryException | SolrServerException | IOException e) {
             throw new InternalErrorException(e.getMessage());
@@ -129,7 +129,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     /***
-     * Vrací informaci o tom, jaký zdroj pro obrazová data má objekt (typicky stránka) k dispozici,
+     * Vrací informaci o tom, jaký zdroj pro obrazová data má objekt (stránka, monografie v jednom pdf, ...) k dispozici,
      * buď tiles (dlaždice přes zoomify/iiif), nebo none, nebo mimetype (image/jpeg, application/pdf, ...) datastreamu IMG_FULL
      */
     @GET
@@ -337,26 +337,25 @@ public class ItemsResource extends ClientApiResource {
     }
 
     /***
-     * Vrací preview buď tohoto objektu, nebo prvního potomka, který má IMG_FULL
+     * Vrací obsah IMG_FULL tohoto objektu
      * @see cz.incad.Kramerius.imaging.ImageStreamsServlet
      */
+    @SuppressWarnings("JavadocReference")
     @GET
-    @Path("{pid}/image/full")
-    public Response getImgFull(@PathParam("pid") String pid, @QueryParam("asFile") String asFile) {
+    @Path("{pid}/image")
+    public Response getImgFull(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectExists(pid);
-            Pair<InputStream, String> imgFull = getFirstAvailableImgFull(pid);
-            if (imgFull == null) {
-                throw new NotFoundException("no image/full available for object %s (and it's descendants)", pid);
-            } else {
-                StreamingOutput stream = output -> {
-                    IOUtils.copy(imgFull.getFirst(), output);
-                    IOUtils.closeQuietly(imgFull.getFirst());
-                };
-                return Response.ok().entity(stream).type(imgFull.getSecond()).build();
-            }
-        } catch (RepositoryException | IOException e) {
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_FULL);
+            InputStream imgFull = krameriusRepositoryApi.getImgFull(pid);
+            String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
+            StreamingOutput stream = output -> {
+                IOUtils.copy(imgFull, output);
+                IOUtils.closeQuietly(imgFull);
+            };
+            return Response.ok().entity(stream).type(mimeType).build();
+        } catch (RepositoryException |
+                IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }
