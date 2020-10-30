@@ -40,6 +40,9 @@ public class RepositoryNodeManager {
 
     private RepositoryNode buildKrameriusNodeFromRepository(String pid) {
         try {
+            if (!krameriusRepositoryAccessAdapter.isObjectAvailable(pid)) {
+                return null;
+            }
             //System.out.println("building node for " + pid);
             Pair<String, List<String>> parents = krameriusRepositoryAccessAdapter.getPidsOfParents(pid);
             //process parents first

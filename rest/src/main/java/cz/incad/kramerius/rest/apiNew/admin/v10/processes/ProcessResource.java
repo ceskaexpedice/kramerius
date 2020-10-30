@@ -583,7 +583,7 @@ public class ProcessResource extends AdminApiResource {
                     try {
                         IndexationType.valueOf(typeValue);
                     } catch (IllegalArgumentException e) {
-                        throw new BadRequestException("invalid value of %s: '%d'", typeKey, typeValue);
+                        throw new BadRequestException("invalid value of %s: '%s'", typeKey, typeValue);
                     }
                 } else {
                     throw new BadRequestException("missing mandatory parameter %s: ", KrameriusIndexerProcess.PARAM_TYPE);
@@ -594,12 +594,12 @@ public class ProcessResource extends AdminApiResource {
                 if (params.has(pidKey)) {
                     pidValue = params.getString(pidKey);
                     if (!pidValue.toLowerCase().startsWith("uuid:")) {
-                        throw new BadRequestException("invalid value of %s: '%d'", pidKey, pidValue);
+                        throw new BadRequestException("invalid value of %s: '%s'", pidKey, pidValue);
                     } else {
                         try {
                             UUID.fromString(pidValue.substring("uuid:".length()));
                         } catch (IllegalArgumentException e) {
-                            throw new BadRequestException("invalid value of %s: '%d'", pidKey, pidValue);
+                            throw new BadRequestException("invalid value of %s: '%s'", pidKey, pidValue);
                         }
                     }
                 } else {

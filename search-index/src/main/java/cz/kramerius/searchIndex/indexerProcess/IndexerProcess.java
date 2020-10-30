@@ -83,8 +83,11 @@ public class IndexerProcess {
         //int limit = 3;
         report("==============================");
 
-        indexObjectWithCounters(pid, counters);
-        processChildren(nodeManager.getKrameriusNode(pid), true, type, counters);
+        RepositoryNode node = nodeManager.getKrameriusNode(pid);
+        indexObjectWithCounters(pid, node, counters);
+        if (node != null) {
+            processChildren(node, true, type, counters);
+        }
         commitAfterLastIndexation(counters);
 
         report(" ");
@@ -98,6 +101,7 @@ public class IndexerProcess {
         report(" objects found    : " + counters.getFound());
         report(" objects processed: " + counters.getProcessed());
         report(" objects indexed  : " + counters.getIndexed());
+        report(" objects removed  : " + counters.getRemoved());
         report(" objects erroneous: " + counters.getErrors());
         report(" initialization duration: " + formatTime(initTime));
         report(" records processing duration: " + formatTime(System.currentTimeMillis() - start));
@@ -116,16 +120,21 @@ public class IndexerProcess {
     }
 
     private void indexObjectWithCounters(String pid, Counters counters) {
+        indexObjectWithCounters(pid, nodeManager.getKrameriusNode(pid), counters);
+    }
+
+    private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters) {
         try {
             counters.incrementFound();
-            boolean objectAvailable = repositoryConnector.isObjectAvailable(pid);
+            boolean objectAvailable = repositoryNode != null;
             if (!objectAvailable) {
-                counters.incrementErrors();
-                report(" Object not available in storage: " + pid);
+                report("object not found in repository, removing from index as well");
+                solrIndexer.deleteById(pid);
+                counters.incrementRemoved();
+                report("");
             } else {
                 report("Indexing " + pid);
                 Document foxmlDoc = repositoryConnector.getObjectFoxml(pid, true);
-                RepositoryNode repositoryNode = nodeManager.getKrameriusNode(pid);
                 report("model: " + repositoryNode.getModel());
                 report("title: " + repositoryNode.getTitle());
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)

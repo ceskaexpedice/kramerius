@@ -3,6 +3,7 @@ package cz.kramerius.searchIndex.indexerProcess;
 public class Counters {
     private int found = 0;
     private int indexed = 0;
+    private int removed = 0;
     private int errors = 0;
 
     public void incrementFound() {
@@ -11,6 +12,10 @@ public class Counters {
 
     public void incrementIndexed() {
         indexed += 1;
+    }
+
+    public void incrementRemoved() {
+        removed += 1;
     }
 
     public void incrementErrors() {
@@ -25,11 +30,15 @@ public class Counters {
         return indexed;
     }
 
+    public int getRemoved() {
+        return removed;
+    }
+
     public int getErrors() {
         return errors;
     }
 
     public int getProcessed() {
-        return indexed + errors;
+        return indexed + removed + errors;
     }
 }

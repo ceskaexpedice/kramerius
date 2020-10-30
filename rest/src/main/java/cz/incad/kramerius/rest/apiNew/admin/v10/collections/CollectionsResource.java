@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v10.collections;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
+import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
 import cz.incad.kramerius.rest.apiNew.admin.v10.ProcessSchedulingHelper;
@@ -9,6 +10,7 @@ import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.Dom4jUtils;
+import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
@@ -65,7 +67,7 @@ public class CollectionsResource extends AdminApiResource {
             collection.pid = "uuid:" + UUID.randomUUID().toString();
             Document foxml = foxmlBuilder.buildFoxml(collection, null);
             krameriusRepositoryApi.getLowLevelApi().ingestObject(foxml);
-            //schedule reindexation - only the new collection object
+            //schedule reindexation - new collection (only object)
             scheduleReindexation(collection.pid, user, "OBJECT", UUID.randomUUID().toString());
             return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();
         } catch (IOException | RepositoryException e) {
@@ -172,7 +174,7 @@ public class CollectionsResource extends AdminApiResource {
                 krameriusRepositoryApi.updateMods(pid, foxmlBuilder.buildMods(updated));
                 //rebuild and update rels-ext (because of "standalone")
                 krameriusRepositoryApi.updateRelsExt(pid, foxmlBuilder.buildRelsExt(updated, itemsInCollection));
-                //schedule reindexation - only the collection object itself
+                //schedule reindexation - colection (only object)
                 scheduleReindexation(pid, user, "OBJECT", UUID.randomUUID().toString());
             }
             return Response.ok().build();
@@ -238,7 +240,7 @@ public class CollectionsResource extends AdminApiResource {
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
             foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
-            //schedule reindexations - 1. collection object , 2. newly added item (whole tree and subtrees)
+            //schedule reindexations - 1. collection (only object) , 2. newly added item (whole tree and foster trees)
             String batchToken = UUID.randomUUID().toString();
             scheduleReindexation(collectionPid, user, "OBJECT", batchToken);
             scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken);
@@ -271,8 +273,7 @@ public class CollectionsResource extends AdminApiResource {
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
             foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
-            //schedule reindexations (collection object and newly added object (whole tree and subtrees)
-            //schedule reindexations - 1. collection object , 2. item that wa removed (whole tree and subtrees)
+            //schedule reindexations - 1. collection (only object) , 2. item that was removed (whole tree and foster trees)
             String batchToken = UUID.randomUUID().toString();
             scheduleReindexation(collectionPid, user, "OBJECT", batchToken);
             scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken);
@@ -299,11 +300,29 @@ public class CollectionsResource extends AdminApiResource {
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to delete collections (missing role '%s')", user.getName(), role); //403
             }
+            //extract children before deleting collection
+            Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> childrenTpls = krameriusRepositoryApi.getChildren(pid);
+            List<String> childrenPids = new ArrayList<>();
+            for (RepositoryApi.Triplet ownChildTpl : childrenTpls.getFirst()) {
+                String childPid = ownChildTpl.target;
+                System.out.println(childPid);
+                childrenPids.add(childPid);
+            }
+            for (RepositoryApi.Triplet fosterChildTpl : childrenTpls.getSecond()) {
+                String childPid = fosterChildTpl.target;
+                System.out.println(childPid);
+                childrenPids.add(childPid);
+            }
+            //delete collection object form repository
             krameriusRepositoryApi.getLowLevelApi().deleteObject(pid);
+            //schedule reindexations - 1. deleted collection (only object) , 2. all children (both own and foster, their wholes tree and foster trees)
+            String batchToken = UUID.randomUUID().toString();
+            scheduleReindexation(pid, user, "OBJECT", batchToken);
+            for (String childPid : childrenPids) {
+                scheduleReindexation(childPid, user, "TREE_AND_FOSTER_TREES", batchToken);
+            }
             return Response.ok().build();
-            //TODO: schedule reindexing (search index) of the collection and all foster descendants (i.e. list of pids (collection, direct children) and collection will be removed since no longer in repository)
-            //but we must get list of children before deleting object
-        } catch (IOException | RepositoryException e) {
+        } catch (IOException | RepositoryException | SolrServerException e) {
             e.printStackTrace();
             throw new InternalErrorException(e.getMessage());
         }
