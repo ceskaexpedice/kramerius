@@ -22,7 +22,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -56,8 +55,12 @@ public class AkubraUtils {
 
     public static boolean streamExists(DigitalObject object, String streamID) {
         for (DatastreamType datastreamType : object.getDatastream()) {
-            if (streamID.equals(datastreamType.getID())) {
-                return true;
+            if (datastreamType == null) {
+                LOGGER.log(Level.SEVERE, "Repository inconsistency: object %s has a datastream that is null", object.getPID());
+            } else {
+                if (streamID.equals(datastreamType.getID())) {
+                    return true;
+                }
             }
         }
         return false;
