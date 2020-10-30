@@ -4,6 +4,7 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
+import cz.incad.kramerius.rest.apiNew.admin.v10.ProcessSchedulingHelper;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -20,6 +21,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +37,9 @@ public class CollectionsResource extends AdminApiResource {
 
     @Inject
     private FoxmlBuilder foxmlBuilder;
+
+    @Inject
+    ProcessSchedulingHelper processSchedulingHelper;
 
     /**
      * Creates new collection and assigns a pid to it.
@@ -60,7 +65,8 @@ public class CollectionsResource extends AdminApiResource {
             collection.pid = "uuid:" + UUID.randomUUID().toString();
             Document foxml = foxmlBuilder.buildFoxml(collection, null);
             krameriusRepositoryApi.getLowLevelApi().ingestObject(foxml);
-            //TODO: schedule indexing (search index) of the collection (only that object, no items yet)
+            //schedule reindexation - only the new collection object
+            scheduleReindexation(collection.pid, user, "OBJECT", UUID.randomUUID().toString());
             return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();
         } catch (IOException | RepositoryException e) {
             e.printStackTrace();
@@ -166,13 +172,29 @@ public class CollectionsResource extends AdminApiResource {
                 krameriusRepositoryApi.updateMods(pid, foxmlBuilder.buildMods(updated));
                 //rebuild and update rels-ext (because of "standalone")
                 krameriusRepositoryApi.updateRelsExt(pid, foxmlBuilder.buildRelsExt(updated, itemsInCollection));
-                //TODO: schedule indexing (search index) of the collection and all foster descendants
+                //schedule reindexation - only the collection object itself
+                scheduleReindexation(pid, user, "OBJECT", UUID.randomUUID().toString());
             }
             return Response.ok().build();
         } catch (IOException | RepositoryException | SolrServerException e) {
             e.printStackTrace();
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    /**
+     * @param objectPid
+     * @param user
+     * @param indexationType
+     * @see cz.kramerius.searchIndex.indexerProcess.IndexationType
+     */
+    private void scheduleReindexation(String objectPid, AuthenticatedUser user, String indexationType, String batchToken) {
+        List<String> paramsList = new ArrayList<>();
+        String newProcessAuthToken = UUID.randomUUID().toString();
+        paramsList.add(newProcessAuthToken);
+        paramsList.add(indexationType);
+        paramsList.add(objectPid);
+        processSchedulingHelper.scheduleProcess("new_indexer", paramsList, user.getId(), user.getName(), batchToken, newProcessAuthToken);
     }
 
     /**
@@ -216,8 +238,10 @@ public class CollectionsResource extends AdminApiResource {
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
             foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
-            //TODO: schedule indexing collection (only this object) in search index
-            //TODO: schedule indexing item (whole tree) in search index
+            //schedule reindexations - 1. collection object , 2. newly added item (whole tree and subtrees)
+            String batchToken = UUID.randomUUID().toString();
+            scheduleReindexation(collectionPid, user, "OBJECT", batchToken);
+            scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken);
             return Response.status(Response.Status.CREATED).build();
         } catch (IOException | RepositoryException e) {
             e.printStackTrace();
@@ -247,8 +271,11 @@ public class CollectionsResource extends AdminApiResource {
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
             foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
-            //TODO: schedule indexing collection (only this object) in search index
-            //TODO: schedule indexing item (whole tree) in search index
+            //schedule reindexations (collection object and newly added object (whole tree and subtrees)
+            //schedule reindexations - 1. collection object , 2. item that wa removed (whole tree and subtrees)
+            String batchToken = UUID.randomUUID().toString();
+            scheduleReindexation(collectionPid, user, "OBJECT", batchToken);
+            scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken);
             return Response.status(Response.Status.OK).build();
         } catch (IOException | RepositoryException e) {
             e.printStackTrace();

@@ -1,13 +1,21 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.processes;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.processes.*;
+import cz.incad.kramerius.processes.LRProcess;
+import cz.incad.kramerius.processes.LRProcessDefinition;
+import cz.incad.kramerius.processes.LRProcessManager;
+import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
-import cz.incad.kramerius.rest.apiNew.exceptions.*;
+import cz.incad.kramerius.rest.apiNew.admin.v10.ProcessSchedulingHelper;
+import cz.incad.kramerius.rest.apiNew.admin.v10.Utils;
+import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
+import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
+import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
+import cz.incad.kramerius.rest.apiNew.exceptions.UnauthorizedException;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -27,7 +35,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -55,11 +62,11 @@ public class ProcessResource extends AdminApiResource {
     @Inject
     LRProcessManager lrProcessManager; //here only for scheduling
 
-    @Inject
-    DefinitionManager definitionManager; //process definitions
+    /*@Inject
+    DefinitionManager definitionManager; //process definitions*/
 
-    @Inject
-    ProcessManager processManager;
+    /*@Inject
+    Provider<HttpServletRequest> requestProvider;*/
 
     @Inject
     LoggedUsersSingleton loggedUsersSingleton;
@@ -67,8 +74,11 @@ public class ProcessResource extends AdminApiResource {
     @Inject
     RightsResolver rightsResolver;
 
-    /*@Inject
-    Provider<HttpServletRequest> requestProvider;*/
+    @Inject
+    ProcessManager processManager;
+
+    @Inject
+    ProcessSchedulingHelper processSchedulingHelper;
 
     /**
      * Returns list of users who have scheduled some process
@@ -145,8 +155,7 @@ public class ProcessResource extends AdminApiResource {
      * @param processUuid
      * @param offsetStr
      * @param limitStr
-     * @return
-     * //@see cz.incad.Kramerius.views.ProcessLogsViewObject
+     * @return //@see cz.incad.Kramerius.views.ProcessLogsViewObject
      */
     @GET
     @Path("by_process_uuid/{process_uuid}/logs/out")
@@ -163,8 +172,7 @@ public class ProcessResource extends AdminApiResource {
      * @param processUuid
      * @param offsetStr
      * @param limitStr
-     * @return
-     * //@see cz.incad.Kramerius.views.ProcessLogsViewObject
+     * @return //@see cz.incad.Kramerius.views.ProcessLogsViewObject
      */
     @GET
     @Path("by_process_uuid/{process_uuid}/logs/err")
@@ -230,9 +238,9 @@ public class ProcessResource extends AdminApiResource {
         batchJson.put("token", processInBatch.batchToken);
         batchJson.put("id", processInBatch.batchId);
         batchJson.put("state", toBatchStateName(processInBatch.batchStateCode));
-        batchJson.put("planned", toFormattedStringOrNull(processInBatch.batchPlanned));
-        batchJson.put("started", toFormattedStringOrNull(processInBatch.batchStarted));
-        batchJson.put("finished", toFormattedStringOrNull(processInBatch.batchFinished));
+        batchJson.put("planned", Utils.toFormattedStringOrNull(processInBatch.batchPlanned));
+        batchJson.put("started", Utils.toFormattedStringOrNull(processInBatch.batchStarted));
+        batchJson.put("finished", Utils.toFormattedStringOrNull(processInBatch.batchFinished));
         batchJson.put("owner_id", processInBatch.batchOwnerId);
         batchJson.put("owner_name", processInBatch.batchOwnerName);
         json.put("batch", batchJson);
@@ -243,9 +251,9 @@ public class ProcessResource extends AdminApiResource {
         processJson.put("defid", processInBatch.processDefid);
         processJson.put("name", processInBatch.processName);
         processJson.put("state", toProcessStateName(processInBatch.processStateCode));
-        processJson.put("planned", toFormattedStringOrNull(processInBatch.processPlanned));
-        processJson.put("started", toFormattedStringOrNull(processInBatch.processStarted));
-        processJson.put("finished", toFormattedStringOrNull(processInBatch.processFinished));
+        processJson.put("planned", Utils.toFormattedStringOrNull(processInBatch.processPlanned));
+        processJson.put("started", Utils.toFormattedStringOrNull(processInBatch.processStarted));
+        processJson.put("finished", Utils.toFormattedStringOrNull(processInBatch.processFinished));
         JSONObject result = new JSONObject();
         result.put("process", processJson);
         result.put("batch", batchJson);
@@ -497,6 +505,29 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+    private Response scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken, String newProcessAuthToken) {
+        LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, params, ownerId, ownerName, batchToken, newProcessAuthToken);
+        URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
+        return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
+    }
+
+    private JSONObject lrPRocessToJSONObject(LRProcess lrProcess) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("uuid", lrProcess.getUUID());
+        jsonObject.put("pid", lrProcess.getPid()); //empty
+        jsonObject.put("id", lrProcess.getDefinitionId());
+        jsonObject.put("state", lrProcess.getProcessState().toString());
+        //jsonObject.put("batchState", lrProcess.getBatchState().toString());
+        jsonObject.put("name", lrProcess.getProcessName());
+        if (lrProcess.getPlannedTime() > 0) {
+            jsonObject.put("planned", Utils.toFormattedStringOrNull(lrProcess.getPlannedTime()));
+        }
+        jsonObject.put("userid", lrProcess.getLoginname()); //empty
+        jsonObject.put("userFirstname", lrProcess.getFirstname()); //empty
+        jsonObject.put("userSurname", lrProcess.getSurname()); //empty
+        return jsonObject;
+    }
+
     private List<String> paramsToList(String id, JSONObject params) {
         switch (id) {
             case ProcessApiTestProcess.ID: {
@@ -585,81 +616,9 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    private Response scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken, String newProcessAuthToken) {
-        LRProcessDefinition definition = processDefinition(defid);
-        if (definition == null) {
-            throw new BadRequestException("process definition for defid '%s' not found", defid);
-        }
-        String authToken = authToken(); //jen pro ilustraci, jak funguje stare api a jak se jmenovala hlavicka
-        //System.out.println("authToken: " + authToken);
-        String groupToken = groupToken(); //jen pro ilustraci, jak funguje stare api a jak se jmenovala hlavicka
-        groupToken = batchToken;
-        //System.out.println("groupToken: " + groupToken);
-
-        LRProcess newProcess = definition.createNewProcess(authToken, groupToken);
-        //System.out.println("newProcess: " + newProcess);
-        //tohle vypada, ze se je k nicemu, ve vysledku se to jen uklada do databaze do processes.params_mapping a to ani ne vzdy
-        // select planned, params_mapping from processes where params_mapping!='' order by planned desc limit 10;
-        //newProcess.setLoggedUserKey(loggedUserKey);
-        newProcess.setParameters(params);
-        //newProcess.setUser(user);
-        newProcess.setOwnerId(ownerId);
-        newProcess.setOwnerName(ownerName);
-
-        Properties properties = definition.isInputTemplateDefined()
-                ? new Properties() //'plain' process
-                : extractPropertiesForParametrizedProcess(); //'parametrized' process
-        Integer processId = newProcess.planMe(properties, getRemoteAddress());
-        if (processId == null) {
-            throw new InternalErrorException("error scheduling new process");
-        }
-        processManager.setProcessAuthToken(processId, newProcessAuthToken);
-        //lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
-        URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
-        return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
-    }
-
-    private Properties extractPropertiesForParametrizedProcess() {
-        //System.out.println("parametrized process");
-        Properties props = new Properties();
-            /*for (Iterator iterator = mapping.keys(); iterator.hasNext(); ) {
-                String key = (String) iterator.next();
-                try {
-                    props.put(key.toString(), mapping.get(key).toString());
-                } catch (JSONException e) {
-                    throw new GenericApplicationException(e.getMessage());
-                }
-            }*/
-        return props;
-    }
-
-    //TODO: proverit fungovani, prejmenovat
-    private LRProcessDefinition processDefinition(String id) {
-        definitionManager.load();
-        LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(id);
-        return definition;
-    }
-
     //TODO: proverit fungovani
     private SecuredActions securedAction(String processType, LRProcessDefinition definition) {
         return definition.getSecuredAction() != null ? SecuredActions.findByFormalName(definition.getSecuredAction()) : SecuredActions.findByFormalName(processType);
-    }
-
-    private JSONObject lrPRocessToJSONObject(LRProcess lrProcess) throws JSONException {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("uuid", lrProcess.getUUID());
-        jsonObject.put("pid", lrProcess.getPid()); //empty
-        jsonObject.put("id", lrProcess.getDefinitionId());
-        jsonObject.put("state", lrProcess.getProcessState().toString());
-        //jsonObject.put("batchState", lrProcess.getBatchState().toString());
-        jsonObject.put("name", lrProcess.getProcessName());
-        if (lrProcess.getPlannedTime() > 0) {
-            jsonObject.put("planned", toFormattedStringOrNull(lrProcess.getPlannedTime()));
-        }
-        jsonObject.put("userid", lrProcess.getLoginname()); //empty
-        jsonObject.put("userFirstname", lrProcess.getFirstname()); //empty
-        jsonObject.put("userSurname", lrProcess.getSurname()); //empty
-        return jsonObject;
     }
 
 
@@ -721,9 +680,9 @@ public class ProcessResource extends AdminApiResource {
         batchJson.put("token", batchWithProcesses.token);
         batchJson.put("id", batchWithProcesses.firstProcessId);
         batchJson.put("state", toBatchStateName(batchWithProcesses.stateCode));
-        batchJson.put("planned", toFormattedStringOrNull(batchWithProcesses.planned));
-        batchJson.put("started", toFormattedStringOrNull(batchWithProcesses.started));
-        batchJson.put("finished", toFormattedStringOrNull(batchWithProcesses.finished));
+        batchJson.put("planned", Utils.toFormattedStringOrNull(batchWithProcesses.planned));
+        batchJson.put("started", Utils.toFormattedStringOrNull(batchWithProcesses.started));
+        batchJson.put("finished", Utils.toFormattedStringOrNull(batchWithProcesses.finished));
         batchJson.put("owner_id", batchWithProcesses.ownerId);
         batchJson.put("owner_name", batchWithProcesses.ownerName);
         json.put("batch", batchJson);
@@ -736,27 +695,15 @@ public class ProcessResource extends AdminApiResource {
             processJson.put("defid", process.defid);
             processJson.put("name", process.name);
             processJson.put("state", toProcessStateName(process.stateCode));
-            processJson.put("planned", toFormattedStringOrNull(process.planned));
-            processJson.put("started", toFormattedStringOrNull(process.started));
-            processJson.put("finished", toFormattedStringOrNull(process.finished));
+            processJson.put("planned", Utils.toFormattedStringOrNull(process.planned));
+            processJson.put("started", Utils.toFormattedStringOrNull(process.started));
+            processJson.put("finished", Utils.toFormattedStringOrNull(process.finished));
             processArray.put(processJson);
         }
         json.put("processes", processArray);
         return json;
     }
 
-    private String toFormattedStringOrNull(LocalDateTime dateTime) {
-        if (dateTime == null) {
-            return null;
-        } else {
-            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(dateTime);
-        }
-    }
-
-    private String toFormattedStringOrNull(long timeInSeconds) {
-        LocalDateTime localDateTime = LocalDateTime.ofEpochSecond(timeInSeconds, 0, ZoneOffset.UTC);
-        return toFormattedStringOrNull(localDateTime);
-    }
 
     private String toProcessStateName(Integer stateCode) {
         switch (stateCode) {

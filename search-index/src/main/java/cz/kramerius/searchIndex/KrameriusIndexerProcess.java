@@ -57,8 +57,7 @@ public class KrameriusIndexerProcess {
         //TODO: smazat druhy KrameriusRepositoryAccessAdapter
         KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
         IndexerProcess process = new IndexerProcess(repositoryAdapter, solrConfig, System.out);
-        process.indexByObjectPid(pid, IndexationType.TREE); //TODO: konfigurovatelny type
-
+        process.indexByObjectPid(pid, IndexationType.valueOf(type));
         LOGGER.info("Indexation finished");
 
         //TODO: zmenit nazev procesu - doplnit nazev objektu (bud odsud, nebo lepe callbackem z procesu)

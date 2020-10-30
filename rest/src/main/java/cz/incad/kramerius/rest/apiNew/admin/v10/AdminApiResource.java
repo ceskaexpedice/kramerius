@@ -5,8 +5,6 @@ import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ProxyAuthenticationRequiredException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
-import cz.incad.kramerius.utils.IPAddressUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -29,11 +27,6 @@ public abstract class AdminApiResource extends ApiResource {
     private static final String AUTH_URL = "https://api.kramerius.cloud/api/v1/auth/validate_token";
 
     private static final String HEADER_PROCESS_AUTH_TOKEN = "process-auth-token";
-
-    @Deprecated
-    private static final String HEADER_AUTH_TOKEN = "auth-token";
-    @Deprecated
-    private static final String HEADER_TOKEN = "token";
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -136,24 +129,9 @@ public abstract class AdminApiResource extends ApiResource {
     }
 
     @Deprecated
-    public String authToken() {
-        return requestProvider.get().getHeader(HEADER_AUTH_TOKEN);
-    }
-
-    @Deprecated
-    public String groupToken() {
-        return requestProvider.get().getHeader(HEADER_TOKEN);
-    }
-
-    @Deprecated
     public String findLoggedUserKey() {
         //TODO: otestovat, nebo zmenit
         userProvider.get(); //TODO: neni uplne zrejme, proc tohle volat. Co se deje v AbstractLoggedUserProvider a LoggedUsersSingletonImpl vypada zmatecne
         return (String) requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
-    }
-
-    //TODO: proverit
-    public String getRemoteAddress() {
-        return IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration());
     }
 }

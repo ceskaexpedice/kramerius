@@ -265,4 +265,7 @@ public class ItemsResource extends AdminApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+
+    //TODO: operace pro nastavení/změnu url pro IMG_THUMB
+    //výhledově možná kromě url taky nahrát obrázek samotný
 }
