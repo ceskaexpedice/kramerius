@@ -47,9 +47,7 @@ public class HeaderValue implements Value {
             String foreignVal = val.getValue(request);
             if (thisVal != null && foreignVal != null) {
                 return thisVal.equals(foreignVal);
-            } else if (thisVal == null && foreignVal == null) {
-                return true;
-            } else return false;
+            } else return thisVal == null && foreignVal == null;
         }
     }
 

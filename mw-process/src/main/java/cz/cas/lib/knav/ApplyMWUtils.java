@@ -95,11 +95,8 @@ public class ApplyMWUtils {
                                     "str");
                             boolean hasGoodAttr = nameAttr != null
                                     && nameAttr.equals("dc.title");
-    
-                            if (isElmStr && hasGoodAttr) {
-                                return true;
-                            } else
-                                return false;
+
+                            return isElmStr && hasGoodAttr;
                         }
                     });
     
@@ -234,8 +231,7 @@ public class ApplyMWUtils {
      * @throws IOException
      */
     public static void setPolicyFlag(String pid, boolean b, FedoraAccess fa,
-            String previousState, CollectPidForIndexing coll)
-            throws IOException {
+            String previousState, CollectPidForIndexing coll) {
         if (ApplyMWUtils.detectChange(b, previousState)) {
             PolicyServiceImpl policy = new PolicyServiceImpl();
             policy.setFedoraAccess(fa);
@@ -292,8 +288,7 @@ public class ApplyMWUtils {
         return wall;
     }
 
-    public static int defaultConfiguredWall( Configuration conf)
-            throws IOException {
+    public static int defaultConfiguredWall( Configuration conf) {
         int wall = conf.getInt("mwprocess.wall", 70);
         return wall;
     

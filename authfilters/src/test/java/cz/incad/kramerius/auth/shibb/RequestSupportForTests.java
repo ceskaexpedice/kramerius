@@ -56,7 +56,7 @@ public class RequestSupportForTests {
             EasyMock.expect(req.getHeader(k)).andAnswer(new IAnswer<String>() {
 
                 @Override
-                public String answer() throws Throwable {
+                public String answer() {
                     return table.get(k);
                 }
             }).anyTimes();

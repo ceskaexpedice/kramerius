@@ -8,6 +8,7 @@ import cz.incad.kramerius.security.impl.criteria.CriteriaPrecoditionException;
 import cz.incad.kramerius.security.impl.criteria.PDFDNNTFlag;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered;
+import cz.incad.kramerius.statistics.impl.DatabaseStatisticsAccessLogImpl;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,92 +31,11 @@ public class CriteriaDNNTUtils {
     public static ThreadLocal<RightsReturnObject> currentThreadReturnObject = new ThreadLocal<>();
 
 
-    // DNNT logger
-    public static Logger DNNT_LOGGER = Logger.getLogger("dnnt.access");
-
     public  static Logger LOGGER = Logger.getLogger(CriteriaDNNTUtils.class.getName());
 
 
-    public static void logDnntAccess(String pid,
-                                     String stream,
-                                     String rootTitle,
-                                     String dcTitle,
-                                     String remoteAddr,
-                                     String username,
-                                     String email,
-
-                                     Map<String,String> sessionAttributes,
-                                     List<String> dcAuthors,
-                                     ObjectPidsPath[] paths,
-                                     ObjectModelsPath[] mpaths) throws IOException {
-
-        LocalDateTime date = LocalDateTime.now();
-        String timestamp = date.format(DateTimeFormatter.ISO_DATE_TIME);
-
-        JSONObject jObject = new JSONObject();
-
-        jObject.put("pid",pid);
-        jObject.put("remoteAddr",remoteAddr);
-        jObject.put("username",username);
-        jObject.put("email",email);
-
-        jObject.put("rootTitle",rootTitle);
-        jObject.put("dcTitle",dcTitle);
-
-        jObject.put("date",timestamp);
-
-        sessionAttributes.keySet().stream().forEach(key->{ jObject.put(key, sessionAttributes.get(key)); });
-
-
-        if (!dcAuthors.isEmpty()) {
-            JSONArray authorsArray = new JSONArray();
-            for (int i=0,ll=dcAuthors.size();i<ll;i++) {
-                authorsArray.put(dcAuthors.get(i));
-            }
-            jObject.put("authors",authorsArray);
-        }
-
-        JSONArray pidsArray = new JSONArray();
-        for (int i = 0; i < paths.length; i++) {
-            pidsArray.put(pathToString(paths[i].getPathFromRootToLeaf()));
-        }
-        jObject.put("pids_path",pidsArray);
-
-        JSONArray modelsArray = new JSONArray();
-        for (int i = 0; i < mpaths.length; i++) {
-            modelsArray.put(pathToString(mpaths[i].getPathFromRootToLeaf()));
-        }
-        jObject.put("models_path",modelsArray);
-        if (paths.length > 0) {
-            String[] pathFromRootToLeaf = paths[0].getPathFromRootToLeaf();
-            if (pathFromRootToLeaf.length > 0) {
-                jObject.put("rootPid",pathFromRootToLeaf[0]);
-            }
-        }
-
-        if (mpaths.length > 0) {
-            String[] mpathFromRootToLeaf = mpaths[0].getPathFromRootToLeaf();
-            if (mpathFromRootToLeaf.length > 0) {
-                jObject.put("rootModel",mpathFromRootToLeaf[0]);
-            }
-        }
-
-        DNNT_LOGGER.log(Level.INFO, jObject.toString());
-    }
-
-    private static String pathToString(String[] pArray) {
-        return Arrays.stream(pArray).reduce("/", (identity, v) -> {
-                    if (!identity.equals("/")) {
-                        return identity + "/" + v;
-                    } else {
-                        return identity + v;
-                    }
-                });
-    }
-
-
-//    public static void logDnntAccess(RightCriteriumContext ctx) throws IOException {
-//        logDnntAccess(ctx.getRequestedPid(),
+    //    public static void toJSON(RightCriteriumContext ctx) throws IOException {
+//        toJSON(ctx.getRequestedPid(),
 //                ctx.getRemoteAddr(),
 //                ctx.getRequestedStream(),
 //                ctx.getUser().getLoginname(),

@@ -26,12 +26,11 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +45,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
@@ -76,6 +77,12 @@ import org.w3c.dom.Element;
  *
  */
 public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
+
+    // DNNT logger
+    //public static Logger KRAMERIUS_LOGGER_FOR_KIBANA = Logger.getLogger("dnnt.access");
+
+    // access logger for kibana processing
+    public static Logger KRAMERIUS_LOGGER_FOR_KIBANA = Logger.getLogger("kramerius.access");
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
     
@@ -112,7 +119,10 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
     
     @Inject
     Set<StatisticReport> reports;
-    
+
+
+
+
     @Override
     public void reportAccess(final String pid, final String streamName) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
@@ -124,43 +134,9 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
             if (connection == null)
                 throw new NotReadyException("connection not ready");
 
-
-            Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
-
-            String rootTitle  = titleElement("str", "root_title", solrDoc);
-            String rootPid  = titleElement("str", "root_pid", solrDoc);
-            String dctitle = titleElement("str", "dc.title", solrDoc);
-            //String dctitle = titleElement("str", "dc.title", solrDoc);
-            List<String> authors = new ArrayList<>();
-            if (rootPid != null) {
-                Document rootSolrDoc = this.solrAccess.getSolrDataDocument(rootPid);
-                Element array = XMLUtils.findElement(rootSolrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        String nodeName = element.getNodeName();
-                        String attr = element.getAttribute("name");
-                        if (nodeName.equals("arr") && StringUtils.isAnyString(attr) && attr.equals("dc.creator"))
-                            return true;
-                        return false;
-                    }
-                });
-                if (array != null) {
-                    authors = XMLUtils.getElements(array).stream().map(it -> it.getTextContent()).filter(it -> it != null).map(String::trim).collect(Collectors.toList());
-                }
-            }
-
-
-
-            // REPORT DNNT
-            if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
-                reportDNNT(pid,rootTitle,dctitle,authors, paths, mpaths, userProvider.get());
-            }
-
-
-
+            Map<String, Document> dcMap = new HashMap<>();
             List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
             commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get()));
-
             for (int i = 0, ll = paths.length; i < ll; i++) {
 
                 if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
@@ -171,9 +147,15 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                 String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
                 for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                     final String detailPid = pathFromLeafToRoot[j];
+                    Document dc = fedoraAccess.getDC(detailPid);
+                    dcMap.put(detailPid, dc);
+                }
+
+                for (int j = 0; j < pathFromLeafToRoot.length; j++) {
+                    final String detailPid = pathFromLeafToRoot[j];
 
                     String kModel = fedoraAccess.getKrameriusModelName(detailPid);
-                    Document dc = fedoraAccess.getDC(detailPid);
+                    Document dc = dcMap.containsKey(detailPid) ? dcMap.get(detailPid) : fedoraAccess.getDC(detailPid);
 
                     Object dateFromDC = DCUtils.dateFromDC(dc);
                     dateFromDC = dateFromDC != null ? dateFromDC : new JDBCUpdateTemplate.NullObject(String.class);
@@ -197,7 +179,62 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                     }
                 }
             }
-            
+
+
+            // Prepare data from solr
+            Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+            String rootTitle  = selem("str", "root_title", solrDoc);
+            String rootPid  = selem("str", "root_pid", solrDoc);
+            String dctitle = selem("str", "dc.title", solrDoc);
+            String publishedDate = selem("str", "datum_str", solrDoc);
+            String dnnt = selem("bool", "dnnt", solrDoc);
+            String policy = selem("str", "dostupnost", solrDoc);
+
+            List<String> dcAuthors = new ArrayList<>();
+            if (rootPid != null) {
+                Document rootSolrDoc = this.solrAccess.getSolrDataDocument(rootPid);
+                Element array = XMLUtils.findElement(rootSolrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        String nodeName = element.getNodeName();
+                        String attr = element.getAttribute("name");
+                        if (nodeName.equals("arr") && StringUtils.isAnyString(attr) && attr.equals("dc.creator"))
+                            return true;
+                        return false;
+                    }
+                });
+                if (array != null) {
+                    dcAuthors = XMLUtils.getElements(array).stream().map(it -> it.getTextContent()).filter(it -> it != null).map(String::trim).collect(Collectors.toList());
+                }
+            }
+
+            List<String> dcPublishers = new ArrayList<>();
+            for (int i = 0, ll = paths.length; i < ll; i++) {
+                if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
+                    paths[i] = paths[i].cutHead(0);
+                }
+                final int pathIndex = i;
+                String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
+                for (int j = 0; j < pathFromLeafToRoot.length; j++) {
+                    final String detailPid = pathFromLeafToRoot[j];
+                    Document document = dcMap.get(detailPid);
+
+                    List<String> collected = Arrays.stream(DCUtils.publishersFromDC(document)).map(it -> {
+                        return it.replaceAll("\\r?\\n", " ");
+                    }).collect(Collectors.toList());
+
+                    dcPublishers.addAll(collected);
+                }
+            }
+
+
+            // WRITE TO LOG - kibana processing
+            if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
+                logKibanaAccess(pid,rootTitle,dctitle,publishedDate, dnnt,policy, dcPublishers ,dcAuthors, paths, mpaths, userProvider.get());
+            }
+
+
+            //  WRITE TO DATABASE
             JDBCTransactionTemplate transactionTemplate = new JDBCTransactionTemplate(connection, true);
             transactionTemplate.updateWithTransaction(commands);
         } catch (SQLException e) {
@@ -206,8 +243,8 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
     }
 
 
-    private String titleElement(String type, String attrVal, Document solrDoc) {
-        Element titleElm = XMLUtils.findElement(solrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
+    private String selem(String type, String attrVal, Document solrDoc) {
+        Element dcElm = XMLUtils.findElement(solrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {
                 String nodeName = element.getNodeName();
@@ -216,25 +253,29 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                 return false;
             }
         });
-        return titleElm != null ? titleElm.getTextContent() : null;
+        return dcElm != null ? dcElm.getTextContent() : null;
     }
 
-    private void reportDNNT(String pid, String rootTitle, String dcTitle, List<String> dcAuthors, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths, User user) throws IOException {
+    private void logKibanaAccess(String pid, String rootTitle, String dcTitle, String publishedDate, String dnntFlag, String policy, List<String> dcPublishers, List<String> dcAuthors, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths, User user) throws IOException {
         RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
-        if (rightsReturnObject == null)  return;
-        if (CriteriaDNNTUtils.checkContainsCriteriumReadDNNT(rightsReturnObject)) {
+        boolean providedByDnnt =  rightsReturnObject != null ? CriteriaDNNTUtils.checkContainsCriteriumReadDNNT(rightsReturnObject) : false;
 
-            CriteriaDNNTUtils.logDnntAccess(pid,
-                    null,rootTitle,dcTitle,
-                    IPAddressUtils.getRemoteAddress(requestProvider.get(), KConfiguration.getInstance().getConfiguration()),
-                    user!= null ? user.getLoginname() : null,
-                    user != null ? user.getEmail(): null,
-                    user.getSessionAttributes(),
-                    dcAuthors,
-                    paths,
-                    mpaths
-            );
-        }
+            JSONObject jObject = toJSON(pid, rootTitle, dcTitle,
+                IPAddressUtils.getRemoteAddress(requestProvider.get(), KConfiguration.getInstance().getConfiguration()),
+                user != null ? user.getLoginname() : null,
+                user != null ? user.getEmail() : null,
+                publishedDate,
+                dnntFlag,
+                providedByDnnt,
+                policy,
+                user.getSessionAttributes(),
+                dcAuthors,
+                dcPublishers,
+                paths,
+                mpaths
+        );
+
+        KRAMERIUS_LOGGER_FOR_KIBANA.log(Level.INFO, jObject.toString());
     }
 
 
@@ -453,4 +494,103 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         InputStream is = DatabaseStatisticsAccessLogImpl.class.getResourceAsStream("res/statistics.stg");
         stGroup = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
     }
+
+
+
+
+
+    public static JSONObject toJSON(String pid,
+                                    String rootTitle,
+                                    String dcTitle,
+                                    String remoteAddr,
+                                    String username,
+                                    String email,
+                                    String publishedDate,
+                                    String dnntFlag,
+                                    boolean providedByDnnt,
+                                    String policy,
+
+                                    Map<String,String> sessionAttributes,
+                                    List<String> dcAuthors,
+                                    List<String> dcPublishers,
+                                    ObjectPidsPath[] paths,
+                                    ObjectModelsPath[] mpaths) throws IOException {
+
+        LocalDateTime date = LocalDateTime.now();
+        String timestamp = date.format(DateTimeFormatter.ISO_DATE_TIME);
+
+        JSONObject jObject = new JSONObject();
+
+        jObject.put("pid",pid);
+        jObject.put("remoteAddr",remoteAddr);
+        jObject.put("username",username);
+        jObject.put("email",email);
+
+        jObject.put("rootTitle",rootTitle);
+        jObject.put("dcTitle",dcTitle);
+
+        if (dnntFlag != null )  jObject.put("dnnt", dnntFlag.trim().toLowerCase().equals("true"));
+        jObject.put("providedByDnnt", providedByDnnt);
+        jObject.put("policy", policy);
+
+        jObject.put("publishedDate", publishedDate);
+
+        jObject.put("date",timestamp);
+
+        sessionAttributes.keySet().stream().forEach(key->{ jObject.put(key, sessionAttributes.get(key)); });
+
+
+        if (!dcAuthors.isEmpty()) {
+            JSONArray authorsArray = new JSONArray();
+            for (int i=0,ll=dcAuthors.size();i<ll;i++) {
+                authorsArray.put(dcAuthors.get(i));
+            }
+            jObject.put("authors",authorsArray);
+        }
+
+        if (!dcPublishers.isEmpty()) {
+            JSONArray publishersArray = new JSONArray();
+            for (int i=0,ll=dcPublishers.size();i<ll;i++) {
+                publishersArray.put(dcPublishers.get(i));
+            }
+            jObject.put("publishers",publishersArray);
+        }
+
+        JSONArray pidsArray = new JSONArray();
+        for (int i = 0; i < paths.length; i++) {
+            pidsArray.put(pathToString(paths[i].getPathFromRootToLeaf()));
+        }
+        jObject.put("pids_path",pidsArray);
+
+        JSONArray modelsArray = new JSONArray();
+        for (int i = 0; i < mpaths.length; i++) {
+            modelsArray.put(pathToString(mpaths[i].getPathFromRootToLeaf()));
+        }
+        jObject.put("models_path",modelsArray);
+        if (paths.length > 0) {
+            String[] pathFromRootToLeaf = paths[0].getPathFromRootToLeaf();
+            if (pathFromRootToLeaf.length > 0) {
+                jObject.put("rootPid",pathFromRootToLeaf[0]);
+            }
+        }
+
+        if (mpaths.length > 0) {
+            String[] mpathFromRootToLeaf = mpaths[0].getPathFromRootToLeaf();
+            if (mpathFromRootToLeaf.length > 0) {
+                jObject.put("rootModel",mpathFromRootToLeaf[0]);
+            }
+        }
+        return jObject;
+    }
+
+    private static String pathToString(String[] pArray) {
+        return Arrays.stream(pArray).reduce("/", (identity, v) -> {
+            if (!identity.equals("/")) {
+                return identity + "/" + v;
+            } else {
+                return identity + v;
+            }
+        });
+    }
+
 }

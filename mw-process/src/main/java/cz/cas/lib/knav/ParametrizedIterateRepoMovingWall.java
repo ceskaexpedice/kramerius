@@ -16,7 +16,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class ParametrizedIterateRepoMovingWall {
 
     @Process
-    public static void process(@ParameterName("userValue") String uVal) throws XPathExpressionException, IOException, RightCriteriumException {
+    public static void process(@ParameterName("userValue") String uVal) {
         List<String> topLevelModels = KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels");
         RepositoryItemsSupport repoItems = new SolrRepoItemsSupport("PID");
         for (String m : topLevelModels) {

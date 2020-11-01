@@ -42,7 +42,7 @@ public class ShibbolethUtilsTest {
         EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
 
             @Override
-            public Enumeration answer() throws Throwable {
+            public Enumeration answer() {
                 return RequestSupportForTests.getNotLoggedShibTable().keys();
             }
         });
@@ -62,7 +62,7 @@ public class ShibbolethUtilsTest {
         EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
 
             @Override
-            public Enumeration answer() throws Throwable {
+            public Enumeration answer() {
                 return RequestSupportForTests.getLoggedShibTable().keys();
             }
         });
@@ -81,7 +81,7 @@ public class ShibbolethUtilsTest {
         EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
 
             @Override
-            public Enumeration answer() throws Throwable {
+            public Enumeration answer() {
                 return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
             }
         });
@@ -99,7 +99,7 @@ public class ShibbolethUtilsTest {
         EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
 
             @Override
-            public Enumeration answer() throws Throwable {
+            public Enumeration answer() {
                 return RequestSupportForTests.getLoggedShibTable().keys();
             }
         });
@@ -118,21 +118,21 @@ public class ShibbolethUtilsTest {
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
         EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
             @Override
-            public Enumeration answer() throws Throwable {
+            public Enumeration answer() {
                 return RequestSupportForTests.getLoggedShibTable().keys();
             }
         }).anyTimes();
 
         EasyMock.expect(req.getSession(true)).andAnswer(new IAnswer<HttpSession>() {
             @Override
-            public HttpSession answer() throws Throwable {
+            public HttpSession answer() {
                 return session;
             }
         }).anyTimes();
         
         EasyMock.expect(session.getAttribute("Shib-Session-ID")).andAnswer(new IAnswer<String>() {
             @Override
-            public String answer() throws Throwable {
+            public String answer() {
                 return "_8b58b975229f61df5d9389b8f2d0d8d8";
             }
         }).anyTimes();
@@ -149,21 +149,21 @@ public class ShibbolethUtilsTest {
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
         EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
             @Override
-            public Enumeration answer() throws Throwable {
+            public Enumeration answer() {
                 return RequestSupportForTests.getLoggedShibTable().keys();
             }
         }).anyTimes();
 
         EasyMock.expect(req.getSession(true)).andAnswer(new IAnswer<HttpSession>() {
             @Override
-            public HttpSession answer() throws Throwable {
+            public HttpSession answer() {
                 return session;
             }
         }).anyTimes();
         
         EasyMock.expect(session.getAttribute("Shib-Session-ID")).andAnswer(new IAnswer<String>() {
             @Override
-            public String answer() throws Throwable {
+            public String answer() {
                 return "_abe8b975229f61df5d9389b8f2d0d8d8";
             }
         }).anyTimes();
@@ -180,21 +180,21 @@ public class ShibbolethUtilsTest {
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
         EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
             @Override
-            public Enumeration answer() throws Throwable {
+            public Enumeration answer() {
                 return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
             }
         }).anyTimes();
 
         EasyMock.expect(req.getSession(true)).andAnswer(new IAnswer<HttpSession>() {
             @Override
-            public HttpSession answer() throws Throwable {
+            public HttpSession answer() {
                 return session;
             }
         }).anyTimes();
 
         EasyMock.expect(session.getAttribute("Shib-Session-ID")).andAnswer(new IAnswer<String>() {
             @Override
-            public String answer() throws Throwable {
+            public String answer() {
                 return "_abe8b975229f61df5d9389b8f2d0d8d8";
             }
         }).anyTimes();

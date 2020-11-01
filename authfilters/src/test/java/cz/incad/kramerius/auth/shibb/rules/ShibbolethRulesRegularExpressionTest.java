@@ -41,11 +41,11 @@ public class ShibbolethRulesRegularExpressionTest {
         testShibRules(shibRules2);
     }
 
-    private void testShibRules(String rules) throws RecognitionException, TokenStreamException {
+    private void testShibRules(String rules) throws TokenStreamException, RecognitionException {
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
         EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
             @Override
-            public Enumeration answer() throws Throwable {
+            public Enumeration answer() {
                 return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
             }
         });
