@@ -19,10 +19,13 @@ include	'processes:import-jaxb-srwdc'
 include	'processes:import-mets'
 include 'processes:mw-process'
 include	'processes:indexer'
-include 'processes:solr-migration'
+//include 'processes:solr-migration'
 include	'processes:static-export'
 include 'processes:data-migration'
 include 'processes:migration'
+include 'processes:cdkprocesses'
+
+
 
 include 'security:security-core'
 include 'security:authfilters'

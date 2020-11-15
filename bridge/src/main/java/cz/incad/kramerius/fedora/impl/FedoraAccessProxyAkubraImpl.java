@@ -12,6 +12,7 @@ import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.fedora.AbstractFedoraAccess;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.SynchronizedRepository;
 import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
@@ -43,15 +44,21 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static cz.incad.kramerius.fedora.impl.FedoraAccessProxyUtils.*;
+
 public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
 
-    private static Object INGEST_LOCK = new Object();
+    public static Object INGESTING_LOCK = new Object();
+
 
     public static final Logger LOGGER = Logger.getLogger(FedoraAccessProxyAkubraImpl.class.getName());
 
@@ -60,6 +67,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     private CollectionsManager collectionsManager;
     private Client client;
 
+    private Repository internalRepository;
 
 
     @Inject
@@ -74,61 +82,41 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
 
 
 
-    protected List<String> window(String pid) {
+
+
+
+    @Override
+    public Document getRelsExt(String pid) throws IOException {
         try {
-            Document solrDataDocument = this.solrAccess.getSolrDataDocument(pid);
-
-            String parentPid = SolrUtils.disectParentPid(solrDataDocument);
-            List<String> list = ItemResourceUtils.solrChildrenPids(parentPid, new ArrayList<>(), this.solrAccess);
-
-            int size = KConfiguration.getInstance().getConfiguration().getInt("cdk.collections.sources.window", 5);
-
-            int index = list.indexOf(pid);
-            if (index >= 0)  {
-                int minIndex = Math.max(index-size, 0);
-                size += size-(index-minIndex);
-
-                int maxIndex = Math.min(index+size, list.size());
-                return list.subList(minIndex, maxIndex);
-            } else {
-                List<String> retList = new ArrayList<>(list.subList(0,Math.min(list.size(), size)));
-                retList.add(pid);
-                return retList;
-            }
-
-        } catch (UniformInterfaceException ex2) {
-            throw new RuntimeException(ex2);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            ingestIfNecessary(pid);
+            return akubra.getRelsExt(pid);
+        } catch (RepositoryException e) {
+            throw  new IOException(e);
+        } catch (CollectionException e) {
+            throw  new IOException(e);
+        } catch (LexerException e) {
+            throw  new IOException(e);
+        } catch (TransformerException e) {
+            throw  new IOException(e);
+        } catch (JAXBException e) {
+            throw  new IOException(e);
         } catch (XPathExpressionException e) {
-            throw new RuntimeException(e);
+            throw  new IOException(e);
         }
     }
 
-
-    protected InputStream batchFoxml(String url, String userName, String pswd) {
-        LOGGER.info(String.format("Requesting %s", url));
-        WebResource r = client.resource(url);
-        r.addFilter(new BasicAuthenticationClientFilter(userName, pswd));
-        try {
-            return r.accept("application/zip").get(InputStream.class);
-        } catch (UniformInterfaceException ex2) {
-            if (ex2.getResponse().getStatus() == 404) {
-                LOGGER.log(Level.WARNING, "Call to {0} failed with message {1}. Skyping documents.",
-                        new Object[]{url, ex2.getResponse().toString()});
-                return null;
-            } else {
-                LOGGER.log(Level.WARNING, "Call to {0} failed. Retrying...", url);
-                return r.accept("application/zip").get(InputStream.class);
+    private void ingestIfNecessary(String pid) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
+        if (!pid.startsWith(PIDParser.VC_PREFIX)) {
+            Repository internalAPI = getInternalAPI();
+            if (!internalAPI.objectExists(pid)) {
+                // put in the queue and wait
+                onDemandIngest(pid, internalAPI);
             }
-        } catch (Exception ex) {
-            LOGGER.log(Level.WARNING, "Call to {0} failed. Retrying...", url);
-            return r.accept("application/zip").get(InputStream.class);
         }
     }
 
 
-    protected InputStream foxml( String url, String userName, String pswd) {
+    protected InputStream foxml(String url, String userName, String pswd) {
         LOGGER.info(String.format("Requesting %s", url));
         WebResource r = client.resource(url);
         r.addFilter(new BasicAuthenticationClientFilter(userName, pswd));
@@ -150,99 +138,42 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         }
     }
 
-    @Override
-    public Document getRelsExt(String pid) throws IOException {
+
+    // on demand request
+    private  void onDemandIngest(String pid, Repository internalAPI) throws CollectionException, LexerException, IOException, RepositoryException, JAXBException, TransformerException {
+        LOGGER.info(String.format("Requesting info %s", pid));
         try {
-            ingestIfNecessary(pid);
-            return akubra.getRelsExt(pid);
-        } catch (RepositoryException e) {
-            throw  new IOException(e);
-        } catch (CollectionException e) {
-            throw  new IOException(e);
-        } catch (LexerException e) {
-            throw  new IOException(e);
-        } catch (TransformerException e) {
-            throw  new IOException(e);
-        } catch (JAXBException e) {
-            throw  new IOException(e);
-        }
-    }
+            long start = System.currentTimeMillis();
+            Document solrDataDocument = this.solrAccess.getSolrDataDocument(pid);
+            List<String> sources = CDKUtils.findSources(solrDataDocument.getDocumentElement());
+            if (!sources.isEmpty()) {
+                Collection collection = this.collectionsManager.getCollection(sources.get(0));
 
-    private void ingestIfNecessary(String pid) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException {
-        synchronized (INGEST_LOCK) {
-            Repository internalAPI = this.akubra.getInternalAPI();
-            if(!internalAPI.objectExists(pid)) {
-                List<String> window = window( pid).stream().filter((p) -> {
-                    try {
-                        return !internalAPI.objectExists(p);
-                    } catch (RepositoryException e) {
-                        LOGGER.warning(e.getMessage());
-                        return false;
-                    }
-                }).collect(Collectors.toList());
-                LOGGER.info("Requesting window "+window);
-                onDemandIngest(window, internalAPI);
-            }
-        }
-    }
+                PIDParser parser = new PIDParser(collection.getPid());
+                parser.objectPid();
+                String objectId = parser.getObjectId();
 
+                String username = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".username");
+                String password = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".pswd");
 
-    private  void onDemandIngest(List<String> window, Repository internalAPI) throws CollectionException, LexerException, IOException, RepositoryException, JAXBException, TransformerException {
-        List<List<String>> sources = window.stream().map((pid) -> {
-            try {
-                return this.solrAccess.getSolrDataDocument(pid).getDocumentElement();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }).map(CDKUtils::findSources).collect(Collectors.toList());
+                if (StringUtils.isAnyString(username) && StringUtils.isAnyString(password)) {
+                    String url = collection.getUrl()  +(collection.getUrl().endsWith("/") ? "" : "/")+ "api/v4.6/cdk/" + pid + "/foxml?collection=" + collection.getPid();
 
-        Map<String,List<String>> map = new HashMap<>();
-        for (int i = 0,ll=window.size(); i < ll; i++) {
-            String pid = window.get(i);
-            List<String> associatedSurces = sources.get(i);
-            if (!associatedSurces.isEmpty()) {
-                String firstSource = associatedSurces.get(0);
-                if (!map.containsKey(firstSource)) {
-                    map.put(firstSource, new ArrayList<>());
-                }
-                map.get(firstSource).add(pid);
-            }
-        }
-
-        for (String vc : map.keySet()) {
-            Collection collection = this.collectionsManager.getCollection(vc);
-
-            PIDParser parser = new PIDParser(collection.getPid());
-            parser.objectPid();
-            String objectId = parser.getObjectId();
-
-            String username = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".username");
-            String password = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".pswd");
-
-            boolean batch = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + objectId + ".batch", false);
-
-            if (StringUtils.isAnyString(username) && StringUtils.isAnyString(password)) {
-                if (batch) {
-                    String reduced = map.get(vc).stream().reduce("", (i, v) -> i.equals("") ? v : i+","+v);
-                    String url = collection.getUrl()  +(collection.getUrl().endsWith("/") ? "" : "/")+ "api/v4.6/cdk/batch/foxmls?collection=" + collection.getPid()+"&pids="+reduced;
-
-                    InputStream input = batchFoxml(url, username, password);
-                    ZipInputStream zipInputStream = new ZipInputStream(input);
-                    ZipEntry entry = null;
-                    while((entry = zipInputStream.getNextEntry())!= null) {
-                        String name = entry.getName();
-                        Import.ingest(internalAPI, zipInputStream, name, null, null, true);
-                    }
-                } else {
-                    for (String pid :  map.get(vc)) {
-                        long start = System.currentTimeMillis();
-                        String url = collection.getUrl()  +(collection.getUrl().endsWith("/") ? "" : "/")+ "api/v4.6/cdk/" + pid + "/foxml?collection=" + collection.getPid();
-                        InputStream foxml = foxml(url, username, password);
+                    if (internalAPI.objectExists(pid)) return;
+                    InputStream foxml = foxml(url, username, password);
+                    long foxmlTime = System.currentTimeMillis();
+                    // only ingesting is synchronized by shared lock
+                    synchronized (INGESTING_LOCK) {
+                        if (internalAPI.objectExists(pid)) return;
+                        // tady by to melo byt synchronizovane
                         Import.ingest(internalAPI, foxml, pid, null, null, true);
-                        LOGGER.info(String.format("Whole ingest of %s took %d ms",pid, (System.currentTimeMillis() - start)));
+                        LOGGER.info(String.format("Whole ingest of %s took %d ms (download foxml %d ms)",pid, (System.currentTimeMillis() - start), (System.currentTimeMillis() - foxmlTime) ));
                     }
-                }
-            } else throw new IOException("cannot read data from "+ collection.getUrl()+".  Missing property "+"cdk.collections.sources." + objectId + ".username or "+"cdk.collections.sources." + objectId + ".pswd");
+                } else throw new IOException("Cannot read data from "+ collection.getUrl()+".  Missing property "+"cdk.collections.sources." + objectId + ".username or "+"cdk.collections.sources." + objectId + ".pswd  for pid  "+pid);
+
+            }
+        } catch (IOException | JAXBException | TransformerException | LexerException | RepositoryException |CollectionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
     }
 
@@ -262,6 +193,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -279,6 +212,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         } catch (JAXBException e) {
             throw  new IOException(e);
         } catch (TransformerException e) {
+            throw  new IOException(e);
+        } catch (XPathExpressionException e) {
             throw  new IOException(e);
         }
     }
@@ -298,6 +233,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -315,6 +252,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         } catch (JAXBException e) {
             throw  new IOException(e);
         } catch (TransformerException e) {
+            throw  new IOException(e);
+        } catch (XPathExpressionException e) {
             throw  new IOException(e);
         }
     }
@@ -352,6 +291,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -369,6 +310,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         } catch (JAXBException e) {
             throw  new IOException(e);
         } catch (TransformerException e) {
+            throw  new IOException(e);
+        } catch (XPathExpressionException e) {
             throw  new IOException(e);
         }
     }
@@ -406,6 +349,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -423,6 +368,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         } catch (JAXBException e) {
             throw  new IOException(e);
         } catch (TransformerException e) {
+            throw  new IOException(e);
+        } catch (XPathExpressionException e) {
             throw  new IOException(e);
         }
     }
@@ -460,6 +407,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -478,6 +427,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -495,6 +446,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         } catch (JAXBException e) {
             throw  new IOException(e);
         } catch (TransformerException e) {
+            throw  new IOException(e);
+        } catch (XPathExpressionException e) {
             throw  new IOException(e);
         }
     }
@@ -524,6 +477,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -541,6 +496,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         } catch (JAXBException e) {
             throw  new IOException(e);
         } catch (TransformerException e) {
+            throw  new IOException(e);
+        } catch (XPathExpressionException e) {
             throw  new IOException(e);
         }
 
@@ -561,6 +518,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -578,6 +537,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         } catch (JAXBException e) {
             throw  new IOException(e);
         } catch (TransformerException e) {
+            throw  new IOException(e);
+        } catch (XPathExpressionException e) {
             throw  new IOException(e);
         }
     }
@@ -597,6 +558,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -614,6 +577,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         } catch (JAXBException e) {
             throw  new IOException(e);
         } catch (TransformerException e) {
+            throw  new IOException(e);
+        } catch (XPathExpressionException e) {
             throw  new IOException(e);
         }
     }
@@ -638,6 +603,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -655,6 +622,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         } catch (JAXBException e) {
             throw  new IOException(e);
         } catch (TransformerException e) {
+            throw  new IOException(e);
+        } catch (XPathExpressionException e) {
             throw  new IOException(e);
         }
     }
@@ -674,6 +643,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -691,6 +662,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         } catch (JAXBException e) {
             throw  new IOException(e);
         } catch (TransformerException e) {
+            throw  new IOException(e);
+        } catch (XPathExpressionException e) {
             throw  new IOException(e);
         }
     }
@@ -710,6 +683,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -727,6 +702,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
         } catch (JAXBException e) {
             throw  new IOException(e);
         } catch (TransformerException e) {
+            throw  new IOException(e);
+        } catch (XPathExpressionException e) {
             throw  new IOException(e);
         }
     }
@@ -746,6 +723,8 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
 
@@ -764,6 +743,19 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
             throw  new IOException(e);
         } catch (TransformerException e) {
             throw  new IOException(e);
+        } catch (XPathExpressionException e) {
+            throw  new IOException(e);
         }
     }
+
+
+    /*
+    public synchronized Repository getSynchronizedInternalRepository() throws RepositoryException {
+        if (this.internalRepository  == null ) {
+            this.internalRepository = new SynchronizedRepository(this.akubra.getInternalAPI());
+        }
+        return this.internalRepository;
+    }*/
+
+
 }

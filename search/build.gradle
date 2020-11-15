@@ -43,7 +43,7 @@ dependencies {
     compile project(':processes:indexer')
     compile project(':processes:import')
     compile project(':processes:import-mets')
-    compile project(':processes:solr-migration')
+//    compile project(':processes:solr-migration')
     compile project(':processes:data-migration')
 
     compile 'javax.servlet:jstl:1.1.2'   
@@ -96,7 +96,7 @@ task infofile(dependsOn: gitcall)  {
     }
 }
 
-processResources.dependsOn infofile
+//processResources.dependsOn infofile
 
 war {
     baseName='search'

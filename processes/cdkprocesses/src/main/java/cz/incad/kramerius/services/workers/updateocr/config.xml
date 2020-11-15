@@ -1,0 +1,43 @@
+<cdkprocess>
+    <!--
+    .cdkprocess.iteration.url=http://192.168.10.109:8983/solr/processing
+
+    #.cdkprocess.iteration.url=http://192.168.10.109:18984/solr-test/kramerius-cdk-test
+    .cdkprocess.iteration.rows=2000
+    .cdkprocess.iteration.type=CURSOR
+    .cdkprocess.iteration.endoint=select
+    .cdkprocess.iteration.fqquery=collection:"vc:c4bb27af-3a51-4ac2-95c7-fd393b489e26"
+    #.cdkprocess.iteration.fqquery=type:"description"
+    Iteration part -->
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+
+    <iteration>
+        <url>http://localhost:8983/solr/kramerius/</url>
+        <fquery></fquery>
+
+        <endpoint>select</endpoint>
+
+        <id>PID</id>
+        <!--
+        <sort></sort>
+        -->
+        <rows>50</rows>
+        <type>CURSOR</type>
+    </iteration>
+
+    <threads>4</threads>
+
+
+    <workerFactory class="cz.incad.kramerius.services.workers.updateocr.UpdateOCRWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <batchsize>10</batchsize>
+            <url>http://localhost:8080/search</url>
+            <cdk.user>krameriusAdmin</cdk.user>
+            <cdk.pass>krameriusAdmin</cdk.pass>
+        </request>
+        <destination>
+            <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update</url>
+        </destination>
+    </worker>
+</cdkprocess>

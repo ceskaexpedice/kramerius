@@ -1,0 +1,33 @@
+<cdkprocess>
+    <!--  UPDATE  -->
+    <!--
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+    -->
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.logfile.LogFileIteratorFactory"></iteratorFactory>
+    <iteration>
+        <url>file:///c:/Users/pavel.stastny/nprojs/_kramerius_akubra/kramerius/kibana.log</url>
+        <!--
+        <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test</url>
+        <fquery>collection:"vc:c4bb27af-3a51-4ac2-95c7-fd393b489e26" AND NOT collection:"vc:c4bb27af-3a51-4ac2-95c7-fd393b477777" AND created_date:["2010-01-27T14:09:46Z" TO "2013-02-27T14:09:46Z"]</fquery>
+        <endpoint>select</endpoint>
+        <id>PID</id>
+        -->
+        <rows>1000</rows>
+        <type>CURSOR</type>
+    </iteration>
+
+    <threads>4</threads>
+
+    <workerFactory class="cz.incad.kramerius.services.workers.update.UpdateWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <batchsize>100</batchsize>
+        </request>
+        <destination>
+            <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update</url>
+            <update.dest.field>
+                <field name="collection" update="set">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
+            </update.dest.field>
+        </destination>
+    </worker>
+</cdkprocess>

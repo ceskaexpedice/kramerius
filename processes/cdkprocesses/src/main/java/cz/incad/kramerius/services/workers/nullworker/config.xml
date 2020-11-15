@@ -1,0 +1,34 @@
+<cdkprocess>
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.logfile.LogFileIteratorFactory"></iteratorFactory>
+    <iteration>
+        <!--
+        <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test</url>
+        -->
+        <url>file:///c:/Users/pavel.stastny/nprojs/_kramerius_akubra/kramerius/kibana.log.fromknav</url>
+        <!--
+        <fquery>collection:"vc:c4bb27af-3a51-4ac2-95c7-fd393b477777"</fquery>
+       -->
+        <fquery>collection:"vc:c4bb27af-3a51-4ac2-95c7-fd393b489e26"</fquery>
+
+        <endpoint>select</endpoint>
+
+        <id>PID</id>
+        <rows>10000</rows>
+        <type>CURSOR</type>
+    </iteration>
+
+    <threads>3</threads>
+
+
+    <workerFactory class="cz.incad.kramerius.services.workers.nullworker.NullWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <preprocessfactory class="">
+
+            </preprocessfactory>
+        </request>
+        <destination>
+
+        </destination>
+    </worker>
+</cdkprocess>
