@@ -6,9 +6,9 @@ import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.dom4j.Document;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.dom4j.Document;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -44,15 +44,14 @@ public class ItemsResource extends AdminApiResource {
     public Response getItems(@QueryParam("model") String model) {
         //TODO: offset, limit, nejspis nebude potreba, see https://app.gethido.com/p/posu5sqvet/tasks/24
         try {
-            boolean disableAuth = true; //TODO: reenable for production
             //authentication
-            if (!disableAuth) {
-                AuthenticatedUser user = getAuthenticatedUserByOauth();
-                String role = ROLE_READ_ITEMS;
-                if (!user.getRoles().contains(role)) {
-                    throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
-                }
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //authorization
+            String role = ROLE_READ_ITEMS;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
             }
+
             if (model == null || model.isEmpty()) {
                 throw new BadRequestException("missing mandatory query param 'model'");
             }
@@ -71,15 +70,14 @@ public class ItemsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_XML)
     public Response getFoxml(@PathParam("pid") String pid) {
         try {
-            boolean disableAuth = true; //TODO: reenable for production
             //authentication
-            if (!disableAuth) {
-                AuthenticatedUser user = getAuthenticatedUserByOauth();
-                String role = ROLE_READ_FOXML;
-                if (!user.getRoles().contains(role)) {
-                    throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
-                }
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //authorization
+            String role = ROLE_READ_FOXML;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
             }
+
             checkObjectExists(pid);
             Document foxml = krameriusRepositoryApi.getLowLevelApi().getFoxml(pid);
             return Response.ok().entity(foxml.asXML()).build();
@@ -94,10 +92,12 @@ public class ItemsResource extends AdminApiResource {
         try {
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //authorization
             String role = ROLE_DELETE_OBJECTS;
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
             }
+
             checkObjectExists(pid);
             krameriusRepositoryApi.getLowLevelApi().deleteObject(pid);
             //TODO: schedule indexation of the affected objects
@@ -110,15 +110,14 @@ public class ItemsResource extends AdminApiResource {
     @HEAD
     @Path("{pid}/streams/{dsid}")
     public Response checkDatastreamExists(@PathParam("pid") String pid, @PathParam("dsid") String dsid) {
-        boolean disableAuth = true; //TODO: reenable for production
         //authentication
-        if (!disableAuth) {
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
-            String role = ROLE_READ_FOXML;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
-            }
+        AuthenticatedUser user = getAuthenticatedUserByOauth();
+        //authorization
+        String role = ROLE_READ_FOXML;
+        if (!user.getRoles().contains(role)) {
+            throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
         }
+
         checkObjectAndDatastreamExist(pid, dsid);
         return Response.ok().build();
     }
@@ -134,15 +133,14 @@ public class ItemsResource extends AdminApiResource {
     @Path("{pid}/streams/{dsid}/mime")
     public Response getDatastreamMime(@PathParam("pid") String pid, @PathParam("dsid") String dsid) {
         try {
-            boolean disableAuth = true; //TODO: reenable for production
             //authentication
-            if (!disableAuth) {
-                AuthenticatedUser user = getAuthenticatedUserByOauth();
-                String role = ROLE_READ_FOXML;
-                if (!user.getRoles().contains(role)) {
-                    throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
-                }
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //authorization
+            String role = ROLE_READ_FOXML;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
             }
+
             checkObjectAndDatastreamExist(pid, dsid);
             switch (dsid) {
                 case "IMG_FULL": {
@@ -191,15 +189,14 @@ public class ItemsResource extends AdminApiResource {
     @Path("{pid}/streams/{dsid}")
     public Response getDatastream(@PathParam("pid") String pid, @PathParam("dsid") String dsid) {
         try {
-            boolean disableAuth = true; //TODO: reenable for production
             //authentication
-            if (!disableAuth) {
-                AuthenticatedUser user = getAuthenticatedUserByOauth();
-                String role = ROLE_READ_FOXML;
-                if (!user.getRoles().contains(role)) {
-                    throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getName(), role); //403
-                }
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //authorization
+            String role = ROLE_READ_FOXML;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getName(), role); //403
             }
+
             checkObjectAndDatastreamExist(pid, dsid);
             switch (dsid) {
                 case "BIBLIO_MODS":
