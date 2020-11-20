@@ -90,7 +90,7 @@ public class ProcessResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getOwners() {
         //authentication
-        AuthenticatedUser user = getAuthenticatedUser();
+        AuthenticatedUser user = getAuthenticatedUserByOauth();
         String role = ROLE_READ_PROCESS_OWNERS;
         if (!user.getRoles().contains(role)) {
             throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
@@ -126,7 +126,7 @@ public class ProcessResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProcessByProcessId(@PathParam("process_id") String processId) {
         //authentication
-        AuthenticatedUser user = getAuthenticatedUser();
+        AuthenticatedUser user = getAuthenticatedUserByOauth();
         String role = ROLE_READ_PROCESSES;
         if (!user.getRoles().contains(role)) {
             throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
@@ -185,7 +185,7 @@ public class ProcessResource extends AdminApiResource {
 
     private Response getProcessLogsByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String offsetStr, String limitStr) {
         //authentication
-        AuthenticatedUser user = getAuthenticatedUser();
+        AuthenticatedUser user = getAuthenticatedUserByOauth();
         String role = ROLE_READ_PROCESSES;
         if (!user.getRoles().contains(role)) {
             throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
@@ -265,7 +265,7 @@ public class ProcessResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response deleteBatch(@PathParam("process_id") String processId) {
         //authentication
-        AuthenticatedUser user = getAuthenticatedUser();
+        AuthenticatedUser user = getAuthenticatedUserByOauth();
         String role = ROLE_DELETE_PROCESSES;
         if (!user.getRoles().contains(role)) {
             throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
@@ -304,7 +304,7 @@ public class ProcessResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response killBatch(@PathParam("process_id") String processId) {
         //authentication
-        AuthenticatedUser user = getAuthenticatedUser();
+        AuthenticatedUser user = getAuthenticatedUserByOauth();
         String role = ROLE_CANCEL_OR_KILL_PROCESSES;
         if (!user.getRoles().contains(role)) {
             throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
@@ -373,7 +373,7 @@ public class ProcessResource extends AdminApiResource {
         checkAccessControlByBasicAccessAuth();
 
         //authentication
-        AuthenticatedUser user = getAuthenticatedUser();
+        AuthenticatedUser user = getAuthenticatedUserByOauth();
         String role = ROLE_READ_PROCESSES;
         if (!user.getRoles().contains(role)) {
             throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
@@ -495,7 +495,7 @@ public class ProcessResource extends AdminApiResource {
             paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
             paramsList.addAll(paramsToList(defid, params));
             //authentication
-            AuthenticatedUser user = getAuthenticatedUser();
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
             //authorization
             String role = ROLE_SCHEDULE_PROCESSES;
             if (!user.getRoles().contains(role)) {

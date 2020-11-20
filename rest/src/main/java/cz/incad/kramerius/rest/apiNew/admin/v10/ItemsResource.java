@@ -47,7 +47,7 @@ public class ItemsResource extends AdminApiResource {
             boolean disableAuth = true; //TODO: reenable for production
             //authentication
             if (!disableAuth) {
-                AuthenticatedUser user = getAuthenticatedUser();
+                AuthenticatedUser user = getAuthenticatedUserByOauth();
                 String role = ROLE_READ_ITEMS;
                 if (!user.getRoles().contains(role)) {
                     throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
@@ -74,7 +74,7 @@ public class ItemsResource extends AdminApiResource {
             boolean disableAuth = true; //TODO: reenable for production
             //authentication
             if (!disableAuth) {
-                AuthenticatedUser user = getAuthenticatedUser();
+                AuthenticatedUser user = getAuthenticatedUserByOauth();
                 String role = ROLE_READ_FOXML;
                 if (!user.getRoles().contains(role)) {
                     throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
@@ -93,7 +93,7 @@ public class ItemsResource extends AdminApiResource {
     public Response deleteObject(@PathParam("pid") String pid) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUser();
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_DELETE_OBJECTS;
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
@@ -113,7 +113,7 @@ public class ItemsResource extends AdminApiResource {
         boolean disableAuth = true; //TODO: reenable for production
         //authentication
         if (!disableAuth) {
-            AuthenticatedUser user = getAuthenticatedUser();
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_READ_FOXML;
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
@@ -137,7 +137,7 @@ public class ItemsResource extends AdminApiResource {
             boolean disableAuth = true; //TODO: reenable for production
             //authentication
             if (!disableAuth) {
-                AuthenticatedUser user = getAuthenticatedUser();
+                AuthenticatedUser user = getAuthenticatedUserByOauth();
                 String role = ROLE_READ_FOXML;
                 if (!user.getRoles().contains(role)) {
                     throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
@@ -194,7 +194,7 @@ public class ItemsResource extends AdminApiResource {
             boolean disableAuth = true; //TODO: reenable for production
             //authentication
             if (!disableAuth) {
-                AuthenticatedUser user = getAuthenticatedUser();
+                AuthenticatedUser user = getAuthenticatedUserByOauth();
                 String role = ROLE_READ_FOXML;
                 if (!user.getRoles().contains(role)) {
                     throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getName(), role); //403

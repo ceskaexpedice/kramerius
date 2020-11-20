@@ -9,6 +9,7 @@ import cz.incad.kramerius.rest.apiNew.admin.v10.ProcessSchedulingHelper;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -55,7 +56,7 @@ public class CollectionsResource extends AdminApiResource {
     public Response createCollection(JSONObject collectionDefinition) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUser();
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_CREATE_COLLECTION;
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing role '%s')", user.getName(), role); //403
@@ -88,7 +89,7 @@ public class CollectionsResource extends AdminApiResource {
     public Response getCollection(@PathParam("pid") String pid) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUser();
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_READ_COLLECTION;
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to read collections (missing role '%s')", user.getName(), role); //403
@@ -113,12 +114,18 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCollections(@QueryParam("withItem") String itemPid) {
         try {
-            //authentication
-            AuthenticatedUser user = getAuthenticatedUser();
+            //TODO: decide for auth scheme for new API
+
+            //authentication & authorization by external provider of identities & rights
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_LIST_COLLECTIONS;
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to list collections (missing role '%s')", user.getName(), role); //403
             }
+
+            //authentication with JSESSIONID cookie and authorization against (global) SecuredAction - i.e. schema used Kramerius legacy APIs and servlets
+            //checkCurrentUserByJsessionidIsAllowedToPerformGlobalSecuredAction(SecuredActions.VIRTUALCOLLECTION_MANAGE);
+
             List<String> pids = null;
             if (itemPid != null) {
                 checkObjectExists(itemPid);
@@ -155,7 +162,7 @@ public class CollectionsResource extends AdminApiResource {
     public Response updateCollection(@PathParam("pid") String pid, JSONObject collectionDefinition) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUser();
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_EDIT_COLLECTION;
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user.getName(), role); //403
@@ -229,7 +236,7 @@ public class CollectionsResource extends AdminApiResource {
         //TODO: maybe JSONArray insted of single String, to be able to add multiple items at once.
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUser();
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_EDIT_COLLECTION;
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user.getName(), role); //403
@@ -263,7 +270,7 @@ public class CollectionsResource extends AdminApiResource {
     public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, @PathParam("itemPid") String itemPid) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUser();
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_EDIT_COLLECTION;
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user.getName(), role); //403
@@ -295,7 +302,7 @@ public class CollectionsResource extends AdminApiResource {
     public Response deleteCollection(@PathParam("pid") String pid) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUser();
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_DELETE_COLLECTION;
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to delete collections (missing role '%s')", user.getName(), role); //403

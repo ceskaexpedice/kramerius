@@ -1,8 +1,14 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10;
 
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.apiNew.ApiResource;
+import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ProxyAuthenticationRequiredException;
+import cz.incad.kramerius.rest.apiNew.exceptions.UnauthorizedException;
+import cz.incad.kramerius.security.RightsResolver;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
 import org.json.JSONArray;
@@ -34,7 +40,10 @@ public abstract class AdminApiResource extends ApiResource {
     @Inject
     Provider<User> userProvider;
 
-    public final AuthenticatedUser getAuthenticatedUser() throws ProxyAuthenticationRequiredException {
+    @Inject
+    RightsResolver rightsResolver;
+
+    public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
         ClientAuthHeaders authHeaders = ClientAuthHeaders.extract(requestProvider);
         //System.out.println(authHeaders);
         try {
@@ -63,7 +72,7 @@ public abstract class AdminApiResource extends ApiResource {
                         }
                     }
                 }
-                throw new InternalErrorException("error communicating with authentification service: %s", message);
+                throw new InternalErrorException("error communicating with authentication service: %s", message);
             }
             String body = inputstreamToString(con.getInputStream());
             JSONObject bodyJson = new JSONObject(body);
@@ -77,7 +86,7 @@ public abstract class AdminApiResource extends ApiResource {
                         message = errors.getString(0);
                     }
                 }
-                throw new InternalErrorException("error communicating with authentification service: %s", message);
+                throw new InternalErrorException("error communicating with authentication service: %s", message);
             }
 
             //success
@@ -90,7 +99,7 @@ public abstract class AdminApiResource extends ApiResource {
             }
             return new AuthenticatedUser(id, name, roles);
         } catch (IOException e) {
-            throw new InternalErrorException("error communicating with authentification service: %s ", e.getMessage());
+            throw new InternalErrorException("error communicating with authentication service: %s ", e.getMessage());
         }
     }
 
@@ -133,5 +142,18 @@ public abstract class AdminApiResource extends ApiResource {
         //TODO: otestovat, nebo zmenit
         userProvider.get(); //TODO: neni uplne zrejme, proc tohle volat. Co se deje v AbstractLoggedUserProvider a LoggedUsersSingletonImpl vypada zmatecne
         return (String) requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
+    }
+
+
+    public void checkCurrentUserByJsessionidIsAllowedToPerformGlobalSecuredAction(SecuredActions action) {
+        User user = this.userProvider.get();
+        if (user == null || user.getLoginname().equals("not_logged")) {
+            throw new UnauthorizedException(); //401
+        } else {
+            boolean allowed = this.rightsResolver.isActionAllowed(user, action.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag();
+            if (!allowed) {
+                throw new ForbiddenException("user '%s' is not allowed to perform global action '%s'", user.getLoginname(), action.getFormalName()); //403
+            }
+        }
     }
 }
