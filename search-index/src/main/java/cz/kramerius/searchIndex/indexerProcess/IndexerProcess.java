@@ -139,7 +139,7 @@ public class IndexerProcess {
                 report("title: " + repositoryNode.getTitle());
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
                 //String ocrText = repositoryConnector.isOcrTextAvailable(pid) ? repositoryConnector.getOcrText(pid) : null;
-                String ocrText = repositoryConnector.getOcrText(pid);
+                String ocrText = normalizeWhitespacesForOcrText(repositoryConnector.getOcrText(pid));
                 //System.out.println("ocr: " + ocrText);
                 //IMG_FULL mimetype
                 String imgFullMime = repositoryConnector.getImgFullMimetype(pid);
@@ -159,6 +159,14 @@ public class IndexerProcess {
             counters.incrementErrors();
             report(" Solr server error", e);
         }
+    }
+
+    private String normalizeWhitespacesForOcrText(String ocrText) {
+        return ocrText == null ? null : ocrText
+                // ("MAR-\nTIN", "MAR-\r\nTIN", "MAR-\n   TIN", "MAR-\n\tTIN", etc.) -> MARTIN
+                .replaceAll("-\\r?\\n\\s*", "")
+                // groups of white spaces -> " "
+                .replaceAll("\\s+", " ");
     }
 
     private void processChildren(RepositoryNode parent, boolean isIndexationRoot, IndexationType type, Counters counters) {
