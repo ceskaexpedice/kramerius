@@ -88,7 +88,7 @@
     </test>
 
     <test name="ignoring stop words">
-        <desc>hodonty předepsané DMF, ale nedávající smysl v žánru (title, volume, cartographic, chapter, ...)</desc>
+        <desc>hodnoty předepsané DMF, ale nedávající smysl v žánru (title, volume, cartographic, chapter, ...)</desc>
         <in>
             <genre>mapy a atlasy</genre>
             <genre authority="marcgt">map</genre>
@@ -139,7 +139,7 @@
     </test>
 
     <test name="ignoring stop words (in upper cases)">
-        <desc>hodonty předepsané DMF, ale nedávající smysl v žánru (title, volume, cartographic, chapter, ...)</desc>
+        <desc>hodnoty předepsané DMF, ale nedávající smysl v žánru (title, volume, cartographic, chapter, ...)</desc>
         <in>
             <genre>mapy a atlasy</genre>
             <genre authority="marcgt">map</genre>
