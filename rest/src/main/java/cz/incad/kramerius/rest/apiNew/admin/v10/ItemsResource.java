@@ -29,6 +29,7 @@ public class ItemsResource extends AdminApiResource {
     private static final String ROLE_READ_FOXML = "kramerius_admin";
     private static final String ROLE_DELETE_OBJECTS = "kramerius_admin";
 
+    private static final boolean AUTH_TEMPORARILY_DISABLED = true;//TODO: remove in production, only reason for this is that Indexer process needs to access this
 
     /**
      * Returns array of pids that have given model.
@@ -44,12 +45,14 @@ public class ItemsResource extends AdminApiResource {
     public Response getItems(@QueryParam("model") String model) {
         //TODO: offset, limit, nejspis nebude potreba, see https://app.gethido.com/p/posu5sqvet/tasks/24
         try {
-            //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
-            //authorization
-            String role = ROLE_READ_ITEMS;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+            if (!AUTH_TEMPORARILY_DISABLED) {
+                //authentication
+                AuthenticatedUser user = getAuthenticatedUserByOauth();
+                //authorization
+                String role = ROLE_READ_ITEMS;
+                if (!user.getRoles().contains(role)) {
+                    throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+                }
             }
 
             if (model == null || model.isEmpty()) {
@@ -65,17 +68,36 @@ public class ItemsResource extends AdminApiResource {
         }
     }
 
+    @HEAD
+    @Path("{pid}")
+    public Response checkItemExists(@PathParam("pid") String pid) {
+        if (!AUTH_TEMPORARILY_DISABLED) {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //authorization
+            String role = ROLE_READ_ITEMS;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+            }
+        }
+
+        checkObjectExists(pid);
+        return Response.ok().build();
+    }
+
     @GET
     @Path("{pid}/foxml")
     @Produces(MediaType.APPLICATION_XML)
     public Response getFoxml(@PathParam("pid") String pid) {
         try {
-            //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
-            //authorization
-            String role = ROLE_READ_FOXML;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+            if (!AUTH_TEMPORARILY_DISABLED) {
+                //authentication
+                AuthenticatedUser user = getAuthenticatedUserByOauth();
+                //authorization
+                String role = ROLE_READ_FOXML;
+                if (!user.getRoles().contains(role)) {
+                    throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+                }
             }
 
             checkObjectExists(pid);
@@ -90,12 +112,14 @@ public class ItemsResource extends AdminApiResource {
     @Path("{pid}")
     public Response deleteObject(@PathParam("pid") String pid) {
         try {
-            //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
-            //authorization
-            String role = ROLE_DELETE_OBJECTS;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+            if (!AUTH_TEMPORARILY_DISABLED) {
+                //authentication
+                AuthenticatedUser user = getAuthenticatedUserByOauth();
+                //authorization
+                String role = ROLE_DELETE_OBJECTS;
+                if (!user.getRoles().contains(role)) {
+                    throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+                }
             }
 
             checkObjectExists(pid);
@@ -110,12 +134,14 @@ public class ItemsResource extends AdminApiResource {
     @HEAD
     @Path("{pid}/streams/{dsid}")
     public Response checkDatastreamExists(@PathParam("pid") String pid, @PathParam("dsid") String dsid) {
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUserByOauth();
-        //authorization
-        String role = ROLE_READ_FOXML;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+        if (!AUTH_TEMPORARILY_DISABLED) {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //authorization
+            String role = ROLE_READ_FOXML;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+            }
         }
 
         checkObjectAndDatastreamExist(pid, dsid);
@@ -133,12 +159,14 @@ public class ItemsResource extends AdminApiResource {
     @Path("{pid}/streams/{dsid}/mime")
     public Response getDatastreamMime(@PathParam("pid") String pid, @PathParam("dsid") String dsid) {
         try {
-            //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
-            //authorization
-            String role = ROLE_READ_FOXML;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+            if (!AUTH_TEMPORARILY_DISABLED) {
+                //authentication
+                AuthenticatedUser user = getAuthenticatedUserByOauth();
+                //authorization
+                String role = ROLE_READ_FOXML;
+                if (!user.getRoles().contains(role)) {
+                    throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+                }
             }
 
             checkObjectAndDatastreamExist(pid, dsid);
@@ -189,12 +217,14 @@ public class ItemsResource extends AdminApiResource {
     @Path("{pid}/streams/{dsid}")
     public Response getDatastream(@PathParam("pid") String pid, @PathParam("dsid") String dsid) {
         try {
-            //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
-            //authorization
-            String role = ROLE_READ_FOXML;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getName(), role); //403
+            if (!AUTH_TEMPORARILY_DISABLED) {
+                //authentication
+                AuthenticatedUser user = getAuthenticatedUserByOauth();
+                //authorization
+                String role = ROLE_READ_FOXML;
+                if (!user.getRoles().contains(role)) {
+                    throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getName(), role); //403
+                }
             }
 
             checkObjectAndDatastreamExist(pid, dsid);

@@ -2,9 +2,7 @@ package cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi;
 
 import cz.kramerius.searchIndex.repositoryAccess.Utils;
 import cz.kramerius.searchIndex.repositoryAccessImpl.RepositoryAccessImplAbstract;
-import org.w3c.dom.Document;
 
-import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -21,17 +19,17 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
 
     @Override
     public boolean isObjectAvailable(String pid) throws IOException {
-        //HEAD http://localhost:8080/search/api/client/v6.0/items/uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6
-        URL url = new URL(coreBaseUrl + "/api/client/v6.0/items/" + pid);
+        //TODO: auth
+        //HEAD http://localhost:8080/search/api/admin/v1.0/items/uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6
+        URL url = new URL(coreBaseUrl + "/api/admin/v1.0/items/" + pid);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("HEAD");
         con.setConnectTimeout(3000);
         con.setReadTimeout(5000);
-        if (logHttpRequests) {
-            System.out.println("HEAD " + url.toString());
-        }
         int code = con.getResponseCode();
-        //System.out.println("response code: " + code);
+        if (logHttpRequests) {
+            System.out.println("HEAD " + url.toString() + " " + code);
+        }
         return code == 200;
     }
 
@@ -44,11 +42,10 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
         //con.setRequestMethod("GET");
         con.setConnectTimeout(3000);
         con.setReadTimeout(5000);
-        if (logHttpRequests) {
-            System.out.println("GET " + url.toString());
-        }
         int code = con.getResponseCode();
-        //System.out.println("response code: " + code);
+        if (logHttpRequests) {
+            System.out.println("GET " + url.toString() + " " + code);
+        }
         if (code == 200) {
             return con.getInputStream();
         } else {
@@ -65,11 +62,10 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
         //con.setRequestMethod("GET");
         con.setConnectTimeout(3000);
         con.setReadTimeout(5000);
-        if (logHttpRequests) {
-            System.out.println("GET " + url.toString());
-        }
         int code = con.getResponseCode();
-        //System.out.println("response code: " + code);
+        if (logHttpRequests) {
+            System.out.println("GET " + url.toString() + " " + code);
+        }
         if (code == 200) {
             InputStream is = null;
             is = con.getInputStream();
@@ -91,11 +87,10 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
         //con.setRequestMethod("HEAD");
         con.setConnectTimeout(3000);
         con.setReadTimeout(5000);
-        if (logHttpRequests) {
-            System.out.println("HEAD " + url.toString());
-        }
         int code = con.getResponseCode();
-        //System.out.println("response code: " + code);
+        if (logHttpRequests) {
+            System.out.println("HEAD " + url.toString() + " " + code);
+        }
         return code == 200;
     }
 
@@ -108,11 +103,10 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
         //con.setRequestMethod("GET");
         con.setConnectTimeout(3000);
         con.setReadTimeout(5000);
-        if (logHttpRequests) {
-            System.out.println("GET " + url.toString());
-        }
         int code = con.getResponseCode();
-        //System.out.println("response code: " + code);
+        if (logHttpRequests) {
+            System.out.println("GET " + url.toString() + " " + code);
+        }
         if (code == 200) {
             InputStream is = null;
             is = con.getInputStream();
