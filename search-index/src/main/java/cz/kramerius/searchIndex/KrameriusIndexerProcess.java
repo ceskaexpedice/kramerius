@@ -12,8 +12,6 @@ import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.RepositoryA
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceIndexImplByKrameriusNewApis;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Random;
 import java.util.logging.Logger;
 
 /**
@@ -31,28 +29,31 @@ public class KrameriusIndexerProcess {
     public static void main(String[] args) throws IOException {
         long start = System.currentTimeMillis();
         //args
-        LOGGER.info("args: " + Arrays.asList(args));
+        //LOGGER.info("args: " + Arrays.asList(args));
         int argsIndex = 0;
         String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         String type = args[argsIndex++];
         String pid = args[argsIndex++];
+        //Kramerius
+        String krameriusBackendBaseUrl = args[argsIndex++];
+        String krameriusApiAuthClient = args[argsIndex++];
+        String krameriusApiAuthUid = args[argsIndex++];
+        String krameriusApiAuthAccessToken = args[argsIndex++];
+        //SOLR
+        String solrBaseUrl = args[argsIndex++];
+        String solrCollection = args[argsIndex++];
+        boolean solrUseHttps = Boolean.valueOf(args[argsIndex++]);
+        String solrLogin = args[argsIndex++];
+        String solrPassword = args[argsIndex++];
 
         //zmena nazvu
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
         ProcessStarter.updateName(String.format("Indexace (typ %s, objekt %s)", type, pid));
 
-        LOGGER.info("Let's index");
-        //TODO: from config
-        String krameriusBackendBaseUrl =  "http://localhost:8080/search";
-        String solrBaseUrl = "localhost:8983/solr";
-        String solrCollection = "search";
-        boolean solrUseHttps = false;
-        String solrLogin =  "krameriusIndexer";
-        String solrPassword =  "krameriusIndexerRulezz";
-
         SolrConfig solrConfig = new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword);
         //TODO: merge KrameriusIndexerProcess and IndexerProcess
-        FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl);
+        RepositoryAccessImplByKrameriusNewApis.Credentials krameriusCredentials = new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken);
+        FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl, krameriusCredentials);
         IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
         //TODO: smazat druhy KrameriusRepositoryAccessAdapter
         KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);

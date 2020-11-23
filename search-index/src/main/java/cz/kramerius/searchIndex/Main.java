@@ -328,17 +328,24 @@ public class Main {
     }
 
     private static void indexObjectFromKrameriusWithProcess(String[] args) {
-        if (args.length < 6) {
+        if (args.length < 9) {
             System.err.println("Error: not enough parameters");
             System.err.println(buildUsage(ACTION_INDEX_OBJECTS_FROM_KRAMERIUS_WITH_PROCESS));
         } else {
-            String krameriusBackendBaseUrl = args[0];
-            String solrBaseUrl = args[1];
-            String solrCollection = args[2];
+            int index = 0;
+            //Kramerius
+            String krameriusBackendBaseUrl = args[index++];
+            String krameriusApiAuthClient = args[index++];
+            String krameriusApiAuthUid = args[index++];
+            String krameriusApiAuthAccessToken = args[index++];
+            //SOLR
+            String solrBaseUrl = args[index++];
+            String solrCollection = args[index++];
             boolean solrUseHttps = false;
-            String solrLogin = args[3];
-            String solrPassword = args[4];
+            String solrLogin = args[index++];
+            String solrPassword = args[index++];
 
+            //pids
             String[] pids = subArray(args, 5);
             for (String pid : pids) {
                 SolrConfig solrConfig = new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword);
@@ -346,7 +353,8 @@ public class Main {
                 //String krameriusBackendBaseUrl = "http://localhost:8080/search";
                 //FedoraAccess repository = new RepositoryAccessImplDummy();
                 //FedoraAccess repository = new RepositoryAccessImplByKrameriusOldApis(krameriusBackendBaseUrl);
-                FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl);
+                FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
+                        new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
                 //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
                 IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
                 KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
@@ -360,24 +368,32 @@ public class Main {
     }
 
     private static void indexObjectFromKramerius(String[] args) throws IOException, DocumentException, SolrServerException {
-        if (args.length < 6) {
+        if (args.length < 9) {
             System.err.println("Error: not enough parameters");
             System.err.println(buildUsage(ACTION_INDEX_OBJECT_FROM_KRAMERIUS));
-        } else if (args.length > 6) {
+        } else if (args.length > 9) {
             System.err.println("Error: too many parameters");
             System.err.println(buildUsage(ACTION_INDEX_OBJECT_FROM_KRAMERIUS));
         } else {
-            String krameriusBackendBaseUrl = args[0];
-            String pid = args[1];
-            String solrBaseUrl = args[2];
-            String solrCollection = args[3];
+            int index = 0;
+            //Kramerius
+            String krameriusBackendBaseUrl = args[index++];
+            String krameriusApiAuthClient = args[index++];
+            String krameriusApiAuthUid = args[index++];
+            String krameriusApiAuthAccessToken = args[index++];
+            //SOLR
+            String solrBaseUrl = args[index++];
+            String solrCollection = args[index++];
             boolean solrUseHttps = false;
-            String solrLogin = args[4];
-            String solrPassword = args[5];
+            String solrLogin = args[index++];
+            String solrPassword = args[index++];
+            //pid
+            String pid = args[index++];
 
             //FedoraAccess repository = new RepositoryAccessImplDummy();
             //FedoraAccess repository = new RepositoryAccessImplByKrameriusOldApis(krameriusBackendBaseUrl);
-            FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl);
+            FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
+                    new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
             //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
             IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
             KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
@@ -518,12 +534,16 @@ public class Main {
                 builder.append('\t').append("The BASE_URL mustn't start with protocol prefix and must end with '/solr' suffix, for example: \"localhost:8983/solr\"").append('\n');
                 break;
             case ACTION_INDEX_OBJECT_FROM_KRAMERIUS:
-                builder.append(" KRAMERIUS_BACKEND_BASE_URL SOLR_BASE_URL SOLR_LOGIN SOLR_COLLECTION SOLR_PASSWORD OBJECT_PID").append('\n');
+                builder.append(" KRAMERIUS_BACKEND_BASE_URL KRAMERIUS_API_AUTH_CLIENT KRAMERIUS_API_AUTH_UID KRAMERIUS_API_AUTH_ACCESS_TOKEN" +
+                        " SOLR_BASE_URL SOLR_LOGIN SOLR_COLLECTION SOLR_PASSWORD" +
+                        " OBJECT_PID").append('\n');
                 builder.append('\t').append("The SOLR_BASE_URL mustn't start with protocol prefix and must end with '/solr' suffix, for example: \"localhost:8983/solr\"").append('\n');
                 builder.append('\t').append("The KRAMERIUS_BACKEND_BASE_URL, on the other hand, must be an url with defined protocol, for example 'http://localhost:8080/search'").append('\n');
                 break;
             case ACTION_INDEX_OBJECTS_FROM_KRAMERIUS_WITH_PROCESS:
-                builder.append(" KRAMERIUS_BACKEND_BASE_URL SOLR_BASE_URL SOLR_LOGIN SOLR_COLLECTION SOLR_PASSWORD OBJECTS_PIDS").append('\n');
+                builder.append(" KRAMERIUS_BACKEND_BASE_URL KRAMERIUS_API_AUTH_CLIENT KRAMERIUS_API_AUTH_UID KRAMERIUS_API_AUTH_ACCESS_TOKEN" +
+                        " SOLR_BASE_URL SOLR_LOGIN SOLR_COLLECTION SOLR_PASSWORD" +
+                        " OBJECTS_PIDS").append('\n');
                 builder.append('\t').append("The SOLR_BASE_URL mustn't start with protocol prefix and must end with '/solr' suffix, for example: \"localhost:8983/solr\"").append('\n');
                 builder.append('\t').append("The KRAMERIUS_BACKEND_BASE_URL, on the other hand, must be an url with defined protocol, for example 'http://localhost:8080/search'").append('\n');
                 break;

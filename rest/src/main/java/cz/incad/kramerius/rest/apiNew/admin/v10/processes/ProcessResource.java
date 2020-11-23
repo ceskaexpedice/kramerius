@@ -8,10 +8,7 @@ import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
-import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
-import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
-import cz.incad.kramerius.rest.apiNew.admin.v10.ProcessSchedulingHelper;
-import cz.incad.kramerius.rest.apiNew.admin.v10.Utils;
+import cz.incad.kramerius.rest.apiNew.admin.v10.*;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
@@ -474,7 +471,8 @@ public class ProcessResource extends AdminApiResource {
         if (processDefinition.has("params")) {
             params = processDefinition.getJSONObject("params");
         }
-        if (processAuthToken != null) { //run by process (so the new process will be it'sibling in same batch)
+        ClientAuthHeaders clientAuthHeaders = extractClientAuthHeders();
+        if (processAuthToken != null) { //run by process (so the new process will be it's sibling in same batch)
             //authentication & authorization
             ProcessManager.ProcessAboutToScheduleSibling originalProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(processAuthToken);
             if (originalProcess == null) {
@@ -486,14 +484,14 @@ public class ProcessResource extends AdminApiResource {
             List<String> paramsList = new ArrayList<>();
             String newProcessAuthToken = UUID.randomUUID().toString();
             paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
-            paramsList.addAll(paramsToList(defid, params));
+            paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
             return scheduleProcess(defid, paramsList, userId, userName, batchToken, newProcessAuthToken);
         } else { //run by user (through web client)
             String batchToken = UUID.randomUUID().toString();
             List<String> paramsList = new ArrayList<>();
             String newProcessAuthToken = UUID.randomUUID().toString();
             paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
-            paramsList.addAll(paramsToList(defid, params));
+            paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             //authorization
@@ -528,7 +526,7 @@ public class ProcessResource extends AdminApiResource {
         return jsonObject;
     }
 
-    private List<String> paramsToList(String id, JSONObject params) {
+    private List<String> paramsToList(String id, JSONObject params, ClientAuthHeaders clientAuthHeaders) {
         switch (id) {
             case ProcessApiTestProcess.ID: {
                 //duration (of every process in batch)
@@ -605,9 +603,23 @@ public class ProcessResource extends AdminApiResource {
                 } else {
                     throw new BadRequestException("missing mandatory parameter %s: ", KrameriusIndexerProcess.PARAM_PID);
                 }
+                //
                 List<String> array = new ArrayList<>();
                 array.add(typeValue);
                 array.add(pidValue);
+                //Kramerius
+                array.add("http://localhost:8080/search"); //TODO: from config
+                array.add(clientAuthHeaders.getClient());
+                array.add(clientAuthHeaders.getUid());
+                array.add(clientAuthHeaders.getAccessToken());
+                //Solr
+                //TODO: from config
+                array.add("localhost:8983/solr");//solrBaseUrl
+                array.add("search");//solrCollection
+                array.add("false");//solrUseHttps
+                array.add("krameriusIndexer");//solrLogin
+                array.add("krameriusIndexerRulezz");//solrPassword
+
                 return array;
             }
             default: {
