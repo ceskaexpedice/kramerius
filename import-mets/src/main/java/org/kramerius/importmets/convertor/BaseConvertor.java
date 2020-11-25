@@ -656,6 +656,9 @@ public abstract class BaseConvertor {
                 if (f != null) {
                     File imageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
                     if (imageFile.exists() && imageFile.canRead()) {
+                        if (imageFile.length() == 0){
+                            continue;
+                        }
                         switch (f.getFileType()){
                             case MASTER_IMAGE:
                             case USER_IMAGE:
@@ -867,6 +870,16 @@ public abstract class BaseConvertor {
             // long start = System.currentTimeMillis();
 
             File pageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + filename);
+            
+            if (pageFile.length() == 0) {
+                try {
+                    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(pageFile, true)));
+                    out.println("");
+                    out.close();
+                } catch (IOException e) {
+                    throw new ServiceException(e);
+                }
+            }
 
             if ("encoded".equalsIgnoreCase(streamType)){
                 byte[] binaryContent = FileUtils.readFileToByteArray(pageFile);
