@@ -46,9 +46,9 @@ public class ItemsResource extends ClientApiResource {
     // {pid}/streams/RELS_EXT       -> nahradit za {pid}/info/structure - DONE
     // {pid}/streams/OCR_TEXT       -> nahradit za {pid}/ocr/text  - DONE
     // {pid}/streams/OCR_ALTO       -> nahradit za {pid}/ocr/alto - DONE
-    // {pid}/streams/MP3            -> nahradit za {pid}/audio/mp3
-    // {pid}/streams/OGG            -> nahradit za {pid}/audio/ogg
-    // {pid}/streams/WAV            -> nahradit za {pid}/audio/wav
+    // {pid}/streams/MP3            -> nahradit za {pid}/audio/mp3 - DONE
+    // {pid}/streams/OGG            -> nahradit za {pid}/audio/ogg - DONE
+    // {pid}/streams/WAV            -> nahradit za {pid}/audio/wav - DONE
 
 
     //pripadne jen plochou strukturu ( {pid}/mods, {pid}/thumb {pid}/full, {pid}/children ...)
@@ -65,7 +65,9 @@ public class ItemsResource extends ClientApiResource {
     // GET/HEAD {pid}/image             - obsah IMG_FULL konkrétního objektu
     // GET      {pid}/image/thumb       - IMG_THUMB objektu nebo potomka
     // GET      {pid}/image/preview     - IMG_PREVIEW objektu nebo potomka
-    // TODO: zvukova data
+    // GET/HEAD {pid}/audio/mp3
+    // GET/HEAD {pid}/audio/ogg
+    // GET/HEAD {pid}/audio/wav
 
 
     public static final Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());
@@ -337,7 +339,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     /**
-     * Zkontroluje existenci a právo čtení datastraemu IMG_FULL
+     * Zkontroluje existenci a právo čtení datastreamu IMG_FULL
      */
     @HEAD
     @Path("{pid}/image")
@@ -348,7 +350,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     /***
-     * Vrací obsah IMG_FULL tohoto objektu
+     * Vrací obsah datastreamu IMG_FULL tohoto objektu
      * @see cz.incad.Kramerius.imaging.ImageStreamsServlet
      */
     @SuppressWarnings("JavadocReference")
@@ -358,11 +360,11 @@ public class ItemsResource extends ClientApiResource {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_FULL);
-            InputStream imgFull = krameriusRepositoryApi.getImgFull(pid);
             String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
+            InputStream is = krameriusRepositoryApi.getImgFull(pid);
             StreamingOutput stream = output -> {
-                IOUtils.copy(imgFull, output);
-                IOUtils.closeQuietly(imgFull);
+                IOUtils.copy(is, output);
+                IOUtils.closeQuietly(is);
             };
             return Response.ok().entity(stream).type(mimeType).build();
         } catch (RepositoryException |
@@ -414,6 +416,102 @@ public class ItemsResource extends ClientApiResource {
                 return Response.ok().entity(stream).type(imgPreview.getSecond()).build();
             }
         } catch (RepositoryException | IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @HEAD
+    @Path("{pid}/audio/mp3")
+    public Response isAudioMp3Available(@PathParam("pid") String pid) {
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3);
+        return Response.ok().build();
+    }
+
+    /***
+     * Vrací obsah datastreamu MP3 tohoto objektu
+     */
+    @SuppressWarnings("JavadocReference")
+    @GET
+    @Path("{pid}/audio/mp3")
+    public Response getAudioMp3(@PathParam("pid") String pid) {
+        //TODO: test Content-Range
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        try {
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3);
+            String mimeType = krameriusRepositoryApi.getAudioMp3Mimetype(pid);
+            InputStream is = krameriusRepositoryApi.getAudioMp3(pid);
+            StreamingOutput stream = output -> {
+                IOUtils.copy(is, output);
+                IOUtils.closeQuietly(is);
+            };
+            return Response.ok().entity(stream).type(mimeType).build();
+        } catch (RepositoryException |
+                IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @HEAD
+    @Path("{pid}/audio/ogg")
+    public Response isAudioOggAvailable(@PathParam("pid") String pid) {
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG);
+        return Response.ok().build();
+    }
+
+    /***
+     * Vrací obsah datastreamu OGG tohoto objektu
+     */
+    @SuppressWarnings("JavadocReference")
+    @GET
+    @Path("{pid}/audio/ogg")
+    public Response getAudioOgg(@PathParam("pid") String pid) {
+        //TODO: test Content-Range
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        try {
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG);
+            String mimeType = krameriusRepositoryApi.getAudioOggMimetype(pid);
+            InputStream is = krameriusRepositoryApi.getAudioOgg(pid);
+            StreamingOutput stream = output -> {
+                IOUtils.copy(is, output);
+                IOUtils.closeQuietly(is);
+            };
+            return Response.ok().entity(stream).type(mimeType).build();
+        } catch (RepositoryException |
+                IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @HEAD
+    @Path("{pid}/audio/wav")
+    public Response isAudioWavAvailable(@PathParam("pid") String pid) {
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV);
+        return Response.ok().build();
+    }
+
+    /***
+     * Vrací obsah datastreamu WAV tohoto objektu
+     */
+    @SuppressWarnings("JavadocReference")
+    @GET
+    @Path("{pid}/audio/wav")
+    public Response getAudioWav(@PathParam("pid") String pid) {
+        //TODO: test Content-Range
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        try {
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV);
+            String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
+            InputStream is = krameriusRepositoryApi.getAudioWav(pid);
+            StreamingOutput stream = output -> {
+                IOUtils.copy(is, output);
+                IOUtils.closeQuietly(is);
+            };
+            return Response.ok().entity(stream).type(mimeType).build();
+        } catch (RepositoryException |
+                IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }

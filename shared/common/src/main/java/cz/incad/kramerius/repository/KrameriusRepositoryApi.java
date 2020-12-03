@@ -103,7 +103,6 @@ public interface KrameriusRepositoryApi {
         throw new IllegalArgumentException(String.format("unknown relation '%s'", relation));
     }
 
-    //TODO: methods for getting audio streams
     //TODO: methods for updating datastream data (done for inline xml datastreams)
 
     /**
@@ -277,6 +276,22 @@ public interface KrameriusRepositoryApi {
 
     /**
      * @param pid Persistent identifier of the object
+     * @return mime-type of datastream MP3 if such datastream exists, null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public String getAudioMp3Mimetype(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return InputStream stream containing audio data from MP3 if such datastream exists, null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public InputStream getAudioMp3(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
      * @return if datastream OGG is available for the object
      * @throws IOException
      * @throws RepositoryException
@@ -285,11 +300,43 @@ public interface KrameriusRepositoryApi {
 
     /**
      * @param pid Persistent identifier of the object
+     * @return mime-type of datastream OGG if such datastream exists, null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public String getAudioOggMimetype(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return InputStream stream containing audio data from OGG if such datastream exists, null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public InputStream getAudioOgg(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
      * @return if datastream WAV is available for the object
      * @throws IOException
      * @throws RepositoryException
      */
     public boolean isAudioWavAvailable(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return mime-type of datastream WAV if such datastream exists, null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public String getAudioWavMimetype(String pid) throws IOException, RepositoryException;
+
+    /**
+     * @param pid Persistent identifier of the object
+     * @return InputStream stream containing audio data from WAV if such datastream exists, null otherwise
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public InputStream getAudioWav(String pid) throws IOException, RepositoryException;
 
     /**
      * @param objectPid

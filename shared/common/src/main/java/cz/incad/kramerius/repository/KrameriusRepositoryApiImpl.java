@@ -140,13 +140,43 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
     }
 
     @Override
+    public String getAudioMp3Mimetype(String pid) throws IOException, RepositoryException {
+        return repositoryApi.getDatastreamMimetype(pid, KnownDatastreams.AUDIO_MP3.toString());
+    }
+
+    @Override
+    public InputStream getAudioMp3(String pid) throws IOException, RepositoryException {
+        return repositoryApi.getLatestVersionOfDatastream(pid, KnownDatastreams.AUDIO_MP3.toString());
+    }
+
+    @Override
     public boolean isAudioOggAvailable(String pid) throws IOException, RepositoryException {
         return repositoryApi.datastreamExists(pid, KnownDatastreams.AUDIO_OGG.toString());
     }
 
     @Override
+    public String getAudioOggMimetype(String pid) throws IOException, RepositoryException {
+        return repositoryApi.getDatastreamMimetype(pid, KnownDatastreams.AUDIO_OGG.toString());
+    }
+
+    @Override
+    public InputStream getAudioOgg(String pid) throws IOException, RepositoryException {
+        return repositoryApi.getLatestVersionOfDatastream(pid, KnownDatastreams.AUDIO_OGG.toString());
+    }
+
+    @Override
     public boolean isAudioWavAvailable(String pid) throws IOException, RepositoryException {
         return repositoryApi.datastreamExists(pid, KnownDatastreams.AUDIO_WAV.toString());
+    }
+
+    @Override
+    public String getAudioWavMimetype(String pid) throws IOException, RepositoryException {
+        return repositoryApi.getDatastreamMimetype(pid, KnownDatastreams.AUDIO_WAV.toString());
+    }
+
+    @Override
+    public InputStream getAudioWav(String pid) throws IOException, RepositoryException {
+        return repositoryApi.getLatestVersionOfDatastream(pid, KnownDatastreams.AUDIO_WAV.toString());
     }
 
     @Override
