@@ -540,12 +540,12 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--<field name="n.own_children_pids" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="n.foster_children_pids" type="string" indexed="true" stored="true" multiValued="true"/>-->
 
-        <!--TODO: v produkci vyhodit, jen docasne-->
+        <!--legacy fields-->
         <!--paths - all arrays-->
-        <field name="pid_path" type="pid_path" indexed="true" stored="true" multiValued="true"/>
-        <field name="model_path" type="text_path" indexed="true" stored="true" multiValued="true"/>
+        <!--<field name="pid_path" type="pid_path" indexed="true" stored="true" multiValued="true"/>-->
+        <!--<field name="model_path" type="text_path" indexed="true" stored="true" multiValued="true"/>-->
         <!--level-->
-        <field name="level" type="int" indexed="true" stored="true"/>
+        <!--<field name="level" type="int" indexed="true" stored="true"/>-->
 
 
         <!--DATES -->

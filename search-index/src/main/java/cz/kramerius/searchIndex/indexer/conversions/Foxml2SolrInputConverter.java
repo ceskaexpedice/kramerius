@@ -155,24 +155,24 @@ public class Foxml2SolrInputConverter {
                     addSolrField(solrInput, "n.foster_children_pids", fosterChild);
                 }
             }*/
-            //TODO: deprecated, jen pro testovani a dokud se neprizpusobi staty klient, do produkce zrusit
-            //TODO: vsechny tri maji byt pole s own_parent path prvni a ostatni pathy nasledujici
+            //deprecated, jen pro testovani a dokud se neprizpusobi stary klient, do produkce zrusit
+            //vsechny tri maji byt pole s own_parent path prvni a ostatni pathy nasledujici
             //addSolrField(solrInput, "parent_pid", repositoryNode.getParentPid());
-            addSolrField(solrInput, "pid_path", repositoryNode.getPidPath());
-            addSolrField(solrInput, "model_path", repositoryNode.getModelPath());
-            if (repositoryNode.getPidsOfFosterParents() != null) {
+            //addSolrField(solrInput, "pid_path", repositoryNode.getPidPath());
+            //addSolrField(solrInput, "model_path", repositoryNode.getModelPath());
+            /*if (repositoryNode.getPidsOfFosterParents() != null) {
                 for (String fosterParent : repositoryNode.getPidsOfFosterParents()) {
                     RepositoryNode fosterParentNode = nodeManager.getKrameriusNode(fosterParent);
                     //addSolrField(solrInput, "parent_pid", fosterParent);
                     addSolrField(solrInput, "pid_path", fosterParentNode.getPidPath() + "/" + pid);
                     addSolrField(solrInput, "model_path", fosterParentNode.getModelPath() + "/" + model);
                 }
-            }
+            }*/
             //level je uroven ve vlastnim strome, pocitano od 0
-            if (repositoryNode.getModelPath() != null) {
+            /*if (repositoryNode.getModelPath() != null) {
                 Integer level = repositoryNode.getModelPath().split("/").length - 1;
                 addSolrField(solrInput, "level", level.toString());
-            }
+            }*/
         }
 
         //titles
