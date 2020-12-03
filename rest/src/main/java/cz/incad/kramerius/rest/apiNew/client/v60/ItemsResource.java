@@ -62,7 +62,7 @@ public class ItemsResource extends ClientApiResource {
     // GET/HEAD {pid}/metadata/dc
     // GET/HEAD {pid}/ocr/text
     // GET/HEAD {pid}/ocr/alto
-    // GET      {pid}/image             - obsah IMG_FULL konkrétního objektu
+    // GET/HEAD {pid}/image             - obsah IMG_FULL konkrétního objektu
     // GET      {pid}/image/thumb       - IMG_THUMB objektu nebo potomka
     // GET      {pid}/image/preview     - IMG_PREVIEW objektu nebo potomka
     // TODO: zvukova data
@@ -334,6 +334,17 @@ public class ItemsResource extends ClientApiResource {
         } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    /**
+     * Zkontroluje existenci a právo čtení datastraemu IMG_FULL
+     */
+    @HEAD
+    @Path("{pid}/image")
+    public Response isImgFullAvailable(@PathParam("pid") String pid) {
+        //TODO: autorizace podle zdroje přístupu, POLICY apod.
+        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_FULL);
+        return Response.ok().build();
     }
 
     /***
