@@ -18,7 +18,6 @@ package cz.incad.Kramerius.audio.servlet;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioStreamForwardUtils;
@@ -28,24 +27,23 @@ import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.User;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * Audio proxy servlet. Implements byte-serving of audio files. Since Fedora is
  * not capable of byte-serving (in version 4.6), this servlet cannot access
  * Fedora directly. The actual content of files to be served is stored in
- * exteranll audio repository. Track objects in Fedora contain audio datastreams
+ * external audio repository. Objects in Fedora (model:track) contain audio datastreams
  * (MP3 and/or OGG and/or WAV) that are externally referenced datastreams with
  * url to audio repository. Mapping PID+dsID -> URL is realized by
  * RepositoryUrlManager. So this servlet is proxy that also authorizes requestes
- * to resources. 
+ * to resources.
  * Request: Client -> Audio proxy (gets URL from RepositoryUrlManager) -> external Audio repository
  * Response: Client <- Audio proxy <- external Audio repository
  *
@@ -55,13 +53,13 @@ public class AudioProxyServlet extends GuiceServlet {
 
     private static final Logger LOGGER = Logger.getLogger(AudioProxyServlet.class.getName());
 
-	@Inject
+    @Inject
     RightsResolver rightsResolver;
     @Inject
     SolrAccess solrAccess;
     @Inject
     Provider<User> userProvider;
-    
+
 
     @Inject
     RepositoryUrlManager urlManager;
@@ -83,29 +81,29 @@ public class AudioProxyServlet extends GuiceServlet {
      * Handles the HTTP
      * <code>GET</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        AudioStreamForwardUtils.GET(AudioStreamId.fromPathInfo(request.getPathInfo()), request, response, this.solrAccess, this.userProvider.get(),this.rightsResolver, this.urlManager);
+        AudioStreamForwardUtils.GET(AudioStreamId.fromPathInfo(request.getPathInfo()), request, response, this.solrAccess, this.userProvider.get(), this.rightsResolver, this.urlManager);
     }
 
     /**
      * Handles the HTTP
      * <code>HEAD</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        AudioStreamForwardUtils.HEAD(AudioStreamId.fromPathInfo(request.getPathInfo()), request, response,this.solrAccess, this.userProvider.get(),this.rightsResolver, this.urlManager);
+        AudioStreamForwardUtils.HEAD(AudioStreamId.fromPathInfo(request.getPathInfo()), request, response, this.solrAccess, this.userProvider.get(), this.rightsResolver, this.urlManager);
     }
 
     /**

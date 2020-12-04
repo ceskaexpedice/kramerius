@@ -22,8 +22,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -425,7 +427,7 @@ public class ItemsResource extends ClientApiResource {
     public Response isAudioMp3Available(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3);
-        return Response.ok().build();
+        return Response.ok().header("Accept-Ranges", "bytes").build();
     }
 
     /***
@@ -435,19 +437,48 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/audio/mp3")
     public Response getAudioMp3(@PathParam("pid") String pid) {
-        //TODO: test Content-Range
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3);
             String mimeType = krameriusRepositoryApi.getAudioMp3Mimetype(pid);
-            InputStream is = krameriusRepositoryApi.getAudioMp3(pid);
-            StreamingOutput stream = output -> {
-                IOUtils.copy(is, output);
+            String headerRange = requestProvider.get().getHeader("Range");
+            boolean rangeEmpty = headerRange == null || headerRange.isEmpty();
+            boolean rangeSupported = !rangeEmpty && headerRange.matches("bytes=\\d*-\\d*");//|| hdrRange.matches("bytes=0-\\d+");
+            if (rangeEmpty || !rangeSupported) { //without Range or Range ignored
+                InputStream is = krameriusRepositoryApi.getAudioMp3(pid);
+                StreamingOutput stream = output -> {
+                    IOUtils.copy(is, output);
+                    IOUtils.closeQuietly(is);
+                };
+                return Response.ok().entity(stream).type(mimeType)
+                        .header("Accept-Ranges", "bytes")
+                        .build();
+            } else { //within Range
+                InputStream is = krameriusRepositoryApi.getAudioMp3(pid);
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                int totalSize = IOUtils.copy(is, buffer);
                 IOUtils.closeQuietly(is);
-            };
-            return Response.ok().entity(stream).type(mimeType).build();
-        } catch (RepositoryException |
-                IOException e) {
+                //this should be cached (in Akubra?), following requests with Range will very probably follow
+                byte[] dataComplete = buffer.toByteArray();
+
+                Integer start = 0;
+                Integer end = dataComplete.length;
+                String[] rangeItems = headerRange.substring(("bytes=".length())).split("-");
+                if (!rangeItems[0].equals("")) {
+                    start = Integer.valueOf(rangeItems[0]);
+                }
+                if (rangeItems.length == 2 && !rangeItems[1].equals("")) {
+                    start = Integer.valueOf(rangeItems[1]);
+                }
+                byte[] dataInRange = Arrays.copyOfRange(dataComplete, start, end);
+                return Response.status(206).entity(dataInRange)
+                        .header("Accept-Ranges", "bytes")
+                        .header("Content-Range", String.format("bytes %d-%d/%d", start, end, totalSize))
+                        .header("Content-Length", end - start)
+                        .type(mimeType).build();
+            }
+        } catch (RepositoryException | IOException e) {
+            e.printStackTrace();
             throw new InternalErrorException(e.getMessage());
         }
     }
