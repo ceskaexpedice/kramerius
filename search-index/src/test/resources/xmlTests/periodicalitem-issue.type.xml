@@ -11,8 +11,8 @@
             <genre type="normal">issue</genre>
         </in>
         <out>
-            <field name="n.issue.type.code">normal</field>
-            <field name="n.issue.type.sort">0</field>
+            <field name="issue.type.code">normal</field>
+            <field name="issue.type.sort">0</field>
         </out>
     </test>
 
@@ -22,8 +22,8 @@
             <genre type="morning">issue</genre>
         </in>
         <out>
-            <field name="n.issue.type.code">morning</field>
-            <field name="n.issue.type.sort">1</field>
+            <field name="issue.type.code">morning</field>
+            <field name="issue.type.sort">1</field>
         </out>
     </test>
 
@@ -33,8 +33,8 @@
             <genre type="afternoon">issue</genre>
         </in>
         <out>
-            <field name="n.issue.type.code">afternoon</field>
-            <field name="n.issue.type.sort">2</field>
+            <field name="issue.type.code">afternoon</field>
+            <field name="issue.type.sort">2</field>
         </out>
     </test>
 
@@ -44,8 +44,8 @@
             <genre type="evening">issue</genre>
         </in>
         <out>
-            <field name="n.issue.type.code">evening</field>
-            <field name="n.issue.type.sort">3</field>
+            <field name="issue.type.code">evening</field>
+            <field name="issue.type.sort">3</field>
         </out>
     </test>
 
@@ -55,8 +55,8 @@
             <genre type="sequence_3">issue</genre>
         </in>
         <out>
-            <field name="n.issue.type.code">sequence_3</field>
-            <field name="n.issue.type.sort">13</field>
+            <field name="issue.type.code">sequence_3</field>
+            <field name="issue.type.sort">13</field>
         </out>
     </test>
 
@@ -71,8 +71,8 @@
             </physicalDescription>
         </in>
         <out>
-            <field name="n.issue.type.code">morning</field>
-            <field name="n.issue.type.sort">1</field>
+            <field name="issue.type.code">morning</field>
+            <field name="issue.type.sort">1</field>
         </out>
     </test>
 
@@ -86,8 +86,8 @@
             </physicalDescription>
         </in>
         <out>
-            <field name="n.issue.type.code">morning</field>
-            <field name="n.issue.type.sort">1</field>
+            <field name="issue.type.code">morning</field>
+            <field name="issue.type.sort">1</field>
         </out>
     </test>
 
@@ -101,8 +101,8 @@
             </physicalDescription>
         </in>
         <out>
-            <field name="n.issue.type.code">morning</field>
-            <field name="n.issue.type.sort">1</field>
+            <field name="issue.type.code">morning</field>
+            <field name="issue.type.sort">1</field>
         </out>
     </test>
 
@@ -116,8 +116,8 @@
             </physicalDescription>
         </in>
         <out>
-            <field name="n.issue.type.code">afternoon</field>
-            <field name="n.issue.type.sort">2</field>
+            <field name="issue.type.code">afternoon</field>
+            <field name="issue.type.sort">2</field>
         </out>
     </test>
 
@@ -131,8 +131,8 @@
             </physicalDescription>
         </in>
         <out>
-            <field name="n.issue.type.code">afternoon</field>
-            <field name="n.issue.type.sort">2</field>
+            <field name="issue.type.code">afternoon</field>
+            <field name="issue.type.sort">2</field>
         </out>
     </test>
 

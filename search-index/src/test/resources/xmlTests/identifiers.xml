@@ -6,7 +6,7 @@
             <identifier type="urnnbn">urn:nbn:cz:nk-000ktg</identifier>
         </in>
         <out>
-            <field name="n.id_urnnbn">urn:nbn:cz:nk-000ktg</field>
+            <field name="id_urnnbn">urn:nbn:cz:nk-000ktg</field>
         </out>
     </test>
 
@@ -16,7 +16,7 @@
             <identifier type="URNNBN">urn:nbn:cz:nk-000ktg</identifier>
         </in>
         <out>
-            <field name="n.id_urnnbn">urn:nbn:cz:nk-000ktg</field>
+            <field name="id_urnnbn">urn:nbn:cz:nk-000ktg</field>
         </out>
     </test>
 
@@ -26,7 +26,7 @@
             <identifier type="urnnbn">URN:NBN:CZ:NK-000KTG</identifier>
         </in>
         <out>
-            <field name="n.id_urnnbn">urn:nbn:cz:nk-000ktg</field>
+            <field name="id_urnnbn">urn:nbn:cz:nk-000ktg</field>
         </out>
     </test>
 
@@ -36,7 +36,7 @@
             <identifier type="urnnbn">urnnbn:urn:nbn:cz:nk-000ktg</identifier>
         </in>
         <out>
-            <field name="n.id_urnnbn">urn:nbn:cz:nk-000ktg</field>
+            <field name="id_urnnbn">urn:nbn:cz:nk-000ktg</field>
         </out>
     </test>
 
@@ -47,7 +47,7 @@
             <identifier type="ccnb">cnb000532499</identifier>
         </in>
         <out>
-            <field name="n.id_ccnb">cnb000532499</field>
+            <field name="id_ccnb">cnb000532499</field>
         </out>
     </test>
 
@@ -57,7 +57,7 @@
             <identifier type="ccnb">CNB000532499</identifier>
         </in>
         <out>
-            <field name="n.id_ccnb">cnb000532499</field>
+            <field name="id_ccnb">cnb000532499</field>
         </out>
     </test>
 
@@ -67,7 +67,7 @@
             <identifier type="cnb">cnb000532499</identifier>
         </in>
         <out>
-            <field name="n.id_ccnb">cnb000532499</field>
+            <field name="id_ccnb">cnb000532499</field>
         </out>
     </test>
 
@@ -77,7 +77,7 @@
             <identifier type="čnb">cnb000532499</identifier>
         </in>
         <out>
-            <field name="n.id_ccnb">cnb000532499</field>
+            <field name="id_ccnb">cnb000532499</field>
         </out>
     </test>
 
@@ -87,7 +87,7 @@
             <identifier type="ččnb">cnb000532499</identifier>
         </in>
         <out>
-            <field name="n.id_ccnb">cnb000532499</field>
+            <field name="id_ccnb">cnb000532499</field>
         </out>
     </test>
 
@@ -97,7 +97,7 @@
             <identifier type="CNB">cnb000532499</identifier>
         </in>
         <out>
-            <field name="n.id_ccnb">cnb000532499</field>
+            <field name="id_ccnb">cnb000532499</field>
         </out>
     </test>
 
@@ -107,7 +107,7 @@
             <identifier type="ČNB">cnb000532499</identifier>
         </in>
         <out>
-            <field name="n.id_ccnb">cnb000532499</field>
+            <field name="id_ccnb">cnb000532499</field>
         </out>
     </test>
 
@@ -117,7 +117,7 @@
             <identifier type="ČČNB">cnb000532499</identifier>
         </in>
         <out>
-            <field name="n.id_ccnb">cnb000532499</field>
+            <field name="id_ccnb">cnb000532499</field>
         </out>
     </test>
 
@@ -127,7 +127,7 @@
             <identifier type="ccnb">ccnb:cnb000532499</identifier>
         </in>
         <out>
-            <field name="n.id_ccnb">cnb000532499</field>
+            <field name="id_ccnb">cnb000532499</field>
         </out>
     </test>
 
@@ -137,7 +137,7 @@
             <identifier type="ccnb">cnb:cnb000532499</identifier>
         </in>
         <out>
-            <field name="n.id_ccnb">cnb000532499</field>
+            <field name="id_ccnb">cnb000532499</field>
         </out>
     </test>
 
@@ -147,7 +147,7 @@
             <identifier type="ccnb">ččnb:cnb000532499</identifier>
         </in>
         <out>
-            <field name="n.id_ccnb">cnb000532499</field>
+            <field name="id_ccnb">cnb000532499</field>
         </out>
     </test>
 
@@ -157,7 +157,7 @@
             <identifier type="ccnb">čnb:cnb000532499</identifier>
         </in>
         <out>
-            <field name="n.id_ccnb">cnb000532499</field>
+            <field name="id_ccnb">cnb000532499</field>
         </out>
     </test>
 
@@ -168,7 +168,7 @@
             <identifier type="isbn">80-7050-020-4</identifier>
         </in>
         <out>
-            <field name="n.id_isbn">80-7050-020-4</field>
+            <field name="id_isbn">80-7050-020-4</field>
         </out>
     </test>
 
@@ -178,7 +178,7 @@
             <identifier type="ISBN">80-7050-020-4</identifier>
         </in>
         <out>
-            <field name="n.id_isbn">80-7050-020-4</field>
+            <field name="id_isbn">80-7050-020-4</field>
         </out>
     </test>
 
@@ -188,7 +188,7 @@
             <identifier type="isbn">isbn:80-7050-020-4</identifier>
         </in>
         <out>
-            <field name="n.id_isbn">80-7050-020-4</field>
+            <field name="id_isbn">80-7050-020-4</field>
         </out>
     </test>
 
@@ -199,7 +199,7 @@
             <identifier type="issn">0862-1985</identifier>
         </in>
         <out>
-            <field name="n.id_issn">0862-1985</field>
+            <field name="id_issn">0862-1985</field>
         </out>
     </test>
 
@@ -209,7 +209,7 @@
             <identifier type="ISSN">0862-1985</identifier>
         </in>
         <out>
-            <field name="n.id_issn">0862-1985</field>
+            <field name="id_issn">0862-1985</field>
         </out>
     </test>
 
@@ -219,7 +219,7 @@
             <identifier type="issn">issn:0862-1985</identifier>
         </in>
         <out>
-            <field name="n.id_issn">0862-1985</field>
+            <field name="id_issn">0862-1985</field>
         </out>
     </test>
 
@@ -230,7 +230,7 @@
             <identifier type="ismn">m-2600-0120-6</identifier>
         </in>
         <out>
-            <field name="n.id_ismn">m-2600-0120-6</field>
+            <field name="id_ismn">m-2600-0120-6</field>
         </out>
     </test>
 
@@ -240,7 +240,7 @@
             <identifier type="ISMN">m-2600-0120-6</identifier>
         </in>
         <out>
-            <field name="n.id_ismn">m-2600-0120-6</field>
+            <field name="id_ismn">m-2600-0120-6</field>
         </out>
     </test>
 
@@ -250,7 +250,7 @@
             <identifier type="ismn">ismn:m-2600-0120-6</identifier>
         </in>
         <out>
-            <field name="n.id_ismn">m-2600-0120-6</field>
+            <field name="id_ismn">m-2600-0120-6</field>
         </out>
     </test>
 
@@ -260,7 +260,7 @@
             <identifier type="ismn">M-2600-0120-6</identifier>
         </in>
         <out>
-            <field name="n.id_ismn">m-2600-0120-6</field>
+            <field name="id_ismn">m-2600-0120-6</field>
         </out>
     </test>
 
@@ -271,7 +271,7 @@
             <identifier type="barCode">1000343379</identifier>
         </in>
         <out>
-            <field name="n.id_barcode">1000343379</field>
+            <field name="id_barcode">1000343379</field>
         </out>
     </test>
 
@@ -281,7 +281,7 @@
             <identifier type="barCode">barCode:1000343379</identifier>
         </in>
         <out>
-            <field name="n.id_barcode">1000343379</field>
+            <field name="id_barcode">1000343379</field>
         </out>
     </test>
 
@@ -292,7 +292,7 @@
             <identifier type="uuid">6d4c67d0-0f24-11e3-9923-005056827e52</identifier>
         </in>
         <out>
-            <field name="n.id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
+            <field name="id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
         </out>
     </test>
 
@@ -302,7 +302,7 @@
             <identifier type="uuid">6D4C67D0-0F24-11E3-9923-005056827E52</identifier>
         </in>
         <out>
-            <field name="n.id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
+            <field name="id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
         </out>
     </test>
 
@@ -312,7 +312,7 @@
             <identifier type="UUID">6d4c67d0-0f24-11e3-9923-005056827e52</identifier>
         </in>
         <out>
-            <field name="n.id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
+            <field name="id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
         </out>
     </test>
 
@@ -322,7 +322,7 @@
             <identifier type="uuid">uuid:6d4c67d0-0f24-11e3-9923-005056827e52</identifier>
         </in>
         <out>
-            <field name="n.id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
+            <field name="id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
         </out>
     </test>
 
@@ -332,7 +332,7 @@
             <identifier type="uuid">UUID:6d4c67d0-0f24-11e3-9923-005056827e52</identifier>
         </in>
         <out>
-            <field name="n.id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
+            <field name="id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
         </out>
     </test>
 
@@ -342,7 +342,7 @@
             <identifier type="sysno">000549155</identifier>
         </in>
         <out>
-            <field name="n.id_sysno">000549155</field>
+            <field name="id_sysno">000549155</field>
         </out>
     </test>
 
@@ -352,7 +352,7 @@
             <identifier type="SYSNO">000549155</identifier>
         </in>
         <out>
-            <field name="n.id_sysno">000549155</field>
+            <field name="id_sysno">000549155</field>
         </out>
     </test>
 
@@ -362,7 +362,7 @@
             <identifier type="sysno">sysno:000549155</identifier>
         </in>
         <out>
-            <field name="n.id_sysno">000549155</field>
+            <field name="id_sysno">000549155</field>
         </out>
     </test>
 
@@ -372,7 +372,7 @@
             <identifier type="sysno">SYSNO:000549155</identifier>
         </in>
         <out>
-            <field name="n.id_sysno">000549155</field>
+            <field name="id_sysno">000549155</field>
         </out>
     </test>
 
@@ -383,7 +383,7 @@
             <identifier type="oclc">84987580</identifier>
         </in>
         <out>
-            <field name="n.id_oclc">84987580</field>
+            <field name="id_oclc">84987580</field>
         </out>
     </test>
 
@@ -393,7 +393,7 @@
             <identifier type="OCLC">84987580</identifier>
         </in>
         <out>
-            <field name="n.id_oclc">84987580</field>
+            <field name="id_oclc">84987580</field>
         </out>
     </test>
 
@@ -403,7 +403,7 @@
             <identifier type="oclc">oclc:84987580</identifier>
         </in>
         <out>
-            <field name="n.id_oclc">84987580</field>
+            <field name="id_oclc">84987580</field>
         </out>
     </test>
 
@@ -414,7 +414,7 @@
             <identifier>123</identifier>
         </in>
         <out>
-            <field name="n.id_other">123</field>
+            <field name="id_other">123</field>
         </out>
     </test>
 
@@ -424,7 +424,7 @@
             <identifier>aBc:123</identifier>
         </in>
         <out>
-            <field name="n.id_other">aBc:123</field>
+            <field name="id_other">aBc:123</field>
         </out>
     </test>
 

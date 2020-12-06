@@ -11,11 +11,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">partName</field>
+            <field name="part.name">partName</field>
 
-            <field name="n.title.search">title: subtitle. partNumber. partName</field>
-            <field name="n.title.sort">TITLE SUBTITLE PARTNUMBER PARTNAME</field>
-            <field name="n.titles.search">title: subtitle. partNumber. partName</field>
+            <field name="title.search">title: subtitle. partNumber. partName</field>
+            <field name="title.sort">TITLE SUBTITLE PARTNUMBER PARTNAME</field>
+            <field name="titles.search">title: subtitle. partNumber. partName</field>
         </out>
     </test>
 
@@ -29,9 +29,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">title: subtitle. partNumber</field>
-            <field name="n.title.sort">TITLE SUBTITLE PARTNUMBER</field>
-            <field name="n.titles.search">title: subtitle. partNumber</field>
+            <field name="title.search">title: subtitle. partNumber</field>
+            <field name="title.sort">TITLE SUBTITLE PARTNUMBER</field>
+            <field name="titles.search">title: subtitle. partNumber</field>
         </out>
     </test>
 
@@ -45,11 +45,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">partName</field>
+            <field name="part.name">partName</field>
 
-            <field name="n.title.search">title: subtitle. partName</field>
-            <field name="n.title.sort">TITLE SUBTITLE PARTNAME</field>
-            <field name="n.titles.search">title: subtitle. partName</field>
+            <field name="title.search">title: subtitle. partName</field>
+            <field name="title.sort">TITLE SUBTITLE PARTNAME</field>
+            <field name="titles.search">title: subtitle. partName</field>
         </out>
     </test>
 
@@ -63,11 +63,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">partName</field>
+            <field name="part.name">partName</field>
 
-            <field name="n.title.search">title. partNumber. partName</field>
-            <field name="n.title.sort">TITLE PARTNUMBER PARTNAME</field>
-            <field name="n.titles.search">title. partNumber. partName</field>
+            <field name="title.search">title. partNumber. partName</field>
+            <field name="title.sort">TITLE PARTNUMBER PARTNAME</field>
+            <field name="titles.search">title. partNumber. partName</field>
         </out>
     </test>
 
@@ -81,11 +81,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">partName</field>
+            <field name="part.name">partName</field>
 
-            <field name="n.title.search">subtitle. partNumber. partName</field>
-            <field name="n.title.sort">SUBTITLE PARTNUMBER PARTNAME</field>
-            <field name="n.titles.search">subtitle. partNumber. partName</field>
+            <field name="title.search">subtitle. partNumber. partName</field>
+            <field name="title.sort">SUBTITLE PARTNUMBER PARTNAME</field>
+            <field name="titles.search">subtitle. partNumber. partName</field>
         </out>
     </test>
 
@@ -98,9 +98,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Když slunéčko svítí: verše</field>
-            <field name="n.title.sort">KDYZ| SLUNE|C|KO SVI|TI| VERS|E</field>
-            <field name="n.titles.search">Když slunéčko svítí: verše</field>
+            <field name="title.search">Když slunéčko svítí: verše</field>
+            <field name="title.sort">KDYZ| SLUNE|C|KO SVI|TI| VERS|E</field>
+            <field name="titles.search">Když slunéčko svítí: verše</field>
         </out>
     </test>
 
@@ -113,9 +113,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Tři mušketýři. Díl II</field>
-            <field name="n.title.sort">TR|I MUS|KETY|R|I DI|L II</field>
-            <field name="n.titles.search">Tři mušketýři. Díl II</field>
+            <field name="title.search">Tři mušketýři. Díl II</field>
+            <field name="title.sort">TR|I MUS|KETY|R|I DI|L II</field>
+            <field name="titles.search">Tři mušketýři. Díl II</field>
         </out>
     </test>
 
@@ -128,11 +128,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">partName</field>
+            <field name="part.name">partName</field>
 
-            <field name="n.title.search">title. partName</field>
-            <field name="n.title.sort">TITLE PARTNAME</field>
-            <field name="n.titles.search">title. partName</field>
+            <field name="title.search">title. partName</field>
+            <field name="title.sort">TITLE PARTNAME</field>
+            <field name="titles.search">title. partName</field>
         </out>
     </test>
 
@@ -145,9 +145,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">subtitle. partNumber</field>
-            <field name="n.title.sort">SUBTITLE PARTNUMBER</field>
-            <field name="n.titles.search">subtitle. partNumber</field>
+            <field name="title.search">subtitle. partNumber</field>
+            <field name="title.sort">SUBTITLE PARTNUMBER</field>
+            <field name="titles.search">subtitle. partNumber</field>
         </out>
     </test>
 
@@ -160,11 +160,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">partName</field>
+            <field name="part.name">partName</field>
 
-            <field name="n.title.search">subtitle. partName</field>
-            <field name="n.title.sort">SUBTITLE PARTNAME</field>
-            <field name="n.titles.search">subtitle. partName</field>
+            <field name="title.search">subtitle. partName</field>
+            <field name="title.sort">SUBTITLE PARTNAME</field>
+            <field name="titles.search">subtitle. partName</field>
         </out>
     </test>
 
@@ -177,11 +177,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">PartName</field>
+            <field name="part.name">PartName</field>
 
-            <field name="n.title.search">PartNumber. PartName</field>
-            <field name="n.title.sort">PARTNUMBER PARTNAME</field>
-            <field name="n.titles.search">PartNumber. PartName</field>
+            <field name="title.search">PartNumber. PartName</field>
+            <field name="title.sort">PARTNUMBER PARTNAME</field>
+            <field name="titles.search">PartNumber. PartName</field>
         </out>
     </test>
 
@@ -193,9 +193,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Babička</field>
-            <field name="n.title.sort">BABIC|KA</field>
-            <field name="n.titles.search">Babička</field>
+            <field name="title.search">Babička</field>
+            <field name="title.sort">BABIC|KA</field>
+            <field name="titles.search">Babička</field>
         </out>
     </test>
 
@@ -207,9 +207,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">život štěněte</field>
-            <field name="n.title.sort">Z|IVOT S|TE|NE|TE</field>
-            <field name="n.titles.search">život štěněte</field>
+            <field name="title.search">život štěněte</field>
+            <field name="title.sort">Z|IVOT S|TE|NE|TE</field>
+            <field name="titles.search">život štěněte</field>
         </out>
     </test>
 
@@ -221,9 +221,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">23</field>
-            <field name="n.title.sort">23</field>
-            <field name="n.titles.search">23</field>
+            <field name="title.search">23</field>
+            <field name="title.sort">23</field>
+            <field name="titles.search">23</field>
         </out>
     </test>
 
@@ -235,11 +235,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">Chvála bláznovství</field>
+            <field name="part.name">Chvála bláznovství</field>
 
-            <field name="n.title.search">Chvála bláznovství</field>
-            <field name="n.title.sort">H|VA|LA BLA|ZNOVSTVI|</field>
-            <field name="n.titles.search">Chvála bláznovství</field>
+            <field name="title.search">Chvála bláznovství</field>
+            <field name="title.sort">H|VA|LA BLA|ZNOVSTVI|</field>
+            <field name="titles.search">Chvála bláznovství</field>
         </out>
     </test>
 
@@ -256,9 +256,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">The Babička</field>
-            <field name="n.title.sort">BABIC|KA</field>
-            <field name="n.titles.search">The Babička</field>
+            <field name="title.search">The Babička</field>
+            <field name="title.sort">BABIC|KA</field>
+            <field name="titles.search">The Babička</field>
         </out>
     </test>
 
@@ -272,9 +272,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">L'Když slunéčko svítí: verše</field>
-            <field name="n.title.sort">KDYZ| SLUNE|C|KO SVI|TI| VERS|E</field>
-            <field name="n.titles.search">L'Když slunéčko svítí: verše</field>
+            <field name="title.search">L'Když slunéčko svítí: verše</field>
+            <field name="title.sort">KDYZ| SLUNE|C|KO SVI|TI| VERS|E</field>
+            <field name="titles.search">L'Když slunéčko svítí: verše</field>
         </out>
     </test>
 
@@ -288,9 +288,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Los Tři mušketýři. Díl II</field>
-            <field name="n.title.sort">TR|I MUS|KETY|R|I DI|L II</field>
-            <field name="n.titles.search">Los Tři mušketýři. Díl II</field>
+            <field name="title.search">Los Tři mušketýři. Díl II</field>
+            <field name="title.sort">TR|I MUS|KETY|R|I DI|L II</field>
+            <field name="titles.search">Los Tři mušketýři. Díl II</field>
         </out>
     </test>
 
@@ -306,11 +306,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">PartName</field>
+            <field name="part.name">PartName</field>
 
-            <field name="n.title.search">NonSort Title: Subtitle. PartNumber. PartName</field>
-            <field name="n.title.sort">TITLE SUBTITLE PARTNUMBER PARTNAME</field>
-            <field name="n.titles.search">NonSort Title: Subtitle. PartNumber. PartName</field>
+            <field name="title.search">NonSort Title: Subtitle. PartNumber. PartName</field>
+            <field name="title.sort">TITLE SUBTITLE PARTNUMBER PARTNAME</field>
+            <field name="titles.search">NonSort Title: Subtitle. PartNumber. PartName</field>
         </out>
     </test>
 
@@ -325,11 +325,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">PartName</field>
+            <field name="part.name">PartName</field>
 
-            <field name="n.title.search">NonSort Title: Subtitle. PartName</field>
-            <field name="n.title.sort">TITLE SUBTITLE PARTNAME</field>
-            <field name="n.titles.search">NonSort Title: Subtitle. PartName</field>
+            <field name="title.search">NonSort Title: Subtitle. PartName</field>
+            <field name="title.sort">TITLE SUBTITLE PARTNAME</field>
+            <field name="titles.search">NonSort Title: Subtitle. PartName</field>
         </out>
     </test>
 
@@ -344,9 +344,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">NonSort Title: Subtitle. PartNumber</field>
-            <field name="n.title.sort">TITLE SUBTITLE PARTNUMBER</field>
-            <field name="n.titles.search">NonSort Title: Subtitle. PartNumber</field>
+            <field name="title.search">NonSort Title: Subtitle. PartNumber</field>
+            <field name="title.sort">TITLE SUBTITLE PARTNUMBER</field>
+            <field name="titles.search">NonSort Title: Subtitle. PartNumber</field>
         </out>
     </test>
 
@@ -360,11 +360,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">PartName</field>
+            <field name="part.name">PartName</field>
 
-            <field name="n.title.search">NonSort Title. PartName</field>
-            <field name="n.title.sort">TITLE PARTNAME</field>
-            <field name="n.titles.search">NonSort Title. PartName</field>
+            <field name="title.search">NonSort Title. PartName</field>
+            <field name="title.sort">TITLE PARTNAME</field>
+            <field name="titles.search">NonSort Title. PartName</field>
         </out>
     </test>
 
@@ -386,12 +386,12 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">partName1</field>
+            <field name="part.name">partName1</field>
 
-            <field name="n.title.search">title1: subtitle1. partNumber1. partName1</field>
-            <field name="n.title.sort">TITLE1 SUBTITLE1 PARTNUMBER1 PARTNAME1</field>
-            <field name="n.titles.search">title1: subtitle1. partNumber1. partName1</field>
-            <field name="n.titles.search">title2: subtitle2. partNumber2. partName2</field>
+            <field name="title.search">title1: subtitle1. partNumber1. partName1</field>
+            <field name="title.sort">TITLE1 SUBTITLE1 PARTNUMBER1 PARTNAME1</field>
+            <field name="titles.search">title1: subtitle1. partNumber1. partName1</field>
+            <field name="titles.search">title2: subtitle2. partNumber2. partName2</field>
         </out>
     </test>
 
@@ -412,12 +412,12 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">title1</field>
-            <field name="n.title.sort">TITLE1</field>
-            <field name="n.titles.search">title1</field>
-            <field name="n.titles.search">title2</field>
-            <field name="n.titles.search">title3</field>
-            <field name="n.titles.search">title4</field>
+            <field name="title.search">title1</field>
+            <field name="title.sort">TITLE1</field>
+            <field name="titles.search">title1</field>
+            <field name="titles.search">title2</field>
+            <field name="titles.search">title3</field>
+            <field name="titles.search">title4</field>
         </out>
     </test>
 
@@ -435,11 +435,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">titleZ</field>
-            <field name="n.title.sort">TITLEZ</field>
-            <field name="n.titles.search">titleZ</field>
-            <field name="n.titles.search">titleA</field>
-            <field name="n.titles.search">titleP</field>
+            <field name="title.search">titleZ</field>
+            <field name="title.sort">TITLEZ</field>
+            <field name="titles.search">titleZ</field>
+            <field name="titles.search">titleA</field>
+            <field name="titles.search">titleP</field>
         </out>
     </test>
 
@@ -460,12 +460,12 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">NoType</field>
-            <field name="n.title.sort">NOTYPE</field>
-            <field name="n.titles.search">Alternative</field>
-            <field name="n.titles.search">Abbreviated</field>
-            <field name="n.titles.search">Translated</field>
-            <field name="n.titles.search">NoType</field>
+            <field name="title.search">NoType</field>
+            <field name="title.sort">NOTYPE</field>
+            <field name="titles.search">Alternative</field>
+            <field name="titles.search">Abbreviated</field>
+            <field name="titles.search">Translated</field>
+            <field name="titles.search">NoType</field>
         </out>
     </test>
 
@@ -480,10 +480,10 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Uniform</field>
-            <field name="n.title.sort">UNIFORM</field>
-            <field name="n.titles.search">NoType</field>
-            <field name="n.titles.search">Uniform</field>
+            <field name="title.search">Uniform</field>
+            <field name="title.sort">UNIFORM</field>
+            <field name="titles.search">NoType</field>
+            <field name="titles.search">Uniform</field>
         </out>
     </test>
 
@@ -495,9 +495,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Alternative</field>
-            <field name="n.title.sort">ALTERNATIVE</field>
-            <field name="n.titles.search">Alternative</field>
+            <field name="title.search">Alternative</field>
+            <field name="title.sort">ALTERNATIVE</field>
+            <field name="titles.search">Alternative</field>
         </out>
     </test>
 
@@ -509,9 +509,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Abbreviated</field>
-            <field name="n.title.sort">ABBREVIATED</field>
-            <field name="n.titles.search">Abbreviated</field>
+            <field name="title.search">Abbreviated</field>
+            <field name="title.sort">ABBREVIATED</field>
+            <field name="titles.search">Abbreviated</field>
         </out>
     </test>
 
@@ -523,9 +523,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Translated</field>
-            <field name="n.title.sort">TRANSLATED</field>
-            <field name="n.titles.search">Translated</field>
+            <field name="title.search">Translated</field>
+            <field name="title.sort">TRANSLATED</field>
+            <field name="titles.search">Translated</field>
         </out>
     </test>
 
@@ -541,10 +541,10 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Drobnůstky</field>
-            <field name="n.title.sort">DROBNU|STKY</field>
-            <field name="n.titles.search">Drobnůstky</field>
-            <field name="n.titles.search">alternative</field>
+            <field name="title.search">Drobnůstky</field>
+            <field name="title.sort">DROBNU|STKY</field>
+            <field name="titles.search">Drobnůstky</field>
+            <field name="titles.search">alternative</field>
         </out>
     </test>
 
@@ -608,9 +608,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Dárek v zimním večeru: Shakespearova Pohádka zimního večera v pařížském rozhlase</field>
-            <field name="n.title.sort">DA|REK V ZIMNI|M VEC|ERU SHAKESPEAROVA POHA|DKA ZIMNI|HO VEC|ERA V PAR|I|Z|SKE|M ROZHLASE</field>
-            <field name="n.titles.search">Dárek v zimním večeru: Shakespearova Pohádka zimního večera v pařížském rozhlase</field>
+            <field name="title.search">Dárek v zimním večeru: Shakespearova Pohádka zimního večera v pařížském rozhlase</field>
+            <field name="title.sort">DA|REK V ZIMNI|M VEC|ERU SHAKESPEAROVA POHA|DKA ZIMNI|HO VEC|ERA V PAR|I|Z|SKE|M ROZHLASE</field>
+            <field name="titles.search">Dárek v zimním večeru: Shakespearova Pohádka zimního večera v pařížském rozhlase</field>
         </out>
     </test>
 
@@ -622,9 +622,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Dárek v zimním večeru</field>
-            <field name="n.title.sort">DA|REK V ZIMNI|M VEC|ERU</field>
-            <field name="n.titles.search">Dárek v zimním večeru</field>
+            <field name="title.search">Dárek v zimním večeru</field>
+            <field name="title.sort">DA|REK V ZIMNI|M VEC|ERU</field>
+            <field name="titles.search">Dárek v zimním večeru</field>
         </out>
     </test>
 

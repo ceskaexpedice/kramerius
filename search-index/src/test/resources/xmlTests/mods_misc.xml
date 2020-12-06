@@ -9,8 +9,8 @@
             </subject>
         </in>
         <out>
-            <field name="n.keywords.facet">Ekonomie</field>
-            <field name="n.keywords.search">Ekonomie</field>
+            <field name="keywords.facet">Ekonomie</field>
+            <field name="keywords.search">Ekonomie</field>
         </out>
     </test>
 
@@ -24,12 +24,12 @@
             </subject>
         </in>
         <out>
-            <field name="n.keywords.facet">Ekonomie</field>
-            <field name="n.keywords.facet">Mikroekonomie</field>
-            <field name="n.keywords.facet">Makroekonomie</field>
-            <field name="n.keywords.search">Ekonomie</field>
-            <field name="n.keywords.search">Mikroekonomie</field>
-            <field name="n.keywords.search">Makroekonomie</field>
+            <field name="keywords.facet">Ekonomie</field>
+            <field name="keywords.facet">Mikroekonomie</field>
+            <field name="keywords.facet">Makroekonomie</field>
+            <field name="keywords.search">Ekonomie</field>
+            <field name="keywords.search">Mikroekonomie</field>
+            <field name="keywords.search">Makroekonomie</field>
         </out>
     </test>
 
@@ -45,12 +45,12 @@
             </subject>
         </in>
         <out>
-            <field name="n.keywords.facet">Ekonomie</field>
-            <field name="n.keywords.facet">Mikroekonomie</field>
-            <field name="n.keywords.facet">Makroekonomie</field>
-            <field name="n.keywords.search">Ekonomie</field>
-            <field name="n.keywords.search">Mikroekonomie</field>
-            <field name="n.keywords.search">Makroekonomie</field>
+            <field name="keywords.facet">Ekonomie</field>
+            <field name="keywords.facet">Mikroekonomie</field>
+            <field name="keywords.facet">Makroekonomie</field>
+            <field name="keywords.search">Ekonomie</field>
+            <field name="keywords.search">Mikroekonomie</field>
+            <field name="keywords.search">Makroekonomie</field>
         </out>
     </test>
 
@@ -64,12 +64,12 @@
             </subject>
         </in>
         <out>
-            <field name="n.keywords.facet">Ekonomie</field>
-            <field name="n.keywords.facet">Žula</field>
-            <field name="n.keywords.facet">Übermensch</field>
-            <field name="n.keywords.search">ekonomie</field>
-            <field name="n.keywords.search">žula</field>
-            <field name="n.keywords.search">übermensch</field>
+            <field name="keywords.facet">Ekonomie</field>
+            <field name="keywords.facet">Žula</field>
+            <field name="keywords.facet">Übermensch</field>
+            <field name="keywords.search">ekonomie</field>
+            <field name="keywords.search">žula</field>
+            <field name="keywords.search">übermensch</field>
         </out>
     </test>
 
@@ -82,8 +82,8 @@
             </subject>
         </in>
         <out>
-            <field name="n.geographic_names.facet">Brno</field>
-            <field name="n.geographic_names.search">Brno</field>
+            <field name="geographic_names.facet">Brno</field>
+            <field name="geographic_names.search">Brno</field>
         </out>
     </test>
 
@@ -97,12 +97,12 @@
             </subject>
         </in>
         <out>
-            <field name="n.geographic_names.facet">Praha</field>
-            <field name="n.geographic_names.facet">Brno</field>
-            <field name="n.geographic_names.facet">Ostrava</field>
-            <field name="n.geographic_names.search">Praha</field>
-            <field name="n.geographic_names.search">Brno</field>
-            <field name="n.geographic_names.search">Ostrava</field>
+            <field name="geographic_names.facet">Praha</field>
+            <field name="geographic_names.facet">Brno</field>
+            <field name="geographic_names.facet">Ostrava</field>
+            <field name="geographic_names.search">Praha</field>
+            <field name="geographic_names.search">Brno</field>
+            <field name="geographic_names.search">Ostrava</field>
         </out>
     </test>
 
@@ -118,12 +118,12 @@
             </subject>
         </in>
         <out>
-            <field name="n.geographic_names.facet">Praha</field>
-            <field name="n.geographic_names.facet">Brno</field>
-            <field name="n.geographic_names.facet">Ostrava</field>
-            <field name="n.geographic_names.search">Praha</field>
-            <field name="n.geographic_names.search">Brno</field>
-            <field name="n.geographic_names.search">Ostrava</field>
+            <field name="geographic_names.facet">Praha</field>
+            <field name="geographic_names.facet">Brno</field>
+            <field name="geographic_names.facet">Ostrava</field>
+            <field name="geographic_names.search">Praha</field>
+            <field name="geographic_names.search">Brno</field>
+            <field name="geographic_names.search">Ostrava</field>
         </out>
     </test>
 
@@ -139,10 +139,10 @@
             </subject>
         </in>
         <out>
-            <field name="n.geographic_names.facet">Praha</field>
-            <field name="n.geographic_names.search">Praha</field>
-            <field name="n.keywords.facet">Ekonomie</field>
-            <field name="n.keywords.search">Ekonomie</field>
+            <field name="geographic_names.facet">Praha</field>
+            <field name="geographic_names.search">Praha</field>
+            <field name="keywords.facet">Ekonomie</field>
+            <field name="keywords.search">Ekonomie</field>
         </out>
     </test>
 
@@ -155,10 +155,10 @@
             </subject>
         </in>
         <out>
-            <field name="n.geographic_names.facet">Praha</field>
-            <field name="n.geographic_names.search">Praha</field>
-            <field name="n.keywords.facet">Ekonomie</field>
-            <field name="n.keywords.search">Ekonomie</field>
+            <field name="geographic_names.facet">Praha</field>
+            <field name="geographic_names.search">Praha</field>
+            <field name="keywords.facet">Ekonomie</field>
+            <field name="keywords.search">Ekonomie</field>
         </out>
     </test>
 
@@ -179,18 +179,18 @@
             </subject>
         </in>
         <out>
-            <field name="n.geographic_names.facet">Praha</field>
-            <field name="n.geographic_names.facet">Brno</field>
-            <field name="n.geographic_names.facet">Ostrava</field>
-            <field name="n.geographic_names.search">Praha</field>
-            <field name="n.geographic_names.search">Brno</field>
-            <field name="n.geographic_names.search">Ostrava</field>
-            <field name="n.keywords.facet">Ekonomie</field>
-            <field name="n.keywords.facet">Makroekonomie</field>
-            <field name="n.keywords.facet">Mikroekonomie</field>
-            <field name="n.keywords.search">Ekonomie</field>
-            <field name="n.keywords.search">Makroekonomie</field>
-            <field name="n.keywords.search">Mikroekonomie</field>
+            <field name="geographic_names.facet">Praha</field>
+            <field name="geographic_names.facet">Brno</field>
+            <field name="geographic_names.facet">Ostrava</field>
+            <field name="geographic_names.search">Praha</field>
+            <field name="geographic_names.search">Brno</field>
+            <field name="geographic_names.search">Ostrava</field>
+            <field name="keywords.facet">Ekonomie</field>
+            <field name="keywords.facet">Makroekonomie</field>
+            <field name="keywords.facet">Mikroekonomie</field>
+            <field name="keywords.search">Ekonomie</field>
+            <field name="keywords.search">Makroekonomie</field>
+            <field name="keywords.search">Mikroekonomie</field>
         </out>
     </test>
 
@@ -203,7 +203,7 @@
             </location>
         </in>
         <out>
-            <field name="n.physical_locations.facet">BOA001</field>
+            <field name="physical_locations.facet">BOA001</field>
         </out>
     </test>
 
@@ -215,7 +215,7 @@
             </location>
         </in>
         <out>
-            <field name="n.shelf_locators">ABC-0001.xyz</field>
+            <field name="shelf_locators">ABC-0001.xyz</field>
         </out>
     </test>
 
@@ -229,9 +229,9 @@
             </location>
         </in>
         <out>
-            <field name="n.physical_locations.facet">BOA001</field>
-            <field name="n.physical_locations.facet">ABA001</field>
-            <field name="n.shelf_locators">ABC-0001.xyz</field>
+            <field name="physical_locations.facet">BOA001</field>
+            <field name="physical_locations.facet">ABA001</field>
+            <field name="shelf_locators">ABC-0001.xyz</field>
         </out>
     </test>
 
@@ -248,10 +248,10 @@
             </location>
         </in>
         <out>
-            <field name="n.physical_locations.facet">BOA001</field>
-            <field name="n.physical_locations.facet">ABA001</field>
-            <field name="n.shelf_locators">ABC-0002.xyz</field>
-            <field name="n.shelf_locators">ABC-0001.xyz</field>
+            <field name="physical_locations.facet">BOA001</field>
+            <field name="physical_locations.facet">ABA001</field>
+            <field name="shelf_locators">ABC-0002.xyz</field>
+            <field name="shelf_locators">ABC-0001.xyz</field>
         </out>
     </test>
 

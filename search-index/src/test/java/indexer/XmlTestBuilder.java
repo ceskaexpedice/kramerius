@@ -134,15 +134,15 @@ public class XmlTestBuilder {
             );
             SolrInput solrInput = converter.convert(foxmlDoc, null, node, null, null);
             SolrInput cleared = withoutFields(solrInput,
-                    "n.model",
-                    "n.root.pid",
-                    "n.root.title",
-                    "n.root.title.sort",
-                    "n.root.model",
-                    "n.own_pid_path",
-                    "n.own_model_path",
-                    "n.has_tiles",
-                    "n.ds.img_full.mime",
+                    "model",
+                    "root.pid",
+                    "root.title",
+                    "root.title.sort",
+                    "root.model",
+                    "own_pid_path",
+                    "own_model_path",
+                    "has_tiles",
+                    "ds.img_full.mime",
 
                     "fedora.model",
                     "root_pid",
@@ -179,13 +179,13 @@ public class XmlTestBuilder {
             );
             SolrInput solrInput = converter.convert(foxmlDoc, null, node, null, null);
             SolrInput cleared = withoutFields(solrInput,
-                    "n.model",
-                    /*"n.root.pid",
-                    "n.root.title",
-                    "n.root.model",
-                    "n.own_pid_path",
-                    "n.own_model_path",
-                    "n.has_tiles",*/
+                    "model",
+                    /*"root.pid",
+                    "root.title",
+                    "root.model",
+                    "own_pid_path",
+                    "own_model_path",
+                    "has_tiles",*/
 
                     "fedora.model",
                     "root_pid",

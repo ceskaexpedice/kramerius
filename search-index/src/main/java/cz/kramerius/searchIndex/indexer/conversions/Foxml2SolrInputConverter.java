@@ -67,7 +67,7 @@ public class Foxml2SolrInputConverter {
         //PID
         String pid = Dom4jUtils.stringOrNullFromAttributeByXpath(foxmlDoc.getRootElement(), "/digitalObject/@PID");
         if (pid != null) {
-            solrInput.addField("n.pid", pid);
+            solrInput.addField("pid", pid);
         } else {
             //System.err.println("missing PID");
         }
@@ -85,74 +85,74 @@ public class Foxml2SolrInputConverter {
                 //System.err.println("missing rdf model resource");
             }
         }
-        solrInput.addField("n.model", model);
+        solrInput.addField("model", model);
 
         //created_date
-        addSolrField(solrInput, "n.created", extractProperty(foxmlDoc, "info:fedora/fedora-system:def/model#createdDate"));
+        addSolrField(solrInput, "created", extractProperty(foxmlDoc, "info:fedora/fedora-system:def/model#createdDate"));
 
         //modified_date
-        addSolrField(solrInput, "n.modified", extractProperty(foxmlDoc, "info:fedora/fedora-system:def/view#lastModifiedDate"));
+        addSolrField(solrInput, "modified", extractProperty(foxmlDoc, "info:fedora/fedora-system:def/view#lastModifiedDate"));
 
         //root, parent, path, children (own, foster), foster-parents
         if (repositoryNode != null) {
-            addSolrField(solrInput, "n.root.pid", repositoryNode.getRootPid());
-            addSolrField(solrInput, "n.root.model", repositoryNode.getRootModel());
+            addSolrField(solrInput, "root.pid", repositoryNode.getRootPid());
+            addSolrField(solrInput, "root.model", repositoryNode.getRootModel());
             if (repositoryNode.getRootTitle() != null) {
-                addSolrField(solrInput, "n.root.title", repositoryNode.getRootTitle().value);
-                addSolrField(solrInput, "n.root.title.sort", sortingNormalizer.normalize(repositoryNode.getRootTitle().value));
+                addSolrField(solrInput, "root.title", repositoryNode.getRootTitle().value);
+                addSolrField(solrInput, "root.title.sort", sortingNormalizer.normalize(repositoryNode.getRootTitle().value));
             }
 
-            addSolrField(solrInput, "n.own_parent.pid", repositoryNode.getOwnParentPid());
-            addSolrField(solrInput, "n.own_parent.model", repositoryNode.getOwnParentModel());
+            addSolrField(solrInput, "own_parent.pid", repositoryNode.getOwnParentPid());
+            addSolrField(solrInput, "own_parent.model", repositoryNode.getOwnParentModel());
 
-            addSolrField(solrInput, "n.own_pid_path", repositoryNode.getPidPath());
-            addSolrField(solrInput, "n.own_model_path", repositoryNode.getModelPath());
+            addSolrField(solrInput, "own_pid_path", repositoryNode.getPidPath());
+            addSolrField(solrInput, "own_model_path", repositoryNode.getModelPath());
 
             Integer thisObjectsPositionInParent = repositoryNode.getPositionInOwnParent();
             if (thisObjectsPositionInParent != null) {
-                addSolrField(solrInput, "n.rels_ext_index.sort", thisObjectsPositionInParent.toString());
+                addSolrField(solrInput, "rels_ext_index.sort", thisObjectsPositionInParent.toString());
             }
             if (repositoryNode.getOwnParentTitle() != null) {
-                addSolrField(solrInput, "n.own_parent.title", repositoryNode.getOwnParentTitle().value);
+                addSolrField(solrInput, "own_parent.title", repositoryNode.getOwnParentTitle().value);
             }
             if (repositoryNode.getPidsOfFosterParents() != null) {
                 for (String fosterParent : repositoryNode.getPidsOfFosterParents()) {
-                    addSolrField(solrInput, "n.foster_parents.pids", fosterParent);
+                    addSolrField(solrInput, "foster_parents.pids", fosterParent);
                 }
             }
             //collections
             if (repositoryNode.getPidsOfFosterParentsOfTypeCollection() != null) {
                 for (String collection : repositoryNode.getPidsOfFosterParentsOfTypeCollection()) {
-                    addSolrField(solrInput, "n.in_collections.direct", collection);
+                    addSolrField(solrInput, "in_collections.direct", collection);
                 }
             }
             if (repositoryNode.getPidsOfAnyAncestorsOfTypeCollection() != null) {
                 for (String collection : repositoryNode.getPidsOfAnyAncestorsOfTypeCollection()) {
-                    addSolrField(solrInput, "n.in_collections", collection);
+                    addSolrField(solrInput, "in_collections", collection);
                 }
             }
             //languages from tree, foster trees
             for (String language : repositoryNode.getLanguages()) {
-                addSolrField(solrInput, "n.languages.facet", language);
+                addSolrField(solrInput, "languages.facet", language);
             }
             //authors
             for (String author : repositoryNode.getAuthors()) {
-                solrInput.addField("n.authors", author);
-                solrInput.addField("n.authors.facet", withFirstLetterInUpperCase(author));
+                solrInput.addField("authors", author);
+                solrInput.addField("authors.facet", withFirstLetterInUpperCase(author));
             }
 
             //pid/model path
-            /*addSolrField(solrInput, "n.pid_path", krameriusNode.toPidPath());
-            addSolrField(solrInput, "n.model_path", krameriusNode.toModelPath());*/
+            /*addSolrField(solrInput, "pid_path", krameriusNode.toPidPath());
+            addSolrField(solrInput, "model_path", krameriusNode.toModelPath());*/
             //own, foster children
             /*if (krameriusNode.getPidsOfOwnChildren() != null) {
                 for (String ownChild : krameriusNode.getPidsOfOwnChildren()) {
-                    addSolrField(solrInput, "n.own_children_pids", ownChild);
+                    addSolrField(solrInput, "own_children_pids", ownChild);
                 }
             }*/
             /*if (krameriusNode.getPidsOfFosterChildren() != null) {
                 for (String fosterChild : krameriusNode.getPidsOfFosterChildren()) {
-                    addSolrField(solrInput, "n.foster_children_pids", fosterChild);
+                    addSolrField(solrInput, "foster_children_pids", fosterChild);
                 }
             }*/
             //deprecated, jen pro testovani a dokud se neprizpusobi stary klient, do produkce zrusit
@@ -179,40 +179,40 @@ public class Foxml2SolrInputConverter {
         TitlesExtractor titlesExtractor = new TitlesExtractor();
         Title primaryTitle = titlesExtractor.extractPrimaryTitle(modsRootEl, model);
         if (primaryTitle != null) {
-            solrInput.addField("n.title.search", primaryTitle.nonsort != null ? primaryTitle.nonsort + primaryTitle.value : primaryTitle.value);
-            solrInput.addField("n.title.sort", sortingNormalizer.normalize(primaryTitle.value));
+            solrInput.addField("title.search", primaryTitle.nonsort != null ? primaryTitle.nonsort + primaryTitle.value : primaryTitle.value);
+            solrInput.addField("title.sort", sortingNormalizer.normalize(primaryTitle.value));
         }
         List<Title> allTitles = titlesExtractor.extractAllTitles(modsRootEl, model);
         for (Title title : allTitles) {
-            solrInput.addField("n.titles.search", title.nonsort != null ? title.nonsort + title.value : title.value);
+            solrInput.addField("titles.search", title.nonsort != null ? title.nonsort + title.value : title.value);
         }
 
         //keywords
         List<Node> topicEls = Dom4jUtils.buildXpath("mods/subject/topic").selectNodes(modsRootEl);
         for (Node topicEl : topicEls) {
             String keyword = toStringOrNull(topicEl);
-            solrInput.addField("n.keywords.search", keyword);
-            solrInput.addField("n.keywords.facet", withFirstLetterInUpperCase(keyword));
+            solrInput.addField("keywords.search", keyword);
+            solrInput.addField("keywords.facet", withFirstLetterInUpperCase(keyword));
         }
 
         //geographicName_search, geographicName_facet
         List<Node> geoNameEls = Dom4jUtils.buildXpath("mods/subject/geographic").selectNodes(modsRootEl);
         for (Node geoNameEl : geoNameEls) {
             String geoName = toStringOrNull(geoNameEl);
-            solrInput.addField("n.geographic_names.search", geoName);
-            solrInput.addField("n.geographic_names.facet", geoName);
+            solrInput.addField("geographic_names.search", geoName);
+            solrInput.addField("geographic_names.facet", geoName);
         }
 
         //physicalLocations
         List<Node> physicalLocationEls = Dom4jUtils.buildXpath("mods/location/physicalLocation").selectNodes(modsRootEl);
         for (Node physicalLocationEl : physicalLocationEls) {
-            solrInput.addField("n.physical_locations.facet", toStringOrNull(physicalLocationEl));
+            solrInput.addField("physical_locations.facet", toStringOrNull(physicalLocationEl));
         }
 
         //shelfLocators
         List<Node> shelfLocatorEls = Dom4jUtils.buildXpath("mods/location/shelfLocator").selectNodes(modsRootEl);
         for (Node shelfLocatorEL : shelfLocatorEls) {
-            solrInput.addField("n.shelf_locators", toStringOrNull(shelfLocatorEL));
+            solrInput.addField("shelf_locators", toStringOrNull(shelfLocatorEL));
         }
 
         //genres
@@ -220,8 +220,8 @@ public class Foxml2SolrInputConverter {
         for (Node genreEl : genreEls) {
             String genre = toStringOrNull(genreEl);
             if (genre != null && !genreStopWords.contains(genre.toLowerCase())) {
-                solrInput.addField("n.genres.search", genre);
-                solrInput.addField("n.genres.facet", withFirstLetterInUpperCase(genre));
+                solrInput.addField("genres.search", genre);
+                solrInput.addField("genres.facet", withFirstLetterInUpperCase(genre));
             }
         }
 
@@ -229,16 +229,16 @@ public class Foxml2SolrInputConverter {
         List<Node> publisherEls = Dom4jUtils.buildXpath("mods/originInfo/publisher").selectNodes(modsRootEl);
         for (Node publisherEl : publisherEls) {
             String publisher = toStringOrNull(publisherEl);
-            solrInput.addField("n.publishers.search", publisher);
-            solrInput.addField("n.publishers.facet", withFirstLetterInUpperCase(publisher));
+            solrInput.addField("publishers.search", publisher);
+            solrInput.addField("publishers.facet", withFirstLetterInUpperCase(publisher));
         }
 
         //publication places
         List<Node> publicationPlaceEls = Dom4jUtils.buildXpath("mods/originInfo/place/placeTerm[@type='text']").selectNodes(modsRootEl);
         for (Node publicationPlaceEl : publicationPlaceEls) {
             String publisher = toStringOrNull(publicationPlaceEl);
-            solrInput.addField("n.publication_places.search", publisher);
-            solrInput.addField("n.publication_places.facet", withFirstLetterInUpperCase(publisher));
+            solrInput.addField("publication_places.search", publisher);
+            solrInput.addField("publication_places.facet", withFirstLetterInUpperCase(publisher));
         }
 
         //geolocation
@@ -256,10 +256,10 @@ public class Foxml2SolrInputConverter {
             appendDateFields(solrInput, repositoryNode.getDateInfo());
         }
 
-        //n.part.name
+        //part.name
         String partName = toStringOrNull(Dom4jUtils.buildXpath("mods/titleInfo/partName").selectSingleNode(modsRootEl));
         if (partName != null) {
-            addSolrField(solrInput, "n.part.name", partName);
+            addSolrField(solrInput, "part.name", partName);
         }
 
         //specific for model:pages
@@ -276,42 +276,42 @@ public class Foxml2SolrInputConverter {
                 }
                 String type = Dom4jUtils.stringOrNullFromAttributeByName((Element) partWithTypeEls.get(0), "type");
                 //System.out.println("type: " + type);
-                addSolrField(solrInput, "n.page.type", type);
+                addSolrField(solrInput, "page.type", type);
             }
             //page number (string)
             String number = Dom4jUtils.stringOrNullFromFirstElementByXpath(modsRootEl, "mods/part/detail[@type='pageNumber']/number|mods/part/detail[@type='page number']/number");
             if (number == null) {
                 System.err.println("WARNING: no page number for " + pid);
             } else {
-                addSolrField(solrInput, "n.page.number", number);
+                addSolrField(solrInput, "page.number", number);
             }
             //page index (integer)
             Integer index = Dom4jUtils.integerOrNullFromFirstElementByXpath(modsRootEl, "mods/part/detail[@type='pageIndex']/number");
             if (index == null) {
                 System.err.println("WARNING: no page index for " + pid);
             } else {
-                addSolrField(solrInput, "n.page.index", index.toString());
+                addSolrField(solrInput, "page.index", index.toString());
             }
         }
 
         //specific for model:periodicalitem (issue)
         if ("periodicalitem".equals(model)) {
-            //n.issue.type.*
+            //issue.type.*
             IssueTypeExtractor.Type issueType = IssueTypeExtractor.extractFromModsEl(modsRootEl);
             if (issueType != null) {
                 if (issueType.sort != null) {
-                    addSolrField(solrInput, "n.issue.type.sort", issueType.sort.toString());
+                    addSolrField(solrInput, "issue.type.sort", issueType.sort.toString());
                 }
                 if (issueType.code != null) {
-                    addSolrField(solrInput, "n.issue.type.code", issueType.code);
+                    addSolrField(solrInput, "issue.type.code", issueType.code);
                 }
             }
-            //n.part.number.*
+            //part.number.*
             String numberFromTitleInfo = toStringOrNull(Dom4jUtils.buildXpath("mods/titleInfo/partNumber").selectSingleNode(modsRootEl));
             if (numberFromTitleInfo != null) {
-                addSolrField(solrInput, "n.part.number.str", numberFromTitleInfo);
+                addSolrField(solrInput, "part.number.str", numberFromTitleInfo);
                 try {
-                    addSolrField(solrInput, "n.part.number.sort", extractLeadingNumber(numberFromTitleInfo));
+                    addSolrField(solrInput, "part.number.sort", extractLeadingNumber(numberFromTitleInfo));
                 } catch (NumberFormatException e) {
                     //nothing
                 }
@@ -322,9 +322,9 @@ public class Foxml2SolrInputConverter {
                 }
 
                 if (numberFromPart != null) {
-                    addSolrField(solrInput, "n.part.number.str", numberFromPart);
+                    addSolrField(solrInput, "part.number.str", numberFromPart);
                     try {
-                        addSolrField(solrInput, "n.part.number.sort", extractLeadingNumber(numberFromPart));
+                        addSolrField(solrInput, "part.number.sort", extractLeadingNumber(numberFromPart));
                     } catch (NumberFormatException e) {
                         //nothing
                     }
@@ -334,12 +334,12 @@ public class Foxml2SolrInputConverter {
 
         //specific for model:periodicalvolume
         if ("periodicalvolume".equals(model)) {
-            //n.part.number.*
+            //part.number.*
             String numberFromTitleInfo = toStringOrNull(Dom4jUtils.buildXpath("mods/titleInfo/partNumber").selectSingleNode(modsRootEl));
             if (numberFromTitleInfo != null) {
-                addSolrField(solrInput, "n.part.number.str", numberFromTitleInfo);
+                addSolrField(solrInput, "part.number.str", numberFromTitleInfo);
                 try {
-                    addSolrField(solrInput, "n.part.number.sort", extractLeadingNumber(numberFromTitleInfo));
+                    addSolrField(solrInput, "part.number.sort", extractLeadingNumber(numberFromTitleInfo));
                 } catch (NumberFormatException e) {
                     //nothing
                 }
@@ -350,9 +350,9 @@ public class Foxml2SolrInputConverter {
                 }
 
                 if (numberFromPart != null) {
-                    addSolrField(solrInput, "n.part.number.str", numberFromPart);
+                    addSolrField(solrInput, "part.number.str", numberFromPart);
                     try {
-                        addSolrField(solrInput, "n.part.number.sort", extractLeadingNumber(numberFromPart));
+                        addSolrField(solrInput, "part.number.sort", extractLeadingNumber(numberFromPart));
                     } catch (NumberFormatException e) {
                         //nothing
                     }
@@ -362,12 +362,12 @@ public class Foxml2SolrInputConverter {
 
         //specific for model:monographunit
         if ("monographunit".equals(model)) {
-            //n.part.number.*
+            //part.number.*
             String numberFromTitleInfo = toStringOrNull(Dom4jUtils.buildXpath("mods/titleInfo/partNumber").selectSingleNode(modsRootEl));
             if (numberFromTitleInfo != null) {
-                addSolrField(solrInput, "n.part.number.str", numberFromTitleInfo);
+                addSolrField(solrInput, "part.number.str", numberFromTitleInfo);
                 try {
-                    addSolrField(solrInput, "n.part.number.sort", extractLeadingNumber(numberFromTitleInfo));
+                    addSolrField(solrInput, "part.number.sort", extractLeadingNumber(numberFromTitleInfo));
                 } catch (NumberFormatException e) {
                     //nothing
                 }
@@ -375,12 +375,12 @@ public class Foxml2SolrInputConverter {
         }
 
         if ("supplement".equals(model)) {
-            //n.part.number.*
+            //part.number.*
             String numberFromTitleInfo = toStringOrNull(Dom4jUtils.buildXpath("mods/titleInfo/partNumber").selectSingleNode(modsRootEl));
             if (numberFromTitleInfo != null) {
-                addSolrField(solrInput, "n.part.number.str", numberFromTitleInfo);
+                addSolrField(solrInput, "part.number.str", numberFromTitleInfo);
                 try {
-                    addSolrField(solrInput, "n.part.number.sort", extractLeadingNumber(numberFromTitleInfo));
+                    addSolrField(solrInput, "part.number.sort", extractLeadingNumber(numberFromTitleInfo));
                 } catch (NumberFormatException e) {
                     //nothing
                 }
@@ -388,14 +388,14 @@ public class Foxml2SolrInputConverter {
         }
 
         if ("collection".equals(model)) {
-            //n.collection.desc
+            //collection.desc
             String abstractFromTitleInfo = toStringOrNull(Dom4jUtils.buildXpath("mods/abstract").selectSingleNode(modsRootEl));
             if (abstractFromTitleInfo != null) {
-                addSolrField(solrInput, "n.collection.desc", abstractFromTitleInfo);
+                addSolrField(solrInput, "collection.desc", abstractFromTitleInfo);
             }
-            //n.collection.is_standalone
+            //collection.is_standalone
             String standaloneStr = toStringOrNull(Dom4jUtils.buildXpath("Description/standalone").selectSingleNode(relsExtRootEl));
-            addSolrField(solrInput, "n.collection.is_standalone", Boolean.valueOf(standaloneStr));
+            addSolrField(solrInput, "collection.is_standalone", Boolean.valueOf(standaloneStr));
         }
 
         //accessibility
@@ -403,7 +403,7 @@ public class Foxml2SolrInputConverter {
         if (policyFromRelsExt != null) {
             String prefix = "policy:";
             if (policyFromRelsExt.startsWith(prefix)) {
-                addSolrField(solrInput, "n.accessibility", policyFromRelsExt.substring(prefix.length()));
+                addSolrField(solrInput, "accessibility", policyFromRelsExt.substring(prefix.length()));
             } else {
                 System.err.println("unexpected content of RELS-EXT policy '" + policyFromRelsExt + "'");
             }
@@ -418,31 +418,31 @@ public class Foxml2SolrInputConverter {
                 String value = resourceAttr.getValue();
                 if (value != null && value.length() > prefix.length()) {
                     String donator = value.substring(prefix.length());
-                    solrInput.addField("n.donator", donator);
+                    solrInput.addField("donator", donator);
                 }
             }
         }
 
-        //n.has_tiles
+        //has_tiles
         String tilesUrlFromRelsExt = toStringOrNull(Dom4jUtils.buildXpath("Description/tiles-url").selectSingleNode(relsExtRootEl));
-        addSolrField(solrInput, "n.has_tiles", tilesUrlFromRelsExt != null);
+        addSolrField(solrInput, "has_tiles", tilesUrlFromRelsExt != null);
 
-        //n.ds.img_full.mime
-        addSolrField(solrInput, "n.ds.img_full.mime", imgFullMime);
+        //ds.img_full.mime
+        addSolrField(solrInput, "ds.img_full.mime", imgFullMime);
 
         //status
-        addSolrField(solrInput, "n.status", extractProperty(foxmlDoc, "info:fedora/fedora-system:def/model#state"));
+        addSolrField(solrInput, "status", extractProperty(foxmlDoc, "info:fedora/fedora-system:def/model#state"));
 
         //mdt
         String mdt = toStringOrNull(Dom4jUtils.buildXpath("mods/classification[@authority='udc']").selectSingleNode(modsRootEl));
         if (mdt != null) {
-            addSolrField(solrInput, "n.mdt", mdt);
+            addSolrField(solrInput, "mdt", mdt);
         }
 
         //nddt
         String ddt = toStringOrNull(Dom4jUtils.buildXpath("mods/classification[@authority='ddc']").selectSingleNode(modsRootEl));
         if (ddt != null) {
-            addSolrField(solrInput, "n.ddt", ddt);
+            addSolrField(solrInput, "ddt", ddt);
         }
 
         //identifiers
@@ -451,16 +451,16 @@ public class Foxml2SolrInputConverter {
         //counters
         int countPage = Dom4jUtils.buildXpath("Description/hasPage").selectNodes(relsExtRootEl).size();
         if (countPage > 0) {
-            addSolrField(solrInput, "n.count_page", Integer.toString(countPage));
+            addSolrField(solrInput, "count_page", Integer.toString(countPage));
         }
         int countTrack = Dom4jUtils.buildXpath("Description/hasTrack|Description/containsTrack").selectNodes(relsExtRootEl).size();
         if (countTrack > 0) {
-            addSolrField(solrInput, "n.count_track", Integer.toString(countTrack));
+            addSolrField(solrInput, "count_track", Integer.toString(countTrack));
         }
 
         //OCR text
         if (ocrText != null && !ocrText.isEmpty()) {
-            addSolrField(solrInput, "n.text_ocr", ocrText);
+            addSolrField(solrInput, "text_ocr", ocrText);
         }
 
         return solrInput;
@@ -485,52 +485,52 @@ public class Foxml2SolrInputConverter {
     private void appendDateFields(SolrInput solrInput, DateInfo dateInfo) {
         //min-max dates
         if (dateInfo.dateMin != null) {
-            addSolrField(solrInput, "n.date.min", formatDate(dateInfo.dateMin));
+            addSolrField(solrInput, "date.min", formatDate(dateInfo.dateMin));
         }
         if (dateInfo.dateMax != null) {
-            addSolrField(solrInput, "n.date.max", formatDate(dateInfo.dateMax));
+            addSolrField(solrInput, "date.max", formatDate(dateInfo.dateMax));
         }
         if (dateInfo.isInstant()) { //instant
             if (dateInfo.instantYear != null) {
-                //addSolrField(solrInput, "n.date_instant.year", dateInfo.instantYear.toString());
-                addSolrField(solrInput, "n.date_range_start.year", dateInfo.instantYear.toString());
-                addSolrField(solrInput, "n.date_range_end.year", dateInfo.instantYear.toString());
+                //addSolrField(solrInput, "date_instant.year", dateInfo.instantYear.toString());
+                addSolrField(solrInput, "date_range_start.year", dateInfo.instantYear.toString());
+                addSolrField(solrInput, "date_range_end.year", dateInfo.instantYear.toString());
             }
             if (dateInfo.instantMonth != null) {
-                //addSolrField(solrInput, "n.date_instant.month", dateInfo.instantMonth.toString());
-                addSolrField(solrInput, "n.date_range_start.month", dateInfo.instantMonth.toString());
-                addSolrField(solrInput, "n.date_range_end.month", dateInfo.instantMonth.toString());
+                //addSolrField(solrInput, "date_instant.month", dateInfo.instantMonth.toString());
+                addSolrField(solrInput, "date_range_start.month", dateInfo.instantMonth.toString());
+                addSolrField(solrInput, "date_range_end.month", dateInfo.instantMonth.toString());
             }
             if (dateInfo.instantDay != null) {
-                //addSolrField(solrInput, "n.date_instant.day", dateInfo.instantDay.toString());
-                addSolrField(solrInput, "n.date_range_start.day", dateInfo.instantDay.toString());
-                addSolrField(solrInput, "n.date_range_end.day", dateInfo.instantDay.toString());
+                //addSolrField(solrInput, "date_instant.day", dateInfo.instantDay.toString());
+                addSolrField(solrInput, "date_range_start.day", dateInfo.instantDay.toString());
+                addSolrField(solrInput, "date_range_end.day", dateInfo.instantDay.toString());
             }
         } else { //range
             //range start
             if (dateInfo.rangeStartYear != null) {
-                addSolrField(solrInput, "n.date_range_start.year", dateInfo.rangeStartYear.toString());
+                addSolrField(solrInput, "date_range_start.year", dateInfo.rangeStartYear.toString());
             }
             if (dateInfo.rangeStartMonth != null) {
-                addSolrField(solrInput, "n.date_range_start.month", dateInfo.rangeStartMonth.toString());
+                addSolrField(solrInput, "date_range_start.month", dateInfo.rangeStartMonth.toString());
             }
             if (dateInfo.rangeStartDay != null) {
-                addSolrField(solrInput, "n.date_range_start.day", dateInfo.rangeStartDay.toString());
+                addSolrField(solrInput, "date_range_start.day", dateInfo.rangeStartDay.toString());
             }
             //range end
             if (dateInfo.rangeEndYear != null) {
-                addSolrField(solrInput, "n.date_range_end.year", dateInfo.rangeEndYear.toString());
+                addSolrField(solrInput, "date_range_end.year", dateInfo.rangeEndYear.toString());
             }
             if (dateInfo.rangeEndMonth != null) {
-                addSolrField(solrInput, "n.date_range_end.month", dateInfo.rangeEndMonth.toString());
+                addSolrField(solrInput, "date_range_end.month", dateInfo.rangeEndMonth.toString());
             }
             if (dateInfo.rangeEndDay != null) {
-                addSolrField(solrInput, "n.date_range_end.day", dateInfo.rangeEndDay.toString());
+                addSolrField(solrInput, "date_range_end.day", dateInfo.rangeEndDay.toString());
             }
         }
         //date_str
         if (dateInfo.value != null) { //existuje i hodnota v dateIssued bez @point
-            addSolrField(solrInput, "n.date.str", dateInfo.value);
+            addSolrField(solrInput, "date.str", dateInfo.value);
         } else if (dateInfo.valueStart != null || dateInfo.valueEnd != null) { //pouze dateIssued/@point (start a/nebo end)
             appendRangeDateStr(solrInput, dateInfo.valueStart, dateInfo.valueEnd);
         }
@@ -546,17 +546,17 @@ public class Foxml2SolrInputConverter {
     private void appendRangeDateStr(SolrInput solrInput, String start, String end) {
         if (start != null && end != null) {
             if (start.equals(end)) {
-                addSolrField(solrInput, "n.date.str", replaceUncertainCharsWithQuestionMark(start));
+                addSolrField(solrInput, "date.str", replaceUncertainCharsWithQuestionMark(start));
             } else {
                 String value = replaceUncertainCharsWithQuestionMark(start) + " - " + replaceUncertainCharsWithQuestionMark(end);
-                addSolrField(solrInput, "n.date.str", value);
+                addSolrField(solrInput, "date.str", value);
             }
         } else if (start != null) {
             String value = replaceUncertainCharsWithQuestionMark(start) + " - ?";
-            addSolrField(solrInput, "n.date.str", value);
+            addSolrField(solrInput, "date.str", value);
         } else if (end != null) {
             String value = "? - " + replaceUncertainCharsWithQuestionMark(end);
-            addSolrField(solrInput, "n.date.str", value);
+            addSolrField(solrInput, "date.str", value);
         }
     }
 

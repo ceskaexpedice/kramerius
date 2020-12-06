@@ -12,10 +12,10 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Chachaři</field>
-            <field name="n.title.sort">H|AH|AR|I</field>
-            <field name="n.titles.search">Chachaři</field>
-            <field name="n.titles.search">chechtáky</field>
+            <field name="title.search">Chachaři</field>
+            <field name="title.sort">H|AH|AR|I</field>
+            <field name="titles.search">Chachaři</field>
+            <field name="titles.search">chechtáky</field>
         </out>
     </test>
 
@@ -31,12 +31,12 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">4454/1</field>
+            <field name="part.name">4454/1</field>
 
-            <field name="n.title.search">[České Velenice]. 4454/1</field>
-            <field name="n.title.sort">C|ESKE| VELENICE 4454/1</field>
-            <field name="n.titles.search">[České Velenice]. 4454/1</field>
-            <field name="n.titles.search">4454/1</field>
+            <field name="title.search">[České Velenice]. 4454/1</field>
+            <field name="title.sort">C|ESKE| VELENICE 4454/1</field>
+            <field name="titles.search">[České Velenice]. 4454/1</field>
+            <field name="titles.search">4454/1</field>
         </out>
     </test>
 
@@ -50,9 +50,9 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.title.search">Příliš žluťoučký kůň úpěl ďábelské ódy</field>
-            <field name="n.title.sort">PR|I|LIS| Z|LUT|OUC|KY| KU|N| U|PE|L D|A|BELSKE| O|DY</field>
-            <field name="n.titles.search">Příliš žluťoučký kůň úpěl ďábelské ódy</field>
+            <field name="title.search">Příliš žluťoučký kůň úpěl ďábelské ódy</field>
+            <field name="title.sort">PR|I|LIS| Z|LUT|OUC|KY| KU|N| U|PE|L D|A|BELSKE| O|DY</field>
+            <field name="titles.search">Příliš žluťoučký kůň úpěl ďábelské ódy</field>
         </out>
     </test>
 

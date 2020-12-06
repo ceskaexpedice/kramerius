@@ -15,10 +15,10 @@ public class CoordinatesExtractor {
             BoundingBox bb = extractBoundingBox(coordinatesStr);
             if (bb != null) {
                 Locale locale = new Locale("en", "US");
-                solrInput.addField("n.coords.bbox", String.format(locale, "ENVELOPE(%.6f,%.6f,%.6f,%.6f)", bb.w, bb.e, bb.n, bb.s));
-                solrInput.addField("n.coords.bbox.center", String.format(locale, "%.6f,%.6f", (bb.n + bb.s) / 2, (bb.w + bb.e) / 2));
-                solrInput.addField("n.coords.bbox.corner_sw", String.format(locale, "%.6f,%.6f", bb.s, bb.w));
-                solrInput.addField("n.coords.bbox.corner_ne", String.format(locale, "%.6f,%.6f", bb.n, bb.e));
+                solrInput.addField("coords.bbox", String.format(locale, "ENVELOPE(%.6f,%.6f,%.6f,%.6f)", bb.w, bb.e, bb.n, bb.s));
+                solrInput.addField("coords.bbox.center", String.format(locale, "%.6f,%.6f", (bb.n + bb.s) / 2, (bb.w + bb.e) / 2));
+                solrInput.addField("coords.bbox.corner_sw", String.format(locale, "%.6f,%.6f", bb.s, bb.w));
+                solrInput.addField("coords.bbox.corner_ne", String.format(locale, "%.6f,%.6f", bb.n, bb.e));
             }
         }
     }

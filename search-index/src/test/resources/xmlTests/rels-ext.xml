@@ -6,8 +6,8 @@
             <policy>policy:public</policy>
         </in>
         <out>
-            <field name="n.accessibility">public</field>
-            <field name="n.has_tiles">false</field>
+            <field name="accessibility">public</field>
+            <field name="has_tiles">false</field>
         </out>
     </test>
 
@@ -17,8 +17,8 @@
             <policy>policy:private</policy>
         </in>
         <out>
-            <field name="n.accessibility">private</field>
-            <field name="n.has_tiles">false</field>
+            <field name="accessibility">private</field>
+            <field name="has_tiles">false</field>
         </out>
     </test>
 
@@ -30,8 +30,8 @@
 
         </in>
         <out>
-            <field name="n.accessibility">unexpected-value</field>
-            <field name="n.has_tiles">false</field>
+            <field name="accessibility">unexpected-value</field>
+            <field name="has_tiles">false</field>
         </out>
     </test>
 
@@ -43,8 +43,8 @@
             <tiles-url>https://imageserver.difmoe.eu/deutsche_nachrichten/1924/00133/zoomify</tiles-url>
         </in>
         <out>
-            <field name="n.accessibility">private</field>
-            <field name="n.has_tiles">true</field>
+            <field name="accessibility">private</field>
+            <field name="has_tiles">true</field>
         </out>
     </test>
 
@@ -55,8 +55,8 @@
             <policy>policy:private</policy>
         </in>
         <out>
-            <field name="n.accessibility">private</field>
-            <field name="n.has_tiles">false</field>
+            <field name="accessibility">private</field>
+            <field name="has_tiles">false</field>
         </out>
     </test>
 

@@ -6,8 +6,8 @@
             <genre>dopravní mapy</genre>
         </in>
         <out>
-            <field name="n.genres.facet">Dopravní mapy</field>
-            <field name="n.genres.search">dopravní mapy</field>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.search">dopravní mapy</field>
         </out>
     </test>
 
@@ -18,10 +18,10 @@
             <genre>politické a správní mapy</genre>
         </in>
         <out>
-            <field name="n.genres.facet">Dopravní mapy</field>
-            <field name="n.genres.facet">Politické a správní mapy</field>
-            <field name="n.genres.search">dopravní mapy</field>
-            <field name="n.genres.search">politické a správní mapy</field>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.facet">Politické a správní mapy</field>
+            <field name="genres.search">dopravní mapy</field>
+            <field name="genres.search">politické a správní mapy</field>
         </out>
     </test>
 
@@ -31,8 +31,8 @@
             <genre authority="czenas">dopravní mapy</genre>
         </in>
         <out>
-            <field name="n.genres.facet">Dopravní mapy</field>
-            <field name="n.genres.search">dopravní mapy</field>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.search">dopravní mapy</field>
         </out>
     </test>
 
@@ -43,10 +43,10 @@
             <genre authority="czenas">politické a správní mapy</genre>
         </in>
         <out>
-            <field name="n.genres.facet">Dopravní mapy</field>
-            <field name="n.genres.facet">Politické a správní mapy</field>
-            <field name="n.genres.search">dopravní mapy</field>
-            <field name="n.genres.search">politické a správní mapy</field>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.facet">Politické a správní mapy</field>
+            <field name="genres.search">dopravní mapy</field>
+            <field name="genres.search">politické a správní mapy</field>
         </out>
     </test>
 
@@ -58,12 +58,12 @@
             <genre authority="czenas">politické a správní mapy</genre>
         </in>
         <out>
-            <field name="n.genres.facet">Map</field>
-            <field name="n.genres.facet">Dopravní mapy</field>
-            <field name="n.genres.facet">Politické a správní mapy</field>
-            <field name="n.genres.search">map</field>
-            <field name="n.genres.search">dopravní mapy</field>
-            <field name="n.genres.search">politické a správní mapy</field>
+            <field name="genres.facet">Map</field>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.facet">Politické a správní mapy</field>
+            <field name="genres.search">map</field>
+            <field name="genres.search">dopravní mapy</field>
+            <field name="genres.search">politické a správní mapy</field>
         </out>
     </test>
 
@@ -76,14 +76,14 @@
             <genre authority="czenas">politické a správní mapy</genre>
         </in>
         <out>
-            <field name="n.genres.facet">Mapy a atlasy</field>
-            <field name="n.genres.facet">Map</field>
-            <field name="n.genres.facet">Dopravní mapy</field>
-            <field name="n.genres.facet">Politické a správní mapy</field>
-            <field name="n.genres.search">mapy a atlasy</field>
-            <field name="n.genres.search">map</field>
-            <field name="n.genres.search">dopravní mapy</field>
-            <field name="n.genres.search">politické a správní mapy</field>
+            <field name="genres.facet">Mapy a atlasy</field>
+            <field name="genres.facet">Map</field>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.facet">Politické a správní mapy</field>
+            <field name="genres.search">mapy a atlasy</field>
+            <field name="genres.search">map</field>
+            <field name="genres.search">dopravní mapy</field>
+            <field name="genres.search">politické a správní mapy</field>
         </out>
     </test>
 
@@ -129,12 +129,12 @@
             <genre>supplement</genre>
         </in>
         <out>
-            <field name="n.genres.facet">Mapy a atlasy</field>
-            <field name="n.genres.facet">Map</field>
-            <field name="n.genres.facet">Dopravní mapy</field>
-            <field name="n.genres.search">mapy a atlasy</field>
-            <field name="n.genres.search">map</field>
-            <field name="n.genres.search">dopravní mapy</field>
+            <field name="genres.facet">Mapy a atlasy</field>
+            <field name="genres.facet">Map</field>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.search">mapy a atlasy</field>
+            <field name="genres.search">map</field>
+            <field name="genres.search">dopravní mapy</field>
         </out>
     </test>
 
@@ -180,12 +180,12 @@
             <genre>SUPPLEMENT</genre>
         </in>
         <out>
-            <field name="n.genres.facet">Mapy a atlasy</field>
-            <field name="n.genres.facet">Map</field>
-            <field name="n.genres.facet">Dopravní mapy</field>
-            <field name="n.genres.search">mapy a atlasy</field>
-            <field name="n.genres.search">map</field>
-            <field name="n.genres.search">dopravní mapy</field>
+            <field name="genres.facet">Mapy a atlasy</field>
+            <field name="genres.facet">Map</field>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.search">mapy a atlasy</field>
+            <field name="genres.search">map</field>
+            <field name="genres.search">dopravní mapy</field>
         </out>
     </test>
 

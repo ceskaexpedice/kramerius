@@ -9,12 +9,12 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.number.sort">2</field>
-            <field name="n.part.number.str">2</field>
+            <field name="part.number.sort">2</field>
+            <field name="part.number.str">2</field>
 
-            <field name="n.title.search">Deutschböhmen als Wirtschaftsgrossmacht. 2</field>
-            <field name="n.title.sort">DEUTSH|BO|HMEN ALS WIRTSH|AFTSGROSSMAH|T 2</field>
-            <field name="n.titles.search">Deutschböhmen als Wirtschaftsgrossmacht. 2</field>
+            <field name="title.search">Deutschböhmen als Wirtschaftsgrossmacht. 2</field>
+            <field name="title.sort">DEUTSH|BO|HMEN ALS WIRTSH|AFTSGROSSMAH|T 2</field>
+            <field name="titles.search">Deutschböhmen als Wirtschaftsgrossmacht. 2</field>
         </out>
     </test>
 
@@ -29,13 +29,13 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">Bianchi-Giovini - bžunda</field>
-            <field name="n.part.number.sort">4</field>
-            <field name="n.part.number.str">4</field>
+            <field name="part.name">Bianchi-Giovini - bžunda</field>
+            <field name="part.number.sort">4</field>
+            <field name="part.number.str">4</field>
 
-            <field name="n.title.search">Ottův slovník naučný: illustrovaná encyklopaedie obecných vědomostí. 4. Bianchi-Giovini - bžunda</field>
-            <field name="n.title.sort">OTTU|V SLOVNI|K NAUC|NY| ILLUSTROVANA| ENCYKLOPAEDIE OBECNY|H| VE|DOMOSTI| 4 BIANH|I GIOVINI BZ|UNDA</field>
-            <field name="n.titles.search">Ottův slovník naučný: illustrovaná encyklopaedie obecných vědomostí. 4. Bianchi-Giovini - bžunda</field>
+            <field name="title.search">Ottův slovník naučný: illustrovaná encyklopaedie obecných vědomostí. 4. Bianchi-Giovini - bžunda</field>
+            <field name="title.sort">OTTU|V SLOVNI|K NAUC|NY| ILLUSTROVANA| ENCYKLOPAEDIE OBECNY|H| VE|DOMOSTI| 4 BIANH|I GIOVINI BZ|UNDA</field>
+            <field name="titles.search">Ottův slovník naučný: illustrovaná encyklopaedie obecných vědomostí. 4. Bianchi-Giovini - bžunda</field>
         </out>
     </test>
 
@@ -48,12 +48,12 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.number.sort">2</field>
-            <field name="n.part.number.str">2x</field>
+            <field name="part.number.sort">2</field>
+            <field name="part.number.str">2x</field>
 
-            <field name="n.title.search">Deutschböhmen als Wirtschaftsgrossmacht. 2x</field>
-            <field name="n.title.sort">DEUTSH|BO|HMEN ALS WIRTSH|AFTSGROSSMAH|T 2X</field>
-            <field name="n.titles.search">Deutschböhmen als Wirtschaftsgrossmacht. 2x</field>
+            <field name="title.search">Deutschböhmen als Wirtschaftsgrossmacht. 2x</field>
+            <field name="title.sort">DEUTSH|BO|HMEN ALS WIRTSH|AFTSGROSSMAH|T 2X</field>
+            <field name="titles.search">Deutschböhmen als Wirtschaftsgrossmacht. 2x</field>
         </out>
     </test>
 

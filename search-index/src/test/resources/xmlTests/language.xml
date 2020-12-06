@@ -8,7 +8,7 @@
             </language>
         </in>
         <out>
-            <field name="n.languages.facet">cze</field>
+            <field name="languages.facet">cze</field>
         </out>
     </test>
 
@@ -20,7 +20,7 @@
             </language>
         </in>
         <out>
-            <field name="n.languages.facet">cze</field>
+            <field name="languages.facet">cze</field>
         </out>
     </test>
 
@@ -37,8 +37,8 @@
             </language>
         </in>
         <out>
-            <field name="n.languages.facet">cze</field>
-            <field name="n.languages.facet">ger</field>
+            <field name="languages.facet">cze</field>
+            <field name="languages.facet">ger</field>
         </out>
     </test>
 
@@ -53,8 +53,8 @@
             </language>
         </in>
         <out>
-            <field name="n.languages.facet">ces</field>
-            <field name="n.languages.facet">de-CH</field>
+            <field name="languages.facet">ces</field>
+            <field name="languages.facet">de-CH</field>
         </out>
     </test>
 
@@ -72,9 +72,9 @@
             </language>
         </in>
         <out>
-            <field name="n.languages.facet">cze</field>
-            <field name="n.languages.facet">eng</field>
-            <field name="n.languages.facet">ger</field>
+            <field name="languages.facet">cze</field>
+            <field name="languages.facet">eng</field>
+            <field name="languages.facet">ger</field>
         </out>
     </test>
 
@@ -90,8 +90,8 @@
             </language>
         </in>
         <out>
-            <field name="n.languages.facet">cze</field>
-            <field name="n.languages.facet">ger</field>
+            <field name="languages.facet">cze</field>
+            <field name="languages.facet">ger</field>
         </out>
     </test>
 
@@ -107,8 +107,8 @@
             </language>
         </in>
         <out>
-            <field name="n.languages.facet">cze</field>
-            <field name="n.languages.facet">ger</field>
+            <field name="languages.facet">cze</field>
+            <field name="languages.facet">ger</field>
         </out>
     </test>
 

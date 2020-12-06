@@ -18,25 +18,25 @@
             </part>
         </in>
         <out>
-            <field name="n.date.max">1925-06-06T23:59:59.999Z</field>
-            <field name="n.date.min">1925-06-06T00:00:00.001Z</field>
-            <field name="n.date.str">6. 6. 1925</field>
-            <!--<field name="n.date_instant.day">6</field>
-            <field name="n.date_instant.month">6</field>
-            <field name="n.date_instant.year">1925</field>-->
-            <field name="n.date_range_end.day">6</field>
-            <field name="n.date_range_end.month">6</field>
-            <field name="n.date_range_end.year">1925</field>
-            <field name="n.date_range_start.day">6</field>
-            <field name="n.date_range_start.month">6</field>
-            <field name="n.date_range_start.year">1925</field>
+            <field name="date.max">1925-06-06T23:59:59.999Z</field>
+            <field name="date.min">1925-06-06T00:00:00.001Z</field>
+            <field name="date.str">6. 6. 1925</field>
+            <!--<field name="date_instant.day">6</field>
+            <field name="date_instant.month">6</field>
+            <field name="date_instant.year">1925</field>-->
+            <field name="date_range_end.day">6</field>
+            <field name="date_range_end.month">6</field>
+            <field name="date_range_end.year">1925</field>
+            <field name="date_range_start.day">6</field>
+            <field name="date_range_start.month">6</field>
+            <field name="date_range_start.year">1925</field>
 
-            <field name="n.part.number.sort">23</field>
-            <field name="n.part.number.str">23</field>
+            <field name="part.number.sort">23</field>
+            <field name="part.number.str">23</field>
 
-            <field name="n.title.search">Deutsche Nachrichten. 23</field>
-            <field name="n.title.sort">DEUTSH|E NAH|RIH|TEN 23</field>
-            <field name="n.titles.search">Deutsche Nachrichten. 23</field>
+            <field name="title.search">Deutsche Nachrichten. 23</field>
+            <field name="title.sort">DEUTSH|E NAH|RIH|TEN 23</field>
+            <field name="titles.search">Deutsche Nachrichten. 23</field>
         </out>
     </test>
 
@@ -52,25 +52,25 @@
             </originInfo>
         </in>
         <out>
-            <field name="n.date.max">1925-06-06T23:59:59.999Z</field>
-            <field name="n.date.min">1925-06-06T00:00:00.001Z</field>
-            <field name="n.date.str">6. 6. 1925</field>
-            <!--<field name="n.date_instant.day">6</field>
-            <field name="n.date_instant.month">6</field>
-            <field name="n.date_instant.year">1925</field>-->
-            <field name="n.date_range_end.day">6</field>
-            <field name="n.date_range_end.month">6</field>
-            <field name="n.date_range_end.year">1925</field>
-            <field name="n.date_range_start.day">6</field>
-            <field name="n.date_range_start.month">6</field>
-            <field name="n.date_range_start.year">1925</field>
+            <field name="date.max">1925-06-06T23:59:59.999Z</field>
+            <field name="date.min">1925-06-06T00:00:00.001Z</field>
+            <field name="date.str">6. 6. 1925</field>
+            <!--<field name="date_instant.day">6</field>
+            <field name="date_instant.month">6</field>
+            <field name="date_instant.year">1925</field>-->
+            <field name="date_range_end.day">6</field>
+            <field name="date_range_end.month">6</field>
+            <field name="date_range_end.year">1925</field>
+            <field name="date_range_start.day">6</field>
+            <field name="date_range_start.month">6</field>
+            <field name="date_range_start.year">1925</field>
 
-            <field name="n.part.number.sort">23</field>
-            <field name="n.part.number.str">23</field>
+            <field name="part.number.sort">23</field>
+            <field name="part.number.str">23</field>
 
-            <field name="n.title.search">Deutsche Nachrichten. 23</field>
-            <field name="n.title.sort">DEUTSH|E NAH|RIH|TEN 23</field>
-            <field name="n.titles.search">Deutsche Nachrichten. 23</field>
+            <field name="title.search">Deutsche Nachrichten. 23</field>
+            <field name="title.sort">DEUTSH|E NAH|RIH|TEN 23</field>
+            <field name="titles.search">Deutsche Nachrichten. 23</field>
         </out>
     </test>
 
@@ -86,25 +86,25 @@
             </originInfo>
         </in>
         <out>
-            <field name="n.date.max">1925-06-06T23:59:59.999Z</field>
-            <field name="n.date.min">1925-06-06T00:00:00.001Z</field>
-            <field name="n.date.str">6. 6. 1925</field>
-            <!--<field name="n.date_instant.day">6</field>
-            <field name="n.date_instant.month">6</field>
-            <field name="n.date_instant.year">1925</field>-->
-            <field name="n.date_range_end.day">6</field>
-            <field name="n.date_range_end.month">6</field>
-            <field name="n.date_range_end.year">1925</field>
-            <field name="n.date_range_start.day">6</field>
-            <field name="n.date_range_start.month">6</field>
-            <field name="n.date_range_start.year">1925</field>
+            <field name="date.max">1925-06-06T23:59:59.999Z</field>
+            <field name="date.min">1925-06-06T00:00:00.001Z</field>
+            <field name="date.str">6. 6. 1925</field>
+            <!--<field name="date_instant.day">6</field>
+            <field name="date_instant.month">6</field>
+            <field name="date_instant.year">1925</field>-->
+            <field name="date_range_end.day">6</field>
+            <field name="date_range_end.month">6</field>
+            <field name="date_range_end.year">1925</field>
+            <field name="date_range_start.day">6</field>
+            <field name="date_range_start.month">6</field>
+            <field name="date_range_start.year">1925</field>
 
-            <field name="n.part.number.sort">23</field>
-            <field name="n.part.number.str">23-24</field>
+            <field name="part.number.sort">23</field>
+            <field name="part.number.str">23-24</field>
 
-            <field name="n.title.search">Deutsche Nachrichten. 23-24</field>
-            <field name="n.title.sort">DEUTSH|E NAH|RIH|TEN 23 24</field>
-            <field name="n.titles.search">Deutsche Nachrichten. 23-24</field>
+            <field name="title.search">Deutsche Nachrichten. 23-24</field>
+            <field name="title.sort">DEUTSH|E NAH|RIH|TEN 23 24</field>
+            <field name="titles.search">Deutsche Nachrichten. 23-24</field>
         </out>
     </test>
 
@@ -122,21 +122,21 @@
             </part>
         </in>
         <out>
-            <field name="n.date.max">1925-06-06T23:59:59.999Z</field>
-            <field name="n.date.min">1925-06-06T00:00:00.001Z</field>
-            <field name="n.date.str">6. 6. 1925</field>
-            <!--<field name="n.date_instant.day">6</field>
-            <field name="n.date_instant.month">6</field>
-            <field name="n.date_instant.year">1925</field>-->
-            <field name="n.date_range_end.day">6</field>
-            <field name="n.date_range_end.month">6</field>
-            <field name="n.date_range_end.year">1925</field>
-            <field name="n.date_range_start.day">6</field>
-            <field name="n.date_range_start.month">6</field>
-            <field name="n.date_range_start.year">1925</field>
+            <field name="date.max">1925-06-06T23:59:59.999Z</field>
+            <field name="date.min">1925-06-06T00:00:00.001Z</field>
+            <field name="date.str">6. 6. 1925</field>
+            <!--<field name="date_instant.day">6</field>
+            <field name="date_instant.month">6</field>
+            <field name="date_instant.year">1925</field>-->
+            <field name="date_range_end.day">6</field>
+            <field name="date_range_end.month">6</field>
+            <field name="date_range_end.year">1925</field>
+            <field name="date_range_start.day">6</field>
+            <field name="date_range_start.month">6</field>
+            <field name="date_range_start.year">1925</field>
 
-            <field name="n.part.number.sort">24</field>
-            <field name="n.part.number.str">24</field>
+            <field name="part.number.sort">24</field>
+            <field name="part.number.str">24</field>
         </out>
     </test>
 
@@ -154,21 +154,21 @@
             </part>
         </in>
         <out>
-            <field name="n.date.max">1925-06-06T23:59:59.999Z</field>
-            <field name="n.date.min">1925-06-06T00:00:00.001Z</field>
-            <field name="n.date.str">6. 6. 1925</field>
-            <!--<field name="n.date_instant.day">6</field>
-            <field name="n.date_instant.month">6</field>
-            <field name="n.date_instant.year">1925</field>-->
-            <field name="n.date_range_end.day">6</field>
-            <field name="n.date_range_end.month">6</field>
-            <field name="n.date_range_end.year">1925</field>
-            <field name="n.date_range_start.day">6</field>
-            <field name="n.date_range_start.month">6</field>
-            <field name="n.date_range_start.year">1925</field>
+            <field name="date.max">1925-06-06T23:59:59.999Z</field>
+            <field name="date.min">1925-06-06T00:00:00.001Z</field>
+            <field name="date.str">6. 6. 1925</field>
+            <!--<field name="date_instant.day">6</field>
+            <field name="date_instant.month">6</field>
+            <field name="date_instant.year">1925</field>-->
+            <field name="date_range_end.day">6</field>
+            <field name="date_range_end.month">6</field>
+            <field name="date_range_end.year">1925</field>
+            <field name="date_range_start.day">6</field>
+            <field name="date_range_start.month">6</field>
+            <field name="date_range_start.year">1925</field>
 
-            <field name="n.part.number.sort">24</field>
-            <field name="n.part.number.str">24-25</field>
+            <field name="part.number.sort">24</field>
+            <field name="part.number.str">24-25</field>
         </out>
     </test>
 
@@ -187,19 +187,19 @@
 
         </in>
         <out>
-            <field name="n.date.max">2015-12-31T23:59:59.999Z</field>
-            <field name="n.date.min">2015-01-01T00:00:00.001Z</field>
-            <field name="n.date.str">2015</field>
-            <!--<field name="n.date_instant.year">2015</field>-->
-            <field name="n.date_range_end.year">2015</field>
-            <field name="n.date_range_start.year">2015</field>
+            <field name="date.max">2015-12-31T23:59:59.999Z</field>
+            <field name="date.min">2015-01-01T00:00:00.001Z</field>
+            <field name="date.str">2015</field>
+            <!--<field name="date_instant.year">2015</field>-->
+            <field name="date_range_end.year">2015</field>
+            <field name="date_range_start.year">2015</field>
 
-            <field name="n.part.name">Sedmkrát z logiky a metodologie vědy</field>
-            <field name="n.part.number.str">Mimořádné číslo 3</field>
+            <field name="part.name">Sedmkrát z logiky a metodologie vědy</field>
+            <field name="part.number.str">Mimořádné číslo 3</field>
 
-            <field name="n.title.search">Filosofický časopis. Mimořádné číslo 3. Sedmkrát z logiky a metodologie vědy</field>
-            <field name="n.title.sort">FILOSOFICKY| C|ASOPIS MIMOR|A|DNE| C|I|SLO 3 SEDMKRA|T Z LOGIKY A METODOLOGIE VE|DY</field>
-            <field name="n.titles.search">Filosofický časopis. Mimořádné číslo 3. Sedmkrát z logiky a metodologie vědy</field>
+            <field name="title.search">Filosofický časopis. Mimořádné číslo 3. Sedmkrát z logiky a metodologie vědy</field>
+            <field name="title.sort">FILOSOFICKY| C|ASOPIS MIMOR|A|DNE| C|I|SLO 3 SEDMKRA|T Z LOGIKY A METODOLOGIE VE|DY</field>
+            <field name="titles.search">Filosofický časopis. Mimořádné číslo 3. Sedmkrát z logiky a metodologie vědy</field>
         </out>
     </test>
 

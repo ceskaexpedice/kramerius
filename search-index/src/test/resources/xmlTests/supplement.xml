@@ -12,13 +12,13 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">Úřední list Brněnských novin</field>
-            <field name="n.part.number.sort">1</field>
-            <field name="n.part.number.str">1</field>
+            <field name="part.name">Úřední list Brněnských novin</field>
+            <field name="part.number.sort">1</field>
+            <field name="part.number.str">1</field>
 
-            <field name="n.title.search">1. Úřední list Brněnských novin</field>
-            <field name="n.title.sort">1 U|R|EDNI| LIST BRNE|NSKY|H| NOVIN</field>
-            <field name="n.titles.search">1. Úřední list Brněnských novin</field>
+            <field name="title.search">1. Úřední list Brněnských novin</field>
+            <field name="title.sort">1 U|R|EDNI| LIST BRNE|NSKY|H| NOVIN</field>
+            <field name="titles.search">1. Úřední list Brněnských novin</field>
         </out>
     </test>
 
@@ -30,12 +30,12 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.number.sort">1</field>
-            <field name="n.part.number.str">1</field>
+            <field name="part.number.sort">1</field>
+            <field name="part.number.str">1</field>
 
-            <field name="n.title.search">1</field>
-            <field name="n.title.sort">1</field>
-            <field name="n.titles.search">1</field>
+            <field name="title.search">1</field>
+            <field name="title.sort">1</field>
+            <field name="titles.search">1</field>
         </out>
     </test>
 
@@ -47,11 +47,11 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.part.name">Úřední list Brněnských novin</field>
+            <field name="part.name">Úřední list Brněnských novin</field>
 
-            <field name="n.title.search">Úřední list Brněnských novin</field>
-            <field name="n.title.sort">U|R|EDNI| LIST BRNE|NSKY|H| NOVIN</field>
-            <field name="n.titles.search">Úřední list Brněnských novin</field>
+            <field name="title.search">Úřední list Brněnských novin</field>
+            <field name="title.sort">U|R|EDNI| LIST BRNE|NSKY|H| NOVIN</field>
+            <field name="titles.search">Úřední list Brněnských novin</field>
         </out>
     </test>
 

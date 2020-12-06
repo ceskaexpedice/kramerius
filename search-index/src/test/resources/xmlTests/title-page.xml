@@ -13,13 +13,13 @@
             </part>
         </in>
         <out>
-            <field name="n.page.index">0</field>
-            <field name="n.page.number">1</field>
-            <field name="n.page.type">NormalPage</field>
+            <field name="page.index">0</field>
+            <field name="page.number">1</field>
+            <field name="page.type">NormalPage</field>
 
-            <field name="n.title.search">1</field>
-            <field name="n.title.sort">1</field>
-            <field name="n.titles.search">1</field>
+            <field name="title.search">1</field>
+            <field name="title.sort">1</field>
+            <field name="titles.search">1</field>
         </out>
     </test>
 
@@ -38,13 +38,13 @@
             </part>
         </in>
         <out>
-            <field name="n.page.index">0</field>
-            <field name="n.page.number">1</field>
-            <field name="n.page.type">NormalPage</field>
+            <field name="page.index">0</field>
+            <field name="page.number">1</field>
+            <field name="page.type">NormalPage</field>
 
-            <field name="n.title.search">1</field>
-            <field name="n.title.sort">1</field>
-            <field name="n.titles.search">1</field>
+            <field name="title.search">1</field>
+            <field name="title.sort">1</field>
+            <field name="titles.search">1</field>
         </out>
     </test>
 
@@ -63,13 +63,13 @@
             </part>
         </in>
         <out>
-            <field name="n.page.index">0</field>
-            <field name="n.page.number">1</field>
-            <field name="n.page.type">NormalPage</field>
+            <field name="page.index">0</field>
+            <field name="page.number">1</field>
+            <field name="page.type">NormalPage</field>
 
-            <field name="n.title.search">1</field>
-            <field name="n.title.sort">1</field>
-            <field name="n.titles.search">1</field>
+            <field name="title.search">1</field>
+            <field name="title.sort">1</field>
+            <field name="titles.search">1</field>
         </out>
     </test>
 
@@ -93,15 +93,15 @@
             </part>
         </in>
         <out>
-            <field name="n.page.index">0</field>
-            <field name="n.page.number">1</field>
-            <field name="n.page.type">NormalPage</field>
+            <field name="page.index">0</field>
+            <field name="page.number">1</field>
+            <field name="page.type">NormalPage</field>
 
-            <field name="n.title.search">first</field>
-            <field name="n.title.sort">FIRST</field>
-            <field name="n.titles.search">first</field>
-            <field name="n.titles.search">prvni</field>
-            <field name="n.titles.search">1</field>
+            <field name="title.search">first</field>
+            <field name="title.sort">FIRST</field>
+            <field name="titles.search">first</field>
+            <field name="titles.search">prvni</field>
+            <field name="titles.search">1</field>
         </out>
     </test>
 
@@ -123,14 +123,14 @@
             </titleInfo>
         </in>
         <out>
-            <field name="n.page.index">1</field>
-            <field name="n.page.number">[1a]</field>
-            <field name="n.page.type">normalPage</field>
+            <field name="page.index">1</field>
+            <field name="page.number">[1a]</field>
+            <field name="page.type">normalPage</field>
 
-            <field name="n.title.search">Srb-Debrnov, Josef</field>
-            <field name="n.title.sort">SRB DEBRNOV JOSEF</field>
-            <field name="n.titles.search">Srb-Debrnov, Josef</field>
-            <field name="n.titles.search">[1a]</field>
+            <field name="title.search">Srb-Debrnov, Josef</field>
+            <field name="title.sort">SRB DEBRNOV JOSEF</field>
+            <field name="titles.search">Srb-Debrnov, Josef</field>
+            <field name="titles.search">[1a]</field>
         </out>
     </test>
 

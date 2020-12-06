@@ -20,7 +20,7 @@ public class IdentifiersExtractor {
                     //UNIVERSAL
                     case "urnnbn":
                     case "URNNBN":
-                        solrInput.addField("n.id_urnnbn", normalizeIdValue(KnownIdType.URN_NBN, value));
+                        solrInput.addField("id_urnnbn", normalizeIdValue(KnownIdType.URN_NBN, value));
                         break;
                     case "ccnb":
                     case "cnb":
@@ -30,43 +30,43 @@ public class IdentifiersExtractor {
                     case "CNB":
                     case "ČNB":
                     case "ČČNB":
-                        solrInput.addField("n.id_ccnb", normalizeIdValue(KnownIdType.CCNB, value));
+                        solrInput.addField("id_ccnb", normalizeIdValue(KnownIdType.CCNB, value));
                         break;
                     case "uuid":
                     case "UUID":
-                        solrInput.addField("n.id_uuid", normalizeIdValue(KnownIdType.UUID, value));
+                        solrInput.addField("id_uuid", normalizeIdValue(KnownIdType.UUID, value));
                         break;
                     case "oclc":
                     case "OCLC":
-                        solrInput.addField("n.id_oclc", normalizeIdValue(KnownIdType.OCLC, value));
+                        solrInput.addField("id_oclc", normalizeIdValue(KnownIdType.OCLC, value));
                         break;
                     case "sysno":
                     case "SYSNO":
-                        solrInput.addField("n.id_sysno", normalizeIdValue(KnownIdType.SYSNO, value));
+                        solrInput.addField("id_sysno", normalizeIdValue(KnownIdType.SYSNO, value));
                         break;
                     case "barCode":
-                        solrInput.addField("n.id_barcode", normalizeIdValue(KnownIdType.BARCODE, value));
+                        solrInput.addField("id_barcode", normalizeIdValue(KnownIdType.BARCODE, value));
                         break;
 
                     //FOR SPECIFIC TYPES
                     case "isbn":
                     case "ISBN":
-                        solrInput.addField("n.id_isbn", normalizeIdValue(KnownIdType.ISBN, value));
+                        solrInput.addField("id_isbn", normalizeIdValue(KnownIdType.ISBN, value));
                         break;
                     case "issn":
                     case "ISSN":
-                        solrInput.addField("n.id_issn", normalizeIdValue(KnownIdType.ISSN, value));
+                        solrInput.addField("id_issn", normalizeIdValue(KnownIdType.ISSN, value));
                         break;
                     case "ismn":
                     case "ISMN":
-                        solrInput.addField("n.id_ismn", normalizeIdValue(KnownIdType.ISMN, value));
+                        solrInput.addField("id_ismn", normalizeIdValue(KnownIdType.ISMN, value));
                         break;
                     default:
-                        solrInput.addField("n.id_other", type + ':' + value);
+                        solrInput.addField("id_other", type + ':' + value);
                         break;
                 }
             } else if (value != null) {//no type
-                solrInput.addField("n.id_other", value);
+                solrInput.addField("id_other", value);
             }
         }
     }

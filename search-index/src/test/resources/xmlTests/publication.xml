@@ -8,8 +8,8 @@
             </originInfo>
         </in>
         <out>
-            <field name="n.publishers.facet">Grada</field>
-            <field name="n.publishers.search">Grada</field>
+            <field name="publishers.facet">Grada</field>
+            <field name="publishers.search">Grada</field>
         </out>
     </test>
 
@@ -24,10 +24,10 @@
             </originInfo>
         </in>
         <out>
-            <field name="n.publishers.facet">Grada</field>
-            <field name="n.publishers.facet">Albatros</field>
-            <field name="n.publishers.search">Grada</field>
-            <field name="n.publishers.search">Albatros</field>
+            <field name="publishers.facet">Grada</field>
+            <field name="publishers.facet">Albatros</field>
+            <field name="publishers.search">Grada</field>
+            <field name="publishers.search">Albatros</field>
         </out>
     </test>
 
@@ -44,10 +44,10 @@
             </originInfo>
         </in>
         <out>
-            <field name="n.publication_places.facet">Burbank</field>
-            <field name="n.publication_places.facet">Los Angeles</field>
-            <field name="n.publication_places.search">Burbank</field>
-            <field name="n.publication_places.search">Los Angeles</field>
+            <field name="publication_places.facet">Burbank</field>
+            <field name="publication_places.facet">Los Angeles</field>
+            <field name="publication_places.search">Burbank</field>
+            <field name="publication_places.search">Los Angeles</field>
         </out>
     </test>
 
@@ -65,12 +65,12 @@
             </originInfo>
         </in>
         <out>
-            <field name="n.publication_places.facet">Burbank</field>
-            <field name="n.publication_places.facet">Los Angeles</field>
-            <field name="n.publication_places.facet">El Pueblo de Nuestra Señora la Reina de los Ángeles</field>
-            <field name="n.publication_places.search">Burbank</field>
-            <field name="n.publication_places.search">Los Angeles</field>
-            <field name="n.publication_places.search">El Pueblo de Nuestra Señora la Reina de los Ángeles</field>
+            <field name="publication_places.facet">Burbank</field>
+            <field name="publication_places.facet">Los Angeles</field>
+            <field name="publication_places.facet">El Pueblo de Nuestra Señora la Reina de los Ángeles</field>
+            <field name="publication_places.search">Burbank</field>
+            <field name="publication_places.search">Los Angeles</field>
+            <field name="publication_places.search">El Pueblo de Nuestra Señora la Reina de los Ángeles</field>
         </out>
     </test>
 
@@ -89,10 +89,10 @@
             </originInfo>
         </in>
         <out>
-            <field name="n.publication_places.facet">Burbank</field>
-            <field name="n.publication_places.facet">Los Angeles</field>
-            <field name="n.publication_places.search">Burbank</field>
-            <field name="n.publication_places.search">Los Angeles</field>
+            <field name="publication_places.facet">Burbank</field>
+            <field name="publication_places.facet">Los Angeles</field>
+            <field name="publication_places.search">Burbank</field>
+            <field name="publication_places.search">Los Angeles</field>
         </out>
     </test>
 
@@ -111,10 +111,10 @@
             </originInfo>
         </in>
         <out>
-            <field name="n.publication_places.facet">Burbank</field>
-            <field name="n.publication_places.facet">Los Angeles</field>
-            <field name="n.publication_places.search">Burbank</field>
-            <field name="n.publication_places.search">Los Angeles</field>
+            <field name="publication_places.facet">Burbank</field>
+            <field name="publication_places.facet">Los Angeles</field>
+            <field name="publication_places.search">Burbank</field>
+            <field name="publication_places.search">Los Angeles</field>
         </out>
     </test>
 
@@ -136,12 +136,12 @@
             </originInfo>
         </in>
         <out>
-            <field name="n.publication_places.facet">Burbank</field>
-            <field name="n.publication_places.facet">Los Angeles</field>
-            <field name="n.publication_places.facet">Glendale</field>
-            <field name="n.publication_places.search">Burbank</field>
-            <field name="n.publication_places.search">Los Angeles</field>
-            <field name="n.publication_places.search">Glendale</field>
+            <field name="publication_places.facet">Burbank</field>
+            <field name="publication_places.facet">Los Angeles</field>
+            <field name="publication_places.facet">Glendale</field>
+            <field name="publication_places.search">Burbank</field>
+            <field name="publication_places.search">Los Angeles</field>
+            <field name="publication_places.search">Glendale</field>
         </out>
     </test>
 

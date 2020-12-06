@@ -22,12 +22,12 @@
             </note>
         </in>
         <out>
-            <field name="n.collection.desc">Kolekce map a grafik na území střední a východní Evropy</field>
-            <field name="n.collection.is_standalone">false</field>
+            <field name="collection.desc">Kolekce map a grafik na území střední a východní Evropy</field>
+            <field name="collection.is_standalone">false</field>
 
-            <field name="n.title.search">Evropa</field>
-            <field name="n.title.sort">EVROPA</field>
-            <field name="n.titles.search">Evropa</field>
+            <field name="title.search">Evropa</field>
+            <field name="title.sort">EVROPA</field>
+            <field name="titles.search">Evropa</field>
         </out>
     </test>
 
@@ -52,11 +52,11 @@
             </note>
         </in>
         <out>
-            <field name="n.collection.is_standalone">false</field>
+            <field name="collection.is_standalone">false</field>
 
-            <field name="n.title.search">Evropa</field>
-            <field name="n.title.sort">EVROPA</field>
-            <field name="n.titles.search">Evropa</field>
+            <field name="title.search">Evropa</field>
+            <field name="title.sort">EVROPA</field>
+            <field name="titles.search">Evropa</field>
         </out>
     </test>
 
@@ -79,8 +79,8 @@
             </note>
         </in>
         <out>
-            <field name="n.collection.desc">Kolekce map a grafik na území střední a východní Evropy</field>
-            <field name="n.collection.is_standalone">false</field>
+            <field name="collection.desc">Kolekce map a grafik na území střední a východní Evropy</field>
+            <field name="collection.is_standalone">false</field>
         </out>
     </test>
 
