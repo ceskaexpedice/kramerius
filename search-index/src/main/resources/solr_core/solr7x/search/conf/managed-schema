@@ -535,6 +535,8 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <field name="in_collections" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="in_collections.direct" type="string" indexed="true" stored="true" multiValued="true"/>
 
+        <!--level (vertical position in own tree starting with 0 for root) -->
+        <field name="level" type="int" indexed="true" stored="true"/>
 
         <!--children (own, foster)-->
         <!--<field name="own_children_pids" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -544,9 +546,6 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--paths - all arrays-->
         <!--<field name="pid_path" type="pid_path" indexed="true" stored="true" multiValued="true"/>-->
         <!--<field name="model_path" type="text_path" indexed="true" stored="true" multiValued="true"/>-->
-        <!--level-->
-        <!--<field name="level" type="int" indexed="true" stored="true"/>-->
-
 
         <!--DATES -->
 

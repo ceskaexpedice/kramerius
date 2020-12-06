@@ -168,11 +168,12 @@ public class Foxml2SolrInputConverter {
                     addSolrField(solrInput, "model_path", fosterParentNode.getModelPath() + "/" + model);
                 }
             }*/
+
             //level je uroven ve vlastnim strome, pocitano od 0
-            /*if (repositoryNode.getModelPath() != null) {
+            if (repositoryNode.getModelPath() != null) {
                 Integer level = repositoryNode.getModelPath().split("/").length - 1;
                 addSolrField(solrInput, "level", level.toString());
-            }*/
+            }
         }
 
         //titles
