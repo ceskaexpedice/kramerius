@@ -77,6 +77,8 @@ public class ItemsResource extends ClientApiResource {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
+    private static final boolean AUDIO_IGNORE_RANGE = true;
+
     @HEAD
     @Path("{pid}")
     public Response checkItemExists(@PathParam("pid") String pid) {
@@ -427,7 +429,11 @@ public class ItemsResource extends ClientApiResource {
     public Response isAudioMp3Available(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3);
-        return Response.ok().header("Accept-Ranges", "bytes").build();
+        if (AUDIO_IGNORE_RANGE) {
+            return Response.ok().build();
+        } else {
+            return Response.ok().header("Accept-Ranges", "bytes").build();
+        }
     }
 
     /***
@@ -442,31 +448,36 @@ public class ItemsResource extends ClientApiResource {
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3);
             String mimeType = krameriusRepositoryApi.getAudioMp3Mimetype(pid);
             InputStream is = krameriusRepositoryApi.getAudioMp3(pid);
-            return getAudioData(mimeType, is);
+            return getAudioData(mimeType, is, pid);
         } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }
 
-    private Response getAudioData(String mimeType, InputStream is) throws IOException {
+    private Response getAudioData(String mimeType, InputStream is, String pid) throws IOException {
+        //TODO: consider using logic from AudioProxyServlet instead of getting content from Akubra
         String headerRange = requestProvider.get().getHeader("Range");
-        boolean rangeEmpty = headerRange == null || headerRange.isEmpty();
-        boolean rangeValueSupported = !rangeEmpty && headerRange.matches("bytes=\\d*-\\d*");//|| hdrRange.matches("bytes=0-\\d+");
-        if (rangeEmpty || !rangeValueSupported) { //without Range or Range ignored
-            StreamingOutput stream = output -> {
-                IOUtils.copy(is, output);
-                IOUtils.closeQuietly(is);
-            };
-            return Response.ok().entity(stream).type(mimeType)
-                    .header("Accept-Ranges", "bytes")
-                    .build();
-        } else { //within Range
+        boolean useRange = !AUDIO_IGNORE_RANGE && //not disabled
+                headerRange != null && !headerRange.isEmpty() && //Range present
+                !"bytes=0-".equals(headerRange) && //Chrome uses this and expects 200 instead of 206
+                headerRange.matches("bytes=\\d*-\\d*"); //ignoring different units or <unit>=<range-start>-<range-end>, <range-start>-<range-end>, <range-start>-<range-end>
+        if (!useRange) { //request without header Range or header Range ignored
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int totalSize = IOUtils.copy(is, buffer);
             IOUtils.closeQuietly(is);
-            //this should be cached (in Akubra?), following requests with Range will very probably follow
             byte[] dataComplete = buffer.toByteArray();
-
+            Response.ResponseBuilder resp = Response.ok().entity(dataComplete).type(mimeType)
+                    .header("Content-Length", totalSize);
+            if (!AUDIO_IGNORE_RANGE) {
+                resp.header("Accept-Ranges", "bytes");
+            }
+            return resp.build();
+        } else { //using header Range
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            int totalSize = IOUtils.copy(is, buffer);
+            IOUtils.closeQuietly(is);
+            //this should be cached (in Akubra?), next requests with Range for this resource will very probably follow
+            byte[] dataComplete = buffer.toByteArray();
             Integer start = 0;
             Integer end = dataComplete.length;
             String[] rangeItems = headerRange.substring(("bytes=".length())).split("-");
@@ -477,11 +488,14 @@ public class ItemsResource extends ClientApiResource {
                 start = Integer.valueOf(rangeItems[1]);
             }
             byte[] dataInRange = Arrays.copyOfRange(dataComplete, start, end);
-            return Response.status(206).entity(dataInRange)
+
+            Response.ResponseBuilder resp = Response.status(206).entity(dataInRange).type(mimeType)
                     .header("Accept-Ranges", "bytes")
-                    .header("Content-Range", String.format("bytes %d-%d/%d", start, end, totalSize))
-                    .header("Content-Length", end - start)
-                    .type(mimeType).build();
+                    .header("Content-Length", totalSize);
+            if (!(start == 0 && end == totalSize)) {
+                resp.header("Content-Range", String.format("bytes %d-%d/%d", start, end - 1, totalSize));
+            }
+            return resp.build();
         }
     }
 
@@ -490,7 +504,11 @@ public class ItemsResource extends ClientApiResource {
     public Response isAudioOggAvailable(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG);
-        return Response.ok().header("Accept-Ranges", "bytes").build();
+        if (AUDIO_IGNORE_RANGE) {
+            return Response.ok().build();
+        } else {
+            return Response.ok().header("Accept-Ranges", "bytes").build();
+        }
     }
 
     /***
@@ -505,7 +523,7 @@ public class ItemsResource extends ClientApiResource {
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG);
             String mimeType = krameriusRepositoryApi.getAudioOggMimetype(pid);
             InputStream is = krameriusRepositoryApi.getAudioOgg(pid);
-            return getAudioData(mimeType, is);
+            return getAudioData(mimeType, is, pid);
         } catch (RepositoryException |
                 IOException e) {
             throw new InternalErrorException(e.getMessage());
@@ -517,7 +535,11 @@ public class ItemsResource extends ClientApiResource {
     public Response isAudioWavAvailable(@PathParam("pid") String pid) {
         //TODO: autorizace podle zdroje přístupu, POLICY apod.
         checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV);
-        return Response.ok().header("Accept-Ranges", "bytes").build();
+        if (AUDIO_IGNORE_RANGE) {
+            return Response.ok().build();
+        } else {
+            return Response.ok().header("Accept-Ranges", "bytes").build();
+        }
     }
 
     /***
@@ -532,7 +554,7 @@ public class ItemsResource extends ClientApiResource {
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV);
             String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
             InputStream is = krameriusRepositoryApi.getAudioWav(pid);
-            return getAudioData(mimeType, is);
+            return getAudioData(mimeType, is, pid);
         } catch (RepositoryException |
                 IOException e) {
             throw new InternalErrorException(e.getMessage());
