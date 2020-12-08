@@ -90,7 +90,6 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfo(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
             checkObjectExists(pid);
             JSONObject json = new JSONObject();
@@ -107,7 +106,6 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/data")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoData(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
             checkObjectExists(pid);
             return Response.ok(extractAvailableDataInfo(pid)).build();
@@ -125,7 +123,6 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/structure")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoStructure(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
             checkObjectExists(pid);
             return Response.ok(extractStructureInfo(pid)).build();
@@ -142,7 +139,6 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/image")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoImage(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
             checkObjectExists(pid);
             return Response.ok(extractImageSourceInfo(pid)).build();
@@ -243,7 +239,6 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/metadata/mods")
     public Response isMetadataModsAvailable(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
         return Response.ok().build();
     }
@@ -252,7 +247,6 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/metadata/mods")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getMetadataMods(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
             Document mods = krameriusRepositoryApi.getMods(pid, true);
@@ -267,7 +261,6 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/metadata/dc")
     public Response isMetadataDublinCoreAvailable(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
         return Response.ok().build();
     }
@@ -276,7 +269,6 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/metadata/dc")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getMetadataDublinCore(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
             Document dc = krameriusRepositoryApi.getDublinCore(pid, true);
@@ -289,8 +281,9 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/ocr/text")
     public Response isOcrTextAvailable(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
-        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT);
+        KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
+        checkObjectAndDatastreamExist(pid, dsId);
+        checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
         return Response.ok().build();
     }
 
@@ -309,9 +302,10 @@ public class ItemsResource extends ClientApiResource {
 
         //redirect, externally referenced
 
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
+            checkObjectAndDatastreamExist(pid, dsId);
+            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             String ocrText = krameriusRepositoryApi.getOcrText(pid);
             return Response.ok().entity(ocrText).build();
         } catch (RepositoryException | IOException e) {
@@ -322,8 +316,9 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/ocr/alto")
     public Response isOcrAltoAvailable(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
-        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO);
+        KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
+        checkObjectAndDatastreamExist(pid, dsId);
+        checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
         return Response.ok().build();
     }
 
@@ -332,9 +327,10 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getDatastreamOcrAlto(@PathParam("pid") String pid) {
         //TODO: pořádně otestovat datastreamy s různými controlgroups (M,E,R) a s odkazy typu URL, path
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
+            checkObjectAndDatastreamExist(pid, dsId);
+            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             Document ocrAlto = krameriusRepositoryApi.getOcrAlto(pid, true);
             return Response.ok().entity(ocrAlto.asXML()).build();
         } catch (RepositoryException | IOException e) {
@@ -348,8 +344,9 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/image")
     public Response isImgFullAvailable(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
-        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_FULL);
+        KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+        checkObjectAndDatastreamExist(pid, dsId);
+        checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
         return Response.ok().build();
     }
 
@@ -361,9 +358,10 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/image")
     public Response getImgFull(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_FULL);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId);
+            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
             InputStream is = krameriusRepositoryApi.getImgFull(pid);
             StreamingOutput stream = output -> {
@@ -371,8 +369,7 @@ public class ItemsResource extends ClientApiResource {
                 IOUtils.closeQuietly(is);
             };
             return Response.ok().entity(stream).type(mimeType).build();
-        } catch (RepositoryException |
-                IOException e) {
+        } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -383,7 +380,6 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/image/thumb")
     public Response getImgThumb(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
             checkObjectExists(pid);
             Pair<InputStream, String> imgThumb = getFirstAvailableImgThumb(pid);
@@ -427,8 +423,9 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/audio/mp3")
     public Response isAudioMp3Available(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
-        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3);
+        KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
+        checkObjectAndDatastreamExist(pid, dsId);
+        checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
         if (AUDIO_IGNORE_RANGE) {
             return Response.ok().build();
         } else {
@@ -443,9 +440,10 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/audio/mp3")
     public Response getAudioMp3(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
+            checkObjectAndDatastreamExist(pid, dsId);
+            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             String mimeType = krameriusRepositoryApi.getAudioMp3Mimetype(pid);
             InputStream is = krameriusRepositoryApi.getAudioMp3(pid);
             return getAudioData(mimeType, is, pid);
@@ -502,8 +500,9 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/audio/ogg")
     public Response isAudioOggAvailable(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
-        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG);
+        KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
+        checkObjectAndDatastreamExist(pid, dsId);
+        checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
         if (AUDIO_IGNORE_RANGE) {
             return Response.ok().build();
         } else {
@@ -518,14 +517,14 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/audio/ogg")
     public Response getAudioOgg(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
+            checkObjectAndDatastreamExist(pid, dsId);
+            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             String mimeType = krameriusRepositoryApi.getAudioOggMimetype(pid);
             InputStream is = krameriusRepositoryApi.getAudioOgg(pid);
             return getAudioData(mimeType, is, pid);
-        } catch (RepositoryException |
-                IOException e) {
+        } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -533,8 +532,9 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/audio/wav")
     public Response isAudioWavAvailable(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
-        checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV);
+        KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
+        checkObjectAndDatastreamExist(pid, dsId);
+        checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
         if (AUDIO_IGNORE_RANGE) {
             return Response.ok().build();
         } else {
@@ -549,14 +549,14 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/audio/wav")
     public Response getAudioWav(@PathParam("pid") String pid) {
-        //TODO: autorizace podle zdroje přístupu, POLICY apod.
         try {
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
+            checkObjectAndDatastreamExist(pid, dsId);
+            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
             InputStream is = krameriusRepositoryApi.getAudioWav(pid);
             return getAudioData(mimeType, is, pid);
-        } catch (RepositoryException |
-                IOException e) {
+        } catch (RepositoryException | IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
     }
