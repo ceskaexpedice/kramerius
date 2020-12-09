@@ -120,6 +120,33 @@ public class Foxml2SolrInputConverter {
                     addSolrField(solrInput, "foster_parents.pids", fosterParent);
                 }
             }
+
+            //level je uroven ve vlastnim strome, pocitano od 0
+            if (repositoryNode.getModelPath() != null) {
+                Integer level = repositoryNode.getModelPath().split("/").length - 1;
+                addSolrField(solrInput, "level", level.toString());
+            }
+            //pid_paths
+            addSolrField(solrInput, "pid_paths", repositoryNode.getPidPath());
+            if (repositoryNode.getPidsOfFosterParents() != null) {
+                for (String fosterParent : repositoryNode.getPidsOfFosterParents()) {
+                    RepositoryNode fosterParentNode = nodeManager.getKrameriusNode(fosterParent);
+                    addSolrField(solrInput, "pid_paths", fosterParentNode.getPidPath() + "/" + pid);
+                }
+            }
+
+            //own, foster children
+            /*if (krameriusNode.getPidsOfOwnChildren() != null) {
+                for (String ownChild : krameriusNode.getPidsOfOwnChildren()) {
+                    addSolrField(solrInput, "own_children_pids", ownChild);
+                }
+            }*/
+            /*if (krameriusNode.getPidsOfFosterChildren() != null) {
+                for (String fosterChild : krameriusNode.getPidsOfFosterChildren()) {
+                    addSolrField(solrInput, "foster_children_pids", fosterChild);
+                }
+            }*/
+
             //collections
             if (repositoryNode.getPidsOfFosterParentsOfTypeCollection() != null) {
                 for (String collection : repositoryNode.getPidsOfFosterParentsOfTypeCollection()) {
@@ -139,40 +166,6 @@ public class Foxml2SolrInputConverter {
             for (String author : repositoryNode.getAuthors()) {
                 solrInput.addField("authors", author);
                 solrInput.addField("authors.facet", withFirstLetterInUpperCase(author));
-            }
-
-            //pid/model path
-            /*addSolrField(solrInput, "pid_path", krameriusNode.toPidPath());
-            addSolrField(solrInput, "model_path", krameriusNode.toModelPath());*/
-            //own, foster children
-            /*if (krameriusNode.getPidsOfOwnChildren() != null) {
-                for (String ownChild : krameriusNode.getPidsOfOwnChildren()) {
-                    addSolrField(solrInput, "own_children_pids", ownChild);
-                }
-            }*/
-            /*if (krameriusNode.getPidsOfFosterChildren() != null) {
-                for (String fosterChild : krameriusNode.getPidsOfFosterChildren()) {
-                    addSolrField(solrInput, "foster_children_pids", fosterChild);
-                }
-            }*/
-            //deprecated, jen pro testovani a dokud se neprizpusobi stary klient, do produkce zrusit
-            //vsechny tri maji byt pole s own_parent path prvni a ostatni pathy nasledujici
-            //addSolrField(solrInput, "parent_pid", repositoryNode.getParentPid());
-            //addSolrField(solrInput, "pid_path", repositoryNode.getPidPath());
-            //addSolrField(solrInput, "model_path", repositoryNode.getModelPath());
-            /*if (repositoryNode.getPidsOfFosterParents() != null) {
-                for (String fosterParent : repositoryNode.getPidsOfFosterParents()) {
-                    RepositoryNode fosterParentNode = nodeManager.getKrameriusNode(fosterParent);
-                    //addSolrField(solrInput, "parent_pid", fosterParent);
-                    addSolrField(solrInput, "pid_path", fosterParentNode.getPidPath() + "/" + pid);
-                    addSolrField(solrInput, "model_path", fosterParentNode.getModelPath() + "/" + model);
-                }
-            }*/
-
-            //level je uroven ve vlastnim strome, pocitano od 0
-            if (repositoryNode.getModelPath() != null) {
-                Integer level = repositoryNode.getModelPath().split("/").length - 1;
-                addSolrField(solrInput, "level", level.toString());
             }
         }
 

@@ -537,15 +537,12 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <!--level (vertical position in own tree starting with 0 for root) -->
         <field name="level" type="int" indexed="true" stored="true"/>
+        <!--path from own parent to this + paths from all foster parents to this-->
+        <field name="pid_paths" type="string" indexed="true" stored="true" multiValued="true"/>
 
         <!--children (own, foster)-->
         <!--<field name="own_children_pids" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="foster_children_pids" type="string" indexed="true" stored="true" multiValued="true"/>-->
-
-        <!--legacy fields-->
-        <!--paths - all arrays-->
-        <!--<field name="pid_path" type="pid_path" indexed="true" stored="true" multiValued="true"/>-->
-        <!--<field name="model_path" type="text_path" indexed="true" stored="true" multiValued="true"/>-->
 
         <!--DATES -->
 
