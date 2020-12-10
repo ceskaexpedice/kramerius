@@ -222,7 +222,7 @@ public class SolrAccessImplNewIndex implements SolrAccess {
     }
 
     @Override
-    public Document getSolrDataDocmentsByParentPid(String parentPid, String offset) throws IOException {
+    public Document getSolrDataDocumentsByParentPid(String parentPid, String offset) throws IOException {
         if (SpecialObjects.isSpecialObject(parentPid))
             return null;
         if (CollectionPidUtils.isCollectionPid(parentPid)) {
