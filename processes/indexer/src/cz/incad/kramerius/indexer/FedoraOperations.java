@@ -54,7 +54,6 @@ public class FedoraOperations {
         this.rindex = resourceIndex;
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
         utf_sort = new UTFSort();
-        utf_sort.init();
     }
 
 
@@ -64,7 +63,6 @@ public class FedoraOperations {
         this.fa = GuiceModelInjector.injector().getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
         utf_sort = new UTFSort();
-        utf_sort.init();
     }
 
     //    public void updateIndex(String action, String value, ArrayList<String> requestParams) throws java.rmi.RemoteException, Exception {

@@ -7,7 +7,10 @@ import com.qbizm.kramerius.imp.jaxb.PropertyType;
 import cz.incad.kramerius.utils.SafeSimpleDateFormat;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.akubraproject.map.IdMapper;
 import org.apache.commons.io.IOUtils;
+import org.fcrepo.common.PID;
+import org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper;
 import org.w3c.dom.Element;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -18,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -122,9 +126,27 @@ public class AkubraUtils {
         }
     }
 
-    public static String endpoint() {
-        String apiPoint = KConfiguration.getInstance().getConfiguration().getString("api.point");
-        return apiPoint + (apiPoint.endsWith("/") ? "" : "/") + "item/";
+    /**
+     * Return Akubra object store internal path for provided PID
+     *
+     * @param pid PID of the FOXML object (uuid:xxxxxx...)
+     * @return internal file path relative to object store root, depends ob the property objectStore.pattern
+     */
+    public static String getAkubraInternalId(String pid) {
+        if (pid == null) {
+            return "";
+        }
+        String objectPattern = KConfiguration.getInstance().getProperty("objectStore.pattern");
+        IdMapper mapper = new HashPathIdMapper(objectPattern);
+        URI extUri = null;
+        try {
+            extUri = new URI(new PID(pid).toURI());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+        URI internalId = mapper.getInternalId(extUri);
+        return internalId.toString();
     }
 
     public static Date getLastModified(DigitalObject object) throws IOException {

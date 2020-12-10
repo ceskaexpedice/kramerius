@@ -658,6 +658,9 @@ public abstract class BaseConvertor {
                 if (f != null) {
                     File imageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
                     if (imageFile.exists() && imageFile.canRead()) {
+                        if (imageFile.length() == 0){
+                            continue;
+                        }
                         switch (f.getFileType()){
                             case MASTER_IMAGE:
                             case USER_IMAGE:

@@ -1,8 +1,6 @@
 package cz.incad.kramerius.rest.api.k5.client.impl;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +8,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
@@ -54,7 +51,7 @@ public class SolrMemoizationImpl implements SolrMemoization{
                 int numFound = Integer.MAX_VALUE;
                 List<Element> foundElements = new ArrayList<Element>();
                 while(offset < numFound) {
-                    Document resultsDocs = solrAccess.getSolrDataDocmentsByParentPid(parentPid, ""+offset);
+                    Document resultsDocs = solrAccess.getSolrDataDocumentsByParentPid(parentPid, ""+offset);
                     Element result = XMLUtils.findElement(resultsDocs.getDocumentElement(), "result");
                     if (result != null) {
                         String snumFound = result.getAttribute("numFound");

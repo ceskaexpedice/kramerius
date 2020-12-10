@@ -10,6 +10,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import org.akubraproject.map.IdMapper;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.fcrepo.common.Constants;
 import org.fcrepo.common.FaultException;
@@ -52,7 +53,7 @@ public enum LegacyMigrationParts {
         public void doMigrationPart(Connection db, String[] args) throws SQLException {
             String datastreamPaths = KConfiguration.getInstance().getProperty("datastreamStore.path");
             String datastreamPattern = KConfiguration.getInstance().getProperty("datastreamStore.pattern");
-            dbSelect(db, "datastreampaths", new File(datastreamPaths), datastreamPattern, "select * from datastreampaths where tokendbid > " + args[1] + " order by tokendbid", (f) -> {
+            dbSelect(db, "datastreampaths", new File(datastreamPaths), datastreamPattern, "select * from datastreampaths where tokendbid >= " + args[1] + " and tokendbid < " +args[2]+ " order by tokendbid", args, (f) -> {
             });
         }
     },
@@ -69,7 +70,11 @@ public enum LegacyMigrationParts {
             String objectPaths = KConfiguration.getInstance().getProperty("objectStore.path");
             String objectPattern = KConfiguration.getInstance().getProperty("objectStore.pattern");
             Consumer<File> consumer = null;
-            if ("true".equalsIgnoreCase(args[3])) {
+            if (args.length >= 6) { // kdyz mame vice jak 6 parametru, prevadime po kouskach z LEGACY do Akubry.
+            	                    // pri prevodu po kouskach nemuzeme poustet create processing index.
+            	args[5] = "false";
+            }
+            if ("true".equalsIgnoreCase(args[5])) {
                 try {
                     feeder.deleteProcessingIndex();
                 } catch (Exception e) {
@@ -88,7 +93,7 @@ public enum LegacyMigrationParts {
                 consumer = f -> {
                 };
             }
-            dbSelect(db, "objectpaths", new File(objectPaths), objectPattern, "select * from objectpaths where tokendbid > " + args[2] + " order by tokendbid", consumer);
+            dbSelect(db, "objectpaths", new File(objectPaths), objectPattern, "select * from objectpaths where tokendbid >= " + args[3] + " and tokendbid < "+args[4]+" order by tokendbid", args, consumer);
         }
 
 
@@ -100,7 +105,7 @@ public enum LegacyMigrationParts {
         SERIALIZER.write(parsed, lsOutput);
     }
 
-    private static void dbSelect(Connection db, String tablename, File targetDir, String directoryPattern, String sqlCommand, Consumer<File> consumer) throws SQLException {
+    private static void dbSelect(Connection db, String tablename, File targetDir, String directoryPattern, String sqlCommand, String[] args, Consumer<File> consumer) throws SQLException {
         IdMapper idMapper = new HashPathIdMapper(directoryPattern);
         final long start = System.currentTimeMillis();
         final AtomicInteger currentIteration = new AtomicInteger(0);
@@ -128,19 +133,36 @@ public enum LegacyMigrationParts {
 
                     long start = System.currentTimeMillis();
                     File targetFile = new File(directory, targetFileName);
-                    boolean renamed = objectFile.renameTo(targetFile);
-                    //long stop2 = System.currentTimeMillis();
-                    //LOGGER.info("\t--> objectFile.renameTo(targetFile):" + (stop2 - start) + " ms ");
-                    if (!renamed) {
-                        throw new RuntimeException("Cannot rename file " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
+                    if (args.length == 7) {
+                    	if ("-m".equalsIgnoreCase(args[6])) {
+                    		boolean renamed = objectFile.renameTo(targetFile);
+                    		//long stop2 = System.currentTimeMillis();
+                    		//LOGGER.info("\t--> objectFile.renameTo(targetFile):" + (stop2 - start) + " ms ");
+                    		if (!renamed) {
+                    			throw new RuntimeException("Cannot rename file " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
+                    		}
+                    	}
+
+                    	if ("-c".equalsIgnoreCase(args[6])) {
+                    		try {
+                    			FileUtils.copyFile(objectFile, targetFile, true); // preserve file date = true
+                    			File targetFileForControl = new File(directory, targetFileName);
+                    			boolean contentEquals = FileUtils.contentEquals(objectFile, targetFileForControl);
+                    			//long stop2 = System.currentTimeMillis();
+                    			//LOGGER.info("\t--> FileUtils.copyFile("+objectFile+", "+targetFile+"):" + (stop2 - start) + " ms ");
+                    			if (!contentEquals) {
+                    				throw new RuntimeException("Bad copy file " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
+                    			}
+                    		} catch (IOException ioe) {
+                    			LOGGER.info("IOException " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath() + " - "+ioe);                    			
+                    		}
+                    	}
+                    	
+                    	consumer.accept(new File(directory, Utils.encode("info:fedora/" + token)));
                     }
-
-                    consumer.accept(new File(directory, Utils.encode("info:fedora/" + token)));
-
                     return true;
                 } else {
                     return true;
-
                 }
             }
         }.executeQuery(sqlCommand);
@@ -175,7 +197,7 @@ public enum LegacyMigrationParts {
     }
 
 
-    // Message after 60 iterations
+    // Message after 50 iterations
     static int LOG_MESSAGE_ITERATION = KConfiguration.getInstance().getConfiguration().getInt("akubra.migration.logfrequency", 10000);
 
     static URI getBlobId(String token) {
@@ -212,3 +234,5 @@ public enum LegacyMigrationParts {
     }
 
 }
+
+

@@ -89,7 +89,6 @@ public class AbstractSearchParamsViews {
         HttpServletRequest request = this.requestProvider.get();
         String t = request.getParameter("browse_title");
         UTFSort utf_sort = new UTFSort();
-        utf_sort.init();
         String browseTitle = utf_sort.translate(t);
         browseTitle = "\"" + browseTitle + "##" + t + "\"";
         // URI uri = new URI(request.getRequestURI());

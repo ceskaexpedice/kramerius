@@ -12,7 +12,7 @@ public class Main {
     public static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) throws Exception {
-        if (args.length > 0 ) {
+        if (args.length > 0) {
             Command.valueOf(args[0].toUpperCase()).doCommand(args);
         } else {
             Arrays.stream(Command.values()).forEach(cmd->{
@@ -77,7 +77,15 @@ public class Main {
             public String desc() {
                 StringBuilder builder = new StringBuilder();
                 builder.append("Migrace z legacy_fs -> akubra_fs").append('\n');
-                builder.append("Parametry: LEGACY 0 0 false ").append('\n');
+                builder.append("Parametry: LEGACY 0 1000 0 1000 false -m||-c").append('\n');
+                builder.append("2. param., od kterého tokendbid v tabulce datastreampaths chci datastreams nacitat").append('\n');
+                builder.append("3. param., před kterým tokendbid v tabulce datastreampaths chci skončit").append('\n');
+                builder.append("4. param., od kterého tokendb id v tabulce objectpaths chci objects načítat").append('\n');
+                builder.append("5. param., před kterým tokendb id v tabulce objectpaths chci skončit").append('\n');
+                builder.append("6. param., pokud nepřevádím všechna data najednou, tak musím process index pouštět až po převední všeho. Takže musí býd vždy false.").append('\n');
+                builder.append("7. param., -c soubory se budou kopirovat nebo -m soubory se budou presouvat").append('\n');
+                builder.append("-c pokud se budou soubory kopirovat, budou se rovnez porovnavat(zdroj,cil)").append('\n');
+                builder.append("Pokud posledni parametr vůbec nezadate, bude se cist pouze vstupni databaze, se soubory se nebude delat nic - (zkusebni rezim)").append('\n');
                 builder.append("Nutne konfiguracni promenne pro migraci: ").append('\n');
                 builder.append("\tlegacyfs.jdbcURL").append(" - db konekce do fedory").append('\n');
                 builder.append("\tlegacyfs.dbUsername").append(" - db uzivatel").append('\n');
@@ -99,3 +107,4 @@ public class Main {
     }
 
 }
+
