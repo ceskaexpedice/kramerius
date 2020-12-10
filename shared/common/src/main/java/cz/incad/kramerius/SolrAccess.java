@@ -48,7 +48,7 @@ public interface SolrAccess {
      */
     public Document getSolrDataDocumentByHandle(String handle) throws IOException;
 
-    public Document getSolrDataDocmentsByParentPid(String parentPid, String offset) throws IOException;
+    public Document getSolrDataDocumentsByParentPid(String parentPid, String offset) throws IOException;
     
     
     /**
