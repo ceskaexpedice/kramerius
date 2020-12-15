@@ -6,6 +6,7 @@ import cz.kramerius.searchIndex.indexer.conversions.extraction.DateExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.LanguagesExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.TitlesExtractor;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
+import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Pair;
 import cz.kramerius.shared.Title;
@@ -90,8 +91,8 @@ public class RepositoryNodeManager {
             DateInfo dateInfo = mergeDateInfos(ownParent, myDateInfo);
             List<String> myLanguages = extractLanguagesFromMods(model, modsDoc);
             List<String> languages = mergeLanguages(ownParent, fosterParents, myLanguages);
-            List<String> myAuthors = extractAuthorsFromMods(model, modsDoc);
-            List<String> authors = mergeAuthors(ownParent, fosterParents, myAuthors);
+            List<AuthorInfo> myAuthors = extractAuthorsFromMods(model, modsDoc);
+            List<AuthorInfo> authors = mergeAuthors(ownParent, fosterParents, myAuthors);
 
             //pids of all foster parents
             List<String> fosterParentsPids = toPidList(fosterParents);
@@ -165,9 +166,9 @@ public class RepositoryNodeManager {
         return list;
     }
 
-    private List<String> mergeAuthors(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<String> myAuthors) {
+    private List<AuthorInfo> mergeAuthors(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<AuthorInfo> myAuthors) {
         //fill set
-        Set<String> set = new HashSet<>();
+        Set<AuthorInfo> set = new HashSet<>();
         if (!myAuthors.isEmpty()) { //prefer this object' authors
             set.addAll(myAuthors);
         } else if (ownParent != null) { //but use parent's if there aren't any authors of this object
@@ -177,7 +178,7 @@ public class RepositoryNodeManager {
             set.addAll(fosterParent.getAuthors());
         }
         //return list
-        List<String> list = new ArrayList<>();
+        List<AuthorInfo> list = new ArrayList<>();
         list.addAll(set);
         return list;
     }
@@ -219,10 +220,10 @@ public class RepositoryNodeManager {
         return languages;
     }
 
-    private List<String> extractAuthorsFromMods(String model, Document modsDoc) throws IOException {
+    private List<AuthorInfo> extractAuthorsFromMods(String model, Document modsDoc) throws IOException {
         AuthorsExtractor extractor = new AuthorsExtractor();
-        List<String> languages = extractor.extractAuthors(modsDoc.getRootElement(), model);
-        return languages;
+        List<AuthorInfo> authors = extractor.extractAuthors(modsDoc.getRootElement(), model);
+        return authors;
     }
 
     private DateInfo extractDateInfoFromMods(String model, Document modsDoc) {
@@ -230,6 +231,5 @@ public class RepositoryNodeManager {
         DateInfo dateInfo = dateExtractor.extractDateInfoFromMultipleSources(modsDoc.getRootElement());
         return dateInfo;
     }
-
 
 }

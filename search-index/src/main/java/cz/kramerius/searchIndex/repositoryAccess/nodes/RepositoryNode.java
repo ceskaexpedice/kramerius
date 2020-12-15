@@ -1,5 +1,6 @@
 package cz.kramerius.searchIndex.repositoryAccess.nodes;
 
+import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Title;
 
@@ -38,7 +39,7 @@ public class RepositoryNode {
 
     //data from predecessors in the tree and possibly from foster parents' predecessors in their trees
     private final List<String> languages;
-    private final List<String> authors;
+    private final List<AuthorInfo> authors;
     private final DateInfo dateInfo;
 
     public RepositoryNode(String pid, String model, Title title,
@@ -47,7 +48,7 @@ public class RepositoryNode {
                           String ownParentPid, String ownParentModel, Title ownParentTitle, Integer positionInOwnParent,
                           List<String> pidsOfFosterParents, List<String> pidsOfFosterParentsOfTypeCollection, List<String> pidsOfAnyAncestorsOfTypeCollection,
                           List<String> pidsOfOwnChildren, List<String> pidsOfFosterChildren,
-                          List<String> languages, List<String> authors, DateInfo dateInfo) {
+                          List<String> languages, List<AuthorInfo> authors, DateInfo dateInfo) {
         this.pid = pid;
         this.model = model;
         this.title = title;
@@ -163,7 +164,7 @@ public class RepositoryNode {
         return languages;
     }
 
-    public List<String> getAuthors() {
+    public List<AuthorInfo> getAuthors() {
         return authors;
     }
 

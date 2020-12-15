@@ -6,6 +6,7 @@ import cz.kramerius.searchIndex.indexer.conversions.extraction.AuthorsExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.DateExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.LanguagesExtractor;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
+import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Dom4jUtils;
 import org.dom4j.*;
@@ -121,7 +122,7 @@ public class XmlTestBuilder {
                     .build();
 
             List<String> languages = new LanguagesExtractor().extractLanguages(test.getInDoc().getRootElement(), null);
-            List<String> authors = new AuthorsExtractor().extractAuthors(test.getInDoc().getRootElement(), null);
+            List<AuthorInfo> authors = new AuthorsExtractor().extractAuthors(test.getInDoc().getRootElement(), null);
             DateInfo dateInfo = new DateExtractor().extractDateInfoFromMultipleSources(test.getInDoc().getRootElement());
             RepositoryNode node = new RepositoryNode(
                     null, test.getDocType(), null,

@@ -2,7 +2,7 @@
 
 
     <test name="Ignor. date">
-        <desc>Ignoruje se namePart[@type='date']</desc>
+        <desc>Hodnota namePart[@type='date'] se ignoruje v authors.facet a authors.search, ale použije se v authors.</desc>
         <in>
             <name>
                 <namePart>Čapek, Karel</namePart>
@@ -10,8 +10,9 @@
             </name>
         </in>
         <out>
-            <field name="authors">Čapek, Karel</field>
+            <field name="authors">Čapek, Karel, 1890-1938</field>
             <field name="authors.facet">Čapek, Karel</field>
+            <field name="authors.search">Čapek, Karel</field>
         </out>
     </test>
 
@@ -26,6 +27,7 @@
         <out>
             <field name="authors">Čapek, Karel</field>
             <field name="authors.facet">Čapek, Karel</field>
+            <field name="authors.search">Čapek, Karel</field>
         </out>
     </test>
 
@@ -39,6 +41,7 @@
         <out>
             <field name="authors">Čapek, Karel</field>
             <field name="authors.facet">Čapek, Karel</field>
+            <field name="authors.search">Čapek, Karel</field>
         </out>
     </test>
 
@@ -54,6 +57,7 @@
         <out>
             <field name="authors">Čapek, Karel</field>
             <field name="authors.facet">Čapek, Karel</field>
+            <field name="authors.search">Čapek, Karel</field>
         </out>
     </test>
 
@@ -67,8 +71,9 @@
             </name>
         </in>
         <out>
-            <field name="authors">Čapek, Karel</field>
+            <field name="authors">Čapek, Karel, 1890-1938</field>
             <field name="authors.facet">Čapek, Karel</field>
+            <field name="authors.search">Čapek, Karel</field>
         </out>
     </test>
 
@@ -89,6 +94,8 @@
             <field name="authors">Jirásek, Alois</field>
             <field name="authors.facet">Neruda, Jan</field>
             <field name="authors.facet">Jirásek, Alois</field>
+            <field name="authors.search">Neruda, Jan</field>
+            <field name="authors.search">Jirásek, Alois</field>
         </out>
     </test>
 
@@ -108,6 +115,8 @@
             <field name="authors">Jirásek, Alois</field>
             <field name="authors.facet">Neruda, Jan</field>
             <field name="authors.facet">Jirásek, Alois</field>
+            <field name="authors.search">Neruda, Jan</field>
+            <field name="authors.search">Jirásek, Alois</field>
         </out>
     </test>
 
@@ -123,6 +132,7 @@
         <out>
             <field name="authors">Čapek, Karel</field>
             <field name="authors.facet">Čapek, Karel</field>
+            <field name="authors.search">Čapek, Karel</field>
         </out>
     </test>
 
@@ -136,6 +146,7 @@
         <out>
             <field name="authors">Čapek</field>
             <field name="authors.facet">Čapek</field>
+            <field name="authors.search">Čapek</field>
         </out>
     </test>
 
@@ -151,6 +162,7 @@
         <out>
             <field name="authors">Čapek, Karel</field>
             <field name="authors.facet">Čapek, Karel</field>
+            <field name="authors.search">Čapek, Karel</field>
         </out>
     </test>
 
@@ -164,6 +176,7 @@
         <out>
             <field name="authors">Karel</field>
             <field name="authors.facet">Karel</field>
+            <field name="authors.search">Karel</field>
         </out>
     </test>
 
@@ -179,6 +192,7 @@
         <out>
             <field name="authors">Komenský, Jan</field>
             <field name="authors.facet">Komenský, Jan</field>
+            <field name="authors.search">Komenský, Jan</field>
         </out>
     </test>
 
@@ -193,6 +207,7 @@
         <out>
             <field name="authors">Komenský, Jan Amos</field>
             <field name="authors.facet">Komenský, Jan Amos</field>
+            <field name="authors.search">Komenský, Jan Amos</field>
         </out>
     </test>
 
@@ -226,6 +241,9 @@
             <field name="authors.facet">Neruda, Jan</field>
             <field name="authors.facet">Jirásek, Alois</field>
             <field name="authors.facet">Kafka, Franz</field>
+            <field name="authors.search">Neruda, Jan</field>
+            <field name="authors.search">Jirásek, Alois</field>
+            <field name="authors.search">Kafka, Franz</field>
         </out>
     </test>
 
@@ -249,6 +267,9 @@
             <field name="authors.facet">Zola, Émile</field>
             <field name="authors.facet">Arbes, Jakub</field>
             <field name="authors.facet">Mácha, Karel Hynek</field>
+            <field name="authors.search">Zola, Émile</field>
+            <field name="authors.search">Arbes, Jakub</field>
+            <field name="authors.search">Mácha, Karel Hynek</field>
         </out>
     </test>
 
@@ -264,6 +285,7 @@
         <out>
             <field name="authors">Čapek, Karel</field>
             <field name="authors.facet">Čapek, Karel</field>
+            <field name="authors.search">Čapek, Karel</field>
         </out>
     </test>
 
@@ -280,6 +302,58 @@
         <out>
             <field name="authors">Pavel, Jan, II.</field>
             <field name="authors.facet">Pavel, Jan, II.</field>
+            <field name="authors.search">Pavel, Jan, II.</field>
+        </out>
+    </test>
+
+
+    <test name="with date (from real example)">
+        <desc>see http://www.digitalniknihovna.cz/mzk/uuid/uuid:3572124e-d1bd-4f4e-8dfb-b16045e8aa80</desc>
+        <in>
+            <name authorityURI="http://aut.nkp.cz" type="personal" usage="primary" valueURI="http://aut.nkp.cz/jk01010005">
+                <namePart>Absolon, Karel</namePart>
+                <namePart type="date">1877-1960</namePart>
+                <role>
+                    <roleTerm authority="marcrelator" type="code">ctg</roleTerm>
+                </role>
+            </name>
+            <name authorityURI="http://aut.nkp.cz" type="personal" valueURI="http://aut.nkp.cz/jk01051270">
+                <namePart>Jaroš, Zdeněk</namePart>
+                <namePart type="date">1883-1945</namePart>
+                <role>
+                    <roleTerm authority="marcrelator" type="code">ctg</roleTerm>
+                </role>
+            </name>
+            <name authorityURI="http://aut.nkp.cz" type="personal" valueURI="http://aut.nkp.cz/jk01101354">
+                <namePart>Promberger, Romuald</namePart>
+                <namePart type="date">1856-1932</namePart>
+                <role>
+                    <roleTerm authority="marcrelator" type="code">pbl</roleTerm>
+                </role>
+            </name>
+            <name type="corporate">
+                <namePart>V. Neubert a synové (firma)</namePart>
+                <role>
+                    <roleTerm authority="marcrelator" type="code">prt</roleTerm>
+                </role>
+            </name>
+        </in>
+        <out>
+            <field name="authors">Absolon, Karel, 1877-1960</field>
+
+            <field name="authors">Jaroš, Zdeněk, 1883-1945</field>
+            <field name="authors">Promberger, Romuald, 1856-1932</field>
+            <field name="authors">V. Neubert a synové (firma)</field>
+
+            <field name="authors.facet">Absolon, Karel</field>
+            <field name="authors.facet">Jaroš, Zdeněk</field>
+            <field name="authors.facet">Promberger, Romuald</field>
+            <field name="authors.facet">V. Neubert a synové (firma)</field>
+
+            <field name="authors.search">Absolon, Karel</field>
+            <field name="authors.search">Jaroš, Zdeněk</field>
+            <field name="authors.search">Promberger, Romuald</field>
+            <field name="authors.search">V. Neubert a synové (firma)</field>
         </out>
     </test>
 

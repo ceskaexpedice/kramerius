@@ -5,6 +5,7 @@ import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.searchIndex.indexer.utils.NamespaceRemovingVisitor;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
+import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Dom4jUtils;
 import cz.kramerius.shared.Title;
@@ -163,9 +164,10 @@ public class Foxml2SolrInputConverter {
                 addSolrField(solrInput, "languages.facet", language);
             }
             //authors
-            for (String author : repositoryNode.getAuthors()) {
-                solrInput.addField("authors", author);
-                solrInput.addField("authors.facet", withFirstLetterInUpperCase(author));
+            for (AuthorInfo author : repositoryNode.getAuthors()) {
+                solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
+                solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
+                solrInput.addField("authors.search", author.getName());
             }
         }
 

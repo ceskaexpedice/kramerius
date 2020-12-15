@@ -1,5 +1,6 @@
 package cz.kramerius.searchIndex.indexer.conversions.extraction;
 
+import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.Dom4jUtils;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -9,32 +10,32 @@ import java.util.List;
 
 public class AuthorsExtractor {
 
-    public List<String> extractAuthors(Element modsEl, String model) {
+    public List<AuthorInfo> extractAuthors(Element modsEl, String model) {
         List<Node> nameEls = Dom4jUtils.buildXpath("mods/name").selectNodes(modsEl);
-        List<String> result = new ArrayList<>();
+        List<AuthorInfo> result = new ArrayList<>();
         for (Node nameEl : nameEls) {
             String namePartNoTypeEl = toStringOrNull(Dom4jUtils.buildXpath("namePart[not(@type)]").selectSingleNode(nameEl));
             String namePartTypeFamilyEl = toStringOrNull(Dom4jUtils.buildXpath("namePart[@type='family']").selectSingleNode(nameEl));
             String namePartTypeGivenEl = toStringOrNull(Dom4jUtils.buildXpath("namePart[@type='given']").selectSingleNode(nameEl));
             String namePartTypetermsOfAddressEl = toStringOrNull(Dom4jUtils.buildXpath("namePart[@type='termsOfAddress']").selectSingleNode(nameEl));
             if (namePartNoTypeEl != null) {
-                result.add(namePartNoTypeEl);
+                result.add(extractAuthor(namePartNoTypeEl, nameEl));
             } else if (namePartTypeFamilyEl != null && namePartTypeGivenEl != null && namePartTypetermsOfAddressEl != null) {
-                result.add(namePartTypeFamilyEl + ", " + namePartTypeGivenEl + ", " + namePartTypetermsOfAddressEl);
+                result.add(extractAuthor(namePartTypeFamilyEl + ", " + namePartTypeGivenEl + ", " + namePartTypetermsOfAddressEl, nameEl));
             } else if (namePartTypeFamilyEl != null && namePartTypeGivenEl != null) {
-                result.add(namePartTypeFamilyEl + ", " + namePartTypeGivenEl);
+                result.add(extractAuthor(namePartTypeFamilyEl + ", " + namePartTypeGivenEl, nameEl));
             } else if (namePartTypeFamilyEl != null) {
-                result.add(namePartTypeFamilyEl);
+                result.add(extractAuthor(namePartTypeFamilyEl, nameEl));
             } else if (namePartTypeGivenEl != null) {
-                result.add(namePartTypeGivenEl);
+                result.add(extractAuthor(namePartTypeGivenEl, nameEl));
             }
         }
-        /*
-        List<Node> authorNameNodes = Dom4jUtils.buildXpath("mods:mods/mods:name/mods:namePart[not(@type)]").selectNodes(modsEl);
-        for (Node authorNameNode : authorNameNodes) {
-            solrInput.addField("dc.creator", toStringOrNull(authorNameNode));
-        }*/
         return result;
+    }
+
+    private AuthorInfo extractAuthor(String extractedName, Node modsNameEl) {
+        String date = toStringOrNull(Dom4jUtils.buildXpath("namePart[@type='date']").selectSingleNode(modsNameEl));
+        return new AuthorInfo(extractedName, date);
     }
 
     private String toStringOrNull(Node node) {

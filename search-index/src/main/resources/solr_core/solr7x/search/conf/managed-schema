@@ -497,11 +497,10 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <field name="publication_places.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="publication_places.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
-        <!--vsichni autori (vcetne hlavnich, ti se nerozlisuji)-->
-        <field name="authors" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <!--vsichni autori (vcetne hlavnich, ti se nerozlisuji), 'authors' muze obsahovat datum-->
+        <field name="authors" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="authors.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="authors.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-        <copyField source="authors" dest="authors.search"/>
 
         <!--hlavni nazev-->
         <field name="title.search" type="text_fgs" indexed="true" stored="true" multiValued="false" docValues="false"/>
