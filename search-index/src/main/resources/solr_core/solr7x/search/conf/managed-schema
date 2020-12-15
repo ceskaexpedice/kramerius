@@ -595,9 +595,14 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <field name="issue.type.code" type="string" indexed="true" stored="true" multiValued="false"/>
 
         <!--page-->
+        <!--NormalPage, TitlePage, etc.-->
         <field name="page.type" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <!--1, [1a], etc.-->
         <field name="page.number" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <!--0, 1, 2, ...-->
         <field name="page.index" type="int" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <!--left, right, single-->
+        <field name="page.placement" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
 
         <!--identifiers-->
         <field name="id_urnnbn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>

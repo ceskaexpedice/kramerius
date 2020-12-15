@@ -244,6 +244,11 @@ public class Foxml2SolrInputConverterTest {
     }
 
     @TestFactory
+    public Collection<DynamicTest> page() throws DocumentException {
+        return testBuilder.buildTests("src/test/resources/xmlTests/page.xml");
+    }
+
+    @TestFactory
     public Collection<DynamicTest> hasTiles() throws DocumentException {
         return testBuilder.buildTests("src/test/resources/xmlTests/rels-ext.xml");
     }

@@ -1,0 +1,134 @@
+<testSuite testType="mods" model="page">
+
+    <test name="page.placement empty">
+        <desc></desc>
+        <in>
+            <part type="NormalPage">
+                <detail type="pageNumber">
+                    <number>1</number>
+                </detail>
+                <detail type="pageIndex">
+                    <number>0</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="page.index">0</field>
+            <field name="page.number">1</field>
+            <field name="page.type">NormalPage</field>
+
+            <field name="title.search">1</field>
+            <field name="title.sort">1</field>
+            <field name="titles.search">1</field>
+        </out>
+    </test>
+
+    <test name="page.placement single">
+        <desc></desc>
+        <in>
+            <note>singlePage</note>
+            <part type="TitlePage">
+                <detail type="pageNumber">
+                    <number>1</number>
+                </detail>
+                <detail type="pageIndex">
+                    <number>0</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="page.index">0</field>
+            <field name="page.number">1</field>
+            <field name="page.placement">single</field>
+            <field name="page.type">TitlePage</field>
+
+            <field name="title.search">1</field>
+            <field name="title.sort">1</field>
+            <field name="titles.search">1</field>
+        </out>
+    </test>
+
+    <test name="page.placement left">
+        <desc></desc>
+        <in>
+            <note>left</note>
+            <part type="NormalPage">
+                <detail type="pageNumber">
+                    <number>2</number>
+                </detail>
+                <detail type="pageIndex">
+                    <number>1</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="page.index">1</field>
+            <field name="page.number">2</field>
+            <field name="page.placement">left</field>
+            <field name="page.type">NormalPage</field>
+
+            <field name="title.search">2</field>
+            <field name="title.sort">2</field>
+            <field name="titles.search">2</field>
+        </out>
+    </test>
+
+    <test name="page.placement right">
+        <desc></desc>
+        <in>
+            <note>right</note>
+            <part type="NormalPage">
+                <detail type="pageNumber">
+                    <number>3</number>
+                </detail>
+                <detail type="pageIndex">
+                    <number>2</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="page.index">2</field>
+            <field name="page.number">3</field>
+            <field name="page.placement">right</field>
+            <field name="page.type">NormalPage</field>
+
+            <field name="title.search">3</field>
+            <field name="title.sort">3</field>
+            <field name="titles.search">3</field>
+        </out>
+    </test>
+
+
+    <test name="page.placement multiple candidates, only first one used">
+        <desc></desc>
+        <in>
+            <note>singlePage</note>
+            <note>left</note>
+            <note>right</note>
+            <part type="NormalPage">
+                <detail type="pageNumber">
+                    <number>1</number>
+                </detail>
+                <detail type="pageIndex">
+                    <number>0</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="page.index">0</field>
+            <field name="page.number">1</field>
+            <field name="page.placement">single</field>
+            <field name="page.type">NormalPage</field>
+
+            <field name="title.search">1</field>
+            <field name="title.sort">1</field>
+            <field name="titles.search">1</field>
+        </out>
+    </test>
+
+
+</testSuite>
+
+
+
+

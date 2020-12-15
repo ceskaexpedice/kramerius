@@ -288,6 +288,31 @@ public class Foxml2SolrInputConverter {
             } else {
                 addSolrField(solrInput, "page.index", index.toString());
             }
+            //page placement (left, right, single)
+            List<Node> noteEls = Dom4jUtils.buildXpath("mods/note").selectNodes(modsRootEl);
+            for (Node noteEl : noteEls) {
+                String note = noteEl.getStringValue();
+                boolean found = false;
+                if (note != null && !note.isEmpty()) {
+                    switch (note) {
+                        case "singlePage":
+                            addSolrField(solrInput, "page.placement", "single");
+                            found = true;
+                            break;
+                        case "right":
+                            addSolrField(solrInput, "page.placement", "right");
+                            found = true;
+                            break;
+                        case "left":
+                            addSolrField(solrInput, "page.placement", "left");
+                            found = true;
+                            break;
+                    }
+                }
+                if (found) {
+                    break;
+                }
+            }
         }
 
         //specific for model:periodicalitem (issue)
