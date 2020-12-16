@@ -92,8 +92,10 @@
         <out>
             <field name="authors">Neruda, Jan</field>
             <field name="authors">Jirásek, Alois</field>
+
             <field name="authors.facet">Neruda, Jan</field>
             <field name="authors.facet">Jirásek, Alois</field>
+
             <field name="authors.search">Neruda, Jan</field>
             <field name="authors.search">Jirásek, Alois</field>
         </out>
@@ -113,8 +115,10 @@
         <out>
             <field name="authors">Neruda, Jan</field>
             <field name="authors">Jirásek, Alois</field>
+
             <field name="authors.facet">Neruda, Jan</field>
             <field name="authors.facet">Jirásek, Alois</field>
+
             <field name="authors.search">Neruda, Jan</field>
             <field name="authors.search">Jirásek, Alois</field>
         </out>
@@ -238,9 +242,11 @@
             <field name="authors">Neruda, Jan</field>
             <field name="authors">Jirásek, Alois</field>
             <field name="authors">Kafka, Franz</field>
+
             <field name="authors.facet">Neruda, Jan</field>
             <field name="authors.facet">Jirásek, Alois</field>
             <field name="authors.facet">Kafka, Franz</field>
+
             <field name="authors.search">Neruda, Jan</field>
             <field name="authors.search">Jirásek, Alois</field>
             <field name="authors.search">Kafka, Franz</field>
@@ -264,9 +270,11 @@
             <field name="authors">Zola, Émile</field>
             <field name="authors">Arbes, Jakub</field>
             <field name="authors">Mácha, Karel Hynek</field>
+
             <field name="authors.facet">Zola, Émile</field>
             <field name="authors.facet">Arbes, Jakub</field>
             <field name="authors.facet">Mácha, Karel Hynek</field>
+
             <field name="authors.search">Zola, Émile</field>
             <field name="authors.search">Arbes, Jakub</field>
             <field name="authors.search">Mácha, Karel Hynek</field>
