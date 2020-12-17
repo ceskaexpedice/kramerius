@@ -13,6 +13,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URLEncoder;
 
+import static cz.incad.kramerius.services.utils.SolrUtils.*;
+import static cz.incad.kramerius.services.iterators.utils.IterationUtils.*;
+
 public class SolrCursorIterator extends AbstractSolrIterator{
 
 //    public static void cursorIteration(Client client, String address, String masterQuery, int rows, String filterQuery, String endpoint, String id, String sorting, ProcessIterationCallback callback, ProcessIterationEndCallback endCallback) throws ParserConfigurationException, MigrateSolrIndexException, SAXException, IOException, InterruptedException, BrokenBarrierException {
@@ -89,7 +92,7 @@ public class SolrCursorIterator extends AbstractSolrIterator{
                 Element element = pidsCursorQuery(client, address, masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting);
                 cursorMark = findCursorMark(element);
                 queryCursorMark = findQueryCursorMark(element);
-                iterationCallback.call(SolrUtils.findAllPids(element));
+                iterationCallback.call( pidsToIterationItem(this.address, findAllPids(element)));
             } while((cursorMark != null && queryCursorMark != null) && !cursorMark.equals(queryCursorMark));
             // callback after iteration
             endCallback.end();

@@ -1,48 +1,59 @@
 package cz.incad.kramerius.services.workers.replicate;
 
 import com.sun.jersey.api.client.Client;
+import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.Worker;
+import cz.incad.kramerius.services.iterators.IterationItem;
+import cz.incad.kramerius.services.utils.ResultsUtils;
 import cz.incad.kramerius.services.utils.SolrUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 // replicate index
 public class ReplicateWorker extends Worker {
 
+    public static final String DEFAULT_FIELDLIST = "PID timestamp fedora.model document_type handle status created_date modified_date parent_model " +
+            "parent_pid parent_pid parent_title root_model root_pid root_title text_ocr pages_count " +
+            "datum_str datum rok datum_begin datum_end datum_page issn mdt ddt dostupnost keywords " +
+            "geographic_names collection sec model_path pid_path rels_ext_index level dc.title title_sort " +
+            "title_sort dc.creator dc.identifier language dc.description details facet_title browse_title browse_autor img_full_mime viewable " +
+            "virtual location range mods.shelfLocator mods.physicalLocation text dnnt";
+
+
     public static Logger LOGGER = Logger.getLogger(ReplicateWorker.class.getName());
 
-    private String fieldList;
+    private String fieldList = DEFAULT_FIELDLIST;
+    private String localKramerius;
 
-    public ReplicateWorker(Element workerElm, Client client, List<String> pids) {
+
+    public ReplicateWorker(Element workerElm, Client client, List<IterationItem> pids) {
         super(workerElm, client, pids);
+
         Element requestElm = XMLUtils.findElement(workerElm, "request");
         if (requestElm != null) {
             Element fieldlistElm = XMLUtils.findElement(requestElm, "fieldlist");
             if (fieldlistElm != null) {
                 fieldList = fieldlistElm.getTextContent();
             }
-        }
 
-        List<Element> elms = new ArrayList<>();
-        NodeList childNodes = workerElm.getChildNodes();
-        for (int i = 0; i < childNodes.getLength(); i++) {
-            Node item = childNodes.item(i);
-
-
+            Element localKrameriusElm = XMLUtils.findElement(workerElm, "local.kramerius");
+            this.localKramerius = localKrameriusElm != null ? localKrameriusElm.getTextContent() : "";
         }
     }
 
@@ -53,35 +64,137 @@ public class ReplicateWorker extends Worker {
             LOGGER.info("["+Thread.currentThread().getName()+"] processing list of pids "+this.pidsToBeProcessed.size());
             //int batchSize = configurationBase.getRequests().getBatchSize();
             int batches = this.pidsToBeProcessed.size() / batchSize + (this.pidsToBeProcessed.size() % batchSize == 0 ? 0 :1);
-            LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" migrateBatches ");
+            LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" batch ");
             for (int i=0;i<batches;i++) {
                 int from = i*batchSize;
                 int to = from + batchSize;
                 try {
                     List<String> subpids = pidsToBeProcessed.subList(from, Math.min(to,pidsToBeProcessed.size() ));
-                    Element response = fetchDocuments( this.client,  subpids);
-                    Element resultElem = XMLUtils.findElement(response, (elm) -> {
-                        return elm.getNodeName().equals("result");
-                    });
+                    PidsToReplicate pidsToReplicate = findPidsAlreadyIndexed(subpids);
 
-                    NodeList childNodes = resultElem.getChildNodes();
-                    for (int j = 0; j < childNodes.getLength(); j++) {
-                        Node item = childNodes.item(j);
+                    // not indexed => onIndeRemoveElms + onIndexUpdate
+                    if (!pidsToReplicate.getNotIndexed().isEmpty()) {
+
+                        // fetch document
+                        Element response = fetchDocumentFromRemoteSOLR( this.client,  pidsToReplicate.getNotIndexed());
+                        Element resultElem = XMLUtils.findElement(response, (elm) -> {
+                            return elm.getNodeName().equals("result");
+                        });
+
+                        // remove
+                        Document batch = BatchUtils.batch(resultElem);
+                        Element addDocument = batch.getDocumentElement();
+                        this.onIndexEventRemoveElms.stream().forEach(f->{
+                            synchronized (f.getOwnerDocument()) {
+                                String name = f.getAttribute("name");
+                                // iterating over doc
+                                List<Element> docs = XMLUtils.getElements(addDocument);
+                                for (int j = 0,ll=docs.size(); j < ll; j++) {
+                                    Element doc = docs.get(j);
+                                    List<Element> fields = XMLUtils.getElements(doc);
+                                    for (Element fe : fields) {
+                                        String fName = fe.getAttribute("name");
+                                        if (name.equals(fName)) {
+                                            doc.removeChild(fe);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        this.onIndexEventUpdateElms.stream().forEach(f->{
+                            synchronized (f.getOwnerDocument()) {
+                                List<Element> docs = XMLUtils.getElements(addDocument);
+                                for (int j = 0,ll=docs.size(); j < ll; j++) {
+                                    Element doc = docs.get(j);
+                                    Node node = f.cloneNode(true);
+                                    doc.getOwnerDocument().adoptNode(node);
+                                    doc.appendChild(node);
+                                }
+
+                            }
+
+                        });
+
+                        ReplicateFinisher.COUNTER.addAndGet(XMLUtils.getElements(addDocument).size());
+                        ReplicateFinisher.NEWINDEXED.addAndGet(XMLUtils.getElements(addDocument).size());
+
+                        String s = SolrUtils.sendToDest(this.destinationUrl, this.client, batch);
+                        LOGGER.info(s);
+                    }
+
+                    //
+                    if (!pidsToReplicate.getAlreadyIndexed().isEmpty()) {
+                        // un update
+                        if (!this.onUpdateUpdateElements.isEmpty()) {
+
+                            Document destBatch = XMLUtils.crateDocument("add");
+                            pidsToReplicate.getAlreadyIndexed().stream().forEach(pair->{
+                                Element doc = destBatch.createElement("doc");
+                                Element field = destBatch.createElement("field");
+                                field.setAttribute("name", "PID");
+                                field.setTextContent(pair.getLeft());
+                                doc.appendChild(field);
+                                destBatch.getDocumentElement().appendChild(doc);
+
+                            });
+
+                            Element addDocument = destBatch.getDocumentElement();
+                            this.onUpdateUpdateElements.stream().forEach(f->{
+                                synchronized (f.getOwnerDocument()) {
+                                    String name = f.getAttribute("name");
+                                    // collection ?? not do it for everything... how to do that
+                                    // iterating over doc
+                                    List<Element> docs = XMLUtils.getElements(addDocument);
+                                    for (int j = 0,ll=docs.size(); j < ll; j++) {
+                                        Element doc = docs.get(j);
+                                        Node node = f.cloneNode(true);
+                                        doc.getOwnerDocument().adoptNode(node);
+                                        doc.appendChild(node);
+
+                                    }
+                                }
+                            });
+
+                            List<Element> docs = XMLUtils.getElements(destBatch.getDocumentElement());
+                            docs.stream().forEach(doc->{
+                                List<Element> fields = XMLUtils.getElements(doc);
+                                int size = fields.size();
+
+                                if (size <2) {
+                                    StringWriter writer = new StringWriter();
+                                    try {
+                                        XMLUtils.print(doc, writer);
+                                    } catch (TransformerException e) { }
+
+                                    throw new IllegalStateException("Cannot index document "+writer.toString());
+                                }
+
+                            });
+
+                            ReplicateFinisher.COUNTER.addAndGet(XMLUtils.getElements(addDocument).size());
+                            ReplicateFinisher.UPDATED.addAndGet(XMLUtils.getElements(addDocument).size());
+
+                            String s = SolrUtils.sendToDest(this.destinationUrl, this.client, destBatch);
+                            LOGGER.info(s);
+
+                        } else {
+                            LOGGER.info("No update element ");
+                        }
+
 
                     }
-//                    // insert new document
-//                    // or update
-//                    List<Document> batchDocuments = BatchUtils.migrateBatches(resultElem, batchSize);
-//                    for (Document  batch : batchDocuments) {
-//                        SolrUtils.sendToDest(this.destinationUrl, this.client, batch);
-//                    }
+
+
                 } catch (ParserConfigurationException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (SAXException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
-               }
+               } catch (MigrateSolrIndexException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                }
             }
         } finally {
             try {
@@ -94,8 +207,39 @@ public class ReplicateWorker extends Worker {
         }
     }
 
+    private PidsToReplicate findPidsAlreadyIndexed(List<String> subpids) throws ParserConfigurationException, SAXException, IOException {
+        String reduce = subpids.stream().map(it->{return '"'+it+'"';}).collect(Collectors.joining(" OR "));
+        String fieldlist = "PID collection";
+        String query =   "?q=PID:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8")+"&wt=xml&rows="+subpids.size();
 
-    public  Element fetchDocuments(Client client,  List<String> pids) throws IOException, SAXException, ParserConfigurationException {
+        String prefix = localKramerius  + (localKramerius.endsWith("/") ? "": "/") + "api/v5.0/search";
+
+        Element resultElem = XMLUtils.findElement(SolrUtils.executeQuery(client, prefix , query), (elm) -> {
+            return elm.getNodeName().equals("result");
+        });
+
+
+        List<Element> docs = XMLUtils.getElements(resultElem);
+        List<Pair<String, String>> pidsAndCollections = docs.stream().map(d -> {
+            Element pid = XMLUtils.findElement(d, e -> {
+                return e.getAttribute("name").equals("PID");
+            });
+            Element collection = XMLUtils.findElement(d, e -> {
+                return e.getAttribute("name").equals("collection");
+            });
+            return Pair.of(pid.getTextContent(), collection != null ? collection.getTextContent().trim() : "");
+        }).collect(Collectors.toList());
+
+
+        List<String> pidsFromLocalSolr = pidsAndCollections.stream().map(Pair::getLeft).collect(Collectors.toList());
+        List<String> notindexed = new ArrayList<>();
+        subpids.forEach(pid-> {  if (!pidsFromLocalSolr.contains(pid)) notindexed.add(pid); });
+
+        return new PidsToReplicate(pidsAndCollections,  notindexed);
+    }
+
+
+    public  Element fetchDocumentFromRemoteSOLR(Client client, List<String> pids) throws IOException, SAXException, ParserConfigurationException {
         String reduce = pids.stream().reduce("", (i, v) -> {
             if (!i.equals("")) {
                 return i + " OR \"" + v+"\"";
@@ -105,7 +249,7 @@ public class ReplicateWorker extends Worker {
         });
 
 
-        String query =  this.requestEndpoint + "?q=PID:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(this.fieldList, "UTF-8")+"&wt=xml";
+        String query =  "?q=PID:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(this.fieldList, "UTF-8")+"&wt=xml&rows="+pids.size();
         return SolrUtils.executeQuery(client, this.requestUrl , query);
     }
 

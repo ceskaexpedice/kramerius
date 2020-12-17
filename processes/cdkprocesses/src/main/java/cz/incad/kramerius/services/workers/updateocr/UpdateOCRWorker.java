@@ -3,6 +3,7 @@ package cz.incad.kramerius.services.workers.updateocr;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.services.Worker;
+import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.utils.SolrUtils;
 import cz.incad.kramerius.services.workers.replicate.ReplicateWorker;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
@@ -24,15 +25,15 @@ import java.util.stream.Collectors;
 
 
 //partial update
-public class UpdateOCRWorker extends Worker {
+public abstract class UpdateOCRWorker extends Worker {
 
     public static  Logger LOGGER = Logger.getLogger(ReplicateWorker.class.getName());
 
     private String user;
     private String pass;
 
-    public UpdateOCRWorker(Element worker, Client client, List<String> pids) {
-        super(worker, client, pids);
+    public UpdateOCRWorker(Element worker, Client client, List<IterationItem> items) {
+        super(worker, client, items);
 
         Element request = XMLUtils.findElement(workerElm, "request");
         if (request != null) {
@@ -55,7 +56,9 @@ public class UpdateOCRWorker extends Worker {
                 int to = from + batchSize;
                 try {
                     List<String> subpids = pidsToBeProcessed.subList(from, Math.min(to,pidsToBeProcessed.size() ));
-                    List<Pair<String,String>> list = fetchSolrDocumentFromCDKResource(subpids);
+                    long start = System.currentTimeMillis();
+                    List<Pair<String,String>> list = fetchTextOCR(subpids);
+                    //LOGGER.info(String.format("Document from cdk fetched and it took %d", (System.currentTimeMillis() - start)));
 
                     Document addDocument = XMLUtils.crateDocument("add");
                     list.stream().forEach(p->{
@@ -76,10 +79,13 @@ public class UpdateOCRWorker extends Worker {
                     });
 
                     if (addDocument.getDocumentElement().getChildNodes().getLength() > 0) {
-                        SolrUtils.printToConsole(addDocument);
+                        long startBatch = System.currentTimeMillis();
+                        SolrUtils.sendToDest(this.destinationUrl, this.client, addDocument);
+                        //LOGGER.info(String.format("Batch sent to %s and number of document %d and it took %d", this.destinationUrl, addDocument.getDocumentElement().getChildNodes().getLength(), (System.currentTimeMillis() - startBatch)));
+                    } else {
+                        LOGGER.info("No add document");
                     }
 
-                    //SolrUtils.sendToDest(configurationBase, this.client, addDocument);
 
                 } catch (ParserConfigurationException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -96,44 +102,6 @@ public class UpdateOCRWorker extends Worker {
         }
     }
 
-    public Pair<String, String> textOCR(String pid) {
-        try {
+    protected abstract  List<Pair<String, String>> fetchTextOCR(List<String> subpids);
 
-
-            WebResource r = client.resource(this.requestUrl+(this.requestUrl.endsWith("/") ? "" : "/")+ String.format("api/v4.6/cdk/%s/solrxml", pid));
-            r.addFilter(new BasicAuthenticationClientFilter(user, pass));
-
-            String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
-            Document parseDocument = XMLUtils.parseDocument(new StringReader(t));
-
-            Element result = XMLUtils.findElement(parseDocument.getDocumentElement(), (elm) -> {
-                return elm.getNodeName().equals("result");
-            });
-            Element doc = XMLUtils.findElement(result, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    return element.getNodeName().equals("doc");
-                }
-            });
-            Element textOcr = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    return element.getNodeName().equals("str") && element.getAttribute("name").equals("text_ocr");
-                }
-            });
-            return (textOcr != null) ? Pair.of(pid, textOcr.getTextContent()) : null;
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-
-
-    public  List<Pair<String,String>> fetchSolrDocumentFromCDKResource( List<String> pids) {
-        return pids.stream().map(pid -> {
-            return this.textOCR(pid);
-        }).filter(it -> it != null).collect(Collectors.toList());
-
-    }
 }

@@ -15,9 +15,15 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static cz.incad.kramerius.services.iterators.solr.SolrIterationUtils.*;
+import static cz.incad.kramerius.services.utils.SolrUtils.*;
+import static cz.incad.kramerius.services.iterators.utils.IterationUtils.*;
+
+
 
 public class SolrFilterQueryIterator extends AbstractSolrIterator {
+
+    public static final String DEFAULT_SORT_FIELD = "PID asc";
+
 
     public SolrFilterQueryIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {
         super(address, masterQuery, filterQuery, endpoint, id, sorting, rows);
@@ -84,7 +90,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
                 Element element = pidsFilterQuery(client, address,masterQuery,  lastPid, rows, filterQuery, endpoint);
                 previousPid = lastPid;
                 lastPid = findLastPid(element);
-                iterationCallback.call(SolrUtils.findAllPids(element));
+                iterationCallback.call(pidsToIterationItem(this.address,findAllPids(element)));
             }while(lastPid != null  && !lastPid.equals(previousPid));
             // callback after iteration
             endCallback.end();

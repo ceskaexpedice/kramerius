@@ -1,9 +1,6 @@
 <cdkprocess>
 
-    <!--
     <iteratorFactory class="cz.incad.kramerius.services.iterators.logfile.LogFileIteratorFactory"></iteratorFactory>
-    -->
-    <iteratorFactory class="cz.incad.kramerius.services.iterators.compare.CompareLogsIteratorFactory"></iteratorFactory>
     <!--
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     -->
@@ -13,7 +10,7 @@
         <url>https://kramerius.lib.cas.cz/search/api/v5.0/</url>
         <url>file:///c:/Users/pavel.stastny/nprojs/_kramerius_akubra/kramerius/kibana.log.fromknav</url>
         -->
-        <url>file:///c:/Users/pavel.stastny/nprojs/_kramerius_akubra/kramerius/processes/cdkprocesses/src/main/java/cz/incad/kramerius/services/workers/nullworker/logs/</url>
+        <url>file:///c:/Users/pavel.stastny/nprojs/_kramerius_akubra/kramerius/processes/cdkprocesses/src/main/java/cz/incad/kramerius/services/workers/nullworker/logs/kibana-cdk-knav-iteration.log</url>
         <!--
         <fquery>collection:"vc:c4bb27af-3a51-4ac2-95c7-fd393b477777"</fquery>
        -->
@@ -23,7 +20,7 @@
         <endpoint>search</endpoint>
 
         <id>PID</id>
-        <rows>100</rows>
+        <rows>10000</rows>
         <type>PAGINATION</type>
     </iteration>
 
@@ -33,7 +30,7 @@
     <workerFactory class="cz.incad.kramerius.services.workers.nullworker.NullWorkerFactory"></workerFactory>
     <worker>
         <destination>
-            <kibana.log.logfile>c:\Users\pavel.stastny\nprojs\_kramerius_akubra\kramerius\processes\cdkprocesses\src\main\java\cz\incad\kramerius\services\workers\nullworker\diff\difference.log</kibana.log.logfile>
+            <kibana.log.logfile>c:\Users\pavel.stastny\nprojs\_kramerius_akubra\kramerius\processes\cdkprocesses\src\main\java\cz\incad\kramerius\services\workers\nullworker\nlogs\kibana-cdk-knav-iteration.log</kibana.log.logfile>
 
             <!-- on index for logger -> elasticsearch -->
             <onindex>
@@ -41,7 +38,7 @@
                     <logfield>
                             <![CDATA[
                             {
-                                "compared":"true"
+                                "_index":"cdk_knav_full"
                             }
                             ]]>
                     </logfield>

@@ -2,6 +2,7 @@ package cz.incad.kramerius.services.workers.checkindex;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.Worker;
+import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.utils.ResultsUtils;
 import cz.incad.kramerius.services.utils.SolrUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -31,7 +32,7 @@ public class CheckIndexWorker extends Worker {
 
     private String checkingIndexType;
 
-    public CheckIndexWorker(Element workerElm, Client client, List<String> pids) {
+    public CheckIndexWorker(Element workerElm, Client client, List<IterationItem> pids) {
         super(workerElm, client, pids);
 
         Element destinationElm = XMLUtils.findElement(workerElm, "destination");
@@ -46,7 +47,7 @@ public class CheckIndexWorker extends Worker {
         try {
             LOGGER.info("["+Thread.currentThread().getName()+"] Check Imported  processing list of pids "+this.pidsToBeProcessed.size());
             int batches = this.pidsToBeProcessed.size() / batchSize + (this.pidsToBeProcessed.size() % batchSize == 0 ? 0 :1);
-            LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" migrateBatches ");
+            LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" batch ");
             for (int i=0;i<batches;i++) {
                 int from = i*batchSize;
                 int to = from + batchSize;

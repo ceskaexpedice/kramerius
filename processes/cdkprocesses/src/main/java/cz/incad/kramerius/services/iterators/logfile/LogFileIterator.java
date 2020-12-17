@@ -4,6 +4,7 @@ import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.iterators.ProcessIterationCallback;
 import cz.incad.kramerius.services.iterators.ProcessIterationEndCallback;
 import cz.incad.kramerius.services.iterators.ProcessIterator;
+import cz.incad.kramerius.services.iterators.utils.IterationUtils;
 import org.json.JSONObject;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -39,11 +40,11 @@ public class LogFileIterator implements ProcessIterator{
                 String pid = object.getString("pid");
                 pids.add(pid);
                 if (pids.size() >= rows) {
-                    iterationCallback.call(new ArrayList<>(pids));
+                    iterationCallback.call(IterationUtils.pidsToIterationItem(this.address, pids));
                     pids = new ArrayList<>();
                 }
             }
-            if (!pids.isEmpty()) iterationCallback.call(new ArrayList<>(pids));
+            if (!pids.isEmpty()) iterationCallback.call(IterationUtils.pidsToIterationItem(this.address,pids));
             endCallback.end();
         } catch (IOException | ParserConfigurationException e) {
             throw new RuntimeException(e);

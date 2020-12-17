@@ -2,10 +2,9 @@ package cz.incad.kramerius.services;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.iterators.ProcessIterator;
 import cz.incad.kramerius.services.iterators.ProcessIteratorFactory;
-import cz.incad.kramerius.services.iterators.solr.SolrIterationUtils;
-import cz.incad.kramerius.services.utils.SolrUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -23,8 +22,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ParallelProcessImpl {
-
-
 
 
     public static final Logger LOGGER = Logger.getLogger(ParallelProcessImpl.class.getName());
@@ -80,8 +77,8 @@ public class ParallelProcessImpl {
 
         final List<Worker>  worksWhatHasToBeDone = new ArrayList<>();
         try {
-            this.iterator.iterate(this.client, (List<String> pids)->{
-                addNewWorkToWorkers(worksWhatHasToBeDone, pids);
+            this.iterator.iterate(this.client, (List<IterationItem> idents)->{
+                addNewWorkToWorkers(worksWhatHasToBeDone, idents);
             }, ()-> {
                 finishRestWorkers(worksWhatHasToBeDone);
             });
@@ -99,9 +96,9 @@ public class ParallelProcessImpl {
     }
 
     // musi zustat tady
-    private void addNewWorkToWorkers(List<Worker> worksWhatHasToBeDone, List<String>pids) {
+    private void addNewWorkToWorkers(List<Worker> worksWhatHasToBeDone, List<IterationItem> identifiers) {
         try {
-            worksWhatHasToBeDone.add(createWorker(this.workerElem, pids));
+            worksWhatHasToBeDone.add(createWorker(this.workerElem, identifiers));
             if (worksWhatHasToBeDone.size() >= threads) {
                 startWorkers(worksWhatHasToBeDone);
                 worksWhatHasToBeDone.clear();
@@ -114,9 +111,9 @@ public class ParallelProcessImpl {
 
 
     // musi zustat tady
-    private Worker createWorker(Element workerElm, List<String> pids) {
+    private Worker createWorker(Element workerElm, List<IterationItem> identifiers) {
         try {
-            return this.workerFactory.createWorker(workerElm, this.client,pids);
+            return this.workerFactory.createWorker(workerElm, this.client,identifiers);
         } catch ( IllegalStateException  e ) {
             throw new RuntimeException("Cannot create worker instance "+e.getMessage());
         }
@@ -134,8 +131,11 @@ public class ParallelProcessImpl {
 
     public static void main(String[] args) throws MigrateSolrIndexException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException, NoSuchMethodException, SAXException, ParserConfigurationException {
         if (args.length > 0 ) {
-            ParallelProcessImpl migr = new ParallelProcessImpl();
-            migr.migrate(new File(args[0]));
+            // args processes
+            for (String arg : args) {
+                ParallelProcessImpl migr = new ParallelProcessImpl();
+                migr.migrate(new File(arg));
+            }
         }
     }
 }

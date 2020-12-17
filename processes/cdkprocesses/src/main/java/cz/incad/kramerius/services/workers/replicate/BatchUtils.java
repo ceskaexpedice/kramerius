@@ -27,91 +27,44 @@ import org.xml.sax.SAXException;
 public class BatchUtils {
 
 
-    private static final String SOLR_ADDITIONAL_SOURCE = ".migration.solr.addsource";
-    private static final String SOLR_REMOVAL_SOURCE = ".migration.solr.removefromsource";
 
     public static final Logger LOGGER = Logger.getLogger(BatchUtils.class.getName());
 
 
-    public static List<Document> migrateBatches(Element resultElem, int batchSize) throws ParserConfigurationException, MigrateSolrIndexException  {
-        List<String> removalSourceElements = itemsToRemove();
-
-        List<Document> batches = new ArrayList<>();
-        List<Element> elms = XMLUtils.getElements(resultElem, new XMLUtils.ElementsFilter() {
+    public static Document batch(Element resultElem) throws ParserConfigurationException, MigrateSolrIndexException  {
+        //List<String> removalSourceElements = itemsToRemove();
+        Document destBatch = XMLUtils.crateDocument("add");
+        List<Element> docs = XMLUtils.getElements(resultElem, new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element elm) {
                 return  (elm.getNodeName().equals("doc"));
             }
         });
 
-        int numberOfBatches = (elms.size() / batchSize) + ((elms.size() % batchSize) > 0 ? 1 : 0);
-        for (int i = 0; i < numberOfBatches; i++) {
-            Document destBatch = XMLUtils.crateDocument("add");
-            int max = Math.min((i+1)*batchSize, elms.size());
-            for (int j = i*batchSize; j < max; j++) {
-                Element destDocElement = destBatch.createElement("doc");
-                destBatch.getDocumentElement().appendChild(destDocElement);
-                Element sourceDocElm = elms.get(j);
-                // add source from configuration
-                //sourceDocElm
-                try {
-                    // remove names from properties
-                    List<Element> toRemove = new ArrayList<>();
-                    NodeList chNodes = sourceDocElm.getChildNodes();
-                    for (int k = 0,kl=chNodes.getLength(); k < kl; k++) {
-                        Node chElem = chNodes.item(k);
-                        if (chElem.getNodeType() == Node.ELEMENT_NODE) {
-                            if (chElem.hasAttributes()) {
-                                String name = ((Element) chElem).getAttribute("name");
-                                if (name != null && removalSourceElements.contains(name)) {
-                                    toRemove.add((Element) chElem);
-                                }
-                            }
-                        }
-                    }
-                    toRemove.stream().forEach(torem-> {sourceDocElm.removeChild(torem); });
-
-                    // enhance by document from properties
-                    Element doc = additionalSourceItems();
-                    if (doc != null) {
-                        NodeList childNodes = doc.getChildNodes();
-                        for (int k = 0; k < childNodes.getLength(); k++) {
-                            Node node = childNodes.item(k);
-                            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                                Element nodeElem = (Element) node;
-                                sourceDocElm.getOwnerDocument().adoptNode(nodeElem);
-                                sourceDocElm.appendChild(nodeElem);
-
-                            }
-                        }
-                    }
-                } catch (IOException | SAXException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-
-                transform(sourceDocElm, destBatch, destDocElement);
-            }
-            batches.add(destBatch);
+        for (int i = 0; i < docs.size(); i++) {
+            Element destDocElement = destBatch.createElement("doc");
+            destBatch.getDocumentElement().appendChild(destDocElement);
+            Element sourceDocElm = docs.get(i);
+            transform(sourceDocElm, destBatch, destDocElement);
         }
-        
-        return batches;
+        return destBatch;
     }
 
 
 
-    static List<String> itemsToRemove() {
-        String removal = KConfiguration.getInstance().getConfiguration().getString(SOLR_REMOVAL_SOURCE, "");
-        return Arrays.asList(removal.split(","));
-    }
-
-
-    public static Element additionalSourceItems() throws IOException, SAXException, ParserConfigurationException {
-        String addsource = KConfiguration.getInstance().getConfiguration().getString(SOLR_ADDITIONAL_SOURCE, "");
-        if (StringUtils.isAnyString(addsource)) {
-            Document doc = XMLUtils.parseDocument(new StringReader(addsource));
-            return doc.getDocumentElement();
-        } else return null;
-    }
+//    static List<String> itemsToRemove() {
+//        String removal = KConfiguration.getInstance().getConfiguration().getString(SOLR_REMOVAL_SOURCE, "");
+//        return Arrays.asList(removal.split(","));
+//    }
+//
+//
+//    public static Element additionalSourceItems() throws IOException, SAXException, ParserConfigurationException {
+//        String addsource = KConfiguration.getInstance().getConfiguration().getString(SOLR_ADDITIONAL_SOURCE, "");
+//        if (StringUtils.isAnyString(addsource)) {
+//            Document doc = XMLUtils.parseDocument(new StringReader(addsource));
+//            return doc.getDocumentElement();
+//        } else return null;
+//    }
 
 
     /** find element by attribute */

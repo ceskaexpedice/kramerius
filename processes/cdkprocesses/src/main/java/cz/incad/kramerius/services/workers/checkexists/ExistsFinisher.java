@@ -11,8 +11,7 @@ public class ExistsFinisher extends WorkerFinisher {
 
     public static final Logger LOGGER = Logger.getLogger(ExistsFinisher.class.getName());
 
-    public static AtomicInteger COUNTER = new AtomicInteger( 0);
-    public static AtomicInteger BATCH_COUNTER = new AtomicInteger(0);
+    public static AtomicInteger LOGGED = new AtomicInteger( 0);
 
     private long timestamp = System.currentTimeMillis();
 
@@ -22,6 +21,6 @@ public class ExistsFinisher extends WorkerFinisher {
 
     @Override
     public void finish() {
-        LOGGER.info(String.format("I processed %d, (%d) records in %d", COUNTER.get(), BATCH_COUNTER.get(), (System.currentTimeMillis() - timestamp)));
+        LOGGER.info(String.format("I processed %d records in %d", LOGGED.get(), (System.currentTimeMillis() - timestamp)));
     }
 }

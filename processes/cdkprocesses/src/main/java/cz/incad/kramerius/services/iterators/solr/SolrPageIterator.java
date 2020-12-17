@@ -13,6 +13,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URLEncoder;
 
+import static cz.incad.kramerius.services.iterators.utils.IterationUtils.pidsToIterationItem;
+import static cz.incad.kramerius.services.utils.SolrUtils.*;
+import static cz.incad.kramerius.services.iterators.utils.IterationUtils.*;
+
+
 public class SolrPageIterator extends AbstractSolrIterator{
 
     public SolrPageIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {
@@ -57,7 +62,7 @@ public class SolrPageIterator extends AbstractSolrIterator{
                 if (numberOfResult == Integer.MAX_VALUE) {
                     numberOfResult = findNumberOfResults(element);
                 }
-                iterationCallback.call(SolrUtils.findAllPids(element));
+                iterationCallback.call(pidsToIterationItem(this.address, findAllPids(element)));
                 offset += rows;
             }while(offset < numberOfResult);
             // callback after iteration

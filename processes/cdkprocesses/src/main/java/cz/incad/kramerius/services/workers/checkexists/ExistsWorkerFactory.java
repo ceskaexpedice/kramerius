@@ -4,6 +4,7 @@ import com.sun.jersey.api.client.*;
 import cz.incad.kramerius.services.WorkerFinisher;
 import cz.incad.kramerius.services.Worker;
 import cz.incad.kramerius.services.WorkerFactory;
+import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,7 +26,7 @@ public class ExistsWorkerFactory extends WorkerFactory {
     }
 
     @Override
-    public Worker createWorker(Element worker, Client client, List<String> pids) {
+    public Worker createWorker(Element worker, Client client, List<IterationItem> items) {
         Element requestElm = XMLUtils.findElement(worker, "request");
         if (requestElm == null) throw new IllegalStateException("cannot find element request");
         Element localKrameriusElm = XMLUtils.findElement(requestElm, "local.kramerius");
@@ -60,7 +61,7 @@ public class ExistsWorkerFactory extends WorkerFactory {
             }
 
         }
-        return new ExistsWorker(worker, client, pids, collections);
+        return new ExistsWorker(worker, client, items, collections);
     }
 
     public static Element execRequest(Client client, String url) throws ParserConfigurationException, SAXException, IOException, UniformInterfaceException {

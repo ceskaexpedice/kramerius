@@ -2,12 +2,12 @@ package cz.incad.kramerius.services.workers.checkexists;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.Worker;
+import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.utils.ResultsUtils;
 import cz.incad.kramerius.services.utils.SolrUtils;
+import cz.incad.kramerius.services.workers.kibana.utils.KibanaMessageUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -35,18 +35,15 @@ public class ExistsWorker extends Worker {
     }
 
 
-    public static final Logger KIBANA_LOGGER = Logger.getLogger("kibana."+ExistsWorker.class.getName());
     public static final Logger LOGGER = Logger.getLogger(ExistsWorker.class.getName());
 
     private Map<String, String> collections;
-    //private boolean logExisting = false;
     private LogExistsCondition typeOfLogging = LogExistsCondition.BOTH;
 
-    public ExistsWorker(Element workerElm, Client client, List<String> pids, Map<String, String> cols) {
-        super(workerElm, client, pids);
+    public ExistsWorker(Element workerElm, Client client, List<IterationItem> items, Map<String, String> cols) {
+        super(workerElm, client, items);
 
         this.collections = cols;
-        ExistsFinisher.BATCH_COUNTER.addAndGet(pids.size());
 
         Element collectionsElem = XMLUtils.findElement(workerElm, "collections.url");
         if (collectionsElem != null) {
@@ -71,13 +68,14 @@ public class ExistsWorker extends Worker {
         try {
             LOGGER.info("["+Thread.currentThread().getName()+"] CHECK exists processing list of pids "+this.pidsToBeProcessed.size());
             int batches = this.pidsToBeProcessed.size() / batchSize + (this.pidsToBeProcessed.size() % batchSize == 0 ? 0 :1);
-            LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" migrateBatches ");
+            LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" batch ");
             for (int i=0;i<batches;i++) {
                 int from = i*batchSize;
                 int to = from + batchSize;
                 try {
                     // create big batch - contains all subprocessed pids
                     List<String> subpids = pidsToBeProcessed.subList(from, Math.min(to,pidsToBeProcessed.size() ));
+
                     String reduce = subpids.stream().reduce("", (identity, v) -> {
                         if (!identity.equals("")) {
                             return identity + " OR \"" + v+"\"";
@@ -86,7 +84,7 @@ public class ExistsWorker extends Worker {
                         }
                     });
                     String fieldlist = "PID collection";
-                    String query =   "?q=PID:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8")+"&wt=xml";
+                    String query =   "?q=PID:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8")+"&wt=xml&rows="+batchSize;
 
                     Element resultElem = XMLUtils.findElement(SolrUtils.executeQuery(client, this.requestUrl , query), (elm) -> {
                         return elm.getNodeName().equals("result");
@@ -95,15 +93,20 @@ public class ExistsWorker extends Worker {
 
                     // divide into collections
                     Map<String, List<String>> mappingCollectionsToPids = new HashMap<>();
-                    pairs.stream().forEach(pair-> {
-                        List<String> collections = pair.getRight();
-                        for (String c :  collections) {
-                            if (!mappingCollectionsToPids.containsKey(c)) {
-                                mappingCollectionsToPids.put(c, new ArrayList<>());
+                    for (int j = 0; j < pairs.size(); j++) {
+                        Pair<String, List<String>> pidVc = pairs.get(j);
+                        String pid = pidVc.getLeft();
+                        List<String> cols = pidVc.getRight();
+                        for (int k = 0; k < cols.size(); k++) {
+                            String oneCol = cols.get(k);
+                            if (!mappingCollectionsToPids.containsKey(oneCol)) {
+                                mappingCollectionsToPids.put(oneCol, new ArrayList<>());
                             }
-                            mappingCollectionsToPids.get(c).add(pair.getLeft());
+                            mappingCollectionsToPids.get(oneCol).add(pid);
                         }
-                    });
+
+                    }
+
 
                     mappingCollectionsToPids.keySet().stream().forEach(col-> {
                         Map<String,Boolean> exists = new HashMap<>();
@@ -115,10 +118,12 @@ public class ExistsWorker extends Worker {
                                     return '"'+v+'"';
                                 }
                             });
+
+
                             String colURl = this.collections.get(col);
                             colURl += (colURl.endsWith("/") ?  "" :"/");
 
-                            Element collectionResponse = SolrUtils.executeQuery(client, colURl, "api/v5.0/search?q=PID:(" + URLEncoder.encode(q, "UTF-8") + ")&fl=PID&wt=xml");
+                            Element collectionResponse = SolrUtils.executeQuery(client, colURl, "api/v5.0/search?q=PID:(" + URLEncoder.encode(q, "UTF-8") + ")&fl=PID&wt=xml&rows="+mappingCollectionsToPids.get(col).size());
                             Element collectionResponseResultElm = XMLUtils.findElement(collectionResponse, (elm) -> {
                                 return elm.getNodeName().equals("result");
                             });
@@ -134,6 +139,7 @@ public class ExistsWorker extends Worker {
                                 exists.put(spid, resultPidsF.contains(spid));
                             });
 
+
                             exists.keySet().forEach(key->{
                                 logExists(col, key, exists.get(key));
                             });
@@ -143,7 +149,7 @@ public class ExistsWorker extends Worker {
                         }
                     });
 
-                } catch (ParserConfigurationException | SAXException | IOException  e) {
+                } catch (Exception  e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 }
             }
@@ -159,20 +165,9 @@ public class ExistsWorker extends Worker {
 
     }
 
-    private JSONObject logObject(String col, String key, boolean aBoolean) {
-        JSONObject jObject = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-        jsonArray.put(col);
-        jObject.put("collections", jsonArray);
-        jObject.put("pid",key);
-        jObject.put("exists",aBoolean);
-        jObject.put("type","exists");
-        return jObject;
-    }
-
 
     private void logExists(String col, String key, boolean aBoolean) {
-        ExistsFinisher.COUNTER.incrementAndGet();
+        ExistsFinisher.LOGGED.incrementAndGet();
         boolean emitLog = false;
         switch (this.typeOfLogging) {
             case BOTH:
@@ -185,6 +180,6 @@ public class ExistsWorker extends Worker {
                 emitLog = !aBoolean;
                 break;
         }
-        if (emitLog)  KIBANA_LOGGER.log(Level.INFO, logObject(col,key,aBoolean).toString());
+        if (emitLog)  KIBANA_LOGGER.log(Level.INFO, KibanaMessageUtils.existsMessage(col,key,aBoolean).toString());
     }
 }

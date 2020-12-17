@@ -1,7 +1,6 @@
 package cz.incad.kramerius.services.utils;
 
 import com.sun.jersey.api.client.*;
-import cz.incad.kramerius.services.iterators.solr.SolrIterationUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
@@ -29,9 +28,8 @@ public class SolrUtils {
 
 
 
-    public static void sendToDest(String destSolr, Client client, Document batchDoc) {
+    public static String sendToDest(String destSolr, Client client, Document batchDoc) {
         try {
-            //LOGGER.info(String.format("Updating batch to %s", destSolr));
             StringWriter writer = new StringWriter();
             WebResource r = client.resource(destSolr);
             XMLUtils.print(batchDoc, writer);
@@ -40,6 +38,14 @@ public class SolrUtils {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 InputStream entityInputStream = resp.getEntityInputStream();
                 IOUtils.copyStreams(entityInputStream, bos);
+                return new String(bos.toByteArray(), "UTF-8");
+
+            } else {
+
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                InputStream entityInputStream = resp.getEntityInputStream();
+                IOUtils.copyStreams(entityInputStream, bos);
+                return new String(bos.toByteArray(), "UTF-8");
             }
         } catch (UniformInterfaceException | ClientHandlerException  | TransformerException | IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -109,7 +115,7 @@ public class SolrUtils {
 
     public static Element executeQuery(Client client, String url, String query) throws ParserConfigurationException, SAXException, IOException {
         WebResource r = client.resource(url+(url.endsWith("/") ? "" : "/")+ query);
-        SolrIterationUtils.LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] processing %s", r.getURI().toString()));
+        LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] processing %s", r.getURI().toString()));
         String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
         Document parseDocument = XMLUtils.parseDocument(new StringReader(t));
         return parseDocument.getDocumentElement();

@@ -2,6 +2,7 @@ package cz.incad.kramerius.services.workers.update;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.Worker;
+import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.utils.SolrUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
@@ -19,12 +20,11 @@ import java.util.logging.Logger;
 //TODO: Change it
 public class UpdateWorker extends Worker {
 
-    //private static final String SOLR_ADDITIONAL_DEST = ".cdkprocess.partialupdate.setfield";
     static Logger LOGGER = Logger.getLogger(UpdateWorker.class.getName());
 
     private List<Element> updateElements = new ArrayList<>();
 
-    public UpdateWorker(Element workerElm, Client client, List<String> pids) {
+    public UpdateWorker(Element workerElm, Client client, List<IterationItem> pids) {
         super(workerElm, client, pids);
 
         Element destinationElm = XMLUtils.findElement(workerElm, "destination");
@@ -79,7 +79,8 @@ public class UpdateWorker extends Worker {
                     batchDocuments.add(addDocument);
 
                     for (Document  batch : batchDocuments) {
-                        SolrUtils.sendToDest(this.destinationUrl, this.client, batch);
+                        String s = SolrUtils.sendToDest(this.destinationUrl, this.client, batch);
+                        LOGGER.info("Response "+s);
                     }
                 } catch (ParserConfigurationException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);

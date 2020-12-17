@@ -18,6 +18,8 @@ dependencies {
     compile project(':processes:indexer')
     compile project(':bridge')
 
+
+
 }
 
 
