@@ -58,6 +58,7 @@ import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 public class SearchResource {
 
     private static Logger LOGGER = Logger.getLogger(SearchResource.class.getName());
+    private static final String[] FILTERED_FIELDS = {"text_ocr"}; //see api.solr.filtered for old index
 
     @Inject
     @Named("new-index")
@@ -131,7 +132,7 @@ public class SearchResource {
     }
 
     private void checkFieldSettings(String value) {
-        List<String> filters = Arrays.asList(KConfiguration.getInstance().getAPISolrFilter());
+        List<String> filters = Arrays.asList(FILTERED_FIELDS);
         String[] vals = value.split(",");
         for (String v : vals) {
             // remove field alias
@@ -239,9 +240,10 @@ public class SearchResource {
             }
         });
         for (Element docE : elms) {
-            changeMasterPidInDOM(docE);
+            //TODO: is there still point in the pid manipulation in changeMasterPidInDOM and replacePidsInDOM? With pdf pages?
+            //changeMasterPidInDOM(docE);
             filterFieldsInDOM(docE);
-            replacePidsInDOM(docE);
+            //replacePidsInDOM(docE);
         }
         return doc;
     }
@@ -285,8 +287,7 @@ public class SearchResource {
 
     public static void filterFieldsInDOM(Element docE) {
         // filter
-        String[] filters = KConfiguration.getInstance().getAPISolrFilter();
-        for (final String name : filters) {
+        for (final String name : FILTERED_FIELDS) {
             Element found = findSolrElement(docE, name);
             if (found != null) {
                 Node parentNode = found.getParentNode();
@@ -348,7 +349,7 @@ public class SearchResource {
             for (int i = 0, ll = docs.length(); i < ll; i++) {
                 JSONObject docJSON = (JSONObject) docs.get(i);
                 // check master pid
-                changeMasterPidInJSON(docJSON);
+                //changeMasterPidInJSON(docJSON);
 
                 // fiter protected fields
                 filterFieldsInJSON(docJSON);
@@ -357,7 +358,7 @@ public class SearchResource {
                 decorators(context, decs, docJSON);
 
                 // replace pids
-                replacePidsInJSON(docJSON);
+                //replacePidsInJSON(docJSON);
             }
         }
         return resultJSONObject;
@@ -421,8 +422,7 @@ public class SearchResource {
 
     public static void filterFieldsInJSON(JSONObject jsonObj) {
         // filter
-        String[] filters = KConfiguration.getInstance().getAPISolrFilter();
-        for (String filterKey : filters) {
+        for (String filterKey : FILTERED_FIELDS) {
             if (jsonObj.has(filterKey)) {
                 jsonObj.remove(filterKey);
             }
@@ -500,7 +500,6 @@ public class SearchResource {
             LOGGER.log(Level.SEVERE, e.getMessage());
             throw new InternalErrorException(e.getMessage());
         }
-
     }
 
     @GET
