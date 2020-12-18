@@ -24,7 +24,6 @@ import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
@@ -58,6 +57,8 @@ public class SearchResource {
 
     private static Logger LOGGER = Logger.getLogger(SearchResource.class.getName());
     private static final String[] FILTERED_FIELDS = {"text_ocr"}; //see api.solr.filtered for old index
+    private static final int DEFAULT_FRAG_SIZE = 20; //see api.search.highlight.defaultfragsize for old index
+    private static final int MAX_FRAG_SIZE = 120; //see api.search.highlight.maxfragsize for old index
 
     @Inject
     @Named("new-index")
@@ -67,33 +68,50 @@ public class SearchResource {
     private JSONDecoratorsAggregate jsonDecoratorAggregates;
 
     @GET
-    @Produces({MediaType.APPLICATION_XML + ";charset=utf-8"})
     public Response selectXML(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
         if ("json".equals(wt)) {
-            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8")
-                    .entity(getEntityJSON(uriInfo).toString()).build();
-        } else {
-            return Response.ok().entity(getEntityXML(uriInfo).toString()).build();
+            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(getEntityJSON(uriInfo).toString()).build();
+        } else if ("xml".equals(wt)) {
+            return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(getEntityXML(uriInfo).toString()).build();
+        } else { //json is default
+            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(getEntityJSON(uriInfo).toString()).build();
+        }
+    }
+
+    private String getEntityJSON(UriInfo uriInfo) {
+        try {
+            String solrQuery = buildSolrQueryString(uriInfo);
+            InputStream istream = this.solrAccess.request(solrQuery, "json");
+
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(istream, bos);
+            String rawString = new String(bos.toByteArray(), "UTF-8");
+
+            String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
+            JSONObject jsonObject = changeJSONResult(rawString, uri, this.jsonDecoratorAggregates.getDecorators());
+
+            return jsonObject.toString();
+        } catch (HttpResponseException e) {
+            if (e.getStatusCode() == SC_BAD_REQUEST) {
+                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                throw new BadRequestException(e.getMessage());
+            } else {
+                LOGGER.log(Level.INFO, e.getMessage(), e);
+                throw new InternalErrorException(e.getMessage());
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
         }
     }
 
     private String getEntityXML(UriInfo uriInfo) {
         try {
-            MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-            StringBuilder builder = new StringBuilder();
-            Set<String> keys = queryParameters.keySet();
-            for (String k : keys) {
-                for (String v : queryParameters.get(k)) {
-                    if (k.equals("fl")) {
-                        checkFieldSettings(v);
-                    }
-                    String value = URLEncoder.encode(v, "UTF-8");
-                    value = checkHighlightValues(k, value);
-                    builder.append(k + "=" + value);
-                    builder.append("&");
-                }
-            }
-            InputStream istream = this.solrAccess.request(builder.toString(), "xml");
+            String solrQuery = buildSolrQueryString(uriInfo);
+            InputStream istream = this.solrAccess.request(solrQuery, "xml");
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
@@ -129,94 +147,51 @@ public class SearchResource {
         }
     }
 
-    private void checkFieldSettings(String value) {
+    private String buildSolrQueryString(UriInfo uriInfo) throws UnsupportedEncodingException {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        StringBuilder builder = new StringBuilder();
+        Set<String> keys = queryParameters.keySet();
+        boolean hlFragsizeFound = false;
+        for (String k : keys) {
+            for (final String v : queryParameters.get(k)) {
+                String value = v;
+                if (k.equals("fl")) {
+                    checkFlValueDoesNotContainFilteredField(value);
+                }
+                if (k.equals("hl.fragsize")) {
+                    value = normalizeHighlightFragsize(value).toString();
+                }
+                builder.append(k).append("=").append(URLEncoder.encode(value, "UTF-8"));
+                builder.append("&");
+            }
+        }
+        if (!hlFragsizeFound) {
+            builder.append("hl.fragsize").append("=").append(DEFAULT_FRAG_SIZE);
+        }
+        return builder.toString();
+    }
+
+    private void checkFlValueDoesNotContainFilteredField(String comaSeparatedValues) {
         List<String> filters = Arrays.asList(FILTERED_FIELDS);
-        String[] vals = value.split(",");
+        String[] vals = comaSeparatedValues.split(",");
         for (String v : vals) {
             // remove field alias
             v = StringUtils.substringAfterLast(v, ":");
-            if (filters.contains(v)) throw new BadRequestException("requesting filtering field");
-        }
-    }
-
-    private String checkHighlightValues(String v, String value) {
-        if (v.equals("hl.fragsize")) {
-            try {
-                int confVal = KConfiguration.getInstance().getConfiguration().getInt("api.search.highlight.defaultfragsize", 20);
-                int maxVal = KConfiguration.getInstance().getConfiguration().getInt("api.search.highlight.maxfragsize", 120);
-                int val = Integer.parseInt(value);
-                if (val == 0) {
-                    val = confVal;
-                } else if (val > maxVal) {
-                    val = confVal;
-                }
-                return "" + val;
-            } catch (NumberFormatException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                return value;
+            if (filters.contains(v)) {
+                throw new BadRequestException("requesting filtered field");
             }
-        } else {
-            return value;
         }
     }
 
-    @GET
-    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
-    public Response selectJSON(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
-        if ("xml".equals(wt)) {
-            return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8")
-                    .entity(getEntityXML(uriInfo).toString()).build();
-        } else {
-            return Response.ok().entity(getEntityJSON(uriInfo).toString()).build();
-        }
-    }
-
-    private String getEntityJSON(UriInfo uriInfo) {
+    private Integer normalizeHighlightFragsize(String value) {
         try {
-
-            MultivaluedMap<String, String> queryParameters = uriInfo
-                    .getQueryParameters();
-            StringBuilder builder = new StringBuilder();
-            Set<String> keys = queryParameters.keySet();
-            for (String k : keys) {
-                for (String v : queryParameters.get(k)) {
-                    if (k.equals("fl")) {
-                        checkFieldSettings(v);
-                    }
-                    String value = URLEncoder.encode(v, "UTF-8");
-                    value = checkHighlightValues(k, value);
-                    builder.append(k + "=" + value);
-                    builder.append("&");
-                }
-            }
-            InputStream istream = this.solrAccess.request(builder.toString(),
-                    "json");
-
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            IOUtils.copyStreams(istream, bos);
-            String rawString = new String(bos.toByteArray(), "UTF-8");
-
-            String uri = UriBuilder.fromResource(SearchResource.class).path("")
-                    .build().toString();
-            JSONObject jsonObject = changeJSONResult(rawString, uri, this.jsonDecoratorAggregates.getDecorators());
-
-            return jsonObject.toString();
-        } catch (HttpResponseException e) {
-            if (e.getStatusCode() == SC_BAD_REQUEST) {
-                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
-                throw new BadRequestException(e.getMessage());
-            } else {
-                LOGGER.log(Level.INFO, e.getMessage(), e);
-                throw new InternalErrorException(e.getMessage());
-            }
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        } catch (JSONException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
+            Integer hlFragSize = Integer.valueOf(value);
+            return hlFragSize > MAX_FRAG_SIZE ? MAX_FRAG_SIZE : hlFragSize;
+        } catch (NumberFormatException e) {
+            throw new BadRequestException(e.getMessage());
         }
     }
+
 
     /**
      * Change result in xml result
@@ -228,8 +203,7 @@ public class SearchResource {
      * @throws SAXException                 Parse error
      * @throws IOException                  IO error
      */
-    private Document changeXMLResult(String rawString, String context)
-            throws ParserConfigurationException, SAXException, IOException {
+    private Document changeXMLResult(String rawString, String context) throws ParserConfigurationException, SAXException, IOException {
         Document doc = XMLUtils.parseDocument(new StringReader(rawString));
         List<Element> elms = XMLUtils.getElementsRecursive(doc.getDocumentElement(), new XMLUtils.ElementsFilter() {
             @Override
