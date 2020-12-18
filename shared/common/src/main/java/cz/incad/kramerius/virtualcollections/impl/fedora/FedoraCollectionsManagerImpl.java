@@ -90,7 +90,7 @@ public class FedoraCollectionsManagerImpl implements CollectionsManager {
                             enhanceDescriptions(col);
                             cols.add(col);
                         } else {
-                            LOGGER.warning("Collection '"+cPid+"' doesn't defined DC Stream - title is missing, canLeave flag is missing");
+                            LOGGER.fine("Collection '"+cPid+"' doesn't have datastream DC - title is missing, canLeave flag is missing");
                             Collection col = new Collection(cPid, "no-name", true);
                             enhanceNumberOfDocs(col);
                             cols.add(col);
@@ -164,7 +164,7 @@ public class FedoraCollectionsManagerImpl implements CollectionsManager {
                     enhanceDescriptions(col);
                     return col;
                 } else {
-                    LOGGER.warning("Collection '"+pid+"' doesn't defined DC Stream - title is missing, canLeave flag is missing");
+                    LOGGER.fine("Collection '"+pid+"' doesn't have datastream DC - title is missing, canLeave flag is missing");
                     Collection col = new Collection(pid, "no-name", true);
                     enhanceNumberOfDocs(col);
                     return col;
