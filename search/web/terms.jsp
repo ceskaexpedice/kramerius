@@ -20,7 +20,7 @@
             pageContext.setAttribute("i18nServlet", i18nServlet);
             String t = request.getParameter("t");
             UTFSort utf_sort = new UTFSort();
-            utf_sort.init();
+            //utf_sort.init();
 
             String term = utf_sort.translate(t);
             String including = request.getParameter("i");
