@@ -82,6 +82,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}")
     public Response checkItemExists(@PathParam("pid") String pid) {
+        checkSupportedObjectPid(pid);
         checkObjectExists(pid);
         return Response.ok().build();
     }
@@ -91,6 +92,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfo(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             checkObjectExists(pid);
             JSONObject json = new JSONObject();
             json.put("data", extractAvailableDataInfo(pid));
@@ -107,6 +109,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoData(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             checkObjectExists(pid);
             return Response.ok(extractAvailableDataInfo(pid)).build();
         } catch (RepositoryException | IOException e) {
@@ -124,6 +127,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoStructure(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             checkObjectExists(pid);
             return Response.ok(extractStructureInfo(pid)).build();
         } catch (RepositoryException | SolrServerException | IOException e) {
@@ -140,6 +144,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoImage(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             checkObjectExists(pid);
             return Response.ok(extractImageSourceInfo(pid)).build();
         } catch (RepositoryException | IOException e) {
@@ -239,6 +244,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/metadata/mods")
     public Response isMetadataModsAvailable(@PathParam("pid") String pid) {
+        checkSupportedObjectPid(pid);
         checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
         return Response.ok().build();
     }
@@ -248,6 +254,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getMetadataMods(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
             Document mods = krameriusRepositoryApi.getMods(pid, true);
             return Response.ok()
@@ -261,6 +268,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/metadata/dc")
     public Response isMetadataDublinCoreAvailable(@PathParam("pid") String pid) {
+        checkSupportedObjectPid(pid);
         checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
         return Response.ok().build();
     }
@@ -270,6 +278,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getMetadataDublinCore(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
             Document dc = krameriusRepositoryApi.getDublinCore(pid, true);
             return Response.ok().entity(dc.asXML()).build();
@@ -281,6 +290,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/ocr/text")
     public Response isOcrTextAvailable(@PathParam("pid") String pid) {
+        checkSupportedObjectPid(pid);
         KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
         checkObjectAndDatastreamExist(pid, dsId);
         checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
@@ -303,6 +313,7 @@ public class ItemsResource extends ClientApiResource {
         //redirect, externally referenced
 
         try {
+            checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
@@ -316,6 +327,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/ocr/alto")
     public Response isOcrAltoAvailable(@PathParam("pid") String pid) {
+        checkSupportedObjectPid(pid);
         KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
         checkObjectAndDatastreamExist(pid, dsId);
         checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
@@ -328,6 +340,7 @@ public class ItemsResource extends ClientApiResource {
     public Response getDatastreamOcrAlto(@PathParam("pid") String pid) {
         //TODO: pořádně otestovat datastreamy s různými controlgroups (M,E,R) a s odkazy typu URL, path
         try {
+            checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
@@ -344,6 +357,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/image")
     public Response isImgFullAvailable(@PathParam("pid") String pid) {
+        checkSupportedObjectPid(pid);
         KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
         checkObjectAndDatastreamExist(pid, dsId);
         checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
@@ -359,6 +373,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/image")
     public Response getImgFull(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
@@ -381,6 +396,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/image/thumb")
     public Response getImgThumb(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             checkObjectExists(pid);
             Pair<InputStream, String> imgThumb = getFirstAvailableImgThumb(pid);
             if (imgThumb == null) {
@@ -404,6 +420,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/image/preview")
     public Response getImgPreview(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             checkObjectExists(pid);
             Pair<InputStream, String> imgPreview = getFirstAvailableImgPreview(pid);
             if (imgPreview == null) {
@@ -423,6 +440,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/audio/mp3")
     public Response isAudioMp3Available(@PathParam("pid") String pid) {
+        checkSupportedObjectPid(pid);
         KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
         checkObjectAndDatastreamExist(pid, dsId);
         checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
@@ -441,6 +459,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/mp3")
     public Response getAudioMp3(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
@@ -500,6 +519,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/audio/ogg")
     public Response isAudioOggAvailable(@PathParam("pid") String pid) {
+        checkSupportedObjectPid(pid);
         KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
         checkObjectAndDatastreamExist(pid, dsId);
         checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
@@ -518,6 +538,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/ogg")
     public Response getAudioOgg(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
@@ -532,6 +553,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/audio/wav")
     public Response isAudioWavAvailable(@PathParam("pid") String pid) {
+        checkSupportedObjectPid(pid);
         KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
         checkObjectAndDatastreamExist(pid, dsId);
         checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
@@ -550,6 +572,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/wav")
     public Response getAudioWav(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)

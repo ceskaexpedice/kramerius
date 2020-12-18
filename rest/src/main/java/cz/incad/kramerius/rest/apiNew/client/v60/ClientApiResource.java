@@ -42,6 +42,7 @@ public abstract class ClientApiResource extends ApiResource {
 
     public void checkUserByJsessionidIsAllowedToReadDatastream(String pid, KrameriusRepositoryApi.KnownDatastreams datastreamId) {
         try {
+            checkSupportedObjectPid(pid);
             String dsId = datastreamId.toString();
             User user = this.userProvider.get();
             boolean allowed = userIsAllowedToReadDatastream(user, pid, dsId);
@@ -55,6 +56,7 @@ public abstract class ClientApiResource extends ApiResource {
 
     //see cz.incad.kramerius.security.SecuredFedoraAccessImpl.getDataStream(String pid, String datastreamName)
     private boolean userIsAllowedToReadDatastream(User user, String pid, String datastreamName) throws IOException {
+        checkSupportedObjectPid(pid);
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         if (paths.length == 0) {
             throw new InternalErrorException("illegal state: no paths for object %s found in search index", pid);

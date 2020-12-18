@@ -9,7 +9,6 @@ import cz.incad.kramerius.rest.apiNew.admin.v10.ProcessSchedulingHelper;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -88,6 +87,7 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCollection(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_READ_COLLECTION;
@@ -114,8 +114,7 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCollections(@QueryParam("withItem") String itemPid) {
         try {
-            //TODO: decide for auth scheme for new API
-
+            checkSupportedObjectPid(itemPid);
             //authentication & authorization by external provider of identities & rights
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_LIST_COLLECTIONS;
@@ -161,6 +160,7 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateCollection(@PathParam("pid") String pid, JSONObject collectionDefinition) {
         try {
+            checkSupportedObjectPid(pid);
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_EDIT_COLLECTION;
@@ -218,6 +218,7 @@ public class CollectionsResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response setItemsInCollection(@PathParam("pid") String pid, JSONArray pidsOfItems) {
+        checkSupportedObjectPid(pid);
         //TODO: implement
         throw new RuntimeException("not implemented yet");
     }
@@ -235,6 +236,8 @@ public class CollectionsResource extends AdminApiResource {
     public Response addItemToCollection(@PathParam("pid") String collectionPid, String itemPid) {
         //TODO: maybe JSONArray insted of single String, to be able to add multiple items at once.
         try {
+            checkSupportedObjectPid(collectionPid);
+            checkSupportedObjectPid(itemPid);
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_EDIT_COLLECTION;
@@ -269,6 +272,8 @@ public class CollectionsResource extends AdminApiResource {
     @Path("{collectionPid}/items/{itemPid}")
     public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, @PathParam("itemPid") String itemPid) {
         try {
+            checkSupportedObjectPid(collectionPid);
+            checkSupportedObjectPid(itemPid);
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_EDIT_COLLECTION;
@@ -301,6 +306,7 @@ public class CollectionsResource extends AdminApiResource {
     @Path("{pid}")
     public Response deleteCollection(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_DELETE_COLLECTION;

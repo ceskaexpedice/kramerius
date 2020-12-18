@@ -67,6 +67,7 @@ public class ItemsResource extends AdminApiResource {
     @HEAD
     @Path("{pid}")
     public Response checkItemExists(@PathParam("pid") String pid) {
+        checkSupportedObjectPid(pid);
         //authentication
         AuthenticatedUser user = getAuthenticatedUserByOauth();
         //authorization
@@ -84,6 +85,7 @@ public class ItemsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_XML)
     public Response getFoxml(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             //authorization
@@ -104,6 +106,7 @@ public class ItemsResource extends AdminApiResource {
     @Path("{pid}")
     public Response deleteObject(@PathParam("pid") String pid) {
         try {
+            checkSupportedObjectPid(pid);
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             //authorization
@@ -124,6 +127,7 @@ public class ItemsResource extends AdminApiResource {
     @HEAD
     @Path("{pid}/streams/{dsid}")
     public Response checkDatastreamExists(@PathParam("pid") String pid, @PathParam("dsid") String dsid) {
+        checkSupportedObjectPid(pid);
         //authentication
         AuthenticatedUser user = getAuthenticatedUserByOauth();
         //authorization
@@ -147,6 +151,7 @@ public class ItemsResource extends AdminApiResource {
     @Path("{pid}/streams/{dsid}/mime")
     public Response getDatastreamMime(@PathParam("pid") String pid, @PathParam("dsid") String dsid) {
         try {
+            checkSupportedObjectPid(pid);
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             //authorization
@@ -203,6 +208,7 @@ public class ItemsResource extends AdminApiResource {
     @Path("{pid}/streams/{dsid}")
     public Response getDatastream(@PathParam("pid") String pid, @PathParam("dsid") String dsid) {
         try {
+            checkSupportedObjectPid(pid);
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             //authorization
