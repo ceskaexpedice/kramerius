@@ -37,7 +37,6 @@ import org.xml.sax.SAXException;
 import javax.inject.Named;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,7 +49,7 @@ import java.util.logging.Logger;
 
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 
-//TODO: pouklizet, probrat endpointy (terms?), prejmenovate endpoint metody
+//TODO: odstranit /terms?, pokud ponechat, tak možná omezit limity, povolená pole (kvůli omezení těžení)
 
 @Path("/client/v6.0/search")
 public class SearchResource {
@@ -68,19 +67,19 @@ public class SearchResource {
     private JSONDecoratorsAggregate jsonDecoratorAggregates; //TODO: do we need the decorators, and which are injected?
 
     @GET
-    public Response selectXML(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
+    public Response get(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
         if ("json".equals(wt)) {
-            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(getEntityJSON(uriInfo).toString()).build();
+            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo)).build();
         } else if ("xml".equals(wt)) {
-            return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(getEntityXML(uriInfo).toString()).build();
+            return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildSearchResponseXml(uriInfo)).build();
         } else { //json is default
-            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(getEntityJSON(uriInfo).toString()).build();
+            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo)).build();
         }
     }
 
-    private String getEntityJSON(UriInfo uriInfo) {
+    private String buildSearchResponseJson(UriInfo uriInfo) {
         try {
-            String solrQuery = buildSolrQueryString(uriInfo);
+            String solrQuery = buildSearchSolrQueryString(uriInfo);
             InputStream istream = this.solrAccess.request(solrQuery, "json");
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -108,9 +107,9 @@ public class SearchResource {
         }
     }
 
-    private String getEntityXML(UriInfo uriInfo) {
+    private String buildSearchResponseXml(UriInfo uriInfo) {
         try {
-            String solrQuery = buildSolrQueryString(uriInfo);
+            String solrQuery = buildSearchSolrQueryString(uriInfo);
             InputStream istream = this.solrAccess.request(solrQuery, "xml");
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -146,7 +145,7 @@ public class SearchResource {
         }
     }
 
-    private String buildSolrQueryString(UriInfo uriInfo) throws UnsupportedEncodingException {
+    private String buildSearchSolrQueryString(UriInfo uriInfo) throws UnsupportedEncodingException {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         StringBuilder builder = new StringBuilder();
         Set<String> keys = queryParameters.keySet();
@@ -308,65 +307,54 @@ public class SearchResource {
     }
 
     @GET
-    @Path("terms")
-    @Produces({MediaType.APPLICATION_XML + ";charset=utf-8"})
-    public Response termsXML(@Context UriInfo uriInfo) {
+    @Path("/terms")
+    public Response getTerms(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
+        if ("json".equals(wt)) {
+            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildTermsResponseJson(uriInfo)).build();
+        } else if ("xml".equals(wt)) {
+            return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildTermsResponseXml(uriInfo)).build();
+        } else { //json is default
+            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildTermsResponseJson(uriInfo)).build();
+        }
+    }
+
+    private String buildTermsResponseJson(UriInfo uriInfo) {
         try {
-            MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-            StringBuilder builder = new StringBuilder();
-            Set<String> keys = queryParameters.keySet();
-            for (String k : keys) {
-                for (String v : queryParameters.get(k)) {
-                    builder.append(k + "=" + URLEncoder.encode(v, "UTF-8"));
-                    builder.append("&");
-                }
-            }
-            InputStream istream = this.solrAccess.terms(builder.toString(),
-                    "xml");
+            InputStream istream = this.solrAccess.terms(buildTermsSolrQueryString(uriInfo), "json");
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
-
             String rawString = new String(bos.toByteArray(), "UTF-8");
-            String uri = UriBuilder.fromResource(SearchResource.class)
-                    .path("terms").build().toString();
-            // Document domObject = changeXMLResult(rawString, uri);
-            //
-            // StringWriter strWriter = new StringWriter();
-            // XMLUtils.print(domObject, strWriter);
-
-            return Response.ok().entity(rawString).build();
+            return rawString;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage());
             throw new InternalErrorException(e.getMessage());
         }
     }
 
-    @GET
-    @Path("terms")
-    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
-    public Response termsJSON(@Context UriInfo uriInfo) {
+    private String buildTermsResponseXml(UriInfo uriInfo) {
         try {
-            MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-            StringBuilder builder = new StringBuilder();
-            Set<String> keys = queryParameters.keySet();
-            for (String k : keys) {
-                for (String v : queryParameters.get(k)) {
-                    builder.append(k + "=" + URLEncoder.encode(v, "UTF-8"));
-                    builder.append("&");
-                }
-            }
-            InputStream istream = this.solrAccess.terms(builder.toString(),
-                    "json");
+            InputStream istream = this.solrAccess.terms(buildTermsSolrQueryString(uriInfo), "xml");
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
-
             String rawString = new String(bos.toByteArray(), "UTF-8");
-
-            return Response.ok().entity(rawString).build();
+            return rawString;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage());
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    private String buildTermsSolrQueryString(UriInfo uriInfo) throws UnsupportedEncodingException {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        StringBuilder builder = new StringBuilder();
+        Set<String> keys = queryParameters.keySet();
+        for (String key : keys) {
+            for (String value : queryParameters.get(key)) {
+                builder.append(key).append("=").append(URLEncoder.encode(value, "UTF-8"));
+                builder.append("&");
+            }
+        }
+        return builder.toString();
     }
 
 }
