@@ -228,7 +228,7 @@ public class SearchResource {
      * @throws SAXException                 Parse error
      * @throws IOException                  IO error
      */
-    public static Document changeXMLResult(String rawString, String context)
+    private Document changeXMLResult(String rawString, String context)
             throws ParserConfigurationException, SAXException, IOException {
         Document doc = XMLUtils.parseDocument(new StringReader(rawString));
         List<Element> elms = XMLUtils.getElementsRecursive(doc.getDocumentElement(), new XMLUtils.ElementsFilter() {
@@ -238,15 +238,14 @@ public class SearchResource {
             }
         });
         for (Element docE : elms) {
-            filterFieldsInDOM(docE);
+            filterOutFieldsFromDOM(docE);
         }
         return doc;
     }
 
-    public static void filterFieldsInDOM(Element docE) {
-        // filter
-        for (final String name : FILTERED_FIELDS) {
-            Element found = findSolrElement(docE, name);
+    private void filterOutFieldsFromDOM(Element docE) {
+        for (String filteredFieldName : FILTERED_FIELDS) {
+            Element found = findSolrElement(docE, filteredFieldName);
             if (found != null) {
                 Node parentNode = found.getParentNode();
                 Node removed = parentNode.removeChild(found);
@@ -254,19 +253,18 @@ public class SearchResource {
         }
     }
 
-    public static Element findSolrElement(Element docE, final String name) {
+    private Element findSolrElement(Element docE, final String name) {
         Element found = XMLUtils.findElement(docE,
                 new XMLUtils.ElementsFilter() {
                     @Override
                     public boolean acceptElement(Element element) {
-                        return (element.hasAttribute("name") && element
-                                .getAttribute("name").equals(name));
+                        return (element.hasAttribute("name") && element.getAttribute("name").equals(name));
                     }
                 });
         return found;
     }
 
-    public static JSONObject changeJSONResult(String rawString, String context, List<JSONDecorator> decs) throws UnsupportedEncodingException, JSONException {
+    private JSONObject changeJSONResult(String rawString, String context, List<JSONDecorator> decs) throws UnsupportedEncodingException, JSONException {
 
         //List<JSONDecorator> decs = this.jsonDecoratorAggregates.getDecorators();
         List<JSONArray> docsArrays = new ArrayList<JSONArray>();
@@ -304,22 +302,23 @@ public class SearchResource {
             for (int i = 0, ll = docs.length(); i < ll; i++) {
                 JSONObject docJSON = (JSONObject) docs.get(i);
                 // fiter protected fields
-                filterFieldsInJSON(docJSON);
+                filterOutFieldsFromJSON(docJSON);
                 // decorators
-                decorators(context, decs, docJSON);
+                applyDecorators(context, decs, docJSON);
             }
         }
         return resultJSONObject;
     }
 
-    public static void decorators(String context, List<JSONDecorator> decs, JSONObject docJSON) throws JSONException {
+    private void applyDecorators(String context, List<JSONDecorator> decs, JSONObject docJSON) throws JSONException {
         // decorators
         Map<String, Object> runtimeCtx = new HashMap<String, Object>();
         for (JSONDecorator d : decs) {
             d.before(runtimeCtx);
         }
         for (JSONDecorator jsonDec : decs) {
-            if (jsonDec.apply(docJSON, context)) {
+            boolean canApply = jsonDec.apply(docJSON, context);
+            if (canApply) {
                 jsonDec.decorate(docJSON, runtimeCtx);
             }
         }
@@ -328,11 +327,10 @@ public class SearchResource {
         }
     }
 
-    public static void filterFieldsInJSON(JSONObject jsonObj) {
-        // filter
-        for (String filterKey : FILTERED_FIELDS) {
-            if (jsonObj.has(filterKey)) {
-                jsonObj.remove(filterKey);
+    private void filterOutFieldsFromJSON(JSONObject jsonObj) {
+        for (String filteredFieldName : FILTERED_FIELDS) {
+            if (jsonObj.has(filteredFieldName)) {
+                jsonObj.remove(filteredFieldName);
             }
         }
     }
