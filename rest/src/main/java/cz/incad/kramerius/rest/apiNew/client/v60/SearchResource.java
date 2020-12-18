@@ -65,7 +65,7 @@ public class SearchResource {
     private SolrAccess solrAccess;
 
     @Inject
-    private JSONDecoratorsAggregate jsonDecoratorAggregates;
+    private JSONDecoratorsAggregate jsonDecoratorAggregates; //TODO: do we need the decorators, and which are injected?
 
     @GET
     public Response selectXML(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
@@ -88,7 +88,7 @@ public class SearchResource {
             String rawString = new String(bos.toByteArray(), "UTF-8");
 
             String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
-            JSONObject jsonObject = changeJSONResult(rawString, uri, this.jsonDecoratorAggregates.getDecorators());
+            JSONObject jsonObject = buildJsonFromRawSolrResponse(rawString, uri, this.jsonDecoratorAggregates.getDecorators());
 
             return jsonObject.toString();
         } catch (HttpResponseException e) {
@@ -117,8 +117,7 @@ public class SearchResource {
             IOUtils.copyStreams(istream, bos);
             String rawString = new String(bos.toByteArray(), "UTF-8");
 
-            String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
-            Document domObject = changeXMLResult(rawString, uri);
+            Document domObject = buildXmlFromRawSolrResponse(rawString);
 
             StringWriter strWriter = new StringWriter();
             XMLUtils.print(domObject, strWriter);
@@ -194,16 +193,11 @@ public class SearchResource {
 
 
     /**
-     * Change result in xml result
+     * Build XML document from SOLR response as a raw String
      *
-     * @param rawString XML result
-     * @param context   Calling context
-     * @return Changed result
-     * @throws ParserConfigurationException Parser error
-     * @throws SAXException                 Parse error
-     * @throws IOException                  IO error
+     * @param rawString SOLR response
      */
-    private Document changeXMLResult(String rawString, String context) throws ParserConfigurationException, SAXException, IOException {
+    private Document buildXmlFromRawSolrResponse(String rawString) throws ParserConfigurationException, SAXException, IOException {
         Document doc = XMLUtils.parseDocument(new StringReader(rawString));
         List<Element> elms = XMLUtils.getElementsRecursive(doc.getDocumentElement(), new XMLUtils.ElementsFilter() {
             @Override
@@ -238,8 +232,12 @@ public class SearchResource {
         return found;
     }
 
-    private JSONObject changeJSONResult(String rawString, String context, List<JSONDecorator> decs) throws UnsupportedEncodingException, JSONException {
-
+    /**
+     * Build JSON document from SOLR response as a raw String
+     *
+     * @param rawString SOLR response
+     */
+    private JSONObject buildJsonFromRawSolrResponse(String rawString, String context, List<JSONDecorator> decs) throws UnsupportedEncodingException, JSONException {
         //List<JSONDecorator> decs = this.jsonDecoratorAggregates.getDecorators();
         List<JSONArray> docsArrays = new ArrayList<JSONArray>();
 
