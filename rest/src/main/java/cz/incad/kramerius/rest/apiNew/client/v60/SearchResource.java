@@ -20,7 +20,6 @@ import com.google.inject.Inject;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
-import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.IOUtils;
@@ -100,8 +99,7 @@ public class SearchResource {
             IOUtils.copyStreams(istream, bos);
             String rawString = new String(bos.toByteArray(), "UTF-8");
 
-            String uri = UriBuilder.fromResource(SearchResource.class).path("")
-                    .build().toString();
+            String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
             Document domObject = changeXMLResult(rawString, uri);
 
             StringWriter strWriter = new StringWriter();
@@ -240,49 +238,9 @@ public class SearchResource {
             }
         });
         for (Element docE : elms) {
-            //TODO: is there still point in the pid manipulation in changeMasterPidInDOM and replacePidsInDOM? With pdf pages?
-            //changeMasterPidInDOM(docE);
             filterFieldsInDOM(docE);
-            //replacePidsInDOM(docE);
         }
         return doc;
-    }
-
-    public static void replacePidsInDOM(Element docE) {
-        String[] apiReplace = KConfiguration.getInstance().getAPIPIDReplace();
-        for (String k : apiReplace) {
-            if (k.equals("PID"))
-                continue; // already replaced
-            Element foundElm = findSolrElement(docE, k);
-            if (foundElm != null) {
-
-                if (foundElm.getNodeName().equals("str")) {
-                    String value = SOLRUtils.value(foundElm.getTextContent(),
-                            String.class);
-                    if (value != null && (value.indexOf("/@") > 0)) {
-                        value = value.replace("/@", "@");
-                        foundElm.setTextContent(value);
-                    }
-                } else if (foundElm.getNodeName().equals("arr")) {
-                    List<String> array = SOLRUtils.array(docE, k, String.class);
-                    List<String> newArray = new ArrayList<String>();
-                    for (String value : array) {
-                        value = value.replace("/@", "@");
-                        newArray.add(value);
-                    }
-
-                    docE.removeChild(foundElm);
-                    Element newArrElm = SOLRUtils.arr(
-                            foundElm.getOwnerDocument(), k, newArray);
-                    docE.appendChild(newArrElm);
-                } else {
-                    LOGGER.warning("skipping object type '"
-                            + foundElm.getNodeName() + "'");
-                }
-
-            }
-        }
-
     }
 
     public static void filterFieldsInDOM(Element docE) {
@@ -308,8 +266,7 @@ public class SearchResource {
         return found;
     }
 
-    public static JSONObject changeJSONResult(String rawString, String context, List<JSONDecorator> decs)
-            throws UnsupportedEncodingException, JSONException {
+    public static JSONObject changeJSONResult(String rawString, String context, List<JSONDecorator> decs) throws UnsupportedEncodingException, JSONException {
 
         //List<JSONDecorator> decs = this.jsonDecoratorAggregates.getDecorators();
         List<JSONArray> docsArrays = new ArrayList<JSONArray>();
@@ -338,34 +295,24 @@ public class SearchResource {
                         if (arrObj instanceof JSONObject) {
                             prcStack.push((JSONObject) arrObj);
                         }
-
                     }
                 }
-
             }
         }
 
         for (JSONArray docs : docsArrays) {
             for (int i = 0, ll = docs.length(); i < ll; i++) {
                 JSONObject docJSON = (JSONObject) docs.get(i);
-                // check master pid
-                //changeMasterPidInJSON(docJSON);
-
                 // fiter protected fields
                 filterFieldsInJSON(docJSON);
-
                 // decorators
                 decorators(context, decs, docJSON);
-
-                // replace pids
-                //replacePidsInJSON(docJSON);
             }
         }
         return resultJSONObject;
     }
 
-    public static void decorators(String context, List<JSONDecorator> decs,
-                                  JSONObject docJSON) throws JSONException {
+    public static void decorators(String context, List<JSONDecorator> decs, JSONObject docJSON) throws JSONException {
         // decorators
         Map<String, Object> runtimeCtx = new HashMap<String, Object>();
         for (JSONDecorator d : decs) {
@@ -381,45 +328,6 @@ public class SearchResource {
         }
     }
 
-    public static void replacePidsInJSON(JSONObject jsonObj) throws JSONException {
-        // repair results
-        String[] apiReplace = KConfiguration.getInstance().getAPIPIDReplace();
-        for (String k : apiReplace) {
-            if (k.equals("PID"))
-                continue; // already replaced
-            if (jsonObj.has(k)) {
-                Object object = jsonObj.get(k);
-                if (object instanceof String) {
-                    String s = jsonObj.getString(k);
-                    if (s.indexOf("/@") > 0) {
-                        s.replace("/@", "@"); // probable bug - not assigned, so it's ignored
-                        jsonObj.put(k, s);
-                    }
-                } else if (object instanceof JSONArray) {
-                    JSONArray jsonArr = (JSONArray) object;
-                    JSONArray newJSONArray = new JSONArray();
-                    int size = jsonArr.length();
-                    for (int i = 0; i < size; i++) {
-                        Object sObj = jsonArr.get(i);
-                        if (sObj instanceof String) {
-                            String s = (String) sObj;
-                            s = s.replace("/@", "@");
-                            newJSONArray.put(s);
-
-                        } else {
-                            LOGGER.warning("skipping object type '"
-                                    + sObj.getClass().getName() + "'");
-                        }
-                    }
-                    jsonObj.put(k, newJSONArray);
-                } else {
-                    LOGGER.warning("skipping object type '"
-                            + object.getClass().getName() + "'");
-                }
-            }
-        }
-    }
-
     public static void filterFieldsInJSON(JSONObject jsonObj) {
         // filter
         for (String filterKey : FILTERED_FIELDS) {
@@ -429,51 +337,12 @@ public class SearchResource {
         }
     }
 
-    public static void changeMasterPidInJSON(JSONObject jsonObj) throws JSONException {
-        if (jsonObj.has("PID")) {
-            // pid contains '/' char
-            String pid = jsonObj.getString("PID");
-            if (pid.contains("/")) {
-                pid = pid.replace("/", "");
-                jsonObj.put("PID", pid);
-            }
-
-        }
-    }
-
-    public static void changeMasterPidInDOM(Element docElem) {
-        // <str name="PID">uuid:2ad31d65-50ca-11e1-916e-001b63bd97ba</str>
-        Element elm = XMLUtils.findElement(docElem,
-                new XMLUtils.ElementsFilter() {
-
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        if (element.getNodeName().equals("str")) {
-                            if (element.hasAttribute("name")
-                                    && (element.getAttribute("name")
-                                    .equals("PID"))) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                });
-        if (elm != null) {
-            String pid = elm.getTextContent();
-            if (pid.contains("/")) {
-                pid = pid.replace("/", "");
-                elm.setTextContent(pid);
-            }
-        }
-    }
-
     @GET
     @Path("terms")
     @Produces({MediaType.APPLICATION_XML + ";charset=utf-8"})
     public Response termsXML(@Context UriInfo uriInfo) {
         try {
-            MultivaluedMap<String, String> queryParameters = uriInfo
-                    .getQueryParameters();
+            MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
             StringBuilder builder = new StringBuilder();
             Set<String> keys = queryParameters.keySet();
             for (String k : keys) {
@@ -507,8 +376,7 @@ public class SearchResource {
     @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response termsJSON(@Context UriInfo uriInfo) {
         try {
-            MultivaluedMap<String, String> queryParameters = uriInfo
-                    .getQueryParameters();
+            MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
             StringBuilder builder = new StringBuilder();
             Set<String> keys = queryParameters.keySet();
             for (String k : keys) {
