@@ -84,6 +84,6 @@
         </out>
     </test>
 
-    <!--TODO: test na pole n.collection.is_standalone, jenze to se bere z rels-ext, takze bude potreba suite, ktery ma na vstupu vice datastreamu-->
+    <!--TODO: test na pole collection.is_standalone, jenze to se bere z rels-ext, takze bude potreba suite, ktery ma na vstupu vice datastreamu-->
 
 </testSuite>

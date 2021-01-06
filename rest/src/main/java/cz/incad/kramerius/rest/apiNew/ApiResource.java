@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public abstract class ApiResource {
 
     //search index may also contain objects with PIDs like uuid:123e4567-e89b-12d3-a456-426655440000_0, uuid:123e4567-e89b-12d3-a456-426655440000_1, ... (pdf pages)
-    private static final Pattern PID_UUID_PATTERN = Pattern.compile("uuid:[a-f0-9]{8}(-[a-f0-9]{4}){4}-[a-f0-9]{8}");
+    private static final Pattern PID_UUID_PATTERN = Pattern.compile("uuid:[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}");
 
     @Inject
     //TODO should be interface, but then guice would need bind(KrameriusRepository.class).to(KrameriusRepositoryApiImpl) somewhere
