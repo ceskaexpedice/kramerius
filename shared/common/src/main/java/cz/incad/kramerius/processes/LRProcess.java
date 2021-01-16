@@ -230,7 +230,7 @@ public interface LRProcess {
     public InputStream getErrorProcessOutputStream() throws FileNotFoundException;
 
     /**
-     * Retunrs stdout as RandomAccessFile
+     * Returns stdout as RandomAccessFile
      *
      * @return stdout RandomAccessFile
      * @throws FileNotFoundException Stdout file doens't exist

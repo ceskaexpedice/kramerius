@@ -235,7 +235,6 @@ public class ItemsResource extends AdminApiResource {
                             .entity(krameriusRepositoryApi.getRelsExt(pid, true).asXML())
                             .build();
                 case "TEXT_OCR":
-                    //TODO: test http://localhost:8080/search/api/admin/v1.0/items/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/streams/TEXT_OCR
                     return Response.ok()
                             .type(MediaType.TEXT_PLAIN + ";charset=utf-8")
                             .entity(krameriusRepositoryApi.getOcrText(pid))
