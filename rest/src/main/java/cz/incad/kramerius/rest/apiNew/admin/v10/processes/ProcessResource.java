@@ -30,6 +30,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.io.InputStream;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -146,21 +147,69 @@ public class ProcessResource extends AdminApiResource {
         return Response.ok().entity(result.toString()).build();
     }
 
+
+    /**
+     * Get whole OUT log file
+     *
+     * @param processUuid
+     */
+    @GET
+    @Path("by_process_uuid/{process_uuid}/logs/out")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response getProcessLogsOutByProcessUuid(@PathParam("process_uuid") String processUuid,
+                                                   @DefaultValue("out.txt") @QueryParam("fileName") String fileName) {
+        return getProcessLogsFileByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, fileName);
+    }
+
+    /**
+     * Get whole ERR log file
+     *
+     * @param processUuid
+     */
+    @GET
+    @Path("by_process_uuid/{process_uuid}/logs/err")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+
+    public Response getProcessLogsErrByProcessUuid(@PathParam("process_uuid") String processUuid,
+                                                   @DefaultValue("err.txt") @QueryParam("fileName") String fileName) {
+        return getProcessLogsFileByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, fileName);
+    }
+
+    private Response getProcessLogsFileByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String fileName) {
+        //authentication
+        AuthenticatedUser user = getAuthenticatedUserByOauth();
+        String role = ROLE_READ_PROCESSES;
+        if (!user.getRoles().contains(role)) {
+            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+        }
+        //access to process data
+        LRProcess lrProces = lrProcessManager.getLongRunningProcess(processUuid);
+        if (lrProces == null) {
+            throw new BadRequestException("nenalezen proces s uuid:" + processUuid);
+        }
+        ProcessLogsHelper processLogsHelper = new ProcessLogsHelper(lrProces);
+        InputStream processInputStream = processLogsHelper.getLogsFileWhole(logType);
+        return Response.ok().entity(processInputStream)
+                .header("Content-Disposition", "attachment; filename=\"" + fileName + "\"")
+                .build();
+    }
+
     /**
      * Nahrazuje _processes_logs_std_json.jsp, _processes_logs_std_json.jsp
      *
      * @param processUuid
      * @param offsetStr
      * @param limitStr
-     * @return //@see cz.incad.Kramerius.views.ProcessLogsViewObject
+     * @return JSON with selected lines (defined by offset, limit) of the standard log
+     * @see cz.incad.Kramerius.views.ProcessLogsViewObject
      */
     @GET
-    @Path("by_process_uuid/{process_uuid}/logs/out")
+    @Path("by_process_uuid/{process_uuid}/logs/out/lines")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getProcessLogsOutByProcessUuid(@PathParam("process_uuid") String processUuid,
-                                                   @QueryParam("offset") String offsetStr,
-                                                   @QueryParam("limit") String limitStr) {
-        return getProcessLogsByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, offsetStr, limitStr);
+    public Response getProcessLogsOutLinesByProcessUuid(@PathParam("process_uuid") String processUuid,
+                                                        @QueryParam("offset") String offsetStr,
+                                                        @QueryParam("limit") String limitStr) {
+        return getProcessLogsLinesByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, offsetStr, limitStr);
     }
 
     /**
@@ -169,18 +218,19 @@ public class ProcessResource extends AdminApiResource {
      * @param processUuid
      * @param offsetStr
      * @param limitStr
-     * @return //@see cz.incad.Kramerius.views.ProcessLogsViewObject
+     * @return JSON with selected lines (defined by offset, limit) of the error log
+     * @see cz.incad.Kramerius.views.ProcessLogsViewObject
      */
     @GET
-    @Path("by_process_uuid/{process_uuid}/logs/err")
+    @Path("by_process_uuid/{process_uuid}/logs/err/lines")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getProcessLogsErrByProcessUuid(@PathParam("process_uuid") String processUuid,
-                                                   @QueryParam("offset") String offsetStr,
-                                                   @QueryParam("limit") String limitStr) {
-        return getProcessLogsByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, offsetStr, limitStr);
+    public Response getProcessLogsErrLinesByProcessUuid(@PathParam("process_uuid") String processUuid,
+                                                        @QueryParam("offset") String offsetStr,
+                                                        @QueryParam("limit") String limitStr) {
+        return getProcessLogsLinesByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, offsetStr, limitStr);
     }
 
-    private Response getProcessLogsByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String offsetStr, String limitStr) {
+    private Response getProcessLogsLinesByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String offsetStr, String limitStr) {
         //authentication
         AuthenticatedUser user = getAuthenticatedUserByOauth();
         String role = ROLE_READ_PROCESSES;

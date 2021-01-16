@@ -2,9 +2,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v10.processes;
 
 import cz.incad.kramerius.processes.LRProcess;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -50,7 +48,7 @@ public class ProcessLogsHelper {
     }
 
     /**
-     * @param type   type of log, either OUT for output log , or ERR for error log
+     * @param type   type of log, either OUT for output log, or ERR for error log
      * @param offset
      * @param limit
      * @return logs by line
@@ -60,6 +58,19 @@ public class ProcessLogsHelper {
         String[] splitByNewLine = asString.split("\\r?\\n");
         List<String> result = Arrays.asList(splitByNewLine);
         return result;
+    }
+
+    /**
+     * @param type type of log, either OUT for output log, or ERR for error log
+     * @return whole file with logs as InputStream
+     */
+    public InputStream getLogsFileWhole(LogType type) {
+        try {
+            return getProcessInputStream(type);
+        } catch (IOException e) {
+            LOGGER.log(Level.INFO, e.getMessage(), e);
+            return new ByteArrayInputStream(new byte[0]);
+        }
     }
 
     private String getLogsFileDataAsString(LogType type, long offset, long limit) {
@@ -89,6 +100,17 @@ public class ProcessLogsHelper {
                 return process.getStandardProcessRAFile();
             case ERR:
                 return process.getErrorProcessRAFile();
+            default:
+                throw new RuntimeException();//impossible
+        }
+    }
+
+    private InputStream getProcessInputStream(LogType type) throws IOException {
+        switch (type) {
+            case OUT:
+                return process.getStandardProcessOutputStream();
+            case ERR:
+                return process.getErrorProcessOutputStream();
             default:
                 throw new RuntimeException();//impossible
         }

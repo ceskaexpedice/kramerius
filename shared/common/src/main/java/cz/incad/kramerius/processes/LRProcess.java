@@ -219,6 +219,7 @@ public interface LRProcess {
      * @return Standard output stream
      * @throws FileNotFoundException OutputStream file doesn't exist
      */
+    //FIXME: prejmenovat metodu, je to InputStream
     public InputStream getStandardProcessOutputStream() throws FileNotFoundException;
 
     /**
@@ -227,6 +228,7 @@ public interface LRProcess {
      * @return err output stream
      * @throws FileNotFoundException ErrStream file doesn't exist
      */
+    //FIXME: prejmenovat metodu, je to InputStream
     public InputStream getErrorProcessOutputStream() throws FileNotFoundException;
 
     /**
