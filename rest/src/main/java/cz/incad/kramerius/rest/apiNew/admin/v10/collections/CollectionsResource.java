@@ -114,7 +114,6 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCollections(@QueryParam("withItem") String itemPid) {
         try {
-            checkSupportedObjectPid(itemPid);
             //authentication & authorization by external provider of identities & rights
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             String role = ROLE_LIST_COLLECTIONS;
@@ -127,6 +126,7 @@ public class CollectionsResource extends AdminApiResource {
 
             List<String> pids = null;
             if (itemPid != null) {
+                checkSupportedObjectPid(itemPid);
                 checkObjectExists(itemPid);
                 pids = krameriusRepositoryApi.getPidsOfCollectionsContainingItem(itemPid);
             } else {
