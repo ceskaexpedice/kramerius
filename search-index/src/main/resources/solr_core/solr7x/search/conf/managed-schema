@@ -469,13 +469,12 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--_version_ field must exist in schema and be searchable (indexed or docValues) and retrievable(stored or docValues) and not multiValued (_version_ does not exist)-->
         <field name="_version_" type="long" indexed="true" stored="true"/>
 
-        <field name="timestamp" type="date" indexed="true" stored="false" default="NOW" multiValued="false"/>
-
         <field name="pid" type="string" indexed="true" stored="true" required="true"/>
         <field name="model" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <field name="created" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <field name="modified" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="indexed" type="date" indexed="true" stored="true" multiValued="false" docValues="true" default="NOW"/>
 
         <!--keywords-->
         <field name="keywords.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
