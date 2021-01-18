@@ -451,9 +451,6 @@ public class Foxml2SolrInputConverter {
         //ds.img_full.mime
         addSolrField(solrInput, "ds.img_full.mime", imgFullMime);
 
-        //status
-        addSolrField(solrInput, "status", extractProperty(foxmlDoc, "info:fedora/fedora-system:def/model#state"));
-
         //mdt
         String mdt = toStringOrNull(Dom4jUtils.buildXpath("mods/classification[@authority='udc']").selectSingleNode(modsRootEl));
         if (mdt != null) {

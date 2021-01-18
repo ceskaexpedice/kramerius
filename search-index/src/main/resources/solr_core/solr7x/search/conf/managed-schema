@@ -657,7 +657,6 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <!--OTHER-->
 
-        <field name="status" type="string" indexed="true" stored="true"/>
         <field name="mdt" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="ddt" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="donator" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
