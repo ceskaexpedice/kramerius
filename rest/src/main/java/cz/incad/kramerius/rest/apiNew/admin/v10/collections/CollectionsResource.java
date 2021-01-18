@@ -26,9 +26,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("/admin/v1.0/collections")
 public class CollectionsResource extends AdminApiResource {
+
+    public static final Logger LOGGER = Logger.getLogger(CollectionsResource.class.getName());
 
     //TODO: prejmenovat role podle spravy uctu
     private static final String ROLE_CREATE_COLLECTION = "kramerius_admin";
@@ -70,8 +74,10 @@ public class CollectionsResource extends AdminApiResource {
             //schedule reindexation - new collection (only object)
             scheduleReindexation(collection.pid, user, "OBJECT", UUID.randomUUID().toString());
             return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();
-        } catch (IOException | RepositoryException e) {
-            e.printStackTrace();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -97,8 +103,10 @@ public class CollectionsResource extends AdminApiResource {
             checkObjectExists(pid);
             Collection collection = fetchCollectionFromRepository(pid, true, true);
             return Response.ok(collection.toJson()).build();
-        } catch (IOException | RepositoryException | SolrServerException e) {
-            e.printStackTrace();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -120,7 +128,6 @@ public class CollectionsResource extends AdminApiResource {
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to list collections (missing role '%s')", user.getName(), role); //403
             }
-
             //authentication with JSESSIONID cookie and authorization against (global) SecuredAction - i.e. schema used Kramerius legacy APIs and servlets
             //checkCurrentUserByJsessionidIsAllowedToPerformGlobalSecuredAction(SecuredActions.VIRTUALCOLLECTION_MANAGE);
 
@@ -141,8 +148,10 @@ public class CollectionsResource extends AdminApiResource {
             result.put("total_size", pids.size());
             result.put("collections", collections);
             return Response.ok(result.toString()).build();
-        } catch (IOException | RepositoryException | SolrServerException e) {
-            e.printStackTrace();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -185,8 +194,10 @@ public class CollectionsResource extends AdminApiResource {
                 scheduleReindexation(pid, user, "OBJECT", UUID.randomUUID().toString());
             }
             return Response.ok().build();
-        } catch (IOException | RepositoryException | SolrServerException e) {
-            e.printStackTrace();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -218,9 +229,16 @@ public class CollectionsResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response setItemsInCollection(@PathParam("pid") String pid, JSONArray pidsOfItems) {
-        checkSupportedObjectPid(pid);
-        //TODO: implement
-        throw new RuntimeException("not implemented yet");
+        try {
+            checkSupportedObjectPid(pid);
+            //TODO: implement
+            throw new RuntimeException("not implemented yet");
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     /**
@@ -246,7 +264,6 @@ public class CollectionsResource extends AdminApiResource {
             }
             checkObjectExists(collectionPid);
             checkObjectExists(itemPid);
-            //TODO: co, kdyz tam objekt uz je?
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
             foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
@@ -255,8 +272,10 @@ public class CollectionsResource extends AdminApiResource {
             scheduleReindexation(collectionPid, user, "OBJECT", batchToken);
             scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken);
             return Response.status(Response.Status.CREATED).build();
-        } catch (IOException | RepositoryException e) {
-            e.printStackTrace();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -290,8 +309,10 @@ public class CollectionsResource extends AdminApiResource {
             scheduleReindexation(collectionPid, user, "OBJECT", batchToken);
             scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken);
             return Response.status(Response.Status.OK).build();
-        } catch (IOException | RepositoryException e) {
-            e.printStackTrace();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -335,8 +356,10 @@ public class CollectionsResource extends AdminApiResource {
                 scheduleReindexation(childPid, user, "TREE_AND_FOSTER_TREES", batchToken);
             }
             return Response.ok().build();
-        } catch (IOException | RepositoryException | SolrServerException e) {
-            e.printStackTrace();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }

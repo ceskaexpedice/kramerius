@@ -5,7 +5,6 @@ import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import org.apache.commons.io.IOUtils;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,6 +16,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("/admin/v1.0/items")
@@ -59,7 +59,10 @@ public class ItemsResource extends AdminApiResource {
             json.put("model", model);
             json.put("items", new JSONArray(pids));
             return Response.ok(json).build();
-        } catch (RepositoryException | IOException | SolrServerException e) {
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -67,17 +70,24 @@ public class ItemsResource extends AdminApiResource {
     @HEAD
     @Path("{pid}")
     public Response checkItemExists(@PathParam("pid") String pid) {
-        checkSupportedObjectPid(pid);
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUserByOauth();
-        //authorization
-        String role = ROLE_READ_ITEMS;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
-        }
+        try {
+            checkSupportedObjectPid(pid);
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //authorization
+            String role = ROLE_READ_ITEMS;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+            }
 
-        checkObjectExists(pid);
-        return Response.ok().build();
+            checkObjectExists(pid);
+            return Response.ok().build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     @GET
@@ -97,7 +107,10 @@ public class ItemsResource extends AdminApiResource {
             checkObjectExists(pid);
             Document foxml = krameriusRepositoryApi.getLowLevelApi().getFoxml(pid);
             return Response.ok().entity(foxml.asXML()).build();
-        } catch (RepositoryException | IOException e) {
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -127,17 +140,24 @@ public class ItemsResource extends AdminApiResource {
     @HEAD
     @Path("{pid}/streams/{dsid}")
     public Response checkDatastreamExists(@PathParam("pid") String pid, @PathParam("dsid") String dsid) {
-        checkSupportedObjectPid(pid);
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUserByOauth();
-        //authorization
-        String role = ROLE_READ_FOXML;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
-        }
+        try {
+            checkSupportedObjectPid(pid);
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //authorization
+            String role = ROLE_READ_FOXML;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+            }
 
-        checkObjectAndDatastreamExist(pid, dsid);
-        return Response.ok().build();
+            checkObjectAndDatastreamExist(pid, dsid);
+            return Response.ok().build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     /**
@@ -199,7 +219,10 @@ public class ItemsResource extends AdminApiResource {
                 default:
                     return Response.status(Response.Status.BAD_REQUEST).build();
             }
-        } catch (RepositoryException | IOException e) {
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -277,7 +300,10 @@ public class ItemsResource extends AdminApiResource {
                 default:
                     return Response.status(Response.Status.BAD_REQUEST).build();
             }
-        } catch (RepositoryException | IOException e) {
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }

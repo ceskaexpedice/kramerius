@@ -38,6 +38,7 @@ import javax.inject.Named;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -68,12 +69,19 @@ public class SearchResource {
 
     @GET
     public Response get(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
-        if ("json".equals(wt)) {
-            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo)).build();
-        } else if ("xml".equals(wt)) {
-            return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildSearchResponseXml(uriInfo)).build();
-        } else { //json is default
-            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo)).build();
+        try {
+            if ("json".equals(wt)) {
+                return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo)).build();
+            } else if ("xml".equals(wt)) {
+                return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildSearchResponseXml(uriInfo)).build();
+            } else { //json is default
+                return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo)).build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
         }
     }
 
@@ -309,12 +317,19 @@ public class SearchResource {
     @GET
     @Path("/terms")
     public Response getTerms(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
-        if ("json".equals(wt)) {
-            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildTermsResponseJson(uriInfo)).build();
-        } else if ("xml".equals(wt)) {
-            return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildTermsResponseXml(uriInfo)).build();
-        } else { //json is default
-            return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildTermsResponseJson(uriInfo)).build();
+        try {
+            if ("json".equals(wt)) {
+                return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildTermsResponseJson(uriInfo)).build();
+            } else if ("xml".equals(wt)) {
+                return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildTermsResponseXml(uriInfo)).build();
+            } else { //json is default
+                return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildTermsResponseJson(uriInfo)).build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
         }
     }
 

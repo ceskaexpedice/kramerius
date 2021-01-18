@@ -9,10 +9,7 @@ import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.*;
-import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
-import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
-import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
-import cz.incad.kramerius.rest.apiNew.exceptions.UnauthorizedException;
+import cz.incad.kramerius.rest.apiNew.exceptions.*;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -36,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("/admin/v1.0/processes")
@@ -87,64 +85,78 @@ public class ProcessResource extends AdminApiResource {
     @Path("owners")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getOwners() {
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUserByOauth();
-        String role = ROLE_READ_PROCESS_OWNERS;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
-        }
-        //get data from db
-        List<ProcessOwner> owners = this.processManager.getProcessesOwners();
-        //sort
-        owners.sort((o1, o2) -> {
-            if (o1.name.startsWith("_") && o1.name.startsWith("_")) {
-                return o1.name.compareTo(o2.name);
-            } else if (o1.name.startsWith("_")) {
-                return 1;
-            } else {
-                return -1;
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            String role = ROLE_READ_PROCESS_OWNERS;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
-        });
-        //convert to JSON
-        JSONArray ownersJson = new JSONArray();
-        for (ProcessOwner owner : owners) {
-            JSONObject ownerJson = new JSONObject();
-            ownerJson.put("id", owner.id);
-            ownerJson.put("name", owner.name);
-            ownersJson.put(ownerJson);
+            //get data from db
+            List<ProcessOwner> owners = this.processManager.getProcessesOwners();
+            //sort
+            owners.sort((o1, o2) -> {
+                if (o1.name.startsWith("_") && o1.name.startsWith("_")) {
+                    return o1.name.compareTo(o2.name);
+                } else if (o1.name.startsWith("_")) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            });
+            //convert to JSON
+            JSONArray ownersJson = new JSONArray();
+            for (ProcessOwner owner : owners) {
+                JSONObject ownerJson = new JSONObject();
+                ownerJson.put("id", owner.id);
+                ownerJson.put("name", owner.name);
+                ownersJson.put(ownerJson);
+            }
+            JSONObject result = new JSONObject();
+            result.put("owners", ownersJson);
+            //return
+            return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
         }
-        JSONObject result = new JSONObject();
-        result.put("owners", ownersJson);
-        //return
-        return Response.ok().entity(result.toString()).build();
     }
 
     @GET
     @Path("by_process_id/{process_id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProcessByProcessId(@PathParam("process_id") String processId) {
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUserByOauth();
-        String role = ROLE_READ_PROCESSES;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
-        }
-        //id
-        Integer processIdInt = null;
-        if (StringUtils.isAnyString(processId)) {
-            try {
-                processIdInt = Integer.valueOf(processId);
-            } catch (NumberFormatException e) {
-                throw new BadRequestException("process_id must be integer, '%s' is not", processId);
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            String role = ROLE_READ_PROCESSES;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
+            //id
+            Integer processIdInt = null;
+            if (StringUtils.isAnyString(processId)) {
+                try {
+                    processIdInt = Integer.valueOf(processId);
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("process_id must be integer, '%s' is not", processId);
+                }
+            }
+            //get process (& it's batch) data from db
+            ProcessInBatch processInBatch = processManager.getProcessInBatchByProcessId(processIdInt);
+            if (processInBatch == null) {
+                throw new NotFoundException("there's no process with process_id=" + processId);
+            }
+            JSONObject result = processInBatchToJson(processInBatch);
+            return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
         }
-        //get process (& it's batch) data from db
-        ProcessInBatch processInBatch = processManager.getProcessInBatchByProcessId(processIdInt);
-        if (processInBatch == null) {
-            throw new NotFoundException("there's no process with process_id=" + processId);
-        }
-        JSONObject result = processInBatchToJson(processInBatch);
-        return Response.ok().entity(result.toString()).build();
     }
 
 
@@ -158,7 +170,14 @@ public class ProcessResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getProcessLogsOutByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                    @DefaultValue("out.txt") @QueryParam("fileName") String fileName) {
-        return getProcessLogsFileByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, fileName);
+        try {
+            return getProcessLogsFileByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, fileName);
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     /**
@@ -172,7 +191,14 @@ public class ProcessResource extends AdminApiResource {
 
     public Response getProcessLogsErrByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                    @DefaultValue("err.txt") @QueryParam("fileName") String fileName) {
-        return getProcessLogsFileByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, fileName);
+        try {
+            return getProcessLogsFileByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, fileName);
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     private Response getProcessLogsFileByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String fileName) {
@@ -209,7 +235,14 @@ public class ProcessResource extends AdminApiResource {
     public Response getProcessLogsOutLinesByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                         @QueryParam("offset") String offsetStr,
                                                         @QueryParam("limit") String limitStr) {
-        return getProcessLogsLinesByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, offsetStr, limitStr);
+        try {
+            return getProcessLogsLinesByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, offsetStr, limitStr);
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     /**
@@ -227,7 +260,14 @@ public class ProcessResource extends AdminApiResource {
     public Response getProcessLogsErrLinesByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                         @QueryParam("offset") String offsetStr,
                                                         @QueryParam("limit") String limitStr) {
-        return getProcessLogsLinesByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, offsetStr, limitStr);
+        try {
+            return getProcessLogsLinesByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, offsetStr, limitStr);
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     private Response getProcessLogsLinesByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String offsetStr, String limitStr) {
@@ -311,87 +351,101 @@ public class ProcessResource extends AdminApiResource {
     @Path("batches/by_first_process_id/{process_id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response deleteBatch(@PathParam("process_id") String processId) {
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUserByOauth();
-        String role = ROLE_DELETE_PROCESSES;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
-        }
-        //id
-        Integer processIdInt = null;
-        if (StringUtils.isAnyString(processId)) {
-            try {
-                processIdInt = Integer.valueOf(processId);
-            } catch (NumberFormatException e) {
-                throw new BadRequestException("process_id must be integer, '%s' is not", processId);
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            String role = ROLE_DELETE_PROCESSES;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
+            //id
+            Integer processIdInt = null;
+            if (StringUtils.isAnyString(processId)) {
+                try {
+                    processIdInt = Integer.valueOf(processId);
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("process_id must be integer, '%s' is not", processId);
+                }
+            }
+            //get batch data from db
+            Batch batch = this.processManager.getBatchByFirstProcessId(processIdInt);
+            if (batch == null) {
+                throw new BadRequestException("batch with first-process-id %d doesn't exist", processIdInt);
+            }
+            //check batch is deletable
+            String batchState = toBatchStateName(batch.stateCode);
+            if (!isDeletableState(batchState)) {
+                throw new BadRequestException("batch in state %s cannot be deleted", batchState);
+            }
+            //delete processes in batch
+            int deleted = this.processManager.deleteBatchByBatchToken(batch.token);
+            //return
+            JSONObject result = new JSONObject();
+            result.put("batch_id", batch.firstProcessId);
+            result.put("batch_token", batch.token);
+            result.put("processes_deleted", deleted);
+            return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
         }
-        //get batch data from db
-        Batch batch = this.processManager.getBatchByFirstProcessId(processIdInt);
-        if (batch == null) {
-            throw new BadRequestException("batch with first-process-id %d doesn't exist", processIdInt);
-        }
-        //check batch is deletable
-        String batchState = toBatchStateName(batch.stateCode);
-        if (!isDeletableState(batchState)) {
-            throw new BadRequestException("batch in state %s cannot be deleted", batchState);
-        }
-        //delete processes in batch
-        int deleted = this.processManager.deleteBatchByBatchToken(batch.token);
-        //return
-        JSONObject result = new JSONObject();
-        result.put("batch_id", batch.firstProcessId);
-        result.put("batch_token", batch.token);
-        result.put("processes_deleted", deleted);
-        return Response.ok().entity(result.toString()).build();
     }
 
     @DELETE
     @Path("batches/by_first_process_id/{process_id}/execution")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response killBatch(@PathParam("process_id") String processId) {
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUserByOauth();
-        String role = ROLE_CANCEL_OR_KILL_PROCESSES;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
-        }
-        //id
-        Integer processIdInt = null;
-        if (StringUtils.isAnyString(processId)) {
-            try {
-                processIdInt = Integer.valueOf(processId);
-            } catch (NumberFormatException e) {
-                throw new BadRequestException("process_id must be integer, '%s' is not", processId);
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            String role = ROLE_CANCEL_OR_KILL_PROCESSES;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
-        }
-        //get batch data from db
-        Batch batch = this.processManager.getBatchByFirstProcessId(processIdInt);
-        if (batch == null) {
-            throw new BadRequestException("batch with first-process-id %d doesn't exist", processIdInt);
-        }
-
-        //kill all processes in batch if possible
-        String batchState = toBatchStateName(batch.stateCode);
-        if (isKillableState(batchState)) {
-            List<ProcessInBatch> processes = processManager.getProcessesInBatchByFirstProcessId(processIdInt);
-            for (ProcessInBatch process : processes) {
-                String uuid = process.processUuid;
-                LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
-                if (lrProcess != null && !States.notRunningState(lrProcess.getProcessState())) {
-                    //System.out.println(lrProcess.getProcessState());
-                    try {
-                        lrProcess.stopMe();
-                        lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
-                    } catch (Throwable e) { //because AbstractLRProcessImpl.stopMe() throws java.lang.IllegalStateException: cannot stop this process! No PID associated
-                        e.printStackTrace();
-                    }
-                } else {
-                    System.out.println(lrProcess.getProcessState());
+            //id
+            Integer processIdInt = null;
+            if (StringUtils.isAnyString(processId)) {
+                try {
+                    processIdInt = Integer.valueOf(processId);
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("process_id must be integer, '%s' is not", processId);
                 }
             }
+            //get batch data from db
+            Batch batch = this.processManager.getBatchByFirstProcessId(processIdInt);
+            if (batch == null) {
+                throw new BadRequestException("batch with first-process-id %d doesn't exist", processIdInt);
+            }
+
+            //kill all processes in batch if possible
+            String batchState = toBatchStateName(batch.stateCode);
+            if (isKillableState(batchState)) {
+                List<ProcessInBatch> processes = processManager.getProcessesInBatchByFirstProcessId(processIdInt);
+                for (ProcessInBatch process : processes) {
+                    String uuid = process.processUuid;
+                    LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
+                    if (lrProcess != null && !States.notRunningState(lrProcess.getProcessState())) {
+                        //System.out.println(lrProcess.getProcessState());
+                        try {
+                            lrProcess.stopMe();
+                            lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
+                        } catch (Throwable e) { //because AbstractLRProcessImpl.stopMe() throws java.lang.IllegalStateException: cannot stop this process! No PID associated
+                            e.printStackTrace();
+                        }
+                    } else {
+                        System.out.println(lrProcess.getProcessState());
+                    }
+                }
+            }
+            return Response.ok().build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
         }
-        return Response.ok().build();
     }
 
     /**
@@ -416,72 +470,79 @@ public class ProcessResource extends AdminApiResource {
             @QueryParam("until") String filterUntil,
             @QueryParam("state") String filterState
     ) {
-        //access control with basic access authentication (deprecated)
-        checkAccessControlByBasicAccessAuth();
+        try {
+            //access control with basic access authentication (deprecated)
+            checkAccessControlByBasicAccessAuth();
 
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUserByOauth();
-        String role = ROLE_READ_PROCESSES;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
-        }
-
-        //offset & limit
-        int offset = GET_BATCHES_DEFAULT_OFFSET;
-        if (StringUtils.isAnyString(offsetStr)) {
-            try {
-                offset = Integer.valueOf(offsetStr);
-                if (offset < 0) {
-                    throw new BadRequestException("offset must be zero or positive, '%s' is not", offsetStr);
-                }
-            } catch (NumberFormatException e) {
-                throw new BadRequestException("offset must be integer, '%s' is not", offsetStr);
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            String role = ROLE_READ_PROCESSES;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
             }
-        }
-        int limit = GET_BATCHES_DEFAULT_LIMIT;
-        if (StringUtils.isAnyString(limitStr)) {
-            try {
-                limit = Integer.valueOf(limitStr);
-                if (limit < 1) {
-                    throw new BadRequestException("limit must be positive, '%s' is not", limitStr);
+
+            //offset & limit
+            int offset = GET_BATCHES_DEFAULT_OFFSET;
+            if (StringUtils.isAnyString(offsetStr)) {
+                try {
+                    offset = Integer.valueOf(offsetStr);
+                    if (offset < 0) {
+                        throw new BadRequestException("offset must be zero or positive, '%s' is not", offsetStr);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("offset must be integer, '%s' is not", offsetStr);
                 }
-            } catch (NumberFormatException e) {
-                throw new BadRequestException("limit must be integer, '%s' is not", limitStr);
             }
-        }
+            int limit = GET_BATCHES_DEFAULT_LIMIT;
+            if (StringUtils.isAnyString(limitStr)) {
+                try {
+                    limit = Integer.valueOf(limitStr);
+                    if (limit < 1) {
+                        throw new BadRequestException("limit must be positive, '%s' is not", limitStr);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("limit must be integer, '%s' is not", limitStr);
+                }
+            }
 
-        //filter
-        Filter filter = new Filter();
-        if (StringUtils.isAnyString(filterOwner)) {
-            filter.owner = filterOwner;
-        }
-        if (StringUtils.isAnyString(filterFrom)) {
-            filter.from = parseLocalDateTime(filterFrom);
-        }
-        if (StringUtils.isAnyString(filterUntil)) {
-            filter.until = parseLocalDateTime(filterUntil);
-        }
-        if (StringUtils.isAnyString(filterState)) {
-            filter.stateCode = toBatchStateCode(filterState);
-        }
+            //filter
+            Filter filter = new Filter();
+            if (StringUtils.isAnyString(filterOwner)) {
+                filter.owner = filterOwner;
+            }
+            if (StringUtils.isAnyString(filterFrom)) {
+                filter.from = parseLocalDateTime(filterFrom);
+            }
+            if (StringUtils.isAnyString(filterUntil)) {
+                filter.until = parseLocalDateTime(filterUntil);
+            }
+            if (StringUtils.isAnyString(filterState)) {
+                filter.stateCode = toBatchStateCode(filterState);
+            }
 
-        //response size
-        int totalSize = this.processManager.getBatchesCount(filter);
-        JSONObject result = new JSONObject();
-        result.put("offset", offset);
-        result.put("limit", limit);
-        result.put("total_size", totalSize);
+            //response size
+            int totalSize = this.processManager.getBatchesCount(filter);
+            JSONObject result = new JSONObject();
+            result.put("offset", offset);
+            result.put("limit", limit);
+            result.put("total_size", totalSize);
 
-        //batch & process data
-        List<ProcessInBatch> pibs = this.processManager.getProcessesInBatches(filter, offset, limit);
-        List<BatchWithProcesses> batchWithProcesses = extractBatchesWithProcesses(pibs);
-        JSONArray batchesJson = new JSONArray();
-        for (BatchWithProcesses batch : batchWithProcesses) {
-            JSONObject batchJson = batchToJson(batch);
-            batchesJson.put(batchJson);
+            //batch & process data
+            List<ProcessInBatch> pibs = this.processManager.getProcessesInBatches(filter, offset, limit);
+            List<BatchWithProcesses> batchWithProcesses = extractBatchesWithProcesses(pibs);
+            JSONArray batchesJson = new JSONArray();
+            for (BatchWithProcesses batch : batchWithProcesses) {
+                JSONObject batchJson = batchToJson(batch);
+                batchesJson.put(batchJson);
+            }
+            result.put("batches", batchesJson);
+            return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
         }
-        result.put("batches", batchesJson);
-        return Response.ok().entity(result.toString()).build();
     }
 
     private void checkAccessControlByBasicAccessAuth() {
@@ -509,47 +570,54 @@ public class ProcessResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response scheduleProcess(JSONObject processDefinition) {
-        String processAuthToken = getProcessAuthToken();
-        if (processDefinition == null) {
-            throw new BadRequestException("missing process definition");
-        }
-        if (!processDefinition.has("defid")) {
-            throw new BadRequestException("empty defid");
-        }
-        String defid = processDefinition.getString("defid");
-        JSONObject params = new JSONObject();
-        if (processDefinition.has("params")) {
-            params = processDefinition.getJSONObject("params");
-        }
-        ClientAuthHeaders clientAuthHeaders = extractClientAuthHeders();
-        if (processAuthToken != null) { //run by process (so the new process will be it's sibling in same batch)
-            //authentication & authorization
-            ProcessManager.ProcessAboutToScheduleSibling originalProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(processAuthToken);
-            if (originalProcess == null) {
-                throw new UnauthorizedException("invalid token"); //401
+        try {
+            String processAuthToken = getProcessAuthToken();
+            if (processDefinition == null) {
+                throw new BadRequestException("missing process definition");
             }
-            String userId = originalProcess.getOwnerId();
-            String userName = originalProcess.getOwnerName();
-            String batchToken = originalProcess.getBatchToken();
-            List<String> paramsList = new ArrayList<>();
-            String newProcessAuthToken = UUID.randomUUID().toString();
-            paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
-            paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
-            return scheduleProcess(defid, paramsList, userId, userName, batchToken, newProcessAuthToken);
-        } else { //run by user (through web client)
-            String batchToken = UUID.randomUUID().toString();
-            List<String> paramsList = new ArrayList<>();
-            String newProcessAuthToken = UUID.randomUUID().toString();
-            paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
-            paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
-            //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
-            //authorization
-            String role = ROLE_SCHEDULE_PROCESSES;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            if (!processDefinition.has("defid")) {
+                throw new BadRequestException("empty defid");
             }
-            return scheduleProcess(defid, paramsList, user.getId(), user.getName(), batchToken, newProcessAuthToken);
+            String defid = processDefinition.getString("defid");
+            JSONObject params = new JSONObject();
+            if (processDefinition.has("params")) {
+                params = processDefinition.getJSONObject("params");
+            }
+            ClientAuthHeaders clientAuthHeaders = extractClientAuthHeders();
+            if (processAuthToken != null) { //run by process (so the new process will be it's sibling in same batch)
+                //authentication & authorization
+                ProcessManager.ProcessAboutToScheduleSibling originalProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(processAuthToken);
+                if (originalProcess == null) {
+                    throw new UnauthorizedException("invalid token"); //401
+                }
+                String userId = originalProcess.getOwnerId();
+                String userName = originalProcess.getOwnerName();
+                String batchToken = originalProcess.getBatchToken();
+                List<String> paramsList = new ArrayList<>();
+                String newProcessAuthToken = UUID.randomUUID().toString();
+                paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
+                paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
+                return scheduleProcess(defid, paramsList, userId, userName, batchToken, newProcessAuthToken);
+            } else { //run by user (through web client)
+                String batchToken = UUID.randomUUID().toString();
+                List<String> paramsList = new ArrayList<>();
+                String newProcessAuthToken = UUID.randomUUID().toString();
+                paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
+                paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
+                //authentication
+                AuthenticatedUser user = getAuthenticatedUserByOauth();
+                //authorization
+                String role = ROLE_SCHEDULE_PROCESSES;
+                if (!user.getRoles().contains(role)) {
+                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+                }
+                return scheduleProcess(defid, paramsList, user.getId(), user.getName(), batchToken, newProcessAuthToken);
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
         }
     }
 
