@@ -57,13 +57,73 @@ public class SolrInputBuilder {
     public SolrInput processPageFromPdf(RepositoryNodeManager nodeManager, RepositoryNode parentNode, int pageNumber, String pageOcrText) {
         SolrInput solrInput = new SolrInput();
         String pid = parentNode.getPid() + "_" + pageNumber;
+        String model = "page";
+
         solrInput.addField("pid", pid);
-        //TODO: add other fields
-
-
+        solrInput.addField("model", model);
         addSolrField(solrInput, "root.pid", parentNode.getRootPid());
-
+        addSolrField(solrInput, "root.model", parentNode.getRootModel());
+        if (parentNode.getRootTitle() != null) {
+            addSolrField(solrInput, "root.title", parentNode.getRootTitle().value);
+            addSolrField(solrInput, "root.title.sort", sortingNormalizer.normalize(parentNode.getRootTitle().value));
+        }
         addSolrField(solrInput, "own_parent.pid", parentNode.getPid());
+        addSolrField(solrInput, "own_parent.model", parentNode.getModel());
+
+        addSolrField(solrInput, "own_pid_path", parentNode.getPidPath() + "/" + pid);
+        addSolrField(solrInput, "own_model_path", parentNode.getModelPath() + "/" + model);
+
+        addSolrField(solrInput, "rels_ext_index.sort", pageNumber);
+        if (parentNode.getTitle() != null) {
+            addSolrField(solrInput, "own_parent.title", parentNode.getTitle().value);
+        }
+
+        //level je uroven ve vlastnim strome, pocitano od 0
+        if (parentNode.getModelPath() != null) {
+            Integer level = parentNode.getModelPath().split("/").length;
+            addSolrField(solrInput, "level", level.toString());
+        }
+        //pid_paths
+        addSolrField(solrInput, "pid_paths", parentNode.getPidPath() + "/" + pid);
+        if (parentNode.getPidsOfFosterParents() != null) {
+            for (String fosterParent : parentNode.getPidsOfFosterParents()) {
+                RepositoryNode fosterParentNode = nodeManager.getKrameriusNode(fosterParent);
+                addSolrField(solrInput, "pid_paths", fosterParentNode.getPidPath() + "/" + parentNode.getPid() + "/" + pid);
+            }
+        }
+
+        //collections
+        if (parentNode.getPidsOfAnyAncestorsOfTypeCollection() != null) {
+            for (String collection : parentNode.getPidsOfAnyAncestorsOfTypeCollection()) {
+                addSolrField(solrInput, "in_collections", collection);
+            }
+        }
+        //languages from tree, foster trees
+        for (String language : parentNode.getLanguages()) {
+            addSolrField(solrInput, "languages.facet", language);
+        }
+        //authors
+        for (AuthorInfo author : parentNode.getAuthors()) {
+            solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
+            solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
+            solrInput.addField("authors.search", author.getName());
+        }
+
+        //dates
+        if (parentNode.getDateInfo() != null && !parentNode.getDateInfo().isEmpty()) {
+            appendDateFields(solrInput, parentNode.getDateInfo());
+        }
+
+        //titles
+        solrInput.addField("title.search", String.valueOf(pageNumber));
+        solrInput.addField("title.sort", String.valueOf(pageNumber));
+        solrInput.addField("titles.search", String.valueOf(pageNumber));
+
+        //page.*
+        addSolrField(solrInput, "page.number", String.valueOf(pageNumber));
+        addSolrField(solrInput, "page.index", String.valueOf(pageNumber - 1));
+        //addSolrField(solrInput, "page.type", "NormalPage");
+        //addSolrField(solrInput, "page.placement", "single");
 
         //OCR text
         if (pageOcrText != null && !pageOcrText.isEmpty()) {
@@ -83,7 +143,7 @@ public class SolrInputBuilder {
         Element modsRootEl = getLatestDatastreamVersionXmlContent(foxmlDoc, "BIBLIO_MODS");
         //Element dcRootEl = getLatestDatastreamVersionXmlContent(foxmlDoc, "DC");
 
-        //PID
+        //pid
         String pid = Dom4jUtils.stringOrNullFromAttributeByXpath(foxmlDoc.getRootElement(), "/digitalObject/@PID");
         if (pid != null) {
             solrInput.addField("pid", pid);
@@ -260,10 +320,6 @@ public class SolrInputBuilder {
         if (coordinatesEl != null) {
             new CoordinatesExtractor().extract(coordinatesEl, solrInput);
         }
-
-        // TODO: 2019-08-13 extended fields
-        //https://github.com/ceskaexpedice/kramerius/blob/b7b173c3d664d4982483131ff6a547f49d96f47e/indexer/src/cz/incad/kramerius/indexer/ExtendedFields.java
-
 
         //dates
         if (repositoryNode != null) {

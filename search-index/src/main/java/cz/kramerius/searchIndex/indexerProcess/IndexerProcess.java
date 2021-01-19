@@ -172,10 +172,11 @@ public class IndexerProcess {
         PdfExtractor extractor = new PdfExtractor(pid, imgFull);
         int pages = extractor.getPagesCount();
         for (int i = 0; i < pages; i++) {
+            int pageNumber = i + 1;
             counters.incrementFound();
-            report("extracting page " + (i + 1) + "/" + pages);
+            report("extracting page " + pageNumber + "/" + pages);
             String ocrText = normalizeWhitespacesForOcrText(extractor.getPageText(i));
-            SolrInput solrInput = solrInputBuilder.processPageFromPdf(nodeManager, repositoryNode, i + 1, ocrText);
+            SolrInput solrInput = solrInputBuilder.processPageFromPdf(nodeManager, repositoryNode, pageNumber, ocrText);
             String solrInputStr = solrInput.getDocument().asXML();
             solrIndexer.indexFromXmlString(solrInputStr, false);
             counters.incrementIndexed();
