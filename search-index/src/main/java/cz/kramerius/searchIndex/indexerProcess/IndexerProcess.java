@@ -4,7 +4,7 @@ package cz.kramerius.searchIndex.indexerProcess;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexer;
 import cz.kramerius.searchIndex.indexer.SolrInput;
-import cz.kramerius.searchIndex.indexer.conversions.Foxml2SolrInputConverter;
+import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
@@ -35,7 +35,7 @@ public class IndexerProcess {
     private final KrameriusRepositoryAccessAdapter repositoryConnector;
     private final RepositoryNodeManager nodeManager;
 
-    private final Foxml2SolrInputConverter foxml2SolrInputConverter;
+    private final SolrInputBuilder solrInputBuilder;
     private SolrIndexer solrIndexer = null;
 
 
@@ -43,7 +43,7 @@ public class IndexerProcess {
         long start = System.currentTimeMillis();
         this.repositoryConnector = repositoryConnector;
         this.nodeManager = new RepositoryNodeManager(repositoryConnector);
-        this.foxml2SolrInputConverter = new Foxml2SolrInputConverter();
+        this.solrInputBuilder = new SolrInputBuilder();
         this.solrConfig = solrConfig;
         this.reportLogger = new ReportLogger(reportLoggerStream);
         init();
@@ -145,7 +145,7 @@ public class IndexerProcess {
                 //System.out.println("ocr: " + ocrText);
                 //IMG_FULL mimetype
                 String imgFullMime = repositoryConnector.getImgFullMimetype(pid);
-                SolrInput solrInput = foxml2SolrInputConverter.convert(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime);
+                SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime);
                 String solrInputStr = solrInput.getDocument().asXML();
                 solrIndexer.indexFromXmlString(solrInputStr, false);
                 counters.incrementIndexed();
@@ -175,7 +175,7 @@ public class IndexerProcess {
             counters.incrementFound();
             report("extracting page " + (i + 1) + "/" + pages);
             String ocrText = normalizeWhitespacesForOcrText(extractor.getPageText(i));
-            SolrInput solrInput = foxml2SolrInputConverter.convertPdfPage(nodeManager, repositoryNode, i + 1, ocrText);
+            SolrInput solrInput = solrInputBuilder.processPageFromPdf(nodeManager, repositoryNode, i + 1, ocrText);
             String solrInputStr = solrInput.getDocument().asXML();
             solrIndexer.indexFromXmlString(solrInputStr, false);
             counters.incrementIndexed();

@@ -1,6 +1,6 @@
 package indexer;
 
-import cz.kramerius.searchIndex.indexer.conversions.Foxml2SolrInputConverter;
+import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.utils.CzechAlphabetComparator;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Foxml2SolrInputConverterTest {
 
-    private final Foxml2SolrInputConverter converter = new Foxml2SolrInputConverter();
+    private final SolrInputBuilder converter = new SolrInputBuilder();
     private final XmlTestBuilder testBuilder = new XmlTestBuilder();
 
    /* @Test

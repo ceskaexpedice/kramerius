@@ -20,9 +20,8 @@ import java.util.Set;
 
 /*
 @see https://github.com/ceskaexpedice/kramerius/blob/akubra/processes/indexer/src/cz/incad/kramerius/indexer/res/K4.xslt
-//TODO: Rename to SolrInputDocBuilder
  */
-public class Foxml2SolrInputConverter {
+public class SolrInputBuilder {
 
     private final Set<String> genreStopWords = initGenreStopWords();
     private final SortingNormalizer sortingNormalizer = new SortingNormalizer();
@@ -48,16 +47,14 @@ public class Foxml2SolrInputConverter {
         return stopWords;
     }
 
-    public void convert(File inFoxmlFile, File outSolrImportFile) throws IOException, DocumentException {
+    public void convertFoxmlToSolrInput(File inFoxmlFile, File outSolrImportFile) throws IOException, DocumentException {
         //System.out.println("processing " + inFoxmlFile.getName());
         Document foxmlDoc = Dom4jUtils.parseXmlFromFile(inFoxmlFile);
-        SolrInput solrInput = convert(foxmlDoc, null, null, null, null);
+        SolrInput solrInput = processObjectFromRepository(foxmlDoc, null, null, null, null);
         solrInput.printTo(outSolrImportFile, true);
     }
 
-
-    //TODO: rename to "processPageFromPdf"
-    public SolrInput convertPdfPage(RepositoryNodeManager nodeManager, RepositoryNode parentNode, int pageNumber, String pageOcrText) {
+    public SolrInput processPageFromPdf(RepositoryNodeManager nodeManager, RepositoryNode parentNode, int pageNumber, String pageOcrText) {
         SolrInput solrInput = new SolrInput();
         String pid = parentNode.getPid() + "_" + pageNumber;
         solrInput.addField("pid", pid);
@@ -75,9 +72,7 @@ public class Foxml2SolrInputConverter {
         return solrInput;
     }
 
-
-    //TODO: rename to "processObjectFromRepository"
-    public SolrInput convert(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime) throws IOException, DocumentException {
+    public SolrInput processObjectFromRepository(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime) throws IOException, DocumentException {
         //remove namespaces before applying xpaths etc
         foxmlDoc.accept(new NamespaceRemovingVisitor(true, true));
 

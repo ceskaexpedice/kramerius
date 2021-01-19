@@ -6,7 +6,7 @@ import cz.kramerius.adapters.IResourceIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexer;
 import cz.kramerius.searchIndex.indexer.SolrInput;
-import cz.kramerius.searchIndex.indexer.conversions.Foxml2SolrInputConverter;
+import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import cz.kramerius.searchIndex.indexerProcess.IndexerProcess;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
@@ -398,7 +398,7 @@ public class Main {
             IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
             KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
             RepositoryNodeManager nodeManager = new RepositoryNodeManager(repositoryAdapter);
-            Foxml2SolrInputConverter convertor = new Foxml2SolrInputConverter();
+            SolrInputBuilder solrInputBuilder = new SolrInputBuilder();
             SolrIndexer indexer = new SolrIndexer(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));
 
             boolean objectAvailable = repositoryAdapter.isObjectAvailable(pid);
@@ -418,7 +418,7 @@ public class Main {
             //System.out.println("ocr text: " + ocrText);
             RepositoryNode repositoryNode = nodeManager.getKrameriusNode(pid);
             String imgFullMime = repositoryAdapter.getImgFullMimetype(pid);
-            SolrInput solrInput = convertor.convert(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime);
+            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime);
             String solrInputStr = solrInput.getDocument().asXML();
             //System.out.println(solrInputStr);
             System.out.println("indexing " + pid);
@@ -442,14 +442,14 @@ public class Main {
             String solrPassword = args[4];
 
             System.out.println("converting foxml -> solr_import_xml (in " + foxmlDir.getAbsolutePath() + ") and indexing into " + solrBaseUrl);
-            Foxml2SolrInputConverter convertor = new Foxml2SolrInputConverter();
+            SolrInputBuilder builder = new SolrInputBuilder();
             SolrIndexer indexer = new SolrIndexer(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));
             String[] foxmlFilenames = foxmlDir.list((dir, name) -> name.endsWith(".foxml.xml"));
             for (String foxmlFilename : foxmlFilenames) {
                 String pid = foxmlFilename.substring(0, foxmlFilename.length() - ".foxml.xml".length());
                 System.out.println("processing " + foxmlFilename);
                 File outSolrInputFile = new File(foxmlDir, pid + ".solr.xml");
-                convertor.convert(new File(foxmlDir, foxmlFilename), outSolrInputFile);
+                builder.convertFoxmlToSolrInput(new File(foxmlDir, foxmlFilename), outSolrInputFile);
                 //TODO: indexation temporarily disabled
                 //indexer.indexFromXmlFile(outSolrInputFile, true);
             }
@@ -459,11 +459,11 @@ public class Main {
 
     private static void convertFoxmlsToSolrInputs(File monDir) throws IOException, DocumentException {
         System.out.println("converting foxml -> solr_import_xml (in " + monDir.getAbsolutePath() + ")");
-        Foxml2SolrInputConverter convertor = new Foxml2SolrInputConverter();
+        SolrInputBuilder builder = new SolrInputBuilder();
         String[] foxmlFilenames = monDir.list((dir, name) -> name.endsWith(".foxml.xml"));
         for (String foxmlFilename : foxmlFilenames) {
             String pid = foxmlFilename.substring(0, foxmlFilename.length() - ".foxml.xml".length());
-            convertor.convert(new File(monDir, foxmlFilename), new File(monDir, pid + ".solr.xml"));
+            builder.convertFoxmlToSolrInput(new File(monDir, foxmlFilename), new File(monDir, pid + ".solr.xml"));
         }
         System.out.println("converted " + foxmlFilenames.length + " files");
     }

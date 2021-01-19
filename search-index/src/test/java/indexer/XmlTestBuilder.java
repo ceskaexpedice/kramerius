@@ -1,7 +1,7 @@
 package indexer;
 
 import cz.kramerius.searchIndex.indexer.SolrInput;
-import cz.kramerius.searchIndex.indexer.conversions.Foxml2SolrInputConverter;
+import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AuthorsExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.DateExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.LanguagesExtractor;
@@ -19,7 +19,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class XmlTestBuilder {
-    private final Foxml2SolrInputConverter converter = new Foxml2SolrInputConverter();
+    private final SolrInputBuilder solrInputBuilder = new SolrInputBuilder();
 
     private List<XmlTest> extractTests(String testType, String model, List<Node> testEls) {
         List<XmlTest> result = new ArrayList<>();
@@ -133,7 +133,7 @@ public class XmlTestBuilder {
                     null, null,
                     languages, authors, dateInfo
             );
-            SolrInput solrInput = converter.convert(foxmlDoc, null, node, null, null);
+            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null);
             SolrInput cleared = withoutFields(solrInput,
                     "model",
                     "root.pid",
@@ -178,7 +178,7 @@ public class XmlTestBuilder {
                     null, null,
                     null, null, null
             );
-            SolrInput solrInput = converter.convert(foxmlDoc, null, node, null, null);
+            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null);
             SolrInput cleared = withoutFields(solrInput,
                     "model",
                     /*"root.pid",
