@@ -20,6 +20,7 @@ import java.util.Set;
 
 /*
 @see https://github.com/ceskaexpedice/kramerius/blob/akubra/processes/indexer/src/cz/incad/kramerius/indexer/res/K4.xslt
+//TODO: Rename to SolrInputDocBuilder
  */
 public class Foxml2SolrInputConverter {
 
@@ -54,6 +55,28 @@ public class Foxml2SolrInputConverter {
         solrInput.printTo(outSolrImportFile, true);
     }
 
+
+    //TODO: rename to "processPageFromPdf"
+    public SolrInput convertPdfPage(RepositoryNodeManager nodeManager, RepositoryNode parentNode, int pageNumber, String pageOcrText) {
+        SolrInput solrInput = new SolrInput();
+        String pid = parentNode.getPid() + "_" + pageNumber;
+        solrInput.addField("pid", pid);
+        //TODO: add other fields
+
+
+        addSolrField(solrInput, "root.pid", parentNode.getRootPid());
+
+        addSolrField(solrInput, "own_parent.pid", parentNode.getPid());
+
+        //OCR text
+        if (pageOcrText != null && !pageOcrText.isEmpty()) {
+            addSolrField(solrInput, "text_ocr", pageOcrText);
+        }
+        return solrInput;
+    }
+
+
+    //TODO: rename to "processObjectFromRepository"
     public SolrInput convert(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime) throws IOException, DocumentException {
         //remove namespaces before applying xpaths etc
         foxmlDoc.accept(new NamespaceRemovingVisitor(true, true));
@@ -248,8 +271,10 @@ public class Foxml2SolrInputConverter {
 
 
         //dates
-        if (repositoryNode.getDateInfo() != null && !repositoryNode.getDateInfo().isEmpty()) {
-            appendDateFields(solrInput, repositoryNode.getDateInfo());
+        if (repositoryNode != null) {
+            if (repositoryNode.getDateInfo() != null && !repositoryNode.getDateInfo().isEmpty()) {
+                appendDateFields(solrInput, repositoryNode.getDateInfo());
+            }
         }
 
         //part.name

@@ -1,7 +1,7 @@
 package cz.kramerius.searchIndex.repositoryAccess;
 
-import cz.kramerius.adapters.FedoraAccess;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
+import cz.kramerius.adapters.FedoraAccess;
 import cz.kramerius.adapters.IResourceIndex;
 import cz.kramerius.shared.Pair;
 import org.dom4j.Document;
@@ -108,6 +108,11 @@ public class KrameriusRepositoryAccessAdapter {
     //IMAGE
     public String getImgFullMimetype(String pid) throws IOException {
         return repository.getDatastreamMimeType(pid, KnownDatastreams.IMG_FULL_STREAM);
+    }
+
+    public InputStream getImgFull(String pid) throws IOException {
+        InputStream is = repository.getDataStream(pid, KnownDatastreams.IMG_FULL_STREAM);
+        return is;
     }
 
     public static class KnownDatastreams {

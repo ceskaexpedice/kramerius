@@ -14,6 +14,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +104,7 @@ public class IndexerProcess {
         report(" objects indexed  : " + counters.getIndexed());
         report(" objects removed  : " + counters.getRemoved());
         report(" objects erroneous: " + counters.getErrors());
+        report(" *counters include pages from pdf, i.e. not real objects in repository");
         report(" initialization duration: " + formatTime(initTime));
         report(" records processing duration: " + formatTime(System.currentTimeMillis() - start));
         if (progressListener != null) {
@@ -148,6 +150,9 @@ public class IndexerProcess {
                 solrIndexer.indexFromXmlString(solrInputStr, false);
                 counters.incrementIndexed();
                 report("");
+                if ("application/pdf".equals(imgFullMime)) {
+                    indexPagesFromPdf(pid, repositoryNode, counters);
+                }
             }
         } catch (DocumentException e) {
             counters.incrementErrors();
@@ -158,6 +163,23 @@ public class IndexerProcess {
         } catch (SolrServerException e) {
             counters.incrementErrors();
             report(" Solr server error", e);
+        }
+    }
+
+    private void indexPagesFromPdf(String pid, RepositoryNode repositoryNode, Counters counters) throws IOException, DocumentException, SolrServerException {
+        report("object " + pid + " contains PDF, extracting pages");
+        InputStream imgFull = repositoryConnector.getImgFull(pid);
+        PdfExtractor extractor = new PdfExtractor(pid, imgFull);
+        int pages = extractor.getPagesCount();
+        for (int i = 0; i < pages; i++) {
+            counters.incrementFound();
+            report("extracting page " + (i + 1) + "/" + pages);
+            String ocrText = normalizeWhitespacesForOcrText(extractor.getPageText(i));
+            SolrInput solrInput = foxml2SolrInputConverter.convertPdfPage(nodeManager, repositoryNode, i + 1, ocrText);
+            String solrInputStr = solrInput.getDocument().asXML();
+            solrIndexer.indexFromXmlString(solrInputStr, false);
+            counters.incrementIndexed();
+            report("");
         }
     }
 
