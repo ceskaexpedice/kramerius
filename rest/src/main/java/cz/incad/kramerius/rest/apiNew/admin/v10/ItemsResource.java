@@ -4,6 +4,7 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.json.JSONArray;
@@ -30,17 +31,18 @@ public class ItemsResource extends AdminApiResource {
     private static final String ROLE_DELETE_OBJECTS = "kramerius_admin";
 
     /**
-     * Returns array of pids that have given model.
+     * Returns array of pids (with titles) that have given model.
      * All top-level objects without model specification cannot be returned here, because this information (being top-level) is not available from resource index.
      * Instead it is derived during indexation process and stored in search index.
      * Accessing this information from search index would violate architecture and possibly cause circular dependency.
      *
      * @param model
-     * @return
+     * @param order resulting objects are sorted by title, you can specify ASC or DESC
+     * @return array of {pid,title} objects
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getItems(@QueryParam("model") String model) {
+    public Response getItems(@QueryParam("model") String model, @QueryParam("order") @DefaultValue("ASC") String order) {
         //TODO: offset, limit, nejspis nebude potreba, see https://app.gethido.com/p/posu5sqvet/tasks/24
         try {
             //authentication
@@ -54,10 +56,29 @@ public class ItemsResource extends AdminApiResource {
             if (model == null || model.isEmpty()) {
                 throw new BadRequestException("missing mandatory query param 'model'");
             }
-            List<String> pids = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel(model);
+            boolean ascendingOrder;
+            switch (order) {
+                case "ASC":
+                    ascendingOrder = true;
+                    break;
+                case "DESC":
+                    ascendingOrder = false;
+                    break;
+                default:
+                    throw new BadRequestException("invalid value of query param 'order': '%s'; valid values are 'ASC' or 'DESC'", order);
+            }
+
+            List<Pair<String, String>> pidsOfObjectsWithTitles = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModel(model, ascendingOrder);
             JSONObject json = new JSONObject();
             json.put("model", model);
-            json.put("items", new JSONArray(pids));
+            JSONArray items = new JSONArray();
+            for (Pair<String, String> pidAndTitle : pidsOfObjectsWithTitles) {
+                JSONObject item = new JSONObject();
+                item.put("pid", pidAndTitle.getFirst());
+                item.put("title", pidAndTitle.getSecond());
+                items.put(item);
+            }
+            json.put("items", items);
             return Response.ok(json).build();
         } catch (WebApplicationException e) {
             throw e;

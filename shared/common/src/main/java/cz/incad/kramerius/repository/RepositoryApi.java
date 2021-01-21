@@ -1,6 +1,7 @@
 package cz.incad.kramerius.repository;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 
@@ -57,6 +58,8 @@ public interface RepositoryApi {
     public List<String> getPidsOfAllObjects() throws RepositoryException, IOException, SolrServerException;
 
     public List<String> getPidsOfObjectsByModel(String model) throws RepositoryException, IOException, SolrServerException;
+
+    public List<Pair<String, String>> getPidsOfObjectsWithTitlesByModel(String model, boolean ascendingOrder) throws RepositoryException, IOException, SolrServerException;
 
     public Map<String, String> getDescription(String objectPid) throws RepositoryException, IOException, SolrServerException;
 

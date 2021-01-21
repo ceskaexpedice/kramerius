@@ -2,18 +2,17 @@ package cz.incad.kramerius.repository;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.om.impl.AkubraRepository;
-import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
 import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.*;
 import org.ehcache.CacheManager;
@@ -150,7 +149,6 @@ public class RepositoryApiImpl implements RepositoryApi {
     public List<String> getPidsOfAllObjects() throws RepositoryException, IOException, SolrServerException {
         List<String> pids = new ArrayList<>();
         //TODO: offset, limit
-        //TODO sort by date desc
         String query = "type:description";
         akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
             Object fieldValue = doc.getFieldValue("source");
@@ -166,7 +164,6 @@ public class RepositoryApiImpl implements RepositoryApi {
     public List<String> getPidsOfObjectsByModel(String model) throws RepositoryException, IOException, SolrServerException {
         List<String> pids = new ArrayList<>();
         //TODO: offset, limit
-        //TODO sort by date desc
         String query = String.format("type:description AND model:%s", "model\\:" + model); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze  uprime zbytecne
         akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
             Object fieldValue = doc.getFieldValue("source");
@@ -176,6 +173,26 @@ public class RepositoryApiImpl implements RepositoryApi {
             }
         });
         return pids;
+    }
+
+    @Override
+    public List<Pair<String, String>> getPidsOfObjectsWithTitlesByModel(String model, boolean ascendingOrder) throws RepositoryException, IOException, SolrServerException {
+        List<Pair<String, String>> result = new ArrayList<>();
+        String query = String.format("type:description AND model:%s", "model\\:" + model); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze  uprime zbytecne
+        akubraRepository.getProcessingIndexFeeder().iterateProcessingSortedByTitle(query, ascendingOrder, (doc) -> {
+            Object fieldPid = doc.getFieldValue("source");
+            Object fieldTitle = doc.getFieldValue("dc.title");
+            String pid = null;
+            String title = null;
+            if (fieldPid != null) {
+                pid = fieldPid.toString();
+            }
+            if (fieldTitle != null) {
+                title = fieldTitle.toString().trim();
+            }
+            result.add(new Pair(pid, title));
+        });
+        return result;
     }
 
     @Override
