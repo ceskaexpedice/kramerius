@@ -68,17 +68,16 @@ public class ProcessingIndexRebuild {
                 objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("objectStore.path"));
             }
             Files.walk(objectStoreRoot, FileVisitOption.FOLLOW_LINKS).parallel().filter(Files::isRegularFile).forEach(path -> {
+                String filename = path.toString();
                 try {
                     FileInputStream inputStream = new FileInputStream(path.toFile());
                     DigitalObject digitalObject = createDigitalObject(inputStream);
                     rebuildProcessingIndex(feeder, digitalObject);
                 } catch (Exception ex) {
-                    LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
+                    LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                 }
             });
             LOGGER.info("Finished tree walk in " + (System.currentTimeMillis() - start) + " ms");
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
         } finally {
             if (feeder != null) {
                 feeder.commit();
