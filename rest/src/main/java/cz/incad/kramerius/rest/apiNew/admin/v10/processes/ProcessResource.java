@@ -141,7 +141,7 @@ public class ProcessResource extends AdminApiResource {
                 try {
                     processIdInt = Integer.valueOf(processId);
                 } catch (NumberFormatException e) {
-                    throw new BadRequestException("process_id must be integer, '%s' is not", processId);
+                    throw new BadRequestException("process_id must be a number, '%s' is not", processId);
                 }
             }
             //get process (& it's batch) data from db
@@ -278,26 +278,26 @@ public class ProcessResource extends AdminApiResource {
             throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
         }
         //offset & limit
-        int offset = GET_LOGS_DEFAULT_OFFSET;
+        long offset = GET_LOGS_DEFAULT_OFFSET;
         if (StringUtils.isAnyString(offsetStr)) {
             try {
-                offset = Integer.valueOf(offsetStr);
+                offset = Long.valueOf(offsetStr);
                 if (offset < 0) {
-                    throw new BadRequestException("offset must be zero or positive, '%s' is not", offsetStr);
+                    throw new BadRequestException("offset must be zero or a positive number, '%s' is not", offsetStr);
                 }
             } catch (NumberFormatException e) {
-                throw new BadRequestException("offset must be integer, '%s' is not", offsetStr);
+                throw new BadRequestException("offset must be a number, '%s' is not", offsetStr);
             }
         }
-        int limit = GET_LOGS_DEFAULT_LIMIT;
+        long limit = GET_LOGS_DEFAULT_LIMIT;
         if (StringUtils.isAnyString(limitStr)) {
             try {
-                limit = Integer.valueOf(limitStr);
+                limit = Long.valueOf(limitStr);
                 if (limit < 1) {
-                    throw new BadRequestException("limit must be positive, '%s' is not", limitStr);
+                    throw new BadRequestException("limit must be a positive number, '%s' is not", limitStr);
                 }
             } catch (NumberFormatException e) {
-                throw new BadRequestException("limit must be integer, '%s' is not", limitStr);
+                throw new BadRequestException("limit must be a number, '%s' is not", limitStr);
             }
         }
         //access to process data
@@ -364,7 +364,7 @@ public class ProcessResource extends AdminApiResource {
                 try {
                     processIdInt = Integer.valueOf(processId);
                 } catch (NumberFormatException e) {
-                    throw new BadRequestException("process_id must be integer, '%s' is not", processId);
+                    throw new BadRequestException("process_id must be a number, '%s' is not", processId);
                 }
             }
             //get batch data from db
@@ -410,7 +410,7 @@ public class ProcessResource extends AdminApiResource {
                 try {
                     processIdInt = Integer.valueOf(processId);
                 } catch (NumberFormatException e) {
-                    throw new BadRequestException("process_id must be integer, '%s' is not", processId);
+                    throw new BadRequestException("process_id must be a positive number, '%s' is not", processId);
                 }
             }
             //get batch data from db
@@ -487,10 +487,10 @@ public class ProcessResource extends AdminApiResource {
                 try {
                     offset = Integer.valueOf(offsetStr);
                     if (offset < 0) {
-                        throw new BadRequestException("offset must be zero or positive, '%s' is not", offsetStr);
+                        throw new BadRequestException("offset must be zero or a positive number, '%s' is not", offsetStr);
                     }
                 } catch (NumberFormatException e) {
-                    throw new BadRequestException("offset must be integer, '%s' is not", offsetStr);
+                    throw new BadRequestException("offset must be a number, '%s' is not", offsetStr);
                 }
             }
             int limit = GET_BATCHES_DEFAULT_LIMIT;
@@ -498,10 +498,10 @@ public class ProcessResource extends AdminApiResource {
                 try {
                     limit = Integer.valueOf(limitStr);
                     if (limit < 1) {
-                        throw new BadRequestException("limit must be positive, '%s' is not", limitStr);
+                        throw new BadRequestException("limit must be a positive number, '%s' is not", limitStr);
                     }
                 } catch (NumberFormatException e) {
-                    throw new BadRequestException("limit must be integer, '%s' is not", limitStr);
+                    throw new BadRequestException("limit must be a number, '%s' is not", limitStr);
                 }
             }
 
