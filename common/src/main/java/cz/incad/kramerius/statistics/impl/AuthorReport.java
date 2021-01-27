@@ -22,7 +22,6 @@ package cz.incad.kramerius.statistics.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +38,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
+import static cz.incad.kramerius.statistics.StatisticReport.COUNT_KEY;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
@@ -73,42 +72,45 @@ public class AuthorReport implements StatisticReport{
             UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
             
             Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
-            final StringTemplate authors;
+            final StringTemplate statRecord;
             
             if (isUniqueSelected == false) {
-                authors = DatabaseStatisticsAccessLogImpl.stGroup
+                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectAuthorReport");
             }
             else {
-               authors = DatabaseStatisticsAccessLogImpl.stGroup
+               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectAuthorReportUnique"); 
             }
             
-            authors.setAttribute("action", repAction != null ? repAction.name() : null);
-            authors.setAttribute("paging", true);
-            authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            authors.setAttribute("toDefined", dateFilter.getToDate() != null);
-            authors.setAttribute("ipaddr", ipFilter.getIpAddress());
+            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+            statRecord.setAttribute("paging", true);
+            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
+            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
            
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
-            String sql = authors.toString();  
+            String sql = statRecord.toString();  
             Connection conn = connectionProvider.get();
             List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(conn) {
 
                 @Override
                 public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
                     Map<String, Object> map = new HashMap<String, Object>();
-                    map.put("count", rs.getInt("count"));
-                    map.put("author_name", rs.getString("author_name"));
+                    map.put(COUNT_KEY, rs.getInt("count"));
+                    map.put(AUTHOR_NAME_KEY, rs.getString("author_name"));
                     returnsList.add(map);
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql.toString(), params.toArray());
-            
+            conn.close();
             return auths;
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return new ArrayList<Map<String, Object>>();
+        } catch (SQLException ex) {
+            Logger.getLogger(AuthorReport.class.getName()).log(Level.SEVERE, null, ex);
             return new ArrayList<Map<String, Object>>();
         }
     }
@@ -126,8 +128,7 @@ public class AuthorReport implements StatisticReport{
 
     @Override
     public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) {
-        // TODO Auto-generated method stub
-        
+        // TODO Auto-generated method prepareViews
     }
 
     @Override
@@ -139,43 +140,47 @@ public class AuthorReport implements StatisticReport{
             UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
             
             Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();         
-            final StringTemplate authors;
+            final StringTemplate statRecord;
             
             if (isUniqueSelected == false) {
-                authors = DatabaseStatisticsAccessLogImpl.stGroup
+                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectAuthorReport");
             }
             else {
-               authors = DatabaseStatisticsAccessLogImpl.stGroup
+               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectAuthorReportUnique"); 
             }
             
-            authors.setAttribute("action", repAction != null ? repAction.name() : null);
-            authors.setAttribute("paging", false);
-            authors.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            authors.setAttribute("toDefined", dateFilter.getToDate() != null);
-            authors.setAttribute("ipaddr", ipFilter.getIpAddress());
+            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+            statRecord.setAttribute("paging", false);
+            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
+            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
 
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
 
-            String sql = authors.toString();         
-            new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
+            String sql = statRecord.toString();
+            Connection conn = connectionProvider.get();
+            new JDBCQueryTemplate<Map<String,Object>>(conn) {
 
                 @Override
                 public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
                     Map<String, Object> map = new HashMap<String, Object>();
-                    map.put("count", rs.getInt("count"));
-                    map.put("author_name", rs.getString("author_name"));
+                    map.put(COUNT_KEY, rs.getInt("count"));
+                    map.put(AUTHOR_NAME_KEY, rs.getString("author_name"));
                     returnsList.add(map);
                     sup.processReportRecord(map);
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql.toString(),params.toArray());
+            conn.close();
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);
-       }
+       } catch (SQLException ex) {
+            Logger.getLogger(AuthorReport.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }

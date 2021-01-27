@@ -39,6 +39,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
+import static cz.incad.kramerius.statistics.StatisticReport.COUNT_KEY;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
@@ -72,29 +73,29 @@ public class LangReport implements StatisticReport{
             UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
             
             Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
-            final StringTemplate langs;
+            final StringTemplate statRecord;
             
             if (isUniqueSelected == false) {
-                langs = DatabaseStatisticsAccessLogImpl.stGroup
+                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectLangReport");
             }
             else {
-               langs = DatabaseStatisticsAccessLogImpl.stGroup
+               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectLangReportUnique"); 
             }
           
-            langs.setAttribute("action", repAction != null ? repAction.name() : null);
-            langs.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            langs.setAttribute("toDefined", dateFilter.getToDate() != null);
-            langs.setAttribute("ipaddr", ipFilter.getIpAddress());
+            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
+            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
 
             
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
-            //authors.setAttribute("paging", true);
-            String sql = langs.toString();
-            
-            List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
+            //statRecord.setAttribute("paging", true);
+            String sql = statRecord.toString();
+            Connection conn = connectionProvider.get();
+            List<Map<String,Object>> langs = new JDBCQueryTemplate<Map<String,Object>>(conn) {
 
                 @Override
                 public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
@@ -105,10 +106,13 @@ public class LangReport implements StatisticReport{
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql.toString(),params.toArray());
-            
-            return auths;
+            conn.close();
+            return langs;
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return new ArrayList<Map<String,Object>>();
+        } catch (SQLException ex) {
+            Logger.getLogger(LangReport.class.getName()).log(Level.SEVERE, null, ex);
             return new ArrayList<Map<String,Object>>();
         }
     }
@@ -141,37 +145,39 @@ public class LangReport implements StatisticReport{
             UniqueIPAddressesFilter uniqueIPFilter = container.getFilter(UniqueIPAddressesFilter.class);
             
             Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
-            final StringTemplate langs;
+            final StringTemplate statRecord;
             
             if (isUniqueSelected == false) {
-                langs = DatabaseStatisticsAccessLogImpl.stGroup
+                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectLangReport");
             }
             else {
-               langs = DatabaseStatisticsAccessLogImpl.stGroup
+               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectLangReportUnique"); 
             }
-            langs.setAttribute("action", repAction != null ? repAction.name() : null);
-            langs.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            langs.setAttribute("toDefined", dateFilter.getToDate() != null);
-            langs.setAttribute("ipaddr", ipFilter.getIpAddress());
+            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
+            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
+            statRecord.setAttribute("paging", false);
 
 
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
 
-            //authors.setAttribute("paging", true);
-            String sql = langs.toString();
-            new JDBCQueryTemplate<Map<String,Object>>(connectionProvider.get()) {
+            String sql = statRecord.toString();
+            Connection conn = connectionProvider.get();
+            new JDBCQueryTemplate<Map<String,Object>>(conn) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
                     Map<String, Object> map = new HashMap<String, Object>();
-                    map.put("count", rs.getInt("count"));
-                    map.put("lang", rs.getString("lang"));
+                    map.put(COUNT_KEY, rs.getInt("count"));
+                    map.put(LANG_KEY, rs.getString("lang"));
                     sup.processReportRecord(map);
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql.toString(), params.toArray());
+            conn.close();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);

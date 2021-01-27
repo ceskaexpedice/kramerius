@@ -62,6 +62,7 @@ public class StatisticsExportServlet extends GuiceServlet {
     public static final String IP_ATTRIBUTE = "ipaddresses";
     public static final String UNIQUE_IP_ATTRIBUTE = "uniqueipaddresses";
     public static final String ANNUAL_YEAR = "annualyear";
+    public static final String PIDS_ATTRIBUTE = "pids";
 
 
     
@@ -88,11 +89,12 @@ public class StatisticsExportServlet extends GuiceServlet {
         String visibilityValue = req.getParameter(VISIBILITY_ATTRIBUTE);
         String ipAddresses = req.getParameter(IP_ATTRIBUTE);
         String uniqueIpAddresses = req.getParameter(UNIQUE_IP_ATTRIBUTE);
+        String pids = req.getParameter(PIDS_ATTRIBUTE);
 
         String annual = req.getParameter(ANNUAL_YEAR);
         AnnualYearFilter annualYearFilter = new AnnualYearFilter();
         annualYearFilter.setAnnualYear(annual);
-
+        
         DateFilter dateFilter = new DateFilter();
         dateFilter.setFromDate(dateFrom != null && (!dateFrom.trim().equals("")) ? dateFrom : null);
         dateFilter.setToDate(dateTo != null && (!dateTo.trim().equals("")) ? dateTo : null);
@@ -102,6 +104,9 @@ public class StatisticsExportServlet extends GuiceServlet {
         
         UniqueIPAddressesFilter uniqueIPFilter = new UniqueIPAddressesFilter();
         uniqueIPFilter.setUniqueIPAddressesl(Boolean.valueOf(uniqueIpAddresses));
+        
+        PidsFilter pidsFilter = new PidsFilter();
+        pidsFilter.setPids(pids);
         
         IPAddressFilter ipAddr = new IPAddressFilter();
         if (ipAddresses != null && !ipAddresses.isEmpty()) {
@@ -135,7 +140,7 @@ public class StatisticsExportServlet extends GuiceServlet {
         if (visibilityValue != null) visibilityValue = visibilityValue.toUpperCase();
         VisibilityFilter visFilter = new VisibilityFilter();
         visFilter.setSelected(VisbilityType.valueOf(visibilityValue));
-
+        
         if (reportId != null && (!reportId.equals(""))) {
             // report
             StatisticReport report = this.statisticAccessLog.getReportById(reportId);
@@ -159,8 +164,8 @@ public class StatisticsExportServlet extends GuiceServlet {
                     resp.setContentType(selectedFormatter.getMimeType());
                     resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
                     //TODO: Syncrhonization
-                    report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter, ipAddr, multimodelFilter, annualYearFilter}));
-                    report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter,ipAddr, multimodelFilter, annualYearFilter, uniqueIPFilter}));
+                    report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter, ipAddr, multimodelFilter, annualYearFilter, pidsFilter}));
+                    report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter,ipAddr, multimodelFilter, annualYearFilter, uniqueIPFilter, pidsFilter}));
                     selectedFormatter.afterProcess(resp);
                 }
             } catch (StatisticsReportException e) {

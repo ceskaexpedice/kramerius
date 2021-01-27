@@ -8,7 +8,7 @@
 
 <%@ page isELIgnored="false"%>
 <view:object name="statistics"
-    clz="cz.incad.Kramerius.views.statistics.PidsViewObject"></view:object>
+    clz="cz.incad.Kramerius.views.statistics.PidsStatisticsViewObject"></view:object>
 
 
 <scrd:securedContent action="show_statictics">
@@ -118,7 +118,7 @@ $(document).ready(function(){
     <div id="model_report_buttons">
 
         <div style="text-align: center;" >
-        <h2> <view:msg>statistics.report.pids</view:msg> </h2>
+            <h2> <view:msg>statistics.report.pids</view:msg> </h2>
         </div>
 
         <div style="position: relative;" class="buttons">
