@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.checkContainsCriteriumPDFDNNT;
-import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.checkContainsCriteriumReadDNNT;
+import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.allowedByReadDNNTFlagRight;
+import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.checkContainsCriterium;
 
 public class PDFDNNTFlag extends AbstractCriterium {
 
@@ -24,13 +24,13 @@ public class PDFDNNTFlag extends AbstractCriterium {
             requestedPid = this.getEvaluateContext().getRequestedPid();
             if (requestedPid != null && !SpecialObjects.isSpecialObject(requestedPid)) {
                 // only if
-                String s = SolrUtils.disectDNNT(this.evalContext.getSolrAccess().getSolrDataDocument(requestedPid).getDocumentElement());
+                String s = SolrUtils.disectDNNTFlag(this.evalContext.getSolrAccess().getSolrDataDocument(requestedPid).getDocumentElement());
                 if (s != null && s.equals("true")) {
                     IsActionAllowed rightsResolver = this.getEvaluateContext().getRightsResolver();
                     ObjectPidsPath[] paths = this.getEvaluateContext().getSolrAccess().getPath(requestedPid);
                     for (ObjectPidsPath path : paths) {
                         RightsReturnObject obj = rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), requestedPid, null, path);
-                        if (CriteriaDNNTUtils.checkContainsCriteriumReadDNNT(obj)) return EvaluatingResultState.FALSE;
+                        if (CriteriaDNNTUtils.allowedByReadDNNTFlagRight(obj)) return EvaluatingResultState.FALSE;
                     }
                 }
             }
@@ -64,6 +64,6 @@ public class PDFDNNTFlag extends AbstractCriterium {
 
     @Override
     public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException {
-        checkContainsCriteriumReadDNNT(this.evalContext, manager);
+        //checkContainsCriterium(this.evalContext, manager);
     }
 }

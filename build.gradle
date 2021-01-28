@@ -131,9 +131,6 @@ subprojects {
         mavenCentral()
 
 
-        maven {
-            url "http://download.java.net/maven/2/"
-        }
 
         maven {
             url "http://m2.duraspace.org/content/repositories/releases"
@@ -176,6 +173,11 @@ subprojects {
         maven {
             url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
         }
+
+        /*
+        maven {
+            url "http://download.java.net/maven/2/"
+        }*/
 
     }
 

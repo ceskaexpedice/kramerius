@@ -23,6 +23,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import cz.incad.kramerius.security.RightsReturnObject;
 import org.antlr.stringtemplate.StringTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -88,13 +89,13 @@ public class DeepZoomServlet extends AbstractImageServlet {
             String pid = tokenizer.nextToken();
             if (this.fedoraAccess.isObjectAvailable(pid)) {
                 ObjectPidsPath[] paths = solrAccess.getPath(pid);
-                boolean premited = false;
+                RightsReturnObject rightsReturnObject = null;
                 for (ObjectPidsPath pth : paths) {
-                    premited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth).flag();
-                    if (premited) break;
+                    rightsReturnObject = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth);
+                    if (rightsReturnObject.flag()) break;
                 }
                 
-                if (premited) {
+                if (rightsReturnObject.flag()) {
                     String stringMimeType = this.fedoraAccess.getImageFULLMimeType(pid);
                     ImageMimeType mimeType = ImageMimeType.loadFromMimeType(stringMimeType);
                     if ((mimeType != null) && (!hasNoSupportForMimeType(mimeType))) {
@@ -131,8 +132,6 @@ public class DeepZoomServlet extends AbstractImageServlet {
     }
 
     private void renderDZI(String pid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
-        // report access
-
         try {
             this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
         } catch (Exception e) {

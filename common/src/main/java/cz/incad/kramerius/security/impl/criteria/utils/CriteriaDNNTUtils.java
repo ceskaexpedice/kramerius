@@ -1,26 +1,14 @@
 package cz.incad.kramerius.security.impl.criteria.utils;
 
-import cz.incad.kramerius.ObjectModelsPath;
-import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.impl.criteria.CriteriaPrecoditionException;
-import cz.incad.kramerius.security.impl.criteria.PDFDNNTFlag;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered;
-import cz.incad.kramerius.statistics.impl.DatabaseStatisticsAccessLogImpl;
+import cz.incad.kramerius.security.impl.criteria.*;
 import cz.incad.kramerius.utils.solr.SolrUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.w3c.dom.Document;
 
-import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -34,38 +22,46 @@ public class CriteriaDNNTUtils {
     public  static Logger LOGGER = Logger.getLogger(CriteriaDNNTUtils.class.getName());
 
 
-    //    public static void toJSON(RightCriteriumContext ctx) throws IOException {
-//        toJSON(ctx.getRequestedPid(),
-//                ctx.getRemoteAddr(),
-//                ctx.getRequestedStream(),
-//                ctx.getUser().getLoginname(),
-//                ctx.getUser().getEmail(),
-//                ctx.getSolrAccess().getPath(ctx.getRequestedPid()),
-//                ctx.getSolrAccess().getPathOfModels(ctx.getRequestedPid())
-//                );
-//    }
 
+    // check dnnt flag from solr
     public static EvaluatingResultState checkDnnt(RightCriteriumContext ctx) {
         try {
             SolrAccess solrAccess = ctx.getSolrAccess();
             String pid = ctx.getRequestedPid();
-            String xpath = "//bool[@name='dnnt']/text()";
             Document doc = solrAccess.getSolrDataDocument(pid);
-            String val = SolrUtils.strValue(doc, xpath);
+            String val = SolrUtils.disectDNNTFlag(doc.getDocumentElement());
             return (val !=  null && val.equals("true")) ? EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
-        } catch (XPathExpressionException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            return EvaluatingResultState.NOT_APPLICABLE;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             return EvaluatingResultState.NOT_APPLICABLE;
         }
     }
 
-    public static boolean checkContainsCriteriumReadDNNT(RightsReturnObject obj) {
-        if (obj.getRight() != null && obj.getRight().getCriteriumWrapper() != null && obj.getRight().getCriteriumWrapper() != null) {
-            if (obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlag.class.getName()) ||
-                    obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlagIPFiltered.class.getName())) {
+    // allowed by dnntlabel right
+    public static boolean allowedByReadDNNTLabelsRight(RightsReturnObject obj, Object[] givenObjects) {
+        if (obj.getRight() != null && obj.getRight().getCriteriumWrapper() != null) {
+            if (obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabels.class.getName()) ||
+                    obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabelsIPFiltered.class.getName())) {
+                Object[] rightObjects = obj.getRight().getCriteriumWrapper().getCriteriumParams().getObjects();
+                for (Object go : givenObjects) {
+                    for (Object objFromRight :  rightObjects) {
+                        if (go.equals(rightObjects)) return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+    // allowed by dnnt right
+    public static boolean allowedByReadDNNTFlagRight(RightsReturnObject obj) {
+        if (obj.getRight() != null && obj.getRight().getCriteriumWrapper() != null) {
+            if (    obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlag.class.getName()) ||
+                    obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlagIPFiltered.class.getName()) ||
+                    obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabels.class.getName()) ||
+                    obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabelsIPFiltered.class.getName())
+                ) {
                 return true;
             }
         }
@@ -73,6 +69,21 @@ public class CriteriaDNNTUtils {
     }
 
 
+
+//    public static String getReadDNNTLabel(RightsReturnObject obj) {
+//        if (obj.getRight() != null && obj.getRight().getCriteriumWrapper() != null) {
+//            if (obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabels.class.getName()) ||
+//                    obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabelsIPFiltered.class.getName())
+//                    ) {
+//                return obj.getRight().getCriteriumWrapper().getCriteriumParams().getObjects();
+//            }
+//        }
+//        return null;
+//
+//    }
+
+
+    // check if there is
     public static void checkContainsCriteriumPDFDNNT(RightCriteriumContext ctx, RightsManager manager) throws CriteriaPrecoditionException {
         //PDFDNNTFlag.class.getName()
         checkContainsCriterium(ctx, manager, PDFDNNTFlag.class);
@@ -96,8 +107,18 @@ public class CriteriaDNNTUtils {
         throw new CriteriaPrecoditionException("These flags are not set : "+collections);
     }
 
-    public static void checkContainsCriteriumReadDNNT(RightCriteriumContext ctx, RightsManager manager) throws CriteriaPrecoditionException {
+    public static void checkContainsCriterium(RightCriteriumContext ctx, RightsManager manager) throws CriteriaPrecoditionException {
         checkContainsCriterium(ctx, manager, PDFDNNTFlag.class);
     }
 
+    public static String getMatchedLabel(Document solrDoc, Object[] rightsParams) {
+        List<String> indexedLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
+        if (indexedLabels != null) {
+            for (Object obj :  rightsParams) {
+                String label = obj.toString();
+                if (indexedLabels.contains(label)) return label;
+            }
+        }
+        return null;
+    }
 }

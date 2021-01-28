@@ -39,7 +39,6 @@ public class DNNTExport {
     public static final String DDNT_SOLR_EXPORT_KEY = "export.dnnt.query";
 
 
-
     public static void main(String[] args) throws InterruptedException, BrokenBarrierException, SAXException, IOException, ParserConfigurationException, MigrateSolrIndexException {
         File csvFile =  new File( exportDirectory(), KConfiguration.getInstance().getConfiguration().getString(EXPORT_DNNT_FILE_KEY, "dnnt-export-" + SIMPLE_DATE_FORMAT.format(new Date()) + ".csv"));
         ProcessStarter.updateName("DNNT export   '"+csvFile.getAbsolutePath()+"'");
@@ -53,7 +52,6 @@ public class DNNTExport {
 
         Client client = Client.create();
         String q = KConfiguration.getInstance().getConfiguration().getString(DDNT_SOLR_EXPORT_KEY,query);
-
 
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(csvFile), Charset.forName("UTF-8"));
         try (CSVPrinter printer = new CSVPrinter(outputStreamWriter, CSVFormat.DEFAULT.withHeader("pid","model","dctitle"))) {

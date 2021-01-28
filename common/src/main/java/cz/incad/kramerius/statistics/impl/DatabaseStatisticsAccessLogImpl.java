@@ -233,7 +233,6 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                 logKibanaAccess(pid,rootTitle,dctitle,publishedDate, dnnt,policy, dcPublishers ,dcAuthors, paths, mpaths, userProvider.get());
             }
 
-
             //  WRITE TO DATABASE
             JDBCTransactionTemplate transactionTemplate = new JDBCTransactionTemplate(connection, true);
             transactionTemplate.updateWithTransaction(commands);
@@ -258,9 +257,10 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
 
     private void logKibanaAccess(String pid, String rootTitle, String dcTitle, String publishedDate, String dnntFlag, String policy, List<String> dcPublishers, List<String> dcAuthors, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths, User user) throws IOException {
         RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
-        boolean providedByDnnt =  rightsReturnObject != null ? CriteriaDNNTUtils.checkContainsCriteriumReadDNNT(rightsReturnObject) : false;
+        boolean providedByDnnt =  rightsReturnObject != null ? CriteriaDNNTUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
 
-            JSONObject jObject = toJSON(pid, rootTitle, dcTitle,
+        // store json object
+        JSONObject jObject = toJSON(pid, rootTitle, dcTitle,
                 IPAddressUtils.getRemoteAddress(requestProvider.get(), KConfiguration.getInstance().getConfiguration()),
                 user != null ? user.getLoginname() : null,
                 user != null ? user.getEmail() : null,
@@ -268,6 +268,8 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                 dnntFlag,
                 providedByDnnt,
                 policy,
+
+                rightsReturnObject.getEvaluateInfoMap(),
                 user.getSessionAttributes(),
                 dcAuthors,
                 dcPublishers,
@@ -510,6 +512,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                                     boolean providedByDnnt,
                                     String policy,
 
+                                    Map<String,String> rightEvaluationAttribute,
                                     Map<String,String> sessionAttributes,
                                     List<String> dcAuthors,
                                     List<String> dcPublishers,
@@ -530,6 +533,8 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         jObject.put("dcTitle",dcTitle);
 
         if (dnntFlag != null )  jObject.put("dnnt", dnntFlag.trim().toLowerCase().equals("true"));
+        // info from criteriums
+        rightEvaluationAttribute.keySet().stream().forEach(key->{ jObject.put(key, rightEvaluationAttribute.get(key)); });
         jObject.put("providedByDnnt", providedByDnnt);
         jObject.put("policy", policy);
 

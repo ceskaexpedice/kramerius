@@ -29,7 +29,6 @@ public class ReadDNNTFlagIPFiltered extends AbstractCriterium {
     public EvaluatingResultState evalute() throws RightCriteriumException {
         String pid = getEvaluateContext().getRequestedPid();
         if (!SpecialObjects.isSpecialObject(pid)) {
-
                 EvaluatingResultState state = checkDnnt(getEvaluateContext());
                 if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                     if (state == EvaluatingResultState.TRUE) {
@@ -45,7 +44,7 @@ public class ReadDNNTFlagIPFiltered extends AbstractCriterium {
 
     @Override
     public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException {
-        checkContainsCriteriumPDFDNNT(this.evalContext, manager);
+        //checkContainsCriteriumPDFDNNT(this.evalContext, manager);
     }
 
 
@@ -56,6 +55,6 @@ public class ReadDNNTFlagIPFiltered extends AbstractCriterium {
 
     @Override
     public boolean isRootLevelCriterum() {
-        return true;
+        return false;
     }
 }

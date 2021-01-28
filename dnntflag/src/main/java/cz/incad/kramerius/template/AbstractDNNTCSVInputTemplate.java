@@ -15,7 +15,7 @@ import org.kramerius.processes.utils.TreeModelUtils;
 import java.io.*;
 import java.util.*;
 
-public abstract  class AbstractDNNTInputTemplate implements ProcessInputTemplate {
+public abstract  class AbstractDNNTCSVInputTemplate implements ProcessInputTemplate {
 
     @Inject
     ResourceBundleService resourceBundleService;
@@ -25,7 +25,7 @@ public abstract  class AbstractDNNTInputTemplate implements ProcessInputTemplate
 
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
-        InputStream iStream = this.getClass().getResourceAsStream("paramterizeddnnt.st");
+        InputStream iStream = this.getClass().getResourceAsStream(templateName());
         StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
         StringTemplate template = templateGroup.getInstanceOf("form");
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localeProvider.get());
@@ -62,6 +62,7 @@ public abstract  class AbstractDNNTInputTemplate implements ProcessInputTemplate
         template.setAttribute("postfixdiv",""+idPostfix);
 
         template.setAttribute("process", process());
+        template.setAttribute("labelProcess", labeledProcess());
 
         writer.write(template.toString());
     }
@@ -77,7 +78,11 @@ public abstract  class AbstractDNNTInputTemplate implements ProcessInputTemplate
         return map;
     }
 
-    protected abstract String process();
+    protected abstract  String templateName();
     protected abstract File rootDirectory();
     protected  abstract File csvFile();
+
+    protected abstract String process();
+
+    protected abstract String labeledProcess();
 }

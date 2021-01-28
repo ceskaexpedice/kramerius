@@ -44,5 +44,5 @@ public class SecuredStreams extends AbstractCriterium implements RightCriterium 
         return new SecuredActions[] {SecuredActions.READ};
     }
 
-    
+
 }

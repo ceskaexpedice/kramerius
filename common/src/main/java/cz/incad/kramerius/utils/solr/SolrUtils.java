@@ -62,6 +62,9 @@ public class SolrUtils   {
     /** Parent query */
     public static final String PARENT_QUERY="q=parent_pid:";
 
+    public static final String DNNT_FLAG = "dnnt";
+    public static final String DNNT_LABELS_EXTENDED_FLAG = "dnnt-labels-extended";
+
 
     // factory instance
     static XPathFactory fact =XPathFactory.newInstance();
@@ -150,13 +153,46 @@ public class SolrUtils   {
         }
     }
 
-    public static String disectDNNT(Element topElem)  {
+    public static List<String> disectDNNTLabels(Element topElem) {
+        synchronized(topElem.getOwnerDocument()) {
+            Element foundElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    return (element.getNodeName().equals("arr") && element.getAttribute("name") != null && element.getAttribute("name").equals("dnnt-labels"));
+                }
+            });
+            if (foundElement != null) {
+                List<String> list = new ArrayList<>();
+                NodeList childNodes = foundElement.getChildNodes();
+                for (int i = 0; i < childNodes.getLength(); i++) {
+                    Node item = childNodes.item(i);
+                    if (item.getNodeType() == Node.ELEMENT_NODE) {
+                        list.add(item.getTextContent().toString());
+                    }
+                }
+                return list;
+            } else return new ArrayList<>();
+        }
+
+    }
+
+    public static String disectDNNTLabelsFlag(Element topElem)  {
+        return disectDNNTFlag(topElem, DNNT_LABELS_EXTENDED_FLAG);
+    }
+
+
+
+    public static String disectDNNTFlag(Element topElem)  {
+        return disectDNNTFlag(topElem, DNNT_FLAG);
+    }
+
+    public static String disectDNNTFlag(Element topElem, String flag)  {
         synchronized(topElem.getOwnerDocument()) {
             Element foundElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
 
                 @Override
                 public boolean acceptElement(Element element) {
-                    return (element.getNodeName().equals("bool") && element.getAttribute("name") != null && element.getAttribute("name").equals("dnnt"));
+                    return (element.getNodeName().equals("bool") && element.getAttribute("name") != null && element.getAttribute("name").equals(flag));
                 }
 
             });
@@ -164,8 +200,10 @@ public class SolrUtils   {
                 return foundElement.getTextContent().trim();
             } else return null;
         }
-
     }
+
+
+
 
     public static String disectPid(Element topElem) throws XPathExpressionException {
         synchronized(topElem.getOwnerDocument()) {

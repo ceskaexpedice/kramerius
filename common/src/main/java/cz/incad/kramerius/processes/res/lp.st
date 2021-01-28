@@ -503,48 +503,69 @@
         <securedaction>reindex</securedaction>
     </process>
 
+
     <process>
-        <id>dnntset</id>
+        <id>dnntcsvflag</id>
+        <description>DNNT SET/UNSET from CSV</description>
+        <mainClass>cz.incad.kramerius.csv..DNNTCSVFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+
+    <!-- parametrized dnntset -->
+    <process>
+       <id>parametrizeddnntset</id>
         <description>Set the DNNT flag </description>
-        <mainClass>cz.incad.kramerius.DNNTFlag</mainClass>
+        <mainClass>cz.incad.kramerius.csv.ParametrizedSetDNNTFlag</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <parameters>true</parameters>
         <securedaction>dnnt_admin</securedaction>
+        <templates>
+            <input class="cz.incad.kramerius.template.DNNTSetCSVInputTemplate"></input>
+        </templates>
     </process>
 
     <!-- parametrized dnntset -->
     <process>
-
-        <id>parametrizeddnntset</id>
+        <id>parametrizeddnntunset</id>
         <description>Set the DNNT flag </description>
-        <mainClass>cz.incad.kramerius.ParametrizedSetDNNTFlag</mainClass>
+        <mainClass>cz.incad.kramerius.csv.ParametrizedUnsetDNNTFlag</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <parameters>true</parameters>
         <securedaction>dnnt_admin</securedaction>
 
         <templates>
-            <input class="cz.incad.kramerius.template.DNNTSetCSVInputTemplate"></input>
+            <input class="cz.incad.kramerius.template.DNNTUnsetCSVInputTemplate"></input>
         </templates>
 
     </process>
 
+    <!-- parametrized label dnntset -->
     <process>
-        <id>dnntunset</id>
-        <description>Unset the DNNT flag</description>
-        <mainClass>cz.incad.kramerius.DNNTFlag</mainClass>
+        <id>parametrizeddnntlabelset</id>
+        <description>Set the DNNT flag </description>
+        <mainClass>cz.incad.kramerius.csv.ParametrizedLabelSetDNNTFlag</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <parameters>false</parameters>
+        <parameters>true</parameters>
         <securedaction>dnnt_admin</securedaction>
+
+        <templates>
+            <input class="cz.incad.kramerius.template.DNNTUnsetCSVInputTemplate"></input>
+        </templates>
+
     </process>
 
-    <!-- parametrized dnntunset -->
+
+    <!-- parametrized label dnntunset -->
     <process>
-        <id>parametrizeddnntunset</id>
+        <id>parametrizeddnntlabelunset</id>
         <description>Unset the DNNT flag </description>
-        <mainClass>cz.incad.kramerius.ParametrizedUnsetDNNTFlag</mainClass>
+        <mainClass>cz.incad.kramerius.csv.ParametrizedLabelUnsetDNNTFlag</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <parameters>true</parameters>

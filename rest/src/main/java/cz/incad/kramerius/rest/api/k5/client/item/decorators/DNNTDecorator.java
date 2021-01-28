@@ -17,6 +17,8 @@ import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -69,8 +71,7 @@ public class DNNTDecorator extends AbstractItemDecorator {
                     if (doc != null ) doc = this.memo.askForIndexDocument(pid);
                     if (doc != null) {
                         Optional<Element> optional = Optional.of(doc);
-                        Boolean value = SOLRUtils.value(doc, "dnnt",
-                                Boolean.class);
+                        Boolean value = SOLRUtils.value(doc, "dnnt",  Boolean.class);
                         if (value != null) {
                             jsonObject.put("dnnt", value);
                             Element element = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
@@ -86,11 +87,15 @@ public class DNNTDecorator extends AbstractItemDecorator {
                                                 RightsReturnObject actionAllowed = isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
                                                 if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
                                                     String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
-                                                    if (qName.equals(ReadDNNTFlag.class.getName()) ||
-                                                            qName.equals(ReadDNNTFlagIPFiltered.class.getName())) {
+                                                    if (    qName.equals(ReadDNNTFlag.class.getName()) ||
+                                                            qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||
+                                                            qName.equals(ReadDNNTLabels.class.getName()) ||
+                                                            qName.equals(ReadDNNTLabelsIPFiltered.class.getName())
+                                                            ) {
                                                         jsonObject.put("providedByDnnt", true);
+                                                        Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
+                                                        evaluateInfoMap.keySet().forEach(key-> jsonObject.put(key, evaluateInfoMap.get(key)));
                                                         break;
-
                                                     }
                                                 }
                                             }

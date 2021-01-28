@@ -250,7 +250,7 @@ public class DatabaseRightsManager implements RightsManager {
             EvaluatingResultState result = right.evaluate(ctx, this);
             ctx.setAssociatedPid(null);
             if (result != EvaluatingResultState.NOT_APPLICABLE)
-                return new RightsReturnObject(right, result);
+                return new RightsReturnObject(right, result, ctx.getEvaluateInfoMap());
         }
         // nenasel zadne pravo nebo vsechny vracely NOT_APPLICABLE
         return new RightsReturnObject(null,EvaluatingResultState.FALSE);
@@ -277,7 +277,7 @@ public class DatabaseRightsManager implements RightsManager {
                     ctx.setAssociatedPid(null);
                     if (iresult != EvaluatingResultState.NOT_APPLICABLE) {
                         //result = iresult;
-                        result = new RightsReturnObject(right, iresult);
+                        result = new RightsReturnObject(right, iresult, ctx.getEvaluateInfoMap());
                         break;
                     }
                 }
