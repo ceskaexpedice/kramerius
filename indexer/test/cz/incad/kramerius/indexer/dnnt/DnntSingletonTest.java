@@ -5,6 +5,7 @@ import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
 import cz.incad.kramerius.utils.XMLUtils;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
+import org.junit.Assert;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,6 +23,6 @@ public class DnntSingletonTest extends TestCase {
 
         EasyMock.replay(fa);
         String dnnt = DnntSingleton.getInstance().dnnt("uuid:xxxx", fa);
-        System.out.println(dnnt);
+        Assert.assertTrue(dnnt.equals("true"));
     }
 }

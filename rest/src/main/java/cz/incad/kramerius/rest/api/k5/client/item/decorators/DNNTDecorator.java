@@ -87,11 +87,12 @@ public class DNNTDecorator extends AbstractItemDecorator {
                                                 RightsReturnObject actionAllowed = isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
                                                 if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
                                                     String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
-                                                    if (    qName.equals(ReadDNNTFlag.class.getName()) ||
+                                                    if ( qName.equals(ReadDNNTFlag.class.getName()) ||
                                                             qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||
                                                             qName.equals(ReadDNNTLabels.class.getName()) ||
                                                             qName.equals(ReadDNNTLabelsIPFiltered.class.getName())
-                                                            ) {
+                                                        )
+                                                    {
                                                         jsonObject.put("providedByDnnt", true);
                                                         Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
                                                         evaluateInfoMap.keySet().forEach(key-> jsonObject.put(key, evaluateInfoMap.get(key)));
@@ -102,7 +103,6 @@ public class DNNTDecorator extends AbstractItemDecorator {
                                         } catch (IOException e) {
                                             LOGGER.log(Level.SEVERE,e.getMessage(),e);
                                         }
-
                                     }
                                     return false;
                                 }
