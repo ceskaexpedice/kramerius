@@ -42,6 +42,7 @@ public class KrameriusIndexerProcess {
         String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         String type = args[argsIndex++];
         String pid = args[argsIndex++];
+        String title = args[argsIndex++];
         //Kramerius
         String krameriusBackendBaseUrl = args[argsIndex++];
         String krameriusApiAuthClient = args[argsIndex++];
@@ -54,14 +55,16 @@ public class KrameriusIndexerProcess {
         String solrLogin = args[argsIndex++];
         String solrPassword = args[argsIndex++];
 
+
         //zmena nazvu
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
-        ProcessStarter.updateName(String.format("Indexace (objekt %s, typ %s)", pid, type));
+        //ProcessStarter.updateName(String.format("Indexace (objekt %s, typ %s)", pid, type));
+        ProcessStarter.updateName(String.format("Indexace %s (%s, typ %s)", title, pid, type));
 
         SolrConfig solrConfig = new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword);
         //TODO: merge KrameriusIndexerProcess and IndexerProcess
 
-        //access to repository through new public APIs
+        //access to repository through new public HTTP APIs
         /*RepositoryAccessImplByKrameriusNewApis.Credentials krameriusCredentials = new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken);
         FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl, krameriusCredentials);*/
 
@@ -78,7 +81,6 @@ public class KrameriusIndexerProcess {
         process.indexByObjectPid(pid, IndexationType.valueOf(type));
         LOGGER.info("Indexation finished");
 
-        //TODO: zmenit nazev procesu - doplnit nazev objektu (bud odsud, nebo lepe callbackem z procesu)
         LOGGER.info("total duration: " + Utils.formatTime(System.currentTimeMillis() - start));
     }
 }

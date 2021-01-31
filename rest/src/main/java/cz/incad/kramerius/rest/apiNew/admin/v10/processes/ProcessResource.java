@@ -721,10 +721,16 @@ public class ProcessResource extends AdminApiResource {
                 } else {
                     throw new BadRequestException("missing mandatory parameter %s: ", KrameriusIndexerProcess.PARAM_PID);
                 }
+                //title
+                String titleValue = null;
+                if (params.has("title")) {
+                    titleValue = params.getString("title");
+                }
                 //
                 List<String> array = new ArrayList<>();
                 array.add(typeValue);
                 array.add(pidValue);
+                array.add(titleValue);
                 //Kramerius
                 array.add("http://localhost:8080/search"); //TODO: from config
                 array.add(clientAuthHeaders.getClient());

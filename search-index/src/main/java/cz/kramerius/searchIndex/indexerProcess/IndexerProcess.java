@@ -359,7 +359,7 @@ public class IndexerProcess {
         report("  Base url: " + solrConfig.baseUrl);
         report("  Collection: " + solrConfig.collection);
         report("  Https: " + solrConfig.useHttps);
-        report("  Login: " + solrConfig.login);
+        //report("  Login: " + solrConfig.login);
         report(" ");
     }
 
