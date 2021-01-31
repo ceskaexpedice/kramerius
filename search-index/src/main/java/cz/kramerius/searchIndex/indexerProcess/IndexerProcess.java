@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 public class IndexerProcess {
 
-    private static final Logger logger = Logger.getLogger(IndexerProcess.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(IndexerProcess.class.getName());
 
     private final SolrConfig solrConfig;
     //status info
@@ -68,10 +68,10 @@ public class IndexerProcess {
 
         try {
             solrIndexer = new SolrIndexer(solrConfig);
-            report("- SOLR API connector initialized");
+            report("SOLR API connector initialized");
         } catch (Exception e) {
             report("Initialization error: TemplateException: " + e.getMessage());
-            logger.log(Level.SEVERE, "Initialization error", e);
+            LOGGER.log(Level.SEVERE, "Initialization error", e);
         }
         report(" ");
     }
@@ -82,7 +82,7 @@ public class IndexerProcess {
         Counters counters = new Counters();
         report("Processing " + pid + " (indexation type: " + type + ")");
         //int limit = 3;
-        report("==============================");
+        report("============================================================================================");
 
         RepositoryNode node = nodeManager.getKrameriusNode(pid);
         indexObjectWithCounters(pid, node, counters);
@@ -98,7 +98,7 @@ public class IndexerProcess {
         }
 
         report("Summary");
-        report("=====================================================");
+        report("================================");
         report(" objects found    : " + counters.getFound());
         report(" objects processed: " + counters.getProcessed());
         report(" objects indexed  : " + counters.getIndexed());
@@ -135,7 +135,7 @@ public class IndexerProcess {
                 counters.incrementRemoved();
                 report("");
             } else {
-                report("Indexing " + pid);
+                LOGGER.info("Indexing " + pid);
                 Document foxmlDoc = repositoryConnector.getObjectFoxml(pid, true);
                 report("model: " + repositoryNode.getModel());
                 report("title: " + repositoryNode.getTitle());
