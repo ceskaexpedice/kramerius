@@ -59,7 +59,7 @@ public interface RepositoryApi {
 
     public List<String> getPidsOfObjectsByModel(String model) throws RepositoryException, IOException, SolrServerException;
 
-    public List<Pair<String, String>> getPidsOfObjectsWithTitlesByModel(String model, boolean ascendingOrder) throws RepositoryException, IOException, SolrServerException;
+    public List<Pair<String, String>> getPidsOfObjectsWithTitlesByModel(String model, boolean ascendingOrder, int offset, int limit) throws RepositoryException, IOException, SolrServerException;
 
     public Map<String, String> getDescription(String objectPid) throws RepositoryException, IOException, SolrServerException;
 

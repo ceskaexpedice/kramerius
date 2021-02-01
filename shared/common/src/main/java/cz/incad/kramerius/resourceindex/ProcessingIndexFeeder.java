@@ -137,6 +137,27 @@ public class ProcessingIndexFeeder {
         }
     }
 
+    public void iterateSectionOfProcessingSortedByIndexationDate(String query, int offset, int limit, Consumer<SolrDocument> action) throws IOException, SolrServerException {
+        //řazení podle date zaručí jen jednoznačné řazení, což by ale zvládlo (a lépe) i řazení podle pid
+        //date obsahuje timestamp vytvoření záznamu v processing indexu, ten proces ale probíhá paraleleně, takže tohle pořadí se po rebuildu processing indexu změní
+        //takže "date" nijak nesouvisí s přidáním do repozitáře, nebo snad publikací
+        iterateSectionOfProcessing(query, "date", SolrQuery.ORDER.desc, offset, limit, action);
+    }
+
+    public void iterateSectionOfProcessingSortedByTitle(String query, boolean ascending, int offset, int limit, Consumer<SolrDocument> action) throws IOException, SolrServerException {
+        iterateSectionOfProcessing(query, "dc.title", ascending ? SolrQuery.ORDER.asc : SolrQuery.ORDER.desc, offset, limit, action);
+    }
+
+    private void iterateSectionOfProcessing(String query, String sortField, SolrQuery.ORDER order, int offset, int limit, Consumer<SolrDocument> action) throws IOException, SolrServerException {
+        SolrQuery solrQuery = new SolrQuery(query);
+        solrQuery.setStart(offset).setRows(limit);
+        solrQuery.setSort(sortField, order);
+        QueryResponse response = this.solrClient.query(solrQuery);
+        response.getResults().forEach((doc) -> {
+            action.accept(doc);
+        });
+    }
+
     public List<Pair<String, String>> findByTargetPid(String pid) throws IOException, SolrServerException {
         final List<Pair<String, String>> retvals = new ArrayList<>();
         this.iterateProcessing("targetPid:\"" + pid + "\"", (doc) -> {

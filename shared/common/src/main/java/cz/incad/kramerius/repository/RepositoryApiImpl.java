@@ -176,10 +176,10 @@ public class RepositoryApiImpl implements RepositoryApi {
     }
 
     @Override
-    public List<Pair<String, String>> getPidsOfObjectsWithTitlesByModel(String model, boolean ascendingOrder) throws RepositoryException, IOException, SolrServerException {
+    public List<Pair<String, String>> getPidsOfObjectsWithTitlesByModel(String model, boolean ascendingOrder, int offset, int limit) throws RepositoryException, IOException, SolrServerException {
         List<Pair<String, String>> result = new ArrayList<>();
-        String query = String.format("type:description AND model:%s", "model\\:" + model); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze  uprime zbytecne
-        akubraRepository.getProcessingIndexFeeder().iterateProcessingSortedByTitle(query, ascendingOrder, (doc) -> {
+        String query = String.format("type:description AND model:%s", "model\\:" + model); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze je mozna zbytecne (ten prefix)
+        akubraRepository.getProcessingIndexFeeder().iterateSectionOfProcessingSortedByTitle(query, ascendingOrder, offset, limit, (doc) -> {
             Object fieldPid = doc.getFieldValue("source");
             Object fieldTitle = doc.getFieldValue("dc.title");
             String pid = null;

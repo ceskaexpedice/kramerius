@@ -4,6 +4,7 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
@@ -25,13 +26,16 @@ public class ItemsResource extends AdminApiResource {
 
     public static Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());
 
+    private static final Integer DEFAULT_OFFSET = 0;
+    private static final Integer DEFAULT_LIMIT = 10;
+
     //TODO: prejmenovat role podle spravy uctu
     private static final String ROLE_READ_ITEMS = "kramerius_admin";
     private static final String ROLE_READ_FOXML = "kramerius_admin";
     private static final String ROLE_DELETE_OBJECTS = "kramerius_admin";
 
     /**
-     * Returns array of pids (with titles) that have given model.
+     * Returns array of pids (with titles) that have given model. Only partial array with offset & limit.
      * All top-level objects without model specification cannot be returned here, because this information (being top-level) is not available from resource index.
      * Instead it is derived during indexation process and stored in search index.
      * Accessing this information from search index would violate architecture and possibly cause circular dependency.
@@ -42,8 +46,11 @@ public class ItemsResource extends AdminApiResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getItems(@QueryParam("model") String model, @QueryParam("order") @DefaultValue("ASC") String order) {
-        //TODO: offset, limit, nejspis nebude potreba, see https://app.gethido.com/p/posu5sqvet/tasks/24
+    public Response getItems(@QueryParam("model") String model,
+                             @QueryParam("offset") String offsetStr,
+                             @QueryParam("limit") String limitStr,
+                             @QueryParam("order") @DefaultValue("ASC") String order) {
+
         try {
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
@@ -52,10 +59,11 @@ public class ItemsResource extends AdminApiResource {
             if (!user.getRoles().contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
             }
-
+            //model
             if (model == null || model.isEmpty()) {
                 throw new BadRequestException("missing mandatory query param 'model'");
             }
+            //order
             boolean ascendingOrder;
             switch (order) {
                 case "ASC":
@@ -67,8 +75,31 @@ public class ItemsResource extends AdminApiResource {
                 default:
                     throw new BadRequestException("invalid value of query param 'order': '%s'; valid values are 'ASC' or 'DESC'", order);
             }
+            //offset & limit
+            int offset = DEFAULT_OFFSET;
+            if (StringUtils.isAnyString(offsetStr)) {
+                try {
+                    offset = Integer.valueOf(offsetStr);
+                    if (offset < 0) {
+                        throw new BadRequestException("offset must be zero or a positive number, '%s' is not", offsetStr);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("offset must be a number, '%s' is not", offsetStr);
+                }
+            }
+            int limit = DEFAULT_LIMIT;
+            if (StringUtils.isAnyString(limitStr)) {
+                try {
+                    limit = Integer.valueOf(limitStr);
+                    if (limit < 1) {
+                        throw new BadRequestException("limit must be a positive number, '%s' is not", limitStr);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("limit must be a number, '%s' is not", limitStr);
+                }
+            }
 
-            List<Pair<String, String>> pidsOfObjectsWithTitles = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModel(model, ascendingOrder);
+            List<Pair<String, String>> pidsOfObjectsWithTitles = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModel(model, ascendingOrder, offset, limit);
             JSONObject json = new JSONObject();
             json.put("model", model);
             JSONArray items = new JSONArray();
