@@ -98,8 +98,8 @@ public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstra
             //System.out.println(url);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
-            con.setConnectTimeout(3000);
-            con.setReadTimeout(5000);
+            con.setConnectTimeout(10000);
+            con.setReadTimeout(15000);
             //System.out.println("GET " + url.toString());
             int code = con.getResponseCode();
             if (code == 200) {

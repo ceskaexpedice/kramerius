@@ -135,8 +135,7 @@ public class RepositoryNodeManager {
                     languages, authors, dateInfo
             );
         } catch (IOException | ResourceIndexException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
