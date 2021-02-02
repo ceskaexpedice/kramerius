@@ -726,11 +726,7 @@ public class ProcessResource extends AdminApiResource {
                 if (params.has("title")) {
                     titleValue = params.getString("title");
                 }
-                //
                 List<String> array = new ArrayList<>();
-                array.add(typeValue);
-                array.add(pidValue);
-                array.add(titleValue);
                 //Kramerius
                 array.add("http://localhost:8080/search"); //TODO: from config
                 array.add(clientAuthHeaders.getClient());
@@ -743,7 +739,10 @@ public class ProcessResource extends AdminApiResource {
                 array.add("false");//solrUseHttps
                 array.add("krameriusIndexer");//solrLogin
                 array.add("krameriusIndexerRulezz");//solrPassword
-
+                //indexation info
+                array.add(typeValue);//indexation type
+                array.add(pidValue);//indexation's root pid
+                array.add(titleValue);//indexation's root title
                 return array;
             }
             default: {

@@ -37,12 +37,12 @@ public class KrameriusIndexerProcess {
     public static void main(String[] args) throws IOException {
         long start = System.currentTimeMillis();
         //args
-        //LOGGER.info("args: " + Arrays.asList(args));
+        /*LOGGER.info("args: " + Arrays.asList(args));
+        for (String arg : args) {
+            System.out.println(arg);
+        }*/
         int argsIndex = 0;
         String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        String type = args[argsIndex++];
-        String pid = args[argsIndex++];
-        String title = args[argsIndex++];
         //Kramerius
         String krameriusBackendBaseUrl = args[argsIndex++];
         String krameriusApiAuthClient = args[argsIndex++];
@@ -54,7 +54,15 @@ public class KrameriusIndexerProcess {
         boolean solrUseHttps = Boolean.valueOf(args[argsIndex++]);
         String solrLogin = args[argsIndex++];
         String solrPassword = args[argsIndex++];
-
+        //indexation info
+        String type = args[argsIndex++];
+        String pid = args[argsIndex++];
+        //tady je problem v tom, ze pokud jeden z parametru obsahuje carku, tak Kramerius pri parsovani argumentu z pole v databazi to vyhodnoti jako vice argumentu.
+        //napr.
+        //["TREE_AND_FOSTER_TREES", "uuid:23345cf7-7e62-47e9-afad-018624a19ea6", "Quartet A minor, op. 51, no. 2. Andante moderato"] se pri registraci procesu ulozi a po jeho spusteni nacte jako:
+        //["TREE_AND_FOSTER_TREES", "uuid:23345cf7-7e62-47e9-afad-018624a19ea6", "Quartet A minor", " op. 51", " no. 2. Andante moderato"]
+        //proto nazev, co muze obsahovat carku, pouzivam jako posledni argument
+        String title = mergeArraysEnd(args, argsIndex);
 
         //zmena nazvu
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
@@ -82,5 +90,17 @@ public class KrameriusIndexerProcess {
         LOGGER.info("Indexation finished");
 
         LOGGER.info("total duration: " + Utils.formatTime(System.currentTimeMillis() - start));
+    }
+
+    //["Quartet A minor", " op. 51", " no. 2. Andante moderato"] => "Quartet A minor, op. 51, no. 2 Andante moderato"
+    private static String mergeArraysEnd(String[] args, int argsIndex) {
+        String result = "";
+        for (int i = argsIndex; i < args.length; i++) {
+            result += args[i];
+            if (i != args.length - 1) {
+                result += ",";
+            }
+        }
+        return result;
     }
 }
