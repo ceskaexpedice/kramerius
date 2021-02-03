@@ -28,10 +28,19 @@ public class RepositoryNodeManager {
     }
 
     public RepositoryNode getKrameriusNode(String pid) {
+        return getKrameriusNodeWithCycleDetection(pid, new ArrayList<>());
+    }
+
+    private RepositoryNode getKrameriusNodeWithCycleDetection(String pid, List<String> path) {
+        //http://admin.k7-test.mzk.cz/processes/8410 and uuid:51f84b60-5542-11e9-8854-005056827e51
         if (nodesByPid.containsKey(pid)) {
             return nodesByPid.get(pid);
         } else {
-            RepositoryNode node = buildKrameriusNodeFromRepository(pid);
+            if (path.contains(pid)) {
+                throw new RuntimeException("parent cycle detected: " + buildPath(pid, path));
+            }
+            path.add(pid);
+            RepositoryNode node = buildKrameriusNodeFromRepository(pid, path);
             if (node != null) {
                 this.nodesByPid.put(pid, node);
             }
@@ -39,7 +48,22 @@ public class RepositoryNodeManager {
         }
     }
 
-    private RepositoryNode buildKrameriusNodeFromRepository(String pid) {
+    private String buildPath(String pid, List<String> path) {
+        String result = "";
+        boolean found = false;
+        for (String item : path) {
+            if (item.equals(pid)) {
+                found = true;
+            }
+            if (found) {
+                result += item + " -> ";
+            }
+        }
+        result += pid;
+        return result;
+    }
+
+    private RepositoryNode buildKrameriusNodeFromRepository(String pid, List<String> path) {
         try {
             if (!krameriusRepositoryAccessAdapter.isObjectAvailable(pid)) {
                 return null;
@@ -47,10 +71,10 @@ public class RepositoryNodeManager {
             //System.out.println("building node for " + pid);
             Pair<String, List<String>> parents = krameriusRepositoryAccessAdapter.getPidsOfParents(pid);
             //process parents first
-            RepositoryNode ownParent = parents.getFirst() == null ? null : getKrameriusNode(parents.getFirst());
+            RepositoryNode ownParent = parents.getFirst() == null ? null : getKrameriusNodeWithCycleDetection(parents.getFirst(), path);
             List<RepositoryNode> fosterParents = new ArrayList<>();
             for (String fosterParent : parents.getSecond()) {
-                fosterParents.add(getKrameriusNode(fosterParent));
+                fosterParents.add(getKrameriusNodeWithCycleDetection(fosterParent, path));
             }
 
             /*for (String parentPid : pidsOfParents) {
@@ -149,7 +173,8 @@ public class RepositoryNodeManager {
         return null;
     }
 
-    private List<String> mergeLanguages(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<String> myLanguages) {
+    private List<String> mergeLanguages(RepositoryNode
+                                                ownParent, List<RepositoryNode> fosterParents, List<String> myLanguages) {
         //fill set
         Set<String> set = new HashSet<>();
         if (ownParent != null) {
