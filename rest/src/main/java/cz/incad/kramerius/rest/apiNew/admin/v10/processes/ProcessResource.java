@@ -202,16 +202,11 @@ public class ProcessResource extends AdminApiResource {
     }
 
     private Response getProcessLogsFileByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String fileName) {
-        //authentication
-        AuthenticatedUser user = getAuthenticatedUserByOauth();
-        String role = ROLE_READ_PROCESSES;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
-        }
+        //resource is secured by difficulty of guessing uuid, also client needs this to be accessible without authentication
         //access to process data
         LRProcess lrProces = lrProcessManager.getLongRunningProcess(processUuid);
         if (lrProces == null) {
-            throw new BadRequestException("nenalezen proces s uuid:" + processUuid);
+            throw new BadRequestException("process with uuid " + processUuid + " not found");
         }
         ProcessLogsHelper processLogsHelper = new ProcessLogsHelper(lrProces);
         InputStream processInputStream = processLogsHelper.getLogsFileWhole(logType);
@@ -303,7 +298,7 @@ public class ProcessResource extends AdminApiResource {
         //access to process data
         LRProcess lrProces = lrProcessManager.getLongRunningProcess(processUuid);
         if (lrProces == null) {
-            throw new BadRequestException("nenalezen proces s uuid:" + processUuid);
+            throw new BadRequestException("process with uuid " + processUuid + " not found");
         }
         ProcessLogsHelper processLogsHelper = new ProcessLogsHelper(lrProces);
         //result
