@@ -1,17 +1,8 @@
 package cz.incad.kramerius.utils;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.logging.Level;
-
 import java.util.logging.Logger;
-
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class DatabaseUtils {
 
@@ -63,17 +54,19 @@ public class DatabaseUtils {
             tryClose(pstm);
         }
     }
-    
+
     public static void tryClose(Connection c) {
         try {
-            c.close();
+            if (c != null) {
+                c.close();
+            }
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }
     }
 
     public static void tryClose(Statement stmt) {
-        if(stmt!=null) {
+        if (stmt != null) {
             try {
                 stmt.close();
             } catch (SQLException ex) {
@@ -89,5 +82,5 @@ public class DatabaseUtils {
             LOGGER.log(Level.SEVERE, null, ex);
         }
     }
-    
+
 }

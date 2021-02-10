@@ -117,7 +117,7 @@ public class ProcessDatabaseInitializator {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
-            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.9.0")) { //(5.3.0 - 6.6.6) -> 6.8.1
+            } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.9.0")) { //(5.3.0 - 6.6.6) -> 6.8.2
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
@@ -126,8 +126,12 @@ public class ProcessDatabaseInitializator {
                     updateProcessOwner(connection);
                 }
                 dropAndCreateProcessBatchTable(connection);
-                if (!DatabaseUtils.tableExists(connection, "process_auth_token")) {
+                if (!DatabaseUtils.tableExists(connection, "PROCESS_AUTH_TOKEN")) {
                     createProcessAuthTokenTable(connection);
+                }
+                //TODO: possibly move, doesn't really belong here, but own Initializator for single table would be overkill (also managing versions)
+                if (!DatabaseUtils.tableExists(connection, "CONFIG")) {
+                    createConfigTable(connection);
                 }
             } else { // >= 6.9.0
             }
@@ -204,8 +208,12 @@ public class ProcessDatabaseInitializator {
             dropAndCreateProcessBatchTable(connection);
         }
 
-        if (!DatabaseUtils.tableExists(connection, "process_auth_token")) {
+        if (!DatabaseUtils.tableExists(connection, "PROCESS_AUTH_TOKEN")) {
             createProcessAuthTokenTable(connection);
+        }
+
+        if (!DatabaseUtils.tableExists(connection, "CONFIG")) {
+            createConfigTable(connection);
         }
     }
 
@@ -250,6 +258,12 @@ public class ProcessDatabaseInitializator {
         template.executeUpdate(sqlScript);
     }
 
+    private static void createConfigTable(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement(
+                "CREATE TABLE CONFIG(KEY VARCHAR(255) PRIMARY KEY, VALUE TEXT)");
+        int r = prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
+    }
 
     public static void createProcessTable(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(

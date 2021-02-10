@@ -47,7 +47,6 @@ import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyReader;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyWriter;
-import cz.incad.kramerius.rest.apiNew.admin.v10.ItemsResource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -89,6 +88,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.client.v60.InfoResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v60.ItemsResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v60.SearchResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.client.v60.ConfigResource.class);
 
         // API Admin 1.0 Resources
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.processes.ProcessResource.class);
