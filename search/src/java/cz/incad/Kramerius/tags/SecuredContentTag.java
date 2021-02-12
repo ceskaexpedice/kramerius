@@ -129,7 +129,7 @@ public class SecuredContentTag extends BodyTagSupport {
 
     
     private boolean isActionAllowed() throws IOException {
-        ObjectPidsPath[] paths = this.solrAccess.getPath(this.getPid());
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(this.getPid());
         for (ObjectPidsPath p : paths) {
             boolean b =  allowed.isActionAllowed(this.currentUserProvider.get(),this.action, this.pid,this.stream, p).flag();
             if (b) return true;

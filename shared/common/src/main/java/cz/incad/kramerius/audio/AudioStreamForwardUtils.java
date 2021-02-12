@@ -3,7 +3,6 @@ package cz.incad.kramerius.audio;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +31,7 @@ public class AudioStreamForwardUtils {
     public static Logger LOGGER = Logger.getLogger(AudioStreamForwardUtils.class.getName());
     
     public static boolean canBeRead(String pid, SolrAccess sa, User user, RightsResolver rightsResolver) throws IOException {
-        ObjectPidsPath[] paths = sa.getPath(pid);
+        ObjectPidsPath[] paths = sa.getPidPaths(pid);
         for (ObjectPidsPath pth : paths) {
             if (rightsResolver.isActionAllowed(user, SecuredActions.READ.getFormalName(), pid, null, pth).flag()) {
                 return true;

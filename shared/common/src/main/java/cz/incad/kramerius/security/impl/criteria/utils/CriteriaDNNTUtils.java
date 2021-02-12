@@ -124,7 +124,7 @@ public class CriteriaDNNTUtils {
             SolrAccess solrAccess = ctx.getSolrAccess();
             String pid = ctx.getRequestedPid();
             String xpath = "//bool[@name='dnnt']/text()";
-            Document doc = solrAccess.getSolrDataDocument(pid);
+            Document doc = solrAccess.getDataByPidInXml(pid);
             String val = SolrUtils.strValue(doc, xpath);
             return (val !=  null && val.equals("true")) ? EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
         } catch (XPathExpressionException e) {

@@ -194,7 +194,7 @@ public class AbstractPDFResource {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
 
 
-        Map<String, AbstractObjectPath[]> pathsMap = solrAccess.getPaths(pid);
+        Map<String, AbstractObjectPath[]> pathsMap = solrAccess.getModelAndPidPaths(pid);
 
         ObjectPidsPath[] paths = (ObjectPidsPath[]) pathsMap.get(ObjectPidsPath.class.getName());
         ObjectModelsPath[] models = (ObjectModelsPath[]) pathsMap.get(ObjectModelsPath.class.getName());;
@@ -289,7 +289,7 @@ public class AbstractPDFResource {
     
 
     private boolean canBeRenderedAsPDF(String pid) throws IOException {
-        ObjectPidsPath[] paths = solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
         for (ObjectPidsPath pth : paths) {
             if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth).flag()) {
                 return true;

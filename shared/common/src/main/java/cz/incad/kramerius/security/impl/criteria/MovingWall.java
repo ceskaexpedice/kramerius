@@ -35,7 +35,6 @@ import javax.xml.xpath.*;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -162,7 +161,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
     private Document solrDocument(String pid) throws IOException, ParserConfigurationException, SAXException {
         SolrAccess solrAccess = this.getEvaluateContext().getSolrAccess();
-        return solrAccess.getSolrDataDocument(pid);
+        return solrAccess.getDataByPidInXml(pid);
         //return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + pid + "\"");
     }
 

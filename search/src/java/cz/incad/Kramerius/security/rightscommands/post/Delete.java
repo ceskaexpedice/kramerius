@@ -83,7 +83,7 @@ public class Delete extends ServletRightsCommand {
         //RightImpl right = right(data, pid);
         Right right = rightsManager.findRightById(id);
         String pid = right.getPid();
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
             if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i]).flag()) {

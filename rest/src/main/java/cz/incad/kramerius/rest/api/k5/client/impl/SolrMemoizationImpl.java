@@ -51,7 +51,7 @@ public class SolrMemoizationImpl implements SolrMemoization{
                 int numFound = Integer.MAX_VALUE;
                 List<Element> foundElements = new ArrayList<Element>();
                 while(offset < numFound) {
-                    Document resultsDocs = solrAccess.getSolrDataDocumentsByParentPid(parentPid, ""+offset);
+                    Document resultsDocs = solrAccess.getDataByParentPid(parentPid, ""+offset);
                     Element result = XMLUtils.findElement(resultsDocs.getDocumentElement(), "result");
                     if (result != null) {
                         String snumFound = result.getAttribute("numFound");
@@ -78,7 +78,7 @@ public class SolrMemoizationImpl implements SolrMemoization{
                     }
                 }
             } else {
-                Document doc = solrAccess.getSolrDataDocument(pid);
+                Document doc = solrAccess.getDataByPidInXml(pid);
                 if (doc !=  null) {
                     Element result = XMLUtils.findElement(doc.getDocumentElement(), "result");
                     if (result != null) {

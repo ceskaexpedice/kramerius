@@ -47,7 +47,7 @@ public class ProcessCriteriumContext implements RightCriteriumContext {
     @Override
     public ObjectPidsPath[] getPathsToRoot() {
         try {
-            return this.sa.getPath(getRequestedPid());
+            return this.sa.getPidPaths(getRequestedPid());
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

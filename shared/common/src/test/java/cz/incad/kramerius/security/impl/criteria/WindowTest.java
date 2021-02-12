@@ -79,7 +79,7 @@ public class WindowTest {
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key)}).anyTimes();
+            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key)}).anyTimes();
         }
 
         replay(fa4,feeder, solrAccess,acLog);

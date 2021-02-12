@@ -61,7 +61,7 @@ public class Edit extends ServletRightsCommand {
 
     private void editRight(Map data, String pid) throws IOException, SQLException {
         RightImpl right = right(data, pid);
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
             if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i]).flag()) {

@@ -72,7 +72,7 @@ public class ClientRightsResource {
         try {
             if (pid == null)
                 pid = SpecialObjects.REPOSITORY.getPid();
-            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
 
             if (actionNames == null) {
                 SecuredActions[] vls = SecuredActions.values();

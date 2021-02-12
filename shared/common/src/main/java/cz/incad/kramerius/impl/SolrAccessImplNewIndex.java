@@ -20,225 +20,227 @@ import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
-import cz.incad.kramerius.utils.solr.SolrUtilsNewIndex;
-import cz.incad.kramerius.virtualcollections.CollectionPidUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLEncoder;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.http.HttpStatus.SC_OK;
+
 public class SolrAccessImplNewIndex implements SolrAccess {
 
-    private final SolrUtilsNewIndex solrUtils = new SolrUtilsNewIndex(KConfiguration.getInstance().getSolrHostNew());
-
-    //TODO: projit a prorezat nepouzivane veci (napr. pid_path), zatim jsem to bez vetsich uprav prevzal z SolrAccessImpl
-    //nejspis i vlastni interface namisto SolrAccess, je tam hodne zastaralych konceptu (pid_path, handle)
+    private final SolrUtils utils = new SolrUtils(KConfiguration.getInstance().getSolrHostNew());
 
     @Override
-    public Document getSolrDataDocument(String pid) throws IOException {
-        if (SpecialObjects.isSpecialObject(pid))
-            return null;
-        if (CollectionPidUtils.isCollectionPid(pid)) {
-            return null;
-        }
-        try {
-            PIDParser parser = new PIDParser(pid);
-            parser.objectPid();
-            if (parser.isDatastreamPid() || parser.isPagePid()) {
-                // return
-                // SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+parser.getParentObjectPid()+"\"");
-                return solrUtils.getSolrDataInternal(SolrUtilsNewIndex.UUID_QUERY + "\"" + pid + "\"");
-            } else {
-                return solrUtils.getSolrDataInternal(SolrUtilsNewIndex.UUID_QUERY + "\"" + pid + "\"");
-            }
-        } catch (ParserConfigurationException e) {
-            throw new IOException(e);
-        } catch (SAXException e) {
-            throw new IOException(e);
-        } catch (LexerException e) {
-            throw new IOException(e);
-        }
+    public Document getDataByPidInXml(String pid) throws IOException {
+        //TODO: allow special object pids?
+        //TODO: allow datastreams pids?
+        String query = "q=" + URLEncoder.encode("pid:" + pid.replace(":", "\\:"), "UTF-8");
+        return utils.requestWithSelectReturningXml(query);
     }
 
     @Override
-    public ObjectPidsPath[] getPath(String pid) throws IOException {
-        if (SpecialObjects.isSpecialObject(pid))
-            return new ObjectPidsPath[]{ObjectPidsPath.REPOSITORY_PATH};
-        if (CollectionPidUtils.isCollectionPid(pid)) {
-            return new ObjectPidsPath[]{new ObjectPidsPath(pid)};
-        }
+    public ObjectPidsPath[] getPidPaths(String pid) throws IOException {
+        //TODO: allow special object pids?
+        //TODO: allow datastream pids?
         try {
-
-            PIDParser parser = new PIDParser(pid);
-            parser.objectPid();
-
-            String processPid = parser.isDatastreamPid() ? parser.getParentObjectPid() : parser.getObjectPid();
-
-            Document solrData = getSolrDataDocument(processPid);
-            return getPath(parser.isDatastreamPid() ? parser.getDataStream() : null, solrData);
-
-        } catch (LexerException e) {
-            throw new IOException(e);
-        }
-    }
-
-    @Override
-    public ObjectPidsPath[] getPath(String datastreamName, Document solrData) throws IOException {
-        try {
-            List<String> disected = solrUtils.disectPidPaths(solrData);
-
-            ObjectPidsPath[] paths = new ObjectPidsPath[disected.size()];
-            for (int i = 0; i < paths.length; i++) {
-                String[] splitted = disected.get(i).split("/");
-                if (datastreamName != null) {
-                    String[] splittedWithStreams = new String[splitted.length];
-                    for (int j = 0; j < splittedWithStreams.length; j++) {
-                        splittedWithStreams[j] = splitted[j] + "/" + datastreamName;
-                    }
-                    splitted = splittedWithStreams;
+            List<ObjectPidsPath> paths = new ArrayList<>();
+            JSONObject solrData = utils.getSolrDataJson(pid);
+            if (solrData != null) {
+                JSONArray pidPathsJsonArray = solrData.getJSONArray("pid_paths");
+                for (int i = 0; i < pidPathsJsonArray.length(); i++) {
+                    paths.add(toObjectPidPath(pidPathsJsonArray.getString(i)));
                 }
-
-                ObjectPidsPath path = new ObjectPidsPath(splitted);
-                // pdf in solr has special
-                if (path.getLeaf().startsWith("@")) {
-                    String pageParent = path.cutTail(0).getLeaf();
-                    // path = path.injectObjectBetween(pageParent, new
-                    // AbstractObjectPath.Between(pageParent, path.getLeaf()));
-                    path = path.replace(path.getLeaf(), pageParent + "/" + path.getLeaf());
-                }
-                paths[i] = path;
             }
-
-            return paths;
-        } catch (XPathExpressionException e) {
+            return paths.toArray(new ObjectPidsPath[0]);
+        } catch (Exception e) {
+            //TODO: handle properly
+            e.printStackTrace();
             throw new IOException(e);
         }
     }
 
+    private ObjectPidsPath toObjectPidPath(String pidPath) {
+        String[] pids = pidPath.split("/");
+        return new ObjectPidsPath(pids);
+    }
+
+
     @Override
-    public ObjectPidsPath[] getPath(String datastreamName, Element solrDocParentElement) throws IOException {
+    public ObjectPidsPath[] getPidPaths(String datastreamName, Document solrData) throws IOException {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public Document getSolrDataDocumentByHandle(String handle) throws IOException {
-        try {
-            handle = URLEncoder.encode(handle, "UTF-8");
-            return solrUtils.getSolrDataInternal(SolrUtilsNewIndex.HANDLE_QUERY + handle);
-        } catch (ParserConfigurationException e) {
-            throw new IOException(e);
-        } catch (SAXException e) {
-            throw new IOException(e);
-        }
+    public ObjectPidsPath[] getPidPaths(String datastreamName, Element solrDocParentElement) throws IOException {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public ObjectModelsPath[] getPathOfModels(String pid) throws IOException {
-        if (SpecialObjects.isSpecialObject(pid))
-            return new ObjectModelsPath[]{ObjectModelsPath.REPOSITORY_PATH};
-        try {
-            Document doc = getSolrDataDocument(pid);
-            return getPathOfModels(doc);
-        } catch (XPathExpressionException e) {
-            throw new IOException(e);
-        }
-    }
-
-    private ObjectModelsPath[] getPathOfModels(Document doc) throws XPathExpressionException {
-        synchronized (doc) {
-            List<String> disected = solrUtils.disectModelPaths(doc);
-            ObjectModelsPath[] paths = new ObjectModelsPath[disected.size()];
-            for (int i = 0; i < paths.length; i++) {
-                String[] models = disected.get(i).split("/");
-                paths[i] = new ObjectModelsPath(models);
-            }
-            return paths;
-        }
+    public Document getDataByHandleInXml(String handle) throws IOException {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public Map<String, AbstractObjectPath[]> getPaths(String pid) throws IOException {
-        PIDParser parser;
-        try {
-            parser = new PIDParser(pid);
-            parser.objectPid();
+    public ObjectModelsPath[] getModelPaths(String pid) throws IOException {
+        throw new UnsupportedOperationException("not implemented");
+    }
 
-            if (parser.isDatastreamPid()) {
-                throw new IllegalArgumentException(" datastream is is unsupported ");
-            }
-        } catch (LexerException e1) {
-            throw new IOException(e1);
+    @Override
+    public Map<String, AbstractObjectPath[]> getModelAndPidPaths(String pid) throws IOException {
+        throw new UnsupportedOperationException("not implemented");
+    }
+
+    @Override
+    public Document requestWithSelectInXml(String query) throws IOException {
+        return utils.requestWithSelectReturningXml(query);
+    }
+
+    @Override
+    public JSONObject requestWithSelectInJson(String query) throws IOException {
+        return utils.requestWithSelectReturningJson(query);
+    }
+
+
+    @Override
+    public InputStream requestWithSelectInInputStream(String query, String type) throws IOException {
+        return utils.requestWithSelectReturningStream(query, type);
+    }
+
+    @Override
+    public String requestWithSelectInString(String query, String type) throws IOException {
+        return utils.requestWithSelectReturningString(query, type);
+    }
+
+    @Override
+    public InputStream requestWithTerms(String query, String type) throws IOException {
+        return utils.requestWithTermsReturningStream(query, type);
+    }
+
+    @Override
+    public Document getDataByParentPid(String parentPid, String offset) throws IOException {
+        throw new UnsupportedOperationException("not implemented");
+    }
+
+    /**
+     * @see cz.incad.kramerius.utils.solr.SolrUtils
+     */
+    private static class SolrUtils {
+        private final String solrHost;
+
+        public SolrUtils(String solrHost) {
+            this.solrHost = solrHost;
         }
-        try {
-            if (SpecialObjects.isSpecialObject(pid)) {
-                Map<String, AbstractObjectPath[]> map = new HashMap<String, AbstractObjectPath[]>();
-                map.put(ObjectPidsPath.class.getName(), new ObjectPidsPath[]{ObjectPidsPath.REPOSITORY_PATH});
-                map.put(ObjectModelsPath.class.getName(), new ObjectModelsPath[]{ObjectModelsPath.REPOSITORY_PATH});
-                return map;
+
+        JSONObject getSolrDataJson(String pid) throws IOException {
+            String query = "q=" + URLEncoder.encode("pid:" + pid.replace(":", "\\:"), "UTF-8");
+            JSONObject json = requestWithSelectReturningJson(query);
+            return getFirstResponseDoc(json);
+        }
+
+        private JSONObject getFirstResponseDoc(JSONObject json) {
+            JSONObject response = json.getJSONObject("response");
+            if (response.getInt("numFound") > 0) {
+                return response.getJSONArray("docs").getJSONObject(0);
             } else {
-                Map<String, AbstractObjectPath[]> map = new HashMap<String, AbstractObjectPath[]>();
-                Document doc = getSolrDataDocument(pid);
-                ObjectModelsPath[] pathsOfModels = getPathOfModels(doc);
-                map.put(ObjectModelsPath.class.getName(), pathsOfModels);
-
-                ObjectPidsPath[] paths = getPath(parser.isDatastreamPid() ? parser.getDataStream() : null, doc);
-                map.put(ObjectPidsPath.class.getName(), paths);
-
-                return map;
+                return null;
             }
-        } catch (XPathExpressionException e) {
-            throw new IOException(e);
-        }
-    }
-
-    public Document request(String req) throws IOException {
-        try {
-            return solrUtils.getSolrDataInternal(req);
-        } catch (ParserConfigurationException e) {
-            throw new IOException(e);
-        } catch (SAXException e) {
-            throw new IOException(e);
-        }
-    }
-
-    public InputStream request(String req, String type) throws IOException {
-        return solrUtils.getSolrDataInternal(req, type);
-    }
-
-    public InputStream terms(String req, String type) throws IOException {
-        return solrUtils.getSolrTermsInternal(req, type);
-    }
-
-    @Override
-    public Document getSolrDataDocumentsByParentPid(String parentPid, String offset) throws IOException {
-        if (SpecialObjects.isSpecialObject(parentPid))
-            return null;
-        if (CollectionPidUtils.isCollectionPid(parentPid)) {
-            return null;
         }
 
-        try {
-            PIDParser parser = new PIDParser(parentPid);
-            parser.objectPid();
-            return solrUtils.getSolrDataInternalOffset(SolrUtilsNewIndex.PARENT_QUERY + "\"" + parentPid + "\"", offset);
-        } catch (ParserConfigurationException e) {
-            throw new IOException(e);
-        } catch (SAXException e) {
-            throw new IOException(e);
-        } catch (LexerException e) {
-            throw new IOException(e);
+        /**
+         * @param query for example: q=model%3Amonograph&fl=pid%2Ctitle.search&start=0&sort=created+desc&fq=model%3Aperiodical+OR+model%3Amonograph&rows=24&hl.fragsize=20
+         *              i.e. url encoded and without query param wt
+         */
+        JSONObject requestWithSelectReturningJson(String query) throws IOException {
+            String jsonStr = requestWithSelectReturningString(query, "json");
+            JSONObject jsonObject = new JSONObject(jsonStr);
+            return jsonObject;
+        }
+
+        Document requestWithSelectReturningXml(String query) throws IOException {
+            try {
+                InputStream in = requestWithSelectReturningStream(query, "xml");
+                return XMLUtils.parseDocument(in);
+            } catch (ParserConfigurationException e) {
+                throw new IOException(e);
+            } catch (SAXException e) {
+                throw new IOException(e);
+            }
+        }
+
+        String requestWithSelectReturningString(String query, String type) throws IOException {
+            InputStream in = requestWithSelectReturningStream(query, type);
+            BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            StringBuilder responseStrBuilder = new StringBuilder();
+            String inputStr;
+            while ((inputStr = streamReader.readLine()) != null) {
+                responseStrBuilder.append(inputStr);
+            }
+            return responseStrBuilder.toString();
+        }
+
+        /**
+         * @param query for example: q=model%3Amonograph&fl=pid%2Ctitle.search&start=0&sort=created+desc&fq=model%3Aperiodical+OR+model%3Amonograph&rows=24&hl.fragsize=20
+         *              i.e. url encoded and without query param wt
+         */
+        InputStream requestWithSelectReturningStream(String query, String type) throws IOException {
+            String url = String.format("%s/select?%s&wt=%s", solrHost, query, type);
+            HttpGet httpGet = new HttpGet(url);
+            CloseableHttpClient client = HttpClients.createDefault();
+            try (CloseableHttpResponse response = client.execute(httpGet)) {
+                if (response.getStatusLine().getStatusCode() == SC_OK) {
+                    return readContentAndProvideThroughBufferedStream(response.getEntity());
+                } else {
+                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+                }
+            }
+        }
+
+        /**
+         * @param query for example: q=model%3Amonograph&fl=pid%2Ctitle.search&start=0&sort=created+desc&fq=model%3Aperiodical+OR+model%3Amonograph&rows=24&hl.fragsize=20
+         *              i.e. url encoded and without query param wt
+         */
+        InputStream requestWithTermsReturningStream(String query, String type) throws IOException {
+            String url = String.format("%s/terms?%s&wt=%s", solrHost, query, type);
+            HttpGet httpGet = new HttpGet(url);
+            CloseableHttpClient client = HttpClients.createDefault();
+            try (CloseableHttpResponse response = client.execute(httpGet)) {
+                if (response.getStatusLine().getStatusCode() == SC_OK) {
+                    return readContentAndProvideThroughBufferedStream(response.getEntity());
+                } else {
+                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+                }
+            }
+        }
+
+        //reads and closes entity's content stream
+        private InputStream readContentAndProvideThroughBufferedStream(HttpEntity entity) throws IOException {
+            try (InputStream src = entity.getContent()) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = src.read(buffer)) > -1) {
+                    baos.write(buffer, 0, len);
+                }
+                baos.flush();
+                return new ByteArrayInputStream(baos.toByteArray());
+            }
         }
     }
 }

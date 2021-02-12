@@ -21,7 +21,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.SecurityException;
-import net.sf.json.JSONObject;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -44,7 +43,6 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightCriteriumContextFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.User;
 
 import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
@@ -109,7 +107,7 @@ public class ViewInfoServlet extends GuiceServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             String pid = req.getParameter(UUID_PARAMETER);
-            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
     
             
             User user = currentLoggedUserProvider.get();

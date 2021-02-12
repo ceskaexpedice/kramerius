@@ -107,7 +107,7 @@ public class ItemResource {
     public Response foxml(@PathParam("pid") String pid) {
         boolean access = false;
         try {
-            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
             if (paths.length == 0) {
                 paths = this.resourceIndex.getPath(pid);
             }
@@ -331,10 +331,10 @@ public class ItemResource {
             checkPid(pid);
             ObjectPidsPath[] paths = null;
             if (PIDSupport.isComposedPID(pid)) {
-                paths = this.solrAccess.getPath(PIDSupport
+                paths = this.solrAccess.getPidPaths(PIDSupport
                         .convertToSOLRType(pid));
             } else {
-                paths = this.solrAccess.getPath(pid);
+                paths = this.solrAccess.getPidPaths(pid);
             }
 
             JSONArray sibsList = new JSONArray();

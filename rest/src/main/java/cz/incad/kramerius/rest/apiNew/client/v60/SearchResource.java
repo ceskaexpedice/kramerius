@@ -88,7 +88,7 @@ public class SearchResource {
     private String buildSearchResponseJson(UriInfo uriInfo) {
         try {
             String solrQuery = buildSearchSolrQueryString(uriInfo);
-            InputStream istream = this.solrAccess.request(solrQuery, "json");
+            InputStream istream = this.solrAccess.requestWithSelectInInputStream(solrQuery, "json");
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
@@ -118,7 +118,7 @@ public class SearchResource {
     private String buildSearchResponseXml(UriInfo uriInfo) {
         try {
             String solrQuery = buildSearchSolrQueryString(uriInfo);
-            InputStream istream = this.solrAccess.request(solrQuery, "xml");
+            InputStream istream = this.solrAccess.requestWithSelectInInputStream(solrQuery, "xml");
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
@@ -335,7 +335,7 @@ public class SearchResource {
 
     private String buildTermsResponseJson(UriInfo uriInfo) {
         try {
-            InputStream istream = this.solrAccess.terms(buildTermsSolrQueryString(uriInfo), "json");
+            InputStream istream = this.solrAccess.requestWithTerms(buildTermsSolrQueryString(uriInfo), "json");
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
             String rawString = new String(bos.toByteArray(), "UTF-8");
@@ -348,7 +348,7 @@ public class SearchResource {
 
     private String buildTermsResponseXml(UriInfo uriInfo) {
         try {
-            InputStream istream = this.solrAccess.terms(buildTermsSolrQueryString(uriInfo), "xml");
+            InputStream istream = this.solrAccess.requestWithTerms(buildTermsSolrQueryString(uriInfo), "xml");
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
             String rawString = new String(bos.toByteArray(), "UTF-8");

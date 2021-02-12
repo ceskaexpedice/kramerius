@@ -129,7 +129,7 @@ public class CDKReplicationsResource {
                     date = FORMAT.format(new Date());
                 }
                 // TODO: permissions
-                Document document = this.solrAccess.request(makeRequestURL(
+                Document document = this.solrAccess.requestWithSelectInXml(makeRequestURL(
                         date, offset, rows));
                 return Response.ok().entity(document).build();
             } else
@@ -163,7 +163,7 @@ public class CDKReplicationsResource {
             throws ReplicateException, UnsupportedEncodingException {
         try {
             if (checkPermission()) {
-                Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+                Document solrDoc = this.solrAccess.getDataByPidInXml(pid);
                 return Response.ok().entity(solrDoc).build();
             } else
                 throw new ActionNotAllowed("action is not allowed");
@@ -181,7 +181,7 @@ public class CDKReplicationsResource {
             throws ReplicateException, UnsupportedEncodingException {
         try {
             if (checkPermission()) {
-                Document solrDoc = this.solrAccess.getSolrDataDocument(pid+"/"+page);
+                Document solrDoc = this.solrAccess.getDataByPidInXml(pid+"/"+page);
                 return Response.ok().entity(solrDoc).build();
             } else
                 throw new ActionNotAllowed("action is not allowed");

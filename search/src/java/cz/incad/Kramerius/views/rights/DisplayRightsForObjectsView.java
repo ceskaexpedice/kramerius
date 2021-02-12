@@ -129,7 +129,7 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
             List<DisplayRightsForObjectsView.DialogContent> rightsForPaths = new ArrayList<DisplayRightsForObjectsView.DialogContent>();
 
             for (Object pid : params) {
-                ObjectPidsPath[] paths = solrAccess.getPath(pid.toString());
+                ObjectPidsPath[] paths = solrAccess.getPidPaths(pid.toString());
                 
                 for (ObjectPidsPath path : paths) {
                     path = path.injectRepository().injectCollections(this.collectionGet);

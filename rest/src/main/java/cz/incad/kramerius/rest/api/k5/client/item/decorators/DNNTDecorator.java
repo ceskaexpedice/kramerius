@@ -10,20 +10,16 @@ import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
-import cz.incad.kramerius.rest.api.k5.client.utils.RELSEXTDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered;
-import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.servlet.http.HttpServletRequest;
@@ -81,7 +77,7 @@ public class DNNTDecorator extends AbstractItemDecorator {
                                             element.getAttribute("name").equals("dnnt")) {
 
                                         try {
-                                            ObjectPidsPath[] paths = solrAccess.getPath(null, optional.get());
+                                            ObjectPidsPath[] paths = solrAccess.getPidPaths(null, optional.get());
                                             for (ObjectPidsPath p : paths) {
                                                 RightsReturnObject actionAllowed = isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
                                                 if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {

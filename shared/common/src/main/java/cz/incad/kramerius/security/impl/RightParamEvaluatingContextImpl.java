@@ -18,17 +18,11 @@ package cz.incad.kramerius.security.impl;
 
 import java.io.IOException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
 import cz.incad.kramerius.security.*;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.utils.solr.SolrUtils;
 
 public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
 
@@ -92,7 +86,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     @Override
     public ObjectPidsPath[] getPathsToRoot() {
         try {
-            return this.solrAccess.getPath(getRequestedPid());
+            return this.solrAccess.getPidPaths(getRequestedPid());
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

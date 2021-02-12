@@ -115,7 +115,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
     private String[] pidsAsSiblings( String startPid, String stopPid)
             throws IOException {
         String[] pids = new String[0];
-        ObjectPidsPath[] paths = this.solrAccess.getPath(startPid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(startPid);
         ObjectPidsPath pths = selectOnePath(startPid, paths);
         String[] pidsPths = pths.getPathFromRootToLeaf();
         if (pidsPths.length > 1) {
@@ -149,7 +149,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
 
 
     private boolean canBeRead(String pid) throws IOException {
-        ObjectPidsPath[] paths = solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
         for (ObjectPidsPath pth : paths) {
             if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth).flag()) {
                 return true;

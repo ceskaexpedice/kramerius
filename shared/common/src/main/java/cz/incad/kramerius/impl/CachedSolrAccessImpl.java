@@ -40,13 +40,13 @@ public class CachedSolrAccessImpl extends SolrAccessImpl implements SolrAccess {
     }
 
     @Override
-    public Document getSolrDataDocument(String pid) throws IOException {
+    public Document getDataByPidInXml(String pid) throws IOException {
         Document document = cache.get(pid);
 
         if (document != null) { //cache hit
             return document;
         } else { //cache miss
-            document = super.getSolrDataDocument(pid);
+            document = super.getDataByPidInXml(pid);
             cache.put(pid, document);
             return document;
         }

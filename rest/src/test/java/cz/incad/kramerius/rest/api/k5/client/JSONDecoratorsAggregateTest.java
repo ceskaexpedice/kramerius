@@ -132,7 +132,7 @@ public class JSONDecoratorsAggregateTest {
 
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
                 .addMockedMethod(
-                        SolrAccess.class.getMethod("request", String.class,
+                        SolrAccess.class.getMethod("requestWithSelectInInputStream", String.class,
                                 String.class)).createMock();
 
         SolrMemoization memo = EasyMock.createMock(SolrMemoization.class);
@@ -193,7 +193,7 @@ public class JSONDecoratorsAggregateTest {
 
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
                 .addMockedMethod(
-                        SolrAccess.class.getMethod("request", String.class,
+                        SolrAccess.class.getMethod("requestWithSelectInInputStream", String.class,
                                 String.class)).createMock();
 
         SolrMemoization memo = EasyMock.createMock(SolrMemoization.class);
@@ -250,7 +250,7 @@ public class JSONDecoratorsAggregateTest {
 
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
                 .addMockedMethod(
-                        SolrAccess.class.getMethod("request", String.class,
+                        SolrAccess.class.getMethod("requestWithSelectInInputStream", String.class,
                                 String.class))
                 .addMockedMethod("getSolrDataDocument").createMock();
 
@@ -334,7 +334,7 @@ public class JSONDecoratorsAggregateTest {
 
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
                 .addMockedMethod(
-                        SolrAccess.class.getMethod("request", String.class,
+                        SolrAccess.class.getMethod("requestWithSelectInInputStream", String.class,
                                 String.class))
                 .addMockedMethod("getSolrDataDocument").createMock();
 

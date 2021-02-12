@@ -51,7 +51,7 @@ public class ItemResourceUtils {
                 }
             }
             
-            Document resp = sa.request(request);
+            Document resp = sa.requestWithSelectInXml(request);
             docs.add(resp);
     
             Element resultelm = XMLUtils.findElement(resp.getDocumentElement(), "result");

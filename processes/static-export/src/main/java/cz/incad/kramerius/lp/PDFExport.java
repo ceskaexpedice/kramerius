@@ -206,7 +206,7 @@ public class PDFExport {
 			String title = DCUtils.titleFromDC(dc);
 			LOGGER.info("title is "+title);
 			GenerateController controller = new GenerateController(pdfsFolder, title);
-			ObjectPidsPath[] path = sa.getPath(pid);
+			ObjectPidsPath[] path = sa.getPidPaths(pid);
 			if (path.length == 0) {
 			    path = new ObjectPidsPath[]{new ObjectPidsPath(pid)};
 			}

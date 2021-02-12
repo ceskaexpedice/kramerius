@@ -36,7 +36,7 @@ public class SOLRDecoratorUtils {
                 pid = PIDSupport.convertToSOLRType(pid);
             }
             List<Document> docs = new ArrayList<Document>();
-            context.put(key, solrAccess.getSolrDataDocument(pid));
+            context.put(key, solrAccess.getDataByPidInXml(pid));
         }
     }
 

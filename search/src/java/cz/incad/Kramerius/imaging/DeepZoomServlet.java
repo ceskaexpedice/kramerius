@@ -81,7 +81,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
             StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
             String pid = tokenizer.nextToken();
             if (this.fedoraAccess.isObjectAvailable(pid)) {
-                ObjectPidsPath[] paths = solrAccess.getPath(pid);
+                ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                 boolean premited = false;
                 for (ObjectPidsPath pth : paths) {
                     premited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth).flag();

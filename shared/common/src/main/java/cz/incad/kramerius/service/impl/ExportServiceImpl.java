@@ -46,7 +46,7 @@ public class ExportServiceImpl implements ExportService {
         LOGGER.log(Level.INFO, "Exporting parents is set to true, -> exporting parents foxml");
         File exportDirectory = exportDirectory(pid);
 
-        ObjectPidsPath[] paths = solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
         for (ObjectPidsPath opid : paths) {
             String[] set = opid.getPathFromLeafToRoot();
             for (int i = 1; i < set.length; i++) {

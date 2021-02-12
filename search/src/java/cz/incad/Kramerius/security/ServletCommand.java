@@ -99,11 +99,11 @@ public abstract class ServletCommand {
     }
 
     public ObjectModelsPath[] getModels(String uuid) throws IOException {
-        return uuid != null ? this.solrAccess.getPathOfModels(uuid) : new ObjectModelsPath[0];
+        return uuid != null ? this.solrAccess.getModelPaths(uuid) : new ObjectModelsPath[0];
     }
 
     public ObjectPidsPath[] getPathOfUUIDs(String uuid) throws IOException {
-        return uuid != null ? this.solrAccess.getPath(uuid) : new ObjectPidsPath[0];
+        return uuid != null ? this.solrAccess.getPidPaths(uuid) : new ObjectPidsPath[0];
     }
 
     public ResourceBundle getResourceBundle() throws IOException {

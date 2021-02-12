@@ -18,10 +18,8 @@ package cz.incad.kramerius.document.model.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,7 +34,6 @@ import org.xml.sax.SAXException;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.utils.XMLUtils;
 
 
@@ -60,7 +57,7 @@ public class DCContentUtilsTest {
         SolrAccess sa = EasyMock.createMock(SolrAccess.class);
         for (int i = 0; i < MAX; i++) {
             ObjectPidsPath pidPath = new ObjectPidsPath(pids.get(i)).injectRepository();
-            EasyMock.expect(sa.getPath(pids.get(i))).andReturn(new ObjectPidsPath[] {pidPath}).anyTimes();
+            EasyMock.expect(sa.getPidPaths(pids.get(i))).andReturn(new ObjectPidsPath[] {pidPath}).anyTimes();
         }
         
         

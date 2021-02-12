@@ -39,7 +39,7 @@ public class CriteriaDNNTUtilsTest extends TestCase  {
     public RightCriteriumContext ctx(String requestedPID, String file) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         InputStream is  = CriteriaDNNTUtilsTest.class.getResourceAsStream(file);
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        EasyMock.expect(solrAccess.getSolrDataDocument(requestedPID)).andReturn(XMLUtils.parseDocument(is)).anyTimes();
+        EasyMock.expect(solrAccess.getDataByPidInXml(requestedPID)).andReturn(XMLUtils.parseDocument(is)).anyTimes();
 
         replay(solrAccess);
 

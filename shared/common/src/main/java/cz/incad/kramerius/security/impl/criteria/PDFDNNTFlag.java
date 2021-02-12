@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.checkContainsCriteriumPDFDNNT;
 import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.checkContainsCriteriumReadDNNT;
 
 public class PDFDNNTFlag extends AbstractCriterium {
@@ -24,10 +23,10 @@ public class PDFDNNTFlag extends AbstractCriterium {
             requestedPid = this.getEvaluateContext().getRequestedPid();
             if (requestedPid != null && !SpecialObjects.isSpecialObject(requestedPid)) {
                 // only if
-                String s = SolrUtils.disectDNNT(this.evalContext.getSolrAccess().getSolrDataDocument(requestedPid).getDocumentElement());
+                String s = SolrUtils.disectDNNT(this.evalContext.getSolrAccess().getDataByPidInXml(requestedPid).getDocumentElement());
                 if (s != null && s.equals("true")) {
                     RightsResolver rightsResolver = this.getEvaluateContext().getRightsResolver();
-                    ObjectPidsPath[] paths = this.getEvaluateContext().getSolrAccess().getPath(requestedPid);
+                    ObjectPidsPath[] paths = this.getEvaluateContext().getSolrAccess().getPidPaths(requestedPid);
                     for (ObjectPidsPath path : paths) {
                         RightsReturnObject obj = rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), requestedPid, null, path);
                         if (CriteriaDNNTUtils.checkContainsCriteriumReadDNNT(obj)) return EvaluatingResultState.FALSE;

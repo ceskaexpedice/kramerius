@@ -19,23 +19,18 @@
  */
 package cz.incad.kramerius.statistics.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
@@ -124,8 +119,8 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
     
     @Override
     public void reportAccess(final String pid, final String streamName) throws IOException {
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
-        ObjectModelsPath[] mpaths = this.solrAccess.getPathOfModels(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
+        ObjectModelsPath[] mpaths = this.solrAccess.getModelPaths(pid);
 
         Connection connection = null;
         try {
@@ -134,7 +129,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                 throw new NotReadyException("connection not ready");
 
 
-            Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+            Document solrDoc = this.solrAccess.getDataByPidInXml(pid);
 
             String rootTitle  = titleElement("str", "root_title", solrDoc);
             String rootPid  = titleElement("str", "root_pid", solrDoc);
@@ -142,7 +137,7 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
             //String dctitle = titleElement("str", "dc.title", solrDoc);
             List<String> authors = new ArrayList<>();
             if (rootPid != null) {
-                Document rootSolrDoc = this.solrAccess.getSolrDataDocument(rootPid);
+                Document rootSolrDoc = this.solrAccess.getDataByPidInXml(rootPid);
                 Element array = XMLUtils.findElement(rootSolrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
                     @Override
                     public boolean acceptElement(Element element) {

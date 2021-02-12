@@ -119,7 +119,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
             String rest = tokenizer.hasMoreTokens() ?  tokenizer.nextToken() : "";
 
             if (this.fedoraAccess.isObjectAvailable(pid)) {
-                ObjectPidsPath[] paths = solrAccess.getPath(pid);
+                ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                 boolean premited = false;
                 for (ObjectPidsPath pth : paths) {
                     premited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth).flag();

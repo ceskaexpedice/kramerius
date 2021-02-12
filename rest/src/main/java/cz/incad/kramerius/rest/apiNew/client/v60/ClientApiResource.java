@@ -1,5 +1,6 @@
 package cz.incad.kramerius.rest.apiNew.client.v60;
 
+import com.google.inject.name.Named;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
@@ -24,8 +25,8 @@ public abstract class ClientApiResource extends ApiResource {
     @Inject
     RightsResolver rightsResolver;
 
-    //TODO: use new search index instead
-    @com.google.inject.Inject
+    @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     public void checkCurrentUserByJsessionidIsAllowedToPerformGlobalSecuredAction(SecuredActions action) {
@@ -57,7 +58,7 @@ public abstract class ClientApiResource extends ApiResource {
     //see cz.incad.kramerius.security.SecuredFedoraAccessImpl.getDataStream(String pid, String datastreamName)
     private boolean userIsAllowedToReadDatastream(User user, String pid, String datastreamName) throws IOException {
         checkSupportedObjectPid(pid);
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         if (paths.length == 0) {
             throw new InternalErrorException("illegal state: no paths for object %s found in search index", pid);
             //or maybe build paths from resource/processing index

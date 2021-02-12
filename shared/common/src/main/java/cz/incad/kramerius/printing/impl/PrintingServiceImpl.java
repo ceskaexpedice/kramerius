@@ -129,7 +129,7 @@ public class PrintingServiceImpl implements PrintingService {
     public void printMaster(String pidFrom, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException {
 
         try {
-            ObjectPidsPath[] paths = this.solrAccess.getPath(pidFrom);
+            ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pidFrom);
             ObjectPidsPath selectedPath = selectOnePath(pidFrom, paths);
 
             PreparedDocument documentAsFlat = this.documentService.buildDocumentAsFlat(selectedPath, pidFrom, MAX_PAGES, null /*

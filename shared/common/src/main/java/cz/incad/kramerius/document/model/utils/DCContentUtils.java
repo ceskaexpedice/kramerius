@@ -52,7 +52,7 @@ public class DCContentUtils {
     public static Map<String, List<DCConent>> getDCS(FedoraAccess fedoraAccess, SolrAccess solrAccess, List<String> pids) throws IOException {
         Map<String, List<DCConent>> maps = new HashMap<String, List<DCConent>>();
         for (String pid : pids) {
-            ObjectPidsPath[] paths = solrAccess.getPath(pid);
+            ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
             if (paths.length > 0) {
                 List<DCConent> dcs = new ArrayList<DCConent>();
                 String[] pathFromLeaf = paths[0].getPathFromLeafToRoot();

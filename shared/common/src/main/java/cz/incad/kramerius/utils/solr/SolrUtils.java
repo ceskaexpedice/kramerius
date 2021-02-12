@@ -327,7 +327,6 @@ public class SolrUtils   {
         } else {
             throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
         }
-
     }
 
     public static InputStream getSolrTermsInternal(String query, String format) throws IOException, ParserConfigurationException, SAXException {

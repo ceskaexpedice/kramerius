@@ -51,8 +51,6 @@ import java.util.logging.Level;
 
 import static cz.incad.kramerius.utils.imgs.KrameriusImageSupport.writeImageToStream;
 
-import java.util.List;
-
 public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
         GeneratePDFService {
 
@@ -295,7 +293,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             String i18nUrl, int[] rect) throws IOException,
             ProcessSubtreeException {
         try {
-            ObjectPidsPath[] paths = solrAccess.getPath(requestedPid);
+            ObjectPidsPath[] paths = solrAccess.getPidPaths(requestedPid);
             final ObjectPidsPath path = selectOnePath(requestedPid, paths);
             generateCustomPDF(this.documentService.buildDocumentAsFlat(path,
                     path.getLeaf(), numberOfPages, rect), os, null, imgServletUrl,

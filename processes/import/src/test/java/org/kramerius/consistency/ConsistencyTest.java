@@ -92,7 +92,7 @@ public class ConsistencyTest {
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = ImportDataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { ImportDataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { ImportDataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
         
 
@@ -133,7 +133,7 @@ public class ConsistencyTest {
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = ImportDataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { ImportDataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { ImportDataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
         
 

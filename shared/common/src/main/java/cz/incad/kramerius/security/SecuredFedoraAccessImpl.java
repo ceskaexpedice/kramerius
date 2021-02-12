@@ -83,7 +83,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     @Override
     public InputStream getImageFULL(String pid) throws IOException {
 
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         paths = ensurePidPathForUnindexedObjects(pid, paths);
         for (ObjectPidsPath path : paths) {
             if (this.rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path).flag()) {
@@ -181,7 +181,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
     @Override
     public boolean isContentAccessible(String pid) throws IOException {
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         paths = ensurePidPathForUnindexedObjects(pid, paths);
         for (ObjectPidsPath path : paths) {
             if (this.rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path).flag()) {
@@ -222,7 +222,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
 
     @Override
     public InputStream getFoxml(String pid, boolean archive) throws IOException {
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         paths = ensurePidPathForUnindexedObjects(pid, paths);
         for (int i = 0; i < paths.length; i++) {
             if (this.rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, paths[i]).flag()) {
@@ -246,7 +246,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         if (isDefaultSecuredStream(datastreamName)) {
-            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
             paths = ensurePidPathForUnindexedObjects(pid, paths);
             for (int i = 0; i < paths.length; i++) {
                 if (this.rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i]).flag()) {
@@ -259,7 +259,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
             String[] securedStreamsExtension = KConfiguration.getInstance().getSecuredAditionalStreams();
             int indexOf = Arrays.asList(securedStreamsExtension).indexOf(datastreamName);
             if (indexOf >= 0) {
-                ObjectPidsPath[] paths = this.solrAccess.getPath(pid + "/" + datastreamName);
+                ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid + "/" + datastreamName);
                 paths = ensurePidPathForUnindexedObjects(pid, paths);
                 for (int i = 0; i < paths.length; i++) {
                     if (this.rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, datastreamName, paths[i]).flag()) {
@@ -307,7 +307,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     @Override
     public InputStream getFullThumbnail(String pid) throws IOException {
         boolean accessed = false;
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         paths = ensurePidPathForUnindexedObjects(pid, paths);
         for (ObjectPidsPath path : paths) {
             if (this.rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, FedoraUtils.IMG_PREVIEW_STREAM, path).flag()) {

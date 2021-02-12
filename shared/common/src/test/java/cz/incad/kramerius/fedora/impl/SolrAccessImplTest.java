@@ -50,10 +50,10 @@ public class SolrAccessImplTest {
         		.addMockedMethod("getSolrDataDocument")
         		.createMock();
 
-        EasyMock.expect(solr.getSolrDataDocument("uuid:0xAAA")).andReturn(SolrUtilsTest.solrPDFDocument());
+        EasyMock.expect(solr.getDataByPidInXml("uuid:0xAAA")).andReturn(SolrUtilsTest.solrPDFDocument());
         replay(solr);
         
-        ObjectPidsPath[] paths = solr.getPath("uuid:0xAAA");
+        ObjectPidsPath[] paths = solr.getPidPaths("uuid:0xAAA");
 
         Assert.assertTrue(paths.length == 1);
         String[] real = paths[0].getPathFromRootToLeaf();
@@ -68,10 +68,10 @@ public class SolrAccessImplTest {
         		.addMockedMethod("getSolrDataDocument")
         		.createMock();
         
-        EasyMock.expect(solr.getSolrDataDocument("uuid:0xAAA")).andReturn(SolrUtilsTest.solrDocument());
+        EasyMock.expect(solr.getDataByPidInXml("uuid:0xAAA")).andReturn(SolrUtilsTest.solrDocument());
         replay(solr);
         
-        ObjectPidsPath[] paths = solr.getPath("uuid:0xAAA");
+        ObjectPidsPath[] paths = solr.getPidPaths("uuid:0xAAA");
         Assert.assertTrue(paths.length == 2);
 
         ObjectPidsPath p1 = paths[0];
@@ -99,10 +99,10 @@ public class SolrAccessImplTest {
         .addMockedMethod("getSolrDataDocument")
         .createMock();
         
-        EasyMock.expect(solr.getSolrDataDocument("uuid:0xAAA")).andReturn(SolrUtilsTest.solrDocument());
+        EasyMock.expect(solr.getDataByPidInXml("uuid:0xAAA")).andReturn(SolrUtilsTest.solrDocument());
         replay(solr);
         
-        ObjectPidsPath[] paths = solr.getPath("uuid:0xAAA/DC");
+        ObjectPidsPath[] paths = solr.getPidPaths("uuid:0xAAA/DC");
         for (int i = 0; i < paths.length; i++) {
         	paths[i] = paths[i].injectRepository();
 		}

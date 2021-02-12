@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2010 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,14 +25,13 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import cz.incad.kramerius.virtualcollections.CollectionPidUtils;
-
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -43,7 +42,7 @@ import java.util.Map;
 public class SolrAccessImpl implements SolrAccess {
 
     @Override
-    public Document getSolrDataDocument(String pid) throws IOException {
+    public Document getDataByPidInXml(String pid) throws IOException {
         if (SpecialObjects.isSpecialObject(pid))
             return null;
         if (CollectionPidUtils.isCollectionPid(pid)) {
@@ -69,11 +68,11 @@ public class SolrAccessImpl implements SolrAccess {
     }
 
     @Override
-    public ObjectPidsPath[] getPath(String pid) throws IOException {
+    public ObjectPidsPath[] getPidPaths(String pid) throws IOException {
         if (SpecialObjects.isSpecialObject(pid))
-            return new ObjectPidsPath[] { ObjectPidsPath.REPOSITORY_PATH };
+            return new ObjectPidsPath[]{ObjectPidsPath.REPOSITORY_PATH};
         if (CollectionPidUtils.isCollectionPid(pid)) {
-            return new ObjectPidsPath[] { new ObjectPidsPath(pid) };
+            return new ObjectPidsPath[]{new ObjectPidsPath(pid)};
         }
         try {
 
@@ -82,8 +81,8 @@ public class SolrAccessImpl implements SolrAccess {
 
             String processPid = parser.isDatastreamPid() ? parser.getParentObjectPid() : parser.getObjectPid();
 
-            Document solrData = getSolrDataDocument(processPid);
-            return getPath(parser.isDatastreamPid() ? parser.getDataStream() : null, solrData);
+            Document solrData = getDataByPidInXml(processPid);
+            return getPidPaths(parser.isDatastreamPid() ? parser.getDataStream() : null, solrData);
 
         } catch (LexerException e) {
             throw new IOException(e);
@@ -91,9 +90,8 @@ public class SolrAccessImpl implements SolrAccess {
     }
 
 
-
     @Override
-    public ObjectPidsPath[] getPath(String datastreamName, Document solrData) throws IOException {
+    public ObjectPidsPath[] getPidPaths(String datastreamName, Document solrData) throws IOException {
         try {
             List<String> disected = SolrUtils.disectPidPaths(solrData);
             return pathsInternal(datastreamName, disected);
@@ -103,7 +101,7 @@ public class SolrAccessImpl implements SolrAccess {
     }
 
     @Override
-    public ObjectPidsPath[] getPath(String datastreamName, Element solrDocParentElement) throws IOException {
+    public ObjectPidsPath[] getPidPaths(String datastreamName, Element solrDocParentElement) throws IOException {
         try {
             List<String> disected = SolrUtils.disectPidPaths(solrDocParentElement);
             return pathsInternal(datastreamName, disected);
@@ -139,7 +137,7 @@ public class SolrAccessImpl implements SolrAccess {
     }
 
     @Override
-    public Document getSolrDataDocumentByHandle(String handle) throws IOException {
+    public Document getDataByHandleInXml(String handle) throws IOException {
         try {
             handle = URLEncoder.encode(handle, "UTF-8");
             return SolrUtils.getSolrDataInternal(SolrUtils.HANDLE_QUERY + handle);
@@ -151,11 +149,11 @@ public class SolrAccessImpl implements SolrAccess {
     }
 
     @Override
-    public ObjectModelsPath[] getPathOfModels(String pid) throws IOException {
+    public ObjectModelsPath[] getModelPaths(String pid) throws IOException {
         if (SpecialObjects.isSpecialObject(pid))
-            return new ObjectModelsPath[] { ObjectModelsPath.REPOSITORY_PATH };
+            return new ObjectModelsPath[]{ObjectModelsPath.REPOSITORY_PATH};
         try {
-            Document doc = getSolrDataDocument(pid);
+            Document doc = getDataByPidInXml(pid);
             return getPathOfModels(doc);
         } catch (XPathExpressionException e) {
             throw new IOException(e);
@@ -175,7 +173,7 @@ public class SolrAccessImpl implements SolrAccess {
     }
 
     @Override
-    public Map<String, AbstractObjectPath[]> getPaths(String pid) throws IOException {
+    public Map<String, AbstractObjectPath[]> getModelAndPidPaths(String pid) throws IOException {
         PIDParser parser;
         try {
             parser = new PIDParser(pid);
@@ -190,16 +188,16 @@ public class SolrAccessImpl implements SolrAccess {
         try {
             if (SpecialObjects.isSpecialObject(pid)) {
                 Map<String, AbstractObjectPath[]> map = new HashMap<String, AbstractObjectPath[]>();
-                map.put(ObjectPidsPath.class.getName(), new ObjectPidsPath[] { ObjectPidsPath.REPOSITORY_PATH });
-                map.put(ObjectModelsPath.class.getName(), new ObjectModelsPath[] { ObjectModelsPath.REPOSITORY_PATH });
+                map.put(ObjectPidsPath.class.getName(), new ObjectPidsPath[]{ObjectPidsPath.REPOSITORY_PATH});
+                map.put(ObjectModelsPath.class.getName(), new ObjectModelsPath[]{ObjectModelsPath.REPOSITORY_PATH});
                 return map;
             } else {
                 Map<String, AbstractObjectPath[]> map = new HashMap<String, AbstractObjectPath[]>();
-                Document doc = getSolrDataDocument(pid);
+                Document doc = getDataByPidInXml(pid);
                 ObjectModelsPath[] pathsOfModels = getPathOfModels(doc);
                 map.put(ObjectModelsPath.class.getName(), pathsOfModels);
 
-                ObjectPidsPath[] paths = getPath(parser.isDatastreamPid() ? parser.getDataStream() : null, doc);
+                ObjectPidsPath[] paths = getPidPaths(parser.isDatastreamPid() ? parser.getDataStream() : null, doc);
                 map.put(ObjectPidsPath.class.getName(), paths);
 
                 return map;
@@ -209,9 +207,9 @@ public class SolrAccessImpl implements SolrAccess {
         }
     }
 
-    public Document request(String req) throws IOException {
+    public Document requestWithSelectInXml(String query) throws IOException {
         try {
-            return SolrUtils.getSolrDataInternal(req);
+            return SolrUtils.getSolrDataInternal(query);
         } catch (ParserConfigurationException e) {
             throw new IOException(e);
         } catch (SAXException e) {
@@ -219,11 +217,21 @@ public class SolrAccessImpl implements SolrAccess {
         }
     }
 
-    public InputStream request(String req, String type) throws IOException {
+    @Override
+    public JSONObject requestWithSelectInJson(String query) throws IOException {
+        throw new UnsupportedOperationException("not implemented");
+    }
+
+    public InputStream requestWithSelectInInputStream(String req, String type) throws IOException {
         return SolrUtils.getSolrDataInternal(req, type);
     }
 
-    public InputStream terms(String req, String type) throws IOException {
+    @Override
+    public String requestWithSelectInString(String query, String type) throws IOException {
+        throw new UnsupportedOperationException("not implemented");
+    }
+
+    public InputStream requestWithTerms(String req, String type) throws IOException {
         try {
             return SolrUtils.getSolrTermsInternal(req, type);
         } catch (ParserConfigurationException e) {
@@ -234,7 +242,7 @@ public class SolrAccessImpl implements SolrAccess {
     }
 
     @Override
-    public Document getSolrDataDocumentsByParentPid(String parentPid, String offset) throws IOException {
+    public Document getDataByParentPid(String parentPid, String offset) throws IOException {
         if (SpecialObjects.isSpecialObject(parentPid))
             return null;
         if (CollectionPidUtils.isCollectionPid(parentPid)) {
