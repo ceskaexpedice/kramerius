@@ -1,5 +1,19 @@
 package cz.incad.kramerius.audio.jersey;
 
+import cz.incad.kramerius.audio.AbstractAudioHttpRequestForwarder;
+import cz.incad.kramerius.audio.AudioHttpRequestForwarder;
+import cz.incad.kramerius.audio.GetRequestHeaderForwarder;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpRequestBase;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,38 +23,20 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.StreamingOutput;
-
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpRequestBase;
-
-import cz.incad.kramerius.audio.AbstractAudioHttpRequestForwarder;
-import cz.incad.kramerius.audio.AudioHttpRequestForwarder;
-import cz.incad.kramerius.audio.GetRequestHeaderForwarder;
-import cz.incad.kramerius.utils.IOUtils;
-
 public class JerseyAudioHttpRequestForwarder extends AbstractAudioHttpRequestForwarder<ResponseBuilder> implements AudioHttpRequestForwarder<ResponseBuilder> {
 
     public static final Logger LOGGER = Logger.getLogger(JerseyResponseHeaderForwarder.class.getName());
-    
+
     final HttpServletRequest clientToProxyRequest;
     final ResponseBuilder responseBuilder;
-    
+
     public JerseyAudioHttpRequestForwarder(HttpServletRequest clientToProxyRequest, ResponseBuilder respBuilder) {
         this.clientToProxyRequest = clientToProxyRequest;
         this.responseBuilder = respBuilder;
     }
 
     public ResponseBuilder forwardGetRequest(URL url) throws IOException, URISyntaxException {
-        //LOGGER.log(Level.INFO, "forwarding {0}", url);
-
-
+        LOGGER.log(Level.FINE, "forwarding {0}", url);
         HttpGet proxyToRepositoryRequest = new HttpGet(url.toURI());
         forwardSelectedRequestHeaders(clientToProxyRequest, proxyToRepositoryRequest);
         //printRepositoryRequestHeaders(repositoryRequest);
@@ -48,14 +44,15 @@ public class JerseyAudioHttpRequestForwarder extends AbstractAudioHttpRequestFor
         //printRepositoryResponseHeaders(repositoryResponse);
         forwardSelectedResponseHeaders(repositoryToProxyResponse, responseBuilder);
         forwardResponseCode(repositoryToProxyResponse, responseBuilder);
-        forwardData(repositoryToProxyResponse.getEntity().getContent(), this.responseBuilder);
-        
+        try (InputStream in = repositoryToProxyResponse.getEntity().getContent()) {
+            forwardData(in, this.responseBuilder);
+        }
         return responseBuilder;
     }
-    
+
 
     public ResponseBuilder forwardHeadRequest(URL url) throws IOException, URISyntaxException {
-        LOGGER.log(Level.INFO, "forwarding {0}", url);
+        LOGGER.log(Level.FINE, "forwarding {0}", url);
         HttpHead repositoryRequest = new HttpHead(url.toURI());
         forwardSelectedRequestHeaders(clientToProxyRequest, repositoryRequest);
         //printRepositoryRequestHeaders(repositoryRequest);
@@ -91,13 +88,12 @@ public class JerseyAudioHttpRequestForwarder extends AbstractAudioHttpRequestFor
         forwarder.forwardHeaderIfPresent("Accept");
     }
 
-    
+
     private void forwardData(final InputStream input, ResponseBuilder respBuilder) {
         StreamingOutput stream = new StreamingOutput() {
-            public void write(OutputStream output)
-                    throws IOException, WebApplicationException {
+            public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
-                    IOUtils.copyStreams(input, output);
+                    IOUtils.copy(input, output);
                 } catch (IOException e) {
                     if (e.getCause() != null && e.getCause() instanceof SocketException
                             && (e.getCause().getMessage().equals(CONNECTION_RESET) || e.getCause().getMessage().equals(BROKEN_PIPE))) {
@@ -106,9 +102,6 @@ public class JerseyAudioHttpRequestForwarder extends AbstractAudioHttpRequestFor
                         LOGGER.log(Level.SEVERE, null, e);
                     }
                     throw new WebApplicationException(e);
-                } finally {
-                    LOGGER.fine("closing connection to repository");
-                    IOUtils.tryClose(input);
                 }
             }
         };
@@ -144,5 +137,5 @@ public class JerseyAudioHttpRequestForwarder extends AbstractAudioHttpRequestFor
             System.err.println(header.getName() + ": " + header.getValue());
         }
     }
-    
+
 }

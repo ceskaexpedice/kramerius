@@ -16,7 +16,6 @@
  */
 package cz.incad.Kramerius.imaging;
 
-import static cz.incad.kramerius.utils.IOUtils.copyStreams;
 import static cz.incad.utils.IKeys.PID_PARAMETER;
 import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
@@ -30,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 
 import cz.incad.Kramerius.AbstractImageServlet;
@@ -289,9 +289,9 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                 }
                 
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                copyStreams(is, bos);
+                IOUtils.copy(is, bos);
                 byte[] arr = bos.toByteArray();
-                copyStreams(new ByteArrayInputStream(arr), resp.getOutputStream());
+                IOUtils.copy(new ByteArrayInputStream(arr), resp.getOutputStream());
             }
         };
         

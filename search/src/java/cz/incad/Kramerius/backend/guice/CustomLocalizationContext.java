@@ -1,7 +1,5 @@
 package cz.incad.Kramerius.backend.guice;
 
-import static cz.incad.kramerius.utils.IOUtils.copyStreams;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,16 +18,16 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.service.ResourceBundleService;
 
 public class CustomLocalizationContext extends LocalizationContext {
-	
+
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(CustomLocalizationContext.class.getName());
 
-	
+
 	private Provider<Locale> localeProvider;
 	private Provider<HttpServletRequest> requestsProvider;
 	private ResourceBundleService bundleService;
-	
-	
+
+
 	public CustomLocalizationContext(Provider<Locale> localeProvider, Provider<HttpServletRequest> requestProvider,
 			ResourceBundleService bundleService) {
 		super();

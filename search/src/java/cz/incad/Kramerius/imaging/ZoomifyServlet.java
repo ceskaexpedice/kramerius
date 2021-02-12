@@ -19,7 +19,6 @@
  */
 package cz.incad.Kramerius.imaging;
 
-import static cz.incad.kramerius.utils.IOUtils.copyStreams;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;

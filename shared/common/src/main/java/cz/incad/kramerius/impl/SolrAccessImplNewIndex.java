@@ -22,6 +22,7 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -232,14 +233,17 @@ public class SolrAccessImplNewIndex implements SolrAccess {
         //reads and closes entity's content stream
         private InputStream readContentAndProvideThroughBufferedStream(HttpEntity entity) throws IOException {
             try (InputStream src = entity.getContent()) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                /*ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 byte[] buffer = new byte[1024];
                 int len;
                 while ((len = src.read(buffer)) > -1) {
                     baos.write(buffer, 0, len);
                 }
                 baos.flush();
-                return new ByteArrayInputStream(baos.toByteArray());
+                return new ByteArrayInputStream(baos.toByteArray());*/
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                IOUtils.copy(src, bos);
+                return new ByteArrayInputStream(bos.toByteArray());
             }
         }
     }

@@ -8,7 +8,7 @@ import java.security.MessageDigest;
 import java.util.logging.Level;
 
 /**
- * Depreceted; use apache IOUtils
+ * @deprecated use apache IOUtils
  */
 @Deprecated
 public class IOUtils {

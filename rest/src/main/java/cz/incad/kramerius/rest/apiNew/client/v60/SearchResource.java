@@ -22,8 +22,8 @@ import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
@@ -88,15 +88,9 @@ public class SearchResource {
     private String buildSearchResponseJson(UriInfo uriInfo) {
         try {
             String solrQuery = buildSearchSolrQueryString(uriInfo);
-            InputStream istream = this.solrAccess.requestWithSelectInInputStream(solrQuery, "json");
-
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            IOUtils.copyStreams(istream, bos);
-            String rawString = new String(bos.toByteArray(), "UTF-8");
-
+            String solrResponseJson = this.solrAccess.requestWithSelectInString(solrQuery, "json");
             String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
-            JSONObject jsonObject = buildJsonFromRawSolrResponse(rawString, uri, this.jsonDecoratorAggregates.getDecorators());
-
+            JSONObject jsonObject = buildJsonFromRawSolrResponse(solrResponseJson, uri, this.jsonDecoratorAggregates.getDecorators());
             return jsonObject.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
@@ -118,17 +112,10 @@ public class SearchResource {
     private String buildSearchResponseXml(UriInfo uriInfo) {
         try {
             String solrQuery = buildSearchSolrQueryString(uriInfo);
-            InputStream istream = this.solrAccess.requestWithSelectInInputStream(solrQuery, "xml");
-
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            IOUtils.copyStreams(istream, bos);
-            String rawString = new String(bos.toByteArray(), "UTF-8");
-
-            Document domObject = buildXmlFromRawSolrResponse(rawString);
-
+            String solrResponseXml = this.solrAccess.requestWithSelectInString(solrQuery, "xml");
+            Document domObject = buildXmlFromRawSolrResponse(solrResponseXml);
             StringWriter strWriter = new StringWriter();
             XMLUtils.print(domObject, strWriter);
-
             return strWriter.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
@@ -337,7 +324,7 @@ public class SearchResource {
         try {
             InputStream istream = this.solrAccess.requestWithTerms(buildTermsSolrQueryString(uriInfo), "json");
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            IOUtils.copyStreams(istream, bos);
+            IOUtils.copy(istream, bos);
             String rawString = new String(bos.toByteArray(), "UTF-8");
             return rawString;
         } catch (IOException e) {
@@ -350,7 +337,7 @@ public class SearchResource {
         try {
             InputStream istream = this.solrAccess.requestWithTerms(buildTermsSolrQueryString(uriInfo), "xml");
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            IOUtils.copyStreams(istream, bos);
+            IOUtils.copy(istream, bos);
             String rawString = new String(bos.toByteArray(), "UTF-8");
             return rawString;
         } catch (IOException e) {

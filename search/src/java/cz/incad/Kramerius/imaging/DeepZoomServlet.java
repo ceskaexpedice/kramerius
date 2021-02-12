@@ -1,7 +1,5 @@
 package cz.incad.Kramerius.imaging;
 
-import static cz.incad.kramerius.utils.IOUtils.copyStreams;
-
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
@@ -20,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
@@ -36,7 +35,6 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
@@ -180,7 +178,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
         }
         InputStream inputStream = cacheService.getDeepZoomDescriptorStream(uuid);
         try {
-            IOUtils.copyStreams(inputStream, resp.getOutputStream());
+            IOUtils.copy(inputStream, resp.getOutputStream());
         } finally {
             if (inputStream != null) {
                 inputStream.close();
@@ -245,7 +243,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
                         resp.setContentType(mimeType);
                         setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
                         setResponseCode(pid, FedoraUtils.IMG_FULL_STREAM, req, resp);
-                        copyStreams(fedoraAccess.getFullThumbnail(pid), resp.getOutputStream());
+                        IOUtils.copy(fedoraAccess.getFullThumbnail(pid), resp.getOutputStream());
                     } else {
                         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                     }
@@ -278,7 +276,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
                     }
                     InputStream is = cacheService.getDeepZoomTileStream(pid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
                     resp.setContentType(ImageMimeType.JPEG.getValue());
-                    IOUtils.copyStreams(is, resp.getOutputStream());
+                    IOUtils.copy(is, resp.getOutputStream());
                 }
             }
         } catch (NumberFormatException e) {

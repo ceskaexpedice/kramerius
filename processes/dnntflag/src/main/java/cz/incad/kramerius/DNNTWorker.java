@@ -6,9 +6,9 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.IterationUtils;
 import cz.incad.kramerius.services.MigrationUtils;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -163,7 +163,7 @@ public class DNNTWorker implements Runnable {
             if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 InputStream entityInputStream = resp.getEntityInputStream();
-                IOUtils.copyStreams(entityInputStream, bos);
+                IOUtils.copy(entityInputStream, bos);
                 LOGGER.log(Level.SEVERE, new String(bos.toByteArray()));
             }
         } catch (UniformInterfaceException | ClientHandlerException | IOException | TransformerException e) {
