@@ -466,7 +466,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     /***
-     * Vrací ImageProperties.xml tohoto objektu
+     * Vrací zoomify ImageProperties.xml tohoto objektu
      * @see cz.incad.Kramerius.imaging.ZoomifyServlet
      */
     @SuppressWarnings("JavadocReference")
@@ -489,7 +489,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     /***
-     * Vrací ImageProperties.xml tohoto objektu
+     * Vrací zoomify dlaždice obrázku tohoto objektu
      * @see cz.incad.Kramerius.imaging.ZoomifyServlet
      */
     @SuppressWarnings("JavadocReference")

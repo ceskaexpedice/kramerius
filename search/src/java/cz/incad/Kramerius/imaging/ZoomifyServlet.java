@@ -68,8 +68,9 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 
 /**
  * @author pavels
- *
+ * @deprecated Access cz.incad.kramerius.rest.apiNew.client.v60.InfoResource instead
  */
+@Deprecated
 public class ZoomifyServlet extends AbstractImageServlet {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ZoomifyServlet.class.getName());
