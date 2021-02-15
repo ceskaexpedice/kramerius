@@ -119,13 +119,13 @@ public class ZoomifyServlet extends AbstractImageServlet {
 
             if (this.fedoraAccess.isObjectAvailable(pid)) {
                 ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
-                boolean premited = false;
+                boolean permitted = false;
                 for (ObjectPidsPath pth : paths) {
-                    premited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth).flag();
-                    if (premited) break;
+                    permitted = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth).flag();
+                    if (permitted) break;
                 }
                 
-                if (premited) {
+                if (permitted) {
                     if (rest.equals("ImageProperties.xml")) {
                         renderXMLDescriptor(pid, req, resp);
                     } else {

@@ -80,13 +80,13 @@ public class DeepZoomServlet extends AbstractImageServlet {
             String pid = tokenizer.nextToken();
             if (this.fedoraAccess.isObjectAvailable(pid)) {
                 ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
-                boolean premited = false;
+                boolean permitted = false;
                 for (ObjectPidsPath pth : paths) {
-                    premited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth).flag();
-                    if (premited) break;
+                    permitted = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth).flag();
+                    if (permitted) break;
                 }
                 
-                if (premited) {
+                if (permitted) {
                     String stringMimeType = this.fedoraAccess.getImageFULLMimeType(pid);
                     ImageMimeType mimeType = ImageMimeType.loadFromMimeType(stringMimeType);
                     if ((mimeType != null) && (!hasNoSupportForMimeType(mimeType))) {
