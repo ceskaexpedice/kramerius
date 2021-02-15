@@ -172,26 +172,26 @@ public class ZoomifyHelper {
     }
 
 
-    protected void setDateHeaders(Response.ResponseBuilder resp, Date lastModifiedDate) throws IOException {
+    protected void setDateHeaders(Response.ResponseBuilder resp, Date lastModifiedDate) {
         Calendar inOneYear = Calendar.getInstance();
         inOneYear.roll(Calendar.YEAR, 1);
         resp.lastModified(lastModifiedDate);
         resp.expires(inOneYear.getTime());
     }
 
-    boolean imageNotModified(HttpServletRequest request, Date imgFullLastModified) throws IOException {
-        long ifModifiedSince;
+    boolean imageNotModified(HttpServletRequest request, Date imgFullLastModified) {
+        long ifModifiedSince = -1l;
         try {
             ifModifiedSince = request.getDateHeader("If-Modified-Since");
         } catch (IllegalArgumentException e) {
             LOGGER.log(Level.WARNING, e.getMessage());
             return false;
         }
-        if (ifModifiedSince != -1) {
+        if (ifModifiedSince == -1l) {
             return false;
         }
         Date clientsVersionFrom = new Date(ifModifiedSince);
-        return !imgFullLastModified.after(clientsVersionFrom);
+        return !(imgFullLastModified.getTime() / 1000 > clientsVersionFrom.getTime() / 1000); //imgFullLastModified is not younger then If-Modified-Since (in seconds)
     }
 
     private Date lastModified(String pid, String stream) throws IOException {
