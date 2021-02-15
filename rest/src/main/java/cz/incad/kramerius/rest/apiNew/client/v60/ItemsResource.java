@@ -5,6 +5,7 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
+import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.utils.ApplicationURL;
@@ -65,9 +66,11 @@ public class ItemsResource extends ClientApiResource {
     // GET/HEAD {pid}/metadata/dc
     // GET/HEAD {pid}/ocr/text
     // GET/HEAD {pid}/ocr/alto
-    // GET/HEAD {pid}/image             - obsah IMG_FULL konkrétního objektu
-    // GET      {pid}/image/thumb       - IMG_THUMB objektu nebo potomka
-    // GET      {pid}/image/preview     - IMG_PREVIEW objektu nebo potomka
+    // GET/HEAD {pid}/image                                 - obsah IMG_FULL konkrétního objektu
+    // GET      {pid}/image/thumb                           - IMG_THUMB objektu nebo potomka
+    // GET      {pid}/image/preview                         - IMG_PREVIEW objektu nebo potomka
+    // GET      {pid}/image/zoomify/ImageProperties.xml     - ImageProperties.xml pro zoomify
+    // GET      {pid}/image/zoomify/{tileGroup}/{tile}.jpg  - dlaždice zoomify
     // GET/HEAD {pid}/audio/mp3
     // GET/HEAD {pid}/audio/ogg
     // GET/HEAD {pid}/audio/wav
@@ -77,6 +80,9 @@ public class ItemsResource extends ClientApiResource {
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
+
+    @Inject
+    ZoomifyHelper zoomifyHelper;
 
     private static final boolean AUDIO_IGNORE_RANGE = true;
 
@@ -458,6 +464,61 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+
+    /***
+     * Vrací ImageProperties.xml tohoto objektu
+     * @see cz.incad.Kramerius.imaging.ZoomifyServlet
+     */
+    @SuppressWarnings("JavadocReference")
+    @GET
+    @Path("{pid}/image/zoomify/ImageProperties.xml")
+    public Response getZoomifyImageProperties(@PathParam("pid") String pid) {
+        try {
+            checkSupportedObjectPid(pid);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId);
+            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            return zoomifyHelper.buildImagePropertiesResponse(pid, requestProvider.get());
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    /***
+     * Vrací ImageProperties.xml tohoto objektu
+     * @see cz.incad.Kramerius.imaging.ZoomifyServlet
+     */
+    @SuppressWarnings("JavadocReference")
+    @GET
+    @Path("{pid}/image/zoomify/{tileGroup}/{tile}")
+    public Response getZoomifyTile(@PathParam("pid") String pid, @PathParam("tileGroup") String tileGroupStr, @PathParam("tile") String tileStr) {
+        try {
+            checkSupportedObjectPid(pid);
+            if (!tileGroupStr.matches("TileGroup[0-9]+")) {
+                throw new BadRequestException("invalid TileGroup: " + tileGroupStr);
+            }
+            int tileGroup = Integer.valueOf(tileGroupStr.substring("TileGroup".length()));
+            if (!tileStr.matches("[0-9]+-[0-9]+-[0-9]+\\.jpg")) {
+                throw new BadRequestException("invalid tile: " + tileStr);
+            }
+            String[] tileTokens = tileStr.split("\\.")[0].split("-");
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId);
+            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            return zoomifyHelper.buildTileResponse(pid, requestProvider.get(), tileGroup, Integer.valueOf(tileTokens[0]), Integer.valueOf(tileTokens[1]), Integer.valueOf(tileTokens[2]));
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
 
     /***
      * Vrací thumbnail buď tohoto objektu, nebo prvního potomka, který má IMG_THUMB
