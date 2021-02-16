@@ -233,14 +233,6 @@ public class SolrAccessImplNewIndex implements SolrAccess {
         //reads and closes entity's content stream
         private InputStream readContentAndProvideThroughBufferedStream(HttpEntity entity) throws IOException {
             try (InputStream src = entity.getContent()) {
-                /*ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                int len;
-                while ((len = src.read(buffer)) > -1) {
-                    baos.write(buffer, 0, len);
-                }
-                baos.flush();
-                return new ByteArrayInputStream(baos.toByteArray());*/
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 IOUtils.copy(src, bos);
                 return new ByteArrayInputStream(bos.toByteArray());
