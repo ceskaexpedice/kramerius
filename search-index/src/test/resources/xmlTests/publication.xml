@@ -145,5 +145,66 @@
         </out>
     </test>
 
+    <test name="publication places are NOT from subject/geographic">
+        <desc>http://www.digitalniknihovna.cz/mzk/uuid/uuid:46fafbd0-5db8-11e9-8cc0-5ef3fc9bb22f</desc>
+        <in>
+            <originInfo>
+                <place>
+                    <placeTerm authority="marccountry" type="code">xr</placeTerm>
+                </place>
+                <place>
+                    <placeTerm type="text">Brno</placeTerm>
+                </place>
+                <publisher>Moravská zemská knihovna v Brně</publisher>
+                <publisher>Jihomoravský kraj</publisher>
+            </originInfo>
+            <subject>
+                <geographicCode authority="marcgac">e-xr---</geographicCode>
+            </subject>
+            <subject authority="czenas">
+                <topic>veřejné knihovny</topic>
+                <geographic>Česko</geographic>
+            </subject>
+            <subject authority="czenas">
+                <topic>funkce knihoven</topic>
+                <geographic>Česko</geographic>
+            </subject>
+            <subject authority="eczenas">
+                <topic>public libraries</topic>
+                <geographic>Czechia</geographic>
+            </subject>
+            <subject authority="eczenas">
+                <topic>functions of libraries</topic>
+                <geographic>Czechia</geographic>
+            </subject>
+        </in>
+        <out>
+            <field name="geographic_names.facet">Česko</field>
+            <field name="geographic_names.facet">Česko</field>
+            <field name="geographic_names.facet">Czechia</field>
+            <field name="geographic_names.facet">Czechia</field>
+            <field name="geographic_names.search">Česko</field>
+            <field name="geographic_names.search">Česko</field>
+            <field name="geographic_names.search">Czechia</field>
+            <field name="geographic_names.search">Czechia</field>
+            <field name="keywords.facet">Veřejné knihovny</field>
+            <field name="keywords.facet">Funkce knihoven</field>
+            <field name="keywords.facet">Public libraries</field>
+            <field name="keywords.facet">Functions of libraries</field>
+            <field name="keywords.search">veřejné knihovny</field>
+            <field name="keywords.search">funkce knihoven</field>
+            <field name="keywords.search">public libraries</field>
+            <field name="keywords.search">functions of libraries</field>
+
+            <field name="publication_places.facet">Brno</field>
+            <field name="publication_places.search">Brno</field>
+
+            <field name="publishers.facet">Moravská zemská knihovna v Brně</field>
+            <field name="publishers.facet">Jihomoravský kraj</field>
+            <field name="publishers.search">Moravská zemská knihovna v Brně</field>
+            <field name="publishers.search">Jihomoravský kraj</field>
+        </out>
+    </test>
+
 </testSuite>
 
