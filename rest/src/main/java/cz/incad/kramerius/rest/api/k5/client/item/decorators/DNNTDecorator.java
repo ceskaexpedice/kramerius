@@ -30,6 +30,7 @@ import org.w3c.dom.Element;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -71,9 +72,18 @@ public class DNNTDecorator extends AbstractItemDecorator {
                     if (doc != null ) doc = this.memo.askForIndexDocument(pid);
                     if (doc != null) {
                         Optional<Element> optional = Optional.of(doc);
+
+                        List<String> dnntLabels = SOLRUtils.narray(doc, "dnnt-labels", String.class);
+
                         Boolean value = SOLRUtils.value(doc, "dnnt",  Boolean.class);
+
                         if (value != null) {
                             jsonObject.put("dnnt", value);
+
+                            if (dnntLabels != null && !dnntLabels.isEmpty()) {
+                                jsonObject.put("dnnt-labels", dnntLabels);
+                            }
+
                             Element element = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
                                 @Override
                                 public boolean acceptElement(Element element) {
@@ -92,10 +102,15 @@ public class DNNTDecorator extends AbstractItemDecorator {
                                                             qName.equals(ReadDNNTLabels.class.getName()) ||
                                                             qName.equals(ReadDNNTLabelsIPFiltered.class.getName())
                                                         )
+
                                                     {
                                                         jsonObject.put("providedByDnnt", true);
+
+
                                                         Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
-                                                        evaluateInfoMap.keySet().forEach(key-> jsonObject.put(key, evaluateInfoMap.get(key)));
+                                                        if (evaluateInfoMap.containsKey(ReadDNNTLabels.DNNT_LABELS)) {
+                                                            jsonObject.put("providedByLabel", evaluateInfoMap.get(ReadDNNTLabels.DNNT_LABELS));
+                                                        }
                                                         break;
                                                     }
                                                 }
