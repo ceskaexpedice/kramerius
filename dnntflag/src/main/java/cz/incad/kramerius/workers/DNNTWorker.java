@@ -63,11 +63,6 @@ public abstract class DNNTWorker implements Runnable {
         return useCursor;
     }
 
-    protected void commit(Client client) {
-        String shost = updateUrl()+"?commit=true";
-        WebResource r = client.resource(shost);
-        r.accept(MediaType.TEXT_XML).entity("<commit/>").type(MediaType.TEXT_XML).post(ClientResponse.class);
-    }
 
     protected void sendToDest(Client client, Document batchDoc) {
         try {
@@ -164,7 +159,7 @@ public abstract class DNNTWorker implements Runnable {
                 for(int i=0;i<numberOfBatches;i++) {
                     int start = i * batchSize;
                     List<String> sublist = all.subList(start, Math.min(start + batchSize, all.size()));
-                    Document batch = createBatch(sublist); //DNNTBatchUtils.createLegacyDNNT(sublist, this.flag);
+                    Document batch = createBatch(sublist);
                     sendToDest(client, batch);
                 }
                 LOGGER.info("DNNT Flag for  "+this.parentPid+" has been set");
@@ -173,7 +168,7 @@ public abstract class DNNTWorker implements Runnable {
             LOGGER.severe("DNNT Flag for  "+this.parentPid+" hasn't been set");
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         } finally {
-            commit(client);
+            //commit(client);
             try {
                 this.barrier.await();
             } catch (InterruptedException | BrokenBarrierException e) {

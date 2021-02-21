@@ -503,11 +503,41 @@
         <securedaction>reindex</securedaction>
     </process>
 
-
+    <!-- Set/unset dnnt flag from csv file -->
     <process>
         <id>dnntcsvflag</id>
         <description>DNNT SET/UNSET from CSV</description>
-        <mainClass>cz.incad.kramerius.csv..DNNTCSVFlag</mainClass>
+        <mainClass>cz.incad.kramerius.csv.DNNTCSVFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+    <!-- Set/unset dnnt label from csv file -->
+    <process>
+        <id>dnntcsvlabeledflag</id>
+        <description>DNNT SET/UNSET label from CSV</description>
+        <mainClass>cz.incad.kramerius.csv.DDNTCSVLabeledFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+    <!-- Set/unset dnnt flag -->
+    <process>
+        <id>dnntflag</id>
+        <description>DNNT SET/UNSET flag</description>
+        <mainClass>cz.incad.kramerius.plain.DNNTPidFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+    <!-- Set/unset dnnt label -->
+    <process>
+        <id>dnntlabel</id>
+        <description>DNNT SET/UNSET label</description>
+        <mainClass>cz.incad.kramerius.plain.DNNTPidLabeledFlag</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <securedaction>dnnt_admin</securedaction>
@@ -570,12 +600,13 @@
         <errOs>lrErr</errOs>
         <parameters>true</parameters>
         <securedaction>dnnt_admin</securedaction>
-
         <templates>
             <input class="cz.incad.kramerius.template.DNNTUnsetCSVInputTemplate"></input>
         </templates>
-
     </process>
+
+
+
 
     <process>
         <id>dnntexport</id>

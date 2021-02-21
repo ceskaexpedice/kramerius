@@ -20,6 +20,10 @@ public abstract class AbstractPlainDNNTProcess extends AbstractDNNTProcess {
     protected void iteratePids() throws IOException, BrokenBarrierException, InterruptedException {
         FedoraAccess fedoraAccess = new FedoraAccessImpl(KConfiguration.getInstance(), null);
         Client client = Client.create();
+
+        client.setReadTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
+        client.setConnectTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
+
         final List<DNNTWorker> dnntWorkers = new ArrayList<>();
         for (String pid :  pids) {
             if (dnntWorkers.size() >= numberofThreads) {
@@ -34,6 +38,8 @@ public abstract class AbstractPlainDNNTProcess extends AbstractDNNTProcess {
             startWorkers(dnntWorkers);
             dnntWorkers.clear();
         }
+
+        this.commit(client);
     }
 
 

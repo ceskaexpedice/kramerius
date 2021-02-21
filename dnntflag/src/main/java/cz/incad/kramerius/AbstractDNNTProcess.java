@@ -1,9 +1,10 @@
 package cz.incad.kramerius;
 
-import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.workers.DNNTWorker;
 
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
@@ -22,6 +23,14 @@ public abstract class AbstractDNNTProcess {
             new Thread(th).start();
         });
         barrier.await();
+    }
+
+
+    protected void commit(Client client) throws UniformInterfaceException, ClientHandlerException {
+        String updateUrl = KConfiguration.getInstance().getSolrHost();
+        updateUrl = updateUrl  + (updateUrl.endsWith("/") ? ""  : "/") + "update?commit=true";
+        WebResource r = client.resource(updateUrl);
+        r.accept(MediaType.TEXT_XML).entity("<commit/>").type(MediaType.TEXT_XML).post(ClientResponse.class);
     }
 
     protected void initializeFromProperties() {

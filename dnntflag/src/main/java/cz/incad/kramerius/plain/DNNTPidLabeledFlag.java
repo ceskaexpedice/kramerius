@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.BrokenBarrierException;
 
-public class DNNTLabeledFlag extends AbstractPlainDNNTProcess {
+public class DNNTPidLabeledFlag extends AbstractPlainDNNTProcess {
 
     private String label;
 
@@ -22,11 +22,11 @@ public class DNNTLabeledFlag extends AbstractPlainDNNTProcess {
     protected void initializeFromArgs(String[] args) throws IOException {
         if (args.length < 2) throw new IllegalArgumentException("At least one argument");
         this.flag = Boolean.parseBoolean(args[0]);
-        this.label = args[2];
+        this.label = args[1];
         this.pids = Arrays.asList(args).subList(2, args.length);
     }
 
     public static void main(String[] args) throws BrokenBarrierException, InterruptedException, IOException {
-        new DNNTLabeledFlag().process(args);
+        new DNNTPidLabeledFlag().process(args);
     }
 }

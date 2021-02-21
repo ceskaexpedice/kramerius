@@ -1,6 +1,6 @@
 package cz.incad.kramerius.csv;
 
-import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.*;
 import cz.incad.kramerius.AbstractDNNTProcess;
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
@@ -11,6 +11,7 @@ import cz.incad.kramerius.workers.DNNTWorker;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
+import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -39,14 +40,17 @@ public abstract class AbstractDNNTCSVProcess extends AbstractDNNTProcess {
     protected void iterateCSVFile() throws IOException, BrokenBarrierException, InterruptedException {
         FedoraAccess fedoraAccess = new FedoraAccessImpl(KConfiguration.getInstance(), null);
         Client client = Client.create();
+
+        client.setReadTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
+        client.setConnectTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
+
+
         final List<DNNTWorker> dnntWorkers = new ArrayList<>();
         File f = new File(csvFile);
         if (f.exists() && f.canRead()) {
             Reader in = new FileReader(f);
             CSVFormat format = skipHeader ? CSVFormat.EXCEL.withFirstRecordAsHeader() : CSVFormat.EXCEL;
-            // set delimiter
             format = format.withDelimiter(delimiter.charAt(0));
-
             Iterable<CSVRecord> records = format.parse(in);
             for (CSVRecord record : records) {
                 if ( pidcolumn < record.size()) {
@@ -68,6 +72,9 @@ public abstract class AbstractDNNTCSVProcess extends AbstractDNNTProcess {
                 startWorkers(dnntWorkers);
                 dnntWorkers.clear();
             }
+
+            this.commit(client);
+
         } else throw new IOException("not exist or cannot read from "+f.getAbsolutePath());
     }
 
@@ -81,7 +88,7 @@ public abstract class AbstractDNNTCSVProcess extends AbstractDNNTProcess {
 
 
     public void process(String[] args) throws IOException, BrokenBarrierException, InterruptedException {
-        String mode = KConfiguration.getInstance().getConfiguration().getString(DNNT_MODE_KEY,"add");
+        //String mode = KConfiguration.getInstance().getConfiguration().getString(DNNT_MODE_KEY,"add");
         initializeFromProperties();
         initializeFromArgs(args);
         iterateCSVFile();
