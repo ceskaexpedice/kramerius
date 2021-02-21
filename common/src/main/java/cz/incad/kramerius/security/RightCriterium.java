@@ -56,7 +56,15 @@ public interface RightCriterium extends Serializable  {
      * @throws RightCriteriumException Something happen during evaluate
      */
     public EvaluatingResultState evalute() throws RightCriteriumException;
-    
+
+
+    /**
+     * Perfrom evaluation without accessing title
+     * @return
+     * @throws RightCriteriumException
+     * @param dataMockExpectation
+     */
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException;
 
     /**
      * Returns criterium hint. 
@@ -128,6 +136,7 @@ public interface RightCriterium extends Serializable  {
     public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException;
 
     //public boolean isBypassed();
+
 
 
 }

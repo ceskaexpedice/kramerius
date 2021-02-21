@@ -20,12 +20,7 @@ import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtil
 
 import java.util.Calendar;
 
-import cz.incad.kramerius.security.EvaluatingResultState;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtils;
+import cz.incad.kramerius.security.*;
 
 /**
  * Default IP Filter... pokud je z daneho rozsahu, pusti dal, pokud ne.. nevi
@@ -41,6 +36,11 @@ public class DefaultIPAddressFilter extends AbstractIPAddressFilter implements R
         EvaluatingResultState result = matchIPAddresses(super.getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
         LOGGER.fine("\t benevolent filter - "+result);
         return result ;
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        return evalute();
     }
 
     public EvaluatingResultState createResult(Calendar calFromMetadata, Calendar calFromConf) {

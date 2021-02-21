@@ -88,13 +88,23 @@ public interface RightsManager {
      */
     public Right[] findAllRights(String[] pids, String action);
 
+
+    /**
+     * Fill all rights associated with user and criterum names
+     *
+     * @param actionName
+     * @param criteriumNames
+     * @return
+     */
+    public Right[] findAllRightByCriteriumNames(String actionName, String[] criteriumNames, User user);
+
+
     
-    // DAO methods - DAt to jinam !!
-    // najde vsechny parametry 
     /**
      * Find all params
      */
     public RightCriteriumParams[] findAllParams();
+
 
     
     /**

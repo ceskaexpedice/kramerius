@@ -2,12 +2,7 @@ package cz.incad.kramerius.security.impl.criteria;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.security.EvaluatingResultState;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -78,6 +73,15 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
         } catch (XPathExpressionException e) {
             throw new IOException(e);
         }
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        switch (dataMockExpectation) {
+            case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
+            case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;
+        }
+        return EvaluatingResultState.NOT_APPLICABLE;
     }
 
     @Override

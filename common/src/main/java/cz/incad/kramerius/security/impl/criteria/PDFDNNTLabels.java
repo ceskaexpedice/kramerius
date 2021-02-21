@@ -3,7 +3,6 @@ package cz.incad.kramerius.security.impl.criteria;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
-import cz.incad.kramerius.utils.solr.SolrUtils;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -34,6 +33,11 @@ public class PDFDNNTLabels extends AbstractCriterium {
 
         // not applicable
         return EvaluatingResultState.NOT_APPLICABLE;
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        return  EvaluatingResultState.NOT_APPLICABLE;
     }
 
     @Override

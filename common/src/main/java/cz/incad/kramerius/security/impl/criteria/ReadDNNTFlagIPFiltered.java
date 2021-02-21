@@ -3,10 +3,7 @@ package cz.incad.kramerius.security.impl.criteria;
 import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.*;
 
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
 
-import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtils.matchIPAddresses;
@@ -40,6 +37,11 @@ public class ReadDNNTFlagIPFiltered extends AbstractCriterium {
                 } else return EvaluatingResultState.NOT_APPLICABLE;
 
         } else return EvaluatingResultState.NOT_APPLICABLE;
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        return matchIPAddresses(super.getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
     }
 
     @Override

@@ -102,8 +102,16 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         }
     }
 
-    
-    
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        switch (dataMockExpectation) {
+            case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
+            case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;
+        }
+        return EvaluatingResultState.NOT_APPLICABLE;
+    }
+
     public static EvaluatingResultState resolveInternal(int wallFromConf, String pid, String xpath, Document xmlDoc, XPathFactory xpfactory) throws IOException, XPathExpressionException {
         if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResultState.NOT_APPLICABLE;
         return evaluateDoc(wallFromConf, xmlDoc, xpath, xpfactory);

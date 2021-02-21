@@ -94,9 +94,37 @@ public class DatabaseRightsManager implements RightsManager {
         return ((rights != null) && (!rights.isEmpty())) ? (Right[]) rights.toArray(new Right[rights.size()]) : new Right[0];
     }
 
-    
-   
-    
+
+    @Override
+    public Right[] findAllRightByCriteriumNames(String actionName, String[] criteriumNames, User user) {
+        int[] ids = Arrays.stream(user.getGroups()).mapToInt(Role::getId).toArray();
+
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllRightsWithGroupsAndCriteriums");
+        template.setAttribute("userid", user.getId());
+        template.setAttribute("groupids", ids);
+        template.setAttribute("action", actionName);
+        template.setAttribute("criteriums", criteriumNames);
+
+        String sql = template.toString();
+        List<Right> rights = new JDBCQueryTemplate<Right>(this.provider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
+                int userId = rs.getInt("user_id");
+                int groupId = rs.getInt("group_id");
+                AbstractUser dbUser = null;
+                if (userId > 0) {
+                    dbUser = userManager.findUser(userId);
+                } else {
+                    dbUser = userManager.findRole(groupId);
+                }
+                returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
+                return true;
+            }
+        }.executeQuery(sql);
+
+        return ((rights != null) && (!rights.isEmpty())) ? (Right[]) rights.toArray(new Right[rights.size()]) : new Right[0];
+    }
+
     @Override
     public Right[] findRights(final String[] ids, final String[] pids, final String[] actions, final String[] rnames) {
         Map<String, List<String>> map = new HashMap<String, List<String>>();

@@ -97,9 +97,13 @@ public class RightWrapper implements Right{
     public EvaluatingResultState evaluate(RightCriteriumContext ctx, RightsManager rightsManager) throws RightCriteriumException {
         throw new IllegalStateException();
     }
-    
-    
-    
+
+
+    @Override
+    public EvaluatingResultState mockEvaluate(RightCriteriumContext ctx, RightsManager rightsManager, DataMockExpectation dataExpectation) throws RightCriteriumException {
+        return right.mockEvaluate(ctx, rightsManager, dataExpectation);
+    }
+
     public boolean isEditable() {
         return editable;
     }

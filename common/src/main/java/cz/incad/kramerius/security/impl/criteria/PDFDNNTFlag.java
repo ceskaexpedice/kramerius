@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.allowedByReadDNNTFlagRight;
 import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.checkContainsCriterium;
 
 public class PDFDNNTFlag extends AbstractCriterium {
@@ -39,6 +38,12 @@ public class PDFDNNTFlag extends AbstractCriterium {
         }
 
         // not applicable
+        return EvaluatingResultState.NOT_APPLICABLE;
+    }
+
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         return EvaluatingResultState.NOT_APPLICABLE;
     }
 

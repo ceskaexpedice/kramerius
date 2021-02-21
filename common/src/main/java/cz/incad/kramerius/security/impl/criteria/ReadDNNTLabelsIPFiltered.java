@@ -46,6 +46,11 @@ public class ReadDNNTLabelsIPFiltered extends AbstractCriterium {
     }
 
     @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        return matchIPAddresses(super.getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
+    }
+
+    @Override
     public RightCriteriumPriorityHint getPriorityHint() {
         return RightCriteriumPriorityHint.DNNT_EXCLUSIVE_MIN;
     }

@@ -22,9 +22,7 @@ public class ReadDNNTFlag extends AbstractCriterium {
         try {
             RightCriteriumContext ctx =  getEvaluateContext();
             String pid = ctx.getRequestedPid();
-            // only for READ action
             if (!SpecialObjects.isSpecialObject(pid)) {
-
                     if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                         SolrAccess solrAccess = ctx.getSolrAccess();
                         Document doc = solrAccess.getSolrDataDocument(pid);
@@ -38,6 +36,15 @@ public class ReadDNNTFlag extends AbstractCriterium {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             return EvaluatingResultState.NOT_APPLICABLE;
         }
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        switch (dataMockExpectation) {
+            case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
+            case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;
+        }
+        return EvaluatingResultState.NOT_APPLICABLE;
     }
 
     @Override
