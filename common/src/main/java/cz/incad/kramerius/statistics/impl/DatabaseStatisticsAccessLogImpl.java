@@ -26,36 +26,27 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.xpath.*;
 
-import cz.incad.kramerius.ObjectModelsPath;
-import cz.incad.kramerius.security.RightsReturnObject;
-import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
-import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.*;
+import cz.incad.kramerius.statistics.impl.dnnt.DNNTStatisticSupport;
+import cz.incad.kramerius.statistics.impl.dnnt.format.YearLogFormat;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.processes.NotReadyException;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -71,6 +62,7 @@ import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 /**
  * @author pavels
@@ -78,11 +70,10 @@ import org.w3c.dom.Element;
  */
 public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
 
-    // DNNT logger
-    //public static Logger KRAMERIUS_LOGGER_FOR_KIBANA = Logger.getLogger("dnnt.access");
 
-    // access logger for kibana processing
-    public static Logger KRAMERIUS_LOGGER_FOR_KIBANA = Logger.getLogger("kramerius.access");
+    public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued[@encoding='marc']/text()","//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()","//mods:part/mods:date/text()"};
+
+
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
     
@@ -120,8 +111,11 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
     @Inject
     Set<StatisticReport> reports;
 
+    private XPathFactory xpfactory;
 
-
+    public DatabaseStatisticsAccessLogImpl() {
+        this.xpfactory = XPathFactory.newInstance();
+    }
 
     @Override
     public void reportAccess(final String pid, final String streamName) throws IOException {
@@ -135,6 +129,8 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                 throw new NotReadyException("connection not ready");
 
             Map<String, Document> dcMap = new HashMap<>();
+            Map<String, Document> modsMap = new HashMap<>();
+
             List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
             commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get()));
             for (int i = 0, ll = paths.length; i < ll; i++) {
@@ -149,6 +145,10 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                     final String detailPid = pathFromLeafToRoot[j];
                     Document dc = fedoraAccess.getDC(detailPid);
                     dcMap.put(detailPid, dc);
+
+                    Document biblioMods = fedoraAccess.getBiblioMods(detailPid);
+                    modsMap.put(detailPid, biblioMods);
+
                 }
 
                 for (int j = 0; j < pathFromLeafToRoot.length; j++) {
@@ -181,12 +181,14 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
             }
 
 
+
             // Prepare data from solr
             Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
             String rootTitle  = selem("str", "root_title", solrDoc);
             String rootPid  = selem("str", "root_pid", solrDoc);
             String dctitle = selem("str", "dc.title", solrDoc);
-            String publishedDate = selem("str", "datum_str", solrDoc);
+            String solrDate = selem("str", "datum_str", solrDoc);
+
             String dnnt = selem("bool", "dnnt", solrDoc);
             String policy = selem("str", "dostupnost", solrDoc);
 
@@ -228,9 +230,10 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
             }
 
 
+
             // WRITE TO LOG - kibana processing
             if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
-                logKibanaAccess(pid,rootTitle,dctitle,publishedDate, dnnt,policy, dcPublishers ,dcAuthors, paths, mpaths, userProvider.get());
+                new DNNTStatisticSupport(this.requestProvider, this.userProvider, new YearLogFormat()).log(pid,rootTitle,dctitle,solrDate, findModsDate(paths, modsMap) , dnnt,policy, dcPublishers ,dcAuthors, paths, mpaths);
             }
 
             //  WRITE TO DATABASE
@@ -238,6 +241,29 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
             transactionTemplate.updateWithTransaction(commands);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    private String  findModsDate(ObjectPidsPath[] paths, Map<String, Document> modsMap) {
+        try {
+            for (int i = 0; i < paths.length; i++) {
+                String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
+
+                for (int j = 0; j < pathFromLeafToRoot.length; j++) {
+                    String detailPid = pathFromLeafToRoot[j];
+                    for (String xPathExpression : MODS_XPATHS) {
+                        XPath xpath = xpfactory.newXPath();
+                        xpath.setNamespaceContext(new FedoraNamespaceContext());
+                        XPathExpression expr = xpath.compile(xPathExpression);
+                        Object date = expr.evaluate( modsMap.get(detailPid), XPathConstants.NODE);
+                        if (date != null) return ((Text) date).getData();
+                    }
+                }
+            }
+            return null;
+        } catch (XPathExpressionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            return null;
         }
     }
 
@@ -255,30 +281,6 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         return dcElm != null ? dcElm.getTextContent() : null;
     }
 
-    private void logKibanaAccess(String pid, String rootTitle, String dcTitle, String publishedDate, String dnntFlag, String policy, List<String> dcPublishers, List<String> dcAuthors, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths, User user) throws IOException {
-        RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
-        boolean providedByDnnt =  rightsReturnObject != null ? CriteriaDNNTUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
-
-        // store json object
-        JSONObject jObject = toJSON(pid, rootTitle, dcTitle,
-                IPAddressUtils.getRemoteAddress(requestProvider.get(), KConfiguration.getInstance().getConfiguration()),
-                user != null ? user.getLoginname() : null,
-                user != null ? user.getEmail() : null,
-                publishedDate,
-                dnntFlag,
-                providedByDnnt,
-                policy,
-
-                rightsReturnObject.getEvaluateInfoMap(),
-                user.getSessionAttributes(),
-                dcAuthors,
-                dcPublishers,
-                paths,
-                mpaths
-        );
-
-        KRAMERIUS_LOGGER_FOR_KIBANA.log(Level.INFO, jObject.toString());
-    }
 
 
     @Override
@@ -497,105 +499,5 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         stGroup = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
     }
 
-
-
-
-
-    public static JSONObject toJSON(String pid,
-                                    String rootTitle,
-                                    String dcTitle,
-                                    String remoteAddr,
-                                    String username,
-                                    String email,
-                                    String publishedDate,
-                                    String dnntFlag,
-                                    boolean providedByDnnt,
-                                    String policy,
-
-                                    Map<String,String> rightEvaluationAttribute,
-                                    Map<String,String> sessionAttributes,
-                                    List<String> dcAuthors,
-                                    List<String> dcPublishers,
-                                    ObjectPidsPath[] paths,
-                                    ObjectModelsPath[] mpaths) throws IOException {
-
-        LocalDateTime date = LocalDateTime.now();
-        String timestamp = date.format(DateTimeFormatter.ISO_DATE_TIME);
-
-        JSONObject jObject = new JSONObject();
-
-        jObject.put("pid",pid);
-        jObject.put("remoteAddr",remoteAddr);
-        jObject.put("username",username);
-        jObject.put("email",email);
-
-        jObject.put("rootTitle",rootTitle);
-        jObject.put("dcTitle",dcTitle);
-
-        if (dnntFlag != null )  jObject.put("dnnt", dnntFlag.trim().toLowerCase().equals("true"));
-        // info from criteriums
-        rightEvaluationAttribute.keySet().stream().forEach(key->{ jObject.put(key, rightEvaluationAttribute.get(key)); });
-        jObject.put("providedByDnnt", providedByDnnt);
-        jObject.put("policy", policy);
-
-        jObject.put("publishedDate", publishedDate);
-
-        jObject.put("date",timestamp);
-
-        sessionAttributes.keySet().stream().forEach(key->{ jObject.put(key, sessionAttributes.get(key)); });
-
-
-        if (!dcAuthors.isEmpty()) {
-            JSONArray authorsArray = new JSONArray();
-            for (int i=0,ll=dcAuthors.size();i<ll;i++) {
-                authorsArray.put(dcAuthors.get(i));
-            }
-            jObject.put("authors",authorsArray);
-        }
-
-        if (!dcPublishers.isEmpty()) {
-            JSONArray publishersArray = new JSONArray();
-            for (int i=0,ll=dcPublishers.size();i<ll;i++) {
-                publishersArray.put(dcPublishers.get(i));
-            }
-            jObject.put("publishers",publishersArray);
-        }
-
-        JSONArray pidsArray = new JSONArray();
-        for (int i = 0; i < paths.length; i++) {
-            pidsArray.put(pathToString(paths[i].getPathFromRootToLeaf()));
-        }
-        jObject.put("pids_path",pidsArray);
-
-        JSONArray modelsArray = new JSONArray();
-        for (int i = 0; i < mpaths.length; i++) {
-            modelsArray.put(pathToString(mpaths[i].getPathFromRootToLeaf()));
-        }
-        jObject.put("models_path",modelsArray);
-        if (paths.length > 0) {
-            String[] pathFromRootToLeaf = paths[0].getPathFromRootToLeaf();
-            if (pathFromRootToLeaf.length > 0) {
-                jObject.put("rootPid",pathFromRootToLeaf[0]);
-            }
-        }
-
-        if (mpaths.length > 0) {
-            String[] mpathFromRootToLeaf = mpaths[0].getPathFromRootToLeaf();
-            if (mpathFromRootToLeaf.length > 0) {
-                jObject.put("rootModel",mpathFromRootToLeaf[0]);
-            }
-        }
-        return jObject;
-    }
-
-    private static String pathToString(String[] pArray) {
-        return Arrays.stream(pArray).reduce("/", (identity, v) -> {
-            if (!identity.equals("/")) {
-                return identity + "/" + v;
-            } else {
-                return identity + v;
-            }
-        });
-    }
 
 }
