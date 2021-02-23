@@ -81,13 +81,15 @@ public class DNNTStatisticSupport {
         jObject.put("dcTitle",dcTitle);
 
         if (dnntFlag != null )  jObject.put("dnnt", dnntFlag.trim().toLowerCase().equals("true"));
+
         // info from criteriums
         rightEvaluationAttribute.keySet().stream().forEach(key->{ jObject.put(key, rightEvaluationAttribute.get(key)); });
+
         jObject.put("providedByDnnt", providedByDnnt);
         jObject.put("policy", policy);
 
-        jObject.put("solrDate", getDate(publishedDate));
-        jObject.put("publishedDate", getDate(modsDate));
+        if (getDate(publishedDate) != null)  jObject.put("solrDate", getDate(publishedDate));
+        if (getDate(modsDate) != null) jObject.put("publishedDate", getDate(modsDate));
 
         jObject.put("date",timestamp);
 
@@ -140,6 +142,6 @@ public class DNNTStatisticSupport {
     private  String getDate(String publishedDate)  {
         if (this.dateFormat != null) {
             return dateFormat.format(publishedDate);
-        } else return publishedDate;
+        } else return null;
     }
 }

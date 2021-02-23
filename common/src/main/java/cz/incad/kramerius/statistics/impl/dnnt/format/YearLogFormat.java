@@ -30,22 +30,28 @@ public class YearLogFormat implements DNNTStatisticsDateFormat{
     public String format(String date) {
         // try to parse by default ndk parser
         List<String> years = fullYears(date);
-        if (years.isEmpty()) {  years = partialYears(date);  }
-        List<Integer> collect = years.stream().map(Integer::valueOf).collect(Collectors.toList());
+        if (years.isEmpty()) {
+            years = partialYears(date);
+        }
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+
+        List<Integer> collect = years.stream().map(Integer::valueOf).map(y->{
+            return Math.min(y, currentYear);
+        }).collect(Collectors.toList());
 
 
         sort(collect, (first,second) -> {
             return second.compareTo(first);
         });
 
-        return collect.isEmpty() ? date : collect.get(0).toString();
+        return collect.isEmpty() ? null : collect.get(0).toString();
     }
 
     private List<String> partialYears(String date) {
         List<String> dates = find(PARTIAL_YEAR_PATTERN, date);
         List<String> retvals = new ArrayList<>();
         for (String d :  dates) {
-            d = d.replaceAll("[^0-9]", "0");
+            d = d.replaceAll("[^0-9]", "9");
             retvals.add(d);
         }
         return retvals;
