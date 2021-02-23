@@ -12,7 +12,10 @@ public class YearLogFormatTest {
         Assert.assertEquals(new YearLogFormat().format(" [2010?]"),"2010");
         Assert.assertEquals(new YearLogFormat().format(" 2000, c1994"),"2000");
         Assert.assertEquals(new YearLogFormat().format(" 2006 [i.e. 2007]"),"2007");
-
-
+        Assert.assertEquals(new YearLogFormat().format("20.11. 2000 - 1.12. 2001"),"2001");
+        Assert.assertEquals(new YearLogFormat().format("1900-1902, 1900 - 1903"),"1903");
+        Assert.assertEquals(new YearLogFormat().format("19uu"),"1900");
+        Assert.assertEquals(new YearLogFormat().format("191-"),"1910");
+        Assert.assertEquals(new YearLogFormat().format("19uu, 191-, 193-"),"1930");
     }
 }
