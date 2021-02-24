@@ -14,7 +14,11 @@ public abstract class AbstractDNNTProcess {
 
     public static final String DNNT_THREADS = "dnnt.threads";
     protected int numberofThreads = -1;
-    protected boolean flag;
+
+    protected boolean addRemoveFlag;
+
+
+
 
     protected  void startWorkers(List<DNNTWorker> worksWhasHasToBeDone) throws BrokenBarrierException, InterruptedException {
         CyclicBarrier barrier = new CyclicBarrier(worksWhasHasToBeDone.size()+1);

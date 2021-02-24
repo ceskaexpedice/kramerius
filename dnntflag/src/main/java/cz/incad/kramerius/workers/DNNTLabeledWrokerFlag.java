@@ -18,15 +18,15 @@ public class DNNTLabeledWrokerFlag extends DNNTWorker {
     private String label;
 
 
-    public DNNTLabeledWrokerFlag(String parentPid, FedoraAccess fedoraAccess, Client client, String label, boolean flag) {
-        super(fedoraAccess, client, parentPid, flag);
+    public DNNTLabeledWrokerFlag(String parentPid, FedoraAccess fedoraAccess, Client client, String label, boolean addRemoveFlag) {
+        super(fedoraAccess, client, parentPid, addRemoveFlag);
         this.label = label;
     }
 
     @Override
-    protected Document createBatch(List<String> sublist) {
+    protected Document createBatch(List<String> sublist, boolean changedFoxml) {
         try {
-            return DNNTBatchUtils.createLabeledDNNT(sublist, this.label, this.flag);
+            return DNNTBatchUtils.createLabeledDNNT(sublist, this.label, this.addRemoveFlag, changedFoxml);
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e);
         }
@@ -36,7 +36,7 @@ public class DNNTLabeledWrokerFlag extends DNNTWorker {
     @Override
     protected String solrChildrenQuery(List<String> pidPaths) {
         String pidPathQuery = "pid_path:("+pidPaths.stream().map(it -> "\"" + it + "\"").collect(Collectors.joining(" OR "))+")";
-        return this.flag ?
+        return this.addRemoveFlag ?
                 KConfiguration.getInstance().getConfiguration().getString( DNNT_LABEL_QUERY,"("+pidPathQuery+" -dnnt-labels:[* TO *]) || ("+pidPathQuery+" NOT dnnt-labels:"+this.label+")")  :
                 KConfiguration.getInstance().getConfiguration().getString( DNNT_LABEL_QUERY,"("+pidPathQuery+" dnnt-labels:[* TO *]) || ("+pidPathQuery+" dnnt-labels:"+this.label+")");
     }
@@ -44,9 +44,9 @@ public class DNNTLabeledWrokerFlag extends DNNTWorker {
 
 
     @Override
-    protected void changeFOXML(String pid) {
-        changeDNNTInFOXML(pid);
-        changeDNNTLabelInFOXML(pid, this.label);
+    protected boolean changeFOXML(String pid) {
+        List<String> labels = changeDNNTLabelInFOXML(pid, this.label);
+        return changeDNNTInFOXML(pid, labels.size() > 0);
     }
 
 }

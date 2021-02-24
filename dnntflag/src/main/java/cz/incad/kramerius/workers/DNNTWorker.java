@@ -20,13 +20,13 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public abstract class DNNTWorker implements Runnable {
 
@@ -36,12 +36,12 @@ public abstract class DNNTWorker implements Runnable {
     protected Client client;
     protected CyclicBarrier barrier;
     protected String parentPid;
-    protected boolean flag;
+    protected boolean addRemoveFlag;
 
-    public DNNTWorker(FedoraAccess fedoraAccess, Client client, String parentPid, boolean flag) {
+    public DNNTWorker(FedoraAccess fedoraAccess, Client client, String parentPid, boolean addRemoveFlag) {
         this.fedoraAccess = fedoraAccess;
         this.client = client;
-        this.flag = flag;
+        this.addRemoveFlag = addRemoveFlag;
         this.parentPid = parentPid;
     }
 
@@ -142,11 +142,11 @@ public abstract class DNNTWorker implements Runnable {
             if (!paths.isEmpty()) {
 
                 String q = solrChildrenQuery(paths);
-                changeFOXML(this.parentPid);
+                boolean changedFoxmlFlag = changeFOXML(this.parentPid);
 
                 Set<String> allSet = fetchAllPids(q);
                 List<String> all = new ArrayList<>(allSet);
-                if (this.flag) {
+                if (this.addRemoveFlag) {
                     LOGGER.info("Setting flag for all children for "+this.parentPid+" and number of children are "+all.size());
                 } else {
                     LOGGER.info("UnSetting flag for all children for "+this.parentPid+" and number of children are "+all.size());
@@ -159,7 +159,7 @@ public abstract class DNNTWorker implements Runnable {
                 for(int i=0;i<numberOfBatches;i++) {
                     int start = i * batchSize;
                     List<String> sublist = all.subList(start, Math.min(start + batchSize, all.size()));
-                    Document batch = createBatch(sublist);
+                    Document batch = createBatch(sublist, changedFoxmlFlag);
                     sendToDest(client, batch);
                 }
                 LOGGER.info("DNNT Flag for  "+this.parentPid+" has been set");
@@ -182,11 +182,11 @@ public abstract class DNNTWorker implements Runnable {
         this.barrier = barrier;
     }
 
-    protected abstract  Document createBatch(List<String> sublist);
+    protected abstract  Document createBatch(List<String> sublist, boolean changedFoxmlFlag);
     protected  abstract String solrChildrenQuery(List<String> pidPaths);
-    protected abstract void changeFOXML(String pid);
+    protected abstract boolean changeFOXML(String pid);
 
-    protected void changeDNNTLabelInFOXML(String pid, String label) {
+    protected List<String> changeDNNTLabelInFOXML(String pid, String label) {
         FedoraAPIM apim = fedoraAccess.getAPIM();
         String dnntLabel = FedoraNamespaces.KRAMERIUS_URI+"dnnt-label";
         List<RelationshipTuple> relationships = apim.getRelationships(pid, dnntLabel);
@@ -194,22 +194,32 @@ public abstract class DNNTWorker implements Runnable {
             return tuple.getObject().equals(label);
         }).findAny();
         if (!any.isPresent()) {
-            if (flag) apim.addRelationship(pid, dnntLabel,label, true, null);
+            if (addRemoveFlag) apim.addRelationship(pid, dnntLabel,label, true, null);
         } else {
             apim.purgeRelationship(pid, dnntLabel, any.get().getObject(), any.get().isIsLiteral(), any.get().getDatatype());
-            if (flag) apim.addRelationship(pid, dnntLabel,label, true, null);
+            if (addRemoveFlag) apim.addRelationship(pid, dnntLabel,label, true, null);
         }
+
+        relationships = apim.getRelationships(pid, dnntLabel);
+        return relationships.stream().map(RelationshipTuple::getObject).collect(Collectors.toList());
     }
 
-    protected void changeDNNTInFOXML(String pid) {
+    protected boolean changeDNNTInFOXML(String pid, boolean flag) {
         FedoraAPIM apim = fedoraAccess.getAPIM();
         String dnntFlag = FedoraNamespaces.KRAMERIUS_URI+"dnnt";
         List<RelationshipTuple> relationships = apim.getRelationships(pid, dnntFlag);
         if (relationships.isEmpty()) {
-            if (this.flag)  apim.addRelationship(pid, dnntFlag,"true", true, null);
+            if (flag)  apim.addRelationship(pid, dnntFlag,"true", true, null);
         } else {
             apim.purgeRelationship(pid, dnntFlag, relationships.get(0).getObject(), relationships.get(0).isIsLiteral(), relationships.get(0).getDatatype());
-            if (this.flag) apim.addRelationship(pid, dnntFlag,"true", true, null);
+            if (flag) apim.addRelationship(pid, dnntFlag,"true", true, null);
         }
+
+        relationships = apim.getRelationships(pid, dnntFlag);
+        return !relationships.isEmpty();
+    }
+
+    protected boolean changeDNNTInFOXML(String pid) {
+        return changeDNNTInFOXML(pid, this.addRemoveFlag);
     }
 }

@@ -20,7 +20,7 @@ public class DDNTCSVLabeledFlag extends AbstractDNNTCSVProcess {
     protected void initializeFromArgs(String[] args) throws IOException {
         if (args.length < 2)  throw new IllegalArgumentException("The process expects at least two parameters");
         if (args.length>0) {
-            this.flag = Boolean.valueOf(args[0]);
+            this.addRemoveFlag = Boolean.valueOf(args[0]);
         }
         if (args.length>1) {
             this.label = args[1];
@@ -29,7 +29,7 @@ public class DDNTCSVLabeledFlag extends AbstractDNNTCSVProcess {
         if (args.length > 2) {
             csvFile = args[2];
         } else {
-            defaultCSVFileInitialization(flag);
+            defaultCSVFileInitialization(addRemoveFlag);
         }
 
     }

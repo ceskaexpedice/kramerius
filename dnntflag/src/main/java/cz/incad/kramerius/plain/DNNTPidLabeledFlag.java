@@ -21,7 +21,7 @@ public class DNNTPidLabeledFlag extends AbstractPlainDNNTProcess {
     @Override
     protected void initializeFromArgs(String[] args) throws IOException {
         if (args.length < 2) throw new IllegalArgumentException("At least one argument");
-        this.flag = Boolean.parseBoolean(args[0]);
+        this.addRemoveFlag = Boolean.parseBoolean(args[0]);
         this.label = args[1];
         this.pids = Arrays.asList(args).subList(2, args.length);
     }

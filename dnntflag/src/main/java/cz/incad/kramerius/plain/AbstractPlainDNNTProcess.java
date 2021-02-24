@@ -29,9 +29,9 @@ public abstract class AbstractPlainDNNTProcess extends AbstractDNNTProcess {
             if (dnntWorkers.size() >= numberofThreads) {
                 startWorkers(dnntWorkers);
                 dnntWorkers.clear();
-                dnntWorkers.add(createWorker(pid, fedoraAccess, client, flag));
+                dnntWorkers.add(createWorker(pid, fedoraAccess, client, addRemoveFlag));
             } else {
-                dnntWorkers.add(createWorker(pid, fedoraAccess, client, flag));
+                dnntWorkers.add(createWorker(pid, fedoraAccess, client, addRemoveFlag));
             }
         }
         if (!dnntWorkers.isEmpty()) {

@@ -24,9 +24,9 @@ public class DNNTWorkerFlag extends DNNTWorker {
     }
 
 
-    protected Document createBatch(List<String> sublist){
+    protected Document createBatch(List<String> sublist,boolean changedFoxml){
         try {
-            return DNNTBatchUtils.createLegacyDNNT(sublist, this.flag);
+            return DNNTBatchUtils.createLegacyDNNT(sublist, this.addRemoveFlag);
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e);
         }
@@ -36,12 +36,12 @@ public class DNNTWorkerFlag extends DNNTWorker {
 
     protected  String solrChildrenQuery(List<String> pidPaths) {
         String pidPathQuery = "pid_path:("+pidPaths.stream().map(it -> "\"" + it + "\"").collect(Collectors.joining(" OR "))+")";
-        return this.flag ?
+        return this.addRemoveFlag ?
                 KConfiguration.getInstance().getConfiguration().getString( DNNT_QUERY,"("+pidPathQuery+" -dnnt:[* TO *]) || ("+pidPathQuery+" +dnnt:false)")  :
                 KConfiguration.getInstance().getConfiguration().getString( DNNT_QUERY_UNSET,"("+pidPathQuery+" dnnt:[* TO *]) || ("+pidPathQuery+" +dnnt:true)");
     }
 
-    protected void changeFOXML(String pid) {
-        changeDNNTInFOXML(pid);
+    protected boolean changeFOXML(String pid) {
+        return changeDNNTInFOXML(pid);
     }
 }

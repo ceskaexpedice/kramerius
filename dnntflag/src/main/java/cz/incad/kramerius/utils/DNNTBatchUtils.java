@@ -18,19 +18,19 @@ public class DNNTBatchUtils {
     private DNNTBatchUtils() {}
 
 
-    public static Document createLegacyDNNT(List<String> pids, boolean flag) throws ParserConfigurationException {
+    public static Document createLegacyDNNT(List<String> pids, boolean addRemoveFlag) throws ParserConfigurationException {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance(). newDocumentBuilder();
         Document document = builder.newDocument();
         Element rootElm = document.createElement("add");
         document.appendChild(rootElm);
         for (String pid : pids) {
-            Element doc = addLegacyDNNT(document, pid,  flag);
+            Element doc = addLegacyDNNT(document, pid,  addRemoveFlag);
             rootElm.appendChild(doc);
         }
         return document;
     }
 
-    private static Element addLegacyDNNT(Document document, String pid,  boolean flag) {
+    private static Element addLegacyDNNT(Document document, String pid,  boolean addRemoveFlag) {
         Element doc = document.createElement("doc");
 
         Element fname = document.createElement("field");
@@ -42,11 +42,11 @@ public class DNNTBatchUtils {
         Element fdnnt = document.createElement("field");
         fdnnt.setAttribute("name", "dnnt");
         fdnnt.setAttribute("update", "set");
-        fdnnt.setTextContent(""+flag);
+        fdnnt.setTextContent(""+addRemoveFlag);
 
         doc.appendChild(fdnnt);
 
-        if (!flag) {
+        if (!addRemoveFlag) {
             Element labels = document.createElement("field");
             labels.setAttribute("name", "dnnt-labels");
             labels.setAttribute("update", "set");
@@ -59,7 +59,7 @@ public class DNNTBatchUtils {
         return doc;
     }
 
-    private static Element addLabeledDNNT(Document document, String pid, String label,  boolean flag) {
+    private static Element addLabeledDNNT(Document document, String pid, String label,  boolean addRemoveFlag, boolean parentDnnt) {
         Element doc = document.createElement("doc");
 
         Element fname = document.createElement("field");
@@ -72,14 +72,17 @@ public class DNNTBatchUtils {
         Element fdnnt = document.createElement("field");
         fdnnt.setAttribute("name", "dnnt");
         fdnnt.setAttribute("update", "set");
-        fdnnt.setTextContent("true");
+        fdnnt.setTextContent(""+parentDnnt);
         doc.appendChild(fdnnt);
 
 
         Element labels = document.createElement("field");
         labels.setAttribute("name", "dnnt-labels");
-        labels.setAttribute("update", flag ? "add" : "remove");
+        labels.setAttribute("update", addRemoveFlag ? "add" : "remove");
         labels.setTextContent(label);
+
+
+
 
         doc.appendChild(labels);
 
@@ -87,13 +90,13 @@ public class DNNTBatchUtils {
     }
 
 
-    public static Document createLabeledDNNT(List<String> pids, String label, boolean flag) throws ParserConfigurationException {
+    public static Document createLabeledDNNT(List<String> pids, String label, boolean addRemoveFlag, boolean changedFoxml) throws ParserConfigurationException {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance(). newDocumentBuilder();
         Document document = builder.newDocument();
         Element rootElm = document.createElement("add");
         document.appendChild(rootElm);
         for (String pid : pids) {
-            Element doc = addLabeledDNNT(document, pid, label, flag);
+            Element doc = addLabeledDNNT(document, pid, label, addRemoveFlag,changedFoxml);
             rootElm.appendChild(doc);
         }
         return document;

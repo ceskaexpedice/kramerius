@@ -23,12 +23,12 @@ public class DNNTCSVFlag extends AbstractDNNTCSVProcess {
     protected void initializeFromArgs(String[] args) throws IOException {
         if (args.length == 0) throw new IllegalArgumentException("The process expects at least one parameter");
         if (args.length>0) {
-            this.flag = Boolean.valueOf(args[0]);
+            this.addRemoveFlag = Boolean.valueOf(args[0]);
         }
         if (args.length > 1) {
             csvFile = args[1];
         } else {
-            defaultCSVFileInitialization(flag);
+            defaultCSVFileInitialization(addRemoveFlag);
         }
     }
 

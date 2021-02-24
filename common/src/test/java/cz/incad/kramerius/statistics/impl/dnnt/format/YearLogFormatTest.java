@@ -3,6 +3,8 @@ package cz.incad.kramerius.statistics.impl.dnnt.format;
 import junit.framework.Assert;
 import org.junit.Test;
 
+import java.util.Calendar;
+
 public class YearLogFormatTest {
 
     @Test
@@ -17,6 +19,6 @@ public class YearLogFormatTest {
         Assert.assertEquals(new YearLogFormat().format("19uu"),"1999");
         Assert.assertEquals(new YearLogFormat().format("191-"),"1919");
         Assert.assertEquals(new YearLogFormat().format("19uu, 191-, 193-"),"1999");
-        Assert.assertEquals(new YearLogFormat().format("20uu"),"2021");
+        Assert.assertEquals(new YearLogFormat().format("20uu"),""+Calendar.getInstance().get(Calendar.YEAR));
     }
 }

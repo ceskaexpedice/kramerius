@@ -5,13 +5,11 @@ import cz.incad.kramerius.AbstractDNNTProcess;
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.workers.DNNTWorker;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
-import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -58,9 +56,9 @@ public abstract class AbstractDNNTCSVProcess extends AbstractDNNTProcess {
                     if (dnntWorkers.size() >= numberofThreads) {
                         startWorkers(dnntWorkers);
                         dnntWorkers.clear();
-                        dnntWorkers.add(createWorker(pid, fedoraAccess, client, flag));
+                        dnntWorkers.add(createWorker(pid, fedoraAccess, client, addRemoveFlag));
                     } else {
-                        dnntWorkers.add(createWorker(pid, fedoraAccess, client, flag));
+                        dnntWorkers.add(createWorker(pid, fedoraAccess, client, addRemoveFlag));
                     }
 
                 } else {
@@ -72,6 +70,7 @@ public abstract class AbstractDNNTCSVProcess extends AbstractDNNTProcess {
                 startWorkers(dnntWorkers);
                 dnntWorkers.clear();
             }
+
 
             this.commit(client);
 
