@@ -46,31 +46,35 @@ public abstract class AbstractDNNTCSVProcess extends AbstractDNNTProcess {
         final List<DNNTWorker> dnntWorkers = new ArrayList<>();
         File f = new File(csvFile);
         if (f.exists() && f.canRead()) {
-            Reader in = new FileReader(f);
-            CSVFormat format = skipHeader ? CSVFormat.EXCEL.withFirstRecordAsHeader() : CSVFormat.EXCEL;
-            format = format.withDelimiter(delimiter.charAt(0));
-            Iterable<CSVRecord> records = format.parse(in);
-            for (CSVRecord record : records) {
-                if ( pidcolumn < record.size()) {
-                    String pid = record.get(pidcolumn);
-                    if (dnntWorkers.size() >= numberofThreads) {
-                        startWorkers(dnntWorkers);
-                        dnntWorkers.clear();
-                        dnntWorkers.add(createWorker(pid, fedoraAccess, client, addRemoveFlag));
+            try {
+                Reader in = new FileReader(f);
+                CSVFormat format = skipHeader ? CSVFormat.EXCEL.withFirstRecordAsHeader() : CSVFormat.EXCEL;
+                format = format.withDelimiter(delimiter.charAt(0));
+                Iterable<CSVRecord> records = format.parse(in);
+                for (CSVRecord record : records) {
+                    if ( pidcolumn < record.size()) {
+                        String pid = record.get(pidcolumn);
+                        if (dnntWorkers.size() >= numberofThreads) {
+                            startWorkers(dnntWorkers);
+                            dnntWorkers.clear();
+                            dnntWorkers.add(createWorker(pid, fedoraAccess, client, addRemoveFlag));
+                        } else {
+                            dnntWorkers.add(createWorker(pid, fedoraAccess, client, addRemoveFlag));
+                        }
+
                     } else {
-                        dnntWorkers.add(createWorker(pid, fedoraAccess, client, addRemoveFlag));
+                        DNNTCSVFlag.LOGGER.log(Level.WARNING, "Ommiting row '"+record+"' number of col is "+record.size() +" and PID's column is "+pidcolumn);
                     }
-
-                } else {
-                    DNNTCSVFlag.LOGGER.log(Level.WARNING, "Ommiting row '"+record+"' number of col is "+record.size() +" and PID's column is "+pidcolumn);
                 }
-            }
 
-            if (!dnntWorkers.isEmpty()) {
-                startWorkers(dnntWorkers);
-                dnntWorkers.clear();
+                if (!dnntWorkers.isEmpty()) {
+                    startWorkers(dnntWorkers);
+                    dnntWorkers.clear();
+                }
+            } finally {
+                this.commit(client);
+
             }
-            this.commit(client);
 
         } else throw new IOException("not exist or cannot read from "+f.getAbsolutePath());
     }

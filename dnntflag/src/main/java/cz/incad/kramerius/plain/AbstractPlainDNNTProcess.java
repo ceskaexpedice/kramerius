@@ -18,28 +18,32 @@ public abstract class AbstractPlainDNNTProcess extends AbstractDNNTProcess {
 
 
     protected void iteratePids() throws IOException, BrokenBarrierException, InterruptedException {
-        FedoraAccess fedoraAccess = new FedoraAccessImpl(KConfiguration.getInstance(), null);
-        Client client = Client.create();
+        Client client = null;
+        try {
+            FedoraAccess fedoraAccess = new FedoraAccessImpl(KConfiguration.getInstance(), null);
+            client = Client.create();
 
-        client.setReadTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
-        client.setConnectTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
+            client.setReadTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
+            client.setConnectTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
 
-        final List<DNNTWorker> dnntWorkers = new ArrayList<>();
-        for (String pid :  pids) {
-            if (dnntWorkers.size() >= numberofThreads) {
+            final List<DNNTWorker> dnntWorkers = new ArrayList<>();
+            for (String pid :  pids) {
+                if (dnntWorkers.size() >= numberofThreads) {
+                    startWorkers(dnntWorkers);
+                    dnntWorkers.clear();
+                    dnntWorkers.add(createWorker(pid, fedoraAccess, client, addRemoveFlag));
+                } else {
+                    dnntWorkers.add(createWorker(pid, fedoraAccess, client, addRemoveFlag));
+                }
+            }
+            if (!dnntWorkers.isEmpty()) {
                 startWorkers(dnntWorkers);
                 dnntWorkers.clear();
-                dnntWorkers.add(createWorker(pid, fedoraAccess, client, addRemoveFlag));
-            } else {
-                dnntWorkers.add(createWorker(pid, fedoraAccess, client, addRemoveFlag));
             }
-        }
-        if (!dnntWorkers.isEmpty()) {
-            startWorkers(dnntWorkers);
-            dnntWorkers.clear();
+        } finally {
+            if (client != null) this.commit(client);
         }
 
-        this.commit(client);
     }
 
 
