@@ -614,8 +614,20 @@
         <mainClass>cz.incad.kramerius.DNNTExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <parameters>false</parameters>
         <securedaction>dnnt_admin</securedaction>
+    </process>
+
+
+    <process>
+        <id>parametrizeddnntexport</id>
+        <description>Parametrized dnnt export</description>
+        <mainClass>cz.incad.kramerius.export.ParametrizedDNNTExport</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
+        <templates>
+            <input class="cz.incad.kramerius.template.DNNTExportTemplate"></input>
+        </templates>
     </process>
 
 </processes>

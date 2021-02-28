@@ -9,15 +9,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.logging.Logger;
 
 public abstract class AbstractDNNTProcess {
+
+    public static Logger LOGGER = Logger.getLogger(AbstractDNNTProcess.class.getName());
 
     public static final String DNNT_THREADS = "dnnt.threads";
     protected int numberofThreads = -1;
 
     protected boolean addRemoveFlag;
-
-
 
 
     protected  void startWorkers(List<DNNTWorker> worksWhasHasToBeDone) throws BrokenBarrierException, InterruptedException {
@@ -35,6 +36,7 @@ public abstract class AbstractDNNTProcess {
         updateUrl = updateUrl  + (updateUrl.endsWith("/") ? ""  : "/") + "update?commit=true";
         WebResource r = client.resource(updateUrl);
         r.accept(MediaType.TEXT_XML).entity("<commit/>").type(MediaType.TEXT_XML).post(ClientResponse.class);
+        LOGGER.info("Commited changes");
     }
 
     protected void initializeFromProperties() {

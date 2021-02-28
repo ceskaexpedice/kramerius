@@ -7,7 +7,7 @@ dependencies {
     compile project(':indexer')
     compile project(':import')
     compile project(':solr-migration')
-
+    compile project(':mw-process')
 
 
     compile "org.apache.commons:commons-csv:1.6"

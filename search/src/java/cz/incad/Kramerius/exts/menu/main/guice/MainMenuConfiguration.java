@@ -99,7 +99,8 @@ public class MainMenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(ParametrizedDNNTFlagUnset.class);
 
         //adminItems.addBinding().to(DNNTFlagUnset.class);
-        adminItems.addBinding().to(DNNTCSVExport.class);
+        //adminItems.addBinding().to(DNNTCSVExport.class);
+        adminItems.addBinding().to(ParametrizedDNNTCSVExport.class);
 
         bind(MainMenu.class).to(MainMenuImpl.class);
     }

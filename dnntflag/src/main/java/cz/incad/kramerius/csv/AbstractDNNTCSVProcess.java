@@ -70,8 +70,6 @@ public abstract class AbstractDNNTCSVProcess extends AbstractDNNTProcess {
                 startWorkers(dnntWorkers);
                 dnntWorkers.clear();
             }
-
-
             this.commit(client);
 
         } else throw new IOException("not exist or cannot read from "+f.getAbsolutePath());
@@ -87,7 +85,6 @@ public abstract class AbstractDNNTCSVProcess extends AbstractDNNTProcess {
 
 
     public void process(String[] args) throws IOException, BrokenBarrierException, InterruptedException {
-        //String mode = KConfiguration.getInstance().getConfiguration().getString(DNNT_MODE_KEY,"add");
         initializeFromProperties();
         initializeFromArgs(args);
         iterateCSVFile();

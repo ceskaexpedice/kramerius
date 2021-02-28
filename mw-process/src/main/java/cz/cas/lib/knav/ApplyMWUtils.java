@@ -174,10 +174,7 @@ public class ApplyMWUtils {
     public static void process(FedoraAccess fa, SolrAccess sa, String onePid, String userValue,
             CollectPidForIndexing coll) throws IOException,
             RightCriteriumException, XPathExpressionException {
-        ProcessCriteriumContext ctx = new ProcessCriteriumContext(onePid, fa,
-                sa);
-
-
+        ProcessCriteriumContext ctx = new ProcessCriteriumContext(onePid, fa, sa);
         MovingWall mw = new MovingWall();
         mw.setEvaluateContext(ctx);
         int wall = 0;

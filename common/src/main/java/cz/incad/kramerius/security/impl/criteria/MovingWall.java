@@ -24,11 +24,13 @@ import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.*;
 
 import java.io.BufferedReader;
@@ -56,7 +58,13 @@ import java.util.logging.Level;
 public class MovingWall extends AbstractCriterium implements RightCriterium {
 
     //encoding="marc"
-    public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued[@encoding='marc']/text()","//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()","//mods:part/mods:date/text()"};
+    public static String[] MODS_XPATHS={
+            "//mods:originInfo/mods:dateIssued[@encoding='marc']/text()",
+            "//mods:originInfo/mods:dateIssued/text()",
+            "//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()",
+            "//mods:part/mods:date/text()",
+            "//mods:date/text()"
+    };
 
     
     static transient java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
@@ -80,6 +88,11 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                     
                     if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
                     Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
+                    try {
+                        XMLUtils.print(biblioMods, System.out);
+                    } catch (TransformerException e) {
+                        e.printStackTrace();
+                    }
                     // try all xpaths on mods
                     for (String xp : MODS_XPATHS) {
                         result = resolveInternal(wallFromConf,pid,xp,biblioMods, this.xpfactory);

@@ -160,6 +160,13 @@ public abstract class DNNTWorker implements Runnable {
                     int start = i * batchSize;
                     List<String> sublist = all.subList(start, Math.min(start + batchSize, all.size()));
                     Document batch = createBatch(sublist, changedFoxmlFlag);
+                    try {
+                        StringWriter writer = new StringWriter();
+                        XMLUtils.print(batch, writer);
+                    } catch (TransformerException e) {
+                        e.printStackTrace();
+                    }
+
                     sendToDest(client, batch);
                 }
                 LOGGER.info("DNNT Flag for  "+this.parentPid+" has been set");

@@ -20,12 +20,15 @@ public class ParametrizedLabelUnsetDNNTFlag {
         try {
             String formatted = String.format("DNNT label unset. Label: %s and CSV file: %s", label, csvFile);
             ProcessStarter.updateName(formatted);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE,e.getMessage(), e);
         }
         System.setProperty(AbstractDNNTCSVProcess.DNNTUNSET_FILE_KEY, csvFile);
         DDNTCSVLabeledFlag.main(new String[]{Boolean.FALSE.toString(), label});
+    }
 
+    public static void main(String[] args) throws InterruptedException, SAXException, JAXBException, BrokenBarrierException, IOException {
+        ParametrizedLabelUnsetDNNTFlag.process("c:\\Users\\pavel.stastny\\.kramerius4\\import-dnnt\\test.csv", "test-01");
     }
 
 }
