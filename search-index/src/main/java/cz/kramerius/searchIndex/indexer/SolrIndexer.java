@@ -29,9 +29,11 @@ import java.util.Map;
 
 public class SolrIndexer {
 
-    private static final int COMMIT_WITHIN_MS = 15000; //15 seconds
-    private final int CONNECTION_TIMEOUT = 10000;
-    private final int SOCKET_TIMEOUT = 60000;
+    public static final int INDEXER_VERSION = 1; //this should be updated after every change in logic, that affects full indexation
+
+    private static final int MAX_TIME_WITHOUT_COMMIT_MS = 15000; //15 seconds
+    private static final int CONNECTION_TIMEOUT = 10000;
+    private static final int SOCKET_TIMEOUT = 60000;
 
     private final HttpSolrClient solrClient;
     private final String collection; //because solrClient is buggy and still requires explicit collection-name as an parameter of some operations even though it gets collection-name in the constructor
@@ -105,7 +107,7 @@ public class SolrIndexer {
         UpdateResponse addResponse = null;
         for (SolrInputDocument doc : solrDoc) {
             //there will always only be on ADD anyway
-            addResponse = solrClient.add(collection, doc, COMMIT_WITHIN_MS);
+            addResponse = solrClient.add(collection, doc, MAX_TIME_WITHOUT_COMMIT_MS);
         }
         if (explicitCommit) {
             solrClient.commit(collection);
@@ -181,5 +183,22 @@ public class SolrIndexer {
 
     public void commit() throws IOException, SolrServerException {
         solrClient.commit(collection);
+    }
+
+    public void setSingleFieldValue(String pid, String fieldName, Object value, boolean explicitCommit) {
+        try {
+            SolrInputDocument updateDoc = new SolrInputDocument();
+            updateDoc.addField("pid", pid);
+            Map<String, Object> updateData = new HashMap<>();
+            updateData.put("set", value == null ? null : value.toString());
+            updateDoc.addField(fieldName, updateData);
+            solrClient.add(collection, updateDoc, MAX_TIME_WITHOUT_COMMIT_MS);
+            if (explicitCommit) {
+                solrClient.commit(collection);
+            }
+        } catch (IOException | SolrServerException e) {
+            e.printStackTrace();
+            throw new RuntimeException((e));
+        }
     }
 }

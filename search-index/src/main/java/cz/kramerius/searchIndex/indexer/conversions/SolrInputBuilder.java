@@ -1,5 +1,6 @@
 package cz.kramerius.searchIndex.indexer.conversions;
 
+import cz.kramerius.searchIndex.indexer.SolrIndexer;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.searchIndex.indexer.utils.NamespaceRemovingVisitor;
@@ -13,6 +14,8 @@ import org.dom4j.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -138,6 +141,9 @@ public class SolrInputBuilder {
 
         SolrInput solrInput = new SolrInput();
 
+        //indexer version
+        addSolrField(solrInput, "indexer_version", SolrIndexer.INDEXER_VERSION);
+
         //datastreams for data extractions
         Element relsExtRootEl = getLatestDatastreamVersionXmlContent(foxmlDoc, "RELS-EXT");
         Element modsRootEl = getLatestDatastreamVersionXmlContent(foxmlDoc, "BIBLIO_MODS");
@@ -171,6 +177,9 @@ public class SolrInputBuilder {
 
         //modified_date
         addSolrField(solrInput, "modified", extractProperty(foxmlDoc, "info:fedora/fedora-system:def/view#lastModifiedDate"));
+
+        //indexation date (only total reindexation updates this)
+        addSolrField(solrInput, "indexed", ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
 
         //root, parent, path, children (own, foster), foster-parents
         if (repositoryNode != null) {

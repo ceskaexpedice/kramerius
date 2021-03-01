@@ -468,13 +468,18 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <!--_version_ field must exist in schema and be searchable (indexed or docValues) and retrievable(stored or docValues) and not multiValued (_version_ does not exist)-->
         <field name="_version_" type="long" indexed="true" stored="true"/>
+        <!--version of indexer, increments with change of implementation, typically some conversions input_data_(MODS) -> data_in_SOLR -->
+        <field name="indexer_version" type="int" indexed="true" stored="true" multiValued="false"/>
+        <!--temporary field used for indexation processes, after (full) indexation is sucessfully finished, this field is cleared-->
+        <field name="full_indexation_in_progress" type="boolean" indexed="true" stored="true"/>
+
 
         <field name="pid" type="string" indexed="true" stored="true" required="true"/>
         <field name="model" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <field name="created" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <field name="modified" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
-        <field name="indexed" type="date" indexed="true" stored="true" multiValued="false" docValues="true" default="NOW"/>
+        <field name="indexed" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <!--keywords-->
         <field name="keywords.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>

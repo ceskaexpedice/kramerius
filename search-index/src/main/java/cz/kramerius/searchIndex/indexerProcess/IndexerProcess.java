@@ -86,8 +86,14 @@ public class IndexerProcess {
 
         RepositoryNode node = nodeManager.getKrameriusNode(pid);
         indexObjectWithCounters(pid, node, counters);
+        if (type == IndexationType.TREE_AND_FOSTER_TREES) {
+            solrIndexer.setSingleFieldValue(pid, "full_indexation_in_progress", Boolean.TRUE, true);
+        }
         if (node != null) {
             processChildren(node, true, type, counters);
+        }
+        if (type == IndexationType.TREE_AND_FOSTER_TREES) {
+            solrIndexer.setSingleFieldValue(pid, "full_indexation_in_progress", null, false);
         }
         commitAfterLastIndexation(counters);
 
