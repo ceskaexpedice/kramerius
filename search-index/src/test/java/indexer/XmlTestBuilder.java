@@ -135,23 +135,17 @@ public class XmlTestBuilder {
             );
             SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null);
             SolrInput cleared = withoutFields(solrInput,
+                    "indexer_version",
+                    "indexed",
                     "model",
                     "root.pid",
+                    "root.model",
                     "root.title",
                     "root.title.sort",
-                    "root.model",
                     "own_pid_path",
                     "own_model_path",
                     "has_tiles",
                     "ds.img_full.mime",
-
-                    "fedora.model",
-                    "root_pid",
-                    "root_model",
-                    "root_title",
-                    "parent_pid",
-                    "pid_path",
-                    "model_path",
                     "level");
             assertEquals(test.getOutDoc().asXML(), cleared.getDocument().asXML());
         };
@@ -180,21 +174,16 @@ public class XmlTestBuilder {
             );
             SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null);
             SolrInput cleared = withoutFields(solrInput,
+                    "indexer_version",
+                    "indexed",
                     "model",
-                    /*"root.pid",
-                    "root.title",
+                    "root.pid",
                     "root.model",
+                    "root.title",
+                    "root.title.sort",
                     "own_pid_path",
                     "own_model_path",
-                    "has_tiles",*/
-
-                    "fedora.model",
-                    "root_pid",
-                    "root_model",
-                    "root_title",
-                    "parent_pid",
-                    "pid_path",
-                    "model_path",
+                    "ds.img_full.mime",
                     "level");
             assertEquals(test.getOutDoc().asXML(), cleared.getDocument().asXML());
         };
