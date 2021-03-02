@@ -158,6 +158,20 @@ public class ProcessingIndexFeeder {
         });
     }
 
+    public String iterateSectionOfProcessingSortedByTitleWithCursor(String query, boolean ascending, String cursor, int limit, Consumer<SolrDocument> action) throws IOException, SolrServerException {
+        SolrQuery solrQuery = new SolrQuery(query);
+        solrQuery.setParam("cursorMark", cursor).setRows(limit);
+        List<SolrQuery.SortClause> sortClauses = new ArrayList<>();
+        sortClauses.add(SolrQuery.SortClause.create("dc.title", ascending ? SolrQuery.ORDER.asc : SolrQuery.ORDER.desc));
+        sortClauses.add(SolrQuery.SortClause.asc("pid")); //cursor query requires unique sorting field
+        solrQuery.setSorts(sortClauses);
+        QueryResponse response = this.solrClient.query(solrQuery);
+        response.getResults().forEach((doc) -> {
+            action.accept(doc);
+        });
+        return response.getNextCursorMark();
+    }
+
     public List<Pair<String, String>> findByTargetPid(String pid) throws IOException, SolrServerException {
         final List<Pair<String, String>> retvals = new ArrayList<>();
         this.iterateProcessing("targetPid:\"" + pid + "\"", (doc) -> {

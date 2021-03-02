@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -17,7 +18,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,16 +41,19 @@ public class ItemsResource extends AdminApiResource {
      * Accessing this information from search index would violate architecture and possibly cause circular dependency.
      *
      * @param model
-     * @param order resulting objects are sorted by title, you can specify ASC or DESC
+     * @param order  resulting objects are sorted by title, you can specify ASC or DESC
+     * @param offset ignored, if cursor is also present
+     * @param cursor cursorMark for cursor query
+     * @param limit
      * @return array of {pid,title} objects
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getItems(@QueryParam("model") String model,
-                             @QueryParam("offset") String offsetStr,
-                             @QueryParam("limit") String limitStr,
+                             @QueryParam("offset") String offset,
+                             @QueryParam("cursor") String cursor,
+                             @QueryParam("limit") String limit,
                              @QueryParam("order") @DefaultValue("ASC") String order) {
-
         try {
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
@@ -75,38 +78,42 @@ public class ItemsResource extends AdminApiResource {
                 default:
                     throw new BadRequestException("invalid value of query param 'order': '%s'; valid values are 'ASC' or 'DESC'", order);
             }
-            //offset & limit
-            int offset = DEFAULT_OFFSET;
-            if (StringUtils.isAnyString(offsetStr)) {
+            //offset/cursor & limit
+            int offsetInt = DEFAULT_OFFSET;
+            if (StringUtils.isAnyString(offset)) {
                 try {
-                    offset = Integer.valueOf(offsetStr);
-                    if (offset < 0) {
-                        throw new BadRequestException("offset must be zero or a positive number, '%s' is not", offsetStr);
+                    offsetInt = Integer.valueOf(offset);
+                    if (offsetInt < 0) {
+                        throw new BadRequestException("offset must be zero or a positive number, '%s' is not", offset);
                     }
                 } catch (NumberFormatException e) {
-                    throw new BadRequestException("offset must be a number, '%s' is not", offsetStr);
+                    throw new BadRequestException("offset must be a number, '%s' is not", offset);
                 }
             }
-            int limit = DEFAULT_LIMIT;
-            if (StringUtils.isAnyString(limitStr)) {
+            int limitInt = DEFAULT_LIMIT;
+            if (StringUtils.isAnyString(limit)) {
                 try {
-                    limit = Integer.valueOf(limitStr);
-                    if (limit < 1) {
-                        throw new BadRequestException("limit must be a positive number, '%s' is not", limitStr);
+                    limitInt = Integer.valueOf(limit);
+                    if (limitInt < 1) {
+                        throw new BadRequestException("limit must be a positive number, '%s' is not", limit);
                     }
                 } catch (NumberFormatException e) {
-                    throw new BadRequestException("limit must be a number, '%s' is not", limitStr);
+                    throw new BadRequestException("limit must be a number, '%s' is not", limit);
                 }
             }
-
-            List<Pair<String, String>> pidsOfObjectsWithTitles = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModel(model, ascendingOrder, offset, limit);
+            RepositoryApi.TitlePidPairs TitlePidPairsByModel = cursor != null ?
+                    krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModelWithCursor(model, ascendingOrder, cursor, limitInt) :
+                    krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModel(model, ascendingOrder, offsetInt, limitInt);
             JSONObject json = new JSONObject();
             json.put("model", model);
+            if (TitlePidPairsByModel.nextCursorMark != null) {
+                json.put("nextCursor", TitlePidPairsByModel.nextCursorMark);
+            }
             JSONArray items = new JSONArray();
-            for (Pair<String, String> pidAndTitle : pidsOfObjectsWithTitles) {
+            for (Pair<String, String> pidAndTitle : TitlePidPairsByModel.titlePidPairs) {
                 JSONObject item = new JSONObject();
-                item.put("pid", pidAndTitle.getFirst());
-                item.put("title", pidAndTitle.getSecond());
+                item.put("title", pidAndTitle.getFirst());
+                item.put("pid", pidAndTitle.getSecond());
                 items.put(item);
             }
             json.put("items", items);

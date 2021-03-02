@@ -176,8 +176,8 @@ public class RepositoryApiImpl implements RepositoryApi {
     }
 
     @Override
-    public List<Pair<String, String>> getPidsOfObjectsWithTitlesByModel(String model, boolean ascendingOrder, int offset, int limit) throws RepositoryException, IOException, SolrServerException {
-        List<Pair<String, String>> result = new ArrayList<>();
+    public TitlePidPairs getPidsOfObjectsWithTitlesByModel(String model, boolean ascendingOrder, int offset, int limit) throws RepositoryException, IOException, SolrServerException {
+        List<Pair<String, String>> titlePidPairs = new ArrayList<>();
         String query = String.format("type:description AND model:%s", "model\\:" + model); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze je mozna zbytecne (ten prefix)
         akubraRepository.getProcessingIndexFeeder().iterateSectionOfProcessingSortedByTitle(query, ascendingOrder, offset, limit, (doc) -> {
             Object fieldPid = doc.getFieldValue("source");
@@ -190,8 +190,33 @@ public class RepositoryApiImpl implements RepositoryApi {
             if (fieldTitle != null) {
                 title = fieldTitle.toString().trim();
             }
-            result.add(new Pair(pid, title));
+            titlePidPairs.add(new Pair(title, pid));
         });
+        TitlePidPairs result = new TitlePidPairs();
+        result.titlePidPairs = titlePidPairs;
+        return result;
+    }
+
+    @Override
+    public TitlePidPairs getPidsOfObjectsWithTitlesByModelWithCursor(String model, boolean ascendingOrder, String cursor, int limit) throws RepositoryException, IOException, SolrServerException {
+        List<Pair<String, String>> titlePidPairs = new ArrayList<>();
+        String query = String.format("type:description AND model:%s", "model\\:" + model); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze je mozna zbytecne (ten prefix)
+        String nextCursorMark = akubraRepository.getProcessingIndexFeeder().iterateSectionOfProcessingSortedByTitleWithCursor(query, ascendingOrder, cursor, limit, (doc) -> {
+            Object fieldPid = doc.getFieldValue("source");
+            Object fieldTitle = doc.getFieldValue("dc.title");
+            String pid = null;
+            String title = null;
+            if (fieldPid != null) {
+                pid = fieldPid.toString();
+            }
+            if (fieldTitle != null) {
+                title = fieldTitle.toString().trim();
+            }
+            titlePidPairs.add(new Pair(title, pid));
+        });
+        TitlePidPairs result = new TitlePidPairs();
+        result.titlePidPairs = titlePidPairs;
+        result.nextCursorMark = nextCursorMark;
         return result;
     }
 

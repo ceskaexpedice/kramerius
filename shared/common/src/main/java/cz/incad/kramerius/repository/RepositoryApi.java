@@ -59,7 +59,9 @@ public interface RepositoryApi {
 
     public List<String> getPidsOfObjectsByModel(String model) throws RepositoryException, IOException, SolrServerException;
 
-    public List<Pair<String, String>> getPidsOfObjectsWithTitlesByModel(String model, boolean ascendingOrder, int offset, int limit) throws RepositoryException, IOException, SolrServerException;
+    public TitlePidPairs getPidsOfObjectsWithTitlesByModel(String model, boolean ascendingOrder, int offset, int limit) throws RepositoryException, IOException, SolrServerException;
+
+    public TitlePidPairs getPidsOfObjectsWithTitlesByModelWithCursor(String model, boolean ascendingOrder, String cursor, int limit) throws RepositoryException, IOException, SolrServerException;
 
     public Map<String, String> getDescription(String objectPid) throws RepositoryException, IOException, SolrServerException;
 
@@ -93,6 +95,11 @@ public interface RepositoryApi {
         public String toString() {
             return String.format("%s -%s-> %s", source, relation, target);
         }
+    }
+
+    class TitlePidPairs {
+        public List<Pair<String, String>> titlePidPairs;
+        public String nextCursorMark;
     }
 
 }
