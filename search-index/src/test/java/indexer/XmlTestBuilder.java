@@ -133,9 +133,10 @@ public class XmlTestBuilder {
                     null, null,
                     languages, authors, dateInfo
             );
-            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null);
+            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, true);
             SolrInput cleared = withoutFields(solrInput,
                     "indexer_version",
+                    "full_indexation_in_progress",
                     "indexed",
                     "model",
                     "root.pid",
@@ -172,9 +173,10 @@ public class XmlTestBuilder {
                     null, null,
                     null, null, null
             );
-            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null);
+            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, true);
             SolrInput cleared = withoutFields(solrInput,
                     "indexer_version",
+                    "full_indexation_in_progress",
                     "indexed",
                     "model",
                     "root.pid",

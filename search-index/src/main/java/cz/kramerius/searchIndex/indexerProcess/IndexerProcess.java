@@ -84,19 +84,16 @@ public class IndexerProcess {
         //int limit = 3;
         report("============================================================================================");
 
-        RepositoryNode node = nodeManager.getKrameriusNode(pid);
-        indexObjectWithCounters(pid, node, counters, true);
         if (type == IndexationType.TREE_AND_FOSTER_TREES) {
-            solrIndexer.setSingleFieldValue(pid, "full_indexation_in_progress", Boolean.TRUE, true);
+            setFullIndexationInProgress(pid);
         }
+        RepositoryNode node = nodeManager.getKrameriusNode(pid);
         if (node != null) {
+            indexObjectWithCounters(pid, node, counters, true);
             processChildren(node, true, type, counters);
         }
         if (type == IndexationType.TREE_AND_FOSTER_TREES) {
-            //TODO: tady je problem - pokud je v záznamu pole typu stored solr.BBoxField (konkrétně coords.bbox), tak atomic update nefunguje
-            //naopak při coords.bbox stored=false nefunguje geo vyhledávání (Intersects ENVELOPE)
-            //https://solr.apache.org/guide/7_0/updating-parts-of-documents.html
-            solrIndexer.setSingleFieldValue(pid, "full_indexation_in_progress", null, false);
+            clearFullIndexationInProgress(pid);
         }
         commitAfterLastIndexation(counters);
 
@@ -119,6 +116,26 @@ public class IndexerProcess {
         if (progressListener != null) {
             progressListener.onFinished(counters.getProcessed(), counters.getFound());
         }
+    }
+
+    private void setFullIndexationInProgress(String pid) {
+        try {
+            SolrInput solrInput = new SolrInput();
+            solrInput.addField("pid", pid);
+            solrInput.addField("full_indexation_in_progress", Boolean.TRUE.toString());
+            solrInput.addField("indexer_version", String.valueOf(SolrIndexer.INDEXER_VERSION));
+            String solrInputStr = solrInput.getDocument().asXML();
+            solrIndexer.indexFromXmlString(solrInputStr, false);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void clearFullIndexationInProgress(String pid) {
+        //TODO: tady je problem - pokud je v záznamu pole typu stored solr.BBoxField (konkrétně coords.bbox), tak atomic update nefunguje
+        //naopak při coords.bbox stored=false nefunguje geo vyhledávání (Intersects ENVELOPE)
+        //https://solr.apache.org/guide/7_0/updating-parts-of-documents.html
+        solrIndexer.setSingleFieldValue(pid, "full_indexation_in_progress", null, false);
     }
 
     private void processChildren(String parentPid, IndexationType type, Counters counters) {

@@ -108,6 +108,9 @@ public class RepositoryNodeManager {
             //System.out.println("own children: " + (ownChildren == null? null : ownChildren.size()));
 
             Document modsDoc = krameriusRepositoryAccessAdapter.getMods(pid, false);
+            if (modsDoc == null) {
+                throw new RuntimeException("missing MODS");
+            }
             Title title = extractTitleFromMods(model, modsDoc);
 
             //data from parents
