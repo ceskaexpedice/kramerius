@@ -53,7 +53,7 @@ public class SolrInputBuilder {
     public void convertFoxmlToSolrInput(File inFoxmlFile, File outSolrImportFile) throws IOException, DocumentException {
         //System.out.println("processing " + inFoxmlFile.getName());
         Document foxmlDoc = Dom4jUtils.parseXmlFromFile(inFoxmlFile);
-        SolrInput solrInput = processObjectFromRepository(foxmlDoc, null, null, null, null);
+        SolrInput solrInput = processObjectFromRepository(foxmlDoc, null, null, null, null, false);
         solrInput.printTo(outSolrImportFile, true);
     }
 
@@ -135,7 +135,7 @@ public class SolrInputBuilder {
         return solrInput;
     }
 
-    public SolrInput processObjectFromRepository(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime) throws IOException, DocumentException {
+    public SolrInput processObjectFromRepository(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime, boolean indexationRoot) throws IOException, DocumentException {
         //remove namespaces before applying xpaths etc
         foxmlDoc.accept(new NamespaceRemovingVisitor(true, true));
 
@@ -143,6 +143,9 @@ public class SolrInputBuilder {
 
         //indexer version
         addSolrField(solrInput, "indexer_version", SolrIndexer.INDEXER_VERSION);
+        if (indexationRoot) {
+            addSolrField(solrInput, "full_indexation_in_progress", true);
+        }
 
         //datastreams for data extractions
         Element relsExtRootEl = getLatestDatastreamVersionXmlContent(foxmlDoc, "RELS-EXT");

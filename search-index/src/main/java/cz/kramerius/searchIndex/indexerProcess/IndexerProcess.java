@@ -85,7 +85,7 @@ public class IndexerProcess {
         report("============================================================================================");
 
         RepositoryNode node = nodeManager.getKrameriusNode(pid);
-        indexObjectWithCounters(pid, node, counters);
+        indexObjectWithCounters(pid, node, counters, true);
         if (type == IndexationType.TREE_AND_FOSTER_TREES) {
             solrIndexer.setSingleFieldValue(pid, "full_indexation_in_progress", Boolean.TRUE, true);
         }
@@ -93,6 +93,9 @@ public class IndexerProcess {
             processChildren(node, true, type, counters);
         }
         if (type == IndexationType.TREE_AND_FOSTER_TREES) {
+            //TODO: tady je problem - pokud je v záznamu pole typu stored solr.BBoxField (konkrétně coords.bbox), tak atomic update nefunguje
+            //naopak při coords.bbox stored=false nefunguje geo vyhledávání (Intersects ENVELOPE)
+            //https://solr.apache.org/guide/7_0/updating-parts-of-documents.html
             solrIndexer.setSingleFieldValue(pid, "full_indexation_in_progress", null, false);
         }
         commitAfterLastIndexation(counters);
@@ -127,11 +130,11 @@ public class IndexerProcess {
         }
     }
 
-    private void indexObjectWithCounters(String pid, Counters counters) {
-        indexObjectWithCounters(pid, nodeManager.getKrameriusNode(pid), counters);
+    private void indexObjectWithCounters(String pid, Counters counters, boolean isIndexationRoot) {
+        indexObjectWithCounters(pid, nodeManager.getKrameriusNode(pid), counters, isIndexationRoot);
     }
 
-    private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters) {
+    private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters, boolean isIndexationRoot) {
         try {
             counters.incrementFound();
             boolean objectAvailable = repositoryNode != null;
@@ -151,7 +154,7 @@ public class IndexerProcess {
                 //System.out.println("ocr: " + ocrText);
                 //IMG_FULL mimetype
                 String imgFullMime = repositoryConnector.getImgFullMimetype(pid);
-                SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime);
+                SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, isIndexationRoot);
                 String solrInputStr = solrInput.getDocument().asXML();
                 solrIndexer.indexFromXmlString(solrInputStr, false);
                 counters.incrementIndexed();
@@ -208,17 +211,17 @@ public class IndexerProcess {
             case OBJECT_AND_CHILDREN: {
                 if (isIndexationRoot) {
                     for (String childPid : parent.getPidsOfOwnChildren()) { //index own children
-                        indexObjectWithCounters(childPid, counters);
+                        indexObjectWithCounters(childPid, counters, false);
                     }
                     for (String childPid : parent.getPidsOfFosterChildren()) { //index foster children
-                        indexObjectWithCounters(childPid, counters);
+                        indexObjectWithCounters(childPid, counters, false);
                     }
                 }
             }
             break;
             case TREE: {
                 for (String childPid : parent.getPidsOfOwnChildren()) {
-                    indexObjectWithCounters(childPid, counters);//index own children
+                    indexObjectWithCounters(childPid, counters, false);//index own children
                     processChildren(childPid, type, counters); //process own childrens' trees
                 }
             }
@@ -227,7 +230,7 @@ public class IndexerProcess {
                 for (String childPid : parent.getPidsOfOwnChildren()) {
                     boolean isNewer = true; //TODO: detect
                     if (isNewer) {
-                        indexObjectWithCounters(childPid, counters);//index own children
+                        indexObjectWithCounters(childPid, counters, false);//index own children
                     }
                     processChildren(childPid, type, counters); //process own childrens' trees
                 }
@@ -237,7 +240,7 @@ public class IndexerProcess {
                 for (String childPid : parent.getPidsOfOwnChildren()) {
                     boolean isNewer = true; //TODO: detect
                     if (isNewer) {
-                        indexObjectWithCounters(childPid, counters);//index own children
+                        indexObjectWithCounters(childPid, counters, false);//index own children
                         processChildren(childPid, type, counters); //process own childrens' trees
                     }
                 }
@@ -247,7 +250,7 @@ public class IndexerProcess {
                 for (String childPid : parent.getPidsOfOwnChildren()) {
                     boolean isPage = false; //TODO: detect
                     if (isPage) {
-                        indexObjectWithCounters(childPid, counters);//index own children
+                        indexObjectWithCounters(childPid, counters, false);//index own children
                     } else {
                         processChildren(childPid, type, counters); //process own childrens' trees
                     }
@@ -258,7 +261,7 @@ public class IndexerProcess {
                 for (String childPid : parent.getPidsOfOwnChildren()) {
                     boolean isPage = false; //TODO: detect
                     if (!isPage) {
-                        indexObjectWithCounters(childPid, counters);//index own children
+                        indexObjectWithCounters(childPid, counters, false);//index own children
                         processChildren(childPid, type, counters); //process own childrens' trees
                     }
                 }
@@ -266,11 +269,11 @@ public class IndexerProcess {
             break;
             case TREE_AND_FOSTER_TREES: {
                 for (String childPid : parent.getPidsOfOwnChildren()) {
-                    indexObjectWithCounters(childPid, counters);//index own children
+                    indexObjectWithCounters(childPid, counters, false);//index own children
                     processChildren(childPid, type, counters); //process own childrens' trees
                 }
                 for (String childPid : parent.getPidsOfFosterChildren()) {
-                    indexObjectWithCounters(childPid, counters);//index foster children
+                    indexObjectWithCounters(childPid, counters, false);//index foster children
                     processChildren(childPid, type, counters); //process foster childrens' trees
                 }
             }
