@@ -132,9 +132,9 @@ public class IndexerProcess {
     }
 
     private void clearFullIndexationInProgress(String pid) {
-        //TODO: tady je problem - pokud je v záznamu pole typu stored solr.BBoxField (konkrétně coords.bbox), tak atomic update nefunguje
-        //naopak při coords.bbox stored=false nefunguje geo vyhledávání (Intersects ENVELOPE)
-        //https://solr.apache.org/guide/7_0/updating-parts-of-documents.html
+        report("clearing field full_indexation_in_progress for " + pid);
+        //will not work for objects that are not stored and not docValues
+        //see https://github.com/ceskaexpedice/kramerius/issues/782
         solrIndexer.setSingleFieldValue(pid, "full_indexation_in_progress", null, false);
     }
 
