@@ -643,173 +643,153 @@ public class ProcessResource extends AdminApiResource {
     private List<String> paramsToList(String id, JSONObject params, ClientAuthHeaders clientAuthHeaders) {
         switch (id) {
             case ProcessApiTestProcess.ID: {
-                //duration (of every process in batch)
-                Integer duration = 1;
-                String durationKey = ProcessApiTestProcess.PARAM_DURATION;
-                if (params.has(durationKey)) {
-                    try {
-                        duration = params.getInt(durationKey);
-                        if (duration < 1) {
-                            throw new BadRequestException("invalid value (not a positive number) of %s: '%d'", durationKey, duration);
-                        }
-                    } catch (JSONException e) {
-                        throw new BadRequestException("invalid value (not a number) of %s: '%s'", durationKey, params.get(durationKey));
-                    }
-                }
-                //number of processes in batch
-                Integer processesInBatch = 1;
-                String processesInBatchKey = ProcessApiTestProcess.PARAM_PROCESSES_IN_BATCH;
-                if (params.has(processesInBatchKey)) {
-                    try {
-                        processesInBatch = params.getInt(processesInBatchKey);
-                        if (processesInBatch < 1) {
-                            throw new BadRequestException("invalid value (not a positive number) of %s: '%d'", processesInBatchKey, processesInBatch);
-                        }
-                    } catch (JSONException e) {
-                        throw new BadRequestException("invalid value (not a number) of %s: '%s'", processesInBatchKey, params.get(processesInBatchKey));
-                    }
-                }
-                //processes' final state
-                ProcessApiTestProcess.FinalState finalState = ProcessApiTestProcess.FinalState.FINISHED;
-                String finalStateKey = ProcessApiTestProcess.PARAM_FINAL_STATE;
-                if (params.has(finalStateKey)) {
-                    String finalStateStr = params.getString(finalStateKey);
-                    try {
-                        finalState = ProcessApiTestProcess.FinalState.valueOf(finalStateStr);
-                    } catch (IllegalArgumentException e) {
-                        throw new BadRequestException("invalid value of %s: '%s'", finalStateKey, finalStateStr);
-                    }
-                }
-                List<String> array = new ArrayList<>();
-                array.add(duration.toString());
-                array.add(processesInBatch.toString());
-                array.add(finalState.name());
-                return array;
+                //duration (of every process in the batch) in seconds
+                Integer duration = extractOptionalPositiveInteger(params, ProcessApiTestProcess.PARAM_DURATION, 1);
+                //number of processes in the batch
+                Integer processesInBatch = extractOptionalPositiveInteger(params, ProcessApiTestProcess.PARAM_PROCESSES_IN_BATCH, 1);
+                //final state of every process in the batch (including random)
+                ProcessApiTestProcess.FinalState finalState = extractOptionalFinalState(params, ProcessApiTestProcess.PARAM_FINAL_STATE, ProcessApiTestProcess.FinalState.FINISHED);
+
+                List<String> result = new ArrayList<>();
+                result.add(duration.toString());
+                result.add(processesInBatch.toString());
+                result.add(finalState.name());
+                return result;
             }
             case NewIndexerProcessIndexObject.ID: {
-                //type
-                String typeKey = NewIndexerProcessIndexObject.PARAM_TYPE;
-                String typeValue = null;
-                if (params.has(typeKey)) {
-                    typeValue = params.getString(typeKey);
-                    try {
-                        IndexationType.valueOf(typeValue);
-                    } catch (IllegalArgumentException e) {
-                        throw new BadRequestException("invalid value of %s: '%s'", typeKey, typeValue);
-                    }
-                } else {
-                    throw new BadRequestException("missing mandatory parameter %s: ", NewIndexerProcessIndexObject.PARAM_TYPE);
-                }
-                //pid
-                String pidKey = NewIndexerProcessIndexObject.PARAM_PID;
-                String pidValue;
-                if (params.has(pidKey)) {
-                    pidValue = params.getString(pidKey);
-                    if (!pidValue.toLowerCase().startsWith("uuid:")) {
-                        throw new BadRequestException("invalid value of %s (doesn't start with 'uuid:') : '%s'", pidKey, pidValue);
-                    } else {
-                        try {
-                            UUID.fromString(pidValue.substring("uuid:".length()));
-                        } catch (IllegalArgumentException e) {
-                            throw new BadRequestException("invalid value of %s: '%s'", pidKey, pidValue);
-                        }
-                    }
-                } else {
-                    throw new BadRequestException("missing mandatory parameter %s: ", NewIndexerProcessIndexObject.PARAM_PID);
-                }
-                //title
-                String titleValue = null;
-                if (params.has("title")) {
-                    titleValue = params.getString("title");
-                }
-                List<String> array = new ArrayList<>();
+                String type = extractMandatoryIndexationType(params, NewIndexerProcessIndexObject.PARAM_TYPE);
+                String pid = extractMandatoryPid(params, NewIndexerProcessIndexObject.PARAM_PID, "uuid:");
+                String title = extractOptionalString(params, "title", null);
+
+                List<String> result = new ArrayList<>();
                 //Kramerius
-                array.add("http://localhost:8080/search"); //TODO: from config
-                array.add(clientAuthHeaders.getClient());
-                array.add(clientAuthHeaders.getUid());
-                array.add(clientAuthHeaders.getAccessToken());
+                result.addAll(processParamsKramerius(clientAuthHeaders));
                 //Solr
-                //TODO: from config
-                array.add("localhost:8983/solr");//solrBaseUrl
-                array.add("search");//solrCollection
-                array.add("false");//solrUseHttps
-                array.add("krameriusIndexer");//solrLogin
-                array.add("krameriusIndexerRulezz");//solrPassword
-                //indexation info
-                array.add(typeValue);//indexation type
-                array.add(pidValue);//indexation's root pid
-                array.add(titleValue);//indexation's root title
-                return array;
+                result.addAll(processParamsSolr());
+                //indexation params
+                result.add(type);//indexation type
+                result.add(pid);//indexation's root pid
+                result.add(title);//indexation's root title
+                return result;
             }
             case NewIndexerProcessIndexModel.ID: {
-                //type
-                String typeKey = NewIndexerProcessIndexModel.PARAM_TYPE;
-                String typeValue = null;
-                if (params.has(typeKey)) {
-                    typeValue = params.getString(typeKey);
-                    try {
-                        IndexationType.valueOf(typeValue);
-                    } catch (IllegalArgumentException e) {
-                        throw new BadRequestException("invalid value of %s: '%s'", typeKey, typeValue);
-                    }
-                } else {
-                    throw new BadRequestException("missing mandatory parameter %s: ", NewIndexerProcessIndexObject.PARAM_TYPE);
-                }
-                //pid
-                String pidKey = NewIndexerProcessIndexModel.PARAM_PID;
-                String pidValue;
-                if (params.has(pidKey)) {
-                    pidValue = params.getString(pidKey);
-                    if (!pidValue.toLowerCase().startsWith("model:")) {
-                        throw new BadRequestException("invalid value of %s (doesn't start with 'model:'): '%s'", pidKey, pidValue);
-                    }
-                } else {
-                    throw new BadRequestException("missing mandatory parameter %s: ", NewIndexerProcessIndexObject.PARAM_PID);
-                }
-                //what to index
-                Boolean indexNotIndexed = false;
-                Boolean indexRunningOrError = false;
-                Boolean indexIndexedOutdated = false;
-                Boolean indexIndexed = false;
-                if (params.has("indexNotIndexed")) {
-                    indexNotIndexed = params.getBoolean("indexNotIndexed");
-                }
-                if (params.has("indexRunningOrError")) {
-                    indexRunningOrError = params.getBoolean("indexRunningOrError");
-                }
-                if (params.has("indexIndexedOutdated")) {
-                    indexIndexedOutdated = params.getBoolean("indexIndexedOutdated");
-                }
-                if (params.has("indexIndexed")) {
-                    indexIndexed = params.getBoolean("indexIndexed");
-                }
-                List<String> array = new ArrayList<>();
+                String type = extractMandatoryIndexationType(params, NewIndexerProcessIndexObject.PARAM_TYPE);
+                String pid = extractMandatoryPid(params, NewIndexerProcessIndexModel.PARAM_PID, "model:");
+                Boolean indexNotIndexed = extractOptionalBoolean(params, "indexNotIndexed", true);
+                Boolean indexRunningOrError = extractOptionalBoolean(params, "indexRunningOrError", false);
+                Boolean indexIndexedOutdated = extractOptionalBoolean(params, "indexIndexedOutdated", false);
+                Boolean indexIndexed = extractOptionalBoolean(params, "indexIndexed", false);
+
+                List<String> result = new ArrayList<>();
                 //Kramerius
-                array.add("http://localhost:8080/search"); //TODO: from config
-                array.add(clientAuthHeaders.getClient());
-                array.add(clientAuthHeaders.getUid());
-                array.add(clientAuthHeaders.getAccessToken());
+                result.addAll(processParamsKramerius(clientAuthHeaders));
                 //Solr
-                //TODO: from config
-                array.add("localhost:8983/solr");//solrBaseUrl
-                array.add("search");//solrCollection
-                array.add("false");//solrUseHttps
-                array.add("krameriusIndexer");//solrLogin
-                array.add("krameriusIndexerRulezz");//solrPassword
-                //indexation info
-                array.add(typeValue);//indexation type
-                array.add(pidValue);//indexation's root pid
-                array.add(indexNotIndexed.toString());
-                array.add(indexRunningOrError.toString());
-                array.add(indexIndexedOutdated.toString());
-                array.add(indexIndexed.toString());
-                return array;
+                result.addAll(processParamsSolr());
+                //indexation params
+                result.add(type); //indexation type
+                result.add(pid); //indexation's root pid
+                result.add(indexNotIndexed.toString()); //if not-indexed objects should be indexed
+                result.add(indexRunningOrError.toString());//if running-or-error objects should be indexed
+                result.add(indexIndexedOutdated.toString());//if indexed-outdated objects should be indexed
+                result.add(indexIndexed.toString());//if indexed objects should be indexed
+                return result;
             }
             default: {
                 throw new BadRequestException("unsupported process id '%s'", id);
             }
         }
     }
+
+    private Integer extractOptionalPositiveInteger(JSONObject params, String paramName, int defaultValue) {
+        if (params.has(paramName)) {
+            try {
+                int processesInBatch = params.getInt(paramName);
+                if (processesInBatch < 1) {
+                    throw new BadRequestException("invalid value (not a positive number) of %s: '%d'", paramName, processesInBatch);
+                } else {
+                    return processesInBatch;
+                }
+            } catch (JSONException e) {
+                throw new BadRequestException("invalid value (not a number) of %s: '%s'", paramName, params.get(paramName));
+            }
+        } else {
+            return defaultValue;
+        }
+    }
+
+    private String extractOptionalString(JSONObject params, String paramName, String defaultValue) {
+        return params.has(paramName) ? params.getString(paramName) : defaultValue;
+    }
+
+    private Boolean extractOptionalBoolean(JSONObject params, String paramName, boolean defaultValue) {
+        if (params.has(paramName)) {
+            return params.getBoolean(paramName);
+        } else {
+            return defaultValue;
+        }
+    }
+
+    private ProcessApiTestProcess.FinalState extractOptionalFinalState(JSONObject params, String paramName, ProcessApiTestProcess.FinalState finished) {
+        String finalStateStr = extractOptionalString(params, paramName, null);
+        if (finalStateStr == null) {
+            return finished;
+        } else {
+            try {
+                return ProcessApiTestProcess.FinalState.valueOf(finalStateStr);
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("invalid value of %s: '%s'", paramName, finalStateStr);
+            }
+        }
+    }
+
+
+    private String extractMandatoryPid(JSONObject params, String paramName, String prefix) {
+        String pid = extractOptionalString(params, paramName, null);
+        if (pid == null) {
+            throw new BadRequestException("missing mandatory parameter %s: ", paramName);
+        } else {
+            if (!pid.toLowerCase().startsWith(prefix)) {
+                throw new BadRequestException("invalid value of %s (doesn't start with '%s') : '%s'", paramName, prefix, pid);
+            }
+            return pid;
+        }
+    }
+
+    private String extractMandatoryIndexationType(JSONObject params, String paramName) {
+        String type = extractOptionalString(params, paramName, null);
+        if (type == null) {
+            throw new BadRequestException("missing mandatory parameter %s: ", paramName);
+        } else {
+            try {
+                IndexationType.valueOf(type);
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("invalid value of %s: '%s'", paramName, type);
+            }
+            return type;
+        }
+    }
+
+    //TODO: from config
+    private List<String> processParamsSolr() {
+        List<String> params = new ArrayList<>();
+        params.add("localhost:8983/solr");//solrBaseUrl
+        params.add("search");//solrCollection
+        params.add("false");//solrUseHttps
+        params.add("krameriusIndexer");//solrLogin
+        params.add("krameriusIndexerRulezz");//solrPassword
+        return params;
+    }
+
+    //TODO: from config
+    private List<String> processParamsKramerius(ClientAuthHeaders clientAuthHeaders) {
+        List<String> params = new ArrayList<>();
+        params.add("http://localhost:8080/search");
+        params.add(clientAuthHeaders.getClient());
+        params.add(clientAuthHeaders.getUid());
+        params.add(clientAuthHeaders.getAccessToken());
+        return params;
+    }
+
 
     //TODO: proverit fungovani
     private SecuredActions securedAction(String processType, LRProcessDefinition definition) {
