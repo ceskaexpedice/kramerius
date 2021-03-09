@@ -362,7 +362,7 @@ public class Main {
                 //process.indexByObjectPid(pid, IndexationType.TREE);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT_AND_CHILDREN);
-                process.indexByObjectPid(pid, IndexationType.TREE);
+                process.indexByObjectPid(pid, IndexationType.TREE, null);
             }
         }
     }

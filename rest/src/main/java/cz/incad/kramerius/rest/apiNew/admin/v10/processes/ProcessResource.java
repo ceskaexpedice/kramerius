@@ -16,8 +16,6 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.kramerius.searchIndex.NewIndexerProcessIndexObject;
-import cz.kramerius.searchIndex.NewIndexerProcessIndexModel;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -642,13 +640,13 @@ public class ProcessResource extends AdminApiResource {
 
     private List<String> paramsToList(String id, JSONObject params, ClientAuthHeaders clientAuthHeaders) {
         switch (id) {
-            case ProcessApiTestProcess.ID: {
+            case "new_process-api-test": {
                 //duration (of every process in the batch) in seconds
-                Integer duration = extractOptionalPositiveInteger(params, ProcessApiTestProcess.PARAM_DURATION, 1);
+                Integer duration = extractOptionalPositiveInteger(params, "duration", 1);
                 //number of processes in the batch
-                Integer processesInBatch = extractOptionalPositiveInteger(params, ProcessApiTestProcess.PARAM_PROCESSES_IN_BATCH, 1);
+                Integer processesInBatch = extractOptionalPositiveInteger(params, "processesInBatch", 1);
                 //final state of every process in the batch (including random)
-                ProcessApiTestProcess.FinalState finalState = extractOptionalFinalState(params, ProcessApiTestProcess.PARAM_FINAL_STATE, ProcessApiTestProcess.FinalState.FINISHED);
+                ProcessApiTestProcess.FinalState finalState = extractOptionalFinalState(params, "finalState", ProcessApiTestProcess.FinalState.FINISHED);
 
                 List<String> result = new ArrayList<>();
                 result.add(duration.toString());
@@ -656,9 +654,9 @@ public class ProcessResource extends AdminApiResource {
                 result.add(finalState.name());
                 return result;
             }
-            case NewIndexerProcessIndexObject.ID: {
-                String type = extractMandatoryIndexationType(params, NewIndexerProcessIndexObject.PARAM_TYPE);
-                String pid = extractMandatoryPid(params, NewIndexerProcessIndexObject.PARAM_PID, "uuid:");
+            case "new_indexer_index_object": {
+                String type = extractMandatoryIndexationType(params, "type");
+                String pid = extractMandatoryPid(params, "pid", "uuid:");
                 String title = extractOptionalString(params, "title", null);
 
                 List<String> result = new ArrayList<>();
@@ -672,9 +670,9 @@ public class ProcessResource extends AdminApiResource {
                 result.add(title);//indexation's root title
                 return result;
             }
-            case NewIndexerProcessIndexModel.ID: {
-                String type = extractMandatoryIndexationType(params, NewIndexerProcessIndexObject.PARAM_TYPE);
-                String pid = extractMandatoryPid(params, NewIndexerProcessIndexModel.PARAM_PID, "model:");
+            case "new_indexer_index_model": {
+                String type = extractMandatoryIndexationType(params, "type");
+                String pid = extractMandatoryPid(params, "pid", "model:");
                 Boolean indexNotIndexed = extractOptionalBoolean(params, "indexNotIndexed", true);
                 Boolean indexRunningOrError = extractOptionalBoolean(params, "indexRunningOrError", false);
                 Boolean indexIndexedOutdated = extractOptionalBoolean(params, "indexIndexedOutdated", false);

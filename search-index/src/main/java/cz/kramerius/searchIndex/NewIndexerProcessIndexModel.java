@@ -22,15 +22,11 @@ import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNoApi.RepositoryAc
 import java.io.IOException;
 import java.util.logging.Logger;
 
+/**
+ * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (new_indexer_index_model)
+ */
 public class NewIndexerProcessIndexModel {
     public static final Logger LOGGER = Logger.getLogger(NewIndexerProcessIndexObject.class.getName());
-    public static final String ID = "new_indexer_index_model";
-    public static final String PARAM_PID = "pid";
-    public static final String PARAM_TYPE = "type";
-    public static final String PARAM_INDEX_NOT_INDEXED = "index_not_indexed";
-    public static final String PARAM_INDEX_RUNNING_OR_ERROR = "index_running_or_error";
-    public static final String PARAM_INDEX_INDEXED = "index_indexed";
-    public static final String PARAM_INDEX_INDEXED_OUTDATED = "index_indexed_outdated";
 
     public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token";
 
@@ -92,10 +88,9 @@ public class NewIndexerProcessIndexModel {
         KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
         Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out);
 
-        //ne, jinak. Tady budou ty citace apod. a volat se bude jen indexByObjectPid
-        indexer.indexByModel(model, type, indexNotIndexed, indexRunningOrError, indexIndexedOutdated, indexIndexed);
-
+        //TODO: jinak. Tady budou ty citace apod. a volat se bude jen indexByObjectPid
+        //indexer.indexByModel(model, type, indexNotIndexed, indexRunningOrError, indexIndexedOutdated, indexIndexed);
         LOGGER.info("Indexace dokončena");
-        LOGGER.info("Ceková doba: " + Utils.formatTime(System.currentTimeMillis() - start));
+        LOGGER.info("Celková doba: " + Utils.formatTime(System.currentTimeMillis() - start));
     }
 }

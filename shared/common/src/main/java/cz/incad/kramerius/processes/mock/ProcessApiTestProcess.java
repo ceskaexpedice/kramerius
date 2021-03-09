@@ -19,15 +19,11 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 /**
- * Definice procesu je dale v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st
+ * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (new_process-api-test)
  */
 public class ProcessApiTestProcess {
 
     public static final Logger LOGGER = Logger.getLogger(ProcessApiTestProcess.class.getName());
-    public static final String ID = "new_process-api-test";
-    public static final String PARAM_DURATION = "duration";
-    public static final String PARAM_PROCESSES_IN_BATCH = "processesInBatch";
-    public static final String PARAM_FINAL_STATE = "finalState";
 
     public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token";
 
@@ -51,7 +47,8 @@ public class ProcessApiTestProcess {
         FinalState finalState = FinalState.valueOf(args[argsIndex++]);
 
         //zmena nazvu
-        ProcessStarter.updateName(String.format("Proces pro testování správy procesů (%s=%ds, %s=%s, processes_in_batch=%d)", PARAM_DURATION, durationInSeconds, PARAM_FINAL_STATE, finalState, processesInBatch));
+        ProcessStarter.updateName(String.format("Proces pro testování správy procesů (%s=%ds, %s=%s, %s=%d)",
+                "duration", durationInSeconds, "processesInBatch", finalState, processesInBatch));
 
         //cekani n sekund
         try {
@@ -96,11 +93,11 @@ public class ProcessApiTestProcess {
         Client client = Client.create();
         WebResource resource = client.resource(ProcessUtils.getNewAdminApiProcessesEndpoint());
         JSONObject data = new JSONObject();
-        data.put("defid", ID);
+        data.put("defid", "new_process-api-test");
         JSONObject params = new JSONObject();
-        params.put(PARAM_DURATION, durationInSeconds);
-        params.put(PARAM_PROCESSES_IN_BATCH, remainingProcessesInBatch);
-        params.put(PARAM_FINAL_STATE, finalState.name());
+        params.put("duration", durationInSeconds);
+        params.put("processesInBatch", remainingProcessesInBatch);
+        params.put("finalState", finalState.name());
         data.put("params", params);
 
         try {

@@ -27,10 +27,8 @@ public class Indexer {
     public static final int INDEXER_VERSION = 1; //this should be updated after every change in logic, that affects full indexation
 
     private final SolrConfig solrConfig;
-    //status info
-    private boolean stopped = false;
-    private ProgressListener progressListener; //TODO: per public method, not globally here
-    private long initTime;
+    //only state variable
+    private boolean shutDown = false;
     //helpers
     private final ReportLogger reportLogger;
     private final KrameriusRepositoryAccessAdapter repositoryConnector;
@@ -39,16 +37,13 @@ public class Indexer {
     private final SolrInputBuilder solrInputBuilder;
     private SolrIndexAccess solrIndexer = null;
 
-
     public Indexer(KrameriusRepositoryAccessAdapter repositoryConnector, SolrConfig solrConfig, OutputStream reportLoggerStream) {
-        long start = System.currentTimeMillis();
         this.repositoryConnector = repositoryConnector;
         this.nodeManager = new RepositoryNodeManager(repositoryConnector);
         this.solrInputBuilder = new SolrInputBuilder();
         this.solrConfig = solrConfig;
         this.reportLogger = new ReportLogger(reportLoggerStream);
         init();
-        this.initTime = System.currentTimeMillis() - start;
     }
 
     private void report(String message) {
@@ -70,53 +65,57 @@ public class Indexer {
         try {
             solrIndexer = new SolrIndexAccess(solrConfig);
             report("SOLR API connector initialized");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             report("Initialization error: TemplateException: " + e.getMessage());
             LOGGER.log(Level.SEVERE, "Initialization error", e);
+            throw e;
         }
         report(" ");
     }
 
 
-    public void indexByObjectPid(String pid, IndexationType type) {
-        long start = System.currentTimeMillis();
-        Counters counters = new Counters();
-        report("Processing " + pid + " (indexation type: " + type + ")");
-        //int limit = 3;
-        report("============================================================================================");
+    public void indexByObjectPid(String pid, IndexationType type, ProgressListener progressListener) {
+        if (shutDown) {
+            report("Indexer has already been shut down");
+        } else {
+            long start = System.currentTimeMillis();
+            Counters counters = new Counters();
+            report("Processing " + pid + " (indexation type: " + type + ")");
+            //int limit = 3;
+            report("============================================================================================");
 
-        if (type == IndexationType.TREE_AND_FOSTER_TREES) {
-            setFullIndexationInProgress(pid);
-        }
-        RepositoryNode node = nodeManager.getKrameriusNode(pid);
-        if (node != null) {
-            indexObjectWithCounters(pid, node, counters, true);
-            processChildren(node, true, type, counters);
-        }
-        if (type == IndexationType.TREE_AND_FOSTER_TREES) {
-            clearFullIndexationInProgress(pid);
-        }
-        commitAfterLastIndexation(counters);
+            if (type == IndexationType.TREE_AND_FOSTER_TREES) {
+                setFullIndexationInProgress(pid);
+            }
+            RepositoryNode node = nodeManager.getKrameriusNode(pid);
+            if (node != null) {
+                if (!shutDown) {
+                    indexObjectWithCounters(pid, node, counters, true);
+                    processChildren(node, true, type, counters);
+                }
+            }
+            if (type == IndexationType.TREE_AND_FOSTER_TREES) {
+                clearFullIndexationInProgress(pid);
+            }
+            commitAfterLastIndexation(counters);
 
-        report(" ");
-
-        if (stopped) {
-            report("Process has been stopped prematurely");
-        }
-
-        report("Summary");
-        report("=======================================");
-        report(" objects found    : " + counters.getFound());
-        report(" objects processed: " + counters.getProcessed());
-        report(" objects indexed  : " + counters.getIndexed());
-        report(" objects removed  : " + counters.getRemoved());
-        report(" objects erroneous: " + counters.getErrors());
-        report(" *counters include pages from pdf, i.e. not real objects in repository");
-        report(" initialization duration: " + formatTime(initTime));
-        report(" records processing duration: " + formatTime(System.currentTimeMillis() - start));
-        report("=======================================");
-        if (progressListener != null) {
-            progressListener.onFinished(counters.getProcessed(), counters.getFound());
+            report(" ");
+            if (shutDown) {
+                report("Indexer was shut down during execution");
+            }
+            report("Summary");
+            report("=======================================");
+            report(" objects found    : " + counters.getFound());
+            report(" objects processed: " + counters.getProcessed());
+            report(" objects indexed  : " + counters.getIndexed());
+            report(" objects removed  : " + counters.getRemoved());
+            report(" objects erroneous: " + counters.getErrors());
+            report(" *counters include pages from pdf, i.e. not real objects in repository");
+            report(" records processing duration: " + formatTime(System.currentTimeMillis() - start));
+            report("=======================================");
+            if (progressListener != null) {
+                progressListener.onFinished(counters.getProcessed(), counters.getFound());
+            }
         }
     }
 
@@ -150,7 +149,9 @@ public class Indexer {
     }
 
     private void indexObjectWithCounters(String pid, Counters counters, boolean isIndexationRoot) {
-        indexObjectWithCounters(pid, nodeManager.getKrameriusNode(pid), counters, isIndexationRoot);
+        if (!shutDown) {
+            indexObjectWithCounters(pid, nodeManager.getKrameriusNode(pid), counters, isIndexationRoot);
+        }
     }
 
     private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters, boolean isIndexationRoot) {
@@ -314,35 +315,36 @@ public class Indexer {
 
 
     @Deprecated
-    public void indexDoc(Document solrDoc) {
+    public void indexDoc(Document solrDoc, ProgressListener progressListener) {
         List<Document> singleItemList = new ArrayList<>();
         singleItemList.add(solrDoc);
-        indexDocBatch(singleItemList);
+        indexDocBatch(singleItemList, progressListener);
     }
 
     @Deprecated
-    public void indexDocBatch(List<Document> solrDocs) {
+    public void indexDocBatch(List<Document> solrDocs, ProgressListener progressListener) {
         long start = System.currentTimeMillis();
         Counters counters = new Counters();
         report("Processing " + counters.getFound() + " records");
         //int limit = 3;
         report("==============================");
         for (Document doc : solrDocs) {
-            if (stopped) {
+            if (shutDown) {
                 report(" stopped ");
                 break;
             }
-            index(doc, counters, false);
+            index(doc, counters, null, false);
         }
         report(" ");
-
+        if (shutDown) {
+            report("Indexer was shut down during execution");
+        }
         report("Summary");
         report("=======================================");
         report(" records found    : " + counters.getFound());
         report(" records processed: " + counters.getProcessed());
         report(" records indexed  : " + counters.getIndexed());
         report(" records erroneous: " + counters.getErrors());
-        report(" initialization duration: " + formatTime(initTime));
         report(" records processing duration: " + formatTime(System.currentTimeMillis() - start));
         report("=======================================");
         if (progressListener != null) {
@@ -350,7 +352,7 @@ public class Indexer {
         }
     }
 
-    private void index(Document solrDoc, Counters counters, boolean explicitCommit) {
+    private void index(Document solrDoc, Counters counters, ProgressListener progressListener, boolean explicitCommit) {
         try {
             counters.incrementFound();
             report(" indexing");
@@ -392,19 +394,15 @@ public class Indexer {
         report(" ");
     }
 
-    public void stop() {
-        stopped = true;
+    public void shutDown() {
+        shutDown = true;
     }
 
     public void close() {
         reportLogger.close();
     }
 
-    public void setProgressListener(ProgressListener progressListener) {
-        this.progressListener = progressListener;
-    }
-
-    @Deprecated
+    /*@Deprecated
     public void indexByModel(String model, String type, boolean indexNotIndexed, boolean indexRunningOrError, boolean indexIndexedOutdated, boolean indexIndexed) {
         long start = System.currentTimeMillis();
         int found = 0;
@@ -431,8 +429,8 @@ public class Indexer {
         report(" top-level objects erroneous: " + nowErrors);
         report(" total duration: " + formatTime(System.currentTimeMillis() - start));
         report("===========================================");
-        /*if (progressListener != null) {
+        *//*if (progressListener != null) {
             progressListener.onFinished(counters.getProcessed(), counters.getFound());
-        }*/
-    }
+        }*//*
+    }*/
 }
