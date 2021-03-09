@@ -189,4 +189,38 @@
         </out>
     </test>
 
+    <test name="Neplatné souřadnice: zeměpisná šířka nespadá do intervalu -90° až +90°">
+        <desc>http://www.digitalniknihovna.cz/mzk/uuid/uuid:392fcb48-da54-4f46-9e7d-55bee32952a7</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(014°27´00" v.d.--017°04´00" v.d./490°10´00" s.š.--047°25´00" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--<field name="coords.bbox">ENVELOPE(14.450000,17.066667,490.166667,47.416667)</field>
+            <field name="coords.bbox.center">268.791667,15.758333</field>
+            <field name="coords.bbox.corner_ne">490.166667,17.066667</field>
+            <field name="coords.bbox.corner_sw">47.416667,14.450000</field>-->
+        </out>
+    </test>
+
+    <test name="Neplatné souřadnice: zeměpisná délka nespadá do intervalu -180° až +180°">
+        <desc></desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(190°33´47" v.d.--16°39´07" v.d./49°14´06" s.š.--49°10´18" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--<field name="coords.bbox">ENVELOPE(14.450000,17.066667,490.166667,47.416667)</field>
+            <field name="coords.bbox.center">268.791667,15.758333</field>
+            <field name="coords.bbox.corner_ne">490.166667,17.066667</field>
+            <field name="coords.bbox.corner_sw">47.416667,14.450000</field>-->
+        </out>
+    </test>
+
 </testSuite>

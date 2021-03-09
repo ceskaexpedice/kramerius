@@ -9,10 +9,20 @@ import java.util.regex.Pattern;
 
 public class CoordinatesExtractor {
 
-    public void extract(Node coordinatesEl, SolrInput solrInput) {
+    public void extract(Node coordinatesEl, SolrInput solrInput, String pid) {
         String coordinatesStr = toStringOrNull(coordinatesEl);
         if (coordinatesStr != null) {
-            BoundingBox bb = extractBoundingBox(coordinatesStr);
+            BoundingBox bb = extractBoundingBox(coordinatesStr, pid);
+            if (bb != null) {
+                //ignore bbox if it contains inivalid values
+                if (bb.n < -90 || bb.n > 90 || bb.s < -90 || bb.s > 90) { //neplatná zeměpisná šírka: nenachází se v intervalu <-90;90>
+                    System.err.println(String.format("Chyba v datech objektu %s: neplatná zeměpisná šírka: nenachází se v intervalu <-90;90>: %s", pid, coordinatesStr));
+                    bb = null;
+                } else if (bb.w < -180 || bb.w > 180 || bb.e < -180 || bb.e > 180) { //neplatná zeměpisná délka: nenachází se v intervalu <-180;180>
+                    System.err.println(String.format("Chyba v datech objektu %s: neplatná zeměpisná délka: nenachází se v intervalu <-180;180>: %s", pid, coordinatesStr));
+                    bb = null;
+                }
+            }
             if (bb != null) {
                 Locale locale = new Locale("en", "US");
                 solrInput.addField("coords.bbox", String.format(locale, "ENVELOPE(%.6f,%.6f,%.6f,%.6f)", bb.w, bb.e, bb.n, bb.s));
@@ -23,7 +33,7 @@ public class CoordinatesExtractor {
         }
     }
 
-    private BoundingBox extractBoundingBox(String coordinatesStr) {
+    private BoundingBox extractBoundingBox(String coordinatesStr, String pid) {
         BoundingBox bbIn = parseBoundingBoxInternational(coordinatesStr);
         if (bbIn != null) {
             return bbIn;
@@ -32,7 +42,7 @@ public class CoordinatesExtractor {
             if (bbCz != null) {
                 return bbCz;
             } else {
-                // TODO: 05/09/2019: not any of those formats, best to inform user through indexation process log
+                System.err.println(String.format("Chyba v datech objektu %s: nelze parsovat souřadnice: %s", pid, coordinatesStr));
                 return null;
             }
         }

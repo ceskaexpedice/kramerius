@@ -330,7 +330,7 @@ public class SolrInputBuilder {
         //geolocation
         Node coordinatesEl = Dom4jUtils.buildXpath("mods/subject/cartographics/coordinates").selectSingleNode(modsRootEl);
         if (coordinatesEl != null) {
-            new CoordinatesExtractor().extract(coordinatesEl, solrInput);
+            new CoordinatesExtractor().extract(coordinatesEl, solrInput, pid);
         }
 
         //dates
