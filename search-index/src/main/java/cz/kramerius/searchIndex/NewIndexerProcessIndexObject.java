@@ -25,10 +25,10 @@ import java.util.logging.Logger;
 /**
  * Definice procesu je dale v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st
  */
-public class KrameriusIndexerProcess {
+public class NewIndexerProcessIndexObject {
 
-    public static final Logger LOGGER = Logger.getLogger(KrameriusIndexerProcess.class.getName());
-    public static final String ID = "new_indexer";
+    public static final Logger LOGGER = Logger.getLogger(NewIndexerProcessIndexObject.class.getName());
+    public static final String ID = "new_indexer_index_object";
     public static final String PARAM_PID = "pid";
     public static final String PARAM_TYPE = "type";
 
@@ -87,9 +87,8 @@ public class KrameriusIndexerProcess {
         KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
         IndexerProcess process = new IndexerProcess(repositoryAdapter, solrConfig, System.out);
         process.indexByObjectPid(pid, IndexationType.valueOf(type));
-        LOGGER.info("Indexation finished");
-
-        LOGGER.info("total duration: " + Utils.formatTime(System.currentTimeMillis() - start));
+        LOGGER.info("Indexace dokončena");
+        LOGGER.info("Ceková doba: " + Utils.formatTime(System.currentTimeMillis() - start));
     }
 
     //["Quartet A minor", " op. 51", " no. 2. Andante moderato"] => "Quartet A minor, op. 51, no. 2 Andante moderato"

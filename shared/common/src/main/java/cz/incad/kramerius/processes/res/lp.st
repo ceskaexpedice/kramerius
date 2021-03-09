@@ -37,11 +37,28 @@
 
     <process>
         <!-- identifikator  -->
-        <id>new_indexer</id>
+        <id>new_indexer_index_object</id>
         <!-- popis -->
-        <description>(re)indexace - v novém vyhledávacím indexu</description>
+        <description>(re)indexace objektu v novém vyhledávacím indexu</description>
         <!-- spoustena trida -->
-        <mainClass>cz.kramerius.searchIndex.KrameriusIndexerProcess</mainClass>
+        <mainClass>cz.kramerius.searchIndex.NewIndexerProcessIndexObject</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- chybovy vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
+        <!--<parameters>duration processesInBatch finalState</parameters>-->
+        <checkErrorStream>false</checkErrorStream>
+    </process>
+
+    <process>
+        <!-- identifikator  -->
+        <id>new_indexer_index_model</id>
+        <!-- popis -->
+        <description>(re)indexace modelu v novém vyhledávacím indexu</description>
+        <!-- spoustena trida -->
+        <mainClass>cz.kramerius.searchIndex.NewIndexerProcessIndexModel</mainClass>
         <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
         <!-- chybovy vystup -->

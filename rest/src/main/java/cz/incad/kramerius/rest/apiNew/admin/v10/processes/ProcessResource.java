@@ -16,7 +16,8 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.kramerius.searchIndex.KrameriusIndexerProcess;
+import cz.kramerius.searchIndex.NewIndexerProcessIndexObject;
+import cz.kramerius.searchIndex.NewIndexerProcessIndexModel;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -685,9 +686,9 @@ public class ProcessResource extends AdminApiResource {
                 array.add(finalState.name());
                 return array;
             }
-            case KrameriusIndexerProcess.ID: {
+            case NewIndexerProcessIndexObject.ID: {
                 //type
-                String typeKey = KrameriusIndexerProcess.PARAM_TYPE;
+                String typeKey = NewIndexerProcessIndexObject.PARAM_TYPE;
                 String typeValue = null;
                 if (params.has(typeKey)) {
                     typeValue = params.getString(typeKey);
@@ -697,15 +698,15 @@ public class ProcessResource extends AdminApiResource {
                         throw new BadRequestException("invalid value of %s: '%s'", typeKey, typeValue);
                     }
                 } else {
-                    throw new BadRequestException("missing mandatory parameter %s: ", KrameriusIndexerProcess.PARAM_TYPE);
+                    throw new BadRequestException("missing mandatory parameter %s: ", NewIndexerProcessIndexObject.PARAM_TYPE);
                 }
                 //pid
-                String pidKey = KrameriusIndexerProcess.PARAM_PID;
+                String pidKey = NewIndexerProcessIndexObject.PARAM_PID;
                 String pidValue;
                 if (params.has(pidKey)) {
                     pidValue = params.getString(pidKey);
                     if (!pidValue.toLowerCase().startsWith("uuid:")) {
-                        throw new BadRequestException("invalid value of %s: '%s'", pidKey, pidValue);
+                        throw new BadRequestException("invalid value of %s (doesn't start with 'uuid:') : '%s'", pidKey, pidValue);
                     } else {
                         try {
                             UUID.fromString(pidValue.substring("uuid:".length()));
@@ -714,7 +715,7 @@ public class ProcessResource extends AdminApiResource {
                         }
                     }
                 } else {
-                    throw new BadRequestException("missing mandatory parameter %s: ", KrameriusIndexerProcess.PARAM_PID);
+                    throw new BadRequestException("missing mandatory parameter %s: ", NewIndexerProcessIndexObject.PARAM_PID);
                 }
                 //title
                 String titleValue = null;
@@ -738,6 +739,70 @@ public class ProcessResource extends AdminApiResource {
                 array.add(typeValue);//indexation type
                 array.add(pidValue);//indexation's root pid
                 array.add(titleValue);//indexation's root title
+                return array;
+            }
+            case NewIndexerProcessIndexModel.ID: {
+                //type
+                String typeKey = NewIndexerProcessIndexModel.PARAM_TYPE;
+                String typeValue = null;
+                if (params.has(typeKey)) {
+                    typeValue = params.getString(typeKey);
+                    try {
+                        IndexationType.valueOf(typeValue);
+                    } catch (IllegalArgumentException e) {
+                        throw new BadRequestException("invalid value of %s: '%s'", typeKey, typeValue);
+                    }
+                } else {
+                    throw new BadRequestException("missing mandatory parameter %s: ", NewIndexerProcessIndexObject.PARAM_TYPE);
+                }
+                //pid
+                String pidKey = NewIndexerProcessIndexModel.PARAM_PID;
+                String pidValue;
+                if (params.has(pidKey)) {
+                    pidValue = params.getString(pidKey);
+                    if (!pidValue.toLowerCase().startsWith("model:")) {
+                        throw new BadRequestException("invalid value of %s (doesn't start with 'model:'): '%s'", pidKey, pidValue);
+                    }
+                } else {
+                    throw new BadRequestException("missing mandatory parameter %s: ", NewIndexerProcessIndexObject.PARAM_PID);
+                }
+                //what to index
+                Boolean indexNotIndexed = false;
+                Boolean indexRunningOrError = false;
+                Boolean indexIndexedOutdated = false;
+                Boolean indexIndexed = false;
+                if (params.has("indexNotIndexed")) {
+                    indexNotIndexed = params.getBoolean("indexNotIndexed");
+                }
+                if (params.has("indexRunningOrError")) {
+                    indexRunningOrError = params.getBoolean("indexRunningOrError");
+                }
+                if (params.has("indexIndexedOutdated")) {
+                    indexIndexedOutdated = params.getBoolean("indexIndexedOutdated");
+                }
+                if (params.has("indexIndexed")) {
+                    indexIndexed = params.getBoolean("indexIndexed");
+                }
+                List<String> array = new ArrayList<>();
+                //Kramerius
+                array.add("http://localhost:8080/search"); //TODO: from config
+                array.add(clientAuthHeaders.getClient());
+                array.add(clientAuthHeaders.getUid());
+                array.add(clientAuthHeaders.getAccessToken());
+                //Solr
+                //TODO: from config
+                array.add("localhost:8983/solr");//solrBaseUrl
+                array.add("search");//solrCollection
+                array.add("false");//solrUseHttps
+                array.add("krameriusIndexer");//solrLogin
+                array.add("krameriusIndexerRulezz");//solrPassword
+                //indexation info
+                array.add(typeValue);//indexation type
+                array.add(pidValue);//indexation's root pid
+                array.add(indexNotIndexed.toString());
+                array.add(indexRunningOrError.toString());
+                array.add(indexIndexedOutdated.toString());
+                array.add(indexIndexed.toString());
                 return array;
             }
             default: {

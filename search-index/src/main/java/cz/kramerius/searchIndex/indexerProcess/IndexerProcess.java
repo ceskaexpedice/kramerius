@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+//TODO: rename this to Indexer
 public class IndexerProcess {
 
     private static final Logger LOGGER = Logger.getLogger(IndexerProcess.class.getName());
@@ -28,7 +29,7 @@ public class IndexerProcess {
     private final SolrConfig solrConfig;
     //status info
     private boolean stopped = false;
-    private ProgressListener progressListener;
+    private ProgressListener progressListener; //TODO: per public method, not globally here
     private long initTime;
     //helpers
     private final ReportLogger reportLogger;
@@ -104,7 +105,7 @@ public class IndexerProcess {
         }
 
         report("Summary");
-        report("================================");
+        report("=======================================");
         report(" objects found    : " + counters.getFound());
         report(" objects processed: " + counters.getProcessed());
         report(" objects indexed  : " + counters.getIndexed());
@@ -113,6 +114,7 @@ public class IndexerProcess {
         report(" *counters include pages from pdf, i.e. not real objects in repository");
         report(" initialization duration: " + formatTime(initTime));
         report(" records processing duration: " + formatTime(System.currentTimeMillis() - start));
+        report("=======================================");
         if (progressListener != null) {
             progressListener.onFinished(counters.getProcessed(), counters.getFound());
         }
@@ -335,13 +337,14 @@ public class IndexerProcess {
         report(" ");
 
         report("Summary");
-        report("=====================================================");
+        report("=======================================");
         report(" records found    : " + counters.getFound());
         report(" records processed: " + counters.getProcessed());
         report(" records indexed  : " + counters.getIndexed());
         report(" records erroneous: " + counters.getErrors());
         report(" initialization duration: " + formatTime(initTime));
         report(" records processing duration: " + formatTime(System.currentTimeMillis() - start));
+        report("=======================================");
         if (progressListener != null) {
             progressListener.onFinished(counters.getProcessed(), counters.getFound());
         }
@@ -399,5 +402,36 @@ public class IndexerProcess {
 
     public void setProgressListener(ProgressListener progressListener) {
         this.progressListener = progressListener;
+    }
+
+    public void indexByModel(String model, String type, boolean indexNotIndexed, boolean indexRunningOrError, boolean indexIndexedOutdated, boolean indexIndexed) {
+        long start = System.currentTimeMillis();
+        int found = 0;
+        int processed = 0;
+        int nowIgnored = 0;
+        int nowIndexed = 0;
+        int nowErrors = 0;
+
+        report("TODO: actually run");
+        //TODO: 1. iterovat repozitar po nejakych davkach a drzet kurzor
+        //TODO: 2. ziskat stavy objektu stylem getIndexationInfoForPids
+        //TODO: 3. podle stavovych filtru zpracovat, nebo preskocit
+        //TODO: 4. aktualizovat counters
+        //TODO: 5. vypsat vysledny stav
+        //TODO: 6. reagovat na zastaveni
+        //TODO: 7. optimalizace - pokud jsou vsechny filtry index* na true, nebude se kontrolvat solr
+
+        report("Total Summary");
+        report("===========================================");
+        report(" top-level objects found    : " + found);
+        report(" top-level objects processed: " + processed);
+        report(" top-level objects indexed  : " + nowIndexed);
+        report(" top-level objects ignored  : " + nowIgnored);
+        report(" top-level objects erroneous: " + nowErrors);
+        report(" total duration: " + formatTime(System.currentTimeMillis() - start));
+        report("===========================================");
+        /*if (progressListener != null) {
+            progressListener.onFinished(counters.getProcessed(), counters.getFound());
+        }*/
     }
 }
