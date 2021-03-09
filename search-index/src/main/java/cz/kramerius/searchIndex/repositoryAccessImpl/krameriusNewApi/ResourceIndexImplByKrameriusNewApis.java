@@ -107,7 +107,8 @@ public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstra
                 JsonObject structure = Utils.inputstreamToJsonObject(inputStream);
                 return structure;
             } else {
-                throw new IOException("object " + pid + " not found or error reading it");
+                String errorMessage = Utils.inputstreamToString(con.getErrorStream());
+                throw new IOException("object " + pid + " not found or error reading it: " + errorMessage);
             }
         } catch (IOException e) {
             throw new ResourceIndexException(e);
