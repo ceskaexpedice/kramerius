@@ -2,7 +2,7 @@ package cz.kramerius.searchIndex.indexerProcess;
 
 
 import cz.kramerius.searchIndex.indexer.SolrConfig;
-import cz.kramerius.searchIndex.indexer.SolrIndexer;
+import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-//TODO: rename this to Indexer
-public class IndexerProcess {
+public class Indexer {
+    private static final Logger LOGGER = Logger.getLogger(Indexer.class.getName());
 
-    private static final Logger LOGGER = Logger.getLogger(IndexerProcess.class.getName());
+    public static final int INDEXER_VERSION = 1; //this should be updated after every change in logic, that affects full indexation
 
     private final SolrConfig solrConfig;
     //status info
@@ -37,10 +37,10 @@ public class IndexerProcess {
     private final RepositoryNodeManager nodeManager;
 
     private final SolrInputBuilder solrInputBuilder;
-    private SolrIndexer solrIndexer = null;
+    private SolrIndexAccess solrIndexer = null;
 
 
-    public IndexerProcess(KrameriusRepositoryAccessAdapter repositoryConnector, SolrConfig solrConfig, OutputStream reportLoggerStream) {
+    public Indexer(KrameriusRepositoryAccessAdapter repositoryConnector, SolrConfig solrConfig, OutputStream reportLoggerStream) {
         long start = System.currentTimeMillis();
         this.repositoryConnector = repositoryConnector;
         this.nodeManager = new RepositoryNodeManager(repositoryConnector);
@@ -68,7 +68,7 @@ public class IndexerProcess {
         report("==============================");
 
         try {
-            solrIndexer = new SolrIndexer(solrConfig);
+            solrIndexer = new SolrIndexAccess(solrConfig);
             report("SOLR API connector initialized");
         } catch (Exception e) {
             report("Initialization error: TemplateException: " + e.getMessage());
@@ -125,7 +125,7 @@ public class IndexerProcess {
             SolrInput solrInput = new SolrInput();
             solrInput.addField("pid", pid);
             solrInput.addField("full_indexation_in_progress", Boolean.TRUE.toString());
-            solrInput.addField("indexer_version", String.valueOf(SolrIndexer.INDEXER_VERSION));
+            solrInput.addField("indexer_version", String.valueOf(INDEXER_VERSION));
             String solrInputStr = solrInput.getDocument().asXML();
             solrIndexer.indexFromXmlString(solrInputStr, false);
         } catch (Exception e) {
@@ -404,6 +404,7 @@ public class IndexerProcess {
         this.progressListener = progressListener;
     }
 
+    @Deprecated
     public void indexByModel(String model, String type, boolean indexNotIndexed, boolean indexRunningOrError, boolean indexIndexedOutdated, boolean indexIndexed) {
         long start = System.currentTimeMillis();
         int found = 0;

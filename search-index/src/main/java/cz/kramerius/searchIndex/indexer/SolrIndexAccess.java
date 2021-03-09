@@ -27,9 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SolrIndexer {
-
-    public static final int INDEXER_VERSION = 1; //this should be updated after every change in logic, that affects full indexation
+public class SolrIndexAccess {
 
     private static final int MAX_TIME_WITHOUT_COMMIT_MS = 15000; //15 seconds
     private static final int CONNECTION_TIMEOUT = 10000;
@@ -38,7 +36,7 @@ public class SolrIndexer {
     private final HttpSolrClient solrClient;
     private final String collection; //because solrClient is buggy and still requires explicit collection-name as an parameter of some operations even though it gets collection-name in the constructor
 
-    public SolrIndexer(SolrConfig config) {
+    public SolrIndexAccess(SolrConfig config) {
         this.solrClient = config.login == null
                 ? buildHttpSolrClientWithoutAuth(config.baseUrl, config.collection, config.useHttps)
                 : buildHttpSolrClientWithAuth(config.baseUrl, config.collection, config.useHttps, config.login, config.password);
@@ -179,7 +177,6 @@ public class SolrIndexer {
         QueryResponse response = solrClient.query(collection, queryParams);
         return response.getResults();
     }
-
 
     public void commit() throws IOException, SolrServerException {
         solrClient.commit(collection);

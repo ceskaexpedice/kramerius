@@ -1,9 +1,9 @@
 package cz.kramerius.searchIndex.indexer.conversions;
 
-import cz.kramerius.searchIndex.indexer.SolrIndexer;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.searchIndex.indexer.utils.NamespaceRemovingVisitor;
+import cz.kramerius.searchIndex.indexerProcess.Indexer;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
 import cz.kramerius.shared.AuthorInfo;
@@ -142,7 +142,7 @@ public class SolrInputBuilder {
         SolrInput solrInput = new SolrInput();
 
         //indexer version
-        addSolrField(solrInput, "indexer_version", SolrIndexer.INDEXER_VERSION);
+        addSolrField(solrInput, "indexer_version", Indexer.INDEXER_VERSION);
         if (indexationRoot) {
             addSolrField(solrInput, "full_indexation_in_progress", true);
         }

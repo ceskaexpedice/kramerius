@@ -4,11 +4,11 @@ import com.google.common.collect.ObjectArrays;
 import cz.kramerius.adapters.FedoraAccess;
 import cz.kramerius.adapters.IResourceIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
-import cz.kramerius.searchIndex.indexer.SolrIndexer;
+import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
-import cz.kramerius.searchIndex.indexerProcess.IndexerProcess;
+import cz.kramerius.searchIndex.indexerProcess.Indexer;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
@@ -322,7 +322,7 @@ public class Main {
             String[] solrCollections = subArray(args, 3);
             for (String solrCollection : solrCollections) {
                 System.out.println("clearing collection " + solrCollection);
-                new SolrIndexer(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword)).deleteAll();
+                new SolrIndexAccess(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword)).deleteAll();
             }
         }
     }
@@ -358,7 +358,7 @@ public class Main {
                 //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
                 IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
                 KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
-                IndexerProcess process = new IndexerProcess(repositoryAdapter, solrConfig, System.out);
+                Indexer process = new Indexer(repositoryAdapter, solrConfig, System.out);
                 //process.indexByObjectPid(pid, IndexationType.TREE);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT_AND_CHILDREN);
@@ -399,7 +399,7 @@ public class Main {
             KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
             RepositoryNodeManager nodeManager = new RepositoryNodeManager(repositoryAdapter);
             SolrInputBuilder solrInputBuilder = new SolrInputBuilder();
-            SolrIndexer indexer = new SolrIndexer(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));
+            SolrIndexAccess solrAccess = new SolrIndexAccess(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));
 
             boolean objectAvailable = repositoryAdapter.isObjectAvailable(pid);
             if (!objectAvailable) {
@@ -422,7 +422,7 @@ public class Main {
             String solrInputStr = solrInput.getDocument().asXML();
             //System.out.println(solrInputStr);
             System.out.println("indexing " + pid);
-            indexer.indexFromXmlString(solrInputStr, true);
+            solrAccess.indexFromXmlString(solrInputStr, true);
         }
     }
 
@@ -443,7 +443,7 @@ public class Main {
 
             System.out.println("converting foxml -> solr_import_xml (in " + foxmlDir.getAbsolutePath() + ") and indexing into " + solrBaseUrl);
             SolrInputBuilder builder = new SolrInputBuilder();
-            SolrIndexer indexer = new SolrIndexer(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));
+            SolrIndexAccess solrAccess = new SolrIndexAccess(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));
             String[] foxmlFilenames = foxmlDir.list((dir, name) -> name.endsWith(".foxml.xml"));
             for (String foxmlFilename : foxmlFilenames) {
                 String pid = foxmlFilename.substring(0, foxmlFilename.length() - ".foxml.xml".length());
@@ -451,7 +451,7 @@ public class Main {
                 File outSolrInputFile = new File(foxmlDir, pid + ".solr.xml");
                 builder.convertFoxmlToSolrInput(new File(foxmlDir, foxmlFilename), outSolrInputFile);
                 //TODO: indexation temporarily disabled
-                //indexer.indexFromXmlFile(outSolrInputFile, true);
+                //solrAccess.indexFromXmlFile(outSolrInputFile, true);
             }
             System.out.println("converted " + foxmlFilenames.length + " files");
         }

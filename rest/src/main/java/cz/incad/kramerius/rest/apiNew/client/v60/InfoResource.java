@@ -5,7 +5,7 @@ import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.kramerius.searchIndex.indexer.SolrIndexer;
+import cz.kramerius.searchIndex.indexerProcess.Indexer;
 import org.json.JSONObject;
 
 import javax.ws.rs.*;
@@ -55,7 +55,7 @@ public class InfoResource extends ClientApiResource {
                 }
                 json.put("rightMsg", rightMsg);
             }
-            json.put("indexerVersion", SolrIndexer.INDEXER_VERSION);
+            json.put("indexerVersion", Indexer.INDEXER_VERSION);
             return Response.ok(json).build();
         } catch (WebApplicationException e) {
             throw e;
