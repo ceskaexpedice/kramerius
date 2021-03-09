@@ -101,16 +101,16 @@ public class ItemsResource extends AdminApiResource {
                     throw new BadRequestException("limit must be a number, '%s' is not", limit);
                 }
             }
-            RepositoryApi.TitlePidPairs TitlePidPairsByModel = cursor != null ?
+            RepositoryApi.TitlePidPairs titlePidPairsByModel = cursor != null ?
                     krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModelWithCursor(model, ascendingOrder, cursor, limitInt) :
                     krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModel(model, ascendingOrder, offsetInt, limitInt);
             JSONObject json = new JSONObject();
             json.put("model", model);
-            if (TitlePidPairsByModel.nextCursorMark != null) {
-                json.put("nextCursor", TitlePidPairsByModel.nextCursorMark);
+            if (titlePidPairsByModel.nextCursorMark != null) {
+                json.put("nextCursor", titlePidPairsByModel.nextCursorMark);
             }
             JSONArray items = new JSONArray();
-            for (Pair<String, String> pidAndTitle : TitlePidPairsByModel.titlePidPairs) {
+            for (Pair<String, String> pidAndTitle : titlePidPairsByModel.titlePidPairs) {
                 JSONObject item = new JSONObject();
                 item.put("title", pidAndTitle.getFirst());
                 item.put("pid", pidAndTitle.getSecond());
