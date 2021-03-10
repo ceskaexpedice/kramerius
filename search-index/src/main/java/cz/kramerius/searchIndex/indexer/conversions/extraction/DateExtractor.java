@@ -168,7 +168,6 @@ public class DateExtractor {
             result.dateMin = MyDateTimeUtils.toYearStart(year);
             result.dateMax = MyDateTimeUtils.toYearEnd(year);
         } else if (isYearWithEndingSquareBracketAndQuestionMark(result.value)) { //1920?]
-            System.out.println("isYearWithEndingSquareBracketAndQuestionMark");
             int year = Integer.valueOf(result.value.substring(0, result.value.length() - 2));
             result.rangeStartYear = year;
             result.rangeEndYear = year;
