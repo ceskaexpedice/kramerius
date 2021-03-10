@@ -4,14 +4,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.processes.utils.Utils;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.repository.RepositoryApi;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.java.Pair;
@@ -24,12 +23,15 @@ import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapte
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceIndexImplByKrameriusNewApis;
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import javax.inject.Inject;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -41,7 +43,6 @@ public class NewIndexerProcessIndexModel {
     public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token";
 
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
-        long start = System.currentTimeMillis();
         //args
        /* LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
@@ -62,16 +63,16 @@ public class NewIndexerProcessIndexModel {
         String solrPassword = args[argsIndex++];
         //indexation info
         IndexationType type = IndexationType.valueOf(args[argsIndex++]);
-        System.out.println("type: " + type);
+        report("type: " + type);
         String modelPid = args[argsIndex++];
-        System.out.println(modelPid);
+        report(modelPid);
         //what to index
         Filters filters = new Filters();
         filters.indexNotIndexed = Boolean.valueOf(args[argsIndex++]);
         filters.indexRunningOrError = Boolean.valueOf(args[argsIndex++]);
         filters.indexIndexedOutdated = Boolean.valueOf(args[argsIndex++]);
         filters.indexIndexed = Boolean.valueOf(args[argsIndex++]);
-        System.out.println(filters);
+        report(filters.toString());
 
         if (!modelPid.startsWith("model:")) {
             LOGGER.severe("Špatný formát pidu modelu:" + modelPid);
@@ -92,7 +93,7 @@ public class NewIndexerProcessIndexModel {
         FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl, krameriusCredentials);*/
 
         //access to repository through java directly (injected cz.incad.kramerius.FedoraAccess)
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        Injector injector = Guice.createInjector(new SearchIndexModule(), new NullStatisticsModule(), new SolrModule(), new RepoModule());
         cz.incad.kramerius.FedoraAccess rawRepositoryAccess = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
         FedoraAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepositoryAccess);
 
@@ -100,69 +101,93 @@ public class NewIndexerProcessIndexModel {
         IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
 
         KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
-
         Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out);
 
-
         KrameriusRepositoryApiImpl krameriusRepositoryApi = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class));
+        SolrAccess solrAccess = filters.indexAll() ? null : injector.getInstance(Key.get(SolrAccess.class, Names.named("new-index")));
 
         int processed = 0;
         int nowIgnored = 0;
         int nowIndexed = 0;
         int nowErrors = 0;
 
-        report("TODO: actually run");
         String cursor = "*";
-        int limit = 3; //TODO: set to 1000?
-
+        int limit = 100;
         while (cursor != null) {
             RepositoryApi.TitlePidPairs titlePidPairsByModel = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModelWithCursor(model, true, cursor, limit);
             cursor = cursor.equals(titlePidPairsByModel.nextCursorMark) ? null : titlePidPairsByModel.nextCursorMark;
             processed += titlePidPairsByModel.titlePidPairs.size();
-            List<Pair<String, String>> toBeIndexed = filters.indexAll() ? titlePidPairsByModel.titlePidPairs : filter(titlePidPairsByModel.titlePidPairs, filters);
+            List<Pair<String, String>> toBeIndexed = filters.indexAll() ? titlePidPairsByModel.titlePidPairs : filter(solrAccess, titlePidPairsByModel.titlePidPairs, filters);
             nowIgnored += titlePidPairsByModel.titlePidPairs.size() - toBeIndexed.size();
             for (Pair<String, String> titlePidPair : toBeIndexed) {
                 String title = titlePidPair.getFirst();
                 String pid = titlePidPair.getSecond();
-                report(String.format("indexing %s (%s)", title, pid));
-                //TODO: actually index
-                //TODO: use progresslistener
-                //indexer.indexByObjectPid(pid, type, null);
-                nowIndexed++; //TODO: nowErrors try-catch indexByObjectPid
+                //report(String.format("indexing %s: %s", pid, title));
+                //TODO: maybe use progresslistener and inform about every 1000 or so indexed
+                try {
+                    indexer.indexByObjectPid(pid, type, null);
+                    nowIndexed++;
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                    nowErrors++;
+                }
             }
+            report("Processed " + processed + " top-level objects");
         }
 
-        //TODO: 2. ziskat stavy objektu stylem getIndexationInfoForPids
-        //TODO: 3. podle stavovych filtru zpracovat, nebo preskocit
-        //TODO: 5. vypsat vysledny stav
-
-        //TODO: raději všechno česky
-        report("Total Summary");
+        report(" ");
+        report("Top-level summary");
         report("===========================================");
-        report(" top-level objects processed: " + processed);
-        report(" top-level objects indexed  : " + nowIndexed);
-        report(" top-level objects ignored  : " + nowIgnored);
-        report(" top-level objects erroneous: " + nowErrors);
+        report(" Top-level objects processed: " + processed);
+        report(" Top-level objects indexed  : " + nowIndexed);
+        report(" Top-level objects ignored  : " + nowIgnored);
+        report(" Top-level objects erroneous: " + nowErrors);
         report("===========================================");
-
-        LOGGER.info("Indexace dokončena");
-        LOGGER.info("Celková doba: " + Utils.formatTime(System.currentTimeMillis() - start));
+        report(" ");
     }
 
-    private static List<Pair<String, String>> filter(List<Pair<String, String>> titlePidPairs, Filters filters) {
+    private static List<Pair<String, String>> filter(SolrAccess solrAccess, List<Pair<String, String>> titlePidPairs, Filters filters) throws IOException {
         List<Pair<String, String>> result = new ArrayList<>();
-        //TODO: zeptat se solru na stav (getIndexationInfoForPids) a podle filtru vratit jen to, co sedi
-        Random random = new Random();
+        if (titlePidPairs.isEmpty()) {
+            return result;
+        }
+        String q = "";
+        for (int i = 0; i < titlePidPairs.size(); i++) {
+            String pid = titlePidPairs.get(i).getSecond();
+            q += "pid:" + pid.replace(":", "\\:");
+            if (i != titlePidPairs.size() - 1) {
+                q += " OR ";
+            }
+        }
+        String query = "fl=pid,indexer_version,full_indexation_in_progress&rows=" + titlePidPairs.size() + "&q=" + URLEncoder.encode(q, "UTF-8");
+        JSONObject jsonObject = solrAccess.requestWithSelectInJson(query);
+        JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
+        Map<String, JSONObject> docByPid = new HashMap<>();
+        for (int i = 0; i < docs.length(); i++) {
+            JSONObject doc = docs.getJSONObject(i);
+            docByPid.put(doc.getString("pid"), doc);
+        }
         for (Pair<String, String> titlePidPair : titlePidPairs) {
-            if (random.nextBoolean()) {
+            String title = titlePidPair.getFirst();
+            String pid = titlePidPair.getSecond();
+            JSONObject jsonDoc = docByPid.get(pid);
+            boolean inIndex = jsonDoc != null;
+            int indexerVersion = jsonDoc == null ? -1 : (jsonDoc.has("indexer_version") ? jsonDoc.getInt("indexer_version") : 0);
+            boolean runningOrError = jsonDoc == null ? false : (jsonDoc.has("full_indexation_in_progress") ? jsonDoc.getBoolean("full_indexation_in_progress") : false);
+            if (shouldIndex(filters, inIndex, indexerVersion, runningOrError)) {
                 result.add(titlePidPair);
             } else {
-                String title = titlePidPair.getFirst();
-                String pid = titlePidPair.getSecond();
-                report(String.format("ignoring %s (%s)", title, pid));
+                //report(String.format("Ignoring %s: %s", pid, title));
             }
         }
         return result;
+    }
+
+    private static boolean shouldIndex(Filters filters, boolean inIndex, int indexerVersion, boolean runningOrError) {
+        return filters.indexNotIndexed && !inIndex ||
+                filters.indexRunningOrError && runningOrError ||
+                filters.indexIndexedOutdated && (indexerVersion < Indexer.INDEXER_VERSION) ||
+                filters.indexIndexed && (indexerVersion == Indexer.INDEXER_VERSION);
     }
 
     private static void report(String message) {

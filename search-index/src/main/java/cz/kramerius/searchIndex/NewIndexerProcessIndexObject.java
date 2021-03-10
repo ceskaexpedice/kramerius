@@ -6,7 +6,6 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.processes.utils.Utils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -32,7 +31,6 @@ public class NewIndexerProcessIndexObject {
     public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token";
 
     public static void main(String[] args) throws IOException {
-        long start = System.currentTimeMillis();
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
@@ -82,9 +80,8 @@ public class NewIndexerProcessIndexObject {
 
         KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
         Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out);
+        //TODO: maybe use progresslistener and inform about every 1000 or so indexed
         indexer.indexByObjectPid(pid, IndexationType.valueOf(type), null);
-        LOGGER.info("Indexace dokončena");
-        LOGGER.info("Celková doba: " + Utils.formatTime(System.currentTimeMillis() - start));
     }
 
     //["Quartet A minor", " op. 51", " no. 2. Andante moderato"] => "Quartet A minor, op. 51, no. 2 Andante moderato"
