@@ -657,6 +657,7 @@ public class ProcessResource extends AdminApiResource {
             case "new_indexer_index_object": {
                 String type = extractMandatoryIndexationType(params, "type");
                 String pid = extractMandatoryPid(params, "pid", "uuid:");
+                Boolean ignoreInconsistentObjects = extractOptionalBoolean(params, "ignoreInconsistentObjects", false);
                 String title = extractOptionalString(params, "title", null);
 
                 List<String> result = new ArrayList<>();
@@ -667,12 +668,14 @@ public class ProcessResource extends AdminApiResource {
                 //indexation params
                 result.add(type);//indexation type
                 result.add(pid);//indexation's root pid
+                result.add(ignoreInconsistentObjects.toString());
                 result.add(title);//indexation's root title
                 return result;
             }
             case "new_indexer_index_model": {
                 String type = extractMandatoryIndexationType(params, "type");
                 String pid = extractMandatoryPid(params, "pid", "model:");
+                Boolean ignoreInconsistentObjects = extractOptionalBoolean(params, "ignoreInconsistentObjects", false);
                 Boolean indexNotIndexed = extractOptionalBoolean(params, "indexNotIndexed", true);
                 Boolean indexRunningOrError = extractOptionalBoolean(params, "indexRunningOrError", false);
                 Boolean indexIndexedOutdated = extractOptionalBoolean(params, "indexIndexedOutdated", false);
@@ -686,6 +689,7 @@ public class ProcessResource extends AdminApiResource {
                 //indexation params
                 result.add(type); //indexation type
                 result.add(pid); //indexation's root pid
+                result.add(ignoreInconsistentObjects.toString());
                 result.add(indexNotIndexed.toString()); //if not-indexed objects should be indexed
                 result.add(indexRunningOrError.toString());//if running-or-error objects should be indexed
                 result.add(indexIndexedOutdated.toString());//if indexed-outdated objects should be indexed

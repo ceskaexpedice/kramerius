@@ -66,6 +66,7 @@ public class NewIndexerProcessIndexModel {
         report("type: " + type);
         String modelPid = args[argsIndex++];
         report(modelPid);
+        Boolean ignoreInconsistentObjects = Boolean.valueOf(args[argsIndex++]);
         //what to index
         Filters filters = new Filters();
         filters.indexNotIndexed = Boolean.valueOf(args[argsIndex++]);
@@ -101,7 +102,7 @@ public class NewIndexerProcessIndexModel {
         IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
 
         KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
-        Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out);
+        Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out, ignoreInconsistentObjects);
 
         KrameriusRepositoryApiImpl krameriusRepositoryApi = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class));
         SolrAccess solrAccess = filters.indexAll() ? null : injector.getInstance(Key.get(SolrAccess.class, Names.named("new-index")));

@@ -358,7 +358,7 @@ public class Main {
                 //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
                 IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
                 KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
-                Indexer process = new Indexer(repositoryAdapter, solrConfig, System.out);
+                Indexer process = new Indexer(repositoryAdapter, solrConfig, System.out, false);
                 //process.indexByObjectPid(pid, IndexationType.TREE);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT_AND_CHILDREN);
@@ -397,7 +397,7 @@ public class Main {
             //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
             IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
             KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
-            RepositoryNodeManager nodeManager = new RepositoryNodeManager(repositoryAdapter);
+            RepositoryNodeManager nodeManager = new RepositoryNodeManager(repositoryAdapter, false);
             SolrInputBuilder solrInputBuilder = new SolrInputBuilder();
             SolrIndexAccess solrAccess = new SolrIndexAccess(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));
 
@@ -417,12 +417,16 @@ public class Main {
             String ocrText = repositoryAdapter.getOcrText(pid);
             //System.out.println("ocr text: " + ocrText);
             RepositoryNode repositoryNode = nodeManager.getKrameriusNode(pid);
-            String imgFullMime = repositoryAdapter.getImgFullMimetype(pid);
-            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, true);
-            String solrInputStr = solrInput.getDocument().asXML();
-            //System.out.println(solrInputStr);
-            System.out.println("indexing " + pid);
-            solrAccess.indexFromXmlString(solrInputStr, true);
+            if (repositoryNode == null) {
+                System.err.println("object not found or in inconsistent state: " + pid + ", ignoring");
+            } else {
+                String imgFullMime = repositoryAdapter.getImgFullMimetype(pid);
+                SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, true);
+                String solrInputStr = solrInput.getDocument().asXML();
+                //System.out.println(solrInputStr);
+                System.out.println("indexing " + pid);
+                solrAccess.indexFromXmlString(solrInputStr, true);
+            }
         }
     }
 

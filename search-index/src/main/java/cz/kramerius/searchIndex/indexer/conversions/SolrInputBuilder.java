@@ -91,7 +91,9 @@ public class SolrInputBuilder {
         if (parentNode.getPidsOfFosterParents() != null) {
             for (String fosterParent : parentNode.getPidsOfFosterParents()) {
                 RepositoryNode fosterParentNode = nodeManager.getKrameriusNode(fosterParent);
-                addSolrField(solrInput, "pid_paths", fosterParentNode.getPidPath() + "/" + parentNode.getPid() + "/" + pid);
+                if (fosterParentNode != null) {
+                    addSolrField(solrInput, "pid_paths", fosterParentNode.getPidPath() + "/" + parentNode.getPid() + "/" + pid);
+                }
             }
         }
 
@@ -135,7 +137,7 @@ public class SolrInputBuilder {
         return solrInput;
     }
 
-    public SolrInput processObjectFromRepository(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime, boolean indexationRoot) throws IOException, DocumentException {
+    public SolrInput processObjectFromRepository(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime, boolean setFullIndexationInProgress) throws IOException, DocumentException {
         //remove namespaces before applying xpaths etc
         foxmlDoc.accept(new NamespaceRemovingVisitor(true, true));
 
@@ -143,7 +145,7 @@ public class SolrInputBuilder {
 
         //indexer version
         addSolrField(solrInput, "indexer_version", Indexer.INDEXER_VERSION);
-        if (indexationRoot) {
+        if (setFullIndexationInProgress) {
             addSolrField(solrInput, "full_indexation_in_progress", true);
         }
 
@@ -222,7 +224,9 @@ public class SolrInputBuilder {
             if (repositoryNode.getPidsOfFosterParents() != null) {
                 for (String fosterParent : repositoryNode.getPidsOfFosterParents()) {
                     RepositoryNode fosterParentNode = nodeManager.getKrameriusNode(fosterParent);
-                    addSolrField(solrInput, "pid_paths", fosterParentNode.getPidPath() + "/" + pid);
+                    if (fosterParentNode != null) {
+                        addSolrField(solrInput, "pid_paths", fosterParentNode.getPidPath() + "/" + pid);
+                    }
                 }
             }
 

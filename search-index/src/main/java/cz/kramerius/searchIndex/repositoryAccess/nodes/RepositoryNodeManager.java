@@ -22,13 +22,25 @@ public class RepositoryNodeManager {
 
     private final KrameriusRepositoryAccessAdapter krameriusRepositoryAccessAdapter;
     private final LRUCache<String, RepositoryNode> nodesByPid = new LRUCache<>(1024);
+    private final boolean surviveInconsistentObjects;
 
-    public RepositoryNodeManager(KrameriusRepositoryAccessAdapter krameriusRepositoryAccessAdapter) {
+    public RepositoryNodeManager(KrameriusRepositoryAccessAdapter krameriusRepositoryAccessAdapter, boolean surviveInconsistentObjects) {
         this.krameriusRepositoryAccessAdapter = krameriusRepositoryAccessAdapter;
+        this.surviveInconsistentObjects = surviveInconsistentObjects;
     }
 
     public RepositoryNode getKrameriusNode(String pid) {
-        return getKrameriusNodeWithCycleDetection(pid, new ArrayList<>());
+        try {
+            return getKrameriusNodeWithCycleDetection(pid, new ArrayList<>());
+        } catch (RuntimeException e) {
+            if (surviveInconsistentObjects) {
+                //e.printStackTrace();
+                System.err.println(e.getMessage());
+                return null;
+            } else {
+                throw e;
+            }
+        }
     }
 
     private RepositoryNode getKrameriusNodeWithCycleDetection(String pid, List<String> path) {

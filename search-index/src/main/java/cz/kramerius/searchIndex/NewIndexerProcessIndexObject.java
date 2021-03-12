@@ -52,6 +52,7 @@ public class NewIndexerProcessIndexObject {
         //indexation info
         String type = args[argsIndex++];
         String pid = args[argsIndex++];
+        Boolean ignoreInconsistentObjects = Boolean.valueOf(args[argsIndex++]);
         //tady je problem v tom, ze pokud jeden z parametru obsahuje carku, tak Kramerius pri parsovani argumentu z pole v databazi to vyhodnoti jako vice argumentu.
         //napr.
         //["TREE_AND_FOSTER_TREES", "uuid:23345cf7-7e62-47e9-afad-018624a19ea6", "Quartet A minor, op. 51, no. 2. Andante moderato"] se pri registraci procesu ulozi a po jeho spusteni nacte jako:
@@ -62,7 +63,11 @@ public class NewIndexerProcessIndexObject {
         //zmena nazvu
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
         //ProcessStarter.updateName(String.format("Indexace (objekt %s, typ %s)", pid, type));
-        ProcessStarter.updateName(String.format("Indexace %s (%s, typ %s)", title, pid, type));
+        if (title != null && !title.isEmpty()) {
+            ProcessStarter.updateName(String.format("Indexace %s (%s, typ %s)", title, pid, type));
+        } else {
+            ProcessStarter.updateName(String.format("Indexace %s (typ %s)", pid, type));
+        }
 
         SolrConfig solrConfig = new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword);
 
@@ -79,7 +84,7 @@ public class NewIndexerProcessIndexObject {
         IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
 
         KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
-        Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out);
+        Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out, ignoreInconsistentObjects);
         //TODO: maybe use progresslistener and inform about every 1000 or so indexed
         indexer.indexByObjectPid(pid, IndexationType.valueOf(type), null);
     }
@@ -88,11 +93,14 @@ public class NewIndexerProcessIndexObject {
     private static String mergeArraysEnd(String[] args, int argsIndex) {
         String result = "";
         for (int i = argsIndex; i < args.length; i++) {
-            result += args[i];
-            if (i != args.length - 1) {
-                result += ",";
+            String arg = args[i];
+            if (arg != null) {
+                result += args[i];
+                if (i != args.length - 1) {
+                    result += ",";
+                }
             }
         }
-        return result;
+        return result.trim();
     }
 }
