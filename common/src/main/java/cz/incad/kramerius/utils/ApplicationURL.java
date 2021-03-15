@@ -51,7 +51,19 @@ public class ApplicationURL {
             if (header != null) {
                 String requestUri = request.getRequestURI();
                 String protocol = new URL(request.getRequestURL().toString()).getProtocol();
-                url = createURL(header, protocol, requestUri);
+                // check if header contains more then one value, if so, it takes first and print warning
+                if (header.contains(",")) {
+                    String[] split = header.split(",");
+                    if (split.length > 1) {
+                        LOGGER.warning(String.format("x-forwarded-host contains two values %s,%s. Picking up first one",split[0]));
+                        url = createURL(split[0], protocol, requestUri);
+                    } else {
+                        url = createURL(header, protocol, requestUri);
+                    }
+
+                } else {
+                    url = createURL(header, protocol, requestUri);
+                }
             }
             return applicationURL(url);
         } catch (MalformedURLException e) {
