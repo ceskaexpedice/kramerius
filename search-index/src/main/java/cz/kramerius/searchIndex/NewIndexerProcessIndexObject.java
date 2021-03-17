@@ -63,7 +63,7 @@ public class NewIndexerProcessIndexObject {
         //zmena nazvu
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
         //ProcessStarter.updateName(String.format("Indexace (objekt %s, typ %s)", pid, type));
-        if (title != null && !title.isEmpty()) {
+        if (title != null) {
             ProcessStarter.updateName(String.format("Indexace %s (%s, typ %s)", title, pid, type));
         } else {
             ProcessStarter.updateName(String.format("Indexace %s (typ %s)", pid, type));
@@ -94,13 +94,14 @@ public class NewIndexerProcessIndexObject {
         String result = "";
         for (int i = argsIndex; i < args.length; i++) {
             String arg = args[i];
-            if (arg != null) {
+            if (arg != null && !"null".equals(arg)) {
                 result += args[i];
                 if (i != args.length - 1) {
                     result += ",";
                 }
             }
         }
-        return result.trim();
+        result = result.trim();
+        return result.isEmpty() ? null : result;
     }
 }
