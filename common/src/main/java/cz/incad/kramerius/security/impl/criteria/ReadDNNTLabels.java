@@ -3,17 +3,15 @@ package cz.incad.kramerius.security.impl.criteria;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
-import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ReadDNNTLabels extends AbstractCriterium {
 
-    public static final String DNNT_LABELS = "dnnt-labels";
+    public static final String PROVIDED_BY_DNNT_LABEL = "providedByLabel";
 
     public transient static final Logger LOGGER = Logger.getLogger(ReadDNNTLabels.class.getName());
 
@@ -31,7 +29,7 @@ public class ReadDNNTLabels extends AbstractCriterium {
                     String label = CriteriaDNNTUtils.getMatchedLabel(doc,  getObjects());
                     if (label != null) {
                         // select label
-                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.DNNT_LABELS, label);
+                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, label);
                         return EvaluatingResultState.TRUE;
                     }
                 }

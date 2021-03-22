@@ -10,7 +10,6 @@ import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
-import cz.incad.kramerius.rest.api.k5.client.utils.RELSEXTDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.RightsReturnObject;
@@ -19,13 +18,10 @@ import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
-import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.servlet.http.HttpServletRequest;
@@ -108,8 +104,8 @@ public class DNNTDecorator extends AbstractItemDecorator {
 
 
                                                         Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
-                                                        if (evaluateInfoMap.containsKey(ReadDNNTLabels.DNNT_LABELS)) {
-                                                            jsonObject.put("providedByLabel", evaluateInfoMap.get(ReadDNNTLabels.DNNT_LABELS));
+                                                        if (evaluateInfoMap.containsKey(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL)) {
+                                                            jsonObject.put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, evaluateInfoMap.get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL));
                                                         }
                                                         break;
                                                     }

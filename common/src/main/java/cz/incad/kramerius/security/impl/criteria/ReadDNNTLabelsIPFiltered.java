@@ -3,7 +3,6 @@ package cz.incad.kramerius.security.impl.criteria;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
-import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
@@ -31,7 +30,7 @@ public class ReadDNNTLabelsIPFiltered extends AbstractCriterium {
                     if (label != null)  {
                         EvaluatingResultState result = matchIPAddresses(super.getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
                         if (result.equals(EvaluatingResultState.TRUE)) {
-                            getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.DNNT_LABELS, label);
+                            getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, label);
                         }
                         return result;
 
