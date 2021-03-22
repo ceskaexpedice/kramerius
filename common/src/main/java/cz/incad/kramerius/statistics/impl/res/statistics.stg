@@ -282,7 +282,85 @@ ORDER BY count DESC
     $endif$   
 >>
 
-
-
 /** pids */
-pids(pids) ::=<< $pids:{pid|'$pid$'};separator=","$ >>
+
+pids(pids, column_name) ::=<< $pids:{pid|$column_name$= '$pid$'};separator=" OR "$ >>
+
+
+
+/** vybrane pidy */
+preparePidsView(action, pids, paging, ipaddr) ::=<<
+ CREATE OR REPLACE VIEW pids_view AS 
+   SELECT 
+    last(l.record_id) AS record_id,
+    last(date) as date,
+    last(detail_id) as detail_id,
+    last(rights) as rights,
+    l.session_id,
+    model,
+    d.pid,
+    stat_action,
+    last(d.title) as title,
+    last(remote_ip_address) as remote_ip_address
+    
+   FROM statistics_access_log l
+     JOIN statistic_access_log_detail d USING (record_id)
+  WHERE ($pids(pids=pids, column_name="d.pid")$) $ipAddrFilter(ipaddr=ipaddr)$
+  GROUP BY l.session_id,model,d.pid,stat_action;
+>>
+
+
+/** pids */ 
+selectPidsReport(action, paging, fromDefined, toDefined, visibility, ipaddr) ::=<<
+    $if(action)$ 
+SELECT COUNT(*) as count, pid, last(title) as title 
+FROM (SELECT DISTINCT ON (pid, session_id , stat_action, remote_ip_address)
+        pid, title
+    FROM pids_view 
+    WHERE stat_action='$action$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$ 
+) as npid
+GROUP BY pid
+ORDER BY count DESC   
+$if(paging)$ $paging()$ $endif$
+    $else$   
+
+SELECT COUNT(*) as count, pid, last(title) as title 
+FROM (SELECT DISTINCT ON (pid, session_id, stat_action, remote_ip_address)
+        pid, title
+    FROM pids_view
+    WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$ 
+) as npid
+GROUP BY pid
+ORDER BY count DESC  
+$if(paging)$ $paging()$ $endif$
+    $endif$   
+>>
+
+selectPidsReportUnique(action, paging, fromDefined, toDefined, visibility, ipaddr) ::=<<
+    $if(action)$ 
+SELECT COUNT(*) as count, pid, last(title) as title
+FROM (SELECT DISTINCT ON (pid, stat_action, date, remote_ip_address)
+        pid,
+	date_trunc('day', date) as date,
+        title
+    FROM pids_view 
+    WHERE stat_action='$action$' $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$ 
+) as npid
+GROUP BY pid
+ORDER BY count DESC  
+$if(paging)$ $paging()$ $endif$
+    $else$   
+
+SELECT COUNT(*) as count, pid, last(title) as title 
+FROM (SELECT DISTINCT ON (pid, stat_action, date, remote_ip_address)
+        pid,
+	date_trunc('day', date) as date,
+        title
+    FROM pids_view 
+    WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $ipAddrFilter(ipaddr=ipaddr)$ 
+) as npid
+GROUP BY pid
+ORDER BY count DESC 
+$if(paging)$ $paging()$ $endif$
+    $endif$   
+>>

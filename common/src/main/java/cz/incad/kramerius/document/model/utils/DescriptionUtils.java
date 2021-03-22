@@ -46,6 +46,10 @@ public class DescriptionUtils {
             DCConent dcConent = DCConent.collectFirstWin(list);
     
             StringBuilder line = new StringBuilder();
+            
+            if (dcConent ==  null) {
+                return (String[]) descs.toArray(new String[descs.size()]);
+            }
     
             // issn
             String[] idents = dcConent.getIdentifiers();

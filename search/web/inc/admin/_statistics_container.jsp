@@ -166,7 +166,7 @@
                 <a href="javascript:statistics.langXML(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>common.format.XML</view:msg></a>
             </td>
         </tr>
-
+        
         <tr><td colspan="3"> <hr/></td></tr>    
         <tr>
             <td colspan="2"><strong><view:msg>statistics.report.annualreport</view:msg></strong></td>

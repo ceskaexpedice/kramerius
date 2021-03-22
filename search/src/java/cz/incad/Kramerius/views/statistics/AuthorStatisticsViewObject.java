@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  */
 public class AuthorStatisticsViewObject extends AbstractStatisticsViewObject {
-    
+
     
     public String getNext() {
         HttpServletRequest request = this.servletRequestProvider.get();
@@ -35,8 +35,7 @@ public class AuthorStatisticsViewObject extends AbstractStatisticsViewObject {
         String val = request.getParameter("val");
         int sizeInt = Integer.parseInt(size);
         int offsetInt = (Integer.parseInt(offset))+sizeInt;
-        String type = "type";
-        return "javascript:statistics.reloadAuthorsReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),'"+type+"','"+val+"',"+offsetInt+","+size+", _ip_address(), _ip_address_unique());";
+        return "javascript:statistics.reloadAuthorsReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),'"+val+"',"+offsetInt+","+size+", _ip_address(), _ip_address_unique());";
     }
     
     public String getPrev() {
@@ -46,8 +45,7 @@ public class AuthorStatisticsViewObject extends AbstractStatisticsViewObject {
         String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
         int sizeInt = Integer.parseInt(size);
         int offsetInt = Math.max((Integer.parseInt(offset)-sizeInt), 0);
-        String type = "type";
-        return "javascript:statistics.reloadAuthorsReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),'"+type+"','"+val+"',"+offsetInt+","+size+", _ip_address(), _ip_address_unique());";
+        return "javascript:statistics.reloadAuthorsReport(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(),'"+val+"',"+offsetInt+","+size+", _ip_address(), _ip_address_unique());";
     }
 
     public String getGraphTitle() {

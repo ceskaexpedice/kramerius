@@ -100,7 +100,8 @@ public class ModelStatisticReport implements StatisticReport {
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
             String sql = statRecord.toString();
-            List<Map<String, Object>> returns = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
+            Connection conn = connectionProvider.get();
+            List<Map<String, Object>> models = new JDBCQueryTemplate<Map<String, Object>>(conn) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
                     Map<String, Object> val = new HashMap<>();
@@ -112,10 +113,13 @@ public class ModelStatisticReport implements StatisticReport {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql, params.toArray());
-
-            return returns;
+            conn.close();
+            return models;
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return new ArrayList<Map<String, Object>>();
+        } catch (SQLException ex) {
+            Logger.getLogger(ModelStatisticReport.class.getName()).log(Level.SEVERE, null, ex);
             return new ArrayList<Map<String, Object>>();
         }
     }
@@ -124,7 +128,8 @@ public class ModelStatisticReport implements StatisticReport {
     public List<String> getOptionalValues() {
         final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModels");
         String sql = statRecord.toString();
-        List<String> returns = new JDBCQueryTemplate<String>(connectionProvider.get()) {
+        Connection conn = connectionProvider.get();
+        List<String> returns = new JDBCQueryTemplate<String>(conn) {
             @Override
             public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
                 String model = rs.getString("model");
@@ -132,7 +137,11 @@ public class ModelStatisticReport implements StatisticReport {
                 return super.handleRow(rs, returnsList);
             }
         }.executeQuery(sql);
-
+        try {
+            conn.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ModelStatisticReport.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return returns;
     }
 
@@ -161,15 +170,17 @@ public class ModelStatisticReport implements StatisticReport {
             statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
             
             String sql = statRecord.toString();
-
+            Connection conn = connectionProvider.get();
+            
             String viewName =  "statistics_grouped_by_sessionandpid_"+modelFilter.getModel();
-            boolean tableExists = DatabaseUtils.viewExists(connectionProvider.get(),viewName.toUpperCase());
+            boolean tableExists = DatabaseUtils.viewExists(conn,viewName.toUpperCase());
             if (!tableExists) {
                 JDBCUpdateTemplate updateTemplate = new JDBCUpdateTemplate(connectionProvider.get(), true);
                 updateTemplate.setUseReturningKeys(false);
                 updateTemplate
                     .executeUpdate(sql);
             }
+            conn.close();
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);
@@ -209,7 +220,9 @@ public class ModelStatisticReport implements StatisticReport {
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
             String sql = statRecord.toString();
-            new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
+            Connection conn = connectionProvider.get();
+            
+            new JDBCQueryTemplate<Map<String, Object>>(conn) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
                     Map<String, Object> val = new HashMap<String, Object>();
@@ -225,9 +238,12 @@ public class ModelStatisticReport implements StatisticReport {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql,params.toArray());
+            conn.close();
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);
+        } catch (SQLException ex) {
+            Logger.getLogger(ModelStatisticReport.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

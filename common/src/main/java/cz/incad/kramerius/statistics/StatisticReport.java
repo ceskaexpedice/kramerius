@@ -41,6 +41,8 @@ public interface StatisticReport {
     public static final String TITLE_KEY = "title";
     public static final String MODEL_KEY = "model";
     public static final String ACTION_KEY = "action";
+    public static final String LANG_KEY = "lang";
+    public static final String AUTHOR_NAME_KEY = "author_name";
 
     public static final String DATE_FROM = "from";
     public static final String DATE_TO = "to";

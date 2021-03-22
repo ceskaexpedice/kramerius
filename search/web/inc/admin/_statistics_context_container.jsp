@@ -12,15 +12,14 @@
 
 <scrd:securedContent action="show_statictics">
 
-
 <script>
     $(document).ready(function(){
         $('.buttons').button();
 
-        $( "#report_date_from_pids" ).datepicker({
+        $( "#report_date_from_pid" ).datepicker({
             dateFormat: 'yy.mm.dd'
         });
-        $( "#report_date_to_pids" ).datepicker({
+        $( "#report_date_to_pid" ).datepicker({
             dateFormat: 'yy.mm.dd'
         });
 
@@ -36,14 +35,25 @@
     }
     
     
-	function _pids() {
-		var pids = getAffectedPids();
-		var pids = map(function(pid) { 
-		    var divided = pid.split("_");            
-			return divided[1];
-		}, pids);     
-		return pids;
-	}
+    function _pids() {
+        var pids = getAffectedPids();
+        var pids = map(function(pid) { 
+            var divided = pid.split("_");
+            return divided[1];
+        }, pids);
+        return pids;
+    }
+    
+    function _visibility() {
+        return $("#report_visibility_pid").val();
+    }
+    
+    function _ip_address() {
+        return $("#report_ip_addresses_pid").val();
+    }
+    function _ip_address_unique() {
+        return $("#report_unique_ip_addresses_pid").attr('checked');
+    }
 
     
 </script>
@@ -53,18 +63,32 @@
         
         <thead>
             <tr>
-               <td style="width:80%"></td> 
-               <td></td> 
+               <td style="width:40%"></td> 
+               <td style="width:40%"></td> 
+               <td></td>
             </tr>
         </thead>
         
         <tbody>
+
             <tr>
-                <td><strong><view:msg>statistics.main_dialog.filter</view:msg></strong></td>               
-                <td><view:msg>common.action</view:msg>:</td>
+                <td><strong><view:msg>statistics.main_dialog.filter</view:msg></strong></td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
+        	
             <tr>
-                <td></td>               
+                <td><view:msg>statistics.report.dates.datefrom</view:msg>:</td>
+                <td><view:msg>statistics.report.dates.dateto</view:msg>:</td>
+                <td><view:msg>common.action</view:msg>:</td>
+                <td><view:msg>k3replication.defaultrights.fields</view:msg>:</td>
+                <td><view:msg>statistics.report.ip.forbidden</view:msg>:</td>
+            </tr>
+            
+            <tr>
+                <td><input id="report_date_from_pid" type="text"></td>
+                <td><input id="report_date_to_pid" type="text"></td>
                  <td>
                    <select id="report_action">
                        <option value="${statistics.allFilterOption}"><view:msg>statistics.main_dialog.actions.${statistics.allFilterOption}</view:msg> </option>
@@ -73,7 +97,24 @@
                        </c:forEach>
                    </select>
                 </td>
+                
+                 <td>
+                   <select id="report_visibility_pid">
+                       <option value="all"><view:msg>common.all</view:msg></option>
+                       <option value="public"><view:msg>k3replication.defaultrights.public</view:msg></option>
+                       <option value="private"><view:msg>k3replication.defaultrights.private</view:msg></option>
+                   </select>
+                </td>
+                
+                <td><input id="report_ip_addresses_pid" type="text"></td>
+            </tr>
             
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><input type="checkbox" id="report_unique_ip_addresses_pid"><view:msg>statistics.report.ip.unique</view:msg></input></td>
             </tr>
         </tbody>
     </table>
@@ -99,9 +140,9 @@
             <td><span></span></td>
             
             <td style="text-align: right;" width="30%">
-            <a href="javascript:statistics.showPidsReport(_action(), _pids());" class="buttons"> <view:msg>statistics.main_dialog.displaygraph</view:msg> </a>
-            <a href="javascript:statistics.pidsCSV(_action(), _pids());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
-            <a href="javascript:statistics.pidsXML(_action(), _pids());" class="buttons"><view:msg>common.format.XML</view:msg></a>
+            <a href="javascript:statistics.showPidsReport(_action(), _pids(), _visibility(), $('#report_date_from_pid').val(),$('#report_date_to_pid').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>statistics.main_dialog.displaygraph</view:msg> </a>
+            <a href="javascript:statistics.pidsCSV(_action(), _pids(), _visibility(),$('#report_date_from_pid').val(),$('#report_date_to_pid').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>common.format.CSV</view:msg></a>
+            <a href="javascript:statistics.pidsXML(_action(), _pids(), _visibility(),$('#report_date_from_pid').val(),$('#report_date_to_pid').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>common.format.XML</view:msg></a>
             </td>
         </tr>
 

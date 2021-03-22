@@ -31,7 +31,7 @@ Statistics.prototype.showContextDialog = function() {
             $(document.body).append(pdiv);
             this.contextDialog = $("#statistic_context").dialog({
                 bgiframe: true,
-                width:  600,
+                width:  700,
                 height:  450,
                 modal: true,
                 title: dictionary['statistics.main_dialog'],
@@ -98,12 +98,9 @@ Statistics.prototype.langCSV=function(action, visibility, dateFrom, dateTo, ipAd
     
     if (action !== null) {
         url = url +'&action='+action;
-        url= this._datefilter(url,dateFrom, dateTo);
-        window.open(url, '_blank');
-    } else {
-        url= this._datefilter(url,dateFrom, dateTo);
-        window.open(url, '_blank');
-    }
+    } 
+    url= this._datefilter(url,dateFrom, dateTo);
+    window.open(url, '_blank');
 }
 
 Statistics.prototype.langXML=function(action, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
@@ -117,14 +114,10 @@ Statistics.prototype.langXML=function(action, visibility, dateFrom, dateTo, ipAd
     }
     if (action !== null) {
         url = url +'&action='+action;
-        url= this._datefilter(url,dateFrom, dateTo);
-        console.log(url);
-        window.open(url, '_blank');
-    } else {
-        url= this._datefilter(url,dateFrom, dateTo);
-        console.log(url);
-        window.open(url, '_blank');
     }
+    url= this._datefilter(url,dateFrom, dateTo);
+    console.log(url);
+    window.open(url, '_blank');
 }
 
 Statistics.prototype.showLangReport = function(action, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
@@ -157,15 +150,15 @@ Statistics.prototype.showLangReport = function(action, visibility, dateFrom, dat
             });
         }
         $("#statistic_report_lang").html(data);
-    },this));    
-    
+    },this)); 
+    console.log("ShowLangReport: " + url);
 }
 /**~ Lang **/
 
 
 
 /** Author **/
-Statistics.prototype.reloadAuthorsReport=function(action,visibility,dateFrom, dateTo, type, val, offset, size, ipAddresses, uniqueIPAddresses) {
+Statistics.prototype.reloadAuthorsReport=function(action, visibility, dateFrom, dateTo, val, offset, size, ipAddresses, uniqueIPAddresses) {
     var url = "inc/admin/_statistics_authors.jsp?type=author&val="+val+"&offset="+offset+"&size="+size+"&visibility="+visibility+
                                                 "&size="+size+"&ipaddresses="+ipAddresses+"&uniqueipaddresses="+uniqueIPAddresses;
     if (action !== null) {
@@ -210,7 +203,7 @@ Statistics.prototype.showAuthorReport = function(action, visibility, dateFrom, d
         }
         
         $("#statistic_report_author").html(data);
-    },this));    
+    },this));
     
 }
 
@@ -226,109 +219,131 @@ Statistics.prototype.authorCSV=function(action, visibility, dateFrom, dateTo, ip
     
     if (action !== null) {
         url = url +'&action='+action;
-        url = this._datefilter(url,dateFrom, dateTo);
-        console.log(url);
-        window.open(url, '_blank');
-    } else {
-        url = this._datefilter(url,dateFrom, dateTo);
-        console.log(url);
-        window.open(url, '_blank');
     }
+    url = this._datefilter(url,dateFrom, dateTo);
+    console.log(url);
+    window.open(url, '_blank');
 }
 
 Statistics.prototype.authorXML=function(action,visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
-    var url = this._url('author','XML'); // 'stats?format=CSV&report=author';
-    url = url + (action === null ? '':'');    
+    var url = this._url('author','XML'); // 'stats?format=CSV&report=author';  
     url = url + "&visibility="+visibility;
     url = url + "&ipaddresses=" + ipAddresses;
     url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
+
+    if (action !== null) {
+        url = url +'&action='+action;
+    }
+    url = this._datefilter(url,dateFrom, dateTo);
     
     if(console) {
         console.log(" authorXML "+url);
     }
-    if (action !== null) {
-        url = url +'&action='+action;
-		url = this._datefilter(url,dateFrom, dateTo);
-        window.open(url, '_blank');
-    } else {
-		url = this._datefilter(url,dateFrom, dateTo);
-        window.open(url, '_blank');
-    }
+   
+    window.open(url, '_blank');
 }
 
 /**~ Author **/
 
-
-
-
 /** Selected pids **/
-Statistics.prototype.pidsCSV=function(action,visibility,pids, dateFrom, dateTo) {
-    var url = this._url('pids','CSV'); // 'stats?format=CSV&report=model';
+Statistics.prototype.pidsCSV=function(action, pids, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
+    var url = this._url('pids','CSV'); // 'stats?format=CSV&report=pids';
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
+    
+    url = this._datefilter(url,dateFrom, dateTo);
+    
     if (action !== null) {
-        url = url + '&action='+action;
+        url = url +'&action='+action;
     }
-    url = url + '&filteredValue=';   
+  
+    url = url +'&pids=';
     url = reduce(function(base, item, status) {
         base = base+item+ (status.last ? "": ",");
         return base;
     }, url,pids); 
-	url = this._datefilter(url,dateFrom, dateTo);
-    if (console) console.log(' url is '+url);    
+    
+    url = this._datefilter(url,dateFrom, dateTo);
+    
+    if(console) {
+        console.log(" pidsCSV "+url);
+    }  
     window.open(url, '_blank');
 }
 
-Statistics.prototype.pidsXML=function(action,visibility, pids, dateFrom, dateTo) {
+Statistics.prototype.pidsXML=function(action, pids, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
     var url = this._url('pids','XML'); // 'stats?format=CSV&report=model';
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
+    
+    url = this._datefilter(url,dateFrom, dateTo);
+    
     if (action !== null) {
         url = url + '&action='+action;
     }
-    url = url + '&filteredValue=';   
+    
+    url = url +'&pids=';
     url = reduce(function(base, item, status) {
         base = base+item+ (status.last ? "": ",");
         return base;
-    }, url,pids); 
-	url = this._datefilter(url,dateFrom, dateTo);
-    if (console) console.log(' url is '+url);    
+    }, url,pids);
+    
+    url = this._datefilter(url,dateFrom, dateTo);
+    if(console) {
+        console.log(" pidsXML "+url);
+    }    
     window.open(url, '_blank');
 }
 
-
-
-Statistics.prototype.reloadPidsReport=function(action,visibility, dateFrom, dateTo,type, val, offset,size) {
-    var url = "inc/admin/_statistics_pids.jsp?type=pids&val="+val+"&offset="+offset+"&size="+size;
+Statistics.prototype.reloadPidsReport=function(action, pids, visibility, dateFrom, dateTo, offset, size, ipAddresses, uniqueIPAddresses)  {
+    var url = "inc/admin/_statistics_pids.jsp?type=pids&offset="+offset+"&size="+size+"&pids=";
     url = reduce(function(base, item, status) {
         base = base+item+ (status.last ? "": ",");
         return base;
-    }, url,pids); 
+    }, url,pids);
+    
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
+    
+
     if (action !== null) {
         url = url + '&action='+action;
     }
-	url = this._datefilter(url,dateFrom, dateTo);
-
-    if (console) console.log("url "+url);
+    
+    url = this._datefilter(url,dateFrom, dateTo);
+    
     $.get(url, bind(function(data) {
-        $("#_statistics_pids").html(data);
+        $("#statistic_report_pids").html(data);
     },this));
 }
-
-Statistics.prototype.showPidsReport = function(action,visibility,pids, dateFrom, dateTo) {
-    var url = "inc/admin/_statistics_pids.jsp?type=pids&val=";
+    
+Statistics.prototype.showPidsReport = function(action, pids, visibility, dateFrom, dateTo, ipAddresses, uniqueIPAddresses) {
+    var url = "inc/admin/_statistics_pids.jsp?type=pids&pids=";
     url = reduce(function(base, item, status) {
         base = base+item+ (status.last ? "": ",");
         return base;
-    }, url,pids); 
+    }, url,pids);
+    
+    url = url + "&visibility="+visibility;
+    url = url + "&ipaddresses=" + ipAddresses;
+    url = url + "&uniqueipaddresses=" + uniqueIPAddresses;
+    
+
     if (action !== null) {
         url = url + '&action='+action;
     }
-	url = this._datefilter(url,dateFrom, dateTo);
+    url = this._datefilter(url,dateFrom, dateTo);
     $.get(url, bind(function(data) {
-        var dDialog = this.reportDialogs['dates'];
+        var dDialog = this.reportDialogs['pids'];
         if (dDialog) {
             dDialog.dialog('open');
         } else {
-            var pdiv = '<div id="_statistics_pids"></div>';
+            var pdiv = '<div id="statistic_report_pids"></div>';
             $(document.body).append(pdiv);
-            dDialog = $("#_statistics_pids").dialog({
+            dDialog = $("#statistic_report_pids").dialog({
                 bgiframe: true,
                 width:  800,
                 height:  600,
@@ -340,7 +355,7 @@ Statistics.prototype.showPidsReport = function(action,visibility,pids, dateFrom,
                 }]
             });
         }
-        $("#_statistics_pids").html(data);
+        $("#statistic_report_pids").html(data);
     },this));    
 }
 /** ~pids */
@@ -349,7 +364,7 @@ Statistics.prototype.showPidsReport = function(action,visibility,pids, dateFrom,
 /** Model **/
 Statistics.prototype.showModelReport = function(action, visibility, dateFrom, dateTo, model, ipAddresses, uniqueIPAddresses) {
     if(console) {
-        console.log(" action "+action +" and model "+model + " uniqueIPAddresses " + uniqueIPAddresses);
+        console.log(" action " +action +" and model "+model + " uniqueIPAddresses " + uniqueIPAddresses);
     }
     var url = "inc/admin/_statistics_model.jsp?type=model&val="+model+"&visibility="+visibility;
     url = this._datefilter(url,dateFrom,dateTo);
@@ -380,7 +395,8 @@ Statistics.prototype.showModelReport = function(action, visibility, dateFrom, da
         }
         
         $("#statistic_report_model").html(data);
-    },this));    
+    },this));
+    console.log("ShowModelReport: " + url);
 }
 
 Statistics.prototype.reloadModelReport=function(action,visibility, dateFrom, dateTo,type, val, offset, size, ipAddresses, uniqueIPAddresses) {
