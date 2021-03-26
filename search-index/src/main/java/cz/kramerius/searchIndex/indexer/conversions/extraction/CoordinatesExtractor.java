@@ -14,7 +14,7 @@ public class CoordinatesExtractor {
         if (coordinatesStr != null) {
             BoundingBox bb = extractBoundingBox(coordinatesStr, pid);
             if (bb != null) {
-                //ignore bbox if it contains inivalid values
+                //ignore bbox if it is defined with invalid value
                 if (bb.n < -90 || bb.n > 90 || bb.s < -90 || bb.s > 90) { //neplatná zeměpisná šírka: nenachází se v intervalu <-90;90>
                     System.err.println(String.format("Chyba v datech objektu %s: neplatná zeměpisná šírka: nenachází se v intervalu <-90;90>: %s", pid, coordinatesStr));
                     bb = null;
@@ -22,9 +22,18 @@ public class CoordinatesExtractor {
                     System.err.println(String.format("Chyba v datech objektu %s: neplatná zeměpisná délka: nenachází se v intervalu <-180;180>: %s", pid, coordinatesStr));
                     bb = null;
                 }
+                //ignore bbox that does not define rectangle
+                else if (bb.s > bb.n) {//neplatná zeměpisná šířka: jižní ohraničení je větší než severní ohraničení
+                    System.err.println(String.format("Chyba v datech objektu %s: neplatná zeměpisná šířka: jižní ohraničení je větší než severní ohraničení: %s", pid, coordinatesStr));
+                    bb = null;
+                } else if (bb.w > bb.e) {//neplatná zeměpisná délka: západní ohraničení je větší než východní ohraničení
+                    System.err.println(String.format("Chyba v datech objektu %s: neplatná zeměpisná šířka: západní ohraničení je větší než východní ohraničení: %s", pid, coordinatesStr));
+                    bb = null;
+                }
             }
             if (bb != null) {
                 Locale locale = new Locale("en", "US");
+                //ENVELOPE(minX, maxX, maxY, minY)
                 solrInput.addField("coords.bbox", String.format(locale, "ENVELOPE(%.6f,%.6f,%.6f,%.6f)", bb.w, bb.e, bb.n, bb.s));
                 solrInput.addField("coords.bbox.center", String.format(locale, "%.6f,%.6f", (bb.n + bb.s) / 2, (bb.w + bb.e) / 2));
                 solrInput.addField("coords.bbox.corner_sw", String.format(locale, "%.6f,%.6f", bb.s, bb.w));
