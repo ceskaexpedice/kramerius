@@ -18,7 +18,11 @@ package cz.incad.kramerius.security.impl;
 
 import cz.incad.kramerius.security.RightCriteriumParams;
 
-public class RightCriteriumParamsImpl implements RightCriteriumParams {
+import java.io.Serializable;
+
+public class RightCriteriumParamsImpl implements RightCriteriumParams,Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private int criteriumParamId;
     private Object[] objects;

@@ -20,9 +20,7 @@ import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,7 +35,7 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
@@ -55,79 +53,80 @@ public class MovingWallTest {
     
 
     // Drobnustky
-    //@Test
+    @Test
     public void testMW1() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "70";
         String modeFromGUI = "year";
         String requestedPID = DataPrepare.DROBNUSTKY_PIDS[0];
-        EvaluatingResult evaluated = mw(movingWallFromGUI, modeFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.TRUE);
+        EvaluatingResultState evaluated = mw(new Object[]{movingWallFromGUI}, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.TRUE);
     }
     
-    //@Test
+    @Test
     public void testMW2() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "270";
         String modeFromGUI = "year";
         String requestedPID = DataPrepare.DROBNUSTKY_PIDS[0];
-        EvaluatingResult evaluated = mw(movingWallFromGUI, modeFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.FALSE);
+        EvaluatingResultState evaluated = mw(new Object[] {movingWallFromGUI}, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.FALSE);
     }
 
     //Drobnustky stranka
-    //@Test
+    @Test
     public void testMW3() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "70";
         String modeFromGUI = "year";
         String requestedPID = DataPrepare.DROBNUSTKY_PIDS[2];
-        EvaluatingResult evaluated = mw(movingWallFromGUI, modeFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.TRUE);
+        EvaluatingResultState evaluated = mw(new Object[]{movingWallFromGUI}, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.TRUE);
     }
 
     //Drobnustky stranka
-    //@Test
+    @Test
     public void testMW4() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "270";
         String modeFromGUI = "year";
         String requestedPID = DataPrepare.DROBNUSTKY_PIDS[2];
-        EvaluatingResult evaluated = mw(movingWallFromGUI, modeFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.FALSE);
+
+        EvaluatingResultState evaluated = mw(new Object[]{movingWallFromGUI}, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.FALSE);
     }
     
     
-    //@Test
+    @Test
     public void testMW5() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "270";
         String modeFromGUI = "year";
         String requestedPID = "uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6";// volume;
-        EvaluatingResult evaluated = mw(movingWallFromGUI, modeFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.FALSE);
+        EvaluatingResultState evaluated = mw(new Object[]{movingWallFromGUI}, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.FALSE);
     }
     
-    //@Test
+    @Test
     public void testMW6() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "1884";
         String modeFromGUI = "month";
         String requestedPID = DataPrepare.DROBNUSTKY_PIDS[0];
-        EvaluatingResult evaluated = mw(movingWallFromGUI, modeFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.TRUE);
+        EvaluatingResultState evaluated = mw(new Object[]{movingWallFromGUI, modeFromGUI,"page",requestedPID}, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.TRUE);
     }
  
-    //@Test
+    @Test
     public void testMW7() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "5000";
         String modeFromGUI = "month";
         String requestedPID = DataPrepare.DROBNUSTKY_PIDS[0];
-        EvaluatingResult evaluated = mw(movingWallFromGUI, modeFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.FALSE);
+        EvaluatingResultState evaluated = mw(new Object[]{movingWallFromGUI}, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.FALSE);
     }
     
-    //@Test
+    @Test
     public void testMW8() throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         String movingWallFromGUI = "5";
         String modeFromGUI = "month";
         String requestedPID = "uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6";// volume;
-        EvaluatingResult evaluated = mw(movingWallFromGUI, modeFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.TRUE);
+        EvaluatingResultState evaluated = mw(new Object[]{movingWallFromGUI}, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.TRUE);
     }
     
     //@Test
@@ -135,11 +134,12 @@ public class MovingWallTest {
         String movingWallFromGUI = "5000";
         String modeFromGUI = "month";
         String requestedPID = "uuid:b2f18fb0-91f6-11dc-9f72-000d606f5dc6";// volume;
-        EvaluatingResult evaluated = mw(movingWallFromGUI, modeFromGUI, requestedPID);
-        Assert.assertEquals(evaluated, EvaluatingResult.FALSE);
+        EvaluatingResultState evaluated = mw(new Object[]{movingWallFromGUI}, requestedPID);
+        Assert.assertEquals(evaluated, EvaluatingResultState.FALSE);
     }
 
-    public EvaluatingResult mw(String movingWallFromGUI, String modeFromGUI, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
+
+    public EvaluatingResultState mw(Object[] uiParams, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), acLog)
@@ -160,6 +160,22 @@ public class MovingWallTest {
         for (String key : keys) {
             EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key)}).anyTimes();
         }
+
+
+        Arrays.stream(DataPrepare.DROBNUSTKY_PIDS).forEach(pid-> {
+            try {
+                DataPrepare.solrDoc(solrAccess, pid);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            } catch (LexerException e) {
+                e.printStackTrace();
+            }
+        });
+
         
         replay(fa33, solrAccess,acLog);
 
@@ -167,15 +183,16 @@ public class MovingWallTest {
         contextFactory.setFedoraAccess(fa33);
         contextFactory.setSolrAccess(solrAccess);
         
-        RightCriteriumContext context = contextFactory.create(requestedPID, null, null, "localhost", "127.0.0.1");
+        RightCriteriumContext context = contextFactory.create(requestedPID, null, null, "localhost", "127.0.0.1", null);
         MovingWall wall = new MovingWall();
         
         String firstPid = requestedPID;
         
-        wall.setCriteriumParamValues(new Object[] {movingWallFromGUI, modeFromGUI, "test", firstPid});
+        //wall.setCriteriumParamValues(new Object[] {movingWallFromGUI, modeFromGUI, "test", firstPid});
+        wall.setCriteriumParamValues(uiParams);
         wall.setEvaluateContext(context);
         
-        EvaluatingResult evaluated = wall.evalute();
+        EvaluatingResultState evaluated = wall.evalute();
         return evaluated;
     }
 

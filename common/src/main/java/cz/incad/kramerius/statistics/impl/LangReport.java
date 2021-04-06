@@ -106,7 +106,7 @@ public class LangReport implements StatisticReport{
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql.toString(),params.toArray());
-            conn.close();
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
             return langs;
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);

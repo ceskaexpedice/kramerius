@@ -27,6 +27,7 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 import cz.incad.kramerius.virtualcollections.CollectionPidUtils;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -49,20 +50,10 @@ public class SolrAccessImpl implements SolrAccess {
             return null;
         }
         try {
-            PIDParser parser = new PIDParser(pid);
-            parser.objectPid();
-            if (parser.isDatastreamPid() || parser.isPagePid()) {
-                // return
-                // SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY+"\""+parser.getParentObjectPid()+"\"");
-                return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + pid + "\"");
-            } else {
-                return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + pid + "\"");
-            }
+            return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + pid + "\"");
         } catch (ParserConfigurationException e) {
             throw new IOException(e);
         } catch (SAXException e) {
-            throw new IOException(e);
-        } catch (LexerException e) {
             throw new IOException(e);
         }
     }
@@ -89,37 +80,52 @@ public class SolrAccessImpl implements SolrAccess {
         }
     }
 
+
+
     @Override
     public ObjectPidsPath[] getPath(String datastreamName, Document solrData) throws IOException {
         try {
             List<String> disected = SolrUtils.disectPidPaths(solrData);
-
-            ObjectPidsPath[] paths = new ObjectPidsPath[disected.size()];
-            for (int i = 0; i < paths.length; i++) {
-                String[] splitted = disected.get(i).split("/");
-                if (datastreamName != null) {
-                    String[] splittedWithStreams = new String[splitted.length];
-                    for (int j = 0; j < splittedWithStreams.length; j++) {
-                        splittedWithStreams[j] = splitted[j] + "/" + datastreamName;
-                    }
-                    splitted = splittedWithStreams;
-                }
-
-                ObjectPidsPath path = new ObjectPidsPath(splitted);
-                // pdf in solr has special
-                if (path.getLeaf().startsWith("@")) {
-                    String pageParent = path.cutTail(0).getLeaf();
-                    // path = path.injectObjectBetween(pageParent, new
-                    // AbstractObjectPath.Between(pageParent, path.getLeaf()));
-                    path = path.replace(path.getLeaf(), pageParent + "/" + path.getLeaf());
-                }
-                paths[i] = path;
-            }
-
-            return paths;
+            return pathsInternal(datastreamName, disected);
         } catch (XPathExpressionException e) {
             throw new IOException(e);
         }
+    }
+
+    @Override
+    public ObjectPidsPath[] getPath(String datastreamName, Element solrDocParentElement) throws IOException {
+        try {
+            List<String> disected = SolrUtils.disectPidPaths(solrDocParentElement);
+            return pathsInternal(datastreamName, disected);
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
+        }
+    }
+
+    private ObjectPidsPath[] pathsInternal(String datastreamName, List<String> disected) {
+        ObjectPidsPath[] paths = new ObjectPidsPath[disected.size()];
+        for (int i = 0; i < paths.length; i++) {
+            String[] splitted = disected.get(i).split("/");
+            if (datastreamName != null) {
+                String[] splittedWithStreams = new String[splitted.length];
+                for (int j = 0; j < splittedWithStreams.length; j++) {
+                    splittedWithStreams[j] = splitted[j] + "/" + datastreamName;
+                }
+                splitted = splittedWithStreams;
+            }
+
+            ObjectPidsPath path = new ObjectPidsPath(splitted);
+            // pdf in solr has special
+            if (path.getLeaf().startsWith("@")) {
+                String pageParent = path.cutTail(0).getLeaf();
+                // path = path.injectObjectBetween(pageParent, new
+                // AbstractObjectPath.Between(pageParent, path.getLeaf()));
+                path = path.replace(path.getLeaf(), pageParent + "/" + path.getLeaf());
+            }
+            paths[i] = path;
+        }
+
+        return paths;
     }
 
     @Override

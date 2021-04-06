@@ -132,7 +132,11 @@ public class PidsReport implements StatisticReport {
                 updateTemplate
                     .executeUpdate(sql);
             }
-            conn.close();
+            // if table exists; we have to close connection manually
+            if (!conn.isClosed()) {
+                conn.close();
+            }
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);
@@ -184,7 +188,8 @@ public class PidsReport implements StatisticReport {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql, params.toArray());
-            conn.close();
+            //conn.close();
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException ex) {

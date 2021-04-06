@@ -61,7 +61,11 @@ public class SolrUtils   {
     public static final String HANDLE_QUERY="q=handle:";
     /** Parent query */
     public static final String PARENT_QUERY="q=parent_pid:";
-    
+
+    public static final String DNNT_FLAG = "dnnt";
+    public static final String DNNT_LABELS_EXTENDED_FLAG = "dnnt-labels-extended";
+
+
     // factory instance
     static XPathFactory fact =XPathFactory.newInstance();
     
@@ -137,20 +141,30 @@ public class SolrUtils   {
      */
     public static List<String> disectPidPaths( Document parseDocument) throws XPathExpressionException {
         synchronized(parseDocument) {
-            List<String> list = new ArrayList<String>();
-            NodeList paths = (org.w3c.dom.NodeList) pidPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
-            if (paths != null) {
-                for (int i = 0,ll=paths.getLength(); i < ll; i++) {
-                    Node n = paths.item(i);
-                    String text = n.getTextContent();
-                    list.add(text.trim());
-                }
-                return list;
-            }
-            return new ArrayList<String>();
+            return paths(parseDocument);
         }
     }
-    
+
+    public static List<String> disectPidPaths( Element element) throws XPathExpressionException {
+        synchronized(element) {
+            return paths(element);
+        }
+    }
+
+    private static List<String> paths(Node domn) throws XPathExpressionException {
+        List<String> list = new ArrayList<>();
+        NodeList paths = (NodeList) pidPathExpr().evaluate(domn, XPathConstants.NODESET);
+        if (paths != null) {
+            for (int i = 0,ll=paths.getLength(); i < ll; i++) {
+                Node n = paths.item(i);
+                String text = n.getTextContent();
+                list.add(text.trim());
+            }
+            return list;
+        }
+        return new ArrayList<>();
+    }
+
     /**
      * Disect pid from given solr document
      * @param parseDocument Parsed solr document
@@ -167,6 +181,58 @@ public class SolrUtils   {
             return null;
         }
     }
+
+    public static List<String> disectDNNTLabels(Element topElem) {
+        synchronized(topElem.getOwnerDocument()) {
+            Element foundElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    return (element.getNodeName().equals("arr") && element.getAttribute("name") != null && element.getAttribute("name").equals("dnnt-labels"));
+                }
+            });
+            if (foundElement != null) {
+                List<String> list = new ArrayList<>();
+                NodeList childNodes = foundElement.getChildNodes();
+                for (int i = 0; i < childNodes.getLength(); i++) {
+                    Node item = childNodes.item(i);
+                    if (item.getNodeType() == Node.ELEMENT_NODE) {
+                        list.add(item.getTextContent().toString());
+                    }
+                }
+                return list;
+            } else return new ArrayList<>();
+        }
+
+    }
+
+    public static String disectDNNTLabelsFlag(Element topElem)  {
+        return disectDNNTFlag(topElem, DNNT_LABELS_EXTENDED_FLAG);
+    }
+
+
+
+    public static String disectDNNTFlag(Element topElem)  {
+        return disectDNNTFlag(topElem, DNNT_FLAG);
+    }
+
+    public static String disectDNNTFlag(Element topElem, String flag)  {
+        synchronized(topElem.getOwnerDocument()) {
+            Element foundElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
+
+                @Override
+                public boolean acceptElement(Element element) {
+                    return (element.getNodeName().equals("bool") && element.getAttribute("name") != null && element.getAttribute("name").equals(flag));
+                }
+
+            });
+            if (foundElement != null) {
+                return foundElement.getTextContent().trim();
+            } else return null;
+        }
+    }
+
+
+
 
     public static String disectPid(Element topElem) throws XPathExpressionException {
         synchronized(topElem.getOwnerDocument()) {
@@ -192,7 +258,7 @@ public class SolrUtils   {
      */
     public static List<String> disectModelPaths(Document parseDocument) throws XPathExpressionException {
         synchronized(parseDocument) {
-            List<String> list = new ArrayList<String>();
+            List<String> list = new ArrayList<>();
             NodeList pathNodes = (NodeList) modelPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
             if (pathNodes != null) {
                 for (int i = 0,ll=pathNodes.getLength(); i < ll; i++) {
@@ -202,7 +268,7 @@ public class SolrUtils   {
                 }
                 return list;
             }
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
     }
     
@@ -258,6 +324,14 @@ public class SolrUtils   {
     }
 
 
+    public static String strValue(Document parsedDocument, String xpath) throws XPathExpressionException {
+        synchronized(parsedDocument) {
+            XPathExpression compiled = fact.newXPath().compile(xpath);
+            String value = (String) compiled.evaluate(parsedDocument, XPathConstants.STRING);
+            return value;
+        }
+    }
+
     public static Document getSolrDataInternalOffset(String query, String offset) throws IOException, ParserConfigurationException, SAXException {
         String solrHost = KConfiguration.getInstance().getSolrHost();
         String uri = solrHost +"/select?" +query+"&start="+offset;
@@ -280,7 +354,7 @@ public class SolrUtils   {
         if (!uri.endsWith("&")) {
             uri = uri + "&wt="+format;
         } else {
-        	uri = uri+"wt="+format;
+            uri = uri+"wt="+format;
         }
         HttpGet httpGet = new HttpGet(uri);
         CloseableHttpClient client = HttpClients.createDefault();
@@ -299,13 +373,14 @@ public class SolrUtils   {
         if (!uri.endsWith("&")) {
             uri = uri + "&wt="+format;
         } else {
-        	uri = uri+"wt="+format;
+            uri = uri+"wt="+format;
         }
         InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
         return inputStream;
     }
-    
-    
+
+
+
     
     
 

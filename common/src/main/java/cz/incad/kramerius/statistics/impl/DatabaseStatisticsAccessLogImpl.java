@@ -19,27 +19,25 @@
  */
 package cz.incad.kramerius.statistics.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.xpath.*;
 
+import cz.incad.kramerius.*;
+import cz.incad.kramerius.statistics.impl.dnnt.DNNTStatisticSupport;
+import cz.incad.kramerius.statistics.impl.dnnt.format.YearLogFormat;
+import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -49,9 +47,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.pdf.utils.ModsUtils;
 import cz.incad.kramerius.processes.NotReadyException;
@@ -69,12 +64,19 @@ import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import java.util.logging.Logger;
 import javax.xml.xpath.XPathExpressionException;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 /**
  * @author pavels
  *
  */
 public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
+
+
+    public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued[@encoding='marc']/text()","//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()","//mods:part/mods:date/text()"};
+
+
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
     
@@ -111,20 +113,29 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
     
     @Inject
     Set<StatisticReport> reports;
-    
+
+    private XPathFactory xpfactory;
+
+    public DatabaseStatisticsAccessLogImpl() {
+        this.xpfactory = XPathFactory.newInstance();
+    }
+
     @Override
     public void reportAccess(final String pid, final String streamName) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectModelsPath[] mpaths = this.solrAccess.getPathOfModels(pid);
 
         Connection connection = null;
         try {
             connection = connectionProvider.get();
             if (connection == null)
                 throw new NotReadyException("connection not ready");
-            
-            List<JDBCCommand> commands = new ArrayList<JDBCCommand>(); 
-            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get()));
 
+            Map<String, Document> dcMap = new HashMap<>();
+            Map<String, Document> modsMap = new HashMap<>();
+
+            List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
+            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get()));
             for (int i = 0, ll = paths.length; i < ll; i++) {
 
                 if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
@@ -135,9 +146,19 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                 String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
                 for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                     final String detailPid = pathFromLeafToRoot[j];
+                    Document dc = fedoraAccess.getDC(detailPid);
+                    dcMap.put(detailPid, dc);
+
+                    Document biblioMods = fedoraAccess.getBiblioMods(detailPid);
+                    modsMap.put(detailPid, biblioMods);
+
+                }
+
+                for (int j = 0; j < pathFromLeafToRoot.length; j++) {
+                    final String detailPid = pathFromLeafToRoot[j];
 
                     String kModel = fedoraAccess.getKrameriusModelName(detailPid);
-                    Document dc = fedoraAccess.getDC(detailPid);
+                    Document dc = dcMap.containsKey(detailPid) ? dcMap.get(detailPid) : fedoraAccess.getDC(detailPid);
 
                     Object dateFromDC = DCUtils.dateFromDC(dc);
                     dateFromDC = dateFromDC != null ? dateFromDC : new JDBCUpdateTemplate.NullObject(String.class);
@@ -178,7 +199,64 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
                     }
                 }
             }
-            
+
+
+
+            // Prepare data from solr
+            Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
+            String rootTitle  = selem("str", "root_title", solrDoc);
+            String rootPid  = selem("str", "root_pid", solrDoc);
+            String dctitle = selem("str", "dc.title", solrDoc);
+            String solrDate = selem("str", "datum_str", solrDoc);
+
+            String dnnt = selem("bool", "dnnt", solrDoc);
+            String policy = selem("str", "dostupnost", solrDoc);
+
+            List<String> dcAuthors = new ArrayList<>();
+            if (rootPid != null) {
+                Document rootSolrDoc = this.solrAccess.getSolrDataDocument(rootPid);
+                Element array = XMLUtils.findElement(rootSolrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        String nodeName = element.getNodeName();
+                        String attr = element.getAttribute("name");
+                        if (nodeName.equals("arr") && StringUtils.isAnyString(attr) && attr.equals("dc.creator"))
+                            return true;
+                        return false;
+                    }
+                });
+                if (array != null) {
+                    dcAuthors = XMLUtils.getElements(array).stream().map(it -> it.getTextContent()).filter(it -> it != null).map(String::trim).collect(Collectors.toList());
+                }
+            }
+
+            List<String> dcPublishers = new ArrayList<>();
+            for (int i = 0, ll = paths.length; i < ll; i++) {
+                if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
+                    paths[i] = paths[i].cutHead(0);
+                }
+                final int pathIndex = i;
+                String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
+                for (int j = 0; j < pathFromLeafToRoot.length; j++) {
+                    final String detailPid = pathFromLeafToRoot[j];
+                    Document document = dcMap.get(detailPid);
+
+                    List<String> collected = Arrays.stream(DCUtils.publishersFromDC(document)).map(it -> {
+                        return it.replaceAll("\\r?\\n", " ");
+                    }).collect(Collectors.toList());
+
+                    dcPublishers.addAll(collected);
+                }
+            }
+
+
+
+            // WRITE TO LOG - kibana processing
+            if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
+                new DNNTStatisticSupport(this.requestProvider, this.userProvider, new YearLogFormat()).log(pid,rootTitle,dctitle,solrDate, findModsDate(paths, modsMap) , dnnt,policy, dcPublishers ,dcAuthors, paths, mpaths);
+            }
+
+            //  WRITE TO DATABASE
             JDBCTransactionTemplate transactionTemplate = new JDBCTransactionTemplate(connection, true);
             transactionTemplate.updateWithTransaction(commands);
         } catch (SQLException e) {
@@ -186,8 +264,45 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         }
     }
 
-    
-    
+    private String  findModsDate(ObjectPidsPath[] paths, Map<String, Document> modsMap) {
+        try {
+            for (int i = 0; i < paths.length; i++) {
+                String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
+
+                for (int j = 0; j < pathFromLeafToRoot.length; j++) {
+                    String detailPid = pathFromLeafToRoot[j];
+                    for (String xPathExpression : MODS_XPATHS) {
+                        XPath xpath = xpfactory.newXPath();
+                        xpath.setNamespaceContext(new FedoraNamespaceContext());
+                        XPathExpression expr = xpath.compile(xPathExpression);
+                        Object date = expr.evaluate( modsMap.get(detailPid), XPathConstants.NODE);
+                        if (date != null) return ((Text) date).getData();
+                    }
+                }
+            }
+            return null;
+        } catch (XPathExpressionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            return null;
+        }
+    }
+
+
+    private String selem(String type, String attrVal, Document solrDoc) {
+        Element dcElm = XMLUtils.findElement(solrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                String nodeName = element.getNodeName();
+                String attr = element.getAttribute("name");
+                if (nodeName.equals(type) && StringUtils.isAnyString(attr) && attr.equals(attrVal)) return true;
+                return false;
+            }
+        });
+        return dcElm != null ? dcElm.getTextContent() : null;
+    }
+
+
+
     @Override
     public void reportAccess(String pid, String streamName, String actionName) throws IOException {
         ReportedAction action = ReportedAction.valueOf(actionName);
@@ -403,4 +518,6 @@ public class DatabaseStatisticsAccessLogImpl implements StatisticsAccessLog {
         InputStream is = DatabaseStatisticsAccessLogImpl.class.getResourceAsStream("res/statistics.stg");
         stGroup = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
     }
+
+
 }

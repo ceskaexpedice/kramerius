@@ -126,7 +126,7 @@ public class ItemResource {
         try {
             ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
             for (ObjectPidsPath path : paths) {
-                if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, path)) {
+                if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, path).flag()) {
                     access = true;
                     break;
                 }

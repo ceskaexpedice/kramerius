@@ -73,15 +73,18 @@ public class UserUtils {
     /** Params to request's header and session */
     public static final String USER_NAME_PARAM = "userName";
     public static final String PSWD_PARAM = "pswd";
- 
-    public static final String FIRST_NAME_KEY="firstName";
-    public static final String LAST_NAME_KEY="lastName";
-    
-    
-    
+
+
+    public static final String FIRST_NAME_KEY="firstname";
+    public static final String LAST_NAME_KEY="surname";
+
+
     /** Params to http session */
     public static final String LOGGED_USER_PARAM = "loggedUser";
     public static final String LOGGED_USER_KEY_PARAM ="loggedUserKey";
- 
+
+    /** Additional properties for user when third party authentication is used  */
+    public static final String THIRD_PARTY_SESSION_PARAMS = "session_";
+
     
 }

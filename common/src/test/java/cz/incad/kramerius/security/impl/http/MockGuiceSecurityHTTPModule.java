@@ -19,6 +19,7 @@ package cz.incad.kramerius.security.impl.http;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
+import cz.incad.kramerius.security.*;
 import org.easymock.EasyMock;
 
 import com.google.inject.AbstractModule;
@@ -27,10 +28,6 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
-import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -38,8 +35,9 @@ public class MockGuiceSecurityHTTPModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        RightsReturnObject rightsReturnObject = new RightsReturnObject(null, EvaluatingResultState.FALSE);
         IsActionAllowed isAllowed = EasyMock.createMock(IsActionAllowed.class);
-        EasyMock.expect(isAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), FedoraUtils.IMG_FULL_STREAM, SpecialObjects.REPOSITORY.getPid(), new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))).andReturn(true);
+        EasyMock.expect(isAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), FedoraUtils.IMG_FULL_STREAM, SpecialObjects.REPOSITORY.getPid(), new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))).andReturn(rightsReturnObject);
         replay(isAllowed);
 
         bind(IsActionAllowed.class).toInstance(isAllowed);

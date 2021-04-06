@@ -95,170 +95,170 @@ public class RightsResource {
      * @param id Right id
      * @return JSON of deleted right
      */
-	@DELETE
+    @DELETE
     @Path("{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-	public Response delete(@PathParam("id") String id) {
-		if (permit(this.userProvider.get())) {
-			Right r = this.rightsManager.findRightById(Integer.parseInt(id));
-			if (r != null) {
-				try {
-					this.rightsManager.deleteRight(r);
-					JSONObject jsonRet = rightsToJSON(r);
-					jsonRet.put("deleted", true);
-					return Response.ok().entity(jsonRet.toString()).build();
-				} catch (SQLException e) {
-					throw new GenericApplicationException(e.getMessage(), e);
-				} catch (JSONException e) {
+    public Response delete(@PathParam("id") String id) {
+        if (permit(this.userProvider.get())) {
+            Right r = this.rightsManager.findRightById(Integer.parseInt(id));
+            if (r != null) {
+                try {
+                    this.rightsManager.deleteRight(r);
+                    JSONObject jsonRet = rightsToJSON(r);
+                    jsonRet.put("deleted", true);
+                    return Response.ok().entity(jsonRet.toString()).build();
+                } catch (SQLException e) {
+                    throw new GenericApplicationException(e.getMessage(), e);
+                } catch (JSONException e) {
                     throw new GenericApplicationException(e.getMessage(), e);
                 }
-			} else throw new ObjectNotFound("cannot find right with id "+id);
-		} else throw new ActionNotAllowed("action is not allowed");
-	}    
+            } else throw new ObjectNotFound("cannot find right with id "+id);
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
 
-	/**
-	 * Creates new right
-	 * @param json JSON represents right to be created
-	 * @return Created right in JSON representation
-	 */
-	@POST
+    /**
+     * Creates new right
+     * @param json JSON represents right to be created
+     * @return Created right in JSON representation
+     */
+    @POST
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
-	public Response insert(JSONObject json) {
-		if (permit(this.userProvider.get())) {
-			try {
+    public Response insert(JSONObject json) {
+        if (permit(this.userProvider.get())) {
+            try {
                 Right r = this.rightFromJSON(json);		
                 if (r != null)  {
-                	try {
-                		int rid = this.rightsManager.insertRight(r);
-                		Right nr = this.rightsManager.findRightById(rid);
-                		URI uri = UriBuilder.fromResource(RightsResource.class).path("{id}").build(nr.getId());
-                		return Response.created(uri).entity(rightsToJSON(nr).toString()).build();
-                	} catch (IllegalArgumentException e) {
-                		throw new GenericApplicationException(e.getMessage(), e);
-                	} catch (UriBuilderException e) {
-                		throw new GenericApplicationException(e.getMessage(), e);
-                	} catch (SQLException e) {
-                		throw new GenericApplicationException(e.getMessage(), e);
-                	} catch (JSONException e) {
+                    try {
+                        int rid = this.rightsManager.insertRight(r);
+                        Right nr = this.rightsManager.findRightById(rid);
+                        URI uri = UriBuilder.fromResource(RightsResource.class).path("{id}").build(nr.getId());
+                        return Response.created(uri).entity(rightsToJSON(nr).toString()).build();
+                    } catch (IllegalArgumentException e) {
+                        throw new GenericApplicationException(e.getMessage(), e);
+                    } catch (UriBuilderException e) {
+                        throw new GenericApplicationException(e.getMessage(), e);
+                    } catch (SQLException e) {
+                        throw new GenericApplicationException(e.getMessage(), e);
+                    } catch (JSONException e) {
                         throw new GenericApplicationException(e.getMessage(), e);
                     }
                 } else {
-                	throw new GenericApplicationException("cannot insert right!");
+                    throw new GenericApplicationException("cannot insert right!");
                 }
             } catch (JSONException e) {
                 throw new GenericApplicationException(e.getMessage(), e);
             }
-		} else throw new ActionNotAllowed("action is not allowed");
-	}    
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
 
-	/**
-	 * Update right
-	 * @param jsonObject
-	 * @return
-	 */
-	@PUT
+    /**
+     * Update right
+     * @param jsonObject
+     * @return
+     */
+    @PUT
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
-	public Response update(JSONObject jsonObject) {
-		if (permit(this.userProvider.get())) {
-			try {
-				Right r = this.rightFromJSON(jsonObject);		
-				if (r != null) {
-					try {
+    public Response update(JSONObject jsonObject) {
+        if (permit(this.userProvider.get())) {
+            try {
+                Right r = this.rightFromJSON(jsonObject);
+                if (r != null) {
+                    try {
                         this.rightsManager.updateRight(r);
                         Right nr = this.rightsManager.findRightById(r.getId());
                         return Response.ok().entity(rightsToJSON(nr).toString()).build();
                     } catch (JSONException e) {
                         throw new GenericApplicationException(e.getMessage(), e);
                     }
-				} else {
-					throw new ObjectNotFound("cannot find right for '"+jsonObject+"'");
-				}
-			} catch (SQLException e) {
-				throw new GenericApplicationException("cannot insert right!");
-			} catch (JSONException e1) {
+                } else {
+                    throw new ObjectNotFound("cannot find right for '"+jsonObject+"'");
+                }
+            } catch (SQLException e) {
+                throw new GenericApplicationException("cannot insert right!");
+            } catch (JSONException e1) {
                 throw new GenericApplicationException(e1.getMessage(), e1);
             }
-		} else throw new ActionNotAllowed("action is not allowed");
-	}    
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
 
 
-	@GET
+    @GET
     @Path("{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response right( @PathParam("id")String id) {
-		if (permit(this.userProvider.get())) {
-			Right r = this.rightsManager.findRightById(Integer.parseInt(id));
-			if (r != null) {
-				try {
+        if (permit(this.userProvider.get())) {
+            Right r = this.rightsManager.findRightById(Integer.parseInt(id));
+            if (r != null) {
+                try {
                     return Response.ok().entity(rightsToJSON(r).toString()).build();
                 } catch (JSONException e) {
                     throw new GenericApplicationException(e.getMessage(), e);
                 }
-			} else throw new ObjectNotFound("cannot find right '"+id+"'");
-		} else throw new ActionNotAllowed("action is not allowed");
-	}
+            } else throw new ObjectNotFound("cannot find right '"+id+"'");
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
 
     
-	@GET
+    @GET
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-	public Response rights(  @QueryParam("roles")String roleList, @QueryParam("pids")String pidList, @QueryParam("actions")String actionList) {
-		if (permit(this.userProvider.get())) {
-		    
-			try {
+    public Response rights(  @QueryParam("roles")String roleList, @QueryParam("pids")String pidList, @QueryParam("actions")String actionList) {
+        if (permit(this.userProvider.get())) {
+
+            try {
                 List<String> roles = new ArrayList<String>();
                 List<String> pids = new ArrayList<String>();
                 List<String> actions = new ArrayList<String>();
 
                 if (pidList != null) {
-                	StringTokenizer tokenizer = new StringTokenizer(pidList);
-                	while(tokenizer.hasMoreTokens()) {
-                		String tk = tokenizer.nextToken();
-                		pids.add(tk);
-                	}
+                    StringTokenizer tokenizer = new StringTokenizer(pidList);
+                    while(tokenizer.hasMoreTokens()) {
+                        String tk = tokenizer.nextToken();
+                        pids.add(tk);
+                    }
                 }
                 
                 if (roleList != null) {
-                	StringTokenizer tokenizer = new StringTokenizer(roleList);
-                	while(tokenizer.hasMoreTokens()) {
-                		String tk = tokenizer.nextToken();
-                		roles.add(tk);
-                	}
+                    StringTokenizer tokenizer = new StringTokenizer(roleList);
+                    while(tokenizer.hasMoreTokens()) {
+                        String tk = tokenizer.nextToken();
+                        roles.add(tk);
+                    }
                 }
                 
                 if (actionList != null) {
-                	StringTokenizer tokenizer = new StringTokenizer(actionList);
-                	while(tokenizer.hasMoreTokens()) {
-                		String tk = tokenizer.nextToken();
-                		actions.add(tk);
-                	}
+                    StringTokenizer tokenizer = new StringTokenizer(actionList);
+                    while(tokenizer.hasMoreTokens()) {
+                        String tk = tokenizer.nextToken();
+                        actions.add(tk);
+                    }
                 }
 
                 Right[] rights = this.rightsManager.findRights(new String[0],pids.toArray(new String[pids.size()]), actions.toArray(new String[actions.size()]), roles.toArray(new String[roles.size()]));
                 JSONArray jsonArr = new JSONArray();
                 for (Right r : rights) {
-                	JSONObject json = rightsToJSON(r);
-                	jsonArr.put(json);
+                    JSONObject json = rightsToJSON(r);
+                    jsonArr.put(json);
                 }
                 
                 return Response.ok().entity(jsonArr.toString()).build();
             } catch (JSONException e) {
                 throw new GenericApplicationException(e.getMessage(), e);
             }
-		} else throw new ActionNotAllowed("action is not allowed");
-	}
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
 
-	@DELETE
-	@Path("params/{id:[0-9]+}")
+    @DELETE
+    @Path("params/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-	public Response deleteParam(@PathParam("id")String id) {
-		if (permit(this.userProvider.get())) {
-			try {
-				int id2 = Integer.parseInt(id);
-				RightCriteriumParams params = this.rightsManager.findParamById(id2);
-				if (params != null) {
-					try {
+    public Response deleteParam(@PathParam("id")String id) {
+        if (permit(this.userProvider.get())) {
+            try {
+                int id2 = Integer.parseInt(id);
+                RightCriteriumParams params = this.rightsManager.findParamById(id2);
+                if (params != null) {
+                    try {
                         this.rightsManager.deleteRightCriteriumParams(id2);
                         JSONObject jsonObject = paramToJSON(params);
                         jsonObject.put("deleted", true);
@@ -266,198 +266,198 @@ public class RightsResource {
                     } catch (JSONException e) {
                         throw new GenericApplicationException(e.getMessage(), e);
                     }
-				} else {
-					throw new ObjectNotFound("cannot find param '"+id+"'");
-				}
-			} catch (NumberFormatException e) {
-				throw new GenericApplicationException(e.getMessage());
-			} catch (SQLException e) {
-				throw new GenericApplicationException(e.getMessage());
-			}
-		} else throw new ActionNotAllowed("action is not allowed");
-	}
+                } else {
+                    throw new ObjectNotFound("cannot find param '"+id+"'");
+                }
+            } catch (NumberFormatException e) {
+                throw new GenericApplicationException(e.getMessage());
+            } catch (SQLException e) {
+                throw new GenericApplicationException(e.getMessage());
+            }
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
 
-	@POST
-	@Path("params")
+    @POST
+    @Path("params")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
-	public Response createParam(JSONObject jsonObj) {
-		if (permit(this.userProvider.get())) {
-			try {
-				RightCriteriumParams params = paramsFromJSON(jsonObj);
-				int id = this.rightsManager.insertRightCriteriumParams(params);
-				RightCriteriumParams[] p = this.rightsManager.findAllParams();
-				for (RightCriteriumParams rp : p) {
-					if (rp.getId() == id)  {
-						return Response.ok().entity(paramToJSON(rp).toString()).build();
-					}
-				}
-				throw new GenericApplicationException("cannot find created params '"+id+"'");
-			} catch (SQLException e) {
-				throw new GenericApplicationException(e.getMessage());
-			} catch (JSONException e) {
+    public Response createParam(JSONObject jsonObj) {
+        if (permit(this.userProvider.get())) {
+            try {
+                RightCriteriumParams params = paramsFromJSON(jsonObj);
+                int id = this.rightsManager.insertRightCriteriumParams(params);
+                RightCriteriumParams[] p = this.rightsManager.findAllParams();
+                for (RightCriteriumParams rp : p) {
+                    if (rp.getId() == id)  {
+                        return Response.ok().entity(paramToJSON(rp).toString()).build();
+                    }
+                }
+                throw new GenericApplicationException("cannot find created params '"+id+"'");
+            } catch (SQLException e) {
+                throw new GenericApplicationException(e.getMessage());
+            } catch (JSONException e) {
                 throw new GenericApplicationException(e.getMessage(), e);
             }
-		} else throw new ActionNotAllowed("action is not allowed");
-	}
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
 
-	@GET
-	@Path("params/{id:[0-9]+}")
+    @GET
+    @Path("params/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-	public Response params(@PathParam("id")String id) {
-		if (permit(this.userProvider.get())) {
-			try {
+    public Response params(@PathParam("id")String id) {
+        if (permit(this.userProvider.get())) {
+            try {
                 int iId = Integer.parseInt(id);
                 RightCriteriumParams[] params = this.rightsManager.findAllParams();
                 for (RightCriteriumParams rp : params) {
-                	if (rp.getId() == iId) {
-                		return Response.ok().entity(paramToJSON(rp).toString()).build();
-                	}
+                    if (rp.getId() == iId) {
+                        return Response.ok().entity(paramToJSON(rp).toString()).build();
+                    }
                 }
                 throw new ObjectNotFound("cannot find param '"+id+"'");
             } catch (JSONException e) {
                 throw new GenericApplicationException(e.getMessage(), e);
             }
-		} else throw new ActionNotAllowed("action is not allowed");
-	}
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
 
-	
-	
 
-	@GET
-	@Path("params")
+
+
+    @GET
+    @Path("params")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-	public Response params() {
-		if (permit(this.userProvider.get())) {
-			try {
+    public Response params() {
+        if (permit(this.userProvider.get())) {
+            try {
                 RightCriteriumParams[] params = this.rightsManager.findAllParams();
                 JSONArray jsonArr = new JSONArray();
                 for (RightCriteriumParams rp : params) {
-                	JSONObject jsonObj = paramToJSON(rp);
-                	jsonArr.put(jsonObj);
+                    JSONObject jsonObj = paramToJSON(rp);
+                    jsonArr.put(jsonObj);
                 }
                 return Response.ok().entity(jsonArr.toString()).build();
             } catch (JSONException e) {
                 throw new GenericApplicationException(e.getMessage(), e);
             }
-		} else throw new ActionNotAllowed("action is not allowed");
-	}
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
 
-	private JSONObject userToJSON(AbstractUser au) throws JSONException {
-		JSONObject jsonObj = new JSONObject();
-		jsonObj.put("id", au.getId());
-		if (au instanceof Role) {
-			jsonObj.put("name", ((Role)au).getName());
-		}
-		return jsonObj;
-	}
-	private JSONObject criteriumToJSON(RightCriteriumWrapper rcw) throws JSONException {
-		JSONObject jsonObj = new JSONObject();
-		jsonObj.put("qname", rcw.getRightCriterium().getQName());
-		jsonObj.put("params", paramToJSON(rcw.getCriteriumParams()));
-		return jsonObj;
-	}	
-	
-	private JSONObject rightsToJSON(Right r) throws JSONException {
-		JSONObject jsonObj = new JSONObject();
-		jsonObj.put("id", r.getId());
-		jsonObj.put("action", r.getAction());
-		jsonObj.put("pid", r.getPid());
-		
-		if (r.getFixedPriority() > 0 || r.getFixedPriority() < 0) {
-			jsonObj.put("fixedPriority", r.getFixedPriority());
-		}
-		jsonObj.put("role", userToJSON(r.getUser()));
-		
-		if (r.getCriteriumWrapper() != null)
-			jsonObj.put("criterium", criteriumToJSON(r.getCriteriumWrapper()));
-		
-		return jsonObj;
-	}
+    private JSONObject userToJSON(AbstractUser au) throws JSONException {
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("id", au.getId());
+        if (au instanceof Role) {
+            jsonObj.put("name", ((Role)au).getName());
+        }
+        return jsonObj;
+    }
+    private JSONObject criteriumToJSON(RightCriteriumWrapper rcw) throws JSONException {
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("qname", rcw.getRightCriterium().getQName());
+        jsonObj.put("params", paramToJSON(rcw.getCriteriumParams()));
+        return jsonObj;
+    }
 
-	private JSONObject paramToJSON(RightCriteriumParams rp) throws JSONException {
-		JSONObject jsonObj = new JSONObject();
-		jsonObj.put("id", rp.getId());
-		jsonObj.put("ldesc", rp.getLongDescription());
-		jsonObj.put("sdesc", rp.getShortDescription());
-		
-		Object[] objs = rp.getObjects();
-		JSONArray objsArr = new JSONArray();
-		for (int i = 0; i < objs.length; i++) {
-			objsArr.put(objs[i].toString());
-		}
-		jsonObj.put("objects", objsArr);
-		return jsonObj;
-	}
-	
-	private Role roleFromJSON(JSONObject jsonObj) throws JSONException {
-		int id = -1;
-		if (jsonObj.has("id")) {
-			id = jsonObj.getInt("id");
-		}
-		String rname = jsonObj.getString("name");
-		RoleImpl rm = new RoleImpl(id, rname, -1);
-		return rm;
-	}
+    private JSONObject rightsToJSON(Right r) throws JSONException {
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("id", r.getId());
+        jsonObj.put("action", r.getAction());
+        jsonObj.put("pid", r.getPid());
 
-	private RightCriteriumParams paramsFromJSON(JSONObject jsonObj) throws JSONException {
-		int id = -1;
-		if (jsonObj.has("id")) {
-			id = jsonObj.getInt("id");
-		}
-		RightCriteriumParams param = new RightCriteriumParamsImpl(id);
-		if (jsonObj.has("ldesc")) {
-			param.setShortDescription(jsonObj.getString("ldesc"));
-		}
-		if (jsonObj.has("sdesc")) {
-			param.setShortDescription(jsonObj.getString("sdesc"));
-		}
-		if (jsonObj.has("objects")) {
-			List<Object> objs = new ArrayList<Object>();
-			JSONArray jsonArr = jsonObj.getJSONArray("objects");
-			for (int i = 0, ll = jsonArr.length(); i < ll; i++) {
-				objs.add(jsonArr.get(i));
-			}
-			param.setObjects(objs.toArray());
-		}
-		return param;
-	}
-	
-	private RightCriteriumWrapper rightCriteriumWrapper(JSONObject jsonObj) throws JSONException {
-		String qname = jsonObj.getString("qname");
-		RightCriteriumWrapper wrapper = this.critFactory.createCriteriumWrapper(qname);
-		if (jsonObj.has("params")) {
-			wrapper.setCriteriumParams(paramsFromJSON(jsonObj.getJSONObject("params")));
-		}
-		return wrapper;
-	}
-	
-	private Right rightFromJSON(JSONObject jsonObj) throws JSONException {
-		int id = -1;
-		if (jsonObj.has("id")) {
-			id = jsonObj.getInt("id");
-		}
-		String action = jsonObj.getString("action");
-		String pid = jsonObj.getString("pid");
-		Role role = roleFromJSON(jsonObj.getJSONObject("role"));
-		RightCriteriumWrapper wrapper = null;
-		if (jsonObj.has("criterium")){
-			
-			wrapper = rightCriteriumWrapper(jsonObj.getJSONObject("criterium"));
-		}
-		RightImpl rimpl = new RightImpl(id, wrapper, pid, action, role);
-		if (jsonObj.has("fixedPriority")) {
-			rimpl.setFixedPriority(jsonObj.getInt("fixedPriority"));
-		}
-		return rimpl;
+        if (r.getFixedPriority() > 0 || r.getFixedPriority() < 0) {
+            jsonObj.put("fixedPriority", r.getFixedPriority());
+        }
+        jsonObj.put("role", userToJSON(r.getUser()));
 
-	}
-	
-	boolean permit(User user) {
-    	if (user != null)
-    		return  this.actionAllowed.isActionAllowed(user,SecuredActions.ADMINISTRATE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH);
-    	else 
-    		return false;
+        if (r.getCriteriumWrapper() != null)
+            jsonObj.put("criterium", criteriumToJSON(r.getCriteriumWrapper()));
+
+        return jsonObj;
+    }
+
+    private JSONObject paramToJSON(RightCriteriumParams rp) throws JSONException {
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("id", rp.getId());
+        jsonObj.put("ldesc", rp.getLongDescription());
+        jsonObj.put("sdesc", rp.getShortDescription());
+
+        Object[] objs = rp.getObjects();
+        JSONArray objsArr = new JSONArray();
+        for (int i = 0; i < objs.length; i++) {
+            objsArr.put(objs[i].toString());
+        }
+        jsonObj.put("objects", objsArr);
+        return jsonObj;
+    }
+
+    private Role roleFromJSON(JSONObject jsonObj) throws JSONException {
+        int id = -1;
+        if (jsonObj.has("id")) {
+            id = jsonObj.getInt("id");
+        }
+        String rname = jsonObj.getString("name");
+        RoleImpl rm = new RoleImpl(id, rname, -1);
+        return rm;
+    }
+
+    private RightCriteriumParams paramsFromJSON(JSONObject jsonObj) throws JSONException {
+        int id = -1;
+        if (jsonObj.has("id")) {
+            id = jsonObj.getInt("id");
+        }
+        RightCriteriumParams param = new RightCriteriumParamsImpl(id);
+        if (jsonObj.has("ldesc")) {
+            param.setShortDescription(jsonObj.getString("ldesc"));
+        }
+        if (jsonObj.has("sdesc")) {
+            param.setShortDescription(jsonObj.getString("sdesc"));
+        }
+        if (jsonObj.has("objects")) {
+            List<Object> objs = new ArrayList<Object>();
+            JSONArray jsonArr = jsonObj.getJSONArray("objects");
+            for (int i = 0, ll = jsonArr.length(); i < ll; i++) {
+                objs.add(jsonArr.get(i));
+            }
+            param.setObjects(objs.toArray());
+        }
+        return param;
+    }
+
+    private RightCriteriumWrapper rightCriteriumWrapper(JSONObject jsonObj) throws JSONException {
+        String qname = jsonObj.getString("qname");
+        RightCriteriumWrapper wrapper = this.critFactory.createCriteriumWrapper(qname);
+        if (jsonObj.has("params")) {
+            wrapper.setCriteriumParams(paramsFromJSON(jsonObj.getJSONObject("params")));
+        }
+        return wrapper;
+    }
+
+    private Right rightFromJSON(JSONObject jsonObj) throws JSONException {
+        int id = -1;
+        if (jsonObj.has("id")) {
+            id = jsonObj.getInt("id");
+        }
+        String action = jsonObj.getString("action");
+        String pid = jsonObj.getString("pid");
+        Role role = roleFromJSON(jsonObj.getJSONObject("role"));
+        RightCriteriumWrapper wrapper = null;
+        if (jsonObj.has("criterium")){
+
+            wrapper = rightCriteriumWrapper(jsonObj.getJSONObject("criterium"));
+        }
+        RightImpl rimpl = new RightImpl(id, wrapper, pid, action, role);
+        if (jsonObj.has("fixedPriority")) {
+            rimpl.setFixedPriority(jsonObj.getInt("fixedPriority"));
+        }
+        return rimpl;
+
+    }
+
+    boolean permit(User user) {
+        if (user != null)
+            return  this.actionAllowed.isActionAllowed(user,SecuredActions.ADMINISTRATE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
+        else
+            return false;
     }
 
 }

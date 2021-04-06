@@ -19,9 +19,14 @@ package cz.incad.kramerius.security.impl.criteria;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumParams;
+import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.utils.RightsDBUtils;
 
 public abstract class AbstractCriterium implements RightCriterium {
+
+
+    private static final long serialVersionUID = 1L;
+
 
     protected RightCriteriumContext evalContext;
     protected Object[] params;
@@ -36,6 +41,7 @@ public abstract class AbstractCriterium implements RightCriterium {
     public void setEvaluateContext(RightCriteriumContext ctx) {
         this.evalContext = ctx;
     }
+
 
 
     @Override
@@ -65,6 +71,16 @@ public abstract class AbstractCriterium implements RightCriterium {
     @Override
     public boolean validateParams(String encodedVals) {
         return validateParams(RightsDBUtils.valsFromString(encodedVals));
+    }
+
+    @Override
+    public boolean isRootLevelCriterum() {
+        return false;
+    }
+
+    @Override
+    public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException {
+        // DO nothing
     }
 }
 

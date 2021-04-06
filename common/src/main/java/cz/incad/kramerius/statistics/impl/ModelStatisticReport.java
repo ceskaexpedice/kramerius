@@ -113,7 +113,7 @@ public class ModelStatisticReport implements StatisticReport {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql, params.toArray());
-            conn.close();
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
             return models;
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -138,9 +138,9 @@ public class ModelStatisticReport implements StatisticReport {
             }
         }.executeQuery(sql);
         try {
-            conn.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(ModelStatisticReport.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return returns;
     }
@@ -180,7 +180,11 @@ public class ModelStatisticReport implements StatisticReport {
                 updateTemplate
                     .executeUpdate(sql);
             }
-            conn.close();
+            // if viewExists; we have to close connection manually
+            if (!conn.isClosed()) {
+                conn.close();
+            }
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);
@@ -238,7 +242,7 @@ public class ModelStatisticReport implements StatisticReport {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql,params.toArray());
-            conn.close();
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);

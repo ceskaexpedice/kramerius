@@ -1,8 +1,12 @@
 package cz.incad.kramerius.auth.thirdparty.shibb.internal;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import cz.incad.kramerius.security.Role;
 import org.apache.commons.configuration.ConfigurationException;
 import org.json.JSONException;
 
@@ -36,10 +40,19 @@ public class InternalAuthenticatedUsersImpl extends ShibAuthenticatedUsers {
         UserUtils.associateGroups(u, this.usersManager);
         UserUtils.associateCommonGroup(u, this.usersManager);
         String password = GeneratePasswordUtils.generatePswd();
-        List<String> roles = w.getRoles();
-        this.usersManager.saveUserPassword(u, password);
-        if (roles.size() > 0) {
-            this.usersManager.changeRoles(u, roles);
+
+        User userByLoginName = this.usersManager.findUserByLoginName(userName);
+        Role[] groups = userByLoginName.getGroups();
+
+        List<String> fromDb = Arrays.stream(groups).map(Role::getName).collect(Collectors.toList());
+        List<String> fromSettings = new ArrayList<>(w.getRoles());
+
+        int max = Math.min(fromDb.size(), fromSettings.size());
+        for(int i=0;i<max;i++) {
+            fromDb.remove(fromSettings.remove(0));
+        }
+        if (!fromDb.isEmpty() || !fromSettings.isEmpty()) {
+            this.usersManager.changeRoles(u, w.getRoles());
         }
         return password;
     }

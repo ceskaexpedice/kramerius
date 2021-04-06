@@ -17,28 +17,31 @@
 package cz.incad.kramerius.security.impl.criteria;
 
 import java.net.UnknownHostException;
-import java.util.Calendar;
 import java.util.logging.Level;
 
-import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.RightCriterium;
+import cz.incad.kramerius.security.DataMockExpectation;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumException;
 
 public class DefaultDomainFilter extends AbstractDomainFilter  {
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DefaultIPAddressFilter.class.getName());
+    static transient java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DefaultIPAddressFilter.class.getName());
 
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute() throws RightCriteriumException {
         try {
-            EvaluatingResult result = matchDomain(getObjects()) ? EvaluatingResult.TRUE : EvaluatingResult.NOT_APPLICABLE;
+            EvaluatingResultState result = matchDomain(getObjects()) ? EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
             LOGGER.fine("\t benevolent domain filter - "+result);
             return result ;
         } catch (UnknownHostException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         }
     }
 
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        return evalute();
+    }
 
 }

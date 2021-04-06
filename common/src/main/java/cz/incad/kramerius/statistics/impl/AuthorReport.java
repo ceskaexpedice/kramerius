@@ -104,13 +104,11 @@ public class AuthorReport implements StatisticReport{
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql.toString(), params.toArray());
-            conn.close();
+
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
             return auths;
-        } catch (ParseException e) {
+        } catch (ParseException | SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return new ArrayList<Map<String, Object>>();
-        } catch (SQLException ex) {
-            Logger.getLogger(AuthorReport.class.getName()).log(Level.SEVERE, null, ex);
             return new ArrayList<Map<String, Object>>();
         }
     }
@@ -174,7 +172,7 @@ public class AuthorReport implements StatisticReport{
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql.toString(),params.toArray());
-            conn.close();
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);

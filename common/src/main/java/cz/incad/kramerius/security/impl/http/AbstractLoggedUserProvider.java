@@ -120,7 +120,7 @@ public abstract class AbstractLoggedUserProvider implements Provider<User>{
         if (session.getAttribute(SECURITY_FOR_REPOSITORY_KEY) == null) {
             SecuredActions[] values = SecuredActions.values();
             for (SecuredActions securedAction : values) {
-                if (isActionAllowed.isActionAllowed(user, securedAction.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH)) {
+                if (isActionAllowed.isActionAllowed(user, securedAction.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag()) {
                     actionsForUser.add(securedAction.getFormalName());
                 }
             }

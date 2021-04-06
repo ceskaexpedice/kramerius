@@ -70,7 +70,7 @@ public class VirtualCollectionServlet extends GuiceServlet {
     boolean permit(User user) {
         if (user != null)
             return this.actionAllowed.isActionAllowed(user, SecuredActions.VIRTUALCOLLECTION_MANAGE.getFormalName(),
-                    SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH);
+                    SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag();
         else
             return false;
     }

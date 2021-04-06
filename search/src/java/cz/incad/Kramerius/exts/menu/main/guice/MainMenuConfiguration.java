@@ -24,25 +24,7 @@ import cz.incad.Kramerius.exts.menu.main.MainMenuPart;
 import cz.incad.Kramerius.exts.menu.main.impl.MainMenuImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.adm.AdminMenuPartImpl;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.CollectionsRightsAdministration;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.CriteriaEditor;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.DeleteProcesses;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.Enumerator;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.GlobalRightsAdministration;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerAdministration;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.IndexerMigration;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MetadataEditor;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.MovingWallProcess;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.NDKMetsImport;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedConvert;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedImport;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedK3Replication;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ParametrizedK4Replication;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ProcessesDialog;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ReplicationRights;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.RolesEditor;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.ShowStatistics;
-import cz.incad.Kramerius.exts.menu.main.impl.adm.items.UsersAdministration;
+import cz.incad.Kramerius.exts.menu.main.impl.adm.items.*;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMenuPartImpl;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.items.ChangePassword;
@@ -111,7 +93,15 @@ public class MainMenuConfiguration extends AbstractModule {
         
         adminItems.addBinding().to(ShowStatistics.class);
         adminItems.addBinding().to(DeleteProcesses.class);
-        
+
+        //adminItems.addBinding().to(DNNTFlagSet.class);
+        adminItems.addBinding().to(ParametrizedDNNTFlagSet.class);
+        adminItems.addBinding().to(ParametrizedDNNTFlagUnset.class);
+
+        //adminItems.addBinding().to(DNNTFlagUnset.class);
+        //adminItems.addBinding().to(DNNTCSVExport.class);
+        adminItems.addBinding().to(ParametrizedDNNTCSVExport.class);
+
         bind(MainMenu.class).to(MainMenuImpl.class);
     }
 }
