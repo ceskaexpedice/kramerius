@@ -167,11 +167,11 @@ public abstract class BaseConvertor {
     private XSLService xslService = new XSLServiceImpl(null);
 
     /**
-     * mapa mods elementÃÂ¯ naÃÂtenÃÂ¡ z METS
+    * mapa mods elementů načtená z METS
      */
     protected Map<String, ModsDefinition> modsMap = new HashMap<String,ModsDefinition>();
     /**
-     * mapa DC elementÃÂ¯ naÃÂtenÃÂ¡ z METS
+     * mapa DC elementů načtená z METS
      */
     protected Map<String, OaiDcType> dcMap = new HashMap<String,OaiDcType>();
     /**
@@ -184,7 +184,7 @@ public abstract class BaseConvertor {
      */
     protected Map<String, Foxml> objects = new HashMap<String, Foxml>();
     /**
-     * globÃÂ¡lnÃÂ­ viditelnost foxml objektÃÂ¯ (publi/private), nastavuje se podle konfigurace
+     * globální viditelnost foxml objektů (publi/private), nastavuje se podle konfigurace
      */
     protected String policyID = POLICY_PUBLIC;
 
