@@ -167,7 +167,7 @@ public abstract class BaseConvertor {
     private XSLService xslService = new XSLServiceImpl(null);
 
     /**
-    * mapa mods elementů načtená z METS
+     * mapa mods elementů načtená z METS
      */
     protected Map<String, ModsDefinition> modsMap = new HashMap<String,ModsDefinition>();
     /**
