@@ -180,6 +180,54 @@
         </out>
     </test>
 
+    <test name="[1818-1820]">
+        <desc>uuid:de6a6d0e-70a0-4132-ac3a-82faf89d30bf</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1818-1820]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1820-12-31T23:59:59.999Z</field>
+            <field name="date.min">1818-01-01T00:00:00.001Z</field>
+            <field name="date.str">[1818-1820]</field>
+            <field name="date_range_end.year">1820</field>
+            <field name="date_range_start.year">1818</field>
+        </out>
+    </test>
+
+    <test name="[1900-1940?]">
+        <desc>uuid:8890a51a-807d-4c3b-9b19-c850ffe3e4cc</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1900-1940?]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1940-12-31T23:59:59.999Z</field>
+            <field name="date.min">1900-01-01T00:00:00.001Z</field>
+            <field name="date.str">[1900-1940?]</field>
+            <field name="date_range_end.year">1940</field>
+            <field name="date_range_start.year">1900</field>
+        </out>
+    </test>
+
+    <test name="[1939-1945">
+        <desc>uuid:335a22ce-8569-4ad8-99ac-dc53c2c9755d</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1939-1945</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1945-12-31T23:59:59.999Z</field>
+            <field name="date.min">1939-01-01T00:00:00.001Z</field>
+            <field name="date.str">[1939-1945</field>
+            <field name="date_range_end.year">1945</field>
+            <field name="date_range_start.year">1939</field>
+        </out>
+    </test>
+
     <test name="qualifier='questionable'">
         <desc>the qualifier='questionable' information is ignored</desc>
         <in>
