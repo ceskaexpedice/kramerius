@@ -5,7 +5,12 @@ import cz.kramerius.shared.Dom4jUtils;
 import cz.kramerius.shared.Pair;
 import org.dom4j.Element;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class DateExtractor {
+
+    private static final String REGEXP_YEAR_RANGE_VERBAL = "\\[?mezi\\s(\\d{4})\\sa\\s(\\d{4})\\]?"; //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]'
 
     public DateInfo extractDateInfoFromMultipleSources(Element modsEl, String pid) {
         DateExtractor dateExtractor = new DateExtractor();
@@ -181,6 +186,16 @@ public class DateExtractor {
             result.valueEnd = result.rangeEndYear.toString();
             result.dateMin = MyDateTimeUtils.toYearStart(result.rangeStartYear);
             result.dateMax = MyDateTimeUtils.toYearEnd(result.rangeEndYear);
+        } else if (isYearRangeVerbal(result.value)) { //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]'
+            Pair<Integer, Integer> years = extractYearsFromRangeVerbal(result.value);
+            if (years != null) {
+                result.rangeStartYear = years.getFirst();
+                result.rangeEndYear = years.getSecond();
+                result.valueStart = result.rangeStartYear.toString();
+                result.valueEnd = result.rangeEndYear.toString();
+                result.dateMin = MyDateTimeUtils.toYearStart(result.rangeStartYear);
+                result.dateMax = MyDateTimeUtils.toYearEnd(result.rangeEndYear);
+            }
         } else if (isPartialYear(result.value)) { //194u, 18--
             result.dateMin = MyDateTimeUtils.toYearStartFromPartialYear(result.value);
             result.dateMax = MyDateTimeUtils.toYearEndFromPartialYear(result.value);
@@ -282,6 +297,16 @@ public class DateExtractor {
         return new Pair(Integer.valueOf(tokens[0].trim()), Integer.valueOf(tokens[1].trim()));
     }
 
+    private Pair<Integer, Integer> extractYearsFromRangeVerbal(String totalStr) {
+        Pattern pattern = Pattern.compile(REGEXP_YEAR_RANGE_VERBAL);
+        Matcher m = pattern.matcher(totalStr);
+        if (m.find()) {
+            return new Pair(Integer.valueOf(m.group(1).trim()), Integer.valueOf(m.group(2).trim()));
+        } else {
+            return null;
+        }
+    }
+
     private boolean isDayMonthYear(String string) {
         return string != null && string.matches("\\d{1,2}\\.\\s*\\d{1,2}\\.\\s*\\d{1,4}"); //7.4.1920, 07. 04. 1920
     }
@@ -316,6 +341,10 @@ public class DateExtractor {
 
     private boolean isYearRange(String string) {
         return string != null && string.matches("\\d{1,4}\\s*-\\s*\\d{1,4}"); //1900-1902, 1900 - 1903
+    }
+
+    private boolean isYearRangeVerbal(String string) {
+        return string.matches(REGEXP_YEAR_RANGE_VERBAL); //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]'
     }
 
     private boolean isPartialYear(String string) {

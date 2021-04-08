@@ -219,6 +219,11 @@ public class Foxml2SolrInputConverterTest {
     }
 
     @TestFactory
+    public Collection<DynamicTest> dateIssuedTextRange() throws DocumentException {
+        return testBuilder.buildTests("src/test/resources/xmlTests/dateIssued-textRange.xml");
+    }
+
+    @TestFactory
     public Collection<DynamicTest> periodicalitemIssueDatePart() throws DocumentException {
         return testBuilder.buildTests("src/test/resources/xmlTests/periodicalitem-issue.type.xml");
     }

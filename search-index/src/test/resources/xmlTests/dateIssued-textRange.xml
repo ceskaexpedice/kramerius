@@ -1,0 +1,104 @@
+<testSuite testType="mods" model="monograph">
+
+    <test name="[mezi 1719 a 1725]">
+        <desc>uuid:cc7a6494-67ad-4550-ac88-ec4576baf196</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[mezi 1719 a 1725]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1725-12-31T23:59:59.999Z</field>
+            <field name="date.min">1719-01-01T00:00:00.001Z</field>
+            <field name="date.str">[mezi 1719 a 1725]</field>
+            <field name="date_range_end.year">1725</field>
+            <field name="date_range_start.year">1719</field>
+        </out>
+    </test>
+
+    <test name="mezi 1719 a 1725]">
+        <desc>uuid:5c8be11e-6ba3-4f6e-944b-3fe4584d866e</desc>
+        <in>
+            <originInfo>
+                <dateIssued>mezi 1701 a 1750]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1750-12-31T23:59:59.999Z</field>
+            <field name="date.min">1701-01-01T00:00:00.001Z</field>
+            <field name="date.str">mezi 1701 a 1750]</field>
+            <field name="date_range_end.year">1750</field>
+            <field name="date_range_start.year">1701</field>
+        </out>
+    </test>
+
+    <test name="[mezi 1890 a 1899">
+        <desc>uuid:2e4b8f34-bd61-4039-81ed-aea91d130fb2</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[mezi 1890 a 1899</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1899-12-31T23:59:59.999Z</field>
+            <field name="date.min">1890-01-01T00:00:00.001Z</field>
+            <field name="date.str">[mezi 1890 a 1899</field>
+            <field name="date_range_end.year">1899</field>
+            <field name="date_range_start.year">1890</field>
+        </out>
+    </test>
+
+    <test name="mezi 1730 a 1757">
+        <desc>uuid:7df76b1e-d997-498c-8b83-01a354ccd5e3</desc>
+        <in>
+            <originInfo>
+                <dateIssued>mezi 1730 a 1757</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1757-12-31T23:59:59.999Z</field>
+            <field name="date.min">1730-01-01T00:00:00.001Z</field>
+            <field name="date.str">mezi 1730 a 1757</field>
+            <field name="date_range_end.year">1757</field>
+            <field name="date_range_start.year">1730</field>
+        </out>
+    </test>
+
+    <test name="[mezi 1719 a 1725] současně dateIssued[@point='start'], dateIssued[@point='end']">
+        <desc>uuid:cc7a6494-67ad-4550-ac88-ec4576baf196</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[mezi 1719 a 1725]</dateIssued>
+                <dateIssued encoding="marc" point="start" qualifier="questionable">1719</dateIssued>
+                <dateIssued encoding="marc" point="end" qualifier="questionable">1725</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1725-12-31T23:59:59.999Z</field>
+            <field name="date.min">1719-01-01T00:00:00.001Z</field>
+            <field name="date.str">[mezi 1719 a 1725]</field>
+            <field name="date_range_end.year">1725</field>
+            <field name="date_range_start.year">1719</field>
+        </out>
+    </test>
+
+    <test name="[mezi 1719 a 1725] - spor s dateIssued[@point='start'], dateIssued[@point='end']">
+        <desc>uuid:cc7a6494-67ad-4550-ac88-ec4576baf196</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[mezi 1719 a 1725]</dateIssued>
+                <dateIssued encoding="marc" point="start" qualifier="questionable">1718</dateIssued>
+                <dateIssued encoding="marc" point="end" qualifier="questionable">1726</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1726-12-31T23:59:59.999Z</field>
+            <field name="date.min">1718-01-01T00:00:00.001Z</field>
+            <field name="date.str">[mezi 1719 a 1725]</field>
+            <field name="date_range_end.year">1726</field>
+            <field name="date_range_start.year">1718</field>
+        </out>
+    </test>
+
+
+</testSuite>
