@@ -59,12 +59,12 @@ public class CoordinatesExtractor {
 
     private BoundingBox parseBoundingBoxInternational(String coordinatesStr) {
         //(E 12°02'00"--E 19°11'00"/N 51°03'00"--N 48°31'00")
-        //System.out.println(coordinatesStr);
-        Pattern pattern = Pattern.compile("^\\(" +
-                "([E,W])\\s(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"--([E,W])\\s(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"" +
+        coordinatesStr = coordinatesStr.replaceAll("''", "\""); //E 12°02'00''
+        Pattern pattern = Pattern.compile("^\\(?" +
+                "([E,W])\\s(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"\\s*-{1,2}\\s*([E,W])\\s(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"" +
                 "/" +
-                "([N,S])\\s(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"--([N,S])\\s(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"" +
-                "\\)$");
+                "([N,S])\\s(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"\\s*-{1,2}\\s*([N,S])\\s(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"" +
+                "\\)?$");
         Matcher m = pattern.matcher(coordinatesStr);
         if (m.find()) {
             BoundingBox result = new BoundingBox();
@@ -79,13 +79,16 @@ public class CoordinatesExtractor {
     }
 
     private BoundingBox parseBoundingBoxCzech(String coordinatesStr) {
-        //System.out.println(coordinatesStr);
         //(16°33´47" v.d.--16°39´07" v.d./49°14´06" s.š.--49°10´18" s.š.)
-        Pattern pattern = Pattern.compile("^\\(" +
-                "(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s([v,z])\\.d\\.--(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s([v,z])\\.d\\." +
+        coordinatesStr = coordinatesStr.replaceAll("''", "\""); //012°57´53'' v.d.
+        if (coordinatesStr.endsWith("].")) { //(014°02´08" v.d.--014°48´09" v.d./050°15´16" s.š.--049°55´22" s.š.)].
+            coordinatesStr = coordinatesStr.substring(0, coordinatesStr.length() - "].".length());
+        }
+        Pattern pattern = Pattern.compile("^\\(?" +
+                "(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s?([v,z])\\.d\\.\\s*-{1,2}\\s*(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s?([v,z])\\.d\\." +
                 "/" +
-                "(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s([s,j])\\.š\\.--(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s([s,j])\\.š\\." +
-                "\\)$");
+                "(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s?([s,j])\\.š\\.\\s*-{1,2}\\s*(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s?([s,j])\\.š\\." +
+                "\\)?$");
         Matcher m = pattern.matcher(coordinatesStr);
         if (m.matches()) {
             BoundingBox result = new BoundingBox();
