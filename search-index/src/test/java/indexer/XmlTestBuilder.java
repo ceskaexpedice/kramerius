@@ -123,7 +123,7 @@ public class XmlTestBuilder {
 
             List<String> languages = new LanguagesExtractor().extractLanguages(test.getInDoc().getRootElement(), null);
             List<AuthorInfo> authors = new AuthorsExtractor().extractAuthors(test.getInDoc().getRootElement(), null);
-            DateInfo dateInfo = new DateExtractor().extractDateInfoFromMultipleSources(test.getInDoc().getRootElement());
+            DateInfo dateInfo = new DateExtractor().extractDateInfoFromMultipleSources(test.getInDoc().getRootElement(), null);
             RepositoryNode node = new RepositoryNode(
                     null, test.getDocType(), null,
                     null, null,

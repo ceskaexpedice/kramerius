@@ -7,17 +7,17 @@ import org.dom4j.Element;
 
 public class DateExtractor {
 
-    public DateInfo extractDateInfoFromMultipleSources(Element modsEl) {
+    public DateInfo extractDateInfoFromMultipleSources(Element modsEl, String pid) {
         DateExtractor dateExtractor = new DateExtractor();
         Element originInfoEl = (Element) Dom4jUtils.buildXpath("mods/originInfo").selectSingleNode(modsEl);
         if (originInfoEl != null) {
-            DateInfo fromOriginInfo = dateExtractor.extractFromOriginInfo(originInfoEl);
+            DateInfo fromOriginInfo = dateExtractor.extractFromOriginInfo(originInfoEl, pid);
             if (!fromOriginInfo.isEmpty()) {
                 return fromOriginInfo;
             } else {
                 String partDate = ExtractorUtils.toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsEl));
                 if (partDate != null) {
-                    DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
+                    DateInfo fromPartDate = dateExtractor.extractFromString(partDate, pid);
                     if (!fromPartDate.isEmpty()) {
                         return fromPartDate;
                     }
@@ -26,7 +26,7 @@ public class DateExtractor {
         } else {
             String partDate = ExtractorUtils.toStringOrNull(Dom4jUtils.buildXpath("mods/part/date").selectSingleNode(modsEl));
             if (partDate != null) {
-                DateInfo fromPartDate = dateExtractor.extractFromString(partDate);
+                DateInfo fromPartDate = dateExtractor.extractFromString(partDate, pid);
                 if (!fromPartDate.isEmpty()) {
                     return fromPartDate;
                 }
@@ -35,23 +35,23 @@ public class DateExtractor {
         return null;
     }
 
-    public DateInfo extractFromOriginInfo(Element originInfoEl) {
+    public DateInfo extractFromOriginInfo(Element originInfoEl, String pid) {
         DateInfo result = new DateInfo();
         //<dateIssued point="start">2004</dateIssued>
         //<dateIssued point="end">2005</dateIssued>
-        DateInfo fromStartEnd = extractFromStartEnd(originInfoEl);
+        DateInfo fromStartEnd = extractFromStartEnd(originInfoEl, pid);
         result = merge(result, fromStartEnd);
         //<dateIssued>2004</dateIssued>
         String noPointValue = ExtractorUtils.toStringOrNull(Dom4jUtils.buildXpath("dateIssued[not(@point)]").selectSingleNode(originInfoEl));
         if (noPointValue != null) {
-            DateInfo fromNoPointValue = extractFromString(noPointValue);
+            DateInfo fromNoPointValue = extractFromString(noPointValue, pid);
             result = merge(result, fromNoPointValue);
         }
         //System.out.println(result);
         return result;
     }
 
-    public DateInfo extractFromString(String string) {
+    public DateInfo extractFromString(String string, String pid) {
         DateInfo result = new DateInfo();
         result.value = string.trim();
         if (isDayMonthYear(result.value)) { //7.4.1920, 07. 04. 1920
@@ -189,7 +189,7 @@ public class DateExtractor {
             result.dateMin = MyDateTimeUtils.toYearStartFromPartialYear(tokens[0].trim());
             result.dateMax = MyDateTimeUtils.toYearEndFromPartialYear(tokens[1].trim());
         } else {
-            System.err.println(String.format("cannot parse '%s'", result.value));
+            System.err.println(String.format("Chyba v datech objektu %s: nelze parsovat '%s'", pid, result.value));
         }
         result.updateInstantData();
         return result;
@@ -219,7 +219,7 @@ public class DateExtractor {
         return result;
     }
 
-    private DateInfo extractFromStartEnd(Element originInfoEl) {
+    private DateInfo extractFromStartEnd(Element originInfoEl, String pid) {
         DateInfo result = new DateInfo();
         result.valueStart = ExtractorUtils.toStringOrNull(Dom4jUtils.buildXpath("dateIssued[@point='start']").selectSingleNode(originInfoEl));
         result.valueEnd = ExtractorUtils.toStringOrNull(Dom4jUtils.buildXpath("dateIssued[@point='end']").selectSingleNode(originInfoEl));
@@ -245,7 +245,7 @@ public class DateExtractor {
             } else if (isPartialYear(result.valueStart)) { //194u, 18--
                 result.dateMin = MyDateTimeUtils.toYearStartFromPartialYear(result.valueStart);
             } else {
-                System.err.println(String.format("cannot parse '%s'", result.valueStart));
+                System.err.println(String.format("Chyba v datech objektu %s: nelze parsovat '%s'", pid, result.valueStart));
             }
         }
         //END
@@ -270,7 +270,7 @@ public class DateExtractor {
             } else if (isPartialYear(result.valueEnd)) { //194u, 18--
                 result.dateMax = MyDateTimeUtils.toYearEndFromPartialYear(result.valueEnd);
             } else {
-                System.err.println(String.format("cannot parse '%s'", result.valueEnd));
+                System.err.println(String.format("Chyba v datech objektu %s: nelze parsovat '%s'", pid, result.valueEnd));
             }
         }
         result.updateInstantData();

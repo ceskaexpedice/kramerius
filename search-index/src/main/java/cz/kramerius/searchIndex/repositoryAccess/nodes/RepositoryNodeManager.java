@@ -126,7 +126,7 @@ public class RepositoryNodeManager {
             Title title = extractTitleFromMods(model, modsDoc);
 
             //data from parents
-            DateInfo myDateInfo = extractDateInfoFromMods(model, modsDoc);
+            DateInfo myDateInfo = extractDateInfoFromMods(model, modsDoc, pid);
             DateInfo dateInfo = mergeDateInfos(ownParent, myDateInfo);
             List<String> myLanguages = extractLanguagesFromMods(model, modsDoc);
             List<String> languages = mergeLanguages(ownParent, fosterParents, myLanguages);
@@ -265,9 +265,9 @@ public class RepositoryNodeManager {
         return authors;
     }
 
-    private DateInfo extractDateInfoFromMods(String model, Document modsDoc) {
+    private DateInfo extractDateInfoFromMods(String model, Document modsDoc, String pid) {
         DateExtractor dateExtractor = new DateExtractor();
-        DateInfo dateInfo = dateExtractor.extractDateInfoFromMultipleSources(modsDoc.getRootElement());
+        DateInfo dateInfo = dateExtractor.extractDateInfoFromMultipleSources(modsDoc.getRootElement(), pid);
         return dateInfo;
     }
 
