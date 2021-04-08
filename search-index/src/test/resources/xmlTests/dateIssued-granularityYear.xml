@@ -561,6 +561,86 @@
         </out>
     </test>
 
+    <test name="[1834?">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1834?</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1834-12-31T23:59:59.999Z</field>
+            <field name="date.min">1834-01-01T00:00:00.001Z</field>
+            <field name="date.str">[1834?</field>
+            <field name="date_range_end.year">1834</field>
+            <field name="date_range_start.year">1834</field>
+        </out>
+    </test>
+
+    <test name="1834?">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1834?</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1834-12-31T23:59:59.999Z</field>
+            <field name="date.min">1834-01-01T00:00:00.001Z</field>
+            <field name="date.str">1834?</field>
+            <field name="date_range_end.year">1834</field>
+            <field name="date_range_start.year">1834</field>
+        </out>
+    </test>
+
+    <test name="[ca 1690]">
+        <desc>uuid:6a0369d1-02ad-4896-80ef-8975af99b81b</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[ca 1690]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1690-12-31T23:59:59.999Z</field>
+            <field name="date.min">1690-01-01T00:00:00.001Z</field>
+            <field name="date.str">[ca 1690]</field>
+            <field name="date_range_end.year">1690</field>
+            <field name="date_range_start.year">1690</field>
+        </out>
+    </test>
+
+    <test name="ca 1737]">
+        <desc>uuid:56eba2f5-3df2-43a2-bda3-c658894ea346</desc>
+        <in>
+            <originInfo>
+                <dateIssued>ca 1737]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1737-12-31T23:59:59.999Z</field>
+            <field name="date.min">1737-01-01T00:00:00.001Z</field>
+            <field name="date.str">ca 1737]</field>
+            <field name="date_range_end.year">1737</field>
+            <field name="date_range_start.year">1737</field>
+        </out>
+    </test>
+
+    <test name="[ca 1737">
+        <desc>uuid:56eba2f5-3df2-43a2-bda3-c658894ea346</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[ca 1737</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1737-12-31T23:59:59.999Z</field>
+            <field name="date.min">1737-01-01T00:00:00.001Z</field>
+            <field name="date.str">[ca 1737</field>
+            <field name="date_range_end.year">1737</field>
+            <field name="date_range_start.year">1737</field>
+        </out>
+    </test>
+
     <test name="[1910?] and 1910 (encoding=marc)">
         <desc>http://www.digitalniknihovna.cz/mzk/uuid/uuid:1adfd504-2eb9-43be-83a4-155ef702c5fd</desc>
         <in>

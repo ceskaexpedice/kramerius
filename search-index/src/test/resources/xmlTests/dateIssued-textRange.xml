@@ -100,5 +100,52 @@
         </out>
     </test>
 
+    <test name="[mezi 1739 a 1750?]">
+        <desc>uuid:60337aa2-638d-4708-b33f-b35f68fd1606</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[mezi 1739 a 1750?]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1750-12-31T23:59:59.999Z</field>
+            <field name="date.min">1739-01-01T00:00:00.001Z</field>
+            <field name="date.str">[mezi 1739 a 1750?]</field>
+            <field name="date_range_end.year">1750</field>
+            <field name="date_range_start.year">1739</field>
+        </out>
+    </test>
+
+    <test name="[mezi 1739? a 1750]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>[mezi 1739? a 1750]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1750-12-31T23:59:59.999Z</field>
+            <field name="date.min">1739-01-01T00:00:00.001Z</field>
+            <field name="date.str">[mezi 1739? a 1750]</field>
+            <field name="date_range_end.year">1750</field>
+            <field name="date_range_start.year">1739</field>
+        </out>
+    </test>
+
+    <test name="mezi 1739? a 1750?">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>mezi 1739? a 1750?</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1750-12-31T23:59:59.999Z</field>
+            <field name="date.min">1739-01-01T00:00:00.001Z</field>
+            <field name="date.str">mezi 1739? a 1750?</field>
+            <field name="date_range_end.year">1750</field>
+            <field name="date_range_start.year">1739</field>
+        </out>
+    </test>
 
 </testSuite>

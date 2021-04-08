@@ -10,7 +10,10 @@ import java.util.regex.Pattern;
 
 public class DateExtractor {
 
-    private static final String REGEXP_YEAR_RANGE_VERBAL = "\\[?mezi\\s(\\d{4})\\sa\\s(\\d{4})\\]?"; //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]'
+    private static final String REGEXP_YEAR = "\\[?[p,c]?(\\d{4})\\??\\]?"; //'1920', '1920]', '[1920', '[1920]', '[1920?]', '1920?]', 'p1920', 'c1920'
+    private static final String REGEXP_YEAR_CCA = "\\[?ca\\s(\\d{4})\\]?"; //'[ca 1690]', 'ca 1690]', '[ca 1690',
+    private static final String REGEXP_YEAR_RANGE = "(\\d{1,4})\\s*-\\s*(\\d{1,4})"; //1900-1902, 1900 - 1903
+    private static final String REGEXP_YEAR_RANGE_VERBAL = "\\[?mezi\\s(\\d{4})\\??\\sa\\s(\\d{4})\\??\\]?"; //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]', '[mezi 1739? a 1750?]'
 
     public DateInfo extractDateInfoFromMultipleSources(Element modsEl, String pid) {
         DateExtractor dateExtractor = new DateExtractor();
@@ -142,52 +145,32 @@ public class DateExtractor {
             result.setStart(startMonth, startYear);
             result.dateMin = MyDateTimeUtils.toMonthStart(startMonth, startYear);
             result.dateMax = MyDateTimeUtils.toMonthEnd(endMonth, endYear);
-        } else if (isYear(result.value)) { //1920
-            int year = Integer.valueOf(result.value);
-            result.rangeStartYear = year;
-            result.rangeEndYear = year;
-            result.dateMin = MyDateTimeUtils.toYearStart(year);
-            result.dateMax = MyDateTimeUtils.toYearEnd(year);
-        } else if (isYearWithIgnorableSingleCharPrefix(result.value)) { //p1920, c1920, [1920
-            int year = Integer.valueOf(result.value.substring(1));
-            result.rangeStartYear = year;
-            result.rangeEndYear = year;
-            result.dateMin = MyDateTimeUtils.toYearStart(year);
-            result.dateMax = MyDateTimeUtils.toYearEnd(year);
-        } else if (isYearWithIgnorableSingleCharSuffix(result.value)) { //1920]
-            int year = Integer.valueOf(result.value.substring(0, result.value.length() - 1));
-            result.rangeStartYear = year;
-            result.rangeEndYear = year;
-            result.dateMin = MyDateTimeUtils.toYearStart(year);
-            result.dateMax = MyDateTimeUtils.toYearEnd(year);
-        } else if (isYearInSquareBrackets(result.value)) { //[1920]
-            int year = Integer.valueOf(result.value.substring(1, result.value.length() - 1));
-            result.rangeStartYear = year;
-            result.rangeEndYear = year;
-            result.dateMin = MyDateTimeUtils.toYearStart(year);
-            result.dateMax = MyDateTimeUtils.toYearEnd(year);
-        } else if (isYearInSquareBracketsAndQuestionMark(result.value)) { //[1920?]
-            int year = Integer.valueOf(result.value.substring(1, result.value.length() - 2));
-            result.rangeStartYear = year;
-            result.rangeEndYear = year;
-            result.dateMin = MyDateTimeUtils.toYearStart(year);
-            result.dateMax = MyDateTimeUtils.toYearEnd(year);
-        } else if (isYearWithEndingSquareBracketAndQuestionMark(result.value)) { //1920?]
-            int year = Integer.valueOf(result.value.substring(0, result.value.length() - 2));
-            result.rangeStartYear = year;
-            result.rangeEndYear = year;
-            result.dateMin = MyDateTimeUtils.toYearStart(year);
-            result.dateMax = MyDateTimeUtils.toYearEnd(year);
-        } else if (isYearRange(result.value)) {  //1900-1902, 1900 - 1903
-            Pair<Integer, Integer> years = extractYearsFromRange(result.value);
+        } else if (matchesRegexp(result.value, REGEXP_YEAR)) { //'1920', '1920?', '1920]', '[1920', '[1920]', '[1920?]', '1920?]', 'p1920', 'c1920'
+            Integer year = extractSingleYear(result.value, REGEXP_YEAR);
+            if (year != null) {
+                result.rangeStartYear = year;
+                result.rangeEndYear = year;
+                result.dateMin = MyDateTimeUtils.toYearStart(year);
+                result.dateMax = MyDateTimeUtils.toYearEnd(year);
+            }
+        } else if (matchesRegexp(result.value, REGEXP_YEAR_CCA)) { //'1920', '1920?', '1920]', '[1920', '[1920]', '[1920?]', '1920?]', 'p1920', 'c1920'
+            Integer year = extractSingleYear(result.value, REGEXP_YEAR_CCA);
+            if (year != null) {
+                result.rangeStartYear = year;
+                result.rangeEndYear = year;
+                result.dateMin = MyDateTimeUtils.toYearStart(year);
+                result.dateMax = MyDateTimeUtils.toYearEnd(year);
+            }
+        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE)) {//1900-1902, 1900 - 1903
+            Pair<Integer, Integer> years = extractTwoYears(result.value, REGEXP_YEAR_RANGE);
             result.rangeStartYear = years.getFirst();
             result.rangeEndYear = years.getSecond();
             result.valueStart = result.rangeStartYear.toString();
             result.valueEnd = result.rangeEndYear.toString();
             result.dateMin = MyDateTimeUtils.toYearStart(result.rangeStartYear);
             result.dateMax = MyDateTimeUtils.toYearEnd(result.rangeEndYear);
-        } else if (isYearRangeVerbal(result.value)) { //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]'
-            Pair<Integer, Integer> years = extractYearsFromRangeVerbal(result.value);
+        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE_VERBAL)) { //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]'
+            Pair<Integer, Integer> years = extractTwoYears(result.value, REGEXP_YEAR_RANGE_VERBAL);
             if (years != null) {
                 result.rangeStartYear = years.getFirst();
                 result.rangeEndYear = years.getSecond();
@@ -253,10 +236,12 @@ public class DateExtractor {
                 int year = Integer.valueOf(tokens[1].trim());
                 result.setStart(month, year);
                 result.dateMin = MyDateTimeUtils.toMonthStart(month, year);
-            } else if (isYear(result.valueStart)) { //1920
-                int year = Integer.valueOf(result.valueStart);
-                result.rangeStartYear = year;
-                result.dateMin = MyDateTimeUtils.toYearStart(year);
+            } else if (matchesRegexp(result.valueStart, REGEXP_YEAR)) { //'1920', '1920?', '1920]', '[1920', '[1920]', '[1920?]', '1920?]', 'p1920', 'c1920'
+                Integer year = extractSingleYear(result.valueStart, REGEXP_YEAR);
+                if (year != null) {
+                    result.rangeStartYear = year;
+                    result.dateMin = MyDateTimeUtils.toYearStart(year);
+                }
             } else if (isPartialYear(result.valueStart)) { //194u, 18--
                 result.dateMin = MyDateTimeUtils.toYearStartFromPartialYear(result.valueStart);
             } else {
@@ -278,10 +263,12 @@ public class DateExtractor {
                 int year = Integer.valueOf(tokens[1].trim());
                 result.setEnd(month, year);
                 result.dateMax = MyDateTimeUtils.toMonthEnd(month, year);
-            } else if (isYear(result.valueEnd)) { //1920
-                int year = Integer.valueOf(result.valueEnd);
-                result.rangeEndYear = year;
-                result.dateMax = MyDateTimeUtils.toYearEnd(year);
+            } else if (matchesRegexp(result.valueEnd, REGEXP_YEAR)) { //'1920', '1920?', '1920]', '[1920', '[1920]', '[1920?]', '1920?]', 'p1920', 'c1920'
+                Integer year = extractSingleYear(result.valueEnd, REGEXP_YEAR);
+                if (year != null) {
+                    result.rangeEndYear = year;
+                    result.dateMax = MyDateTimeUtils.toYearEnd(year);
+                }
             } else if (isPartialYear(result.valueEnd)) { //194u, 18--
                 result.dateMax = MyDateTimeUtils.toYearEndFromPartialYear(result.valueEnd);
             } else {
@@ -292,14 +279,19 @@ public class DateExtractor {
         return result;
     }
 
-    private Pair<Integer, Integer> extractYearsFromRange(String totalStr) {
-        String[] tokens = totalStr.split("-");
-        return new Pair(Integer.valueOf(tokens[0].trim()), Integer.valueOf(tokens[1].trim()));
+    private Integer extractSingleYear(String str, String regexp) {
+        Pattern pattern = Pattern.compile(regexp);
+        Matcher m = pattern.matcher(str);
+        if (m.find()) {
+            return Integer.valueOf(m.group(1).trim());
+        } else {
+            return null;
+        }
     }
 
-    private Pair<Integer, Integer> extractYearsFromRangeVerbal(String totalStr) {
-        Pattern pattern = Pattern.compile(REGEXP_YEAR_RANGE_VERBAL);
-        Matcher m = pattern.matcher(totalStr);
+    private Pair<Integer, Integer> extractTwoYears(String str, String regexp) {
+        Pattern pattern = Pattern.compile(regexp);
+        Matcher m = pattern.matcher(str);
         if (m.find()) {
             return new Pair(Integer.valueOf(m.group(1).trim()), Integer.valueOf(m.group(2).trim()));
         } else {
@@ -335,16 +327,8 @@ public class DateExtractor {
         return string != null && string.matches("\\d{1,2}\\.\\s*-\\s*\\d{1,2}\\.\\s*\\d{1,4}");
     }
 
-    private boolean isYear(String string) {
-        return string != null && string.matches("\\d{1,4}"); //1920
-    }
-
-    private boolean isYearRange(String string) {
-        return string != null && string.matches("\\d{1,4}\\s*-\\s*\\d{1,4}"); //1900-1902, 1900 - 1903
-    }
-
-    private boolean isYearRangeVerbal(String string) {
-        return string.matches(REGEXP_YEAR_RANGE_VERBAL); //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]'
+    private boolean matchesRegexp(String str, String regexp) {
+        return str != null && str.matches(regexp);
     }
 
     private boolean isPartialYear(String string) {
@@ -354,26 +338,4 @@ public class DateExtractor {
     private boolean isPartialYearRange(String string) { //192u-19uu, NOT '18uu-195-' (combination of range and '-' for uknown value are not supported due to uncertainty)
         return string != null && string.matches("[0-9]{1}[0-9ux]{0,3}\\s*-\\s*[0-9]{1}[0-9ux]{0,3}");
     }
-
-    private boolean isYearWithIgnorableSingleCharPrefix(String string) { //[1920, p1920, c1920
-        return string != null && string.matches("[cp\\[][0-9]{4}");
-    }
-
-    private boolean isYearInSquareBrackets(String string) { //[1920]
-        return string != null && string.matches("\\[[0-9]{4}\\]");
-    }
-
-    private boolean isYearInSquareBracketsAndQuestionMark(String string) { //[1920?]
-        return string != null && string.matches("\\[[0-9]{4}\\?\\]");
-    }
-
-    private boolean isYearWithIgnorableSingleCharSuffix(String string) { //1920]
-        return string != null && string.matches("[0-9]{4}\\]");
-    }
-
-    private boolean isYearWithEndingSquareBracketAndQuestionMark(String string) { //1920?]
-        return string != null && string.matches("[0-9]{4}\\?\\]");
-    }
-
-
 }
