@@ -5,7 +5,6 @@ import cz.kramerius.shared.Dom4jUtils;
 import org.dom4j.Element;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,8 +24,9 @@ public class DateExtractor {
     private static final String REGEXP_MONTH_YEAR_RANGE1 = "(\\d{1,2})\\.\\s*(\\d{1,4})\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.RRRR-MM.RRRR
     private static final String REGEXP_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.-MM.RRRR
 
-    private static final String REGEXP_YEAR_RANGE = "\\[?(\\d{1,4})\\s*-\\s*(\\d{1,4})\\??\\]?"; //1900-1902, 1900 - 1903
-    private static final String REGEXP_YEAR_RANGE_VERBAL = "\\[?mezi\\s(\\d{4})\\??\\sa\\s(\\d{4})\\??\\]?"; //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]', '[mezi 1739? a 1750?]'
+    private static final String REGEXP_YEAR_RANGE = "\\[?(\\d{1,4})\\]?\\s*-\\s*(\\d{1,4})\\??\\]?"; //1900-1902, 1900 - 1903, [1900-1902], [1900-1902]?, 1900-1902?, [1881]-1938
+    private static final String REGEXP_YEAR_RANGE_VERBAL1 = "\\[?mezi\\s(\\d{4})\\??\\sa\\s(\\d{4})\\??\\]?"; //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]', '[mezi 1739? a 1750?]'
+    private static final String REGEXP_YEAR_RANGE_VERBAL2 = "\\[?mezi\\s(\\d{4})\\??-(\\d{4})\\??\\]?"; //'[mezi 1897-1908]', '[mezi 1898-1914?]', '[mezi 1898?-1914]', '[mezi 1895-1919', 'mezi 1895-1919]'
     private static final String REGEXP_YEAR_RANGE_PARTIAL = "[0-9]{1}[0-9ux]{0,3}\\s*-\\s*[0-9]{1}[0-9ux]{0,3}"; //192u-19uu, NOT '18uu-195-' (combination of range and '-' for uknown value are not supported due to uncertainty)
 
     public DateInfo extractDateInfoFromMultipleSources(Element modsEl, String pid) {
@@ -191,8 +191,18 @@ public class DateExtractor {
                 result.dateMin = MyDateTimeUtils.toYearStart(result.rangeStartYear);
                 result.dateMax = MyDateTimeUtils.toYearEnd(result.rangeEndYear);
             }
-        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE_VERBAL)) { //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]'
-            List<Integer> numbers = extractNumbers(result.value, REGEXP_YEAR_RANGE_VERBAL);
+        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE_VERBAL1)) { //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]'
+            List<Integer> numbers = extractNumbers(result.value, REGEXP_YEAR_RANGE_VERBAL1);
+            if (numbers != null) {
+                result.rangeStartYear = numbers.get(0);
+                result.rangeEndYear = numbers.get(1);
+                result.valueStart = result.rangeStartYear.toString();
+                result.valueEnd = result.rangeEndYear.toString();
+                result.dateMin = MyDateTimeUtils.toYearStart(result.rangeStartYear);
+                result.dateMax = MyDateTimeUtils.toYearEnd(result.rangeEndYear);
+            }
+        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE_VERBAL2)) { //'[mezi 1897-1908]', '[mezi 1898-1914?]', '[mezi 1898?-1914]', '[mezi 1895-1919', 'mezi 1895-1919]'
+            List<Integer> numbers = extractNumbers(result.value, REGEXP_YEAR_RANGE_VERBAL2);
             if (numbers != null) {
                 result.rangeStartYear = numbers.get(0);
                 result.rangeEndYear = numbers.get(1);

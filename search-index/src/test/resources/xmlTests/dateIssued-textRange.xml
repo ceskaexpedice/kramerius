@@ -148,4 +148,69 @@
         </out>
     </test>
 
+    <test name="[mezi 1897-1908]">
+        <desc>uuid:6ffcdfc1-caa2-430c-8288-279e465a4641</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[mezi 1897-1908]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1908-12-31T23:59:59.999Z</field>
+            <field name="date.min">1897-01-01T00:00:00.001Z</field>
+            <field name="date.str">[mezi 1897-1908]</field>
+            <field name="date_range_end.year">1908</field>
+            <field name="date_range_start.year">1897</field>
+        </out>
+    </test>
+
+    <test name="[mezi 1898-1914?]">
+        <desc>uuid:9cdbea60-2d2f-4d87-9d4f-25ae5e9d2898</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[mezi 1898-1914?]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1914-12-31T23:59:59.999Z</field>
+            <field name="date.min">1898-01-01T00:00:00.001Z</field>
+            <field name="date.str">[mezi 1898-1914?]</field>
+            <field name="date_range_end.year">1914</field>
+            <field name="date_range_start.year">1898</field>
+        </out>
+    </test>
+
+    <test name="[mezi 1895-1919">
+        <desc>uuid:bb08c29b-c1ff-420c-9965-e9c662acd8c3</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[mezi 1895-1919</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1919-12-31T23:59:59.999Z</field>
+            <field name="date.min">1895-01-01T00:00:00.001Z</field>
+            <field name="date.str">[mezi 1895-1919</field>
+            <field name="date_range_end.year">1919</field>
+            <field name="date_range_start.year">1895</field>
+        </out>
+    </test>
+
+    <test name="mezi 1895-1919]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>mezi 1895-1919]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1919-12-31T23:59:59.999Z</field>
+            <field name="date.min">1895-01-01T00:00:00.001Z</field>
+            <field name="date.str">mezi 1895-1919]</field>
+            <field name="date_range_end.year">1919</field>
+            <field name="date_range_start.year">1895</field>
+        </out>
+    </test>
+
+
 </testSuite>
